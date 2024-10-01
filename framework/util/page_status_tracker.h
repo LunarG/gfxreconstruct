@@ -26,6 +26,7 @@
 #define GFXRECON_UTIL_PAGE_STATUS_TRACKER_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -54,6 +55,49 @@ class PageStatusTracker
     void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), 1); }
 
     const PageStatus& GetActiveWrites() const { return active_writes_; }
+
+    static bool HasActiveWriteBlock(const PageStatus& pages, size_t first_page, size_t page_count)
+    {
+        assert(first_page < pages.size());
+        assert(first_page + page_count <= pages.size());
+
+        for (size_t p = 0; p < page_count && ((p + first_page) < pages.size()); ++p)
+        {
+            if (pages[first_page + p])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasActiveWriteBlock(size_t first_page, size_t page_count) const
+    {
+        return HasActiveWriteBlock(active_writes_, first_page, page_count);
+    }
+
+    bool HasActiveWriteBlock() const { return HasActiveWriteBlock(0, active_writes_.size()); }
+
+    static void OrrOpp(PageStatus&       writes,
+                       size_t            first_page,
+                       const PageStatus& other_writes,
+                       size_t            other_first_page,
+                       size_t            page_count)
+    {
+        assert(first_page < writes.size());
+        assert(first_page + page_count <= writes.size());
+
+        assert(other_first_page < other_writes.size());
+        assert(other_first_page + page_count <= other_writes.size());
+
+        for (size_t p = 0;
+             p < page_count && ((first_page + p) < writes.size()) && ((other_first_page + p) < other_writes.size());
+             ++p)
+        {
+            writes[first_page + p] = writes[first_page + p] || other_writes[other_first_page + p];
+        }
+    }
 
   private:
     PageStatus active_writes_; //< Track blocks that have been written.

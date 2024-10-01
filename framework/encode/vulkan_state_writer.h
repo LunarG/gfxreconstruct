@@ -159,17 +159,17 @@ class VulkanStateWriter
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                              graphics::VulkanResourcesUtil&         resource_util);
 
-    void ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
-                                          const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
-                                          graphics::VulkanResourcesUtil&         resource_util);
+    size_t ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
+                                            const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
+                                            graphics::VulkanResourcesUtil&         resource_util);
 
     void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                             graphics::VulkanResourcesUtil&        resource_util);
 
-    void ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                         const std::vector<ImageSnapshotInfo>& image_snapshot_info,
-                                         graphics::VulkanResourcesUtil&        resource_util);
+    size_t ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                           const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                                           graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
@@ -187,6 +187,8 @@ class VulkanStateWriter
                                       VkImageAspectFlags                   aspect_flags);
 
     void WriteResourceMemoryState(const VulkanStateTable& state_table, bool write_memory_state);
+
+    void WriteFillAssetMemoryCommands(const VulkanStateTable& state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
@@ -292,7 +294,18 @@ class VulkanStateWriter
                            util::MemoryOutputStream* parameter_buffer,
                            util::FileOutputStream*   output_stream = nullptr);
 
-    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
+    void WriteFillMemoryCmd(format::MetaDataType cmd_type,
+                            format::HandleId     memory_id,
+                            VkDeviceSize         offset,
+                            VkDeviceSize         size,
+                            const void*          data);
+
+    void ProcessActiveRange(vulkan_wrappers::AssetWrapperBase* asset,
+                            size_t                             start_index,
+                            size_t                             end_index,
+                            const void*                        mapped_memory);
+
+    void ProcessAssetPageStatus(vulkan_wrappers::AssetWrapperBase* asset, const void* mapped_memory);
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 

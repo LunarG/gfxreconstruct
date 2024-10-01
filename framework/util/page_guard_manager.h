@@ -145,6 +145,8 @@ class PageGuardManager
 
     void UffdUnblockRtSignal();
 
+    void GetMemoryActiveWrites(uint64_t memory_id, PageStatusTracker::PageStatus& writes);
+
   protected:
     PageGuardManager();
 

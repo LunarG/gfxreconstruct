@@ -1376,7 +1376,7 @@ void PageGuardManager::GetDirtyMemoryRegions(uint64_t                           
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
-    if (memory_id)
+    if (memory_id == 0)
     {
         for (auto& entry : memory_info_)
         {
@@ -1389,10 +1389,21 @@ void PageGuardManager::GetDirtyMemoryRegions(uint64_t                           
     else
     {
         const auto entry = memory_info_.find(memory_id);
-        if (entry != memory_info_.end())
+        if (entry != memory_info_.end() && entry->second.is_modified)
         {
             memories_page_status.emplace(entry->first, entry->second);
         }
+    }
+}
+
+void PageGuardManager::GetMemoryActiveWrites(uint64_t memory_id, PageStatusTracker::PageStatus& writes)
+{
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    const auto mem_entry = memory_info_.find(memory_id);
+    if (mem_entry != memory_info_.end())
+    {
+        writes = mem_entry->second.status_tracker.GetActiveWrites();
     }
 }
 

@@ -807,7 +807,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
-    if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
+    if (meta_data_type == format::MetaDataType::kFillMemoryCommand ||
+        meta_data_type == format::MetaDataType::kFillAssetMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
 

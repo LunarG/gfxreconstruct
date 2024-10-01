@@ -767,7 +767,7 @@ class VulkanStateTracker
 
     void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
 
-    void TrackMappedAssetsWrites(format::HandleId memory_id = format::kNullHandleId);
+    void TrackMappedAssetsWrites(format::HandleId memory_id);
 
     void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
 

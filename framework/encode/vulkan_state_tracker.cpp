@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -357,9 +358,8 @@ void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buff
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
-    auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
-    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
-    wrapper->address   = address;
+    auto wrapper     = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->address = address;
 }
 
 void VulkanStateTracker::TrackBufferMemoryBinding(
@@ -2132,7 +2132,6 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 }
             }
 
-            assert(dev_mem_wrapper);
             if (!dev_mem_wrapper)
             {
                 continue;
@@ -2599,6 +2598,8 @@ void VulkanStateTracker::TrackMappedAssetsWrites(format::HandleId memory_id)
 
     for (const auto& entry : memories_page_status)
     {
+        const util::PageStatusTracker& page_status = entry.second.status_tracker;
+
         vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = state_table_.GetDeviceMemoryWrapper(entry.first);
         assert(dev_mem_wrapper != nullptr);
 
@@ -2614,18 +2615,15 @@ void VulkanStateTracker::TrackMappedAssetsWrites(format::HandleId memory_id)
             const size_t first_page                = asset_offset_from_mapping / page_size;
             const size_t last_page                 = (asset_offset_from_mapping + asset->size - 1) / page_size;
             assert(first_page <= last_page);
+            assert(asset->writes.size() == last_page - first_page + 1);
 
-            const util::PageStatusTracker::PageStatus& active_writes = entry.second.status_tracker.GetActiveWrites();
-            const size_t                               total_pages   = active_writes.size();
-            assert(first_page <= total_pages);
-
-            for (size_t page = first_page; page < total_pages && page <= last_page; ++page)
+            if (page_status.HasActiveWriteBlock(first_page, asset->writes.size()))
             {
-                if (active_writes[page])
-                {
-                    asset->dirty = true;
-                    break;
-                }
+                GFXRECON_WRITE_CONSOLE("  asset_id: %" PRIu64, asset->asset_id)
+                util::PageStatusTracker::OrrOpp(
+                    asset->writes, 0, page_status.GetActiveWrites(), first_page, asset->writes.size());
+                asset->dump_fill_asset_cmd = true;
+                assert(util::PageStatusTracker::HasActiveWriteBlock(asset->writes, 0, asset->writes.size()));
             }
         }
         dev_mem_wrapper->asset_map_lock.unlock();
@@ -2941,7 +2939,7 @@ void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInf
             }
         }
 
-        TrackMappedAssetsWrites();
+        TrackMappedAssetsWrites(format::kNullHandleId);
     }
 }
 
@@ -2965,7 +2963,7 @@ void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInf
             }
         }
 
-        TrackMappedAssetsWrites();
+        TrackMappedAssetsWrites(format::kNullHandleId);
     }
 }
 

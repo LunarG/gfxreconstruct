@@ -863,12 +863,14 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                              vulkan_wrappers::BufferWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pBuffer, GetUniqueId);
 
+        auto buffer_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+        buffer_wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+
         if (uses_address)
         {
             // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            auto buffer_wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
             VkBufferDeviceAddressInfo info = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
             info.pNext                     = nullptr;
             info.buffer                    = buffer_wrapper->handle;
