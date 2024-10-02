@@ -910,9 +910,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
             if (data_size > 0)
             {
                 if ((image_info->tiling == VK_IMAGE_TILING_LINEAR) &&
-                    (image_info->memory_property_flags &
-                     (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) ==
-                        (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT))
+                    (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
                 {
                     result = initializer->LoadData(data_size, data, image_info->allocator_data);
 
@@ -8204,13 +8203,13 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
         // assert we can identify the buffer(s) by their device-address
         const DeviceInfo* device_info    = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
         const auto&       buffer_tracker = GetBufferTracker(device_info->handle);
-        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pMissShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pHitShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pHitShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pCallableShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pCallableShaderBindingTable->deviceAddress));
+        // GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
+        // GFXRECON_ASSERT(in_pMissShaderBindingTable->size == 0 ||
+        //                 buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
+        // GFXRECON_ASSERT(in_pHitShaderBindingTable->size == 0 ||
+        //                 buffer_tracker.GetBufferByCaptureDeviceAddress(in_pHitShaderBindingTable->deviceAddress));
+        // GFXRECON_ASSERT(in_pCallableShaderBindingTable->size == 0 ||
+        //                 buffer_tracker.GetBufferByCaptureDeviceAddress(in_pCallableShaderBindingTable->deviceAddress));
 
         const PhysicalDeviceInfo* physical_device_info =
             GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);

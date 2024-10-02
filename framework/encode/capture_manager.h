@@ -134,11 +134,11 @@ class CommonCaptureManager
 
     bool IsTrimHotkeyPressed();
 
-    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
-
     bool RuntimeTriggerEnabled();
 
     bool RuntimeTriggerDisabled();
+
+    bool RuntimeWriteAssetsEnabled();
 
     void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
@@ -265,12 +265,18 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
+    std::string CreateAssetFile();
+    std::string CreateAssetFilename(const std::string& base_filename) const;
+    std::string CreateFrameStateFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
     void        DeactivateTrimming();
 
     void WriteFileHeader();
+
+    void WriteFileHeader(util::FileOutputStream* file_stream);
+
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
@@ -286,7 +292,7 @@ class CommonCaptureManager
 
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
-    void WriteToFile(const void* data, size_t size);
+    void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
 
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
@@ -311,6 +317,23 @@ class CommonCaptureManager
         block_index_ += blocks;
         GetThreadData()->block_index_ = block_index_;
     }
+
+    void SetWriteAssets()
+    {
+        GFXRECON_WRITE_CONSOLE("%s - %s()", __FILE__, __func__)
+        write_assets_ = true;
+    }
+
+    bool WriteFrameStateFile();
+
+  private:
+    void WriteExecuteFromFile(util::FileOutputStream& out_stream,
+                              const std::string&      filename,
+                              format::ThreadId        thread_id,
+                              uint32_t                n_blocks,
+                              int64_t                 offset);
+
+    void WriteSetBlockIndex(util::FileOutputStream& out_stream, format::ThreadId thread_id, uint64_t block_index);
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
@@ -344,8 +367,10 @@ class CommonCaptureManager
         capture_settings_; // Settings from the settings file and environment at capture manager creation time.
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
+    std::unique_ptr<util::FileOutputStream> asset_file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
+    std::string                             capture_filename_;
     bool                                    timestamp_filename_;
     bool                                    force_file_flush_;
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
@@ -382,6 +407,10 @@ class CommonCaptureManager
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
     bool                                    force_fifo_present_mode_;
+    bool                                    use_asset_file_;
+    bool                                    write_assets_;
+    bool                                    previous_write_assets_;
+    bool                                    write_state_files_;
 
     struct
     {
