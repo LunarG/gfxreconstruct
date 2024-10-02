@@ -250,29 +250,8 @@ void handle_union(const VkDescriptorGetInfoEXT& base_struct, uint32_t out_index,
                 base_struct, reinterpret_cast<const VkSampler*>(&base_struct.data), 1, out_index, offset, out_data);
             break;
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorImageInfo*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorImageInfo*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorImageInfo*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             handle_pointer(base_struct,
                            reinterpret_cast<const VkDescriptorImageInfo*>(&base_struct.data),
@@ -282,29 +261,8 @@ void handle_union(const VkDescriptorGetInfoEXT& base_struct, uint32_t out_index,
                            out_data);
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorAddressInfoEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorAddressInfoEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkDescriptorAddressInfoEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             handle_pointer(base_struct,
                            reinterpret_cast<const VkDescriptorAddressInfoEXT*>(&base_struct.data),
