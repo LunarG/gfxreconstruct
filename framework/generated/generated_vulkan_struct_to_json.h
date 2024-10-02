@@ -1085,4 +1085,4 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const uti
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_STRUCT_TO_JSON_H

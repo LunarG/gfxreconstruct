@@ -4308,4 +4308,4 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_REPLAY_CONSUMER_H

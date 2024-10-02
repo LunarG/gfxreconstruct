@@ -700,4 +700,4 @@ template<> inline vulkan_wrappers::VideoSessionParametersKHRWrapper* VulkanState
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_STATE_TABLE_H

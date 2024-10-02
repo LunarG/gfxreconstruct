@@ -33,6 +33,7 @@ except ImportError:
     # For limited python 2 compat as used by some Vulkan consumers
     from pathlib2 import Path  # type: ignore
 
+
 def noneStr(s):
     """Return string argument, or "" if argument is None.
 
@@ -64,7 +65,6 @@ class MissingGeneratorOptionsError(RuntimeError):
         super().__init__(full_msg)
 
 
-
 class Dx12GeneratorOptions():
     """Options for generating C++ function declarations for Dx12 API."""
 
@@ -92,14 +92,14 @@ class Dx12GeneratorOptions():
         self.align_func_param = ''
         self.code_generator = True
         self.conventions = None
-        self.apiname='Dx12',
-        self.profile=None,
-        self.versions=None,
-        self.emitversions=None,
-        self.default_extensions=None,
-        self.add_extensions=None,
-        self.remove_extensions=None,
-        self.emit_extensions=None,
+        self.apiname = 'Dx12',
+        self.profile = None,
+        self.versions = None,
+        self.emitversions = None,
+        self.default_extensions = None,
+        self.add_extensions = None,
+        self.remove_extensions = None,
+        self.emit_extensions = None,
 
 
 class Dx12BaseGenerator(BaseGeneratorDefines):
@@ -277,6 +277,8 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
             'D3D12_GPU_VIRTUAL_ADDRESS':
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
+        self.dx12_return_value = None
+        self.dx12_return_decode_type = None
 
     def clean_type_define(self, type):
         rtn = ''
@@ -478,7 +480,9 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
 
         # Open a temporary file for accumulating output.
         if self.genOpts.filename is not None:
-            self.outFile = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline='\n', delete=False)
+            self.outFile = tempfile.NamedTemporaryFile(
+                mode='w', encoding='utf-8', newline='\n', delete=False
+            )
         else:
             self.outFile = sys.stdout
 
@@ -526,7 +530,9 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
                 if sys.platform == 'win32':
                     if not Path.exists(directory):
                         os.makedirs(directory)
-                shutil.copy(self.outFile.name, directory / self.genOpts.filename)
+                shutil.copy(
+                    self.outFile.name, directory / self.genOpts.filename
+                )
                 os.remove(self.outFile.name)
         self.genOpts = None
 
@@ -570,7 +576,7 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
                     self.all_structs.append(class_name)
                     self.set_struct_members(
                         class_name,
-                        self.make_value_info(
+                        self.makeValueInfo(
                             class_value['properties']['public']
                         )
                     )
@@ -585,7 +591,7 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
                     self.save_command_and_params(
                         name, (
                             self.clean_type_define(m['rtnType']), '',
-                            self.make_value_info(m['parameters'])
+                            self.makeValueInfo(m['parameters'])
                         )
                     )
 
@@ -692,19 +698,11 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
                     ) and (union_info.base_type in structs_with_handles):
                         handles.append(value)
                         has_handle_pointer = True
-                    elif (union_info.base_type in self.MAP_STRUCT_TYPE and (structs_with_map_data is not None)):
+                    elif (
+                        union_info.base_type in self.MAP_STRUCT_TYPE
+                        and (structs_with_map_data is not None)
+                    ):
                         map_data.append(value)
-            elif ('pNext' in value.name) and (not self.is_dx12_class()):
-                # The pNext chain may include a struct with handles.
-                has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
-                    typename
-                )
-                if has_pnext_handles:
-                    handles.append(value)
-                    if (
-                        structs_with_handle_ptrs is not None
-                    ) and has_pnext_handle_ptrs:
-                        has_handle_pointer = True
 
             if (structs_with_map_data is not None) and (
                 (value.base_type in self.MAP_STRUCT_TYPE) or
@@ -745,7 +743,7 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
                         name = k + '_' + m['name']
                         self.feature_method_params[name] = (
                             self.clean_type_define(m['rtnType']), '',
-                            self.make_value_info(m['parameters'])
+                            self.makeValueInfo(m['parameters'])
                         )
 
     def get_filtered_method_names(self):
@@ -754,7 +752,7 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
             if not self.is_method_black_listed(key)
         ]
 
-    def make_value_info(self, params):
+    def makeValueInfo(self, params):
         """Method override."""
         values = []
         for p in params:
@@ -1020,3 +1018,58 @@ class Dx12BaseGenerator(BaseGeneratorDefines):
     def newline(self):
         """Print a newline to the output file (utility function)"""
         write('', file=self.outFile)
+
+    def treat2dArrayAs1dArray(self):
+        return True
+
+    def getMapperObjectInfo(self, needs_ref=False):
+        # Return object_table_prefix, map_type, base_type, and map_table
+        map_info = 'graphics::Dx12GpuVaMap'
+        if needs_ref:
+            map_info += '&'
+        else:
+            map_info += '*'
+        map_info += ' gpu_va_map'
+        return 'Dx12', 'Object', 'object', map_info
+
+    def needsObjectInfoTableOnArrayMap(self):
+        return False
+
+    def mapperNeedsValuePointerOnType(self, type):
+        return super().mapperNeedsValuePointerOnType(
+            type
+        ) or type.base_type in self.MAP_STRUCT_TYPE
+
+    def decodeApiCallNonVoidReturnType(self, return_type, value_name):
+        self.dx12_return_value = self.get_return_value_info(
+            return_type, value_name
+        )
+        self.dx12_return_decode_type = self.make_decoded_param_type(
+            self.dx12_return_value
+        )
+        body = '    {} return_value;\n'.format(self.dx12_return_decode_type)
+
+        if self.dx12_return_decode_type == 'Decoded_{}'.format(return_type):
+            body += '    {} value_returned;\n'.format(return_type)
+            body += '    return_value.decoded_value = &value_returned;\n'
+        return body
+
+    def decodeInvokeNonVoidReturnApiCall(
+        self, base_decoder_call, return_type, preamble, main_body, epilogue
+    ):
+        return base_decoder_call(
+            self, self.dx12_return_value, preamble, main_body, epilogue
+        )
+
+    def decodeAddApiSpecificArguments(self, name, return_type, arglist):
+        new_arglist = arglist
+        if return_type and return_type != 'void':
+            if self.dx12_return_decode_type.find('Decoder') != -1:
+                new_arglist = ', '.join(['&return_value', arglist])
+            else:
+                new_arglist = ', '.join(['return_value', arglist])
+
+        if name in self.get_filtered_method_names():
+            new_arglist = 'object_id, ' + new_arglist
+
+        return new_arglist

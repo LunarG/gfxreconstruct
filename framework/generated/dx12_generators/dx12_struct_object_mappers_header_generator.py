@@ -22,13 +22,10 @@
 
 import sys
 from base_generator_defines import write
-from base_struct_handle_mappers_header_generator import BaseStructHandleMappersHeaderGenerator
 from dx12_base_generator import Dx12BaseGenerator
 
 
-class Dx12StructObjectMappersHeaderGenerator(
-    BaseStructHandleMappersHeaderGenerator, Dx12BaseGenerator
-):
+class Dx12StructObjectMappersHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for Dx12 struct object mappers."""
 
     def __init__(
@@ -76,7 +73,6 @@ class Dx12StructObjectMappersHeaderGenerator(
 
         # Functions should not be generated for structs on the blacklist.
         self.check_blacklist = True
-        BaseStructHandleMappersHeaderGenerator.generate_feature(self)
         header_dict = self.source_dict['header_dict']
         self.structs_with_objects = self.collect_struct_with_objects(
             header_dict
@@ -86,7 +82,131 @@ class Dx12StructObjectMappersHeaderGenerator(
 
     def endFile(self):
         """Method override."""
-        BaseStructHandleMappersHeaderGenerator.endFile(self)
+        platform_type = self.get_api_prefix()
+
+        object_table_prefix, map_type, base_type, map_table = self.getMapperObjectInfo(
+            True
+        )
+        map_types = map_type + 's'
+        if len(map_table) > 0:
+            map_table_definition = f', const {map_table}'
+            map_table_usage = f', gpu_va_map'
+        else:
+            map_table_definition = ''
+            map_table_usage = ''
+
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                struct in self.structs_with_handles or struct
+                in self.GENERIC_HANDLE_STRUCTS or self.is_map_struct(struct)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                body = '\n'
+                body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{});'.format(
+                    map_types, struct, object_table_prefix,
+                    map_table_definition
+                )
+                write(body, file=self.outFile)
+
+        self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write(
+            'void MapStructArray{}(T* structs, size_t len, const {}ObjectInfoTable& object_info_table{})'
+            .format(map_types, object_table_prefix, map_table_definition),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if (structs != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            MapStruct{}(&structs[i], object_info_table{});'.
+            format(map_types, map_table_usage),
+            file=self.outFile
+        )
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
+        for struct in self.output_structs_with_handles:
+            write(
+                'void AddStruct{}(format::HandleId parent_id, const Decoded_{type}* id_wrapper, const {type}* handle_struct, {}ObjectInfoTable* object_info_table{});'
+                .format(
+                    map_types,
+                    object_table_prefix,
+                    map_table_definition,
+                    type=struct
+                ),
+                file=self.outFile
+            )
+            self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write(
+            'void AddStructArray{}(format::HandleId parent_id, const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, {}ObjectInfoTable* object_info_table{})'
+            .format(map_types, object_table_prefix, map_table_definition),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write(
+            '    if (id_wrappers != nullptr && handle_structs != nullptr)',
+            file=self.outFile
+        )
+        write('    {', file=self.outFile)
+        write(
+            '        // TODO: Improved handling of array size mismatch.',
+            file=self.outFile
+        )
+        write(
+            '        size_t len = std::min(id_len, handle_len);',
+            file=self.outFile
+        )
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            AddStruct{}(parent_id, &id_wrappers[i], &handle_structs[i], object_info_table);'
+            .format(map_types),
+            file=self.outFile
+        )
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
+        for struct in self.output_structs_with_handles:
+            if struct in self.structs_with_handle_ptrs:
+                write(
+                    'void SetStruct{map_type}Lengths(Decoded_{type}* wrapper);'
+                    .format(map_type=map_type, type=struct),
+                    file=self.outFile
+                )
+                self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write(
+            'void SetStructArray{}Lengths(T* wrappers, size_t len)'.
+            format(map_type),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if (wrappers != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            SetStruct{}Lengths(&wrappers[i]);'.format(map_type),
+            file=self.outFile
+        )
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)
 

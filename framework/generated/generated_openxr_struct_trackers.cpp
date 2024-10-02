@@ -47,6 +47,8 @@ XrApiLayerProperties* TrackStruct(const XrApiLayerProperties* value, HandleUnwra
     XrApiLayerProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -59,6 +61,8 @@ XrExtensionProperties* TrackStruct(const XrExtensionProperties* value, HandleUnw
 
     XrExtensionProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -94,6 +98,8 @@ XrInstanceCreateInfo* TrackStruct(const XrInstanceCreateInfo* value, HandleUnwra
         unwrapped_struct->enabledExtensionNames = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->enabledExtensionNames, unwrapped_struct->enabledExtensionCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -106,6 +112,8 @@ XrInstanceProperties* TrackStruct(const XrInstanceProperties* value, HandleUnwra
 
     XrInstanceProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -120,6 +128,8 @@ XrEventDataBuffer* TrackStruct(const XrEventDataBuffer* value, HandleUnwrapMemor
     XrEventDataBuffer* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -132,6 +142,8 @@ XrSystemGetInfo* TrackStruct(const XrSystemGetInfo* value, HandleUnwrapMemory* u
 
     XrSystemGetInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -172,6 +184,8 @@ XrSystemProperties* TrackStruct(const XrSystemProperties* value, HandleUnwrapMem
     XrSystemProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -184,6 +198,8 @@ XrSessionCreateInfo* TrackStruct(const XrSessionCreateInfo* value, HandleUnwrapM
 
     XrSessionCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -210,6 +226,8 @@ XrSpaceVelocity* TrackStruct(const XrSpaceVelocity* value, HandleUnwrapMemory* u
 
     XrSpaceVelocity* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -250,6 +268,8 @@ XrReferenceSpaceCreateInfo* TrackStruct(const XrReferenceSpaceCreateInfo* value,
     XrReferenceSpaceCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -276,6 +296,8 @@ XrActionSpaceCreateInfo* TrackStruct(const XrActionSpaceCreateInfo* value, Handl
     XrActionSpaceCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -288,6 +310,8 @@ XrSpaceLocation* TrackStruct(const XrSpaceLocation* value, HandleUnwrapMemory* u
 
     XrSpaceLocation* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -302,6 +326,8 @@ XrViewConfigurationProperties* TrackStruct(const XrViewConfigurationProperties* 
     XrViewConfigurationProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -314,6 +340,8 @@ XrViewConfigurationView* TrackStruct(const XrViewConfigurationView* value, Handl
 
     XrViewConfigurationView* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -328,6 +356,8 @@ XrSwapchainCreateInfo* TrackStruct(const XrSwapchainCreateInfo* value, HandleUnw
     XrSwapchainCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -340,6 +370,8 @@ XrSwapchainImageBaseHeader* TrackStruct(const XrSwapchainImageBaseHeader* value,
 
     XrSwapchainImageBaseHeader* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -354,6 +386,8 @@ XrSwapchainImageAcquireInfo* TrackStruct(const XrSwapchainImageAcquireInfo* valu
     XrSwapchainImageAcquireInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -366,6 +400,8 @@ XrSwapchainImageWaitInfo* TrackStruct(const XrSwapchainImageWaitInfo* value, Han
 
     XrSwapchainImageWaitInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -380,6 +416,8 @@ XrSwapchainImageReleaseInfo* TrackStruct(const XrSwapchainImageReleaseInfo* valu
     XrSwapchainImageReleaseInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -392,6 +430,8 @@ XrSessionBeginInfo* TrackStruct(const XrSessionBeginInfo* value, HandleUnwrapMem
 
     XrSessionBeginInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -406,6 +446,8 @@ XrFrameWaitInfo* TrackStruct(const XrFrameWaitInfo* value, HandleUnwrapMemory* u
     XrFrameWaitInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -418,6 +460,8 @@ XrFrameState* TrackStruct(const XrFrameState* value, HandleUnwrapMemory* unwrap_
 
     XrFrameState* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -432,6 +476,8 @@ XrFrameBeginInfo* TrackStruct(const XrFrameBeginInfo* value, HandleUnwrapMemory*
     XrFrameBeginInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -444,6 +490,8 @@ XrCompositionLayerBaseHeader* TrackStruct(const XrCompositionLayerBaseHeader* va
 
     XrCompositionLayerBaseHeader* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -462,6 +510,8 @@ XrFrameEndInfo* TrackStruct(const XrFrameEndInfo* value, HandleUnwrapMemory* unw
         unwrapped_struct->layers = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->layers, unwrapped_struct->layerCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -475,6 +525,8 @@ XrViewLocateInfo* TrackStruct(const XrViewLocateInfo* value, HandleUnwrapMemory*
     XrViewLocateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -487,6 +539,8 @@ XrViewState* TrackStruct(const XrViewState* value, HandleUnwrapMemory* unwrap_me
 
     XrViewState* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -514,6 +568,8 @@ XrView* TrackStruct(const XrView* value, HandleUnwrapMemory* unwrap_memory)
     XrView* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -526,6 +582,8 @@ XrActionSetCreateInfo* TrackStruct(const XrActionSetCreateInfo* value, HandleUnw
 
     XrActionSetCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -543,6 +601,8 @@ XrActionCreateInfo* TrackStruct(const XrActionCreateInfo* value, HandleUnwrapMem
     {
         unwrapped_struct->subactionPaths = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->subactionPaths, unwrapped_struct->countSubactionPaths, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -574,6 +634,8 @@ XrInteractionProfileSuggestedBinding* TrackStruct(const XrInteractionProfileSugg
         unwrapped_struct->suggestedBindings = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->suggestedBindings, unwrapped_struct->countSuggestedBindings, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -591,6 +653,8 @@ XrSessionActionSetsAttachInfo* TrackStruct(const XrSessionActionSetsAttachInfo* 
         unwrapped_struct->actionSets = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->actionSets, unwrapped_struct->countActionSets, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -603,6 +667,8 @@ XrInteractionProfileState* TrackStruct(const XrInteractionProfileState* value, H
 
     XrInteractionProfileState* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -617,6 +683,8 @@ XrActionStateGetInfo* TrackStruct(const XrActionStateGetInfo* value, HandleUnwra
     XrActionStateGetInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -630,6 +698,8 @@ XrActionStateBoolean* TrackStruct(const XrActionStateBoolean* value, HandleUnwra
     XrActionStateBoolean* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -642,6 +712,8 @@ XrActionStateFloat* TrackStruct(const XrActionStateFloat* value, HandleUnwrapMem
 
     XrActionStateFloat* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -669,6 +741,8 @@ XrActionStateVector2f* TrackStruct(const XrActionStateVector2f* value, HandleUnw
     XrActionStateVector2f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -681,6 +755,8 @@ XrActionStatePose* TrackStruct(const XrActionStatePose* value, HandleUnwrapMemor
 
     XrActionStatePose* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -712,6 +788,8 @@ XrActionsSyncInfo* TrackStruct(const XrActionsSyncInfo* value, HandleUnwrapMemor
         unwrapped_struct->activeActionSets = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->activeActionSets, unwrapped_struct->countActiveActionSets, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -724,6 +802,8 @@ XrBoundSourcesForActionEnumerateInfo* TrackStruct(const XrBoundSourcesForActionE
 
     XrBoundSourcesForActionEnumerateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -738,6 +818,8 @@ XrInputSourceLocalizedNameGetInfo* TrackStruct(const XrInputSourceLocalizedNameG
     XrInputSourceLocalizedNameGetInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -751,6 +833,8 @@ XrHapticActionInfo* TrackStruct(const XrHapticActionInfo* value, HandleUnwrapMem
     XrHapticActionInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -763,6 +847,8 @@ XrHapticBaseHeader* TrackStruct(const XrHapticBaseHeader* value, HandleUnwrapMem
 
     XrHapticBaseHeader* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -829,6 +915,8 @@ XrCompositionLayerProjectionView* TrackStruct(const XrCompositionLayerProjection
     XrCompositionLayerProjectionView* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -846,6 +934,8 @@ XrCompositionLayerProjection* TrackStruct(const XrCompositionLayerProjection* va
         unwrapped_struct->views = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->views, unwrapped_struct->viewCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -858,6 +948,8 @@ XrCompositionLayerQuad* TrackStruct(const XrCompositionLayerQuad* value, HandleU
 
     XrCompositionLayerQuad* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -872,6 +964,8 @@ XrEventDataBaseHeader* TrackStruct(const XrEventDataBaseHeader* value, HandleUnw
     XrEventDataBaseHeader* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -884,6 +978,8 @@ XrEventDataEventsLost* TrackStruct(const XrEventDataEventsLost* value, HandleUnw
 
     XrEventDataEventsLost* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -898,6 +994,8 @@ XrEventDataInstanceLossPending* TrackStruct(const XrEventDataInstanceLossPending
     XrEventDataInstanceLossPending* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -910,6 +1008,8 @@ XrEventDataSessionStateChanged* TrackStruct(const XrEventDataSessionStateChanged
 
     XrEventDataSessionStateChanged* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -924,6 +1024,8 @@ XrEventDataReferenceSpaceChangePending* TrackStruct(const XrEventDataReferenceSp
     XrEventDataReferenceSpaceChangePending* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -937,6 +1039,8 @@ XrEventDataInteractionProfileChanged* TrackStruct(const XrEventDataInteractionPr
     XrEventDataInteractionProfileChanged* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -949,6 +1053,8 @@ XrHapticVibration* TrackStruct(const XrHapticVibration* value, HandleUnwrapMemor
 
     XrHapticVibration* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1014,6 +1120,8 @@ XrApiLayerNextInfo* TrackStruct(const XrApiLayerNextInfo* value, HandleUnwrapMem
 
     XrApiLayerNextInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1162,6 +1270,8 @@ XrSpacesLocateInfo* TrackStruct(const XrSpacesLocateInfo* value, HandleUnwrapMem
         unwrapped_struct->spaces = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->spaces, unwrapped_struct->spaceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1191,6 +1301,8 @@ XrSpaceLocations* TrackStruct(const XrSpaceLocations* value, HandleUnwrapMemory*
     {
         unwrapped_struct->locations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->locations, unwrapped_struct->locationCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1222,6 +1334,8 @@ XrSpaceVelocities* TrackStruct(const XrSpaceVelocities* value, HandleUnwrapMemor
         unwrapped_struct->velocities = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->velocities, unwrapped_struct->velocityCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1234,6 +1348,8 @@ XrCompositionLayerCubeKHR* TrackStruct(const XrCompositionLayerCubeKHR* value, H
 
     XrCompositionLayerCubeKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1248,6 +1364,8 @@ XrInstanceCreateInfoAndroidKHR* TrackStruct(const XrInstanceCreateInfoAndroidKHR
     XrInstanceCreateInfoAndroidKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1260,6 +1378,8 @@ XrCompositionLayerDepthInfoKHR* TrackStruct(const XrCompositionLayerDepthInfoKHR
 
     XrCompositionLayerDepthInfoKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1278,6 +1398,8 @@ XrVulkanSwapchainFormatListCreateInfoKHR* TrackStruct(const XrVulkanSwapchainFor
         unwrapped_struct->viewFormats = vulkan_wrappers::MakeUnwrapStructs(unwrapped_struct->viewFormats, unwrapped_struct->viewFormatCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1290,6 +1412,8 @@ XrCompositionLayerCylinderKHR* TrackStruct(const XrCompositionLayerCylinderKHR* 
 
     XrCompositionLayerCylinderKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1304,6 +1428,8 @@ XrCompositionLayerEquirectKHR* TrackStruct(const XrCompositionLayerEquirectKHR* 
     XrCompositionLayerEquirectKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1316,6 +1442,8 @@ XrGraphicsBindingOpenGLWin32KHR* TrackStruct(const XrGraphicsBindingOpenGLWin32K
 
     XrGraphicsBindingOpenGLWin32KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1330,6 +1458,8 @@ XrGraphicsBindingOpenGLXlibKHR* TrackStruct(const XrGraphicsBindingOpenGLXlibKHR
     XrGraphicsBindingOpenGLXlibKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1342,6 +1472,8 @@ XrGraphicsBindingOpenGLXcbKHR* TrackStruct(const XrGraphicsBindingOpenGLXcbKHR* 
 
     XrGraphicsBindingOpenGLXcbKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1356,6 +1488,8 @@ XrGraphicsBindingOpenGLWaylandKHR* TrackStruct(const XrGraphicsBindingOpenGLWayl
     XrGraphicsBindingOpenGLWaylandKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1368,6 +1502,8 @@ XrSwapchainImageOpenGLKHR* TrackStruct(const XrSwapchainImageOpenGLKHR* value, H
 
     XrSwapchainImageOpenGLKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1382,6 +1518,8 @@ XrGraphicsRequirementsOpenGLKHR* TrackStruct(const XrGraphicsRequirementsOpenGLK
     XrGraphicsRequirementsOpenGLKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1394,6 +1532,8 @@ XrGraphicsBindingOpenGLESAndroidKHR* TrackStruct(const XrGraphicsBindingOpenGLES
 
     XrGraphicsBindingOpenGLESAndroidKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1408,6 +1548,8 @@ XrSwapchainImageOpenGLESKHR* TrackStruct(const XrSwapchainImageOpenGLESKHR* valu
     XrSwapchainImageOpenGLESKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1420,6 +1562,8 @@ XrGraphicsRequirementsOpenGLESKHR* TrackStruct(const XrGraphicsRequirementsOpenG
 
     XrGraphicsRequirementsOpenGLESKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1434,6 +1578,8 @@ XrGraphicsBindingVulkanKHR* TrackStruct(const XrGraphicsBindingVulkanKHR* value,
     XrGraphicsBindingVulkanKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1446,6 +1592,8 @@ XrSwapchainImageVulkanKHR* TrackStruct(const XrSwapchainImageVulkanKHR* value, H
 
     XrSwapchainImageVulkanKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1460,6 +1608,8 @@ XrGraphicsRequirementsVulkanKHR* TrackStruct(const XrGraphicsRequirementsVulkanK
     XrGraphicsRequirementsVulkanKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1472,6 +1622,8 @@ XrGraphicsBindingD3D11KHR* TrackStruct(const XrGraphicsBindingD3D11KHR* value, H
 
     XrGraphicsBindingD3D11KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1486,6 +1638,8 @@ XrSwapchainImageD3D11KHR* TrackStruct(const XrSwapchainImageD3D11KHR* value, Han
     XrSwapchainImageD3D11KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1498,6 +1652,8 @@ XrGraphicsRequirementsD3D11KHR* TrackStruct(const XrGraphicsRequirementsD3D11KHR
 
     XrGraphicsRequirementsD3D11KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1512,6 +1668,8 @@ XrGraphicsBindingD3D12KHR* TrackStruct(const XrGraphicsBindingD3D12KHR* value, H
     XrGraphicsBindingD3D12KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1524,6 +1682,8 @@ XrSwapchainImageD3D12KHR* TrackStruct(const XrSwapchainImageD3D12KHR* value, Han
 
     XrSwapchainImageD3D12KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1538,6 +1698,8 @@ XrGraphicsRequirementsD3D12KHR* TrackStruct(const XrGraphicsRequirementsD3D12KHR
     XrGraphicsRequirementsD3D12KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1550,6 +1712,8 @@ XrGraphicsBindingMetalKHR* TrackStruct(const XrGraphicsBindingMetalKHR* value, H
 
     XrGraphicsBindingMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1564,6 +1728,8 @@ XrSwapchainImageMetalKHR* TrackStruct(const XrSwapchainImageMetalKHR* value, Han
     XrSwapchainImageMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1576,6 +1742,8 @@ XrGraphicsRequirementsMetalKHR* TrackStruct(const XrGraphicsRequirementsMetalKHR
 
     XrGraphicsRequirementsMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1598,6 +1766,8 @@ XrVisibilityMaskKHR* TrackStruct(const XrVisibilityMaskKHR* value, HandleUnwrapM
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1610,6 +1780,8 @@ XrEventDataVisibilityMaskChangedKHR* TrackStruct(const XrEventDataVisibilityMask
 
     XrEventDataVisibilityMaskChangedKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1624,6 +1796,8 @@ XrCompositionLayerColorScaleBiasKHR* TrackStruct(const XrCompositionLayerColorSc
     XrCompositionLayerColorScaleBiasKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1636,6 +1810,8 @@ XrLoaderInitInfoBaseHeaderKHR* TrackStruct(const XrLoaderInitInfoBaseHeaderKHR* 
 
     XrLoaderInitInfoBaseHeaderKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1650,6 +1826,8 @@ XrLoaderInitInfoAndroidKHR* TrackStruct(const XrLoaderInitInfoAndroidKHR* value,
     XrLoaderInitInfoAndroidKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1662,6 +1840,8 @@ XrVulkanInstanceCreateInfoKHR* TrackStruct(const XrVulkanInstanceCreateInfoKHR* 
 
     XrVulkanInstanceCreateInfoKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1676,6 +1856,8 @@ XrVulkanDeviceCreateInfoKHR* TrackStruct(const XrVulkanDeviceCreateInfoKHR* valu
     XrVulkanDeviceCreateInfoKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1688,6 +1870,8 @@ XrVulkanGraphicsDeviceGetInfoKHR* TrackStruct(const XrVulkanGraphicsDeviceGetInf
 
     XrVulkanGraphicsDeviceGetInfoKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1702,6 +1886,8 @@ XrCompositionLayerEquirect2KHR* TrackStruct(const XrCompositionLayerEquirect2KHR
     XrCompositionLayerEquirect2KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1714,6 +1900,8 @@ XrBindingModificationBaseHeaderKHR* TrackStruct(const XrBindingModificationBaseH
 
     XrBindingModificationBaseHeaderKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1732,6 +1920,8 @@ XrBindingModificationsKHR* TrackStruct(const XrBindingModificationsKHR* value, H
         unwrapped_struct->bindingModifications = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->bindingModifications, unwrapped_struct->bindingModificationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1744,6 +1934,8 @@ XrEventDataPerfSettingsEXT* TrackStruct(const XrEventDataPerfSettingsEXT* value,
 
     XrEventDataPerfSettingsEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1758,6 +1950,8 @@ XrDebugUtilsObjectNameInfoEXT* TrackStruct(const XrDebugUtilsObjectNameInfoEXT* 
     XrDebugUtilsObjectNameInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1770,6 +1964,8 @@ XrDebugUtilsLabelEXT* TrackStruct(const XrDebugUtilsLabelEXT* value, HandleUnwra
 
     XrDebugUtilsLabelEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1792,6 +1988,8 @@ XrDebugUtilsMessengerCallbackDataEXT* TrackStruct(const XrDebugUtilsMessengerCal
         unwrapped_struct->sessionLabels = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->sessionLabels, unwrapped_struct->sessionLabelCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1804,6 +2002,8 @@ XrDebugUtilsMessengerCreateInfoEXT* TrackStruct(const XrDebugUtilsMessengerCreat
 
     XrDebugUtilsMessengerCreateInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1818,6 +2018,8 @@ XrSystemEyeGazeInteractionPropertiesEXT* TrackStruct(const XrSystemEyeGazeIntera
     XrSystemEyeGazeInteractionPropertiesEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1830,6 +2032,8 @@ XrEyeGazeSampleTimeEXT* TrackStruct(const XrEyeGazeSampleTimeEXT* value, HandleU
 
     XrEyeGazeSampleTimeEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1844,6 +2048,8 @@ XrSessionCreateInfoOverlayEXTX* TrackStruct(const XrSessionCreateInfoOverlayEXTX
     XrSessionCreateInfoOverlayEXTX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1856,6 +2062,8 @@ XrEventDataMainSessionVisibilityChangedEXTX* TrackStruct(const XrEventDataMainSe
 
     XrEventDataMainSessionVisibilityChangedEXTX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1870,6 +2078,8 @@ XrSpatialAnchorCreateInfoMSFT* TrackStruct(const XrSpatialAnchorCreateInfoMSFT* 
     XrSpatialAnchorCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1882,6 +2092,8 @@ XrSpatialAnchorSpaceCreateInfoMSFT* TrackStruct(const XrSpatialAnchorSpaceCreate
 
     XrSpatialAnchorSpaceCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1896,6 +2108,8 @@ XrCompositionLayerImageLayoutFB* TrackStruct(const XrCompositionLayerImageLayout
     XrCompositionLayerImageLayoutFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1908,6 +2122,8 @@ XrCompositionLayerAlphaBlendFB* TrackStruct(const XrCompositionLayerAlphaBlendFB
 
     XrCompositionLayerAlphaBlendFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1922,6 +2138,8 @@ XrViewConfigurationDepthRangeEXT* TrackStruct(const XrViewConfigurationDepthRang
     XrViewConfigurationDepthRangeEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1934,6 +2152,8 @@ XrGraphicsBindingEGLMNDX* TrackStruct(const XrGraphicsBindingEGLMNDX* value, Han
 
     XrGraphicsBindingEGLMNDX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1948,6 +2168,8 @@ XrSpatialGraphNodeSpaceCreateInfoMSFT* TrackStruct(const XrSpatialGraphNodeSpace
     XrSpatialGraphNodeSpaceCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1960,6 +2182,8 @@ XrSpatialGraphStaticNodeBindingCreateInfoMSFT* TrackStruct(const XrSpatialGraphS
 
     XrSpatialGraphStaticNodeBindingCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -1974,6 +2198,8 @@ XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* TrackStruct(const XrSpatialGraph
     XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -1986,6 +2212,8 @@ XrSpatialGraphNodeBindingPropertiesMSFT* TrackStruct(const XrSpatialGraphNodeBin
 
     XrSpatialGraphNodeBindingPropertiesMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2000,6 +2228,8 @@ XrSystemHandTrackingPropertiesEXT* TrackStruct(const XrSystemHandTrackingPropert
     XrSystemHandTrackingPropertiesEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2013,6 +2243,8 @@ XrHandTrackerCreateInfoEXT* TrackStruct(const XrHandTrackerCreateInfoEXT* value,
     XrHandTrackerCreateInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2025,6 +2257,8 @@ XrHandJointsLocateInfoEXT* TrackStruct(const XrHandJointsLocateInfoEXT* value, H
 
     XrHandJointsLocateInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2069,6 +2303,8 @@ XrHandJointLocationsEXT* TrackStruct(const XrHandJointLocationsEXT* value, Handl
         unwrapped_struct->jointLocations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->jointLocations, unwrapped_struct->jointCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2086,6 +2322,8 @@ XrHandJointVelocitiesEXT* TrackStruct(const XrHandJointVelocitiesEXT* value, Han
         unwrapped_struct->jointVelocities = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->jointVelocities, unwrapped_struct->jointCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2098,6 +2336,8 @@ XrSystemHandTrackingMeshPropertiesMSFT* TrackStruct(const XrSystemHandTrackingMe
 
     XrSystemHandTrackingMeshPropertiesMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2112,6 +2352,8 @@ XrHandMeshSpaceCreateInfoMSFT* TrackStruct(const XrHandMeshSpaceCreateInfoMSFT* 
     XrHandMeshSpaceCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2124,6 +2366,8 @@ XrHandMeshUpdateInfoMSFT* TrackStruct(const XrHandMeshUpdateInfoMSFT* value, Han
 
     XrHandMeshUpdateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2185,6 +2429,8 @@ XrHandMeshMSFT* TrackStruct(const XrHandMeshMSFT* value, HandleUnwrapMemory* unw
     XrHandMeshMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2197,6 +2443,8 @@ XrHandPoseTypeInfoMSFT* TrackStruct(const XrHandPoseTypeInfoMSFT* value, HandleU
 
     XrHandPoseTypeInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2215,6 +2463,8 @@ XrSecondaryViewConfigurationSessionBeginInfoMSFT* TrackStruct(const XrSecondaryV
         unwrapped_struct->enabledViewConfigurationTypes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->enabledViewConfigurationTypes, unwrapped_struct->viewConfigurationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2227,6 +2477,8 @@ XrSecondaryViewConfigurationStateMSFT* TrackStruct(const XrSecondaryViewConfigur
 
     XrSecondaryViewConfigurationStateMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2245,6 +2497,8 @@ XrSecondaryViewConfigurationFrameStateMSFT* TrackStruct(const XrSecondaryViewCon
         unwrapped_struct->viewConfigurationStates = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->viewConfigurationStates, unwrapped_struct->viewConfigurationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2261,6 +2515,8 @@ XrSecondaryViewConfigurationLayerInfoMSFT* TrackStruct(const XrSecondaryViewConf
     {
         unwrapped_struct->layers = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->layers, unwrapped_struct->layerCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2279,6 +2535,8 @@ XrSecondaryViewConfigurationFrameEndInfoMSFT* TrackStruct(const XrSecondaryViewC
         unwrapped_struct->viewConfigurationLayersInfo = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->viewConfigurationLayersInfo, unwrapped_struct->viewConfigurationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2291,6 +2549,8 @@ XrSecondaryViewConfigurationSwapchainCreateInfoMSFT* TrackStruct(const XrSeconda
 
     XrSecondaryViewConfigurationSwapchainCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2305,6 +2565,8 @@ XrControllerModelKeyStateMSFT* TrackStruct(const XrControllerModelKeyStateMSFT* 
     XrControllerModelKeyStateMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2317,6 +2579,8 @@ XrControllerModelNodePropertiesMSFT* TrackStruct(const XrControllerModelNodeProp
 
     XrControllerModelNodePropertiesMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2335,6 +2599,8 @@ XrControllerModelPropertiesMSFT* TrackStruct(const XrControllerModelPropertiesMS
         unwrapped_struct->nodeProperties = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->nodeProperties, unwrapped_struct->nodeCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2347,6 +2613,8 @@ XrControllerModelNodeStateMSFT* TrackStruct(const XrControllerModelNodeStateMSFT
 
     XrControllerModelNodeStateMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2365,6 +2633,8 @@ XrControllerModelStateMSFT* TrackStruct(const XrControllerModelStateMSFT* value,
         unwrapped_struct->nodeStates = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->nodeStates, unwrapped_struct->nodeCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2377,6 +2647,8 @@ XrViewConfigurationViewFovEPIC* TrackStruct(const XrViewConfigurationViewFovEPIC
 
     XrViewConfigurationViewFovEPIC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2391,6 +2663,8 @@ XrHolographicWindowAttachmentMSFT* TrackStruct(const XrHolographicWindowAttachme
     XrHolographicWindowAttachmentMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2403,6 +2677,8 @@ XrCompositionLayerReprojectionInfoMSFT* TrackStruct(const XrCompositionLayerRepr
 
     XrCompositionLayerReprojectionInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2417,6 +2693,8 @@ XrCompositionLayerReprojectionPlaneOverrideMSFT* TrackStruct(const XrComposition
     XrCompositionLayerReprojectionPlaneOverrideMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2429,6 +2707,8 @@ XrAndroidSurfaceSwapchainCreateInfoFB* TrackStruct(const XrAndroidSurfaceSwapcha
 
     XrAndroidSurfaceSwapchainCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2443,6 +2723,8 @@ XrSwapchainStateBaseHeaderFB* TrackStruct(const XrSwapchainStateBaseHeaderFB* va
     XrSwapchainStateBaseHeaderFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2455,6 +2737,8 @@ XrCompositionLayerSecureContentFB* TrackStruct(const XrCompositionLayerSecureCon
 
     XrCompositionLayerSecureContentFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2482,6 +2766,8 @@ XrSystemBodyTrackingPropertiesFB* TrackStruct(const XrSystemBodyTrackingProperti
     XrSystemBodyTrackingPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2494,6 +2780,8 @@ XrBodyTrackerCreateInfoFB* TrackStruct(const XrBodyTrackerCreateInfoFB* value, H
 
     XrBodyTrackerCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2525,6 +2813,8 @@ XrBodySkeletonFB* TrackStruct(const XrBodySkeletonFB* value, HandleUnwrapMemory*
         unwrapped_struct->joints = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->joints, unwrapped_struct->jointCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2537,6 +2827,8 @@ XrBodyJointsLocateInfoFB* TrackStruct(const XrBodyJointsLocateInfoFB* value, Han
 
     XrBodyJointsLocateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2555,6 +2847,8 @@ XrBodyJointLocationsFB* TrackStruct(const XrBodyJointLocationsFB* value, HandleU
         unwrapped_struct->jointLocations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->jointLocations, unwrapped_struct->jointCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2567,6 +2861,8 @@ XrInteractionProfileDpadBindingEXT* TrackStruct(const XrInteractionProfileDpadBi
 
     XrInteractionProfileDpadBindingEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2581,6 +2877,8 @@ XrInteractionProfileAnalogThresholdVALVE* TrackStruct(const XrInteractionProfile
     XrInteractionProfileAnalogThresholdVALVE* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2593,6 +2891,8 @@ XrHandJointsMotionRangeInfoEXT* TrackStruct(const XrHandJointsMotionRangeInfoEXT
 
     XrHandJointsMotionRangeInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2620,6 +2920,8 @@ XrSceneObserverCreateInfoMSFT* TrackStruct(const XrSceneObserverCreateInfoMSFT* 
     XrSceneObserverCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2632,6 +2934,8 @@ XrSceneCreateInfoMSFT* TrackStruct(const XrSceneCreateInfoMSFT* value, HandleUnw
 
     XrSceneCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2714,6 +3018,8 @@ XrNewSceneComputeInfoMSFT* TrackStruct(const XrNewSceneComputeInfoMSFT* value, H
         unwrapped_struct->requestedFeatures = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->requestedFeatures, unwrapped_struct->requestedFeatureCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2726,6 +3032,8 @@ XrVisualMeshComputeLodInfoMSFT* TrackStruct(const XrVisualMeshComputeLodInfoMSFT
 
     XrVisualMeshComputeLodInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2757,6 +3065,8 @@ XrSceneComponentsMSFT* TrackStruct(const XrSceneComponentsMSFT* value, HandleUnw
         unwrapped_struct->components = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->components, unwrapped_struct->componentCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2769,6 +3079,8 @@ XrSceneComponentsGetInfoMSFT* TrackStruct(const XrSceneComponentsGetInfoMSFT* va
 
     XrSceneComponentsGetInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2800,6 +3112,8 @@ XrSceneComponentLocationsMSFT* TrackStruct(const XrSceneComponentLocationsMSFT* 
         unwrapped_struct->locations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->locations, unwrapped_struct->locationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2816,6 +3130,8 @@ XrSceneComponentsLocateInfoMSFT* TrackStruct(const XrSceneComponentsLocateInfoMS
     {
         unwrapped_struct->componentIds = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->componentIds, unwrapped_struct->componentIdCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2847,6 +3163,8 @@ XrSceneObjectsMSFT* TrackStruct(const XrSceneObjectsMSFT* value, HandleUnwrapMem
         unwrapped_struct->sceneObjects = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->sceneObjects, unwrapped_struct->sceneObjectCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2859,6 +3177,8 @@ XrSceneComponentParentFilterInfoMSFT* TrackStruct(const XrSceneComponentParentFi
 
     XrSceneComponentParentFilterInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2876,6 +3196,8 @@ XrSceneObjectTypesFilterInfoMSFT* TrackStruct(const XrSceneObjectTypesFilterInfo
     {
         unwrapped_struct->objectTypes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->objectTypes, unwrapped_struct->objectTypeCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2907,6 +3229,8 @@ XrScenePlanesMSFT* TrackStruct(const XrScenePlanesMSFT* value, HandleUnwrapMemor
         unwrapped_struct->scenePlanes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->scenePlanes, unwrapped_struct->scenePlaneCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2923,6 +3247,8 @@ XrScenePlaneAlignmentFilterInfoMSFT* TrackStruct(const XrScenePlaneAlignmentFilt
     {
         unwrapped_struct->alignments = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->alignments, unwrapped_struct->alignmentCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2954,6 +3280,8 @@ XrSceneMeshesMSFT* TrackStruct(const XrSceneMeshesMSFT* value, HandleUnwrapMemor
         unwrapped_struct->sceneMeshes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->sceneMeshes, unwrapped_struct->sceneMeshCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2967,6 +3295,8 @@ XrSceneMeshBuffersGetInfoMSFT* TrackStruct(const XrSceneMeshBuffersGetInfoMSFT* 
     XrSceneMeshBuffersGetInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -2979,6 +3309,8 @@ XrSceneMeshBuffersMSFT* TrackStruct(const XrSceneMeshBuffersMSFT* value, HandleU
 
     XrSceneMeshBuffersMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -2997,6 +3329,8 @@ XrSceneMeshVertexBufferMSFT* TrackStruct(const XrSceneMeshVertexBufferMSFT* valu
         unwrapped_struct->vertices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->vertices, unwrapped_struct->vertexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3013,6 +3347,8 @@ XrSceneMeshIndicesUint32MSFT* TrackStruct(const XrSceneMeshIndicesUint32MSFT* va
     {
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3031,6 +3367,8 @@ XrSceneMeshIndicesUint16MSFT* TrackStruct(const XrSceneMeshIndicesUint16MSFT* va
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3043,6 +3381,8 @@ XrSerializedSceneFragmentDataGetInfoMSFT* TrackStruct(const XrSerializedSceneFra
 
     XrSerializedSceneFragmentDataGetInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3078,6 +3418,8 @@ XrSceneDeserializeInfoMSFT* TrackStruct(const XrSceneDeserializeInfoMSFT* value,
         unwrapped_struct->fragments = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->fragments, unwrapped_struct->fragmentCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3090,6 +3432,8 @@ XrEventDataDisplayRefreshRateChangedFB* TrackStruct(const XrEventDataDisplayRefr
 
     XrEventDataDisplayRefreshRateChangedFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3104,6 +3448,8 @@ XrViveTrackerPathsHTCX* TrackStruct(const XrViveTrackerPathsHTCX* value, HandleU
     XrViveTrackerPathsHTCX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3116,6 +3462,8 @@ XrEventDataViveTrackerConnectedHTCX* TrackStruct(const XrEventDataViveTrackerCon
 
     XrEventDataViveTrackerConnectedHTCX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3130,6 +3478,8 @@ XrSystemFacialTrackingPropertiesHTC* TrackStruct(const XrSystemFacialTrackingPro
     XrSystemFacialTrackingPropertiesHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3142,6 +3492,8 @@ XrFacialExpressionsHTC* TrackStruct(const XrFacialExpressionsHTC* value, HandleU
 
     XrFacialExpressionsHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3156,6 +3508,8 @@ XrFacialTrackerCreateInfoHTC* TrackStruct(const XrFacialTrackerCreateInfoHTC* va
     XrFacialTrackerCreateInfoHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3168,6 +3522,8 @@ XrSystemColorSpacePropertiesFB* TrackStruct(const XrSystemColorSpacePropertiesFB
 
     XrSystemColorSpacePropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3231,6 +3587,8 @@ XrHandTrackingMeshFB* TrackStruct(const XrHandTrackingMeshFB* value, HandleUnwra
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3244,6 +3602,8 @@ XrHandTrackingScaleFB* TrackStruct(const XrHandTrackingScaleFB* value, HandleUnw
     XrHandTrackingScaleFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3256,6 +3616,8 @@ XrHandTrackingAimStateFB* TrackStruct(const XrHandTrackingAimStateFB* value, Han
 
     XrHandTrackingAimStateFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3283,6 +3645,8 @@ XrHandTrackingCapsulesStateFB* TrackStruct(const XrHandTrackingCapsulesStateFB* 
     XrHandTrackingCapsulesStateFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3295,6 +3659,8 @@ XrSystemSpatialEntityPropertiesFB* TrackStruct(const XrSystemSpatialEntityProper
 
     XrSystemSpatialEntityPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3309,6 +3675,8 @@ XrSpatialAnchorCreateInfoFB* TrackStruct(const XrSpatialAnchorCreateInfoFB* valu
     XrSpatialAnchorCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3321,6 +3689,8 @@ XrSpaceComponentStatusSetInfoFB* TrackStruct(const XrSpaceComponentStatusSetInfo
 
     XrSpaceComponentStatusSetInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3335,6 +3705,8 @@ XrSpaceComponentStatusFB* TrackStruct(const XrSpaceComponentStatusFB* value, Han
     XrSpaceComponentStatusFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3347,6 +3719,8 @@ XrEventDataSpatialAnchorCreateCompleteFB* TrackStruct(const XrEventDataSpatialAn
 
     XrEventDataSpatialAnchorCreateCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3361,6 +3735,8 @@ XrEventDataSpaceSetStatusCompleteFB* TrackStruct(const XrEventDataSpaceSetStatus
     XrEventDataSpaceSetStatusCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3373,6 +3749,8 @@ XrFoveationProfileCreateInfoFB* TrackStruct(const XrFoveationProfileCreateInfoFB
 
     XrFoveationProfileCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3387,6 +3765,8 @@ XrSwapchainCreateInfoFoveationFB* TrackStruct(const XrSwapchainCreateInfoFoveati
     XrSwapchainCreateInfoFoveationFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3399,6 +3779,8 @@ XrSwapchainStateFoveationFB* TrackStruct(const XrSwapchainStateFoveationFB* valu
 
     XrSwapchainStateFoveationFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3413,6 +3795,8 @@ XrFoveationLevelProfileCreateInfoFB* TrackStruct(const XrFoveationLevelProfileCr
     XrFoveationLevelProfileCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3425,6 +3809,8 @@ XrSystemKeyboardTrackingPropertiesFB* TrackStruct(const XrSystemKeyboardTracking
 
     XrSystemKeyboardTrackingPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3452,6 +3838,8 @@ XrKeyboardSpaceCreateInfoFB* TrackStruct(const XrKeyboardSpaceCreateInfoFB* valu
     XrKeyboardSpaceCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3464,6 +3852,8 @@ XrKeyboardTrackingQueryFB* TrackStruct(const XrKeyboardTrackingQueryFB* value, H
 
     XrKeyboardTrackingQueryFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3478,6 +3868,8 @@ XrTriangleMeshCreateInfoFB* TrackStruct(const XrTriangleMeshCreateInfoFB* value,
     XrTriangleMeshCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3490,6 +3882,8 @@ XrSystemPassthroughPropertiesFB* TrackStruct(const XrSystemPassthroughProperties
 
     XrSystemPassthroughPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3504,6 +3898,8 @@ XrSystemPassthroughProperties2FB* TrackStruct(const XrSystemPassthroughPropertie
     XrSystemPassthroughProperties2FB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3516,6 +3912,8 @@ XrPassthroughCreateInfoFB* TrackStruct(const XrPassthroughCreateInfoFB* value, H
 
     XrPassthroughCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3530,6 +3928,8 @@ XrPassthroughLayerCreateInfoFB* TrackStruct(const XrPassthroughLayerCreateInfoFB
     XrPassthroughLayerCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3542,6 +3942,8 @@ XrCompositionLayerPassthroughFB* TrackStruct(const XrCompositionLayerPassthrough
 
     XrCompositionLayerPassthroughFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3556,6 +3958,8 @@ XrGeometryInstanceCreateInfoFB* TrackStruct(const XrGeometryInstanceCreateInfoFB
     XrGeometryInstanceCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3568,6 +3972,8 @@ XrGeometryInstanceTransformFB* TrackStruct(const XrGeometryInstanceTransformFB* 
 
     XrGeometryInstanceTransformFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3582,6 +3988,8 @@ XrPassthroughStyleFB* TrackStruct(const XrPassthroughStyleFB* value, HandleUnwra
     XrPassthroughStyleFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3594,6 +4002,8 @@ XrPassthroughColorMapMonoToRgbaFB* TrackStruct(const XrPassthroughColorMapMonoTo
 
     XrPassthroughColorMapMonoToRgbaFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3608,6 +4018,8 @@ XrPassthroughColorMapMonoToMonoFB* TrackStruct(const XrPassthroughColorMapMonoTo
     XrPassthroughColorMapMonoToMonoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3620,6 +4032,8 @@ XrPassthroughBrightnessContrastSaturationFB* TrackStruct(const XrPassthroughBrig
 
     XrPassthroughBrightnessContrastSaturationFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3634,6 +4048,8 @@ XrEventDataPassthroughStateChangedFB* TrackStruct(const XrEventDataPassthroughSt
     XrEventDataPassthroughStateChangedFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3647,6 +4063,8 @@ XrRenderModelPathInfoFB* TrackStruct(const XrRenderModelPathInfoFB* value, Handl
     XrRenderModelPathInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3659,6 +4077,8 @@ XrRenderModelPropertiesFB* TrackStruct(const XrRenderModelPropertiesFB* value, H
 
     XrRenderModelPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3677,6 +4097,8 @@ XrRenderModelBufferFB* TrackStruct(const XrRenderModelBufferFB* value, HandleUnw
         unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3689,6 +4111,8 @@ XrRenderModelLoadInfoFB* TrackStruct(const XrRenderModelLoadInfoFB* value, Handl
 
     XrRenderModelLoadInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3703,6 +4127,8 @@ XrSystemRenderModelPropertiesFB* TrackStruct(const XrSystemRenderModelProperties
     XrSystemRenderModelPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3715,6 +4141,8 @@ XrRenderModelCapabilitiesRequestFB* TrackStruct(const XrRenderModelCapabilitiesR
 
     XrRenderModelCapabilitiesRequestFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3729,6 +4157,8 @@ XrViewLocateFoveatedRenderingVARJO* TrackStruct(const XrViewLocateFoveatedRender
     XrViewLocateFoveatedRenderingVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3741,6 +4171,8 @@ XrFoveatedViewConfigurationViewVARJO* TrackStruct(const XrFoveatedViewConfigurat
 
     XrFoveatedViewConfigurationViewVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3755,6 +4187,8 @@ XrSystemFoveatedRenderingPropertiesVARJO* TrackStruct(const XrSystemFoveatedRend
     XrSystemFoveatedRenderingPropertiesVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3767,6 +4201,8 @@ XrCompositionLayerDepthTestVARJO* TrackStruct(const XrCompositionLayerDepthTestV
 
     XrCompositionLayerDepthTestVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3781,6 +4217,8 @@ XrSystemMarkerTrackingPropertiesVARJO* TrackStruct(const XrSystemMarkerTrackingP
     XrSystemMarkerTrackingPropertiesVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3793,6 +4231,8 @@ XrEventDataMarkerTrackingUpdateVARJO* TrackStruct(const XrEventDataMarkerTrackin
 
     XrEventDataMarkerTrackingUpdateVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3807,6 +4247,8 @@ XrMarkerSpaceCreateInfoVARJO* TrackStruct(const XrMarkerSpaceCreateInfoVARJO* va
     XrMarkerSpaceCreateInfoVARJO* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3819,6 +4261,8 @@ XrFrameEndInfoML* TrackStruct(const XrFrameEndInfoML* value, HandleUnwrapMemory*
 
     XrFrameEndInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3833,6 +4277,8 @@ XrGlobalDimmerFrameEndInfoML* TrackStruct(const XrGlobalDimmerFrameEndInfoML* va
     XrGlobalDimmerFrameEndInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3845,6 +4291,8 @@ XrCoordinateSpaceCreateInfoML* TrackStruct(const XrCoordinateSpaceCreateInfoML* 
 
     XrCoordinateSpaceCreateInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3859,6 +4307,8 @@ XrSystemMarkerUnderstandingPropertiesML* TrackStruct(const XrSystemMarkerUnderst
     XrSystemMarkerUnderstandingPropertiesML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3871,6 +4321,8 @@ XrMarkerDetectorCreateInfoML* TrackStruct(const XrMarkerDetectorCreateInfoML* va
 
     XrMarkerDetectorCreateInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3885,6 +4337,8 @@ XrMarkerDetectorArucoInfoML* TrackStruct(const XrMarkerDetectorArucoInfoML* valu
     XrMarkerDetectorArucoInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3897,6 +4351,8 @@ XrMarkerDetectorSizeInfoML* TrackStruct(const XrMarkerDetectorSizeInfoML* value,
 
     XrMarkerDetectorSizeInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3911,6 +4367,8 @@ XrMarkerDetectorAprilTagInfoML* TrackStruct(const XrMarkerDetectorAprilTagInfoML
     XrMarkerDetectorAprilTagInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3923,6 +4381,8 @@ XrMarkerDetectorCustomProfileInfoML* TrackStruct(const XrMarkerDetectorCustomPro
 
     XrMarkerDetectorCustomProfileInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3937,6 +4397,8 @@ XrMarkerDetectorSnapshotInfoML* TrackStruct(const XrMarkerDetectorSnapshotInfoML
     XrMarkerDetectorSnapshotInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3949,6 +4411,8 @@ XrMarkerDetectorStateML* TrackStruct(const XrMarkerDetectorStateML* value, Handl
 
     XrMarkerDetectorStateML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3963,6 +4427,8 @@ XrMarkerSpaceCreateInfoML* TrackStruct(const XrMarkerSpaceCreateInfoML* value, H
     XrMarkerSpaceCreateInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -3975,6 +4441,8 @@ XrLocalizationMapML* TrackStruct(const XrLocalizationMapML* value, HandleUnwrapM
 
     XrLocalizationMapML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -3989,6 +4457,8 @@ XrEventDataLocalizationChangedML* TrackStruct(const XrEventDataLocalizationChang
     XrEventDataLocalizationChangedML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4002,6 +4472,8 @@ XrLocalizationMapQueryInfoBaseHeaderML* TrackStruct(const XrLocalizationMapQuery
     XrLocalizationMapQueryInfoBaseHeaderML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4014,6 +4486,8 @@ XrMapLocalizationRequestInfoML* TrackStruct(const XrMapLocalizationRequestInfoML
 
     XrMapLocalizationRequestInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4032,6 +4506,8 @@ XrLocalizationMapImportInfoML* TrackStruct(const XrLocalizationMapImportInfoML* 
         unwrapped_struct->data = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->data, unwrapped_struct->size, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4044,6 +4520,8 @@ XrLocalizationEnableEventsInfoML* TrackStruct(const XrLocalizationEnableEventsIn
 
     XrLocalizationEnableEventsInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4071,6 +4549,8 @@ XrSpatialAnchorPersistenceInfoMSFT* TrackStruct(const XrSpatialAnchorPersistence
     XrSpatialAnchorPersistenceInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4083,6 +4563,8 @@ XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* TrackStruct(const XrSpatialAnc
 
     XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4114,6 +4596,8 @@ XrSceneMarkersMSFT* TrackStruct(const XrSceneMarkersMSFT* value, HandleUnwrapMem
         unwrapped_struct->sceneMarkers = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->sceneMarkers, unwrapped_struct->sceneMarkerCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4130,6 +4614,8 @@ XrSceneMarkerTypeFilterMSFT* TrackStruct(const XrSceneMarkerTypeFilterMSFT* valu
     {
         unwrapped_struct->markerTypes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->markerTypes, unwrapped_struct->markerTypeCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4161,6 +4647,8 @@ XrSceneMarkerQRCodesMSFT* TrackStruct(const XrSceneMarkerQRCodesMSFT* value, Han
         unwrapped_struct->qrCodes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->qrCodes, unwrapped_struct->qrCodeCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4173,6 +4661,8 @@ XrSpaceQueryInfoBaseHeaderFB* TrackStruct(const XrSpaceQueryInfoBaseHeaderFB* va
 
     XrSpaceQueryInfoBaseHeaderFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4187,6 +4677,8 @@ XrSpaceFilterInfoBaseHeaderFB* TrackStruct(const XrSpaceFilterInfoBaseHeaderFB* 
     XrSpaceFilterInfoBaseHeaderFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4200,6 +4692,8 @@ XrSpaceQueryInfoFB* TrackStruct(const XrSpaceQueryInfoFB* value, HandleUnwrapMem
     XrSpaceQueryInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4212,6 +4706,8 @@ XrSpaceStorageLocationFilterInfoFB* TrackStruct(const XrSpaceStorageLocationFilt
 
     XrSpaceStorageLocationFilterInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4230,6 +4726,8 @@ XrSpaceUuidFilterInfoFB* TrackStruct(const XrSpaceUuidFilterInfoFB* value, Handl
         unwrapped_struct->uuids = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->uuids, unwrapped_struct->uuidCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4242,6 +4740,8 @@ XrSpaceComponentFilterInfoFB* TrackStruct(const XrSpaceComponentFilterInfoFB* va
 
     XrSpaceComponentFilterInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4273,6 +4773,8 @@ XrSpaceQueryResultsFB* TrackStruct(const XrSpaceQueryResultsFB* value, HandleUnw
         unwrapped_struct->results = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->results, unwrapped_struct->resultCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4285,6 +4787,8 @@ XrEventDataSpaceQueryResultsAvailableFB* TrackStruct(const XrEventDataSpaceQuery
 
     XrEventDataSpaceQueryResultsAvailableFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4299,6 +4803,8 @@ XrEventDataSpaceQueryCompleteFB* TrackStruct(const XrEventDataSpaceQueryComplete
     XrEventDataSpaceQueryCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4311,6 +4817,8 @@ XrSpaceSaveInfoFB* TrackStruct(const XrSpaceSaveInfoFB* value, HandleUnwrapMemor
 
     XrSpaceSaveInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4325,6 +4833,8 @@ XrSpaceEraseInfoFB* TrackStruct(const XrSpaceEraseInfoFB* value, HandleUnwrapMem
     XrSpaceEraseInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4337,6 +4847,8 @@ XrEventDataSpaceSaveCompleteFB* TrackStruct(const XrEventDataSpaceSaveCompleteFB
 
     XrEventDataSpaceSaveCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4351,6 +4863,8 @@ XrEventDataSpaceEraseCompleteFB* TrackStruct(const XrEventDataSpaceEraseComplete
     XrEventDataSpaceEraseCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4363,6 +4877,8 @@ XrSwapchainImageFoveationVulkanFB* TrackStruct(const XrSwapchainImageFoveationVu
 
     XrSwapchainImageFoveationVulkanFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4377,6 +4893,8 @@ XrSwapchainStateAndroidSurfaceDimensionsFB* TrackStruct(const XrSwapchainStateAn
     XrSwapchainStateAndroidSurfaceDimensionsFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4390,6 +4908,8 @@ XrSwapchainStateSamplerOpenGLESFB* TrackStruct(const XrSwapchainStateSamplerOpen
     XrSwapchainStateSamplerOpenGLESFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4402,6 +4922,8 @@ XrSwapchainStateSamplerVulkanFB* TrackStruct(const XrSwapchainStateSamplerVulkan
 
     XrSwapchainStateSamplerVulkanFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4424,6 +4946,8 @@ XrSpaceShareInfoFB* TrackStruct(const XrSpaceShareInfoFB* value, HandleUnwrapMem
         unwrapped_struct->users = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->users, unwrapped_struct->userCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4436,6 +4960,8 @@ XrEventDataSpaceShareCompleteFB* TrackStruct(const XrEventDataSpaceShareComplete
 
     XrEventDataSpaceShareCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4450,6 +4976,8 @@ XrCompositionLayerSpaceWarpInfoFB* TrackStruct(const XrCompositionLayerSpaceWarp
     XrCompositionLayerSpaceWarpInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4462,6 +4990,8 @@ XrSystemSpaceWarpPropertiesFB* TrackStruct(const XrSystemSpaceWarpPropertiesFB* 
 
     XrSystemSpaceWarpPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4479,6 +5009,8 @@ XrHapticAmplitudeEnvelopeVibrationFB* TrackStruct(const XrHapticAmplitudeEnvelop
     {
         unwrapped_struct->amplitudes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->amplitudes, unwrapped_struct->amplitudeCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4523,6 +5055,8 @@ XrSemanticLabelsFB* TrackStruct(const XrSemanticLabelsFB* value, HandleUnwrapMem
         unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4539,6 +5073,8 @@ XrRoomLayoutFB* TrackStruct(const XrRoomLayoutFB* value, HandleUnwrapMemory* unw
     {
         unwrapped_struct->wallUuids = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->wallUuids, unwrapped_struct->wallUuidCapacityInput, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4557,6 +5093,8 @@ XrBoundary2DFB* TrackStruct(const XrBoundary2DFB* value, HandleUnwrapMemory* unw
         unwrapped_struct->vertices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->vertices, unwrapped_struct->vertexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4569,6 +5107,8 @@ XrSemanticLabelsSupportInfoFB* TrackStruct(const XrSemanticLabelsSupportInfoFB* 
 
     XrSemanticLabelsSupportInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4583,6 +5123,8 @@ XrDigitalLensControlALMALENCE* TrackStruct(const XrDigitalLensControlALMALENCE* 
     XrDigitalLensControlALMALENCE* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4595,6 +5137,8 @@ XrEventDataSceneCaptureCompleteFB* TrackStruct(const XrEventDataSceneCaptureComp
 
     XrEventDataSceneCaptureCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4613,6 +5157,8 @@ XrSceneCaptureRequestInfoFB* TrackStruct(const XrSceneCaptureRequestInfoFB* valu
         unwrapped_struct->request = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->request, unwrapped_struct->requestByteCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4630,6 +5176,8 @@ XrSpaceContainerFB* TrackStruct(const XrSpaceContainerFB* value, HandleUnwrapMem
         unwrapped_struct->uuids = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->uuids, unwrapped_struct->uuidCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4642,6 +5190,8 @@ XrFoveationEyeTrackedProfileCreateInfoMETA* TrackStruct(const XrFoveationEyeTrac
 
     XrFoveationEyeTrackedProfileCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4656,6 +5206,8 @@ XrFoveationEyeTrackedStateMETA* TrackStruct(const XrFoveationEyeTrackedStateMETA
     XrFoveationEyeTrackedStateMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4668,6 +5220,8 @@ XrSystemFoveationEyeTrackedPropertiesMETA* TrackStruct(const XrSystemFoveationEy
 
     XrSystemFoveationEyeTrackedPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4682,6 +5236,8 @@ XrSystemFaceTrackingPropertiesFB* TrackStruct(const XrSystemFaceTrackingProperti
     XrSystemFaceTrackingPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4695,6 +5251,8 @@ XrFaceTrackerCreateInfoFB* TrackStruct(const XrFaceTrackerCreateInfoFB* value, H
     XrFaceTrackerCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4707,6 +5265,8 @@ XrFaceExpressionInfoFB* TrackStruct(const XrFaceExpressionInfoFB* value, HandleU
 
     XrFaceExpressionInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4742,6 +5302,8 @@ XrFaceExpressionWeightsFB* TrackStruct(const XrFaceExpressionWeightsFB* value, H
         unwrapped_struct->confidences = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->confidences, unwrapped_struct->confidenceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4768,6 +5330,8 @@ XrEyeTrackerCreateInfoFB* TrackStruct(const XrEyeTrackerCreateInfoFB* value, Han
     XrEyeTrackerCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4780,6 +5344,8 @@ XrEyeGazesInfoFB* TrackStruct(const XrEyeGazesInfoFB* value, HandleUnwrapMemory*
 
     XrEyeGazesInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4794,6 +5360,8 @@ XrSystemEyeTrackingPropertiesFB* TrackStruct(const XrSystemEyeTrackingProperties
     XrSystemEyeTrackingPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4806,6 +5374,8 @@ XrEyeGazesFB* TrackStruct(const XrEyeGazesFB* value, HandleUnwrapMemory* unwrap_
 
     XrEyeGazesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4820,6 +5390,8 @@ XrPassthroughKeyboardHandsIntensityFB* TrackStruct(const XrPassthroughKeyboardHa
     XrPassthroughKeyboardHandsIntensityFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4832,6 +5404,8 @@ XrCompositionLayerSettingsFB* TrackStruct(const XrCompositionLayerSettingsFB* va
 
     XrCompositionLayerSettingsFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4850,6 +5424,8 @@ XrHapticPcmVibrationFB* TrackStruct(const XrHapticPcmVibrationFB* value, HandleU
         unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferSize, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4862,6 +5438,8 @@ XrDevicePcmSampleRateStateFB* TrackStruct(const XrDevicePcmSampleRateStateFB* va
 
     XrDevicePcmSampleRateStateFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4876,6 +5454,8 @@ XrCompositionLayerDepthTestFB* TrackStruct(const XrCompositionLayerDepthTestFB* 
     XrCompositionLayerDepthTestFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4888,6 +5468,8 @@ XrLocalDimmingFrameEndInfoMETA* TrackStruct(const XrLocalDimmingFrameEndInfoMETA
 
     XrLocalDimmingFrameEndInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4902,6 +5484,8 @@ XrPassthroughPreferencesMETA* TrackStruct(const XrPassthroughPreferencesMETA* va
     XrPassthroughPreferencesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4914,6 +5498,8 @@ XrSystemVirtualKeyboardPropertiesMETA* TrackStruct(const XrSystemVirtualKeyboard
 
     XrSystemVirtualKeyboardPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4928,6 +5514,8 @@ XrVirtualKeyboardCreateInfoMETA* TrackStruct(const XrVirtualKeyboardCreateInfoME
     XrVirtualKeyboardCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4940,6 +5528,8 @@ XrVirtualKeyboardSpaceCreateInfoMETA* TrackStruct(const XrVirtualKeyboardSpaceCr
 
     XrVirtualKeyboardSpaceCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4954,6 +5544,8 @@ XrVirtualKeyboardLocationInfoMETA* TrackStruct(const XrVirtualKeyboardLocationIn
     XrVirtualKeyboardLocationInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4967,6 +5559,8 @@ XrVirtualKeyboardModelVisibilitySetInfoMETA* TrackStruct(const XrVirtualKeyboard
     XrVirtualKeyboardModelVisibilitySetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -4979,6 +5573,8 @@ XrVirtualKeyboardAnimationStateMETA* TrackStruct(const XrVirtualKeyboardAnimatio
 
     XrVirtualKeyboardAnimationStateMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -4997,6 +5593,8 @@ XrVirtualKeyboardModelAnimationStatesMETA* TrackStruct(const XrVirtualKeyboardMo
         unwrapped_struct->states = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->states, unwrapped_struct->stateCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5014,6 +5612,8 @@ XrVirtualKeyboardTextureDataMETA* TrackStruct(const XrVirtualKeyboardTextureData
         unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5026,6 +5626,8 @@ XrVirtualKeyboardInputInfoMETA* TrackStruct(const XrVirtualKeyboardInputInfoMETA
 
     XrVirtualKeyboardInputInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5040,6 +5642,8 @@ XrVirtualKeyboardTextContextChangeInfoMETA* TrackStruct(const XrVirtualKeyboardT
     XrVirtualKeyboardTextContextChangeInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5052,6 +5656,8 @@ XrEventDataVirtualKeyboardCommitTextMETA* TrackStruct(const XrEventDataVirtualKe
 
     XrEventDataVirtualKeyboardCommitTextMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5066,6 +5672,8 @@ XrEventDataVirtualKeyboardBackspaceMETA* TrackStruct(const XrEventDataVirtualKey
     XrEventDataVirtualKeyboardBackspaceMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5078,6 +5686,8 @@ XrEventDataVirtualKeyboardEnterMETA* TrackStruct(const XrEventDataVirtualKeyboar
 
     XrEventDataVirtualKeyboardEnterMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5092,6 +5702,8 @@ XrEventDataVirtualKeyboardShownMETA* TrackStruct(const XrEventDataVirtualKeyboar
     XrEventDataVirtualKeyboardShownMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5104,6 +5716,8 @@ XrEventDataVirtualKeyboardHiddenMETA* TrackStruct(const XrEventDataVirtualKeyboa
 
     XrEventDataVirtualKeyboardHiddenMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5144,6 +5758,8 @@ XrExternalCameraOCULUS* TrackStruct(const XrExternalCameraOCULUS* value, HandleU
     XrExternalCameraOCULUS* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5156,6 +5772,8 @@ XrVulkanSwapchainCreateInfoMETA* TrackStruct(const XrVulkanSwapchainCreateInfoME
 
     XrVulkanSwapchainCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5170,6 +5788,8 @@ XrPerformanceMetricsStateMETA* TrackStruct(const XrPerformanceMetricsStateMETA* 
     XrPerformanceMetricsStateMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5182,6 +5802,8 @@ XrPerformanceMetricsCounterMETA* TrackStruct(const XrPerformanceMetricsCounterME
 
     XrPerformanceMetricsCounterMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5200,6 +5822,8 @@ XrSpaceListSaveInfoFB* TrackStruct(const XrSpaceListSaveInfoFB* value, HandleUnw
         unwrapped_struct->spaces = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->spaces, unwrapped_struct->spaceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5212,6 +5836,8 @@ XrEventDataSpaceListSaveCompleteFB* TrackStruct(const XrEventDataSpaceListSaveCo
 
     XrEventDataSpaceListSaveCompleteFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5226,6 +5852,8 @@ XrSpaceUserCreateInfoFB* TrackStruct(const XrSpaceUserCreateInfoFB* value, Handl
     XrSpaceUserCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5238,6 +5866,8 @@ XrSystemHeadsetIdPropertiesMETA* TrackStruct(const XrSystemHeadsetIdPropertiesME
 
     XrSystemHeadsetIdPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5252,6 +5882,8 @@ XrRecommendedLayerResolutionMETA* TrackStruct(const XrRecommendedLayerResolution
     XrRecommendedLayerResolutionMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5264,6 +5896,8 @@ XrRecommendedLayerResolutionGetInfoMETA* TrackStruct(const XrRecommendedLayerRes
 
     XrRecommendedLayerResolutionGetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5295,6 +5929,8 @@ XrPassthroughColorLutCreateInfoMETA* TrackStruct(const XrPassthroughColorLutCrea
     XrPassthroughColorLutCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5307,6 +5943,8 @@ XrPassthroughColorLutUpdateInfoMETA* TrackStruct(const XrPassthroughColorLutUpda
 
     XrPassthroughColorLutUpdateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5321,6 +5959,8 @@ XrPassthroughColorMapLutMETA* TrackStruct(const XrPassthroughColorMapLutMETA* va
     XrPassthroughColorMapLutMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5333,6 +5973,8 @@ XrPassthroughColorMapInterpolatedLutMETA* TrackStruct(const XrPassthroughColorMa
 
     XrPassthroughColorMapInterpolatedLutMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5347,6 +5989,8 @@ XrSystemPassthroughColorLutPropertiesMETA* TrackStruct(const XrSystemPassthrough
     XrSystemPassthroughColorLutPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5359,6 +6003,8 @@ XrSpaceTriangleMeshGetInfoMETA* TrackStruct(const XrSpaceTriangleMeshGetInfoMETA
 
     XrSpaceTriangleMeshGetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5381,6 +6027,8 @@ XrSpaceTriangleMeshMETA* TrackStruct(const XrSpaceTriangleMeshMETA* value, Handl
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5393,6 +6041,8 @@ XrSystemFaceTrackingProperties2FB* TrackStruct(const XrSystemFaceTrackingPropert
 
     XrSystemFaceTrackingProperties2FB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5411,6 +6061,8 @@ XrFaceTrackerCreateInfo2FB* TrackStruct(const XrFaceTrackerCreateInfo2FB* value,
         unwrapped_struct->requestedDataSources = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->requestedDataSources, unwrapped_struct->requestedDataSourceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5423,6 +6075,8 @@ XrFaceExpressionInfo2FB* TrackStruct(const XrFaceExpressionInfo2FB* value, Handl
 
     XrFaceExpressionInfo2FB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5445,6 +6099,8 @@ XrFaceExpressionWeights2FB* TrackStruct(const XrFaceExpressionWeights2FB* value,
         unwrapped_struct->confidences = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->confidences, unwrapped_struct->confidenceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5457,6 +6113,8 @@ XrEnvironmentDepthProviderCreateInfoMETA* TrackStruct(const XrEnvironmentDepthPr
 
     XrEnvironmentDepthProviderCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5471,6 +6129,8 @@ XrEnvironmentDepthSwapchainCreateInfoMETA* TrackStruct(const XrEnvironmentDepthS
     XrEnvironmentDepthSwapchainCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5483,6 +6143,8 @@ XrEnvironmentDepthSwapchainStateMETA* TrackStruct(const XrEnvironmentDepthSwapch
 
     XrEnvironmentDepthSwapchainStateMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5497,6 +6159,8 @@ XrEnvironmentDepthImageAcquireInfoMETA* TrackStruct(const XrEnvironmentDepthImag
     XrEnvironmentDepthImageAcquireInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5509,6 +6173,8 @@ XrEnvironmentDepthImageViewMETA* TrackStruct(const XrEnvironmentDepthImageViewME
 
     XrEnvironmentDepthImageViewMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5523,6 +6189,8 @@ XrEnvironmentDepthImageMETA* TrackStruct(const XrEnvironmentDepthImageMETA* valu
     XrEnvironmentDepthImageMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5535,6 +6203,8 @@ XrEnvironmentDepthHandRemovalSetInfoMETA* TrackStruct(const XrEnvironmentDepthHa
 
     XrEnvironmentDepthHandRemovalSetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5549,6 +6219,8 @@ XrSystemEnvironmentDepthPropertiesMETA* TrackStruct(const XrSystemEnvironmentDep
     XrSystemEnvironmentDepthPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5562,6 +6234,8 @@ XrPassthroughCreateInfoHTC* TrackStruct(const XrPassthroughCreateInfoHTC* value,
     XrPassthroughCreateInfoHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5574,6 +6248,8 @@ XrPassthroughColorHTC* TrackStruct(const XrPassthroughColorHTC* value, HandleUnw
 
     XrPassthroughColorHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5596,6 +6272,8 @@ XrPassthroughMeshTransformInfoHTC* TrackStruct(const XrPassthroughMeshTransformI
         unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5608,6 +6286,8 @@ XrCompositionLayerPassthroughHTC* TrackStruct(const XrCompositionLayerPassthroug
 
     XrCompositionLayerPassthroughHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5625,6 +6305,8 @@ XrFoveationApplyInfoHTC* TrackStruct(const XrFoveationApplyInfoHTC* value, Handl
     {
         unwrapped_struct->subImages = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->subImages, unwrapped_struct->subImageCount, unwrap_memory);
     }
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5652,6 +6334,8 @@ XrFoveationDynamicModeInfoHTC* TrackStruct(const XrFoveationDynamicModeInfoHTC* 
     XrFoveationDynamicModeInfoHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5669,6 +6353,8 @@ XrFoveationCustomModeInfoHTC* TrackStruct(const XrFoveationCustomModeInfoHTC* va
         unwrapped_struct->configs = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->configs, unwrapped_struct->configCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5681,6 +6367,8 @@ XrSystemAnchorPropertiesHTC* TrackStruct(const XrSystemAnchorPropertiesHTC* valu
 
     XrSystemAnchorPropertiesHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5707,6 +6395,8 @@ XrSpatialAnchorCreateInfoHTC* TrackStruct(const XrSpatialAnchorCreateInfoHTC* va
 
     XrSpatialAnchorCreateInfoHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5738,6 +6428,8 @@ XrActiveActionSetPrioritiesEXT* TrackStruct(const XrActiveActionSetPrioritiesEXT
         unwrapped_struct->actionSetPriorities = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->actionSetPriorities, unwrapped_struct->actionSetPriorityCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5750,6 +6442,8 @@ XrSystemForceFeedbackCurlPropertiesMNDX* TrackStruct(const XrSystemForceFeedback
 
     XrSystemForceFeedbackCurlPropertiesMNDX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5781,6 +6475,8 @@ XrForceFeedbackCurlApplyLocationsMNDX* TrackStruct(const XrForceFeedbackCurlAppl
         unwrapped_struct->locations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->locations, unwrapped_struct->locationCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5798,6 +6494,8 @@ XrHandTrackingDataSourceInfoEXT* TrackStruct(const XrHandTrackingDataSourceInfoE
         unwrapped_struct->requestedDataSources = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->requestedDataSources, unwrapped_struct->requestedDataSourceCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5810,6 +6508,8 @@ XrHandTrackingDataSourceStateEXT* TrackStruct(const XrHandTrackingDataSourceStat
 
     XrHandTrackingDataSourceStateEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5824,6 +6524,8 @@ XrSystemPlaneDetectionPropertiesEXT* TrackStruct(const XrSystemPlaneDetectionPro
     XrSystemPlaneDetectionPropertiesEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5836,6 +6538,8 @@ XrPlaneDetectorCreateInfoEXT* TrackStruct(const XrPlaneDetectorCreateInfoEXT* va
 
     XrPlaneDetectorCreateInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5858,6 +6562,8 @@ XrPlaneDetectorBeginInfoEXT* TrackStruct(const XrPlaneDetectorBeginInfoEXT* valu
         unwrapped_struct->semanticTypes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->semanticTypes, unwrapped_struct->semanticTypeCount, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5871,6 +6577,8 @@ XrPlaneDetectorGetInfoEXT* TrackStruct(const XrPlaneDetectorGetInfoEXT* value, H
     XrPlaneDetectorGetInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5883,6 +6591,8 @@ XrPlaneDetectorLocationEXT* TrackStruct(const XrPlaneDetectorLocationEXT* value,
 
     XrPlaneDetectorLocationEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5901,6 +6611,8 @@ XrPlaneDetectorLocationsEXT* TrackStruct(const XrPlaneDetectorLocationsEXT* valu
         unwrapped_struct->planeLocations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->planeLocations, unwrapped_struct->planeLocationCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5918,6 +6630,8 @@ XrPlaneDetectorPolygonBufferEXT* TrackStruct(const XrPlaneDetectorPolygonBufferE
         unwrapped_struct->vertices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->vertices, unwrapped_struct->vertexCapacityInput, unwrap_memory);
     }
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5930,6 +6644,8 @@ XrFutureCancelInfoEXT* TrackStruct(const XrFutureCancelInfoEXT* value, HandleUnw
 
     XrFutureCancelInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5944,6 +6660,8 @@ XrFuturePollInfoEXT* TrackStruct(const XrFuturePollInfoEXT* value, HandleUnwrapM
     XrFuturePollInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5956,6 +6674,8 @@ XrFutureCompletionBaseHeaderEXT* TrackStruct(const XrFutureCompletionBaseHeaderE
 
     XrFutureCompletionBaseHeaderEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5970,6 +6690,8 @@ XrFutureCompletionEXT* TrackStruct(const XrFutureCompletionEXT* value, HandleUnw
     XrFutureCompletionEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -5982,6 +6704,8 @@ XrFuturePollResultEXT* TrackStruct(const XrFuturePollResultEXT* value, HandleUnw
 
     XrFuturePollResultEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -5996,6 +6720,8 @@ XrEventDataUserPresenceChangedEXT* TrackStruct(const XrEventDataUserPresenceChan
     XrEventDataUserPresenceChangedEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -6008,6 +6734,8 @@ XrSystemUserPresencePropertiesEXT* TrackStruct(const XrSystemUserPresencePropert
 
     XrSystemUserPresencePropertiesEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }
@@ -6022,6 +6750,8 @@ XrEventDataHeadsetFitChangedML* TrackStruct(const XrEventDataHeadsetFitChangedML
     XrEventDataHeadsetFitChangedML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -6035,6 +6765,8 @@ XrEventDataEyeCalibrationChangedML* TrackStruct(const XrEventDataEyeCalibrationC
     XrEventDataEyeCalibrationChangedML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
+
     return unwrapped_struct;
 }
 
@@ -6047,6 +6779,8 @@ XrUserCalibrationEnableEventsInfoML* TrackStruct(const XrUserCalibrationEnableEv
 
     XrUserCalibrationEnableEventsInfoML* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->next = TrackStruct(unwrapped_struct->next, unwrap_memory);
 
     return unwrapped_struct;
 }

@@ -88,7 +88,7 @@ class Dx12DecoderBodyGenerator(
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
-            cmddef += self.make_cmd_body(return_type, method, values, True)
+            cmddef += self.make_cmd_body(return_type, method, values)
             cmddef += '\n'
             cmddef += '    return bytes_read;\n'
             cmddef += '}'

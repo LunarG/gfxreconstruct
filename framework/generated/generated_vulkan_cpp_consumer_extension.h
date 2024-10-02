@@ -52,4 +52,4 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H

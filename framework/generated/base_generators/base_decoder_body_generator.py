@@ -58,7 +58,7 @@ class BaseDecoderBodyGenerator():
             write(cmddef, file=self.outFile)
             first = False
 
-    def make_cmd_body(self, return_type, name, values, dx12_method=False):
+    def make_cmd_body(self, return_type, name, values):
         """Generate C++ code for the decoder method body."""
         preamble = ''
         main_body = ''
@@ -107,27 +107,8 @@ class BaseDecoderBodyGenerator():
             else:
                 arg_names.append(value.name)
 
-        # Vulkan return is very simple. Value is only for Dx12 Method.
-        dx12_return_value = None
-        dx12_return_decode_type = None
         if return_type and return_type != 'void':
-            if dx12_method:
-                dx12_return_value = self.get_return_value_info(
-                    return_type, name
-                )
-                dx12_return_decode_type = self.make_decoded_param_type(
-                    dx12_return_value
-                )
-                main_body += '    {} return_value;\n'.format(
-                    dx12_return_decode_type
-                )
-
-                if dx12_return_decode_type == 'Decoded_{}'.format(return_type):
-                    main_body += '    {} value_returned;\n'.format(return_type)
-                    main_body += '    return_value.decoded_value = &value_returned;\n'
-
-            else:
-                main_body += '    {} return_value;\n'.format(return_type)
+            main_body += self.decodeApiCallNonVoidReturnType(return_type, name)
 
         # Blank line after declarations.
         if values or return_type:
@@ -146,16 +127,12 @@ class BaseDecoderBodyGenerator():
             preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
                 self, value, preamble, main_body, epilogue
             )
+
         if return_type and return_type != 'void':
-            if dx12_method:
-                preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
-                    self, dx12_return_value, preamble, main_body, epilogue
-                )
-            else:
-                preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
-                    self, ValueInfo('return_value', return_type, return_type),
-                    preamble, main_body, epilogue
-                )
+            preamble, main_body, epilogue = self.decodeInvokeNonVoidReturnApiCall(
+                BaseDecoderBodyGenerator.make_decode_invocation, return_type,
+                preamble, main_body, epilogue
+            )
 
         # Blank line after Decode() method invocations.
         if values or return_type:
@@ -163,14 +140,9 @@ class BaseDecoderBodyGenerator():
 
         # Make the argument list for the API call
         arglist = ', '.join([arg_name for arg_name in arg_names])
-        if return_type and return_type != 'void':
-            if dx12_method and dx12_return_decode_type.find('Decoder') != -1:
-                arglist = ', '.join(['&return_value', arglist])
-            else:
-                arglist = ', '.join(['return_value', arglist])
-
-        if dx12_method:
-            arglist = 'object_id, ' + arglist
+        arglist = self.decodeAddApiSpecificArguments(
+            name, return_type, arglist
+        )
 
         if arglist[-2:] == ', ':
             arglist = arglist[:-2]

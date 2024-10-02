@@ -349,6 +349,12 @@ class BaseGeneratorDefines():
             return True
         return False
 
+    def is_platform_struct(self, base_type):
+        """Check for struct type.  The subclass may override this method."""
+        if (base_type in self.PLATFORM_STRUCTS):
+            return True
+        return False
+
     def is_parent_struct_type(self, base_type):
         return base_type in self.base_header_structs.keys()
 
@@ -845,3 +851,43 @@ class BaseGeneratorDefines():
             return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
 
         return 'void {}()'.format(name)
+
+    def hasExtendedTypeMemberName(self):
+        return False
+
+    def getExtendedTypeMemberName(self):
+        return ''
+
+    def getExtendedNodeType(self):
+        return ''
+
+    def getMapperObjectInfo(self, needs_ref=False):
+        # Return object_table_prefix, map_type, base_type, and map_table
+        return '', '', '', ''
+
+    def needsObjectInfoTableOnArrayMap(self):
+        return True
+
+    def mapperNeedsValuePointerOnType(self, type):
+        return (
+            (
+                self.is_handle(type.base_type) or self.is_atom(type.base_type)
+                or self.is_opaque(type.base_type) or self.is_class(type)
+            ) and not (type.is_array and not type.is_dynamic)
+        )
+
+    def decodeApiCallNonVoidReturnType(self, return_type, value_name):
+        return '    {} return_value;\n'.format(return_type)
+
+    def decodeInvokeNonVoidReturnApiCall(
+        self, base_decoder_call, return_type, preamble, main_body, epilogue
+    ):
+        return base_decoder_call(
+            self, ValueInfo('return_value', return_type, return_type),
+            preamble, main_body, epilogue
+        )
+
+    def decodeAddApiSpecificArguments(self, name, return_type, arglist):
+        if return_type and return_type != 'void':
+            return ', '.join(['return_value', arglist])
+        return arglist

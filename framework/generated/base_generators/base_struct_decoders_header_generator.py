@@ -235,12 +235,13 @@ class BaseStructDecodersHeaderGenerator():
         body = ''
 
         for value in values:
-            if value.name == 'pNext' and value.base_type == 'void':
-                # We have a special type to store the pNext chain
-                body += '    PNextNode* pNext{ nullptr };\n'
-            elif value.name == 'next' and value.base_type == 'void':
-                # We have a special type to store the next chain
-                body += '    OpenXrNextNode* next{ nullptr };\n'
+            if self.hasExtendedTypeMemberName() and (
+                self.getExtendedTypeMemberName() == value.name
+                and value.base_type == 'void'
+            ):
+                type_var = self.getExtendedTypeMemberName()
+                node_type = self.getExtendedNodeType()
+                body += f'    {node_type}* {type_var}{{ nullptr }};\n'
             elif self.needs_member_declaration(name, value):
                 type_name = self.make_decoded_param_type(value)
                 if self.is_struct(value.base_type):

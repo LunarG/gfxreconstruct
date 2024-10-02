@@ -42,7 +42,8 @@ XR_REGISTRY_SCRIPTS_DIR = os.path.normpath(
     )
 )
 BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'base_generators')
-GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'openxr_generators')
+KHRONOS_BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators')
+GENERATOR_DIR = os.path.join(KHRONOS_BASE_GENERATOR_DIR, 'openxr_generators')
 XR_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'OpenXR-SDK')
 
 # File names to provide to the OpenXR XML Registry generator script.
@@ -137,6 +138,9 @@ if __name__ == '__main__':
     BASE_GENERATOR_DIR = os.path.normpath(
         os.path.join(SCRIPT_DIR, BASE_GENERATOR_DIR)
     )
+    KHRONOS_BASE_GENERATOR_DIR = os.path.normpath(
+        os.path.join(SCRIPT_DIR, KHRONOS_BASE_GENERATOR_DIR)
+    )
     env = os.environ.copy()
     if not 'PYTHONPATH' in env:
         env['PYTHONPATH'] = ''
@@ -144,6 +148,7 @@ if __name__ == '__main__':
         [
             registry_scripts_dir,
             BASE_GENERATOR_DIR,
+            KHRONOS_BASE_GENERATOR_DIR,
             GENERATOR_DIR,
             XR_HEADERS_DIR,
         ]

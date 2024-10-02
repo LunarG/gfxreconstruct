@@ -44,13 +44,10 @@ class Dx12StructObjectMappersBodyGenerator(
             diag_file
         )
 
-        BaseStructHandleMappersBodyGenerator.__init__(
-            self,
-            structs_with_handles={
-                **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
-                ['ptr']
-            }
-        )
+        self.structs_with_handles = {
+            **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
+            ['ptr']
+        }
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -116,8 +113,6 @@ class Dx12StructObjectMappersBodyGenerator(
 
         # Functions should not be generated for structs on the blacklist.
         self.check_blacklist = True
-        BaseStructHandleMappersBodyGenerator.generate_feature(self)
-
         header_dict = self.source_dict['header_dict']
         self.structs_with_objects = self.collect_struct_with_objects(
             header_dict

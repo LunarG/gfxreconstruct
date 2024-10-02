@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{c847ae64-88bc-42fb-8b58-6bb84f90f1a1}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>gencode.py</StartupFile>
+    <SearchPath>..\..\..\..\external\Vulkan-Headers\registry</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>-registry ..\..\..\..\external\Vulkan-Headers\registry\vk.xml generated_vulkan_replay_consumer.cpp</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="vulkan_command_buffer_util_body_generator.py" />
+    <Compile Include="vulkan_command_buffer_util_header_generator.py" />
+    <Compile Include="vulkan_consumer_header_generator.py" />
+    <Compile Include="vulkan_decoder_body_generator.py" />
+    <Compile Include="vulkan_decoder_header_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_body_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_header_generator.py" />
+    <Compile Include="vulkan_dispatch_table_generator.py" />
+    <Compile Include="vulkan_enum_to_string_body_generator.py" />
+    <Compile Include="vulkan_enum_to_string_header_generator.py" />
+    <Compile Include="vulkan_feature_util_body_generator.py" />
+    <Compile Include="vulkan_referenced_resource_consumer_body_generator.py" />
+    <Compile Include="vulkan_referenced_resource_consumer_header_generator.py" />
+    <Compile Include="vulkan_replay_consumer_body_generator.py" />
+    <Compile Include="vulkan_replay_dump_resources_body_generator.py" />
+    <Compile Include="vulkan_replay_dump_resources_header_generator.py" />
+    <Compile Include="base_generator.py" />
+    <Compile Include="vulkan_struct_decoders_header_generator.py" />
+    <Compile Include="decode_pnext_struct_generator.py" />
+    <Compile Include="encode_pnext_struct_generator.py" />
+    <Compile Include="gencode.py" />
+    <Compile Include="layer_func_table_generator.py" />
+    <Compile Include="vulkan_struct_decoders_body_generator.py" />
+    <Compile Include="vulkan_struct_decoders_forward_generator.py" />
+    <Compile Include="vulkan_struct_encoders_body_generator.py" />
+    <Compile Include="vulkan_struct_encoders_header_generator.py" />
+    <Compile Include="vulkan_struct_handle_mappers_body_generator.py" />
+    <Compile Include="vulkan_struct_handle_mappers_header_generator.py" />
+    <Compile Include="vulkan_struct_handle_wrappers_body_generator.py" />
+    <Compile Include="vulkan_struct_handle_wrappers_header_generator.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

@@ -682,4 +682,4 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_REFERENCED_RESOURCE_CONSUMER_H

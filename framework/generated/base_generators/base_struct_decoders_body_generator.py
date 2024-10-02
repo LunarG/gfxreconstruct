@@ -64,16 +64,17 @@ class BaseStructDecodersBodyGenerator():
 
         for value in values:
             # pNext fields require special treatment and are not processed by type name
-            if 'pNext' in value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+            if self.hasExtendedTypeMemberName() and (
+                self.getExtendedTypeMemberName() == value.name
+                and value.base_type == 'void'
+            ):
+                member_name = self.getExtendedTypeMemberName()
+                func_id = member_name[0:1].upper()
+                func_id += member_name[1:]
+                main_body += f'    bytes_read += Decode{func_id}Struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{{}}));\n'.format(
                     value.name
                 )
-                main_body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
-            elif 'next' == value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
-                    value.name
-                )
-                main_body += '    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;\n'
+                main_body += f'    value->{member_name} = wrapper->{member_name} ? wrapper->{member_name}->GetPointer() : nullptr;\n'
             else:
                 preamble, main_body, epilogue = BaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value, preamble, main_body, epilogue
@@ -155,7 +156,7 @@ class BaseStructDecodersBodyGenerator():
                         array_dimension = ''
                         # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *.
                         # But vk keeps 2d array.
-                        if self.is_dx12_class(
+                        if self.treat2dArrayAs1dArray(
                         ) and value.array_dimension and value.array_dimension > 0:
                             array_dimension = '*'
                         # The pointer decoder will write directly to the struct member's memory.
