@@ -2928,17 +2928,6 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
         format::HandleId pDepthStencilView) override;
 
-    virtual void Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT NumRTVs,
-        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
-        format::HandleId pDepthStencilView,
-        UINT UAVStartSlot,
-        UINT NumUAVs,
-        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
-        PointerDecoder<UINT>* pUAVInitialCounts) override;
-
     virtual void Process_ID3D11DeviceContext_OMSetBlendState(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

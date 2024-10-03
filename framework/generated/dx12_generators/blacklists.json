@@ -25,6 +25,7 @@
       "WriteToSubresource"
     ],
     "ID3D11DeviceContext": [
+      "OMSetRenderTargetsAndUnorderedAccessViews",
       "UpdateSubresource"
     ],
     "ID3D11DeviceContext1": [

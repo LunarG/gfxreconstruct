@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -4150,6 +4150,65 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture3D(
         }
 
         CheckReplayResult("ID3D11Device_CreateTexture3D", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    const ApiCallInfo&                                call_info,
+    format::HandleId                                  object_id,
+    UINT                                              NumRTVs,
+    HandlePointerDecoder<ID3D11RenderTargetView*>*    ppRenderTargetViews,
+    format::HandleId                                  pDepthStencilView,
+    UINT                                              UAVStartSlot,
+    UINT                                              NumUAVs,
+    HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
+    PointerDecoder<UINT>*                             pUAVInitialCounts)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        GFXRECON_ASSERT((ppRenderTargetViews != nullptr) && (ppUnorderedAccessViews != nullptr) &&
+                        (pUAVInitialCounts != nullptr));
+
+        auto in_pDepthStencilView = MapObject<ID3D11DepthStencilView>(pDepthStencilView);
+
+        ID3D11RenderTargetView**    in_ppRenderTargetViews    = nullptr;
+        ID3D11UnorderedAccessView** in_ppUnorderedAccessViews = nullptr;
+        UINT*                       in_pUAVInitialCounts      = nullptr;
+
+        if (NumRTVs != D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL)
+        {
+            in_ppRenderTargetViews = MapObjects<ID3D11RenderTargetView>(ppRenderTargetViews, NumRTVs);
+        }
+        else
+        {
+            // For this case, the RTV bindings should be ignored. The pointer is set to match the address from the
+            // captured call because address values have been observed to be set to -1 by some applications.
+            in_ppRenderTargetViews = reinterpret_cast<ID3D11RenderTargetView**>(ppRenderTargetViews->GetAddress());
+        }
+
+        if (NumUAVs != D3D11_KEEP_UNORDERED_ACCESS_VIEWS)
+        {
+            in_ppUnorderedAccessViews = MapObjects<ID3D11UnorderedAccessView>(ppUnorderedAccessViews, NumUAVs);
+            in_pUAVInitialCounts      = pUAVInitialCounts->GetPointer();
+        }
+        else
+        {
+            // For this case, the UAV bindings should be ignored. The pointer is set to match the address from the
+            // captured call because address values have been observed to be set to -1 by some applications.
+            in_ppUnorderedAccessViews =
+                reinterpret_cast<ID3D11UnorderedAccessView**>(ppUnorderedAccessViews->GetAddress());
+            in_pUAVInitialCounts = reinterpret_cast<UINT*>(pUAVInitialCounts->GetAddress());
+        }
+
+        reinterpret_cast<ID3D11DeviceContext*>(replay_object->object)
+            ->OMSetRenderTargetsAndUnorderedAccessViews(NumRTVs,
+                                                        in_ppRenderTargetViews,
+                                                        in_pDepthStencilView,
+                                                        UAVStartSlot,
+                                                        NumUAVs,
+                                                        in_ppUnorderedAccessViews,
+                                                        in_pUAVInitialCounts);
     }
 }
 

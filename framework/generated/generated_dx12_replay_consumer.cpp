@@ -14876,55 +14876,6 @@ void Dx12ReplayConsumer::Process_ID3D11DeviceContext_OMSetRenderTargets(
     }
 }
 
-void Dx12ReplayConsumer::Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            object_id,
-    UINT                                        NumRTVs,
-    HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
-    format::HandleId                            pDepthStencilView,
-    UINT                                        UAVStartSlot,
-    UINT                                        NumUAVs,
-    HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
-    PointerDecoder<UINT>*                       pUAVInitialCounts)
-{
-    auto replay_object = GetObjectInfo(object_id);
-    if ((replay_object != nullptr) && (replay_object->object != nullptr))
-    {
-        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews>::Dispatch(
-            this,
-            call_info,
-            replay_object,
-            NumRTVs,
-            ppRenderTargetViews,
-            pDepthStencilView,
-            UAVStartSlot,
-            NumUAVs,
-            ppUnorderedAccessViews,
-            pUAVInitialCounts);
-        auto in_ppRenderTargetViews = MapObjects<ID3D11RenderTargetView>(ppRenderTargetViews, NumRTVs);
-        auto in_pDepthStencilView = MapObject<ID3D11DepthStencilView>(pDepthStencilView);
-        auto in_ppUnorderedAccessViews = MapObjects<ID3D11UnorderedAccessView>(ppUnorderedAccessViews, NumUAVs);
-        reinterpret_cast<ID3D11DeviceContext*>(replay_object->object)->OMSetRenderTargetsAndUnorderedAccessViews(NumRTVs,
-                                                                                                                 in_ppRenderTargetViews,
-                                                                                                                 in_pDepthStencilView,
-                                                                                                                 UAVStartSlot,
-                                                                                                                 NumUAVs,
-                                                                                                                 in_ppUnorderedAccessViews,
-                                                                                                                 pUAVInitialCounts->GetPointer());
-        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews>::Dispatch(
-            this,
-            call_info,
-            replay_object,
-            NumRTVs,
-            ppRenderTargetViews,
-            pDepthStencilView,
-            UAVStartSlot,
-            NumUAVs,
-            ppUnorderedAccessViews,
-            pUAVInitialCounts);
-    }
-}
-
 void Dx12ReplayConsumer::Process_ID3D11DeviceContext_OMSetBlendState(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,

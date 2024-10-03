@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -322,6 +322,11 @@ class Dx12DecoderBase : public ApiDecoder
                                                const ApiCallInfo& call_info,
                                                const uint8_t*     parameter_buffer,
                                                size_t             buffer_size);
+
+    size_t Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(format::HandleId   object_id,
+                                                                                const ApiCallInfo& call_info,
+                                                                                const uint8_t*     parameter_buffer,
+                                                                                size_t             buffer_size);
 
     size_t Decode_ID3D11DeviceContext_UpdateSubresource(format::HandleId   object_id,
                                                         const ApiCallInfo& call_info,

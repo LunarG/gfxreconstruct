@@ -2,7 +2,7 @@
 ** Copyright (c) 2023 Valve Corporation
 ** Copyright (c) 2021, 2023 LunarG, Inc.
 ** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -133,6 +133,18 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                          StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>*   pDesc,
                                          StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
                                          HandlePointerDecoder<ID3D11Texture3D*>*               ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+        const ApiCallInfo&                                call_info,
+        format::HandleId                                  object_id,
+        UINT                                              NumRTVs,
+        HandlePointerDecoder<ID3D11RenderTargetView*>*    ppRenderTargetViews,
+        format::HandleId                                  pDepthStencilView,
+        UINT                                              UAVStartSlot,
+        UINT                                              NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
+        PointerDecoder<UINT>*                             pUAVInitialCounts)
     {}
 
     virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,

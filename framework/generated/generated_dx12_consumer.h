@@ -2932,17 +2932,6 @@ class Dx12Consumer : public Dx12ConsumerBase
         HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
         format::HandleId pDepthStencilView){}
 
-    virtual void Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT NumRTVs,
-        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
-        format::HandleId pDepthStencilView,
-        UINT UAVStartSlot,
-        UINT NumUAVs,
-        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
-        PointerDecoder<UINT>* pUAVInitialCounts){}
-
     virtual void Process_ID3D11DeviceContext_OMSetBlendState(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

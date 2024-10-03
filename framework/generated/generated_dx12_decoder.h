@@ -489,7 +489,6 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D11DeviceContext_GSSetShaderResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D11DeviceContext_GSSetSamplers(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D11DeviceContext_OMSetRenderTargets(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-    size_t Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D11DeviceContext_OMSetBlendState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D11DeviceContext_OMSetDepthStencilState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D11DeviceContext_SOSetTargets(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

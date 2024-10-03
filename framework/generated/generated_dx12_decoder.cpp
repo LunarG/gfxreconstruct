@@ -1327,9 +1327,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargets:
         Decode_ID3D11DeviceContext_OMSetRenderTargets(object_id, call_info, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews:
-        Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(object_id, call_info, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetBlendState:
         Decode_ID3D11DeviceContext_OMSetBlendState(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -11379,34 +11376,6 @@ size_t Dx12Decoder::Decode_ID3D11DeviceContext_OMSetRenderTargets(format::Handle
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D11DeviceContext_OMSetRenderTargets(call_info, object_id, NumViews, &ppRenderTargetViews, pDepthStencilView);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumRTVs;
-    HandlePointerDecoder<ID3D11RenderTargetView*> ppRenderTargetViews;
-    format::HandleId pDepthStencilView;
-    UINT UAVStartSlot;
-    UINT NumUAVs;
-    HandlePointerDecoder<ID3D11UnorderedAccessView*> ppUnorderedAccessViews;
-    PointerDecoder<UINT> pUAVInitialCounts;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumRTVs);
-    bytes_read += ppRenderTargetViews.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDepthStencilView);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &UAVStartSlot);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumUAVs);
-    bytes_read += ppUnorderedAccessViews.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pUAVInitialCounts.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(call_info, object_id, NumRTVs, &ppRenderTargetViews, pDepthStencilView, UAVStartSlot, NumUAVs, &ppUnorderedAccessViews, &pUAVInitialCounts);
     }
 
     return bytes_read;

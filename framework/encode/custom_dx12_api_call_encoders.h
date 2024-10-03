@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -55,6 +55,16 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
                                               const void*             pSrcData,
                                               UINT                    SrcRowPitch,
                                               UINT                    SrcDepthPitch);
+
+void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper*      wrapper,
+    UINT                              NumRTVs,
+    ID3D11RenderTargetView* const*    ppRenderTargetViews,
+    ID3D11DepthStencilView*           pDepthStencilView,
+    UINT                              UAVStartSlot,
+    UINT                              NumUAVs,
+    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
+    const UINT*                       pUAVInitialCounts);
 
 void Encode_ID3D11DeviceContext_UpdateSubresource(ID3D11DeviceContext_Wrapper* wrapper,
                                                   ID3D11Resource*              pDstResource,

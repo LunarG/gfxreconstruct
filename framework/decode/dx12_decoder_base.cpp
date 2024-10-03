@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -855,6 +855,47 @@ size_t Dx12DecoderBase::Decode_ID3D11Device_CreateTexture3D(format::HandleId   o
     return bytes_read;
 }
 
+size_t Dx12DecoderBase::Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT                                             NumRTVs;
+    HandlePointerDecoder<ID3D11RenderTargetView*>    ppRenderTargetViews;
+    format::HandleId                                 pDepthStencilView;
+    UINT                                             UAVStartSlot;
+    UINT                                             NumUAVs;
+    HandlePointerDecoder<ID3D11UnorderedAccessView*> ppUnorderedAccessViews;
+    PointerDecoder<UINT>                             pUAVInitialCounts;
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumRTVs);
+    bytes_read += ppRenderTargetViews.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDepthStencilView);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &UAVStartSlot);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumUAVs);
+    bytes_read += ppUnorderedAccessViews.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pUAVInitialCounts.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(call_info,
+                                                                                        object_id,
+                                                                                        NumRTVs,
+                                                                                        &ppRenderTargetViews,
+                                                                                        pDepthStencilView,
+                                                                                        UAVStartSlot,
+                                                                                        NumUAVs,
+                                                                                        &ppUnorderedAccessViews,
+                                                                                        &pUAVInitialCounts);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12DecoderBase::Decode_ID3D11DeviceContext_UpdateSubresource(format::HandleId   object_id,
                                                                      const ApiCallInfo& call_info,
                                                                      const uint8_t*     parameter_buffer,
@@ -1052,6 +1093,10 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture3D:
             Decode_ID3D11Device_CreateTexture3D(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews:
+            Decode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+                object_id, call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_ID3D11DeviceContext_UpdateSubresource:
             Decode_ID3D11DeviceContext_UpdateSubresource(object_id, call_info, parameter_buffer, buffer_size);

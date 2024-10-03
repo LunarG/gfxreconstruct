@@ -3180,16 +3180,6 @@ void Encode_ID3D11DeviceContext_OMSetRenderTargets(
     ID3D11RenderTargetView* const* ppRenderTargetViews,
     ID3D11DepthStencilView* pDepthStencilView);
 
-void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
-    ID3D11DeviceContext_Wrapper* wrapper,
-    UINT NumRTVs,
-    ID3D11RenderTargetView* const* ppRenderTargetViews,
-    ID3D11DepthStencilView* pDepthStencilView,
-    UINT UAVStartSlot,
-    UINT NumUAVs,
-    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
-    const UINT* pUAVInitialCounts);
-
 void Encode_ID3D11DeviceContext_OMSetBlendState(
     ID3D11DeviceContext_Wrapper* wrapper,
     ID3D11BlendState* pBlendState,

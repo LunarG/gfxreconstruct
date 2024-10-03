@@ -9915,30 +9915,6 @@ void Encode_ID3D11DeviceContext_OMSetRenderTargets(
     }
 }
 
-void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
-    ID3D11DeviceContext_Wrapper* wrapper,
-    UINT NumRTVs,
-    ID3D11RenderTargetView* const* ppRenderTargetViews,
-    ID3D11DepthStencilView* pDepthStencilView,
-    UINT UAVStartSlot,
-    UINT NumUAVs,
-    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
-    const UINT* pUAVInitialCounts)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews, wrapper->GetCaptureId());
-    if(encoder)
-    {
-        encoder->EncodeUInt32Value(NumRTVs);
-        encoder->EncodeObjectArray(ppRenderTargetViews, NumRTVs);
-        encoder->EncodeObjectValue(pDepthStencilView);
-        encoder->EncodeUInt32Value(UAVStartSlot);
-        encoder->EncodeUInt32Value(NumUAVs);
-        encoder->EncodeObjectArray(ppUnorderedAccessViews, NumUAVs);
-        encoder->EncodeUInt32Array(pUAVInitialCounts, NumUAVs);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
-    }
-}
-
 void Encode_ID3D11DeviceContext_OMSetBlendState(
     ID3D11DeviceContext_Wrapper* wrapper,
     ID3D11BlendState* pBlendState,

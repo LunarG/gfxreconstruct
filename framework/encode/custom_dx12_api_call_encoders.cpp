@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -168,6 +168,52 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
         encoder->EncodeUInt32Value(SrcRowPitch);
         encoder->EncodeUInt32Value(SrcDepthPitch);
         encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper*      wrapper,
+    UINT                              NumRTVs,
+    ID3D11RenderTargetView* const*    ppRenderTargetViews,
+    ID3D11DepthStencilView*           pDepthStencilView,
+    UINT                              UAVStartSlot,
+    UINT                              NumUAVs,
+    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
+    const UINT*                       pUAVInitialCounts)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews,
+        wrapper->GetCaptureId());
+    if (encoder)
+    {
+        // Avoid accessing a potentially invalid address when the associated NumRTV or NumUAV parameter indicates that
+        // the currently bound views will not be modified.
+        auto rtv_array_len = NumRTVs;
+        auto uav_array_len = NumUAVs;
+        auto omit_rtv_data = false;
+        auto omit_uav_data = false;
+
+        if (NumRTVs == D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL)
+        {
+            rtv_array_len = 0;
+            omit_rtv_data = true;
+        }
+
+        if (NumUAVs == D3D11_KEEP_UNORDERED_ACCESS_VIEWS)
+        {
+            uav_array_len = 0;
+            omit_uav_data = true;
+        }
+
+        encoder->EncodeUInt32Value(NumRTVs);
+        encoder->EncodeObjectArray(ppRenderTargetViews, rtv_array_len, omit_rtv_data);
+        encoder->EncodeObjectValue(pDepthStencilView);
+        encoder->EncodeUInt32Value(UAVStartSlot);
+        encoder->EncodeUInt32Value(NumUAVs);
+        encoder->EncodeObjectArray(ppUnorderedAccessViews, uav_array_len, omit_uav_data);
+        encoder->EncodeUInt32Array(pUAVInitialCounts, uav_array_len, omit_uav_data);
+
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
