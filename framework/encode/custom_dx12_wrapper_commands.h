@@ -774,56 +774,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>
     }
 };
 
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12GraphicsCommandList_DrawInstanced(args...);
-    }
-};
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12GraphicsCommandList_DrawIndexedInstanced(args...);
-    }
-};
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12GraphicsCommandList_Dispatch(args...);
-    }
-};
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12GraphicsCommandList_ExecuteIndirect(args...);
-    }
-};
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(args...);
-    }
-};
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

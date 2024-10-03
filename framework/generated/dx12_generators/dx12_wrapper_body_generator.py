@@ -791,19 +791,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
 
-            expr += '\n'
-
-            expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
-            encode_args = self.increment_indent(indent) + 'this'
-            if wrapped_args or (return_type != 'void'):
-                if return_type != 'void':
-                    encode_args += ',\n'
-                    encode_args += self.increment_indent(indent) + 'result'
-                if wrapped_args:
-                    encode_args += ',\n'
-                    encode_args += wrapped_args
-            expr += encode_args + ');\n'
-
             if is_override is False and 'ID3D12GraphicsCommandList' in class_name:
                 indent1 = self.increment_indent(indent)
                 indent2 = self.increment_indent(indent1)
@@ -818,9 +805,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += indent1 + '{\n'
 
                 if class_name != 'ID3D12GraphicsCommandList':
-                    expr += indent2 + 'graphics::dx12::{}ComPtr command_list = nullptr;\n'.format(class_name)
-                    expr += indent2 + 'command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));\n'
-                    expr += indent2 + 'auto* wrapper = reinterpret_cast<{}_Wrapper*>(command_list.GetInterfacePtr());\n'.format(class_name)
+                    expr += indent2 + 'auto* base_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());\n'
+                    expr += indent2 + 'auto* wrapper = static_cast<{}_Wrapper*>(base_wrapper);\n'.format(class_name)
+                    expr += indent2 + 'GFXRECON_ASSERT(wrapper != nullptr);\n'
                 else:
                     expr += indent2 + 'auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());\n'
 
@@ -846,6 +833,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += indent1 + '}\n'
                 expr += indent1 + 'manager->IncrementCallScope();\n'
                 expr += indent + '}\n'
+
+            expr += '\n'
+
+            expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
+            encode_args = self.increment_indent(indent) + 'this'
+            if wrapped_args or (return_type != 'void'):
+                if return_type != 'void':
+                    encode_args += ',\n'
+                    encode_args += self.increment_indent(indent) + 'result'
+                if wrapped_args:
+                    encode_args += ',\n'
+                    encode_args += wrapped_args
+            expr += encode_args + ');\n'
 
             # Add custom post call action.
             expr += '\n'

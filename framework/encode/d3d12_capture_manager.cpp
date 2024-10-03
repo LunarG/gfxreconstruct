@@ -1789,7 +1789,8 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
 
     // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
-    if (!HasSplitCommandLists(num_lists, lists))
+    if (!(IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls &&
+          HasSplitCommandLists(num_lists, lists)))
     {
         PreQueueSubmit(current_lock);
     }
@@ -1799,10 +1800,9 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
                                                                          UINT                        num_lists,
                                                                          ID3D12CommandList* const*   lists)
 {
-    bool is_complete            = false;
-
-    if (!HasSplitCommandLists(num_lists, lists) && IsTrimEnabled() &&
-        GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
+    bool is_complete = false;
+    if (IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls &&
+        !HasSplitCommandLists(num_lists, lists))
     {
         is_complete = TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(wrapper, num_lists, lists);
     }
@@ -1823,7 +1823,8 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
 {
     // Split commandlists are for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
-    if (!HasSplitCommandLists(num_lists, lists))
+    if (!(IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls &&
+          HasSplitCommandLists(num_lists, lists)))
     {
         PostQueueSubmit(current_lock);
     }
@@ -1832,59 +1833,6 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
     {
         state_tracker_->TrackExecuteCommandLists(wrapper, num_lists, lists);
     }
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_DrawInstanced(
-    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
-    UINT                               VertexCountPerInstance,
-    UINT                               InstanceCount,
-    UINT                               StartVertexLocation,
-    UINT                               StartInstanceLocatio)
-{
-    auto info = command_list_wrapper->GetObjectInfo();
-    ++info->draw_call_count;
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_DrawIndexedInstanced(
-    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
-    UINT                               IndexCountPerInstance,
-    UINT                               InstanceCount,
-    UINT                               StartIndexLocation,
-    INT                                BaseVertexLocation,
-    UINT                               StartInstanceLocation)
-{
-    auto info = command_list_wrapper->GetObjectInfo();
-    ++info->draw_call_count;
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_Dispatch(
-    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
-    UINT                               ThreadGroupCountX,
-    UINT                               ThreadGroupCountY,
-    UINT                               ThreadGroupCountZ)
-{
-    auto info = command_list_wrapper->GetObjectInfo();
-    ++info->draw_call_count;
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ExecuteIndirect(
-    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
-    ID3D12CommandSignature*            pCommandSignature,
-    UINT                               MaxCommandCount,
-    ID3D12Resource*                    pArgumentBuffer,
-    UINT64                             ArgumentBufferOffset,
-    ID3D12Resource*                    pCountBuffer,
-    UINT64                             CountBufferOffset)
-{
-    auto info = command_list_wrapper->GetObjectInfo();
-    ++info->draw_call_count;
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(
-    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper, ID3D12GraphicsCommandList* pCommandList)
-{
-    auto info = command_list_wrapper->GetObjectInfo();
-    ++info->draw_call_count;
 }
 
 HRESULT
@@ -3281,10 +3229,9 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
             p_before_ds_desc                        = &before_ds_desc;
         }
 
-        graphics::dx12::ID3D12GraphicsCommandList4ComPtr before4 = nullptr;
-        trim_draw_calls_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
-            IID_PPV_ARGS(&before4));
-        auto before4_wrappr = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(before4.GetInterfacePtr());
+        auto* before_wrappr = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(
+            trim_draw_calls_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list.GetInterfacePtr());
+        auto* before4_wrappr = static_cast<ID3D12GraphicsCommandList4_Wrapper*>(before_wrappr);
         GFXRECON_ASSERT(before4_wrappr);
 
         before4_wrappr->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
@@ -3311,9 +3258,9 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
             p_target_ds_desc                           = &target_ds_desc;
         }
 
-        graphics::dx12::ID3D12GraphicsCommandList4ComPtr target4 = nullptr;
-        trim_draw_calls_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(IID_PPV_ARGS(&target4));
-        auto target4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(target4.GetInterfacePtr());
+        auto* target_wrappr = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(
+            trim_draw_calls_command_sets[graphics::dx12::kDrawCallArrayIndex].list.GetInterfacePtr());
+        auto* target4_wrapper = static_cast<ID3D12GraphicsCommandList4_Wrapper*>(target_wrappr);
         GFXRECON_ASSERT(target4_wrapper);
 
         target4_wrapper->BeginRenderPass(NumRenderTargets, target_rt_descs.data(), p_target_ds_desc, Flags);
@@ -3337,19 +3284,18 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
             p_after_ds_desc                           = &after_ds_desc;
         }
 
-        graphics::dx12::ID3D12GraphicsCommandList4ComPtr after4 = nullptr;
-        trim_draw_calls_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
-            IID_PPV_ARGS(&after4));
-        auto after4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(after4.GetInterfacePtr());
+        auto* after_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(
+            trim_draw_calls_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list.GetInterfacePtr());
+        auto* after4_wrapper = static_cast<ID3D12GraphicsCommandList4_Wrapper*>(after_wrapper);
         GFXRECON_ASSERT(after4_wrapper);
 
         after4_wrapper->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
     }
     else if (trim_draw_calls_command_sets.size() == 1)
     {
-        graphics::dx12::ID3D12GraphicsCommandList4ComPtr list4 = nullptr;
-        trim_draw_calls_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&list4));
-        auto list4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(list4.GetInterfacePtr());
+        auto* list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(
+            trim_draw_calls_command_sets[0].list.GetInterfacePtr());
+        auto* list4_wrapper = static_cast<ID3D12GraphicsCommandList4_Wrapper*>(list_wrapper);
         GFXRECON_ASSERT(list4_wrapper);
 
         list4_wrapper->BeginRenderPass(NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
@@ -3381,22 +3327,45 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(I
         auto target_info = target_wrapper->GetObjectInfo();
         GFXRECON_ASSERT(target_info);
 
-        if (!target_info->find_target_draw_calls)
+        if (target_info->find_target_draw_call_count == 0)
         {
             GFXRECON_LOG_FATAL("CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
                                trim_draw_calls.draw_call_indices.first,
                                trim_draw_calls.draw_call_indices.last);
-            GFXRECON_ASSERT(target_info->find_target_draw_calls);
+            GFXRECON_ASSERT(target_info->find_target_draw_call_count != 0);
         }
 
-        if (target_info->target_bundle_commandlist_info &&
-            !target_info->target_bundle_commandlist_info->find_target_draw_calls)
+        if (target_info->find_target_draw_call_count !=
+            (trim_draw_calls.draw_call_indices.last - trim_draw_calls.draw_call_indices.first + 1))
         {
-            GFXRECON_LOG_FATAL(
-                "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
-                trim_draw_calls.bundle_draw_call_indices.first,
-                trim_draw_calls.bundle_draw_call_indices.last);
-            GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_calls);
+            GFXRECON_LOG_WARNING(
+                "CAPTURE_DRAW_CALLS didn't find the enough draw call count(%d). The indices(%d-%d) might be out of range.",
+                target_info->find_target_draw_call_count,
+                trim_draw_calls.draw_call_indices.first,
+                trim_draw_calls.draw_call_indices.last);
+        }
+
+        if (target_info->target_bundle_commandlist_info)
+        {
+            if (target_info->target_bundle_commandlist_info->find_target_draw_call_count == 0)
+            {
+
+                GFXRECON_LOG_FATAL(
+                    "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
+                    trim_draw_calls.bundle_draw_call_indices.first,
+                    trim_draw_calls.bundle_draw_call_indices.last);
+                GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_call_count != 0);
+            }
+
+            if (target_info->target_bundle_commandlist_info->find_target_draw_call_count !=
+                (trim_draw_calls.bundle_draw_call_indices.last - trim_draw_calls.bundle_draw_call_indices.first + 1))
+            {
+                GFXRECON_LOG_WARNING("CAPTURE_DRAW_CALLS didn't find the enough bundle draw call count(%d). The "
+                                     "indices(%d-%d) might be out of range.",
+                                     target_info->target_bundle_commandlist_info->find_target_draw_call_count,
+                                     trim_draw_calls.bundle_draw_call_indices.first,
+                                     trim_draw_calls.bundle_draw_call_indices.last);
+            }
         }
 
         std::vector<ID3D12CommandList*> cmdlists;
@@ -3522,25 +3491,41 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
         }
     }
 
-    graphics::dx12::Dx12DumpResourcePos split_type = graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall;
+    bool is_draw_call = false;
+    switch (api_call_id)
+    {
+        case format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle:
+        case format::ApiCall_ID3D12GraphicsCommandList_DrawInstanced:
+        case format::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced:
+        case format::ApiCall_ID3D12GraphicsCommandList_Dispatch:
+        case format::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect:
+        {
+            is_draw_call = true;
+            break;
+        }
+        default:
+            break;
+    };
 
-    // draw_call_count is added at PostProcess of draw calls
-    // This function is in Override functions, so the draw_call_count is added after this function.
-    // For example, if target draw_call index is 1, it will be in the end of draw_call_count: 1.
-    // In this case, for "kBeforeDrawCall", the draw_call_count is 0 and 1.
-    // for "kAfterDrawCall", the draw_call_count is larger than 2.
-    // for "kDrawCall", it only happens if the draw call is a range.
+    graphics::dx12::Dx12DumpResourcePos split_type = graphics::dx12::Dx12DumpResourcePos::kDrawCall;
+
+    // draw_call_count is counted at TrackCommandExecution, and TrackCommandExecution is after this function.
+    // It means that draw_call_count is counted after this function.
+    // Ex: if target draw_call index is 1,
+    // kBeforeDrawCall: the draw_call_count is 0 and 1(and is_draw_call is false)
+    // kDrawCall: the draw_call_count is 1(is_draw_call is true)
+    // kAfterDrawCall: the draw_call_count is larger than 1.
     //
     // If target draw call index is a range: 1-2,
-    // In this case, for "kBeforeDrawCall", the draw_call_count is 0 and 1.
-    // for "kAfterDrawCall", the draw_call_count is larger than 3.
-    // for "kDrawCall",  the draw_call_count is 2.
+    // kBeforeDrawCall: the draw_call_count is 0 and 1(and is_draw_call is false)
+    // kDrawCall:  the draw_call_count is 1(and is_draw_call is true) and 2.
+    // kAfterDrawCall: the draw_call_count is larger than 2.
     if (cmd_list_info->command_list_type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
     {
-        if ((cmd_list_info->draw_call_count > trim_draw_calls.bundle_draw_call_indices.first) &&
-            (cmd_list_info->draw_call_count <= trim_draw_calls.bundle_draw_call_indices.last))
+        if (cmd_list_info->draw_call_count < trim_draw_calls.bundle_draw_call_indices.first ||
+            (cmd_list_info->draw_call_count == trim_draw_calls.bundle_draw_call_indices.first && !is_draw_call))
         {
-            split_type = graphics::dx12::Dx12DumpResourcePos::kDrawCall;
+            split_type = graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall;
         }
         else if (cmd_list_info->draw_call_count > trim_draw_calls.bundle_draw_call_indices.last)
         {
@@ -3549,10 +3534,10 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
     }
     else
     {
-        if ((cmd_list_info->draw_call_count > trim_draw_calls.draw_call_indices.first) &&
-            (cmd_list_info->draw_call_count <= trim_draw_calls.draw_call_indices.last))
+        if (cmd_list_info->draw_call_count < trim_draw_calls.draw_call_indices.first ||
+            (cmd_list_info->draw_call_count == trim_draw_calls.draw_call_indices.first && !is_draw_call))
         {
-            split_type = graphics::dx12::Dx12DumpResourcePos::kDrawCall;
+            split_type = graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall;
         }
         else if (cmd_list_info->draw_call_count > trim_draw_calls.draw_call_indices.last)
         {
@@ -3640,20 +3625,16 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
             switch (split_type)
             {
                 case graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall:
-                case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
-                    // If the target draw call is a bundle, the bundle commandlist will also be splitted into three
-                    // commandlists. Then before-commandlist->ExecuteBundle(bundle-before-commandlist)
-                    //      target-commandlist->ExecuteBundle(bundle-target-commandlist)
-                    //       after-commandlist->ExecuteBundle(bundle-after-commandlist)
-                    // In this case, if the draw call is these three splitted commandlists need all setup before the
-                    // target draw call. But it can't know if the target draw call is a bundle in advance, so just add
-                    // all setup into all splitted commandlists.
                     cmd_sets.insert(cmd_sets.end(),
                                     cmd_list_info->split_command_sets.begin(),
                                     cmd_list_info->split_command_sets.end());
                     break;
+                case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
+                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex]);
+                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex]);
+                    break;
                 case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
-                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
+                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex]);
                     break;
                 default:
                     break;
@@ -3664,26 +3645,23 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
         {
             switch (split_type)
             {
-                case graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall:
-                    if (cmd_list_info->draw_call_count == trim_draw_calls.draw_call_indices.first)
+                case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
+                    if (trim_draw_calls.draw_call_indices.first != trim_draw_calls.draw_call_indices.last)
                     {
-                        // Target ExecuteBundle.
-                        cmd_sets.insert(cmd_sets.end(),
-                                        cmd_list_info->split_command_sets.begin(),
-                                        cmd_list_info->split_command_sets.end());
-                        cmd_list_info->find_target_draw_calls = true;
+                        GFXRECON_LOG_FATAL(
+                            "The target draw call is a ExecuteBundle. The draw call indices must be not a range(%d-%d).",
+                            trim_draw_calls.draw_call_indices.first,
+                            trim_draw_calls.draw_call_indices.last);
+                        GFXRECON_ASSERT(trim_draw_calls.draw_call_indices.first ==
+                                        trim_draw_calls.draw_call_indices.last);
                     }
-                    else
-                    {
-                        cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
-                    }
-                    break;
-                case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
-                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
+                    cmd_sets.insert(cmd_sets.end(),
+                                    cmd_list_info->split_command_sets.begin(),
+                                    cmd_list_info->split_command_sets.end());
+                    ++cmd_list_info->find_target_draw_call_count;
                     break;
                 default:
-                    // It's not possible to be kDrawCall.
-                    GFXRECON_LOG_WARNING("ExecuteBundle couldn't be kDrawCall status.");
+                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
                     break;
             }
             break;
@@ -3693,18 +3671,13 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
         case format::ApiCall_ID3D12GraphicsCommandList_Dispatch:
         case format::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect:
         {
-            if ((cmd_list_info->command_list_type == D3D12_COMMAND_LIST_TYPE_BUNDLE &&
-                 cmd_list_info->draw_call_count == trim_draw_calls.bundle_draw_call_indices.first) ||
-                (cmd_list_info->command_list_type != D3D12_COMMAND_LIST_TYPE_BUNDLE &&
-                 cmd_list_info->draw_call_count == trim_draw_calls.draw_call_indices.first))
+            switch (split_type)
             {
-                // The first target draw call.
-                cmd_sets.emplace_back(cmd_list_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex]);
-                cmd_list_info->find_target_draw_calls = true;
-            }
-            else
-            {
-                cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
+                case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
+                    ++cmd_list_info->find_target_draw_call_count;
+                default:
+                    cmd_sets.emplace_back(cmd_list_info->split_command_sets[split_type_array_index]);
+                    break;
             }
             break;
         }

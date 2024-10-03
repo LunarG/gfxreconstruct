@@ -119,35 +119,46 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
 
     auto list_info = list_wrapper->GetObjectInfo();
 
-    if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
+    switch (call_id)
     {
-        list_info->was_reset = true;
-        list_info->is_closed = false;
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset:
+            list_info->was_reset = true;
+            list_info->is_closed = false;
 
-        // Clear command data on command buffer reset.
-        list_info->command_data.Clear();
+            // Clear command data on command buffer reset.
+            list_info->command_data.Clear();
 
-        // Clear pending resource transitions.
-        list_info->transition_barriers.clear();
+            // Clear pending resource transitions.
+            list_info->transition_barriers.clear();
 
-        list_info->command_cpu_descriptor_handles.clear();
-        list_info->command_gpu_descriptor_handles.clear();
-        list_info->command_gpu_virtual_addresses.clear();
-        list_info->draw_call_count = 0;
+            list_info->command_cpu_descriptor_handles.clear();
+            list_info->command_gpu_descriptor_handles.clear();
+            list_info->command_gpu_virtual_addresses.clear();
+            list_info->draw_call_count                = 0;
+            list_info->find_target_draw_call_count    = 0;
+            list_info->target_bundle_commandlist_info = nullptr;
 
-        for (size_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
-        {
-            list_info->command_objects[i].clear();
-        }
+            for (size_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
+            {
+                list_info->command_objects[i].clear();
+            }
 
-        // Clear pending acceleration structure builds & copies.
-        list_info->acceleration_structure_builds.clear();
-        list_info->acceleration_structure_copies.clear();
-    }
-
-    if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
-    {
-        list_info->is_closed = true;
+            // Clear pending acceleration structure builds & copies.
+            list_info->acceleration_structure_builds.clear();
+            list_info->acceleration_structure_copies.clear();
+            break;
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close:
+            list_info->is_closed = true;
+            break;
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced:
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced:
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch:
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect:
+        case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle:
+            ++list_info->draw_call_count;
+            break;
+        default:
+            break;
     }
 
     // Append the command data.
