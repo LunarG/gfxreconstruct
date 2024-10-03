@@ -1254,6 +1254,41 @@ void VulkanReplayConsumerBase::CheckReplayDeviceInfo(VulkanPhysicalDeviceInfo* p
     }
 }
 
+// Needed to support physical device aliasing. See comments for VulkanPhysicalDeviceInfo::vulkan_alias
+void VulkanReplayConsumerBase::SetPhysicalDeviceAlias(format::HandleId          instance,
+                                                      VulkanPhysicalDeviceInfo& replay_physical_device)
+{
+    if ((replay_physical_device.capture_id == format::kNullHandleId) ||
+        (replay_physical_device.handle == VK_NULL_HANDLE))
+    {
+        return;
+    }
+
+    const format::HandleId match_id     = replay_physical_device.capture_id;
+    const VkPhysicalDevice match_handle = replay_physical_device.handle;
+
+    auto instance_info = object_info_table_->GetVkInstanceInfo(instance);
+    assert(instance_info);
+
+    for (const format::HandleId capture_device : instance_info->capture_devices)
+    {
+        const VulkanPhysicalDeviceInfo* physical_device_info =
+            GetObjectInfoTable().GetVkPhysicalDeviceInfo(capture_device);
+        if (!physical_device_info || (physical_device_info->vulkan_alias != format::kNullHandleId))
+        {
+            continue; // only single depth aliasing
+        }
+
+        const format::HandleId& capture_id = physical_device_info->capture_id;
+        const VkPhysicalDevice& handle     = physical_device_info->handle;
+        if ((handle == match_handle) && (capture_id != match_id))
+        {
+            replay_physical_device.vulkan_alias = capture_id;
+            break;
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(VulkanInstanceInfo*       instance_info,
                                                              VulkanPhysicalDeviceInfo* physical_device_info,
                                                              VkPhysicalDevice          replay_device)
@@ -1542,6 +1577,13 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(VulkanInstanceInfo*       
     GFXRECON_LOG_INFO("  Specified device is: %s", override_device_name.c_str());
 
     return true;
+}
+
+void VulkanReplayConsumerBase::GetMatchingDevice(VulkanPhysicalDeviceInfo* physical_device_info)
+{
+    VulkanInstanceInfo* instance_info = object_info_table_->GetVkInstanceInfo(physical_device_info->parent_id);
+    assert(instance_info);
+    GetMatchingDevice(instance_info, physical_device_info);
 }
 
 void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       instance_info,

@@ -270,6 +270,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         return get_instance_proc_addr_;
     }
 
+    void SetPhysicalDeviceAlias(format::HandleId instance, VulkanPhysicalDeviceInfo& replay_physical_device);
+
+    // Need the side effects from this when creating vulkan devices from OpenXr
+    void GetMatchingDevice(VulkanPhysicalDeviceInfo* physical_device_info);
+
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
