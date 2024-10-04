@@ -136,9 +136,9 @@ class CommonCaptureManager
                                        uint32_t                         current_boundary_count,
                                        std::shared_lock<ApiCallMutexT>& current_lock);
 
-    void ActivateTrimmingDrawCalls(format::ApiFamilyId api_family);
+    void ActivateTrimmingDrawCalls(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
-    void DeactivateTrimmingDrawCalls();
+    void DeactivateTrimmingDrawCalls(std::shared_lock<ApiCallMutexT>& current_lock);
 
     bool IsTrimHotkeyPressed();
 

@@ -460,9 +460,11 @@ class D3D12CaptureManager : public ApiCaptureManager
         UINT                                                   num_lists,
         ID3D12CommandList* const*                              lists);
 
-    void OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                        UINT                        num_lists,
-                                                        ID3D12CommandList* const*   lists);
+    void
+    OverrideID3D12CommandQueue_ExecuteCommandLists(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                   ID3D12CommandQueue_Wrapper*                            wrapper,
+                                                   UINT                                                   num_lists,
+                                                   ID3D12CommandList* const*                              lists);
 
     void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
@@ -807,9 +809,11 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                              const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
                                                              D3D12_RENDER_PASS_FLAGS                     Flags);
 
-    bool TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                              UINT                        num_lists,
-                                                              ID3D12CommandList* const*   lists);
+    bool TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+        ID3D12CommandQueue_Wrapper*                            wrapper,
+        UINT                                                   num_lists,
+        ID3D12CommandList* const*                              lists);
 
     bool HasSplitCommandLists(UINT num_lists, ID3D12CommandList* const* lists);
 

@@ -62,6 +62,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         'ID3D12CommandQueue': ['ExecuteCommandLists'],
     }
 
+    OVERRIDECALL_TRIM_TRIGGERS = {
+        'ID3D12CommandQueue': ['ExecuteCommandLists']
+    }
+
     # Functions that can activate trimming from a post call command.
     POSTCALL_TRIM_TRIGGERS = {
         'ID3D12CommandQueue': ['ExecuteCommandLists'],
@@ -773,6 +777,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     self.CAPTURE_OVERRIDES['classmethods'][class_name]
                     [method_name]
                 )
+                
+                if (class_name in self.OVERRIDECALL_TRIM_TRIGGERS) and (method_name in self.OVERRIDECALL_TRIM_TRIGGERS[class_name]):
+                    expr += '\n'+ self.increment_indent(indent) + 'shared_api_call_lock,'
+
                 if unwrapped_args:
                     unwrapped_args = self.increment_indent(
                         indent

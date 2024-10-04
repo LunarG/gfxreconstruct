@@ -16260,6 +16260,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         D3D12CaptureManager::Get()->OverrideID3D12CommandQueue_ExecuteCommandLists(
+            shared_api_call_lock,
             this,
             NumCommandLists,
             ppCommandLists);

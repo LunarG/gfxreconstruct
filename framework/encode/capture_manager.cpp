@@ -753,14 +753,14 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
 }
 
-void CommonCaptureManager::DeactivateTrimmingDrawCalls()
+void CommonCaptureManager::DeactivateTrimmingDrawCalls(std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (trim_enabled_)
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Stop recording and close file.
-            DeactivateTrimming();
+            DeactivateTrimming(current_lock);
             GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // No more trim ranges to capture. Capture can be disabled and resources can be released.
@@ -818,14 +818,15 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
     }
 }
 
-void CommonCaptureManager::ActivateTrimmingDrawCalls(format::ApiFamilyId api_family)
+void CommonCaptureManager::ActivateTrimmingDrawCalls(format::ApiFamilyId              api_family,
+                                                     std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
     {
         bool success = CreateCaptureFile(api_family, CreateTrimDrawCallsFilename(base_filename_, trim_draw_calls_));
         if (success)
         {
-            ActivateTrimming();
+            ActivateTrimming(current_lock);
         }
         else
         {

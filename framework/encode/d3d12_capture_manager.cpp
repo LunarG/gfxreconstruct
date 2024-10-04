@@ -1796,15 +1796,17 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
     }
 }
 
-void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                         UINT                        num_lists,
-                                                                         ID3D12CommandList* const*   lists)
+void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
     bool is_complete = false;
     if (IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls &&
         !HasSplitCommandLists(num_lists, lists))
     {
-        is_complete = TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(wrapper, num_lists, lists);
+        is_complete = TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(current_lock, wrapper, num_lists, lists);
     }
 
     if (!is_complete)
@@ -3303,9 +3305,11 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
     IncrementCallScope();
 }
 
-bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                               UINT                        num_lists,
-                                                                               ID3D12CommandList* const*   lists)
+bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
     auto trim_draw_calls = GetTrimDrawCalls();
 
@@ -3390,7 +3394,7 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(I
         cmdlists.clear();
 
         // target of splitted
-        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
+        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
 
         auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
         GFXRECON_ASSERT(target_draw_call_cmd);
@@ -3403,7 +3407,7 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(I
         Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
         cmdlists.clear();
 
-        common_manager_->DeactivateTrimmingDrawCalls();
+        common_manager_->DeactivateTrimmingDrawCalls(current_lock);
 
         // after of splitted and after of lists
         auto after_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;
