@@ -191,6 +191,87 @@ void handle_array_of_pointers(const T&  base_struct,
     }
     offset += copy_size;
 }
+
+// explicit handling of problematic unions (members do not provide stype)
+void handle_union(const VkIndirectCommandsLayoutTokenEXT& base_struct,
+                  uint32_t                                out_index,
+                  uint64_t&                               offset,
+                  uint8_t*                                out_data)
+{
+    switch (base_struct.type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkIndirectCommandsPushConstantTokenEXT*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkIndirectCommandsVertexBufferTokenEXT*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkIndirectCommandsIndexBufferTokenEXT*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkIndirectCommandsExecutionSetTokenEXT*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        default:
+            break;
+    }
+}
+
+// explicit handling of problematic unions (members do not provide stype)
+void handle_union(const VkDescriptorGetInfoEXT& base_struct, uint32_t out_index, uint64_t& offset, uint8_t* out_data)
+{
+    switch (base_struct.type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+            handle_pointer(
+                base_struct, reinterpret_cast<const VkSampler*>(&base_struct.data), 1, out_index, offset, out_data);
+            break;
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkDescriptorImageInfo*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            handle_pointer(base_struct,
+                           reinterpret_cast<const VkDescriptorAddressInfoEXT*>(&base_struct.data),
+                           1,
+                           out_index,
+                           offset,
+                           out_data);
+            break;
+        default:
+            break;
+    }
+}
 '''
 class VulkanStructDeepCopyBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating function definitions to track (deepcopy) Vulkan structs at API capture for trimming."""
@@ -289,6 +370,15 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
         """ external objects are referenced as void* pointers to non-array values. """
         return (value.is_pointer and not value.is_array) and value.base_type in self.EXTERNAL_OBJECT_TYPES
 
+    def handleAsPointer(self, value):
+        """ some objects or unions need to be interpreted as pointers, later resolved by their stype. """
+        return value.base_type in ["VkPipelineShaderStageCreateInfo", "VkAccelerationStructureGeometryDataKHR",
+                                   "VkIndirectExecutionSetInfoEXT"]
+
+    def handleAsSpecialUnion(self, typename, value):
+        """ some unions do not provide an stype and require special treatment. """
+        return typename in ["VkIndirectCommandsLayoutTokenEXT", "VkDescriptorGetInfoEXT"] and value.name == "data"
+
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
@@ -338,8 +428,11 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
                     write('        handle_pointer(base_struct, base_struct.{0}, {1}, i, offset, out_data);'.format(value.name, count_exp), file=self.outFile)
                 elif value.pointer_count == 2:
                     write('        handle_array_of_pointers(base_struct, base_struct.{0}, {1}, i, offset, out_data);'.format(value.name, count_exp), file=self.outFile)
-            elif value.base_type in ["VkPipelineShaderStageCreateInfo", "VkAccelerationStructureGeometryDataKHR"]:
+            elif self.handleAsPointer(value):
                 write('        handle_struct_member(base_struct, base_struct.{0}, i, offset, out_data);'.format(value.name), file=self.outFile)
+            elif self.handleAsSpecialUnion(typename, value):
+                write('        handle_union(base_struct, i, offset, out_data);', file=self.outFile)
+
         write('    }', file=self.outFile)
         write('    return offset;', file=self.outFile)
         write('}', file=self.outFile)
