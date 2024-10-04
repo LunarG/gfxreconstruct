@@ -798,6 +798,19 @@ static EventStrings events_to_string[] = {
     { XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT, "XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT" },
 };
 
+bool IsHandledEventType(XrStructureType type)
+{
+    size_t len = sizeof(events_to_string) / sizeof(EventStrings);
+    for (size_t ii = 0; ii < len; ++ii)
+    {
+        if (type == events_to_string[ii].type)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 const char* GetEventTypeString(XrStructureType type)
 {
     size_t len = sizeof(events_to_string) / sizeof(EventStrings);
@@ -839,6 +852,20 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         }
     }
 
+    // We ignored previous events that were not indicated in the capture yet, so see if this one is in the list already
+    for (size_t ii = 0; ii < received_events_.size(); ++ii)
+    {
+        if (skipped_unhandled_events_[ii].type == capture_event->type)
+        {
+            GFXRECON_LOG_WARNING("Previously recorded but skipped event %s (0x%x, %u)",
+                                 GetEventTypeString(capture_event->type),
+                                 capture_event->type,
+                                 capture_event->type);
+            skipped_unhandled_events_.erase(skipped_unhandled_events_.begin() + ii);
+            return;
+        }
+    }
+
     XrEventDataBuffer* out_eventData =
         eventData->IsNull() ? nullptr : eventData->AllocateOutputData(1, { XR_TYPE_EVENT_DATA_BUFFER, nullptr });
     InitializeOutputStructNext(eventData);
@@ -846,7 +873,7 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrResult replay_result;
 
     // WIP: Put this constant somewhere interesting
-    const uint32_t kRetryLimit      = 10;
+    const uint32_t kRetryLimit      = 16;
     const int64_t  kMaxSleepLimitNs = 500000000; // 500ms
     uint32_t       retry_count      = 0;
 
@@ -859,6 +886,10 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
             replay_result  = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
             retry_count++;
 
+            GFXRECON_LOG_INFO("Looking for event %s (0x%x, %u)",
+                              GetEventTypeString(capture_event->type),
+                              capture_event->type,
+                              capture_event->type);
             if (capture_event->type != out_eventData->type)
             {
                 if (replay_result == XR_SUCCESS)
@@ -866,17 +897,17 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                     // Add it to the list of received events
                     received_events_.push_back(*out_eventData);
                     GFXRECON_LOG_WARNING("Recording event for later %s (0x%x, %u)",
-                                         GetEventTypeString(capture_event->type),
-                                         capture_event->type,
-                                         capture_event->type);
+                                         GetEventTypeString(out_eventData->type),
+                                         out_eventData->type,
+                                         out_eventData->type);
 
-                    // If we grow too lare on the event vector, it's probably because we have
+                    // If we grow too large on the event vector, it's probably because we have
                     // received a bunch of events we can not handle.  So remove the first 100
                     // events to make room for more without bloating the list size.
                     // TODO: Perhaps do this more elegantly?
                     if (received_events_.size() > 1000)
                     {
-                        GFXRECON_LOG_WARNING("Event list is now %d in size, stripping the first 100!",
+                        GFXRECON_LOG_WARNING("Received event list is now %d in size, stripping the first 100!",
                                              received_events_.size());
                         received_events_.erase(received_events_.begin(), received_events_.begin() + 100);
                     }
@@ -907,11 +938,42 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
         if (capture_event->type != out_eventData->type)
         {
-            GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
-                               GetEventTypeString(capture_event->type),
-                               capture_event->type,
-                               capture_event->type);
-            replay_result = XR_ERROR_RUNTIME_FAILURE; // Runtime never gave us the event we were looking for
+            if (IsHandledEventType(capture_event->type))
+            {
+                GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
+                                   GetEventTypeString(capture_event->type),
+                                   capture_event->type,
+                                   capture_event->type);
+
+                // Runtime never gave us the event we were looking for
+                replay_result = XR_ERROR_RUNTIME_FAILURE;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Unhandled Event %s (0x%x %d) never occurred, pretending everything is still fine",
+                                     GetEventTypeString(capture_event->type),
+                                     capture_event->type,
+                                     capture_event->type);
+
+                // Save the event just in case we receive it in the future
+                skipped_unhandled_events_.push_back(*capture_event);
+
+                // If we grow too large on the event vector, it's probably because we have
+                // received a bunch of events we can not handle.  So remove the first 100
+                // events to make room for more without bloating the list size.
+                // TODO: Perhaps do this more elegantly?
+                if (skipped_unhandled_events_.size() > 1000)
+                {
+                    GFXRECON_LOG_WARNING("Unhandled Event list is now %d in size, stripping the first 100!",
+                                         skipped_unhandled_events_.size());
+                    skipped_unhandled_events_.erase(skipped_unhandled_events_.begin(),
+                                                    skipped_unhandled_events_.begin() + 100);
+                }
+
+                // Return the expected replay code just because we don't know how to handle this and
+                // we never received it (just so we don't assert out).
+                replay_result = returnValue;
+            }
         }
     }
     else
