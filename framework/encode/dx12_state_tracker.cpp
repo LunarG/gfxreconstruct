@@ -133,6 +133,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
         list_info->command_cpu_descriptor_handles.clear();
         list_info->command_gpu_descriptor_handles.clear();
         list_info->command_gpu_virtual_addresses.clear();
+        list_info->drawcall_count = 0;
 
         for (size_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
         {

@@ -70,6 +70,26 @@ typedef _com_ptr_t<
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
+struct CommandSet
+{
+    ID3D12CommandAllocatorComPtr    allocator{ nullptr };
+    ID3D12GraphicsCommandListComPtr list{ nullptr };
+};
+
+enum class Dx12DumpResourcePos : uint32_t
+{
+    kUnknown,
+    kBeforeDrawCall,
+    kDrawCall,
+    kAfterDrawCall,
+};
+
+const static uint32_t kBeforeDrawCallArrayIndex = 0;
+const static uint32_t kDrawCallArrayIndex       = 1;
+const static uint32_t kAfterDrawCallArrayIndex  = 2;
+
+uint32_t Dx12DumpResourcePosToArrayIndex(Dx12DumpResourcePos pos);
+
 struct ActiveAdapterInfo
 {
     format::DxgiAdapterDesc internal_desc;

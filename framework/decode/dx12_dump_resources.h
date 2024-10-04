@@ -58,14 +58,6 @@ enum class Dx12DumpResourceType : uint32_t
     kExecuteIndirectCount,
 };
 
-enum class Dx12DumpResourcePos : uint32_t
-{
-    kUnknown,
-    kBeforeDrawCall,
-    kDrawCall,
-    kAfterDrawCall,
-};
-
 struct CopyResourceData
 {
     // Allow default constructor, disallow copy constructor.
@@ -91,7 +83,7 @@ struct CopyResourceData
 
     std::vector<std::pair<std::string, int32_t>> json_path;
     Dx12DumpResourceType                         resource_type{ Dx12DumpResourceType::kUnknown };
-    Dx12DumpResourcePos                          dump_position{ Dx12DumpResourcePos::kUnknown };
+    graphics::dx12::Dx12DumpResourcePos          dump_position{ graphics::dx12::Dx12DumpResourcePos::kUnknown };
 
     format::HandleId descriptor_heap_id{ format::kNullHandleId };
     uint32_t         descriptor_heap_index{ 0 };
@@ -113,19 +105,13 @@ struct CopyResourceData
         read_resource                   = nullptr;
         read_resource_is_staging_buffer = false;
         resource_type                   = Dx12DumpResourceType::kUnknown;
-        dump_position                   = Dx12DumpResourcePos::kUnknown;
+        dump_position                   = graphics::dx12::Dx12DumpResourcePos::kUnknown;
         descriptor_heap_id              = format::kUnknown;
         descriptor_heap_index           = 0;
     }
 };
 
 typedef std::shared_ptr<CopyResourceData> CopyResourceDataPtr;
-
-struct CommandSet
-{
-    graphics::dx12::ID3D12CommandAllocatorComPtr    allocator;
-    graphics::dx12::ID3D12GraphicsCommandListComPtr list;
-};
 
 struct TrackDumpResources
 {
@@ -141,8 +127,8 @@ struct TrackDumpResources
     graphics::dx12::ID3D12ResourceComPtr         copy_staging_buffer{ nullptr };
     uint64_t                                     copy_staging_buffer_size{ 0 };
 
-    std::array<CommandSet, 3> split_command_sets;
-    std::array<CommandSet, 3> split_bundle_command_sets;
+    std::array<graphics::dx12::CommandSet, 3> split_command_sets;
+    std::array<graphics::dx12::CommandSet, 3> split_bundle_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
     HANDLE                            fence_event;
@@ -220,9 +206,9 @@ class Dx12DumpResources
 
     void SetDelegate(Dx12DumpResourcesDelegate* delegate) { user_delegate_ = delegate; }
 
-    std::vector<CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
-                                                            uint64_t          block_index,
-                                                            format::ApiCallId api_call_id);
+    std::vector<graphics::dx12::CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
+                                                                            uint64_t          block_index,
+                                                                            format::ApiCallId api_call_id);
 
     inline void SetDumpTarget(TrackDumpDrawcall& track_dump_target)
     {
@@ -263,7 +249,7 @@ class Dx12DumpResources
 
     void CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
                                const std::vector<format::HandleId>& front_command_list_ids,
-                               Dx12DumpResourcePos                  pos);
+                               graphics::dx12::Dx12DumpResourcePos  pos);
 
     void CopyDrawcallResourceByGPUVA(DxObjectInfo*                                       queue_object_info,
                                      const std::vector<format::HandleId>&                front_command_list_ids,
@@ -271,7 +257,7 @@ class Dx12DumpResources
                                      uint64_t                                            source_size,
                                      const std::vector<std::pair<std::string, int32_t>>& json_path,
                                      Dx12DumpResourceType                                resource_type,
-                                     Dx12DumpResourcePos                                 pos,
+                                     graphics::dx12::Dx12DumpResourcePos                 pos,
                                      format::HandleId                                    descriptor_heap_id,
                                      uint32_t                                            descriptor_heap_index);
 
@@ -283,7 +269,7 @@ class Dx12DumpResources
                                            const std::vector<uint32_t>&                        subresource_indices,
                                            const std::vector<std::pair<std::string, int32_t>>& json_path,
                                            Dx12DumpResourceType                                resource_type,
-                                           Dx12DumpResourcePos                                 pos,
+                                           graphics::dx12::Dx12DumpResourcePos                 pos,
                                            format::HandleId                                    descriptor_heap_id,
                                            uint32_t                                            descriptor_heap_index);
 

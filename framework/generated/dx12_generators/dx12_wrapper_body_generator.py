@@ -731,6 +731,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             wrapped_args = ''
             unwrapped_args = ''
+            trim_drawcalls_wrapped_args = ''
+            trim_drawcalls_unwrapped_args = ''
             need_unwrap_memory = False
             if parameters:
                 wrapped_args, unused = self.make_arg_list(
@@ -738,6 +740,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 )
                 unwrapped_args, need_unwrap_memory = self.make_arg_list(
                     parameters, True, self.increment_indent(indent)
+                )
+                trim_drawcalls_wrapped_args, unused = self.make_arg_list(
+                    parameters, False, self.increment_indent(self.increment_indent(self.increment_indent(indent)))
+                )
+                trim_drawcalls_unwrapped_args, need_unwrap_memory = self.make_arg_list(
+                    parameters, True, self.increment_indent(self.increment_indent(self.increment_indent(indent)))
                 )
 
             # Add custom pre call action.
@@ -755,10 +763,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             if return_type != 'void':
                 expr += 'result = '
 
+            is_override = False
             if (class_name in self.CAPTURE_OVERRIDES['classmethods']) and (
                 method_name
                 in self.CAPTURE_OVERRIDES['classmethods'][class_name]
             ):
+                is_override = True
                 expr += '{}('.format(
                     self.CAPTURE_OVERRIDES['classmethods'][class_name]
                     [method_name]
@@ -782,6 +792,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += self.gen_wrap_object(return_type, parameters, indent)
 
             expr += '\n'
+
             expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
             encode_args = self.increment_indent(indent) + 'this'
             if wrapped_args or (return_type != 'void'):
@@ -792,6 +803,51 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     encode_args += ',\n'
                     encode_args += wrapped_args
             expr += encode_args + ');\n'
+
+            if is_override is False and 'ID3D12GraphicsCommandList' in class_name:
+                indent1 = self.increment_indent(indent)
+                indent2 = self.increment_indent(indent1)
+                indent3 = self.increment_indent(indent2)
+                indent4 = self.increment_indent(indent3)
+                expr += '\n'
+                expr += indent + 'if(manager->GetTrimBundary() == CaptureSettings::TrimBoundary::kDrawcalls)\n'
+                expr += indent + '{\n'
+                expr += indent1 + 'manager->DecrementCallScope();\n'
+                expr += indent1 + 'auto trim_drawcalls_command_sets = manager->GetCommandListsForTrimDrawcalls(this, format::ApiCall_{}_{});\n'.format(class_name, method_name)
+                expr += indent1 + 'for(auto& command_set : trim_drawcalls_command_sets)\n'
+                expr += indent1 + '{\n'
+
+                if class_name != 'ID3D12GraphicsCommandList':
+                    expr += indent2 + '{}* command_list;\n'.format(class_name)
+                    expr += indent2 + 'command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));\n'
+                    expr += indent2 + '{}_Wrapper* wrapper = nullptr;\n'.format(class_name)
+                    expr += indent2 + 'command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));\n'
+                else:
+                    expr += indent2 + 'ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;\n'
+                    expr += indent2 + 'command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));\n'
+
+                if return_type != 'void':
+                    expr += indent2 + 'HRESULT result_trim_drawcalls = wrapper'
+                else:
+                    expr += indent2 + 'wrapper'
+
+                expr += "->{}(".format(method_name)                
+                if trim_drawcalls_wrapped_args:
+                    expr += "\n"
+                    expr += trim_drawcalls_wrapped_args
+                expr += ");\n"
+
+                if return_type != 'void':               
+                    expr += indent2 + 'if (result != result_trim_drawcalls)\n'
+                    expr += indent2 + '{\n'
+                    expr += indent3 + 'GFXRECON_LOG_WARNING("Splitting commandlists of {}::{} get different results: %s and %s",\n'.format(class_name, method_name)
+                    expr += indent4 + 'decode::enumutil::GetResultValueString(result).c_str(),\n'
+                    expr += indent4 + 'decode::enumutil::GetResultValueString(result_trim_drawcalls).c_str());\n'
+                    expr += indent2 + '}\n'
+
+                expr += indent1 + '}\n'
+                expr += indent1 + 'manager->IncrementCallScope();\n'
+                expr += indent + '}\n'
 
             # Add custom post call action.
             expr += '\n'
@@ -954,6 +1010,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
         code += '#include "encode/dx12_rv_annotation_util.h"\n'
+        code += '#include "decode/dx12_enum_util.h"\n'
         code += '#include "generated/generated_dx12_api_call_encoders.h"\n'
         code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'

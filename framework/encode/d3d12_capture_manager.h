@@ -460,6 +460,10 @@ class D3D12CaptureManager : public ApiCaptureManager
         UINT                                                   num_lists,
         ID3D12CommandList* const*                              lists);
 
+    void OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                        UINT                        num_lists,
+                                                        ID3D12CommandList* const*   lists);
+
     void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
                                       REFIID            riid,
@@ -609,6 +613,35 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                         ID3D12Pageable* const*          ppObjects,
                                                         const D3D12_RESIDENCY_PRIORITY* pPriorities);
 
+    void PostProcess_ID3D12GraphicsCommandList_DrawInstanced(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                             UINT                               VertexCountPerInstance,
+                                                             UINT                               InstanceCount,
+                                                             UINT                               StartVertexLocation,
+                                                             UINT                               StartInstanceLocatio);
+
+    void PostProcess_ID3D12GraphicsCommandList_DrawIndexedInstanced(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                                    UINT IndexCountPerInstance,
+                                                                    UINT InstanceCount,
+                                                                    UINT StartIndexLocation,
+                                                                    INT  BaseVertexLocation,
+                                                                    UINT StartInstanceLocation);
+
+    void PostProcess_ID3D12GraphicsCommandList_Dispatch(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                        UINT                               ThreadGroupCountX,
+                                                        UINT                               ThreadGroupCountY,
+                                                        UINT                               ThreadGroupCountZ);
+
+    void PostProcess_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                               ID3D12CommandSignature*            pCommandSignature,
+                                                               UINT                               MaxCommandCount,
+                                                               ID3D12Resource*                    pArgumentBuffer,
+                                                               UINT64                             ArgumentBufferOffset,
+                                                               ID3D12Resource*                    pCountBuffer,
+                                                               UINT64                             CountBufferOffset);
+
+    void PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                             ID3D12GraphicsCommandList*         pCommandList);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -721,6 +754,19 @@ class D3D12CaptureManager : public ApiCaptureManager
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO*      pInfo);
 
+    HRESULT OverrideID3D12GraphicsCommandList_Reset(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                    ID3D12CommandAllocator*            pAllocator,
+                                                    ID3D12PipelineState*               pInitialState);
+
+    void OverrideID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                         ID3D12GraphicsCommandList*         pCommandList);
+
+    void OverrideID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                                            UINT                                NumRenderTargets,
+                                                            const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
+                                                            const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
+                                                            D3D12_RENDER_PASS_FLAGS                     Flags);
+
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }
@@ -767,6 +813,9 @@ class D3D12CaptureManager : public ApiCaptureManager
     void SetAgsVersion(int ags_version) { ags_version_ = ags_version; }
 
     int GetAgsVersion() { return ags_version_; }
+
+    std::vector<graphics::dx12::CommandSet> GetCommandListsForTrimDrawcalls(ID3D12CommandList_Wrapper* wrapper,
+                                                                            format::ApiCallId          api_call_id);
 
   protected:
     D3D12CaptureManager();
