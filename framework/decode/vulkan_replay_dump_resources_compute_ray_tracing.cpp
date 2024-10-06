@@ -196,6 +196,11 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
 {
     PipelineBindPoints bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
 
+    if (bind_point != kBindPoint_compute && bind_point != kBindPoint_ray_tracing)
+    {
+        return;
+    }
+
     uint32_t dynamic_offset_index = 0;
     for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
