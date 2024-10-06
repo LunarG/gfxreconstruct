@@ -2693,12 +2693,17 @@ void DrawCallsDumpingContext::BindDescriptorSets(VkPipelineBindPoint            
                                                  uint32_t                                     dynamicOffsetCount,
                                                  const uint32_t*                              pDynamicOffsets)
 {
+    if (pipeline_bind_point != VK_PIPELINE_BIND_POINT_GRAPHICS)
+    {
+        return;
+    }
+
     uint32_t dynamic_offset_index = 0;
     for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
         uint32_t set_index = first_set + i;
 
-        if (descriptor_sets_infos[i] != nullptr && pipeline_bind_point == VK_PIPELINE_BIND_POINT_GRAPHICS)
+        if (descriptor_sets_infos[i] != nullptr)
         {
             bound_descriptor_sets_gr[set_index] = *descriptor_sets_infos[i];
 
