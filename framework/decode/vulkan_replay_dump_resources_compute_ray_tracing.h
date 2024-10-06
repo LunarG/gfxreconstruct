@@ -116,6 +116,8 @@ class DispatchTraceRaysDumpingContext
 
     VkResult CopyTraceRaysIndirectParameters(uint64_t index);
 
+    void EndCommandBuffer();
+
     void Release();
 
   private:
@@ -482,6 +484,7 @@ class DispatchTraceRaysDumpingContext
     size_t                                  current_dispatch_index;
     size_t                                  current_trace_rays_index;
     std::string                             capture_filename;
+    bool                                    reached_end_command_buffer;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

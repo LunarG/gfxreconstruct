@@ -53,6 +53,12 @@ class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 
     ~VulkanReplayDumpResources() { }
 
+void Process_vkEndCommandBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkEndCommandBuffer                      func,
+    VkResult                                    returnValue,
+    VkCommandBuffer                             commandBuffer);
+
 void Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindPipeline                       func,

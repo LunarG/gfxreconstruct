@@ -1597,6 +1597,12 @@ class BaseGenerator(OutputGenerator):
     def is_resource_dump_class(self):
         return True if ('ReplayDumpResources' in self.__class__.__name__) else False
 
+    def is_dump_resources_api_call(self, call_name):
+        if (call_name[:5] == 'vkCmd' or call_name == 'vkEndCommandBuffer'):
+            return True
+        else:
+            return False
+
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.
         From Vulkan-ValidationLayers common_codegen.py.

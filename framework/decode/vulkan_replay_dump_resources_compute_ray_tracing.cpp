@@ -63,7 +63,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
     replay_device_phys_mem_props(nullptr), current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename)
+    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename),
+    reached_end_command_buffer(false)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -92,7 +93,8 @@ void DispatchTraceRaysDumpingContext::Release()
                 assert(pool_info);
 
                 device_table->FreeCommandBuffers(device, pool_info->handle, 1, &DR_command_buffer);
-                DR_command_buffer = VK_NULL_HANDLE;
+                DR_command_buffer          = VK_NULL_HANDLE;
+                reached_end_command_buffer = false;
             }
         }
 
@@ -167,17 +169,6 @@ void DispatchTraceRaysDumpingContext::FinalizeCommandBuffer(bool is_dispatch)
     else
     {
         ++current_trace_rays_index;
-    }
-
-    if (!IsRecording())
-    {
-        assert((dump_resources_before ? (current_dispatch_index / 2) : current_dispatch_index) ==
-                   dispatch_indices.size() &&
-               (dump_resources_before ? (current_trace_rays_index / 2) : current_trace_rays_index) ==
-                   trace_rays_indices.size());
-        assert(DR_command_buffer != VK_NULL_HANDLE);
-
-        device_table->EndCommandBuffer(DR_command_buffer);
     }
 }
 
@@ -1292,15 +1283,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
 bool DispatchTraceRaysDumpingContext::IsRecording() const
 {
-    if (!dump_resources_before)
-    {
-        return current_dispatch_index < dispatch_indices.size() || current_trace_rays_index < trace_rays_indices.size();
-    }
-    else
-    {
-        return ((current_dispatch_index / 2) < dispatch_indices.size()) ||
-               ((current_trace_rays_index / 2) < trace_rays_indices.size());
-    }
+    return !reached_end_command_buffer;
 }
 
 void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(DispatchParameters& disp_params)
@@ -2969,6 +2952,12 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
         std::forward_as_tuple(DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect2,
                               indirectDeviceAddress));
     assert(new_entry.second);
+}
+
+void DispatchTraceRaysDumpingContext::EndCommandBuffer()
+{
+    reached_end_command_buffer = true;
+    device_table->EndCommandBuffer(DR_command_buffer);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
