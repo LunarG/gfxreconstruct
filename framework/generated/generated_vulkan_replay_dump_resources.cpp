@@ -34,6 +34,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void VulkanReplayDumpResources::Process_vkEndCommandBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkEndCommandBuffer                      func,
+    VkResult                                    returnValue,
+    VkCommandBuffer                             commandBuffer)
+{
+    if (IsRecording(commandBuffer))
+    {
+        OverrideEndCommandBuffer(call_info, func, commandBuffer);
+    }
+}
+
 void VulkanReplayDumpResources::Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindPipeline                       func,

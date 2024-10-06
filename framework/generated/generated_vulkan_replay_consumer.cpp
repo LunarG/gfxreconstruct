@@ -1437,6 +1437,11 @@ void VulkanReplayConsumer::Process_vkEndCommandBuffer(
 
     VkResult replay_result = GetDeviceTable(in_commandBuffer)->EndCommandBuffer(in_commandBuffer);
     CheckResult("vkEndCommandBuffer", returnValue, replay_result, call_info);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper.Process_vkEndCommandBuffer(call_info, GetDeviceTable(in_commandBuffer)->EndCommandBuffer, returnValue, in_commandBuffer);
+    }
 }
 
 void VulkanReplayConsumer::Process_vkResetCommandBuffer(

@@ -253,7 +253,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Return VulkanReplayConsumer class member function definition."""
         body = ''
         is_override = name in self.REPLAY_OVERRIDES
-        is_cmd = name[:5] == 'vkCmd'
+        is_dump_resources = self.is_dump_resources_api_call(name)
 
         is_skip_offscreen = True
 
@@ -356,7 +356,7 @@ class VulkanReplayConsumerBodyGenerator(
             body += '    {};\n'.format(call_expr)
 
         # Dump resources code generation
-        if is_cmd:
+        if is_dump_resources:
             is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
 
             dump_resource_arglist = ''
@@ -395,15 +395,16 @@ class VulkanReplayConsumerBodyGenerator(
                         dump_resource_arglist += ', '
                     dump_resource_arglist = dump_resource_arglist[:-2]
                 else:
-                    if return_type == 'VkResult':
-                        dump_resource_arglist = 'returnValue, ' + arglist
-                    else:
-                        dump_resource_arglist = arglist
+                    dump_resource_arglist = arglist
 
             body += '\n'
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
-            body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            if return_type == 'VkResult':
+                body += '        resource_dumper.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            else:
+                body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+
             body += '    }\n'
 
         if postexpr:
