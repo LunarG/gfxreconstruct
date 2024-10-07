@@ -545,7 +545,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     {
         if (settings->trace_settings_.trim_ranges.empty())
         {
-            ParseUintRangeList(trim_queue_submits, &settings->trace_settings_.trim_ranges, "capture queue submits");
+            ParseUintRangeList(
+                trim_queue_submits, &settings->trace_settings_.trim_ranges, "capture queue submits", true, true);
             if (!settings->trace_settings_.trim_ranges.empty())
             {
                 settings->trace_settings_.trim_boundary = TrimBoundary::kQueueSubmits;

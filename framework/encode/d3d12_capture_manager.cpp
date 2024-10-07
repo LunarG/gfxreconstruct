@@ -3313,8 +3313,7 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
 {
     auto trim_draw_calls = GetTrimDrawCalls();
 
-    // TODO: When queue_submit_count_ becomes 0-based, remove "-1".
-    if ((common_manager_->GetQueueSubmitCount() - 1) == trim_draw_calls.submit_index)
+    if (common_manager_->GetQueueSubmitCount() == trim_draw_calls.submit_index)
     {
         if (num_lists <= trim_draw_calls.command_index)
         {
