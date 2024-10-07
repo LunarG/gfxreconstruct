@@ -141,12 +141,12 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_browse_consumer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.cpp>
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_buffer_tracker.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_buffer_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_json_consumer_base.h

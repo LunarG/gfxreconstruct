@@ -41,6 +41,7 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -137,6 +138,9 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties[]>  queue_family_properties;
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
+
+    // Track RayTracingPipelinePropertiesKHR
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> ray_tracing_pipeline_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
@@ -214,6 +218,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
+    VkDeviceAddress  opaque_address{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>

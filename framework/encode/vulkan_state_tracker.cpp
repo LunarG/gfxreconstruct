@@ -23,7 +23,6 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
-#include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
@@ -326,11 +325,22 @@ void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice           
 
 void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
 {
-    assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
     auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
     wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
+}
+
+void VulkanStateTracker::TrackOpaqueBufferDeviceAddress(VkDevice        device,
+                                                        VkBuffer        buffer,
+                                                        VkDeviceAddress opaque_address)
+{
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+
+    auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->device_id      = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->opaque_address = opaque_address;
 }
 
 void VulkanStateTracker::TrackBufferMemoryBinding(
@@ -1372,6 +1382,14 @@ void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDevic
     wrapper->address   = address;
 
     device_memory_addresses_map.emplace(address, wrapper);
+}
+
+void VulkanStateTracker::TrackRayTracingPipelineProperties(
+    VkPhysicalDevice physicalDevice, VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    wrapper->ray_tracing_pipeline_properties        = *ray_properties;
+    wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
 }
 
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
