@@ -132,71 +132,6 @@ void AgsReplayConsumer::CheckReplayResult(const char*            call_name,
     }
 }
 
-void AgsReplayConsumer::LoadAgsDll()
-{
-    if (ags_dll_ == nullptr)
-    {
-        ags_dll_ = util::platform::OpenLibrary(kAGS601DllName);
-    }
-
-    if (ags_dll_ != nullptr)
-    {
-        ags_dispatch_table_.agsInitialize =
-            reinterpret_cast<decltype(agsInitialize)*>(GetProcAddress(ags_dll_, "agsInitialize"));
-
-        ags_dispatch_table_.agsDriverExtensionsDX12_CreateDevice =
-            reinterpret_cast<decltype(agsDriverExtensionsDX12_CreateDevice)*>(
-                GetProcAddress(ags_dll_, "agsDriverExtensionsDX12_CreateDevice"));
-
-        ags_dispatch_table_.agsDriverExtensionsDX12_DestroyDevice =
-            reinterpret_cast<decltype(agsDriverExtensionsDX12_DestroyDevice)*>(
-                GetProcAddress(ags_dll_, "agsDriverExtensionsDX12_DestroyDevice"));
-
-        ags_dispatch_table_.agsDeInitialize =
-            reinterpret_cast<decltype(agsDeInitialize)*>(GetProcAddress(ags_dll_, "agsDeInitialize"));
-
-        ags_dispatch_table_.agsCheckDriverVersion =
-            reinterpret_cast<decltype(agsCheckDriverVersion)*>(GetProcAddress(ags_dll_, "agsCheckDriverVersion"));
-
-        ags_dispatch_table_.agsGetVersionNumber =
-            reinterpret_cast<decltype(agsGetVersionNumber)*>(GetProcAddress(ags_dll_, "agsGetVersionNumber"));
-
-        ags_dispatch_table_.agsSetDisplayMode =
-            reinterpret_cast<decltype(agsSetDisplayMode)*>(GetProcAddress(ags_dll_, "agsSetDisplayMode"));
-
-        ags_dispatch_table_.agsDriverExtensionsDX12_PushMarker =
-            reinterpret_cast<decltype(agsDriverExtensionsDX12_PushMarker)*>(
-                GetProcAddress(ags_dll_, "agsDriverExtensionsDX12_PushMarker"));
-
-        ags_dispatch_table_.agsDriverExtensionsDX12_PopMarker =
-            reinterpret_cast<decltype(agsDriverExtensionsDX12_PopMarker)*>(
-                GetProcAddress(ags_dll_, "agsDriverExtensionsDX12_PopMarker"));
-
-        ags_dispatch_table_.agsDriverExtensionsDX12_SetMarker =
-            reinterpret_cast<decltype(agsDriverExtensionsDX12_SetMarker)*>(
-                GetProcAddress(ags_dll_, "agsDriverExtensionsDX12_SetMarker"));
-
-        if ((ags_dispatch_table_.agsInitialize != nullptr) &&
-            (ags_dispatch_table_.agsDriverExtensionsDX12_CreateDevice != nullptr) &&
-            (ags_dispatch_table_.agsDriverExtensionsDX12_DestroyDevice != nullptr) &&
-            (ags_dispatch_table_.agsDeInitialize != nullptr) &&
-            (ags_dispatch_table_.agsCheckDriverVersion != nullptr) &&
-            (ags_dispatch_table_.agsGetVersionNumber != nullptr) &&
-            (ags_dispatch_table_.agsSetDisplayMode != nullptr) &&
-            (ags_dispatch_table_.agsDriverExtensionsDX12_PushMarker != nullptr) &&
-            (ags_dispatch_table_.agsDriverExtensionsDX12_PopMarker != nullptr) &&
-            (ags_dispatch_table_.agsDriverExtensionsDX12_SetMarker != nullptr))
-        {
-            ags_dll_loaded_ = true;
-        }
-
-        if (!ags_dll_loaded_)
-        {
-            GFXRECON_LOG_WARNING("AGS: failure loading ags dll.");
-        }
-    }
-}
-
 void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
                                               AGSReturnCode           return_value,
                                               int                     agsVersion,
@@ -206,36 +141,30 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    LoadAgsDll();
+    captured_context_ = context;
+    AGSGPUInfo gpu_info_replay{};
 
-    if (ags_dll_loaded_)
+    if (config != nullptr && (config->allocCallback != nullptr || config->freeCallback != nullptr))
     {
-        captured_context_ = context;
-        AGSGPUInfo gpu_info_replay{};
-
-        if (config != nullptr && (config->allocCallback != nullptr || config->freeCallback != nullptr))
-        {
-            GFXRECON_LOG_WARNING_ONCE(
-                "agsInitialize function was called with a non-null 'config' parameter during capture. "
-                "Now for replay, the parameter is set to a nullptr value, because the callback pointers can't be "
-                "translated.");
-        }
-
-        AGSConfiguration* forced_config   = nullptr;
-        auto              current_version = AGS_CURRENT_VERSION;
-
-        if (agsVersion != current_version)
-        {
-            GFXRECON_LOG_WARNING_ONCE(
-                "The agsInitialize function was called with an AGS version that is different from the current version."
-                "The replay will be processed with the latest AGS version.");
-        }
-
-        AGSReturnCode result =
-            ags_dispatch_table_.agsInitialize(current_version, forced_config, &current_context_, &gpu_info_replay);
-
-        CheckReplayResult("Process_agsInitialize", return_value, result);
+        GFXRECON_LOG_WARNING_ONCE(
+            "agsInitialize function was called with a non-null 'config' parameter during capture. "
+            "Now for replay, the parameter is set to a nullptr value, because the callback pointers can't be "
+            "translated.");
     }
+
+    AGSConfiguration* forced_config   = nullptr;
+    auto              current_version = AGS_CURRENT_VERSION;
+
+    if (agsVersion != current_version)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The agsInitialize function was called with an AGS version that is different from the current version. "
+            "The replay will be processed with the latest AGS version.");
+    }
+
+    AGSReturnCode result = agsInitialize(current_version, forced_config, &current_context_, &gpu_info_replay);
+
+    CheckReplayResult("Process_agsInitialize", return_value, result);
 }
 
 void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
@@ -248,7 +177,7 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateAgsInputs(context))
+    if (ValidateAgsInputs(context))
     {
         IDXGIAdapter* current_adapter = nullptr;
 
@@ -263,7 +192,7 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
         creationParams->pAdapter = current_adapter;
 
         AGSDX12ReturnedParams returned_parameters{};
-        AGSReturnCode         result = ags_dispatch_table_.agsDriverExtensionsDX12_CreateDevice(
+        AGSReturnCode         result = agsDriverExtensionsDX12_CreateDevice(
             current_context_, creationParams, extensionParams, &returned_parameters);
 
         // mapping created objects.
@@ -300,7 +229,7 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_DestroyDevice(const ApiC
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateAgsInputs(context))
+    if (ValidateAgsInputs(context))
     {
         ID3D12Device*              current_device            = nullptr;
         unsigned int               current_device_references = 0;
@@ -308,8 +237,8 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_DestroyDevice(const ApiC
 
         current_device = dx12_replay_consumer_->MapObject<ID3D12Device>(captured_device);
 
-        AGSReturnCode result = ags_dispatch_table_.agsDriverExtensionsDX12_DestroyDevice(
-            current_context_, current_device, &current_device_references);
+        AGSReturnCode result =
+            agsDriverExtensionsDX12_DestroyDevice(current_context_, current_device, &current_device_references);
 
         DxObjectInfo object_info{};
         object_info.capture_id = captured_device;
@@ -326,9 +255,9 @@ void AgsReplayConsumer::Process_agsDeInitialize(const ApiCallInfo& call_info,
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateContext(context))
+    if (ValidateContext(context))
     {
-        AGSReturnCode result = ags_dispatch_table_.agsDeInitialize(current_context_);
+        AGSReturnCode result = agsDeInitialize(current_context_);
 
         CheckReplayResult("Process_agsDeInitialize", return_value, result);
     }
@@ -341,30 +270,23 @@ void AgsReplayConsumer::Process_agsCheckDriverVersion(const ApiCallInfo&     cal
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_)
-    {
-        AGSDriverVersionResult result =
-            ags_dispatch_table_.agsCheckDriverVersion(radeonSoftwareVersionReported, radeonSoftwareVersionRequired);
+    AGSDriverVersionResult result = agsCheckDriverVersion(radeonSoftwareVersionReported, radeonSoftwareVersionRequired);
 
-        CheckReplayResult("Process_agsCheckDriverVersion", return_value, result);
-    }
+    CheckReplayResult("Process_agsCheckDriverVersion", return_value, result);
 }
 
 void AgsReplayConsumer::Process_agsGetVersionNumber(const ApiCallInfo& call_info, int return_value)
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_)
-    {
-        int result = ags_dispatch_table_.agsGetVersionNumber();
+    int result = agsGetVersionNumber();
 
-        if (return_value != result)
-        {
-            GFXRECON_LOG_WARNING("%s returned %d, which does not match the value returned at capture %d.",
-                                 "Process_agsGetVersionNumber",
-                                 result,
-                                 return_value);
-        }
+    if (return_value != result)
+    {
+        GFXRECON_LOG_WARNING("%s returned %d, which does not match the value returned at capture %d.",
+                             "Process_agsGetVersionNumber",
+                             result,
+                             return_value);
     }
 }
 
@@ -377,10 +299,9 @@ void AgsReplayConsumer::Process_agsSetDisplayMode(const ApiCallInfo&        call
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateContext(context))
+    if (ValidateContext(context))
     {
-        AGSReturnCode result =
-            ags_dispatch_table_.agsSetDisplayMode(current_context_, deviceIndex, displayIndex, settings);
+        AGSReturnCode result = agsSetDisplayMode(current_context_, deviceIndex, displayIndex, settings);
 
         CheckReplayResult("Process_agsSetDisplayMode", return_value, result);
     }
@@ -394,13 +315,12 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_PushMarker(const ApiCall
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateContext(context))
+    if (ValidateContext(context))
     {
         ID3D12GraphicsCommandList* command_list = nullptr;
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result =
-            ags_dispatch_table_.agsDriverExtensionsDX12_PushMarker(current_context_, command_list, data);
+        AGSReturnCode result = agsDriverExtensionsDX12_PushMarker(current_context_, command_list, data);
 
         CheckReplayResult("agsDriverExtensionsDX12_PushMarker", return_value, result);
     }
@@ -413,12 +333,12 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_PopMarker(const ApiCallI
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateContext(context))
+    if (ValidateContext(context))
     {
         ID3D12GraphicsCommandList* command_list = nullptr;
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result = ags_dispatch_table_.agsDriverExtensionsDX12_PopMarker(current_context_, command_list);
+        AGSReturnCode result = agsDriverExtensionsDX12_PopMarker(current_context_, command_list);
 
         CheckReplayResult("agsDriverExtensionsDX12_PopMarker", return_value, result);
     }
@@ -432,13 +352,12 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_SetMarker(const ApiCallI
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    if (ags_dll_loaded_ && ValidateContext(context))
+    if (ValidateContext(context))
     {
         ID3D12GraphicsCommandList* command_list = nullptr;
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result =
-            ags_dispatch_table_.agsDriverExtensionsDX12_SetMarker(current_context_, command_list, data);
+        AGSReturnCode result = agsDriverExtensionsDX12_SetMarker(current_context_, command_list, data);
 
         CheckReplayResult("agsDriverExtensionsDX12_SetMarker", return_value, result);
     }

@@ -27,15 +27,21 @@
 #include "util/logging.h"
 
 #include <windows.h>
+
+#if GFXRECON_AGS_SUPPORT
 #include <amd_ags.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#if GFXRECON_AGS_SUPPORT
 typedef AMD_AGS_API void (*AGS_INIT_NOT_SUPPORTED)();
+#endif
 
 struct AgsDispatchTable
 {
+#if GFXRECON_AGS_SUPPORT
     // Functions processed for capture.  These are the AGS functions exported by amd_ags_x64.dll.
     AGS_INITIALIZE                         agsInitialize{ nullptr };
     AGS_DEINITIALIZE                       agsDeInitialize{ nullptr };
@@ -47,7 +53,8 @@ struct AgsDispatchTable
     AGS_DRIVEREXTENSIONSDX12_PUSHMARKER    agsDriverExtensionsDX12_PushMarker{ nullptr };
     AGS_DRIVEREXTENSIONSDX12_POPMARKER     agsDriverExtensionsDX12_PopMarker{ nullptr };
     AGS_DRIVEREXTENSIONSDX12_SETMARKER     agsDriverExtensionsDX12_SetMarker{ nullptr };
-    AGS_INIT_NOT_SUPPORTED                 agsInitNotSupported{ nullptr }; // In case, old version dll is used by the application
+    AGS_INIT_NOT_SUPPORTED agsInitNotSupported{ nullptr }; // In case, old version dll is used by the application
+#endif
 };
 
 GFXRECON_END_NAMESPACE(encode)

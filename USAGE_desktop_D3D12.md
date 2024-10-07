@@ -558,7 +558,7 @@ Steps:
 
 ### How to Process AGS Files
 
-Both gfxrecon-replay and gfxrecon-optimize are able to read and process capture files that contain with AGS calls. From a user point of view, their usage remains unchanged. The only additional requirement is that the official AGS DLL must live in the same directory as gfxrecon-replay and gfxrecon-optimize. This is because both tools need to find and reference the official AGS DLL in order to issue AGS calls.
+Both gfxrecon-replay and gfxrecon-optimize are able to read and process capture files that contain AGS calls. From a user point of view, their usage remains unchanged.
 
 
 

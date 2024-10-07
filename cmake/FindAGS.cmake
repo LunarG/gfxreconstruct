@@ -5,95 +5,69 @@
 #
 # This module is derived from the CMake FindZLIB.cmake module.
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
-#
-# This module defines :prop_tgt:`IMPORTED` target ``AGS::AGS``, if AGS has been found.
-#
 # Result Variables
 # ^^^^^^^^^^^^^^^^
 #
 # This module defines the following variables:
 #
-#  AGS_FOUND        : True if AGS was found.
-#  AGS_INCLUDE_DIRS : The locatio of the AGS header files.
-#  AGS_LIBRARIES    : List of the AGS libraries.
-#
-# Hints
-# ^^^^^
-#
-# The ``AGS_ROOT`` value may be set to tell this module where to look.
+#  AGS_FOUND           : True if AGS was found.
+#  AGS_INCLUDE_DIR     : The location of the AGS header file.
+#  AGS_LIBRARY_RELEASE : Location of the AGS library for release builds.
+#  AGS_LIBRARY_DEBUG   : Location of the AGS library for debug builds.
 
-set(_AGS_SEARCH_PATH)
-
-if (AGS_ROOT)
-    set(_AGS_SEARCH_ROOT PATHS ${AGS_ROOT} NO_DEFAULT_PATH)
-    list(APPEND _AGS_SEARCH_PATH _AGS_SEARCH_ROOT)
+# Find the build architecture.
+set(AGS_ARCH "")
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(AGS_ARCH "x64")
+else()
+    message(WARNING "AGS support requires an x64 build.")
 endif()
 
-# Normal search.
-set(_AGS_x86 "(x86)")
-set(_AGS_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/ags"
-          "$ENV{ProgramFiles${_AGS_x86}}/ags")
-unset(_AGS_x86)
-list(APPEND _AGS_SEARCH_PATH _AGS_SEARCH_NORMAL)
-
-set(AGS_NAMES ags)
-set(AGS_NAMES_DEBUG agsd)
-
-foreach(search ${_AGS_SEARCH_PATH})
-    find_path(AGS_INCLUDE_DIR NAMES amd_ags.h ${${search}} PATH_SUFFIXES include)
-endforeach()
-
-# Allow AGS_LIBRARY to be set manually, as the location of the AGS library
-if(NOT AGS_LIBRARY)
-    foreach(search ${_AGS_SEARCH_PATH})
-        find_library(AGS_LIBRARY_RELEASE NAMES ${AGS_NAMES} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
-        find_library(AGS_LIBRARY_DEBUG NAMES ${AGS_NAMES_DEBUG} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
-    endforeach()
-
-    include(SelectLibraryConfigurations)
-    select_library_configurations(AGS)
+# Find the MSVC version.
+set(AGS_MSVC_TOOLSET "")
+if(${MSVC_TOOLSET_VERSION} EQUAL 141)
+    set(AGS_MSVC_TOOLSET "2017")
+elseif(${MSVC_TOOLSET_VERSION} EQUAL 142)
+    set(AGS_MSVC_TOOLSET "2019")
+elseif(${MSVC_TOOLSET_VERSION} EQUAL 143)
+    set(AGS_MSVC_TOOLSET "2022")
+else()
+    message(WARNING "AGS support requires MSVC version 2015, 2017, 2019, or 2022.")
 endif()
 
-unset(AGS_NAMES)
-unset(AGS_NAMES_DEBUG)
+# If CMAKE_MSVC_RUNTIME_LIBRARY is set, use that to determine MSVC runtime. Otherwise default to /MD.
+set(AGS_MSVC_RUNTIME "MD")
+if(CMAKE_MSVC_RUNTIME_LIBRARY AND
+    (("${CMAKE_MSVC_RUNTIME_LIBRARY}" STREQUAL "MultiThreaded") OR
+     ("${CMAKE_MSVC_RUNTIME_LIBRARY}" STREQUAL "MultiThreadedDebug")))
+    set(AGS_MSVC_RUNTIME "MT")
+endif()
 
-mark_as_advanced(AGS_INCLUDE_DIR)
+if(AGS_ARCH AND AGS_MSVC_TOOLSET AND AGS_MSVC_RUNTIME)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(AGS REQUIRED_VARS AGS_LIBRARY AGS_INCLUDE_DIR)
+    set(AGS_SEARCH_PATH "${CMAKE_SOURCE_DIR}/external/AGS_SDK/ags_lib")
 
-if(AGS_FOUND)
-    set(AGS_INCLUDE_DIRS ${AGS_INCLUDE_DIR})
+    find_path(AGS_INCLUDE_DIR NAMES amd_ags.h PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES inc)
+    mark_as_advanced(AGS_INCLUDE_DIR)
 
-    if(NOT AGS_LIBRARIES)
-        set(AGS_LIBRARIES ${AGS_LIBRARY})
+    set(AGS_LIBRARY_NAME "amd_ags_${AGS_ARCH}_${AGS_MSVC_TOOLSET}_${AGS_MSVC_RUNTIME}")
+    
+    # If cached library strings don't match, unset variables.
+    if(AGS_LIBRARY_RELEASE AND NOT ${AGS_LIBRARY_RELEASE} MATCHES "${AGS_LIBRARY_NAME}")
+        message("Current AGS_LIBRARY_RELEASE '${AGS_LIBRARY_RELEASE}' does not match required library name "
+                "'${AGS_LIBRARY_NAME}'. Resetting AGS_LIBRARY_RELEASE.")
+        unset(AGS_LIBRARY_RELEASE CACHE)
     endif()
-
-    if(NOT TARGET AGS::AGS)
-        add_library(AGS::AGS UNKNOWN IMPORTED)
-        set_target_properties(AGS::AGS PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES "${AGS_INCLUDE_DIRS}")
-
-        if(AGS_LIBRARY_RELEASE)
-            set_property(TARGET AGS::AGS APPEND PROPERTY
-                IMPORTED_CONFIGURATIONS RELEASE)
-            set_target_properties(AGS::AGS PROPERTIES
-                IMPORTED_LOCATION_RELEASE "${AGS_LIBRARY_RELEASE}")
-        endif()
-
-        if(AGS_LIBRARY_DEBUG)
-            set_property(TARGET AGS::AGS APPEND PROPERTY
-                IMPORTED_CONFIGURATIONS DEBUG)
-            set_target_properties(AGS::AGS PROPERTIES
-                IMPORTED_LOCATION_DEBUG "${AGS_LIBRARY_DEBUG}")
-        endif()
-
-        if(NOT AGS_LIBRARY_RELEASE AND NOT AGS_LIBRARY_DEBUG)
-            set_property(TARGET AGS::AGS APPEND PROPERTY
-                IMPORTED_LOCATION "${AGS_LIBRARY}")
-        endif()
+    if(AGS_LIBRARY_DEBUG AND NOT ${AGS_LIBRARY_DEBUG} MATCHES "${AGS_LIBRARY_NAME}d")
+        message("Current AGS_LIBRARY_DEBUG '${AGS_LIBRARY_DEBUG}' does not match required library name "
+                "'${AGS_LIBRARY_NAME}d'. Resetting AGS_LIBRARY_DEBUG.")
+        unset(AGS_LIBRARY_DEBUG CACHE)
     endif()
+    
+    find_library(AGS_LIBRARY_RELEASE NAMES ${AGS_LIBRARY_NAME} PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
+    find_library(AGS_LIBRARY_DEBUG NAMES "${AGS_LIBRARY_NAME}d" PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
+    
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(AGS REQUIRED_VARS AGS_LIBRARY_RELEASE AGS_LIBRARY_DEBUG AGS_INCLUDE_DIR)
+    
 endif()
