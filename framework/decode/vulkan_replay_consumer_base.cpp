@@ -2662,16 +2662,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
         physical_device_info->parent_api_version, instance_table, physical_device, &modified_create_info);
 
-    // Remove unsupported features
-    if (options_.remove_unsupported_features)
-    {
-        feature_util::CheckUnsupportedFeatures(physical_device,
-                                               instance_table->GetPhysicalDeviceFeatures,
-                                               instance_table->GetPhysicalDeviceFeatures2,
-                                               modified_create_info.pNext,
-                                               modified_create_info.pEnabledFeatures,
-                                               options_.remove_unsupported_features);
-    }
+    // Abort on/Remove unsupported features
+    feature_util::CheckUnsupportedFeatures(physical_device,
+                                           instance_table->GetPhysicalDeviceFeatures,
+                                           instance_table->GetPhysicalDeviceFeatures2,
+                                           modified_create_info.pNext,
+                                           modified_create_info.pEnabledFeatures,
+                                           options_.remove_unsupported_features);
 
     // Forward device creation to next layer/driver
     result =
