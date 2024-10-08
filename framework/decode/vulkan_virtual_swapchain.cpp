@@ -381,7 +381,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                         };
 
                         VkFence fence = VK_NULL_HANDLE;
-                        result = device_table_->CreateFence(device, &fence_create_info, nullptr, &fence);
+                        result        = device_table_->CreateFence(device, &fence_create_info, nullptr, &fence);
                         if (result != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Virtual swapchain failed creating internal copy fence for "
