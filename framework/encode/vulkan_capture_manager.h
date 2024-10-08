@@ -302,6 +302,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                     const VkAllocationCallbacks* pAllocator,
                                     VkDeviceMemory*              pMemory);
 
+    void OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice             physicalDevice,
+                                              VkPhysicalDeviceProperties2* pProperties);
+
     VkResult OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
                                                         uint32_t*                          pToolCount,
                                                         VkPhysicalDeviceToolPropertiesEXT* pToolProperties);
@@ -1234,7 +1237,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-    void PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
+    void PostProcess_vkGetBufferDeviceAddress(VkDeviceAddress                  result,
+                                              VkDevice                         device,
+                                              const VkBufferDeviceAddressInfo* pInfo);
 
     void PreProcess_vkGetBufferOpaqueCaptureAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 

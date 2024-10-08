@@ -5712,7 +5712,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(manager, physicalDevice, pProperties);
 
-    vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+    manager->OverrideGetPhysicalDeviceProperties2(physicalDevice, pProperties);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2);
     if (encoder)
@@ -10287,7 +10287,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(manager, physicalDevice, pProperties);
 
-    vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
+    manager->OverrideGetPhysicalDeviceProperties2(physicalDevice, pProperties);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR);
     if (encoder)

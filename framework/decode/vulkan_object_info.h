@@ -223,7 +223,6 @@ typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
 typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>      IndirectCommandsLayoutNVInfo;
 typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXTInfo;
-typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
@@ -685,6 +684,12 @@ struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
     // One entry per binding
     using DescriptorBindingsInfo = std::unordered_map<uint32_t, DescriptorSetBindingInfo>;
     DescriptorBindingsInfo descriptors;
+};
+
+struct AccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>
+{
+    VkDeviceAddress capture_address = 0;
+    VkDeviceAddress replay_address  = 0;
 };
 
 //

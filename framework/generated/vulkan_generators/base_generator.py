@@ -1271,8 +1271,14 @@ class BaseGenerator(OutputGenerator):
                     type_name = 'StringDecoder'
             elif type_name == 'void':
                 if value.is_array:
-                    # If this was an array (void*) it was encoded as an array of bytes.
-                    type_name = 'PointerDecoder<uint8_t>'
+                    if (self.is_dx12_class() and count > 1):
+                        # If this was a pointer to memory (void**) allocated internally by the implementation, it was encoded as
+                        # an array of bytes but must be retrieved as a pointer to a memory allocation. For this case, the array
+                        # length value defines the size of the memory referenced by the single retrieved pointer.
+                        type_name = 'PointerDecoder<uint8_t, void*>'
+                    else:
+                        # If this was an array (void*) it was encoded as an array of bytes.
+                        type_name = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
                     # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.

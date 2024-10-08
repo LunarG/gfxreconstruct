@@ -23,7 +23,7 @@ name: Release Build
 on:
   push:
     tags:
-      - v*
+      - v[0-9]*
 
 jobs:
   linux:
@@ -168,6 +168,11 @@ jobs:
     - name: Update submodules
       run: |
         git submodule update --init
+    - name: Set up Java
+      uses: "actions/setup-java@v4"
+      with:
+        java-version: 17
+        distribution: "temurin"
     - name: Gradle build
       run: |
         cd android

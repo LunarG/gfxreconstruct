@@ -29,7 +29,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
-#include "decode/vulkan_buffer_tracker.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
@@ -1064,6 +1064,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
 
+    void OverrideDestroyAccelerationStructureKHR(PFN_vkDestroyAccelerationStructureKHR func,
+                                                 const DeviceInfo*                     device_info,
+                                                 const AccelerationStructureKHRInfo*   acceleration_structure_info,
+                                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideCmdBuildAccelerationStructuresKHR(
+        PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
+        CommandBufferInfo*                                                         command_buffer_info,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
+
+    void
+    OverrideCmdCopyAccelerationStructureKHR(PFN_vkCmdCopyAccelerationStructureKHR func,
+                                            CommandBufferInfo*                    command_buffer_info,
+                                            StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+        PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+        CommandBufferInfo*                                command_buffer_info,
+        uint32_t                                          count,
+        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        VkQueryType                                       queryType,
+        gfxrecon::decode::QueryPoolInfo*                  query_pool_info,
+        uint32_t                                          firstQuery);
+
     VkResult OverrideCreateRayTracingPipelinesKHR(
         PFN_vkCreateRayTracingPipelinesKHR                                     func,
         VkResult                                                               original_result,
@@ -1405,7 +1431,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              const DescriptorUpdateTemplateInfo*    template_info,
                                              const DescriptorUpdateTemplateDecoder* decoder) const;
 
-    VulkanBufferTracker& GetBufferTracker(VkDevice device);
+    VulkanDeviceAddressTracker& GetDeviceAddressTracker(VkDevice device);
 
   private:
     struct HardwareBufferInfo
@@ -1454,7 +1480,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    std::unordered_map<VkDevice, decode::VulkanBufferTracker> _buffer_trackers;
+    std::unordered_map<VkDevice, decode::VulkanDeviceAddressTracker> _device_address_trackers;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;

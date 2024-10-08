@@ -1027,21 +1027,24 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             current += 1;
         }
 #endif
-        env_vars[env_vars.size() - 1] = '\0';
+        if (!env_vars.empty())
+        {
+            env_vars[env_vars.size() - 1] = '\0';
 
-        format::SetEnvironmentVariablesCommand env_block;
-        env_block.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(env_block) + env_vars.size();
-        env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        env_block.meta_header.meta_data_id =
-            format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
+            format::SetEnvironmentVariablesCommand env_block{};
+            env_block.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(env_block) + env_vars.size();
+            env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+            env_block.meta_header.meta_data_id =
+                format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
 
-        auto thread_data    = GetThreadData();
-        env_block.thread_id = thread_data->thread_id_;
+            auto thread_data    = GetThreadData();
+            env_block.thread_id = thread_data->thread_id_;
 
-        env_block.string_length = env_vars.size();
+            env_block.string_length = env_vars.size();
 
-        // Write to file
-        CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
+            // Write to file
+            CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
+        }
     }
     else
     {

@@ -328,8 +328,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         tuple[0], tuple[1]
                     )
                 else:
+                    array_length = tuple[2]
+                    if array_length.startswith('* '):
+                        array_length = '({} != nullptr) ? {} : 0'.format(
+                            array_length[2:], array_length.replace(' ', '')
+                        )
                     expr += indent + 'WrapObjectArray({}, {}, {}, nullptr);\n'.format(
-                        tuple[0], tuple[1], tuple[2]
+                        tuple[0], tuple[1], array_length
                     )
 
             for value in params_wrap_struct:

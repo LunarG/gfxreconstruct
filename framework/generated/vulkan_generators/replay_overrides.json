@@ -88,10 +88,10 @@
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
     "vkCreateMetalSurfaceEXT": "OverrideCreateMetalSurfaceEXT",
     "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
-    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",
     "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
     "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
+    "vkGetBufferDeviceAddressEXT": "OverrideGetBufferDeviceAddress",
     "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
     "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR",
     "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
@@ -122,6 +122,11 @@
     "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR",
     "vkCreateShadersEXT": "OverrideCreateShadersEXT",
-    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR"
+    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
+    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
+    "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
+    "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
+    "vkCmdCopyAccelerationStructureKHR" : "OverrideCmdCopyAccelerationStructureKHR",
+    "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR"
   }
 }
