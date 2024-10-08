@@ -88,13 +88,13 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
                                                       const encode::VulkanDeviceTable*      device_table)
 {
     GFXRECON_ASSERT(device_info);
-    device_table_ = device_table; 
+    device_table_ = device_table;
 
     const format::HandleId* id               = swapchain->GetPointer();
     VkSwapchainKHR*         replay_swapchain = swapchain->GetHandlePointer();
     VkDevice                device           = device_info->handle;
 
-    device_       = device;
+    device_ = device;
 
     // Give swapchain a fake handle. It's handle id.
     *replay_swapchain = UINT64_TO_VK_HANDLE(VkSwapchainKHR, *id);
