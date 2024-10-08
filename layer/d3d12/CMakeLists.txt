@@ -39,7 +39,7 @@ target_include_directories(d3d12
                            PUBLIC 
                                 ${CMAKE_BINARY_DIR} 
                                 ${CMAKE_SOURCE_DIR}                                
-                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})
 common_build_directives(d3d12)
