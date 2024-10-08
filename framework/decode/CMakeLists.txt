@@ -286,7 +286,7 @@ if (WIN32)
                                    ${CMAKE_SOURCE_DIR}/framework
                                    ${CMAKE_SOURCE_DIR}/external
                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win64/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     else()
         target_include_directories(gfxrecon_decode
                                PUBLIC
@@ -294,7 +294,7 @@ if (WIN32)
                                    ${CMAKE_SOURCE_DIR}/framework
                                    ${CMAKE_SOURCE_DIR}/external
                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win32/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     endif()
 elseif(APPLE)
     target_include_directories(gfxrecon_decode
@@ -305,7 +305,7 @@ elseif(APPLE)
                                ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
                                ${CMAKE_SOURCE_DIR}/external/precompiled/macos/include/
-                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 else()
     target_include_directories(gfxrecon_decode
                            PRIVATE
@@ -315,7 +315,7 @@ else()
                                ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
                                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
-                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
