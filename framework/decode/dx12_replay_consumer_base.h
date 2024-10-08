@@ -895,6 +895,59 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
+    template <typename CountT>
+    void SetOutputArrayCount(format::HandleId object_id, VariableLengthArrayIndices index, CountT count)
+    {
+        auto info = GetObjectInfo(object_id);
+        if (info != nullptr)
+        {
+            info->array_counts[index] = static_cast<size_t>(count);
+        }
+    }
+
+    template <typename CountT, typename ArrayT>
+    CountT GetOutputArrayCount(const char*                   func_name,
+                               HRESULT                       original_result,
+                               format::HandleId              object_id,
+                               VariableLengthArrayIndices    index,
+                               const PointerDecoder<CountT>* original_count,
+                               const ArrayT*                 original_array)
+    {
+        assert((original_count != nullptr) && (original_array != nullptr));
+
+        CountT replay_count = 0;
+
+        if (!original_count->IsNull())
+        {
+            // Start with array count set equal to the capture count and then adjust if the replay count is different.
+            replay_count = (*original_count->GetPointer());
+
+            // When the array parameter is not null, adjust the count using the value stored by the previous call with a
+            // null array parameter. But only adjust the replay array count if the call succeeded on capture so that
+            // errors generated at capture continue to be generated at replay.
+            if (!original_array->IsNull() && (original_result == S_OK))
+            {
+                auto info = GetObjectInfo(object_id);
+                if (info != nullptr)
+                {
+                    auto entry = info->array_counts.find(index);
+                    if ((entry != info->array_counts.end()) && (entry->second != replay_count))
+                    {
+                        GFXRECON_LOG_INFO("Replay adjusted the %s array count: capture count = %" PRIuPTR
+                                          ", replay count = %" PRIuPTR,
+                                          func_name,
+                                          static_cast<size_t>(replay_count),
+                                          entry->second);
+                        replay_count = static_cast<CountT>(entry->second);
+                    }
+                }
+            }
+        }
+
+        return replay_count;
+    }
+
+  protected:
     DxReplayOptions                    options_;
     std::unique_ptr<Dx12DumpResources> dump_resources_{ nullptr };
 

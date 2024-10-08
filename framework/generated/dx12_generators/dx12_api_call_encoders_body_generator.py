@@ -87,6 +87,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         )
         write(code, file=self.outFile)
 
+    def get_encode_str_array_length(self, array_length, prefix=''):
+        if array_length.startswith('* '):
+            array_length = '({prefix}{} != nullptr) ? {prefix}{} : 0'.format(
+                array_length[2:], array_length.replace(' ', ''), prefix=prefix
+            )
+        else:
+            array_length = prefix + array_length
+        return array_length
+
     def get_encode_struct(self, value, is_generating_struct, is_result):
         """Method override."""
         write_parameter_value = ''
@@ -161,16 +170,29 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             omit_output_data = ', omit_output_data'
 
         if value.array_length and type(value.array_length) == str:
-            if value.pointer_count == 2:
+            if '_result_bytebuffer_' in value.full_type:
+                # This is a void** pointer to a memory allocation with a size defined by value.array_length,
+                # not a void* array. For this case, we will encode the content of the memory allocation, and
+                # need to dereference the void** pointer.
+                dereference_expr = '({prefix}{param} != nullptr) ? *{prefix}{param} : nullptr'.format(prefix=write_parameter_value, param=value.name)
+                return 'encoder->Encode{}Array({}, {}{});'.format(
+                    function_name, dereference_expr,
+                    self.get_encode_str_array_length(
+                        value.array_length, write_parameter_value
+                    ), omit_output_data
+                )
+            elif value.pointer_count == 2:
                 method_call = 'Encode{}Array2D'.format(function_name)
                 make_array_2d = ', '.join(self.make_array2d_length_expression(value, caller_values))
                 return 'encoder->{}({}{}, {});'.format(
                     method_call, write_parameter_value, value.name, make_array_2d
                 )
             else:
-                return 'encoder->Encode{}Array({}{}, {}{}{});'.format(
+                return 'encoder->Encode{}Array({}{}, {}{});'.format(
                     function_name, write_parameter_value, value.name,
-                    write_parameter_value, value.array_length, omit_output_data
+                    self.get_encode_str_array_length(
+                        value.array_length, write_parameter_value
+                    ), omit_output_data
                 )
 
         elif value.pointer_count == 1:
@@ -227,10 +249,17 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         elif self.is_class(value):
             if value.array_length and type(value.array_length) == str:
                 if is_generating_struct:
-                    pass
+                    rtn = 'encoder->EncodeObjectArray(value.{}, {}{});'.format(
+                        value.name,
+                        self.get_encode_str_array_length(
+                            value.array_length, 'value.'
+                        ), omit_output_data
+                    )
                 else:
                     rtn = 'encoder->EncodeObjectArray({}, {}{});'.format(
-                        value.name, value.array_length, omit_output_data
+                        value.name,
+                        self.get_encode_str_array_length(value.array_length),
+                        omit_output_data
                     )
             else:
                 if is_generating_struct:
