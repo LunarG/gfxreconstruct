@@ -58,6 +58,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
         device = device_info->handle;
     }
     device_table_                    = device_table;
+    device_                          = device;
     VkPhysicalDevice physical_device = device_info->parent;
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
@@ -133,6 +134,10 @@ void VulkanVirtualSwapchain::CleanSwapchainResourceData(const DeviceInfo*       
                 for (auto& semaphore : copy_cmd_data.second.semaphores)
                 {
                     device_table_->DestroySemaphore(device, semaphore, nullptr);
+                }
+                for (auto& fence : copy_cmd_data.second.fences)
+                {
+                    device_table_->DestroyFence(device, fence, nullptr);
                 }
             }
 
@@ -362,6 +367,31 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                         copy_cmd_data.semaphores[ii] = semaphore;
                     }
                 }
+                uint32_t fence_count = static_cast<uint32_t>(copy_cmd_data.fences.size());
+                if (fence_count < capture_image_count)
+                {
+                    copy_cmd_data.fences.resize(capture_image_count);
+
+                    for (uint32_t ii = fence_count; ii < capture_image_count; ++ii)
+                    {
+                        VkFenceCreateInfo fence_create_info = {
+                            VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, // sType
+                            nullptr,                             // pNext
+                            VK_FENCE_CREATE_SIGNALED_BIT         // flags
+                        };
+
+                        VkFence fence = VK_NULL_HANDLE;
+                        result = device_table_->CreateFence(device, &fence_create_info, nullptr, &fence);
+                        if (result != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Virtual swapchain failed creating internal copy fence for "
+                                               "swapchain (ID = %" PRIu64 ")",
+                                               swapchain_info->capture_id);
+                            return result;
+                        }
+                        copy_cmd_data.fences[ii] = fence;
+                    }
+                }
             }
         }
     }
@@ -431,7 +461,18 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             begin_info.pInheritanceInfo         = nullptr;
 
             auto command_buffer = swapchain_resources->copy_cmd_data[copy_queue_family_index].command_buffers[0];
+            auto copy_fence     = swapchain_resources->copy_cmd_data[copy_queue_family_index].fences[0];
 
+            result = device_table_->WaitForFences(device_, 1, &copy_fence, VK_TRUE, ~0UL);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
+            result = device_table_->ResetFences(device_, 1, &copy_fence);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
             result = device_table_->ResetCommandBuffer(command_buffer, 0);
             if (result != VK_SUCCESS)
             {
@@ -500,7 +541,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             submit_info.commandBufferCount = 1;
             submit_info.pCommandBuffers    = &command_buffer;
 
-            result = device_table_->QueueSubmit(initial_copy_queue, 1, &submit_info, VK_NULL_HANDLE);
+            result = device_table_->QueueSubmit(initial_copy_queue, 1, &submit_info, copy_fence);
             if (result != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR(
@@ -769,6 +810,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         auto& copy_cmd_data  = swapchain_resources->copy_cmd_data[queue_family_index];
         auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
         auto  copy_semaphore = copy_cmd_data.semaphores[capture_image_index];
+        auto  copy_fence     = copy_cmd_data.fences[capture_image_index];
 
         std::vector<VkSemaphore> wait_semaphores;
         std::vector<VkSemaphore> signal_semaphores;
@@ -789,6 +831,16 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             present_wait_semaphores.emplace_back(copy_semaphore);
         }
 
+        result = device_table_->WaitForFences(device_, 1, &copy_fence, VK_TRUE, ~0UL);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+        result = device_table_->ResetFences(device_, 1, &copy_fence);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
         result = device_table_->ResetCommandBuffer(command_buffer, 0);
         if (result != VK_SUCCESS)
         {
@@ -892,7 +944,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         submit_info.commandBufferCount   = 1;
         submit_info.pCommandBuffers      = &command_buffer;
 
-        result = device_table_->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+        result = device_table_->QueueSubmit(queue, 1, &submit_info, copy_fence);
 
         if (result != VK_SUCCESS)
         {

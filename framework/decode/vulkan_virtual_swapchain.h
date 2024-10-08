@@ -133,6 +133,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     {
         VkCommandPool                command_pool;
         std::vector<VkCommandBuffer> command_buffers;
+        std::vector<VkFence>         fences;
         std::vector<VkSemaphore>     semaphores;
     };
 
