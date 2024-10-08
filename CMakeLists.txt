@@ -182,6 +182,10 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
+        
+        find_package(DXC REQUIRED)
+        
+        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc" ${DXC_INCLUDE_DIR})
 
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
