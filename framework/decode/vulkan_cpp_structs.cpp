@@ -1236,6 +1236,8 @@ std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream&    
             struct_body << "\t\t\t"
                         << "VkIndirectExecutionSetInfoEXT(" << structInfo->info.pShaderInfo << ")" << std::endl;
             break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_MAX_ENUM_EXT:
+            break;
     }
 
     out << "\t";
@@ -1279,6 +1281,22 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
             struct_body << "\t\t\t"
                         << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pExecutionSet << ")" << std::endl;
+            break;
+
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_MAX_ENUM_EXT:
+            GFXRECON_LOG_ERROR(
+                "GenerateStruct_VkIndirectCommandsLayoutTokenEXT: unhandled case in switch-statement: %d",
+                metaInfo->decoded_type);
             break;
     }
     // offset

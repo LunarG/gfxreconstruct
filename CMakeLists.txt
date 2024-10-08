@@ -317,10 +317,6 @@ if(BUILD_WERROR)
         target_compile_options(platform_specific INTERFACE /WX)
     else()
         target_compile_options(platform_specific INTERFACE -Werror)
-        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-            # TODO: Actually fix these warnings
-            target_compile_options(platform_specific INTERFACE -Wno-error=switch)
-        endif()
     endif()
 endif()
 
