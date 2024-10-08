@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <vector>
 
@@ -151,6 +152,18 @@ class VulkanResourcesUtil
     VkResult ReadFromBufferResource(
         VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
 
+    bool IsBlitSupported(VkFormat       src_format,
+                         VkImageTiling  src_image_tiling,
+                         VkFormat       dst_format,
+                         VkImageTiling* dst_image_tiling = nullptr) const;
+
+    bool IsScalingSupported(VkFormat          src_format,
+                            VkImageTiling     src_image_tiling,
+                            VkFormat          dst_format,
+                            VkImageType       type,
+                            const VkExtent3D& extent,
+                            float             scale) const;
+
   private:
     VkResult CreateCommandPool(uint32_t queue_family_index);
 
@@ -218,6 +231,7 @@ class VulkanResourcesUtil
     VkResult BlitImage(VkImage               image,
                        VkFormat              format,
                        VkImageType           type,
+                       VkImageTiling         tiling,
                        const VkExtent3D&     extent,
                        const VkExtent3D&     scaled_extent,
                        uint32_t              mip_levels,
@@ -226,8 +240,7 @@ class VulkanResourcesUtil
                        uint32_t              queue_family_index,
                        float                 scale,
                        VkImage&              scaled_image,
-                       VkDeviceMemory&       scaled_image_mem,
-                       bool&                 scaling_supported);
+                       VkDeviceMemory&       scaled_image_mem);
 
     struct StagingBufferContext
     {
