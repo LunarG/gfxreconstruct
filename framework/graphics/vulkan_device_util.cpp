@@ -21,6 +21,7 @@
 */
 
 #include "graphics/vulkan_device_util.h"
+#include "decode/vulkan_object_info.h"
 
 #include "util/logging.h"
 
@@ -237,6 +238,35 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
             rayTracingPipelineShaderGroupHandleCaptureReplay_original;
         rayTracingPipelineShaderGroupHandleCaptureReplay_ptr = nullptr;
     }
+}
+
+void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                           instance_api_version,
+                                                 const encode::VulkanInstanceTable* instance_table,
+                                                 VkPhysicalDevice                   physical_device,
+                                                 decode::ReplayDeviceInfo*          replay_device_info)
+{
+    GFXRECON_ASSERT(instance_table != nullptr);
+    GFXRECON_ASSERT(replay_device_info != nullptr);
+
+    VkPhysicalDeviceProperties2 device_properties2;
+    device_properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+
+    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    {
+        // pNext-chaining
+        VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties;
+        raytracing_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
+        raytracing_properties.pNext = nullptr;
+        device_properties2.pNext    = &raytracing_properties;
+
+        instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties2);
+        replay_device_info->raytracing_properties = raytracing_properties;
+    }
+    else
+    {
+        instance_table->GetPhysicalDeviceProperties(physical_device, &device_properties2.properties);
+    }
+    replay_device_info->properties = device_properties2.properties;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

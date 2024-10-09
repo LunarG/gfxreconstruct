@@ -63,7 +63,7 @@ bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
         return false;
     }
 
-    util::platform::FileWrite("[\n", 2, 1, file_);
+    util::platform::FileWrite("[\n", 2, file_);
 
     BlockStart();
     json_data_["header"] = header_;
@@ -110,7 +110,7 @@ void VulkanReplayDumpResourcesJson::Close()
 {
     if (file_ != nullptr)
     {
-        util::platform::FileWrite("]", 1, 1, file_);
+        util::platform::FileWrite("]", 1, file_);
         gfxrecon::util::platform::FileClose(file_);
         file_ = nullptr;
     }
@@ -130,13 +130,13 @@ void VulkanReplayDumpResourcesJson::BlockEnd()
 
     if (!first_block_)
     {
-        util::platform::FileWrite(",\n", 2, 1, file_);
+        util::platform::FileWrite(",\n", 2, file_);
     }
 
     first_block_ = false;
 
     const std::string block = json_data_.dump(util::kJsonIndentWidth);
-    util::platform::FileWrite(block.c_str(), block.size(), 1, file_);
+    util::platform::FileWrite(block.c_str(), block.size(), file_);
 }
 
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std::string& entry_name)
@@ -150,28 +150,29 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
     return current_entry != nullptr ? *current_entry : json_data_;
 }
 
-void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json&         json_entry,
-                                                    const ImageInfo*                image_info,
-                                                    const std::vector<std::string>& filenames,
-                                                    VkImageAspectFlagBits           aspect,
-                                                    bool                            scale_failed,
-                                                    uint32_t                        mip_level,
-                                                    uint32_t                        array_layer,
-                                                    const VkExtent3D*               extent)
+void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
+                                                    VkFormat                image_format,
+                                                    VkImageType             image_type,
+                                                    format::HandleId        image_id,
+                                                    const VkExtent3D&       extent,
+                                                    const std::string&      filename,
+                                                    VkImageAspectFlagBits   aspect,
+                                                    bool                    scale_failed,
+                                                    uint32_t                mip_level,
+                                                    uint32_t                array_layer,
+                                                    const std::string*      filename_before)
 {
-    assert(image_info != nullptr);
-
-    json_entry["imageId"] = image_info->capture_id;
-    json_entry["format"]  = util::ToString<VkFormat>(image_info->format);
-    json_entry["type"]    = util::ToString<VkImageType>(image_info->type);
+    json_entry["imageId"] = image_id;
+    json_entry["format"]  = util::ToString<VkFormat>(image_format);
+    json_entry["type"]    = util::ToString<VkImageType>(image_type);
 
     const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
     const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
     json_entry["aspect"] = aspect_str;
 
-    json_entry["dimensions"][0] = extent != nullptr ? extent->width : image_info->extent.width;
-    json_entry["dimensions"][1] = extent != nullptr ? extent->height : image_info->extent.height;
-    json_entry["dimensions"][2] = extent != nullptr ? extent->depth : image_info->extent.depth;
+    json_entry["dimensions"][0] = extent.width;
+    json_entry["dimensions"][1] = extent.height;
+    json_entry["dimensions"][2] = extent.depth;
 
     json_entry["mipLevel"]   = mip_level;
     json_entry["arrayLayer"] = array_layer;
@@ -181,15 +182,14 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json&     
         json_entry["scaleFailed"] = true;
     }
 
-    assert(filenames.size() == 1 || filenames.size() == 2);
-    if (filenames.size() == 2)
+    if (filename_before != nullptr)
     {
-        json_entry["beforeFile"] = filenames[0];
-        json_entry["afterFile"]  = filenames[1];
+        json_entry["beforeFile"] = *filename_before;
+        json_entry["afterFile"]  = filename;
     }
     else
     {
-        json_entry["file"] = filenames[0];
+        json_entry["file"] = filename;
     }
 }
 

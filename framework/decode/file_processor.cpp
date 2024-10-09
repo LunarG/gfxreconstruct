@@ -467,9 +467,12 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
-    bytes_read_ += bytes_read;
-    return (bytes_read == buffer_size);
+    if (util::platform::FileRead(buffer, buffer_size, file_descriptor_))
+    {
+        bytes_read_ += buffer_size;
+        return true;
+    }
+    return false;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
@@ -1813,6 +1816,30 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             HandleBlockReadError(kErrorReadingBlockHeader,
                                  "Failed to read parent to child dependency meta-data block header");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
+    {
+        format::SetEnvironmentVariablesCommand header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.string_length, sizeof(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
+            return success;
+        }
+
+        success = ReadParameterBuffer(static_cast<size_t>(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
+            return success;
+        }
+
+        const char* env_string = (const char*)parameter_buffer_.data();
+        for (auto decoder : decoders_)
+        {
+            decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
         }
     }
     else

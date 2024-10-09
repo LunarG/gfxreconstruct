@@ -49,8 +49,6 @@ class VulkanStateWriter
   public:
     VulkanStateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
 
-    ~VulkanStateWriter();
-
     // Returns number of blocks written to the output_stream.
     uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
@@ -136,7 +134,11 @@ class VulkanStateWriter
 
     void WriteBufferState(const VulkanStateTable& state_table);
 
+    void WriteBufferDeviceAddressState(const VulkanStateTable& state_table);
+
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
+
+    void WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table);
 
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
 
@@ -353,7 +355,7 @@ class VulkanStateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
-    uint64_t                 blocks_written_;
+    uint64_t                 blocks_written_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -3,6 +3,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+project(gfxrecon-replay)
+
 get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 
 add_library(native_app_glue STATIC

@@ -440,7 +440,7 @@ After building, perform the following command:
 
 ```bash
 adb push \
-    ./android/layer/build/intermediates/cmake/debug/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
+    ./android/layer/build/intermediates/cxx/debug/*/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
     /storage/emulated/0/Download
 ```
 

@@ -116,22 +116,24 @@ class DispatchTraceRaysDumpingContext
 
     VkResult CopyTraceRaysIndirectParameters(uint64_t index);
 
+    void EndCommandBuffer();
+
     void Release();
 
   private:
-    std::vector<std::string> GenerateDispatchTraceRaysImageFilename(VkFormat              format,
-                                                                    uint32_t              levels,
-                                                                    uint32_t              layers,
-                                                                    bool                  is_dispatch,
-                                                                    uint64_t              qs_index,
-                                                                    uint64_t              bcb_index,
-                                                                    uint64_t              cmd_index,
-                                                                    uint32_t              desc_set,
-                                                                    uint32_t              desc_binding,
-                                                                    uint32_t              array_index,
-                                                                    VkShaderStageFlagBits stage,
-                                                                    bool                  before_cmd,
-                                                                    bool                  dump_all_subresources) const;
+    std::string GenerateDispatchTraceRaysImageFilename(VkFormat              format,
+                                                       uint32_t              mip,
+                                                       uint32_t              layer,
+                                                       VkImageAspectFlagBits aspect,
+                                                       bool                  is_dispatch,
+                                                       uint64_t              qs_index,
+                                                       uint64_t              bcb_index,
+                                                       uint64_t              cmd_index,
+                                                       uint32_t              desc_set,
+                                                       uint32_t              desc_binding,
+                                                       uint32_t              array_index,
+                                                       VkShaderStageFlagBits stage,
+                                                       bool                  before_cmd) const;
 
     std::string GenerateDispatchTraceRaysBufferFilename(bool                  is_dispatch,
                                                         uint64_t              qs_index,
@@ -143,8 +145,13 @@ class DispatchTraceRaysDumpingContext
                                                         VkShaderStageFlagBits stage,
                                                         bool                  before_cmd) const;
 
-    std::vector<std::string>
-    GenerateImageDescriptorFilename(uint64_t bcb_index, uint64_t cmd_index, const ImageInfo* img_info) const;
+    std::string GenerateImageDescriptorFilename(VkFormat              format,
+                                                uint32_t              mip,
+                                                uint32_t              layer,
+                                                format::HandleId      image_id,
+                                                VkImageAspectFlagBits aspect,
+                                                uint64_t              bcb_index,
+                                                uint64_t              cmd_index) const;
 
     std::string
     GenerateBufferDescriptorFilename(uint64_t bcb_index, uint64_t cmd_index, format::HandleId buffer_id) const;
@@ -477,6 +484,7 @@ class DispatchTraceRaysDumpingContext
     size_t                                  current_dispatch_index;
     size_t                                  current_trace_rays_index;
     std::string                             capture_filename;
+    bool                                    reached_end_command_buffer;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

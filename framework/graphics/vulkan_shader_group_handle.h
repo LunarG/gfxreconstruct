@@ -20,39 +20,52 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "graphics/vulkan_struct_get_pnext.h"
-#include "vulkan_check_buffer_references.h"
+#ifndef GFXRECON_GRAPHICS_VULKAN_SHADER_GROUP_HANDLE_H
+#define GFXRECON_GRAPHICS_VULKAN_SHADER_GROUP_HANDLE_H
+
+#include "util/defines.h"
+#include "util/logging.h"
+#include "util/hash.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-template <>
-void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count)
+struct shader_group_handle_t
 {
-    for (uint32_t i = 0; i < create_info_count; ++i)
-    {
-        for (uint32_t j = 0; j < create_infos[i].stageCount; ++j)
-        {
-            if (auto module_create_info =
-                    vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(create_infos[i].pStages + j))
-            {
-                graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
-            }
-        }
-    }
-}
+    static constexpr uint32_t MAX_HANDLE_SIZE       = 32;
+    uint8_t                   data[MAX_HANDLE_SIZE] = {};
+    uint32_t                  size                  = 0;
 
-template <>
-void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count)
-{
-    for (uint32_t i = 0; i < create_info_count; ++i)
+    shader_group_handle_t() = default;
+
+    shader_group_handle_t(const uint8_t* in_data, uint32_t in_size)
     {
-        if (auto module_create_info = vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&create_infos[i].stage))
-        {
-            graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
-        }
+        GFXRECON_ASSERT(in_size <= MAX_HANDLE_SIZE);
+        memcpy(data, in_data, std::min(in_size, MAX_HANDLE_SIZE));
+        size = in_size;
     }
-}
+
+    inline bool operator==(const shader_group_handle_t& other) const
+    {
+        return size == other.size && memcmp(data, other.data, size) == 0;
+    }
+};
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+//! std::hash overload
+namespace std
+{
+template <>
+struct hash<gfxrecon::graphics::shader_group_handle_t>
+{
+    inline size_t operator()(const gfxrecon::graphics::shader_group_handle_t& handle) const
+    {
+        return gfxrecon::util::hash::hash_range(handle.data, handle.data + handle.size);
+    }
+};
+
+} // namespace std
+
+#endif // GFXRECON_GRAPHICS_VULKAN_SHADER_GROUP_HANDLE_H

@@ -1018,10 +1018,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
 
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
     {
-        const DescriptorSetInfo* desc_set_info = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
-        assert(desc_set_info);
+        const DescriptorSetInfo* desc_set_info;
+        desc_set_info       = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
         desc_set_infos[i]   = desc_set_info;
-        desc_set_handles[i] = desc_set_info->handle;
+        desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : VK_NULL_HANDLE;
     }
 
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
@@ -1641,7 +1641,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
 
             ImageInfo*    depth_attachment;
             VkImageLayout depth_attachment_layout;
-            if (rendering_info_meta->pDepthAttachment != nullptr)
+            if (rendering_info_meta->pDepthAttachment != nullptr &&
+                rendering_info_meta->pDepthAttachment->GetMetaStructPointer() != nullptr)
             {
                 const auto depth_attachment_meta = rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
                 const ImageViewInfo* img_view_info =
@@ -1749,7 +1750,6 @@ bool VulkanReplayDumpResourcesBase::MustDumpDispatch(VkCommandBuffer original_co
     assert(IsRecording(original_command_buffer));
 
     const DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(original_command_buffer);
-    assert(context);
 
     if (context != nullptr)
     {
@@ -1860,8 +1860,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (pre_submit)
             {
                 // These semaphores have already been handled. Do not bother with them
-                modified_submit_infos[s].waitSemaphoreCount = 0;
-                modified_submit_infos[s].pSignalSemaphores  = 0;
+                modified_submit_infos[s].waitSemaphoreCount   = 0;
+                modified_submit_infos[s].signalSemaphoreCount = 0;
             }
 
             DrawCallsDumpingContext*         dc_context = FindDrawCallCommandBufferContext(command_buffer_handles[o]);
@@ -2148,6 +2148,20 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                     pipeline_info->dynamic_vertex_binding_stride = true;
                 }
             }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideEndCommandBuffer(const ApiCallInfo&     call_info,
+                                                             PFN_vkEndCommandBuffer func,
+                                                             VkCommandBuffer        commandBuffer)
+{
+    if (IsRecording(commandBuffer))
+    {
+        DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(commandBuffer);
+        if (context != nullptr)
+        {
+            context->EndCommandBuffer();
         }
     }
 }

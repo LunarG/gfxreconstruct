@@ -2421,6 +2421,42 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingAreaInfoKHR>* pRenderingAreaInfo,
         StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity) override;
+    virtual void Process_vkCreatePipelineBinariesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries) override;
+
+    virtual void Process_vkDestroyPipelineBinaryKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            pipelineBinary,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkGetPipelineBinaryDataKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineBinaryDataInfoKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineBinaryKey,
+        PointerDecoder<size_t>*                     pPipelineBinaryDataSize,
+        PointerDecoder<uint8_t>*                    pPipelineBinaryData) override;
+
+    virtual void Process_vkGetPipelineKeyKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>* pPipelineCreateInfo,
+        StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineKey) override;
+
+    virtual void Process_vkReleaseCapturedPipelineDataKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3883,12 +3919,22 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         StructPointerDecoder<Decoded_VkOpticalFlowImageFormatInfoNV>* pOpticalFlowImageFormatInfo,
         PointerDecoder<uint32_t>*                   pFormatCount,
         StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties) override;
+    virtual void Process_vkAntiLagUpdateAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkAntiLagDataAMD>* pData) override;
     virtual void Process_vkCmdBindShadersEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    stageCount,
         PointerDecoder<VkShaderStageFlagBits>*      pStages,
         HandlePointerDecoder<VkShaderEXT>*          pShaders) override;
+
+    virtual void Process_vkCmdSetDepthClampRangeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkDepthClampModeEXT                         depthClampMode,
+        StructPointerDecoder<Decoded_VkDepthClampRangeEXT>* pDepthClampRange) override;
 
     virtual void Process_vkCreateShadersEXT(
         const ApiCallInfo&                          call_info,
@@ -3960,6 +4006,65 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkImageAspectFlags                          aspectMask) override;
+    virtual void Process_vkCmdExecuteGeneratedCommandsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    isPreprocessed,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo) override;
+
+    virtual void Process_vkCmdPreprocessGeneratedCommandsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+        format::HandleId                            stateCommandBuffer) override;
+
+    virtual void Process_vkCreateIndirectCommandsLayoutEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkIndirectCommandsLayoutEXT>* pIndirectCommandsLayout) override;
+
+    virtual void Process_vkCreateIndirectExecutionSetEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkIndirectExecutionSetCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet) override;
+
+    virtual void Process_vkDestroyIndirectCommandsLayoutEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            indirectCommandsLayout,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkDestroyIndirectExecutionSetEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            indirectExecutionSet,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkGetGeneratedCommandsMemoryRequirementsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
+
+    virtual void Process_vkUpdateIndirectExecutionSetPipelineEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            indirectExecutionSet,
+        uint32_t                                    executionSetWriteCount,
+        StructPointerDecoder<Decoded_VkWriteIndirectExecutionSetPipelineEXT>* pExecutionSetWrites) override;
+
+    virtual void Process_vkUpdateIndirectExecutionSetShaderEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            indirectExecutionSet,
+        uint32_t                                    executionSetWriteCount,
+        StructPointerDecoder<Decoded_VkWriteIndirectExecutionSetShaderEXT>* pExecutionSetWrites) override;
     virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

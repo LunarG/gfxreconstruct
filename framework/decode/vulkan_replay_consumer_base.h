@@ -29,6 +29,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
@@ -366,50 +367,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     //! track arbitrary handles that are currently used by asynchronous operations
-    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
-    {
-        for (const auto& handle : async_handles)
-        {
-            // check to avoid overwriting existing handle-destructors
-            if (async_inflight_handles_.count(handle) == 0)
-            {
-                async_inflight_handles_[handle] = {};
-            }
-        }
-    }
+    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                           const std::function<void()>&                sync_fn);
 
     //! clear handles that are currently used by asynchronous operations,
     //! invoke stored deletion-functions
-    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
-    {
-        for (const auto& handle : async_handles)
-        {
-            auto it = async_inflight_handles_.find(handle);
-            if (it != async_inflight_handles_.end())
-            {
-                const auto& [tracked_handle, destroy_fn] = *it;
-                if (destroy_fn)
-                {
-                    destroy_fn();
-                }
-                async_inflight_handles_.erase(it);
-            }
-        }
-    }
+    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles);
 
     //! schedules deletion of already tracked handles
-    void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn)
-    {
-        auto it = async_inflight_handles_.find(handle);
-
-        if (it != async_inflight_handles_.end())
-        {
-            it->second = std::move(destroy_fn);
-        }
-    }
+    void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn);
 
     //! return true if this handle is currently being tracked (was passed to 'TrackAsyncHandles' earlier)
-    bool IsUsedByAsyncTask(uint64_t handle) const { return async_inflight_handles_.count(handle) > 0; }
+    bool IsUsedByAsyncTask(uint64_t handle) const { return async_tracked_handles_.count(handle) > 0; }
 
     //! returns true if asynchronous operations should be used at all
     bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0 && !options_.dumping_resources; }
@@ -1095,6 +1064,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
 
+    void OverrideDestroyAccelerationStructureKHR(PFN_vkDestroyAccelerationStructureKHR func,
+                                                 const DeviceInfo*                     device_info,
+                                                 const AccelerationStructureKHRInfo*   acceleration_structure_info,
+                                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideCmdBuildAccelerationStructuresKHR(
+        PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
+        CommandBufferInfo*                                                         command_buffer_info,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
+
+    void
+    OverrideCmdCopyAccelerationStructureKHR(PFN_vkCmdCopyAccelerationStructureKHR func,
+                                            CommandBufferInfo*                    command_buffer_info,
+                                            StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+        PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+        CommandBufferInfo*                                command_buffer_info,
+        uint32_t                                          count,
+        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        VkQueryType                                       queryType,
+        gfxrecon::decode::QueryPoolInfo*                  query_pool_info,
+        uint32_t                                          firstQuery);
+
     VkResult OverrideCreateRayTracingPipelinesKHR(
         PFN_vkCreateRayTracingPipelinesKHR                                     func,
         VkResult                                                               original_result,
@@ -1113,11 +1108,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkDeviceAddress
     OverrideGetBufferDeviceAddress(PFN_vkGetBufferDeviceAddress                                   func,
+                                   VkDeviceAddress                                                original_result,
                                    const DeviceInfo*                                              device_info,
                                    const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo);
 
     void OverrideGetAccelerationStructureDeviceAddressKHR(
         PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+        VkDeviceAddress                                                                  original_result,
         const DeviceInfo*                                                                device_info,
         const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo);
 
@@ -1190,6 +1187,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     CommandBufferInfo*                                   command_buffer_info,
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
+
+    void
+    OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
+                            CommandBufferInfo*                                             command_buffer_info,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+                            uint32_t                                                       width,
+                            uint32_t                                                       height,
+                            uint32_t                                                       depth);
 
     void
     OverrideCmdBeginRenderPass2(PFN_vkCmdBeginRenderPass2                            func,
@@ -1328,6 +1336,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const VkPhysicalDeviceProperties* capture_properties,
                                      const VkPhysicalDeviceProperties* replay_properties);
 
+    void SetPhysicalDeviceProperties(PhysicalDeviceInfo*                physical_device_info,
+                                     const VkPhysicalDeviceProperties2* capture_properties,
+                                     const VkPhysicalDeviceProperties2* replay_properties);
+
     void SetPhysicalDeviceMemoryProperties(PhysicalDeviceInfo*                     physical_device_info,
                                            const VkPhysicalDeviceMemoryProperties* capture_properties,
                                            const VkPhysicalDeviceMemoryProperties* replay_properties);
@@ -1419,6 +1431,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              const DescriptorUpdateTemplateInfo*    template_info,
                                              const DescriptorUpdateTemplateDecoder* decoder) const;
 
+    VulkanDeviceAddressTracker& GetDeviceAddressTracker(VkDevice device);
+
   private:
     struct HardwareBufferInfo
     {
@@ -1466,9 +1480,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    util::ThreadPool                                            main_thread_queue_;
-    util::ThreadPool                                            background_queue_;
-    std::unordered_map<format::HandleId, std::function<void()>> async_inflight_handles_;
+    std::unordered_map<VkDevice, decode::VulkanDeviceAddressTracker> _device_address_trackers;
+
+    util::ThreadPool main_thread_queue_;
+    util::ThreadPool background_queue_;
+
+    //! async_tracked_handle_asset_t groups assets used by tracked async-dependencies
+    struct async_tracked_handle_asset_t
+    {
+        //! function to synchronize (blocking wait) with parent asynchronous-task
+        std::function<void()> sync_fn;
+
+        //! function used to defer deletion of a tracked async-dependency
+        std::function<void()> destroy_fn;
+    };
+    //! stores handles used/referenced by currently running async tasks
+    std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
+
+    //! decide whether to sync/wait or defer deletion of handles used by currently running async tasks
+    static constexpr bool async_defer_deletion_ = false;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid

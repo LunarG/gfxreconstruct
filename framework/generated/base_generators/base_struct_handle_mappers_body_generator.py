@@ -388,7 +388,7 @@ class BaseStructHandleMappersBodyGenerator():
             if self.is_handle(
                 member.base_type
             ) and not (member.is_array and not member.is_dynamic):
-                needs_value_ptr = False
+                needs_value_ptr = True
                 break
 
         body = 'void SetStruct{}Lengths(Decoded_{name}* wrapper)\n'.format(

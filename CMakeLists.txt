@@ -175,9 +175,6 @@ if(MSVC)
 
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
-        if(${CONVERT_EXPERIMENTAL_D3D12})
-            add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
-        endif()
 
         # Check Windows SDK version and print warning if there is a mismatch.
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
@@ -326,10 +323,6 @@ if(BUILD_WERROR)
         target_compile_options(platform_specific INTERFACE /WX)
     else()
         target_compile_options(platform_specific INTERFACE -Werror)
-        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-            # TODO: Actually fix these warnings
-            target_compile_options(platform_specific INTERFACE -Wno-error=switch)
-        endif()
     endif()
 endif()
 

@@ -314,7 +314,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             [self.make_full_typename(value) for value in values]
         )
         if return_type == 'void':
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
+            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
                 proto, params, name
             )
         else:
@@ -327,6 +327,6 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                     .format(return_type)
                 )
                 return_value = '{}{{}}'.format(return_type)
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
+            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
                 proto, params, name, return_value
             )

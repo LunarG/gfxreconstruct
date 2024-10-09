@@ -57,6 +57,18 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     # will be replaced by the override value.
     CAPTURE_OVERRIDES = {}
 
+    # Functions that can activate trimming from a pre call command.
+    PRECALL_TRIM_TRIGGERS = {
+        'ID3D12CommandQueue': ['ExecuteCommandLists'],
+    }
+
+    # Functions that can activate trimming from a post call command.
+    POSTCALL_TRIM_TRIGGERS = {
+        'ID3D12CommandQueue': ['ExecuteCommandLists'],
+        'IDXGISwapChain': ['Present'],
+        'IDXGISwapChain1': ['Present1']
+    }
+
     def __init__(
         self,
         source_dict,
@@ -316,8 +328,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         tuple[0], tuple[1]
                     )
                 else:
+                    array_length = tuple[2]
+                    if array_length.startswith('* '):
+                        array_length = '({} != nullptr) ? {} : 0'.format(
+                            array_length[2:], array_length.replace(' ', '')
+                        )
                     expr += indent + 'WrapObjectArray({}, {}, {}, nullptr);\n'.format(
-                        tuple[0], tuple[1], tuple[2]
+                        tuple[0], tuple[1], array_length
                     )
 
             for value in params_wrap_struct:
@@ -372,6 +389,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         indent = self.increment_indent(indent)
         expr += indent + 'manager,\n'
+
+        if (class_name in self.PRECALL_TRIM_TRIGGERS) and (method_name in self.PRECALL_TRIM_TRIGGERS[class_name]):
+            expr += indent + 'shared_api_call_lock,\n'
+
         expr += indent + 'this'
         if wrapped_args:
             expr += ',\n'
@@ -438,6 +459,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         indent = self.increment_indent(indent)
         expr += indent + 'manager,\n'
+
+        if (class_name in self.POSTCALL_TRIM_TRIGGERS) and (method_name in self.POSTCALL_TRIM_TRIGGERS[class_name]):
+            expr += indent + 'shared_api_call_lock,\n'
+
         expr += indent + 'this'
         if return_type != 'void':
             expr += ',\n'
@@ -685,21 +710,17 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
-            if class_name.startswith("IDXGISwapChain"
-                                     ) and method_name.startswith("Present"):
-                expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
-            else:
-                expr += indent + 'auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();\n'
-                expr += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
-                expr += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
-                expr += indent + 'if (force_command_serialization)\n'
-                expr += indent + '{\n'
-                expr += indent + '    exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
-                expr += indent + '}\n'
-                expr += indent + 'else\n'
-                expr += indent + '{\n'
-                expr += indent + '    shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();\n'
-                expr += indent + '}\n'
+            expr += indent + 'auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();\n'
+            expr += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
+            expr += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
+            expr += indent + 'if (force_command_serialization)\n'
+            expr += indent + '{\n'
+            expr += indent + '    exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
+            expr += indent + '}\n'
+            expr += indent + 'else\n'
+            expr += indent + '{\n'
+            expr += indent + '    shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();\n'
+            expr += indent + '}\n'
 
             expr += '\n'
 

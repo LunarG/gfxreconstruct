@@ -121,6 +121,8 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
                         VkBuffer*                               new_buffer,
                         VkDeviceMemory*                         new_memory);
 
+void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

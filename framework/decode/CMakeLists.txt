@@ -145,6 +145,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_json_consumer_base.h
@@ -262,16 +264,8 @@ target_sources(gfxrecon_decode
 endif()
 
 if (MSVC)
-    # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_json_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/test/main.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    if (MSVC_VERSION LESS 1920)
-        set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-        set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-        set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-        set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    endif()
+    # gfxrecon_decode exceeds the default number of sections during compilation, use this flag to increase the limit
+    target_compile_options(gfxrecon_decode PRIVATE /bigobj)
 endif()
 
 if (TARGET ZLIB::ZLIB)

@@ -130,6 +130,8 @@ enum CommandHandleType : uint32_t
     ShaderEXTHandle,
     DescriptorSetLayoutHandle,
     DescriptorUpdateTemplateHandle,
+    IndirectCommandsLayoutEXTHandle,
+    IndirectExecutionSetEXTHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };

@@ -160,6 +160,18 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
                 FieldToJson(jdata[i], meta_struct[i], options);
             }
         }
+        else if (data->IsArray2D())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                size_t inner_length = data->GetInnerLength(i);
+                auto&  jdata_arr    = jdata.emplace_back(nlohmann::ordered_json::array_t(inner_length));
+                for (size_t j = 0; j < inner_length; ++j)
+                {
+                    FieldToJson(jdata_arr[j], &meta_struct[i][j], options);
+                }
+            }
+        }
         else if (length == 1)
         {
             FieldToJson(jdata, *meta_struct, options);
