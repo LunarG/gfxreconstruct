@@ -712,9 +712,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     HandlePointerDecoder<XrSession>*                   session,
     XrResult                                           replay_result)
 {
-    XrSession*                   replay_session = session->GetHandlePointer();
     Decoded_XrSessionCreateInfo* decoded_info   = createInfo->GetMetaStructPointer();
-    SessionData&                 session_data   = AddSessionData(*replay_session);
+    SessionData&                 session_data   = AddSessionData(*session->GetPointer());
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
@@ -723,10 +722,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrEndSession(const ApiCallInfo& call_
                                                         format::HandleId   session,
                                                         XrResult           replay_result)
 {
-    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    SessionData& session_data = GetSessionData(in_session);
-
-    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(in_session));
+    SessionData& session_data = GetSessionData(session);
+    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(session_data.GetHandle()));
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrBeginFrame(const ApiCallInfo&                              call_info,
@@ -735,9 +732,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrBeginFrame(const ApiCallInfo&      
                                                         StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo,
                                                         XrResult                                        replay_result)
 {
-    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    SessionData& session_data = GetSessionData(in_session);
-    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(in_session));
+    SessionData& session_data = GetSessionData(session);
+    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(session_data.GetHandle()));
 }
 
 struct EventStrings
@@ -914,8 +910,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrWaitFrame(const ApiCallInfo&       
 {
 
     // Store wait frame information for this session if needed later
-    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    SessionData& session_data = GetSessionData(in_session);
+    SessionData& session_data = GetSessionData(session);
     session_data.SetDisplayTime(frameState->GetOutputPointer()->predictedDisplayTime);
 }
 
@@ -928,13 +923,12 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateReferenceSpaces(const ApiC
                                                                       XrResult replay_result)
 {
     // Store wait frame information for this session if needed later
-    XrSession             in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     uint32_t*             out_spaceCountOutput = spaceCountOutput->GetOutputPointer();
     XrReferenceSpaceType* out_spaces           = spaces->GetOutputPointer();
 
     if (out_spaceCountOutput && *out_spaceCountOutput && out_spaces)
     {
-        SessionData& session_data = GetSessionData(in_session);
+        SessionData& session_data = GetSessionData(session);
         session_data.AddReferenceSpaces(*out_spaceCountOutput, out_spaces);
     }
 }
@@ -965,8 +959,9 @@ void OpenXrReplayConsumerBase::Process_xrCreateSwapchain(
 
     AssociateParent(*out_swapchain, in_session);
 
-    auto&          session_data = GetSessionData(in_session);
-    SwapchainData& swap_data    = AddSwapchainData(*out_swapchain);
+    SessionData&   session_data = GetSessionData(session);
+    SwapchainData& swap_data    = AddSwapchainData(*swapchain->GetPointer());
+
     swap_data.InitSwapchainData(session_data.GetGraphicsBinding(), amended_info, *out_swapchain);
 }
 
@@ -985,8 +980,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
         return;
     }
 
-    XrSwapchain in_swapchain   = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
-    auto&       swapchain_data = GetSwapchainData(in_swapchain);
+    SwapchainData& swapchain_data = GetSwapchainData(swapchain);
 
     XrResult result = swapchain_data.ImportReplaySwapchain(images);
     if (XR_SUCCEEDED(result))
@@ -1013,11 +1007,10 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                                  index,
     XrResult                                                   replay_result)
 {
-    XrSwapchain in_swapchain  = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
     uint32_t    capture_index = *index->GetPointer();
     uint32_t    out_index     = *index->GetOutputPointer();
 
-    auto& swapchain_data = GetSwapchainData(in_swapchain);
+    SwapchainData& swapchain_data = GetSwapchainData(swapchain);
     replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
 }
 
@@ -1030,7 +1023,7 @@ void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
     XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
     const XrSwapchainImageReleaseInfo* in_releaseInfo = releaseInfo->GetPointer();
 
-    auto& swapchain_data = GetSwapchainData(in_swapchain);
+    SwapchainData& swapchain_data = GetSwapchainData(swapchain);
     swapchain_data.ReleaseSwapchainImage(releaseInfo);
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->ReleaseSwapchainImage(in_swapchain, in_releaseInfo);
@@ -1046,8 +1039,8 @@ void OpenXrReplayConsumerBase::ProcessViewRelativeLocation(format::ThreadId     
     XrSpace replay_space = MapHandle<OpenXrSpaceInfo>(location.space_id, &CommonObjectInfoTable::GetXrSpaceInfo);
     assert(replay_session != XR_NULL_HANDLE);
     assert(replay_space != XR_NULL_HANDLE);
-    auto& session_data = GetSessionData(replay_session);
-    session_data.AddViewRelativeProxySpace(GetInstanceTable(replay_session), location, replay_space);
+    SessionData& session_data = GetSessionData(location.session_id);
+    session_data.AddViewRelativeProxySpace(GetInstanceTable(session_data.GetHandle()), location, replay_space);
 }
 
 void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&                            call_info,
@@ -1060,7 +1053,7 @@ void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&            
     MapStructHandles(frameEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrFrameEndInfo replay_frame_end_info = *in_frameEndInfo;
-    SessionData&   session_data          = GetSessionData(in_session);
+    SessionData&   session_data          = GetSessionData(session);
 
     // The display time must be based on the time given by the runtime at replay time, as the recorded diplayTime
     // may not be a valid time at replay.
@@ -1412,9 +1405,9 @@ void OpenXrReplayConsumerBase::RaiseFatalError(const char* message) const
         fatal_error_handler_(message);
     }
 }
-void OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const GraphicsBinding&       binding,
-                                                                const XrSwapchainCreateInfo& info,
-                                                                XrSwapchain                  replay_handle)
+void openxr::SwapchainData::InitSwapchainData(const GraphicsBinding&       binding,
+                                              const XrSwapchainCreateInfo& info,
+                                              XrSwapchain                  replay_handle)
 {
     // Save off a reference to the session's graphics binding information
     graphics_binding_ = &binding;
@@ -1423,7 +1416,6 @@ void OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const GraphicsBi
     create_info      = info;
     create_info.next = nullptr; // Add supported deep copies below
 
-    replay_handle_ = replay_handle;
     if (binding.IsVulkan())
     {
         // The type of the swapchain must match the type of the session
@@ -1439,8 +1431,7 @@ void OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const GraphicsBi
     }
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::ImportReplaySwapchain(
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
+XrResult openxr::SwapchainData::ImportReplaySwapchain(StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
 {
     XrResult                    result             = XR_SUCCESS;
     XrSwapchainImageBaseHeader* replay_images      = images->GetOutputPointer();
@@ -1468,9 +1459,9 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::ImportReplaySwapchain(
     return result;
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
-    PointerDecoder<uint32_t>*                                 imageCountOutput,
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images)
+XrResult
+openxr::SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*                                 imageCountOutput,
+                                            StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images)
 {
     // This call is invalid without a Session with a graphics binding specified
     assert(graphics_binding_);
@@ -1493,8 +1484,9 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
     return result;
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
-    PointerDecoder<uint32_t>* imageCountOutput, StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>* capture_images)
+XrResult
+openxr::SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*                                imageCountOutput,
+                                            StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>* capture_images)
 {
 
     // Unpack the graphics binding info, we shouldn't be called unless the binding *is* Vulkan
@@ -1660,7 +1652,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
     return xr_result;
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index)
+XrResult openxr::SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index)
 {
     capture_to_replay_map_[capture_index] = replay_index;
     acquire_release_fifo_.push_front(capture_index);
@@ -1675,8 +1667,8 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::AcquireSwapchainImage(uint32_t
     return XR_ERROR_VALIDATION_FAILURE;
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::ReleaseSwapchainImage(
-    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
+XrResult
+openxr::SwapchainData::ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
 {
     XrResult xr_result = XR_SUCCESS;
 
@@ -1690,7 +1682,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::ReleaseSwapchainImage(
     return XR_ERROR_VALIDATION_FAILURE;
 }
 
-void OpenXrReplayConsumerBase::SwapchainData::WaitedWithoutTimeout()
+void openxr::SwapchainData::WaitedWithoutTimeout()
 {
     // WIP: Do we need to track anything here?
     // The calling order will be enforced by the runtime at replay time, and if the application
@@ -1698,9 +1690,8 @@ void OpenXrReplayConsumerBase::SwapchainData::WaitedWithoutTimeout()
     // to, but it's unsure whether we can do anything about it.
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::AcquireSwapchainImage(uint32_t             capture_index,
-                                                                        uint32_t             replay_index,
-                                                                        VulkanSwapchainInfo& swap)
+XrResult
+openxr::SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index, VulkanSwapchainInfo& swap)
 {
     // Unpack the graphics binding info, we shouldn't be called unless the binding *is* Vulkan
     assert(graphics_binding_->IsVulkan());
@@ -1762,8 +1753,9 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::AcquireSwapchainImage(uint32_t
     return XR_SUCCESS;
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::ReleaseSwapchainImage(
-    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo, VulkanSwapchainInfo& vk_swap)
+XrResult
+openxr::SwapchainData::ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo,
+                                             VulkanSwapchainInfo&                                       vk_swap)
 {
 
     // Unpack the graphics binding info, we shouldn't be called unless the binding *is* Vulkan
@@ -1899,8 +1891,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::ReleaseSwapchainImage(
     return XR_SUCCESS;
 }
 
-void OpenXrReplayConsumerBase::SwapchainData::MapVulkanSwapchainImageFlags(XrSwapchainUsageFlags xr_flags,
-                                                                           VkImageCreateInfo&    info)
+void openxr::SwapchainData::MapVulkanSwapchainImageFlags(XrSwapchainUsageFlags xr_flags, VkImageCreateInfo& info)
 {
     // NOTE: This is Vulkan specific.
     struct ImageUsageMap
@@ -1947,8 +1938,7 @@ void OpenXrReplayConsumerBase::SwapchainData::MapVulkanSwapchainImageFlags(XrSwa
     assert(xr_flags == mapped_flags);
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const XrSwapchainCreateInfo& xr_info,
-                                                                    VulkanSwapchainInfo&         vk_swap)
+XrResult openxr::SwapchainData::InitSwapchainData(const XrSwapchainCreateInfo& xr_info, VulkanSwapchainInfo& vk_swap)
 {
     XrResult xr_result = XR_SUCCESS; // WIP: Determine if there is a better code for this
 
@@ -2029,8 +2019,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const XrSwap
     return xr_result;
 }
 
-OpenXrReplayConsumerBase::GraphicsBinding
-OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info)
+openxr::GraphicsBinding OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info)
 {
     auto* vk_binding = gfxrecon::decode::GetNextMetaStruct<Decoded_XrGraphicsBindingVulkanKHR>(create_info->next);
     if (vk_binding)
@@ -2059,8 +2048,7 @@ OpenXrReplayConsumerBase::VulkanGraphicsBinding::VulkanGraphicsBinding(
     device_table->GetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
 }
 
-XrResult
-OpenXrReplayConsumerBase::VulkanGraphicsBinding::ResetCommandBuffer(VulkanSwapchainInfo::ProxyImage& proxy) const
+XrResult openxr::VulkanGraphicsBinding::ResetCommandBuffer(openxr::VulkanSwapchainInfo::ProxyImage& proxy) const
 {
     XrResult xr_result = XR_SUCCESS;
     uint32_t kTimeout  = std::numeric_limits<uint32_t>::max(); // WIP: Better timeout and timeout reporting
@@ -2079,14 +2067,13 @@ OpenXrReplayConsumerBase::VulkanGraphicsBinding::ResetCommandBuffer(VulkanSwapch
     return xr_result;
 }
 
-bool OpenXrReplayConsumerBase::SessionData::AddGraphicsBinding(const GraphicsBinding& binding)
+bool openxr::SessionData::AddGraphicsBinding(const GraphicsBinding& binding)
 {
     graphics_binding_ = binding;
     return graphics_binding_.IsValid();
 }
 
-void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t                    count,
-                                                               const XrReferenceSpaceType* replay_spaces)
+void openxr::SessionData::AddReferenceSpaces(uint32_t count, const XrReferenceSpaceType* replay_spaces)
 {
     reference_spaces_.clear();
     for (uint32_t space = 0; space < count; space++)
@@ -2095,9 +2082,9 @@ void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t         
     }
 }
 
-void OpenXrReplayConsumerBase::SessionData::AddViewRelativeProxySpace(const encode::OpenXrInstanceTable* instance_table,
-                                                                      const format::ViewRelativeLocation& location,
-                                                                      const XrSpace                       replay_space)
+void openxr::SessionData::AddViewRelativeProxySpace(const encode::OpenXrInstanceTable*  instance_table,
+                                                    const format::ViewRelativeLocation& location,
+                                                    const XrSpace                       replay_space)
 {
 
     // View space at view relative location
@@ -2109,7 +2096,7 @@ void OpenXrReplayConsumerBase::SessionData::AddViewRelativeProxySpace(const enco
 
     XrSpace view_relative_space = XR_NULL_HANDLE;
     // TODO: Cleanup this reference space object at DestroySession time
-    XrResult result = instance_table->CreateReferenceSpace(session_, &view_relative_ci, &view_relative_space);
+    XrResult result = instance_table->CreateReferenceSpace(handle_, &view_relative_ci, &view_relative_space);
 
     if (XR_SUCCEEDED(result))
     {
@@ -2121,8 +2108,7 @@ void OpenXrReplayConsumerBase::SessionData::AddViewRelativeProxySpace(const enco
     }
 }
 
-void OpenXrReplayConsumerBase::SessionData::ClearViewRelativeProxySpaces(
-    const encode::OpenXrInstanceTable* instance_table)
+void openxr::SessionData::ClearViewRelativeProxySpaces(const encode::OpenXrInstanceTable* instance_table)
 {
     assert(instance_table);
     for (const auto& proxy : proxy_spaces_)
@@ -2135,7 +2121,7 @@ void OpenXrReplayConsumerBase::SessionData::ClearViewRelativeProxySpaces(
     proxy_spaces_.clear();
 }
 
-void OpenXrReplayConsumerBase::SessionData::RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info)
+void openxr::SessionData::RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info)
 {
     const XrCompositionLayerBaseHeader* const* layers = frame_end_info.layers;
     if (!layers)

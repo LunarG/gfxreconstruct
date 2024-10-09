@@ -59,6 +59,21 @@ struct OpenXrObjectInfo
     format::HandleId parent_id{ format::kNullHandleId };  // ID of the object's parent instance/device object.
 };
 
+GFXRECON_BEGIN_NAMESPACE(openxr)
+struct SessionData;
+struct SwapchainData;
+GFXRECON_END_NAMESPACE(openxr)
+
+template <typename HandleType, typename ReplayData>
+struct OpenXrReplayObjectInfo : public OpenXrObjectInfo<HandleType>
+{
+    using ReplayDataType = ReplayData;
+    std::shared_ptr<ReplayDataType> replay_data;
+    void                            InitReplayData() { replay_data = std::make_shared<ReplayDataType>(this->handle); }
+};
+using OpenXrSessionInfo   = OpenXrReplayObjectInfo<XrSession, openxr::SessionData>;
+using OpenXrSwapchainInfo = OpenXrReplayObjectInfo<XrSwapchain, openxr::SwapchainData>;
+
 template <typename T>
 struct OpenXrAtomInfo
 {
@@ -88,9 +103,7 @@ struct OpenXrOpaqueInfo
 typedef OpenXrObjectInfo<XrAction>                           OpenXrActionInfo;
 typedef OpenXrObjectInfo<XrActionSet>                        OpenXrActionSetInfo;
 typedef OpenXrObjectInfo<XrInstance>                         OpenXrInstanceInfo;
-typedef OpenXrObjectInfo<XrSession>                          OpenXrSessionInfo;
 typedef OpenXrObjectInfo<XrSpace>                            OpenXrSpaceInfo;
-typedef OpenXrObjectInfo<XrSwapchain>                        OpenXrSwapchainInfo;
 typedef OpenXrObjectInfo<XrDebugUtilsMessengerEXT>           OpenXrDebugUtilsMessengerEXTInfo;
 typedef OpenXrObjectInfo<XrHandTrackerEXT>                   OpenXrHandTrackerEXTInfo;
 typedef OpenXrObjectInfo<XrPlaneDetectorEXT>                 OpenXrPlaneDetectorEXTInfo;
