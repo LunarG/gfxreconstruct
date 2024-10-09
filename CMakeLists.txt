@@ -166,6 +166,9 @@ if(MSVC)
 
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
+	
+    # Enable STL locks to work after building capture libs with certain versions of VS
+    add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
