@@ -37,6 +37,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "format/api_call_id.h"
+#include "encode/capture_manager.h"
 #include "generated/generated_vulkan_command_buffer_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
@@ -50,14 +51,37 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
+#include <perfetto.h>
+
+PERFETTO_DEFINE_CATEGORIES(perfetto::Category("GFXR").SetDescription("Events from the graphics subsystem"));
+
+PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+static const int PERFETTO_TRACK_ID = 1234561;
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
     const VkInstanceCreateInfo*                 pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkInstance*                                 pInstance)
 {
+    if (!perfetto::Tracing::IsInitialized())
+    {
+        perfetto::TracingInitArgs args;
+    args.backends |= perfetto::kInProcessBackend;
+    args.backends |= perfetto::kSystemBackend;
+    perfetto::Tracing::Initialize(args);
+    perfetto::TrackEvent::Register();
+
+    GFXRECON_LOG_WARNING("Init perfetto in CreateInstance");
+
+    auto trackDesc = perfetto::Track(PERFETTO_TRACK_ID).Serialize();
+    trackDesc.set_name("GFXR capture");
+    perfetto::TrackEvent::SetTrackDescriptor(perfetto::Track(PERFETTO_TRACK_ID), trackDesc);
+    }
+
     auto api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
 
     bool omit_output_data = false;
@@ -518,8 +542,14 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     const VkSubmitInfo*                         pSubmits,
     VkFence                                     fence)
 {
+    TRACE_EVENT_BEGIN("GFXR", "QueueSubmit", perfetto::Track(PERFETTO_TRACK_ID));
+
+    TRACE_EVENT_BEGIN("GFXR", "get VulkanCaptureManager", perfetto::Track(PERFETTO_TRACK_ID));
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+
+    TRACE_EVENT_BEGIN("GFXR", "serialization", perfetto::Track(PERFETTO_TRACK_ID));
     auto force_command_serialization = manager->GetForceCommandSerialization();
     std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
     std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
@@ -531,14 +561,22 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     {
         shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
     }
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "encoder dispatch", perfetto::Track(PERFETTO_TRACK_ID));
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, queue, submitCount, pSubmits, fence);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "memory unwrap", perfetto::Track(PERFETTO_TRACK_ID));
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSubmitInfo* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "device table", perfetto::Track(PERFETTO_TRACK_ID));
     VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueueSubmit(queue, submitCount, pSubmits_unwrapped, fence);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "API call capture", perfetto::Track(PERFETTO_TRACK_ID));
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueSubmit);
     if (encoder)
     {
@@ -549,6 +587,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, result, queue, submitCount, pSubmits, fence);
 
@@ -8599,18 +8639,41 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     VkQueue                                     queue,
     const VkPresentInfoKHR*                     pPresentInfo)
 {
+    TRACE_EVENT_BEGIN("GFXR", "QueuePresentKHR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "VulkanCaptureManager::Get", perfetto::Track(PERFETTO_TRACK_ID));
+
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "AcquireExclusiveApiCallLock", perfetto::Track(PERFETTO_TRACK_ID));
+
+
     auto api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "CustomEncoderPreCall::Dispatch", perfetto::Track(PERFETTO_TRACK_ID));
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, queue, pPresentInfo);
 
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "GetHandleUnwrapMemory", perfetto::Track(PERFETTO_TRACK_ID));
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "UnwrapStructPtrHandles", perfetto::Track(PERFETTO_TRACK_ID));
     const VkPresentInfoKHR* pPresentInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pPresentInfo, handle_unwrap_memory);
 
+
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "QueuePresentKHR", perfetto::Track(PERFETTO_TRACK_ID));
     VkResult result = vulkan_wrappers::GetDeviceTable(queue)->QueuePresentKHR(queue, pPresentInfo_unwrapped);
 
+
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "BeginApiCallCapture", perfetto::Track(PERFETTO_TRACK_ID));
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueuePresentKHR);
+
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "encode", perfetto::Track(PERFETTO_TRACK_ID));
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(queue);
@@ -8619,7 +8682,12 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
         manager->EndApiCallCapture();
     }
 
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_BEGIN("GFXR", "CustomEncoderPostCall::Dispatch", perfetto::Track(PERFETTO_TRACK_ID));
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, result, queue, pPresentInfo);
+
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
     return result;
 }

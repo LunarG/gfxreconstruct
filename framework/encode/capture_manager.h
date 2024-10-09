@@ -71,15 +71,7 @@ class CommonCaptureManager
         return &thread_data->handle_unwrap_memory_;
     }
 
-    ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
-    {
-        if (capture_mode_ != kModeDisabled)
-        {
-            return InitApiCallCapture(call_id);
-        }
-
-        return nullptr;
-    }
+    ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id);
 
     ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
     {

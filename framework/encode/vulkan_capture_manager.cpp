@@ -26,6 +26,7 @@
 
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
+#include "encode/capture_manager.h"
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
@@ -42,6 +43,9 @@
 
 #include <cassert>
 #include <unordered_set>
+#include <perfetto.h>
+
+PERFETTO_DEFINE_CATEGORIES(perfetto::Category("GFXR").SetDescription("Events from the graphics subsystem"));
 
 #if defined(__linux__) && !defined(__ANDROID__)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -58,6 +62,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 VulkanCaptureManager* VulkanCaptureManager::singleton_ = nullptr;
 VulkanLayerTable      VulkanCaptureManager::vulkan_layer_table_;
+static const int      PERFETTO_TRACK_ID = 1234561;
 
 bool VulkanCaptureManager::CreateInstance()
 {
@@ -69,6 +74,22 @@ bool VulkanCaptureManager::CreateInstance()
                       VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
                       VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
                       VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+
+    if (!perfetto::Tracing::IsInitialized())
+    {
+        perfetto::TracingInitArgs args;
+        args.backends |= perfetto::kInProcessBackend;
+        args.backends |= perfetto::kSystemBackend;
+        perfetto::Tracing::Initialize(args);
+        perfetto::TrackEvent::Register();
+
+        GFXRECON_LOG_INFO("Init perfetto in VulkanCaptureManager");
+
+        int  trackId   = PERFETTO_TRACK_ID;
+        auto trackDesc = perfetto::Track(trackId).Serialize();
+        trackDesc.set_name("GFXR capture");
+        perfetto::TrackEvent::SetTrackDescriptor(perfetto::Track(trackId), trackDesc);
+    }
 
     return result;
 }
@@ -2406,15 +2427,22 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
                                                     const VkSubmitInfo* pSubmits,
                                                     VkFence             fence)
 {
+    TRACE_EVENT_BEGIN("GFXR", "params", perfetto::Track(PERFETTO_TRACK_ID));
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "QueueSubmitWriteFillMemoryCmd", perfetto::Track(PERFETTO_TRACK_ID));
     QueueSubmitWriteFillMemoryCmd();
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "PreQueueSubmit", perfetto::Track(PERFETTO_TRACK_ID));
     PreQueueSubmit();
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 
+    TRACE_EVENT_BEGIN("GFXR", "TrackTlasToBlasDependencies loop", perfetto::Track(PERFETTO_TRACK_ID));
     if (IsCaptureModeTrack())
     {
         if (pSubmits)
@@ -2426,6 +2454,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
             }
         }
     }
+    TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
 }
 
 void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
@@ -2468,15 +2497,19 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
         GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
+        TRACE_EVENT_BEGIN("GFXR", "PageGuard", perfetto::Track(PERFETTO_TRACK_ID));
+
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
         manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
             WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
+        TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
+        TRACE_EVENT_BEGIN("GFXR", "kUnassisted", perfetto::Track(PERFETTO_TRACK_ID));
         std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
 
         for (auto wrapper : mapped_memory_)
@@ -2492,6 +2525,7 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
             WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
+        TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID));
     }
 }
 

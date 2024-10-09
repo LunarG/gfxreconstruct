@@ -1,5 +1,7 @@
 add_library(gfxrecon_encode STATIC "")
 
+add_library(perfetto STATIC ${CMAKE_CURRENT_LIST_DIR}/../../../../perfetto/sdk/perfetto.cc)
+
 target_sources(gfxrecon_encode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/encode/api_capture_manager.h
@@ -52,6 +54,7 @@ target_sources(gfxrecon_encode
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${GFXRECON_SOURCE_DIR}/framework)
+                               ${GFXRECON_SOURCE_DIR}/framework
+                               ${CMAKE_CURRENT_LIST_DIR}/../../../../perfetto/sdk)
 
-target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific android)
+target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific perfetto android)

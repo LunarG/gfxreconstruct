@@ -40,11 +40,18 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <format>
+#include <iomanip>
 #include <unordered_map>
+#include <perfetto.h>
 
 #if defined(__unix__)
 extern char** environ;
 #endif
+
+// PERFETTO_DEFINE_CATEGORIES(perfetto::Category("GFXR").SetDescription("Events from the graphics subsystem"));
+
+// PERFETTO_TRACK_EVENT_STATIC_STORAGE();
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -106,12 +113,34 @@ CommonCaptureManager::CommonCaptureManager() :
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), block_index_(0)
 {}
 
+ParameterEncoder* CommonCaptureManager::BeginTrackedApiCallCapture(format::ApiCallId call_id)
+{
+    std::string tag     = "BeginTrackedApiCallCapture 0x" + std::to_string(static_cast<uint16_t>(call_id));
+    char*       charTag = new char[tag.length() + 1];
+    strcpy(charTag, tag.c_str());
+    if (capture_mode_ != kModeDisabled)
+    {
+        // These are potentially interesting as rather fine-grained traces.
+        // TRACE_EVENT_BEGIN("GFXR", charTag, perfetto::Track(1234561));
+        ParameterEncoder* ans = InitApiCallCapture(call_id);
+        // TRACE_EVENT_END("GFXR");
+        return ans;
+    }
+
+    return nullptr;
+}
+
 CommonCaptureManager::~CommonCaptureManager()
 {
     if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard ||
         memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
         util::PageGuardManager::Destroy();
+    }
+
+    if (perfetto::Tracing::IsInitialized())
+    {
+        // TODO: appropriately flush events and shit down Perfetto.
     }
 
     util::Log::Release();
@@ -352,7 +381,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         // External memory takes precedence over shadow memory modes.
         if (use_external_memory)
         {
-            page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_memory_mode_     = kMemoryModeExternal;
             page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
