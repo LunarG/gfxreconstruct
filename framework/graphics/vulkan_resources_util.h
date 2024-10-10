@@ -116,7 +116,8 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>& subresource_sizes,
                                           bool&                  scaling_supported,
                                           bool                   all_layers_per_level = false,
-                                          float                  scale                = 1.0f);
+                                          float                  scale                = 1.0f,
+                                          VkFormat               dst_format           = VK_FORMAT_UNDEFINED);
 
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when the image content can be accessed directly and expects to received a
@@ -230,6 +231,7 @@ class VulkanResourcesUtil
 
     VkResult BlitImage(VkImage               image,
                        VkFormat              format,
+                       VkFormat              dst_format,
                        VkImageType           type,
                        VkImageTiling         tiling,
                        const VkExtent3D&     extent,

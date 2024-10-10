@@ -73,7 +73,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
     dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), current_render_pass_type(kNone),
-    capture_filename(capture_filename)
+    capture_filename(capture_filename), dump_images_raw(options.dump_resources_dump_raw_images)
 {
     must_backup_resources = (dc_indices.size() > 1);
 
@@ -899,6 +899,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
 std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat              format,
                                                                        VkImageAspectFlagBits aspect,
+                                                                       VkImageTiling         tiling,
+                                                                       VkImageType           type,
                                                                        uint32_t              mip_level,
                                                                        uint32_t              layer,
                                                                        uint64_t              cmd_buf_index,
@@ -913,7 +915,21 @@ std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat 
 
     std::stringstream filename;
     filename << capture_filename << "_";
-    if (VkFormatToImageWriterDataFormat(format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
+
+    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+    assert(device_info);
+
+    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
+                                                                       device_table,
+                                                                       instance_table,
+                                                                       object_info_table,
+                                                                       format,
+                                                                       tiling,
+                                                                       type,
+                                                                       image_file_format,
+                                                                       dump_images_raw);
+
+    if (output_image_format != KFormatRaw)
     {
         if (dump_resources_before)
         {
@@ -945,7 +961,7 @@ std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat 
     {
         std::stringstream subresource_sting;
         subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
-        subresource_sting << ImageFileExtension(format, image_file_format);
+        subresource_sting << ImageFileExtension(output_image_format);
 
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str() + subresource_sting.str());
@@ -953,7 +969,7 @@ std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat 
     }
     else
     {
-        filename << ImageFileExtension(format, image_file_format);
+        filename << ImageFileExtension(output_image_format);
 
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str());
@@ -1133,6 +1149,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                         {
                             filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
                                                                                aspect,
+                                                                               image_info->tiling,
+                                                                               image_info->type,
                                                                                mip,
                                                                                layer,
                                                                                cmd_buf_index,
@@ -1145,6 +1163,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                         std::string filenameAfter =
                             GenerateRenderTargetImageFilename(image_info->format,
                                                               aspect,
+                                                              image_info->tiling,
+                                                              image_info->type,
                                                               mip,
                                                               layer,
                                                               cmd_buf_index + dump_resources_before,
@@ -1208,6 +1228,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                     {
                         filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
                                                                            aspect,
+                                                                           image_info->tiling,
+                                                                           image_info->type,
                                                                            mip,
                                                                            layer,
                                                                            cmd_buf_index,
@@ -1219,6 +1241,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
 
                     std::string filenameAfter = GenerateRenderTargetImageFilename(image_info->format,
                                                                                   aspect,
+                                                                                  image_info->tiling,
+                                                                                  image_info->type,
                                                                                   mip,
                                                                                   layer,
                                                                                   cmd_buf_index + dump_resources_before,
@@ -1364,6 +1388,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                                 std::string filename =
                                                     GenerateImageDescriptorFilename(image_info->format,
                                                                                     aspect,
+                                                                                    image_info->tiling,
+                                                                                    image_info->type,
                                                                                     image_info->capture_id,
                                                                                     mip,
                                                                                     layer,
@@ -1651,8 +1677,17 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
                 {
-                    filenames[f++] = GenerateRenderTargetImageFilename(
-                        image_info->format, aspect, mip, layer, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                    filenames[f++] = GenerateRenderTargetImageFilename(image_info->format,
+                                                                       aspect,
+                                                                       image_info->tiling,
+                                                                       image_info->type,
+                                                                       mip,
+                                                                       layer,
+                                                                       cmd_buf_index,
+                                                                       qs_index,
+                                                                       bcb_index,
+                                                                       dc_index,
+                                                                       i);
 
                     if (!dump_all_image_subresources)
                     {
@@ -1679,6 +1714,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources,
+                                       dump_images_raw,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                        &extent);
 
@@ -1720,6 +1756,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                 {
                     filenames[f++] = GenerateRenderTargetImageFilename(image_info->format,
                                                                        aspect,
+                                                                       image_info->tiling,
+                                                                       image_info->type,
                                                                        mip,
                                                                        layer,
                                                                        cmd_buf_index,
@@ -1753,6 +1791,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources,
+                                       dump_images_raw,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                        &extent);
 
@@ -1777,6 +1816,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
 
 std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat              format,
                                                                      VkImageAspectFlagBits aspect,
+                                                                     VkImageTiling         tiling,
+                                                                     VkImageType           type,
                                                                      format::HandleId      image_id,
                                                                      uint32_t              level,
                                                                      uint32_t              layer,
@@ -1788,9 +1829,20 @@ std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat   
     std::stringstream base_filename;
     base_filename << capture_filename << "_";
 
-    const util::imagewriter::DataFormats output_format = VkFormatToImageWriterDataFormat(format);
-    if (output_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED &&
-        output_format != util::imagewriter::DataFormats::kFormat_ASTC)
+    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+    assert(device_info);
+
+    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
+                                                                       device_table,
+                                                                       instance_table,
+                                                                       object_info_table,
+                                                                       format,
+                                                                       tiling,
+                                                                       type,
+                                                                       image_file_format,
+                                                                       dump_images_raw);
+
+    if (output_image_format != KFormatRaw && output_image_format != KFormatAstc)
     {
         base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp
                       << "_aspect_" << aspect_str;
@@ -1808,7 +1860,7 @@ std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat   
     {
         std::stringstream sub_resources_str;
         sub_resources_str << base_filename.str() << "_mip_" << level << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(format, image_file_format);
+        sub_resources_str << ImageFileExtension(output_image_format);
 
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(sub_resources_str.str());
@@ -1816,7 +1868,7 @@ std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat   
     }
     else
     {
-        base_filename << ImageFileExtension(format, image_file_format);
+        base_filename << ImageFileExtension(output_image_format);
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(base_filename.str());
         return (filedirname / filebasename).string();
@@ -1993,8 +2045,16 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
                 {
-                    filenames[f++] = GenerateImageDescriptorFilename(
-                        image_info->format, aspect, image_info->capture_id, mip, layer, qs_index, bcb_index, rp);
+                    filenames[f++] = GenerateImageDescriptorFilename(image_info->format,
+                                                                     aspect,
+                                                                     image_info->tiling,
+                                                                     image_info->type,
+                                                                     image_info->capture_id,
+                                                                     mip,
+                                                                     layer,
+                                                                     qs_index,
+                                                                     bcb_index,
+                                                                     rp);
 
                     if (!dump_all_image_subresources)
                     {
@@ -2019,7 +2079,8 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
                                        dump_resources_scale,
                                        scaling_supported,
                                        image_file_format,
-                                       dump_all_image_subresources);
+                                       dump_all_image_subresources,
+                                       dump_images_raw);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
