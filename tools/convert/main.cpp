@@ -185,7 +185,7 @@ int main(int argc, const char** argv)
         GFXRECON_LOG_INFO("Capture file does not contain Vulkan content.  D3D12 content may be present but "
                           "gfxrecon-convert is not compiled with D3D12 support.");
         gfxrecon::util::Log::Release();
-        goto exit;
+        return 1;
     }
 #endif
     if (file_per_frame && output_to_stdout)
