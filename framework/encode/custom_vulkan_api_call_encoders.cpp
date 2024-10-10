@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -61,7 +62,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkDescriptorImageInfo*>(unwrapped_data + offset);
 
                 memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorImageInfo));
-                UnwrapStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
+                vulkan_wrappers::UnwrapStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -74,7 +75,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkDescriptorBufferInfo*>(unwrapped_data + offset);
 
                 memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorBufferInfo));
-                UnwrapStructHandles(unwrapped_entry, unwrap_memory);
+                vulkan_wrappers::UnwrapStructHandles(unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -104,6 +105,11 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
+        // Process VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK data
+        for (const auto& entry_info : info->inline_uniform_block)
+        {
+            memcpy(unwrapped_data + entry_info.offset, bytes + entry_info.offset, entry_info.count);
+        }
         return unwrapped_data;
     }
 
@@ -163,7 +169,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                encoder->EncodeHandleValue<BufferViewWrapper>(*entry);
+                encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferViewWrapper>(*entry);
             }
         }
 
@@ -180,8 +186,20 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
                     size_t                            offset = entry_info.offset + (entry_info.stride * i);
                     const VkAccelerationStructureKHR* entry =
                         reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
-                    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(*entry);
+                    encoder->EncodeVulkanHandleValue<vulkan_wrappers::AccelerationStructureKHRWrapper>(*entry);
                 }
+            }
+        }
+
+        // Process raw byte-arrays for VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK
+        if (info->inline_uniform_block_count > 0)
+        {
+            encoder->EncodeSizeTValue(info->inline_uniform_block_count);
+            encoder->EncodeEnumValue(VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK);
+
+            for (const auto& entry_info : info->inline_uniform_block)
+            {
+                encoder->EncodeRawBytes(bytes + entry_info.offset, entry_info.count);
             }
         }
     }
@@ -213,9 +231,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
-        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
@@ -225,7 +243,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
+    vulkan_wrappers::GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
         device, descriptorSet, descriptorUpdateTemplate, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
@@ -252,27 +270,68 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
+    auto encoder =
+        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue<CommandBufferWrapper>(commandBuffer);
-        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
-        encoder->EncodeHandleValue<PipelineLayoutWrapper>(layout);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(layout);
         encoder->EncodeUInt32Value(set);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallCapture();
+        manager->EndCommandApiCallCapture(commandBuffer);
     }
 
     auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    GetDeviceTable(commandBuffer)
+    vulkan_wrappers::GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
+    VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+
+    const UpdateTemplateInfo* info = nullptr;
+    if (!manager->GetDescriptorUpdateTemplateInfo(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate, &info))
+    {
+        GFXRECON_LOG_DEBUG("Descriptor update template info not found");
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(
+        manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
+
+    auto encoder =
+        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pPushDescriptorSetWithTemplateInfo);
+
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pPushDescriptorSetWithTemplateInfo->pData);
+
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(
+        info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)
+        ->CmdPushDescriptorSetWithTemplate2KHR(commandBuffer, pPushDescriptorSetWithTemplateInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(
+        manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
@@ -297,9 +356,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
-        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
@@ -309,7 +368,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
+    vulkan_wrappers::GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
         device, descriptorSet, descriptorUpdateTemplate, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
@@ -325,7 +384,7 @@ BuildAccelerationStructuresKHR(VkDevice                                         
 {
     // TODO
     GFXRECON_LOG_ERROR("BuildAccelerationStructuresKHR encoding is not supported");
-    return GetDeviceTable(device)->BuildAccelerationStructuresKHR(
+    return vulkan_wrappers::GetDeviceTable(device)->BuildAccelerationStructuresKHR(
         device, deferredOperation, infoCount, pInfos, ppRangeInfos);
 }
 
@@ -335,7 +394,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice            
 {
     // TODO
     GFXRECON_LOG_ERROR("CopyAccelerationStructureKHR encoding is not supported");
-    return GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
+    return vulkan_wrappers::GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
@@ -357,6 +416,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateGraphicsPipelines and not record the call. Force to return VK_PIPELINE_COMPILE_REQUIRED.");
@@ -366,8 +427,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
     }
 
     auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -384,14 +445,16 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
 
     auto                                handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkGraphicsPipelineCreateInfo* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        vulkan_wrappers::UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->CreateGraphicsPipelines(
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateGraphicsPipelines(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::PipelineCacheWrapper,
+                                              vulkan_wrappers::PipelineWrapper>(
             device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
@@ -403,15 +466,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
         VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
     if (encoder)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
         encoder->EncodeUInt32Value(createInfoCount);
         EncodeStructArray(encoder, pCreateInfos, createInfoCount);
         EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
+        encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
+            pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
         VulkanCaptureManager::Get()
-            ->EndGroupCreateApiCallCapture<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
+            ->EndGroupCreateApiCallCapture<VkDevice,
+                                           VkPipelineCache,
+                                           vulkan_wrappers::PipelineWrapper,
+                                           VkGraphicsPipelineCreateInfo>(
                 result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos);
     }
 
@@ -440,6 +507,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateComputePipelines and not record the call. Force to return VK_PIPELINE_COMPILE_REQUIRED.");
@@ -449,8 +518,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
     }
 
     auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -467,14 +536,16 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
 
     auto                               handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkComputePipelineCreateInfo* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        vulkan_wrappers::UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->CreateComputePipelines(
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateComputePipelines(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::PipelineCacheWrapper,
+                                              vulkan_wrappers::PipelineWrapper>(
             device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
@@ -486,15 +557,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
         VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateComputePipelines);
     if (encoder)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
         encoder->EncodeUInt32Value(createInfoCount);
         EncodeStructArray(encoder, pCreateInfos, createInfoCount);
         EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
+        encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
+            pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
         VulkanCaptureManager::Get()
-            ->EndGroupCreateApiCallCapture<VkDevice, VkPipelineCache, PipelineWrapper, VkComputePipelineCreateInfo>(
+            ->EndGroupCreateApiCallCapture<VkDevice,
+                                           VkPipelineCache,
+                                           vulkan_wrappers::PipelineWrapper,
+                                           VkComputePipelineCreateInfo>(
                 result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos);
     }
 
@@ -523,6 +598,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateRayTracingPipelinesNV and not record the call. Force to return "
@@ -533,8 +610,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
     }
 
     auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -551,14 +628,16 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
 
     auto                                    handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkRayTracingPipelineCreateInfoNV* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        vulkan_wrappers::UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->CreateRayTracingPipelinesNV(
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateRayTracingPipelinesNV(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::PipelineCacheWrapper,
+                                              vulkan_wrappers::PipelineWrapper>(
             device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
@@ -570,17 +649,18 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
         format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
     if (encoder)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
         encoder->EncodeUInt32Value(createInfoCount);
         EncodeStructArray(encoder, pCreateInfos, createInfoCount);
         EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
+        encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
+            pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
         VulkanCaptureManager::Get()
             ->EndGroupCreateApiCallCapture<VkDevice,
                                            VkPipelineCache,
-                                           PipelineWrapper,
+                                           vulkan_wrappers::PipelineWrapper,
                                            VkRayTracingPipelineCreateInfoNV>(
                 result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos);
     }
@@ -612,6 +692,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateRayTracingPipelinesKHR and not record the call. Force to return "
@@ -622,8 +704,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
     }
 
     auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -652,24 +734,47 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
         omit_output_data = true;
     }
 
-    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(
-        format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
-    if (encoder)
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    if (result != VK_OPERATION_DEFERRED_KHR)
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<DeferredOperationKHRWrapper>(deferredOperation);
-        encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
-        encoder->EncodeUInt32Value(createInfoCount);
-        EncodeStructArray(encoder, pCreateInfos, createInfoCount);
-        EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        VulkanCaptureManager::Get()
-            ->EndGroupCreateApiCallCapture<VkDevice,
-                                           VkDeferredOperationKHR,
-                                           PipelineWrapper,
-                                           VkRayTracingPipelineCreateInfoKHR>(
-                result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        // If the operation is not deferred by driver. or the system doesn't support
+        // rayTracingPipelineShaderGroupHandleCaptureReplay, we don't need to delay writing the block of
+        // vkCreateRayTracingPipelinesKHR to the capture file.
+        //
+        // If the operation is deferred by driver and the system supports
+        // rayTracingPipelineShaderGroupHandleCaptureReplay, we will need to make sure opaque capture replay data for
+        // pipeline shader group handles are ready when calling vkCreateRayTracingPipelinesKHR during replay. However,
+        // opaque capture replay data for pipeline shader group handles needs pipeline creation to be finished so that
+        // vkGetRayTracingCaptureReplayShaderGroupHandlesKHR may be used. For this reason, we will delay the writing of
+        // vkCreateRayTracingPipelinesKHR block to capture file until the deferred operation is finished.
+
+        auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(
+            format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+        if (encoder)
+        {
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
+            encoder->EncodeUInt32Value(createInfoCount);
+            EncodeStructArray(encoder, pCreateInfos, createInfoCount);
+            EncodeStructPtr(encoder, pAllocator);
+            encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
+                pPipelines, createInfoCount, omit_output_data);
+            encoder->EncodeEnumValue(result);
+            VulkanCaptureManager::Get()
+                ->EndGroupCreateApiCallCapture<VkDevice,
+                                               VkDeferredOperationKHR,
+                                               vulkan_wrappers::PipelineWrapper,
+                                               VkRayTracingPipelineCreateInfoKHR>(
+                    result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("The operation of vkCreateRayTracingPipelinesKHR call is deferred, so the writing of "
+                             "vkCreateRayTracingPipelinesKHR block to capture file will be delayed until the deferred "
+                             "operation (handle = 0x%" PRIx64 ") is finished.",
+                             deferredOperation);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(

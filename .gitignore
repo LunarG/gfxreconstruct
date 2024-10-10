@@ -7,3 +7,8 @@ __pycache__/
 .vscode/
 *.db
 *.pyc
+*.rdbg
+._*
+.cache
+.DS_Store
+external/wayland-protocols/

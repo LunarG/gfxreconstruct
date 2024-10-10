@@ -30,7 +30,12 @@
 
 #include "util/defines.h"
 #include "util/to_string.h"
+#include "util/logging.h"
 #include "format/format.h"
+
+#ifndef WIN32
+#include "format/platform_types.h"
+#endif
 
 #include "nlohmann/json.hpp"
 
@@ -49,6 +54,35 @@ enum class JsonFormat : uint8_t
     JSONL
 };
 
+inline std::string get_json_format(JsonFormat format)
+{
+    switch (format)
+    {
+        case gfxrecon::util::JsonFormat::JSONL:
+            return "jsonl";
+        case gfxrecon::util::JsonFormat::JSON:
+            return "json";
+        default:
+            break;
+    }
+    GFXRECON_LOG_WARNING("Unrecognized format %d. Defaulting to JSON format.", static_cast<int>(format));
+    return "json";
+}
+
+inline JsonFormat get_json_format(std::string format)
+{
+    if (format == "json")
+    {
+        return gfxrecon::util::JsonFormat::JSON;
+    }
+    else if (format == "jsonl")
+    {
+        return gfxrecon::util::JsonFormat::JSONL;
+    }
+    GFXRECON_LOG_WARNING("Unrecognized format %s. Defaulting to JSON format.", format.c_str());
+    return gfxrecon::util::JsonFormat::JSON;
+}
+
 /// Parameters potentially required in converting our datastructures to JSON.
 struct JsonOptions
 {
@@ -61,14 +95,16 @@ struct JsonOptions
     bool        hex_handles   = false;
 };
 
-void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, long long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json&   jdata,
+                 const unsigned long long& data,
+                 const JsonOptions&        options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options = JsonOptions());
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
@@ -92,7 +128,7 @@ void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, 
 /// VkBool32 to true or false. It should be fine for the signed Windows type
 /// BOOL too.
 void Bool32ToJson(nlohmann::ordered_json&  jdata,
-                  const uint32_t           data,
+                  const uint32_t&          data,
                   const util::JsonOptions& options = util::JsonOptions());
 
 /// @brief Convert an integer type to JSON but encoded in hex as a JSON string

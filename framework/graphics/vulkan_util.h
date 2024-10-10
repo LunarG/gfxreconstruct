@@ -35,6 +35,8 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 const std::vector<std::string> kLoaderLibNames = {
 #if defined(WIN32)
     "vulkan-1.dll"
+#elif defined(__APPLE__)
+    "libvulkan.dylib", "libvulkan.1.dylib", "libMoltenVK.dylib"
 #else
     "libvulkan.so.1", "libvulkan.so"
 #endif
@@ -43,23 +45,6 @@ const std::vector<std::string> kLoaderLibNames = {
 util::platform::LibraryHandle InitializeLoader();
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle);
-
-// Search through the parent's pNext chain for the first struct with the requested struct_type. parent's struct type is
-// not checked and parent won't be returned as a result. T and Parent_T must be Vulkan struct pointer types. Return
-// nullptr if no matching struct found.
-template <typename T, typename Parent_T>
-static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
-{
-    VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(parent)->pNext;
-    while (current_struct != nullptr)
-    {
-        if (current_struct->sType == struct_type)
-        {
-            return reinterpret_cast<T*>(current_struct);
-        }
-    }
-    return nullptr;
-}
 
 static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 

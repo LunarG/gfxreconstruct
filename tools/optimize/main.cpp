@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "file_optimizer.h"
 
 #include "../tool_settings.h"
@@ -129,8 +129,14 @@ void GetUnreferencedResources(const std::string&                              in
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
 
-        if ((file_processor.GetCurrentFrameNumber() > 0) &&
-            (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+        if (resref_consumer.WasNotOptimizable())
+        {
+            GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
+            gfxrecon::util::Log::Release();
+            exit(65);
+        }
+        else if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
             resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
@@ -268,6 +274,12 @@ int main(int argc, const char** argv)
             bool detected_vulkan = false;
             gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
 
+            if ((!detected_d3d12) && (!detected_vulkan))
+            {
+                // Detect with no block limit
+                gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, true);
+            }
+
             if (detected_d3d12)
             {
                 dx12_options.optimize_resource_values = true;
@@ -281,8 +293,6 @@ int main(int argc, const char** argv)
             else
             {
                 GFXRECON_LOG_ERROR("Could not detect graphics API. Aborting optimization.")
-                gfxrecon::util::Log::Release();
-                return -1;
             }
         }
         // Manual mode. Follow user instructions.

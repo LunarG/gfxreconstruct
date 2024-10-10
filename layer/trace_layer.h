@@ -30,23 +30,24 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
+GFXRECON_BEGIN_NAMESPACE(vulkan_entry)
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in trace_layer.cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
-                                                                  const char*            pLayerName,
-                                                                  uint32_t*              pPropertyCount,
-                                                                  VkExtensionProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char*            pLayerName,
-                                                                    uint32_t*              pPropertyCount,
-                                                                    VkExtensionProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
-                                                                VkLayerProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
-                                                              uint32_t*          pPropertyCount,
-                                                              VkLayerProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                                            const char*            pLayerName,
+                                                                            uint32_t*              pPropertyCount,
+                                                                            VkExtensionProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL           EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                              uint32_t*              pPropertyCount,
+                                                                              VkExtensionProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL           EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                          VkLayerProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL           EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                                        uint32_t*          pPropertyCount,
+                                                                        VkLayerProperties* pProperties);
 
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                        const VkAllocationCallbacks* pAllocator,
@@ -55,6 +56,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      const VkDeviceCreateInfo*    pCreateInfo,
                                                      const VkAllocationCallbacks* pAllocator,
                                                      VkDevice*                    pDevice);
+GFXRECON_END_NAMESPACE(vulkan_entry)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 

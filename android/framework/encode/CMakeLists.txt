@@ -2,6 +2,8 @@ add_library(gfxrecon_encode STATIC "")
 
 target_sources(gfxrecon_encode
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/api_capture_manager.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/api_capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
@@ -19,6 +21,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/handle_unwrap_memory.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_buffer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.cpp
@@ -31,6 +35,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_track_struct.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp

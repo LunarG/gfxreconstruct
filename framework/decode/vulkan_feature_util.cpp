@@ -29,6 +29,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -44,6 +45,8 @@ GFXRECON_BEGIN_NAMESPACE(feature_util)
 std::set<std::string> kIgnorableExtensions = {
     VK_EXT_TOOLING_INFO_EXTENSION_NAME,
     VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+    "VK_ANDROID_frame_boundary",
+    "VK_EXT_frame_boundary",
 };
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
@@ -143,6 +146,21 @@ bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, 
     return false;
 }
 
+bool IsSupportedExtension(const std::vector<const char*>& extensions_names, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto name : extensions_names)
+    {
+        if (util::platform::StringCompare(name, extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool IsIgnorableExtension(const char* extension)
 {
     return kIgnorableExtensions.count(extension) > 0;
@@ -165,6 +183,25 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
         else
         {
             ++extensionIter;
+        }
+    }
+}
+
+void RemoveExtensionIfUnsupported(const std::vector<VkExtensionProperties>& properties,
+                                  std::vector<const char*>*                 extensions,
+                                  const char*                               extension_to_remove)
+{
+    if (!feature_util::IsSupportedExtension(properties, extension_to_remove))
+    {
+        auto extension_iter =
+            std::find_if(extensions->begin(), extensions->end(), [&extension_to_remove](const char* extension) {
+                return util::platform::StringCompare(extension_to_remove, extension) == 0;
+            });
+        if (extension_iter != extensions->end())
+        {
+            GFXRECON_LOG_WARNING("Extension %s, which is not supported by the replay device, will not be enabled",
+                                 *extension_iter);
+            extensions->erase(extension_iter);
         }
     }
 }

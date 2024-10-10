@@ -37,6 +37,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+template <typename T, typename = int>
+struct has_handle_future : std::false_type
+{};
+
+template <typename T>
+struct has_handle_future<T, decltype((void)T::future, 0)>
+    : std::is_same<decltype(T::future), std::shared_future<handle_create_result_t<typename T::HandleType>>>
+{};
+
+template <typename T>
+inline constexpr bool has_handle_future_v = has_handle_future<T>::value;
+
 class VulkanObjectInfoTableBase
 {
   protected:
@@ -45,7 +57,14 @@ class VulkanObjectInfoTableBase
     {
         assert(map != nullptr);
 
-        if ((info.capture_id != 0) && (info.handle != VK_NULL_HANDLE))
+        // either the handle or it's (potentially existing) future need to be valid
+        bool valid_handle = info.handle != VK_NULL_HANDLE;
+        if constexpr (has_handle_future_v<T>)
+        {
+            valid_handle = info.handle || info.future.valid();
+        }
+
+        if ((info.capture_id != 0) && valid_handle)
         {
             auto result = map->emplace(info.capture_id, std::forward<T>(info));
 

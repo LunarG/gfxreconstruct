@@ -439,24 +439,29 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
         state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object);
     }
 
-    if ((count_buffer_object_info != nullptr) && (count_buffer_object_info->object != nullptr))
+    if (max_command_count > 0)
     {
-        auto& resource_value_infos = command_list_extra_info->resource_value_info_map[count_buffer_object_info];
-        resource_value_infos.insert(
-            { count_buffer_offset,
-              ResourceValueType::kExecuteIndirectCountBuffer,
-              sizeof(uint32_t),
-              state_object_extra_info,
-              { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
-    }
-    else
-    {
-        // Add resource value offsets to resource_value_infos based on the command signature's arguments.
-        GetExecuteIndirectResourceValues(command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
-                                         command_signature_extra_info->resource_value_infos,
-                                         max_command_count,
-                                         argument_buffer_offset,
-                                         command_signature_extra_info->byte_stride);
+        if ((count_buffer_object_info != nullptr) && (count_buffer_object_info->object != nullptr))
+        {
+            auto& resource_value_infos = command_list_extra_info->resource_value_info_map[count_buffer_object_info];
+            resource_value_infos.insert(
+                { count_buffer_offset,
+                  ResourceValueType::kExecuteIndirectCountBuffer,
+                  sizeof(uint32_t),
+                  state_object_extra_info,
+                  { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
+        }
+        else
+        {
+            // Add resource value offsets to resource_value_infos based on the command signature's arguments.
+            GetExecuteIndirectResourceValues(
+                command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
+                command_signature_extra_info->resource_value_infos,
+                max_command_count,
+                argument_buffer_offset,
+                command_signature_extra_info->byte_stride,
+                state_object_extra_info);
+        }
     }
 }
 
@@ -472,11 +477,18 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
 
         format::HandleId resource_id = format::kNullHandleId;
         bool             found       = false;
-        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs,
-                                &resource_id,
-                                &found,
-                                build_desc->Inputs.InstanceDescs +
-                                    build_desc->Inputs.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+
+        auto min_end_gpu_va = build_desc->Inputs.InstanceDescs;
+        if (build_desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+        {
+            min_end_gpu_va += build_desc->Inputs.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+        }
+        else
+        {
+            min_end_gpu_va += build_desc->Inputs.NumDescs * sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+        }
+
+        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs, &resource_id, &found, min_end_gpu_va);
 
         if (resource_id != format::kNullHandleId)
         {
@@ -509,11 +521,22 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
                           { nullptr, nullptr, 0 } });
                 }
             }
+            else if (build_desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+            {
+                constexpr auto instance_desc_pointer_stride = sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+                for (UINT i = 0; i < build_desc->Inputs.NumDescs; ++i)
+                {
+                    resource_value_infos.insert({ offset_to_instance_descs_start + instance_desc_pointer_stride * i,
+                                                  ResourceValueType::kRaytracingInstanceDescPointer,
+                                                  sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                                  nullptr,
+                                                  { nullptr, nullptr, 0 } });
+                }
+            }
             else
             {
-                // TODO: Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
-                GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: "
-                                     "D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS");
+                GFXRECON_LOG_ERROR("Unknown BuildRaytracingAccelerationStructure DescsLayout: %d",
+                                   static_cast<int>(build_desc->Inputs.DescsLayout));
             }
         }
         else
@@ -545,8 +568,8 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
         blob_with_root_signature, blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
     if (SUCCEEDED(result))
     {
-        auto                             versioned_root_sig = root_sig_deserializer->GetUnconvertedRootSignatureDesc();
-        const D3D12_ROOT_SIGNATURE_DESC* root_signature_desc{ nullptr };
+        auto versioned_root_sig = root_sig_deserializer->GetUnconvertedRootSignatureDesc();
+
         switch (versioned_root_sig->Version)
         {
             case D3D_ROOT_SIGNATURE_VERSION_1_0:
@@ -555,6 +578,10 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
                 break;
             case D3D_ROOT_SIGNATURE_VERSION_1_1:
                 GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_1,
+                                                   root_sig_extra_info->resource_value_infos);
+                break;
+            case D3D_ROOT_SIGNATURE_VERSION_1_2:
+                GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_2,
                                                    root_sig_extra_info->resource_value_infos);
                 break;
             default:
@@ -1276,9 +1303,76 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
                 command_count,
                 value_info.arg_buffer_extra_info.argument_buffer_offset,
-                value_info.arg_buffer_extra_info.command_signature_info->byte_stride);
+                value_info.arg_buffer_extra_info.command_signature_info->byte_stride,
+                value_info.state_object);
         }
         return false;
+    }
+    else if (value_info.type == ResourceValueType::kRaytracingInstanceDescPointer)
+    {
+        GFXRECON_ASSERT(value_info.size == sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
+
+        // Map the GPU_VA in the array of instance desc pointers.
+        ResourceValueInfo rvi = value_info;
+        rvi.type              = ResourceValueType::kGpuVirtualAddress;
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map);
+
+        // Read instance desc GPU_VA from the array of pointers.
+        D3D12_GPU_VIRTUAL_ADDRESS instance_desc_gpu_va = 0;
+        util::platform::MemoryCopy(&instance_desc_gpu_va,
+                                   sizeof(instance_desc_gpu_va),
+                                   result_data.data() + value_info.offset,
+                                   sizeof(instance_desc_gpu_va));
+
+        GFXRECON_ASSERT(value_info.offset == final_offset);
+
+        // Insert new RV infos for instance desc's AccelerationStructure, which will queue it for mapping.
+        if (instance_desc_gpu_va != 0)
+        {
+            // The spec requires that instance descs are aligned to D3D12_RAYTRACING_INSTANCE_DESCS_BYTE_ALIGNMENT. If
+            // the instance descs are not aligned behavior may be undefined.
+            GFXRECON_ASSERT((instance_desc_gpu_va % D3D12_RAYTRACING_INSTANCE_DESCS_BYTE_ALIGNMENT) == 0);
+
+            // Find the resource that contains the address referenced by instance_desc_gpu_va.
+            format::HandleId instance_desc_resource_id = format::kNullHandleId;
+            bool             found                     = false;
+            reverse_gpu_va_map_.Map(instance_desc_gpu_va,
+                                    &instance_desc_resource_id,
+                                    &found,
+                                    instance_desc_gpu_va + sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+
+            if (instance_desc_resource_id != format::kNullHandleId)
+            {
+                GFXRECON_ASSERT(found);
+
+                auto resource_object_info = get_object_info_func_(instance_desc_resource_id);
+                GFXRECON_ASSERT(resource_object_info != nullptr);
+                GFXRECON_ASSERT(resource_object_info->object != nullptr);
+
+                auto instance_desc_resource = static_cast<ID3D12Resource*>(resource_object_info->object);
+                GFXRECON_ASSERT(instance_desc_gpu_va >= instance_desc_resource->GetGPUVirtualAddress());
+                auto offset_to_instance_desc_start =
+                    instance_desc_gpu_va - instance_desc_resource->GetGPUVirtualAddress();
+
+                constexpr auto accel_struct_gpu_va_offset =
+                    offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
+
+                auto& resource_value_infos = indirect_values_map[resource_object_info];
+                resource_value_infos.insert({ offset_to_instance_desc_start + accel_struct_gpu_va_offset,
+                                              ResourceValueType::kGpuVirtualAddress,
+                                              sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to find the resource containing the D3D12_GPU_VIRTUAL_ADDRESS (%" PRIu64
+                                   ") of InstanceDescs in call to BuildRaytracingAccelerationStructure. GPU addresses "
+                                   "pointed to by InstanceDescs may be incorrect.",
+                                   instance_desc_gpu_va);
+            }
+        }
+        return true;
     }
     else
     {
@@ -1333,8 +1427,8 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
                                                            temp_resource_states,
                                                            temp_resource_states,
                                                            temp_resource_data,
-                                                           temp_resource_sizes,
-                                                           temp_resource_offsets);
+                                                           temp_resource_offsets,
+                                                           temp_resource_sizes);
 
         if (SUCCEEDED(hr))
         {
@@ -1349,6 +1443,18 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
             bool write_back = false;
             for (const auto& value_info : value_infos)
             {
+                if (performed_rv_mapping_ == false)
+                {
+                    if ((value_info.type == ResourceValueType::kGpuVirtualAddress) ||
+                        (value_info.type == ResourceValueType::kGpuDescriptorHandle) ||
+                        (value_info.type == ResourceValueType::kShaderIdentifier) ||
+                        (value_info.type == ResourceValueType::kIndirectArgumentDispatchRays))
+                    {
+                        // condition for DXR/EI optimization really being done in gfxrecon-optimize
+                        performed_rv_mapping_ = true;
+                    }
+                }
+
                 if (MapValue(value_info,
                              temp_resource_data,
                              resource_object_info->capture_id,
@@ -1367,8 +1473,8 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
                                                           temp_resource_states,
                                                           temp_resource_states,
                                                           temp_resource_data,
-                                                          temp_resource_sizes,
-                                                          temp_resource_offsets);
+                                                          temp_resource_offsets,
+                                                          temp_resource_sizes);
             }
 
             if (FAILED(hr))
@@ -1504,7 +1610,8 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
     std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
     uint32_t                     command_count,
     uint64_t                     command_offset,
-    uint8_t                      stride)
+    uint8_t                      stride,
+    D3D12StateObjectInfo*        state_object)
 {
     for (uint32_t i = 0; i < command_count; ++i)
     {
@@ -1513,7 +1620,7 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
             dst_resource_value_info_map.insert({ resource_value_info.offset + command_offset,
                                                  resource_value_info.type,
                                                  resource_value_info.size,
-                                                 resource_value_info.state_object,
+                                                 state_object,
                                                  resource_value_info.arg_buffer_extra_info });
         }
         command_offset += stride;

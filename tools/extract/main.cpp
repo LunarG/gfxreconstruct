@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -28,7 +28,6 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/file_path.h"
-#include "util/hash.h"
 #include "util/logging.h"
 
 #include "vulkan/vulkan.h"
@@ -134,8 +133,7 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
             int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
             if (result == 0)
             {
-                size_t written_size = gfxrecon::util::platform::FileWrite(orig_code, sizeof(char), orig_size, fp);
-                if (written_size != orig_size)
+                if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
                 {
                     GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
                 }

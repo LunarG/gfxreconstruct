@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_METADATA_JSON_CONSUMER_H
 
 #include "util/defines.h"
+#include "util/file_path.h"
 #include "format/format_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -51,6 +52,7 @@ class MetadataJsonConsumer : public Base
     inline const util::JsonOptions& GetJsonOptions() const { return this->writer_->GetOptions(); } // temp
     inline nlohmann::ordered_json&  WriteMetaCommandStart(const std::string& command_name) const
     {
+        this->writer_->SetCurrentBlockIndex(this->block_index_);
         return this->writer_->WriteMetaCommandStart(command_name);
     }
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
@@ -74,6 +76,22 @@ class MetadataJsonConsumer : public Base
         FieldToJson(jdata["offset"], offset, json_options);
         FieldToJson(jdata["size"], size, json_options);
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "fill_memory.bin", size, data);
+        WriteBlockEnd();
+    }
+
+    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info) override
+    {
+        const util::JsonOptions& json_options = GetOptions();
+        auto&                    jdata        = WriteMetaCommandStart("ExeFileInfo");
+        FieldToJson(jdata["product_version"], info.ProductVersion, json_options);
+        FieldToJson(jdata["file_version"], info.FileVersion, json_options);
+        FieldToJson(jdata["app_version"], info.AppVersion, json_options);
+        FieldToJson(jdata["app_name"], info.AppName, json_options);
+        FieldToJson(jdata["company_name"], info.CompanyName, json_options);
+        FieldToJson(jdata["file_description"], info.FileDescription, json_options);
+        FieldToJson(jdata["internal_name"], info.InternalName, json_options);
+        FieldToJson(jdata["original_filename"], info.OriginalFilename, json_options);
+        FieldToJson(jdata["product_name"], info.ProductName, json_options);
         WriteBlockEnd();
     }
 
@@ -143,18 +161,17 @@ class MetadataJsonConsumer : public Base
                                                    const std::string& device_name) override
     {
         const util::JsonOptions& json_options = GetOptions();
-        this->writer_->WriteMetaCommand("SetDevicePropertiesCommand", [&](auto& jdata) {
-            HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
-            FieldToJson(jdata["api_version"], api_version, json_options);
-            FieldToJson(jdata["driver_version"], driver_version, json_options);
-            FieldToJson(jdata["vendor_id"], vendor_id, json_options);
-            FieldToJson(jdata["device_id"], device_id, json_options);
-            FieldToJson(jdata["device_type"], device_type, json_options);
-            FieldToJson(jdata["pipeline_cache_uuid"],
-                        util::uuid_to_string(format::kUuidSize, pipeline_cache_uuid),
-                        json_options);
-            FieldToJson(jdata["device_name"], device_name, json_options);
-        });
+        auto&                    jdata        = WriteMetaCommandStart("SetDevicePropertiesCommand");
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
+        FieldToJson(jdata["api_version"], api_version, json_options);
+        FieldToJson(jdata["driver_version"], driver_version, json_options);
+        FieldToJson(jdata["vendor_id"], vendor_id, json_options);
+        FieldToJson(jdata["device_id"], device_id, json_options);
+        FieldToJson(jdata["device_type"], device_type, json_options);
+        FieldToJson(
+            jdata["pipeline_cache_uuid"], util::uuid_to_string(format::kUuidSize, pipeline_cache_uuid), json_options);
+        FieldToJson(jdata["device_name"], device_name, json_options);
+        WriteBlockEnd();
     }
 
     virtual void
@@ -163,20 +180,20 @@ class MetadataJsonConsumer : public Base
                                             const std::vector<format::DeviceMemoryHeap>& memory_heaps) override
     {
         const util::JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("SetDeviceMemoryPropertiesCommand", [&](auto& jdata) {
-            HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
-        });
+        auto&                    jdata        = WriteMetaCommandStart("SetDeviceMemoryPropertiesCommand");
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
+        WriteBlockEnd();
     }
 
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("SetOpaqueAddressCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            HandleToJson(jdata["object_id"], object_id, json_options);
-            FieldToJson(jdata["address"], util::to_hex_variable_width(address), json_options);
-        });
+        auto&              jdata        = WriteMetaCommandStart("SetOpaqueAddressCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["object_id"], object_id, json_options);
+        FieldToJson(jdata["address"], util::to_hex_variable_width(address), json_options);
+        WriteBlockEnd();
     }
 
     virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
@@ -185,13 +202,13 @@ class MetadataJsonConsumer : public Base
                                                                const uint8_t*   data) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("SetRayTracingShaderGroupHandleCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            HandleToJson(jdata["pipeline_id"], pipeline_id, json_options);
-            FieldToJson(jdata["data_size"], data_size, json_options);
-            RepresentBinaryFile(
-                *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handle.bin", data_size, data);
-        });
+        auto&              jdata        = WriteMetaCommandStart("SetRayTracingShaderGroupHandlesCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["pipeline_id"], pipeline_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        RepresentBinaryFile(
+            *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handles.bin", data_size, data);
+        WriteBlockEnd();
     }
 
     virtual void
@@ -201,12 +218,12 @@ class MetadataJsonConsumer : public Base
                                          const std::vector<format::SwapchainImageStateInfo>& image_state) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("SetSwapchainImageStateCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            HandleToJson(jdata["swapchain_id"], swapchain_id, json_options);
-            FieldToJson(jdata["last_presented_image"], last_presented_image, json_options);
-            FieldToJson(jdata["image_state"], "not available", json_options);
-        });
+        auto&              jdata        = WriteMetaCommandStart("SetSwapchainImageStateCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["swapchain_id"], swapchain_id, json_options);
+        FieldToJson(jdata["last_presented_image"], last_presented_image, json_options);
+        FieldToJson(jdata["image_state"], "not available", json_options);
+        WriteBlockEnd();
     }
 
     virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
@@ -214,18 +231,18 @@ class MetadataJsonConsumer : public Base
                                                  uint64_t         max_copy_size) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("BeginResourceInitCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            FieldToJson(jdata["max_resource_size"], max_resource_size, json_options);
-            FieldToJson(jdata["max_copy_size"], max_copy_size, json_options);
-        });
+        auto&              jdata        = WriteMetaCommandStart("BeginResourceInitCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        FieldToJson(jdata["max_resource_size"], max_resource_size, json_options);
+        FieldToJson(jdata["max_copy_size"], max_copy_size, json_options);
+        WriteBlockEnd();
     }
 
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override
     {
-        this->writer_->WriteMetaCommand("EndResourceInitCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, GetJsonOptions());
-        });
+        auto& jdata = WriteMetaCommandStart("EndResourceInitCommand");
+        HandleToJson(jdata["device_id"], device_id, GetJsonOptions());
+        WriteBlockEnd();
     }
 
     virtual void ProcessInitBufferCommand(format::HandleId device_id,
@@ -234,12 +251,12 @@ class MetadataJsonConsumer : public Base
                                           const uint8_t*   data) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("InitBufferCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            HandleToJson(jdata["buffer_id"], buffer_id, json_options);
-            FieldToJson(jdata["data_size"], data_size, json_options);
-            RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_buffer.bin", data_size, data);
-        });
+        auto&              jdata        = WriteMetaCommandStart("InitBufferCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["buffer_id"], buffer_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_buffer.bin", data_size, data);
+        WriteBlockEnd();
     }
 
     virtual void ProcessInitImageCommand(format::HandleId             device_id,
@@ -251,16 +268,39 @@ class MetadataJsonConsumer : public Base
                                          const uint8_t*               data) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        this->writer_->WriteMetaCommand("InitImageCommand", [&](auto& jdata) {
-            HandleToJson(jdata["device_id"], device_id, json_options);
-            HandleToJson(jdata["image_id"], image_id, json_options);
-            FieldToJson(jdata["data_size"], data_size, json_options);
-            FieldToJson(jdata["aspect"], aspect, json_options);
-            FieldToJson(jdata["layout"], layout, json_options);
-            FieldToJson(jdata["level_sizes"], "not available", json_options);
-            RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
-        });
+        auto&              jdata        = WriteMetaCommandStart("InitImageCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["image_id"], image_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        FieldToJson(jdata["aspect"], aspect, json_options);
+        FieldToJson(jdata["layout"], layout, json_options);
+        FieldToJson(jdata["level_sizes"], "not available", json_options);
+        RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
+        WriteBlockEnd();
     }
+
+    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                             env_string) override
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              json_data    = WriteMetaCommandStart("SetEnvironmentVariablesCommand");
+
+        std::vector<std::string> env_vars =
+            util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
+        for (std::string& e : env_vars)
+        {
+            std::vector<std::string> var_plus_val = util::strings::SplitString(e, '=');
+            if (var_plus_val.size() == 2)
+            {
+                const char* var = var_plus_val[0].c_str();
+                const char* val = var_plus_val[1].c_str();
+                json_data[var]  = val;
+            }
+        }
+
+        WriteBlockEnd();
+    }
+
     /// @}
 };
 

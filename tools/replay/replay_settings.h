@@ -27,16 +27,23 @@
 #define GFXRECON_REPLAY_SETTINGS_H
 
 const char kOptions[] =
-    "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-    "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
-    "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
-    "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--use-cached-psos,--dx12-override-object-names";
+    "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--opcd|--"
+    "omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
+    "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
+    "measurement-range,--flush-inside-measurement-range,--vssb|--virtual-swapchain-skip-blit,--use-captured-swapchain-"
+    "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
+    "offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
+    "--dump-resources-dump-depth-attachment,--dump-"
+    "resources-dump-vertex-index-buffers,--dump-resources-json-output-per-command,--dump-resources-dump-immutable-"
+    "resources,--dump-resources-dump-all-image-subresources,--pbi-all,--preload-measurement-range";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain";
+    "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
+    "get-fence-status,--sgfr|--"
+    "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
+    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -63,22 +70,40 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--vssb | --virtual-swapchain-skip-blit]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--offscreen-swapchain-frame-boundary]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
 #if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
+#endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <arg>] [--dump-resources <file>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-before-draw] [--dump-resources-scale <scale>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dir <dir>] [--dump-resources-image-format <format>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-depth-attachment]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-color-attachment-index <index>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-vertex-index-buffers]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-json-output-per-command]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-immutable-resources]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-all-image-subresources]");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
 #if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
-#else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
 #endif
 #else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] <file>");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>]");
 #endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
 
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
@@ -92,7 +117,6 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
-
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
@@ -130,7 +154,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
     GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
-    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnable the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
@@ -138,22 +162,27 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.");
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
+    GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
+    GFXRECON_WRITE_CONSOLE(
+        "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Windows-only:")
-    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay");
-    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
-    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
+    GFXRECON_WRITE_CONSOLE("Windows only:")
+    GFXRECON_WRITE_CONSOLE(
+        "  --fwo <x,y>\t\tForce windowed mode if not already, and allow setting of a custom window location.");
+    GFXRECON_WRITE_CONSOLE("          \t\t(Same as --force-windowed-origin)");
+#if defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 #endif
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Vulkan-only:")
+    GFXRECON_WRITE_CONSOLE("Vulkan only:")
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
-    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir> Replace the shader code in each CreateShaderModule");
+    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir>");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tReplace the shader code in each CreateShaderModule");
     GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<handle_id> if found, where");
     GFXRECON_WRITE_CONSOLE("       \t\t\t<handle_id> is the handle id of the CreateShaderModule call.");
     GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
@@ -196,9 +225,19 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand windows. To see rendering, add the --screenshots option.");
+    GFXRECON_WRITE_CONSOLE("  --vssb");
+    GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
     GFXRECON_WRITE_CONSOLE("          \t\tSame as \"--swapchain captured\".");
     GFXRECON_WRITE_CONSOLE("          \t\tIgnored if the \"--swapchain\" option is used.");
+    GFXRECON_WRITE_CONSOLE("  --offscreen-swapchain-frame-boundary");
+    GFXRECON_WRITE_CONSOLE("          \t\tShould only be used with offscreen swapchain.");
+    GFXRECON_WRITE_CONSOLE("          \t\tActivates the extension VK_EXT_frame_boundary (always supported if");
+    GFXRECON_WRITE_CONSOLE("          \t\ttrimming, checks for driver support otherwise) and inserts command");
+    GFXRECON_WRITE_CONSOLE("          \t\tbuffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR");
+    GFXRECON_WRITE_CONSOLE("          \t\twas called in the original capture.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis allows preserving frames when capturing a replay that uses.");
+    GFXRECON_WRITE_CONSOLE("          \t\toffscreen swapchain.");
     GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
     GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");
@@ -206,6 +245,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
     GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
     GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --use-colorspace-fallback");
+    GFXRECON_WRITE_CONSOLE("          \t\tSwap the swapchain color space if unsupported by replay device.");
+    GFXRECON_WRITE_CONSOLE("          \t\tCheck if color space is not supported by replay device and fallback to "
+                           "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.");
     GFXRECON_WRITE_CONSOLE("  --measurement-file <file>");
     GFXRECON_WRITE_CONSOLE("          \t\tWrite measurements to a file at the specified path.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: '/sdcard/gfxrecon-measurements.json' on android and");
@@ -218,40 +261,104 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
     GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
     GFXRECON_WRITE_CONSOLE("          \t\tstart and end of the measurement range.");
+    GFXRECON_WRITE_CONSOLE("  --flush-inside-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
+    GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
+    GFXRECON_WRITE_CONSOLE("          \t\tend of each frame inside the measurement range.");
     GFXRECON_WRITE_CONSOLE("  --gpu-group <index>\tUse the specified device group for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical device group");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
-
+    GFXRECON_WRITE_CONSOLE("  --sgfs <status>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=0 : Don't skip");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=1 : Skip unsuccessful calls");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=2 : Always skip");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf no skip frame range is specified (--sgfr), the status applies to all");
+    GFXRECON_WRITE_CONSOLE("          \t\tframes.");
+    GFXRECON_WRITE_CONSOLE("  --sgfr <frame-ranges>");
+    GFXRECON_WRITE_CONSOLE("          \t\tFrame ranges where --sgfs applies. The format is:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\t<frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*");
+    GFXRECON_WRITE_CONSOLE("  --wait-before-present");
+    GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
+    GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
+    GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <arg>");
+    GFXRECON_WRITE_CONSOLE("          \t\t<arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,");
+    GFXRECON_WRITE_CONSOLE("          \t\tNextSubpass=<p>,Dispatch=<q>,TraceRays=<r>,QueueSubmit=<s>");
+    GFXRECON_WRITE_CONSOLE("          \t\tGPU resources are dumped after the given vkCmdDraw*,");
+    GFXRECON_WRITE_CONSOLE("          \t\tvkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file. Can be");
+    GFXRECON_WRITE_CONSOLE("          \t\teither a json or a text file. If a text file is used, each");
+    GFXRECON_WRITE_CONSOLE("          \t\tline of the file should contain comma separated indices as in");
+    GFXRECON_WRITE_CONSOLE("          \t\t--dump-resources <arg> above.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-before-draw");
+    GFXRECON_WRITE_CONSOLE("          \t\tIn addition to dumping GPU resources after the Vulkan draw calls");
+    GFXRECON_WRITE_CONSOLE("          \t\tspecified by the --dump-resources argument, also dump resources");
+    GFXRECON_WRITE_CONSOLE("          \t\tbefore the draw calls.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-scale <scale>");
+    GFXRECON_WRITE_CONSOLE("          \t\tScale images generated by dump resources by the given scale factor.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe scale factor must be a floating point number greater than 0.");
+    GFXRECON_WRITE_CONSOLE("          \t\tValues greater than 10 are capped at 10. Default value is 1.0.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dir <dir>");
+    GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write dump resources output files.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is the current working directory.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-image-format <format>");
+    GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use when dumping image resources.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are: bmp, png");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-depth-attachment");
+    GFXRECON_WRITE_CONSOLE("          \t\tConfigures whether to dump the depth attachment of draw calls.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is false.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-color-attachment-index <index>");
+    GFXRECON_WRITE_CONSOLE("          \t\tConfigures which color attachment to dump when dumping draw calls.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is all attachments.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-vertex-index-buffers");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable dumping of vertex and index buffers while dumping draw");
+    GFXRECON_WRITE_CONSOLE("          \t\tcall resources. Default is disabled.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-json-output-per-command");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable storing a json output file for each dumped command.");
+    GFXRECON_WRITE_CONSOLE("          \t\tOverrides default behavior which is generating one output json file that");
+    GFXRECON_WRITE_CONSOLE("          \t\tcontains the information for all dumped commands.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-immutable-resources");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
+    GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault: 0 (do not use asynchronous operations).");
+    GFXRECON_WRITE_CONSOLE("          \t\tSame as --pcj <num_jobs>");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("D3D12-only:")
+    GFXRECON_WRITE_CONSOLE("D3D12 only:")
     GFXRECON_WRITE_CONSOLE(
         "  --use-cached-psos  \tPermit using cached PSOs when creating graphics or compute pipelines.");
     GFXRECON_WRITE_CONSOLE(
         "       \t\t\tUsing cached PSOs may reduce PSO creation time but may result in replay errors.");
-    GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
+    GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnable automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
     GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");
     GFXRECON_WRITE_CONSOLE("  --fw <width,height>\tSetup windowed and override resolution.");
     GFXRECON_WRITE_CONSOLE("                     \t(Same as --force-windowed)");
-    GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations Enables creation of dummy heaps and resources");
-    GFXRECON_WRITE_CONSOLE("                             for replay validation.");
-    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
-    GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
-    GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
+    GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable creation of dummy heaps and resources for replay validation.");
+    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names");
+    GFXRECON_WRITE_CONSOLE("          \t\tGenerate unique names for all ID3D12Objects and");
+    GFXRECON_WRITE_CONSOLE("          \t\tassign each object the generated name.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis is intended to assist in replay debugging.");
     GFXRECON_WRITE_CONSOLE("  --batching-memory-usage <pct>");
     GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption while loading a trimmed capture file.");
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
-
-#endif
-
-#if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
+    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a specific drawcall.");
+    GFXRECON_WRITE_CONSOLE("          \t\tInclude vertex, index, const buffer, shader resource, render target,");
+    GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
+    GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
+    GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
 #endif
 }
 

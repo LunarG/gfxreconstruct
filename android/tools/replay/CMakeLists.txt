@@ -3,6 +3,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+project(gfxrecon-replay)
+
 get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 
 add_library(native_app_glue STATIC
@@ -22,16 +24,20 @@ add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework
 add_library(gfxrecon-replay
             SHARED
                 ${GFXRECON_SOURCE_DIR}/tools/tool_settings.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
 target_include_directories(gfxrecon-replay
                            PUBLIC
                                ${ANDROID_NDK}/sources/android/native_app_glue
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
 target_link_libraries(
         gfxrecon-replay
+        nlohmann_json
         gfxrecon_application
         gfxrecon_decode
         gfxrecon_graphics

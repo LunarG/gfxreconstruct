@@ -22,11 +22,13 @@
 
 #include "file_optimizer.h"
 
+#include "format/format.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 #include <cassert>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -102,6 +104,29 @@ bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_he
         // If the buffer is in the unused list, omit its initialization data from the file.
         if (unreferenced_ids_.find(header.buffer_id) != unreferenced_ids_.end())
         {
+            // In its place insert a dummy annotation meta command. This should keep the block index when
+            // replaying an optimized trimmed capture in in alignment with the block index calculated
+            // at capture time
+            const char*       label = format::kAnnotationLabelRemovedResource;
+            const std::string data  = "Removed buffer " + std::to_string(header.buffer_id);
+
+            const size_t label_length = util::platform::StringLength(label);
+            const size_t data_length  = data.length();
+
+            format::AnnotationHeader annotation;
+            annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+            annotation.block_header.type = format::BlockType::kAnnotation;
+            annotation.annotation_type   = format::kText;
+            annotation.label_length      = static_cast<uint32_t>(label_length);
+            annotation.data_length       = static_cast<uint64_t>(data.length());
+
+            if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
+                !WriteBytes(data.c_str(), data_length))
+            {
+                HandleBlockWriteError(kErrorReadingBlockHeader, "Failed to write annotation meta-data block");
+                return false;
+            }
+
             if (!SkipBytes(unread_bytes))
             {
                 HandleBlockReadError(kErrorSeekingFile, "Failed to skip init buffer data meta-data block data");
@@ -160,6 +185,29 @@ bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_hea
         // If the image is in the unused list, omit its initialization data from the file.
         if (unreferenced_ids_.find(header.image_id) != unreferenced_ids_.end())
         {
+            // In its place insert a dummy annotation meta command. This should keep the block index when
+            // replaying an optimized trimmed capture in in alignment with the block index calculated
+            // at capture time
+            const char*       label = format::kAnnotationLabelRemovedResource;
+            const std::string data  = "Removed subresource from image " + std::to_string(header.image_id);
+
+            const size_t label_length = util::platform::StringLength(label);
+            const size_t data_length  = data.length();
+
+            format::AnnotationHeader annotation;
+            annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+            annotation.block_header.type = format::BlockType::kAnnotation;
+            annotation.annotation_type   = format::kText;
+            annotation.label_length      = static_cast<uint32_t>(label_length);
+            annotation.data_length       = static_cast<uint64_t>(data.length());
+
+            if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
+                !WriteBytes(data.c_str(), data_length))
+            {
+                HandleBlockWriteError(kErrorReadingBlockHeader, "Failed to write annotation meta-data block");
+                return false;
+            }
+
             if (!SkipBytes(unread_bytes))
             {
                 HandleBlockReadError(kErrorSeekingFile, "Failed to skip init image data meta-data block data");

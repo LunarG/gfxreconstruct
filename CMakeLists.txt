@@ -40,9 +40,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 2)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 5)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
+
 
 option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the tracer library)" OFF)
 
@@ -96,7 +97,14 @@ if (GIT_SHA1)
     endif()
 endif()
 
-configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+# Adds all the configure time information into project_version_temp.h.in
+configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# Generate a "project_version_$<CONFIG>.h" for the current config - necessary to determine the current build configuration
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# Since project_version_$<CONFIG>.h differs per build, set a compiler definition that files can use to include it
+add_definitions(-DPROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
 
 option(BUILD_WERROR "Build with warnings as errors" ON)
 
@@ -117,6 +125,8 @@ option(GFXRECON_ENABLE_RELEASE_ASSERTS "Enable release builds to output failed c
 if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
     add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
 endif()
+
+option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
 
 if(MSVC)
 
@@ -156,15 +166,12 @@ if(MSVC)
 
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
-
-    # Add option to enable/disable D3D12 gfxrecon-convert support.
-    option(CONVERT_EXPERIMENTAL_D3D12 "Build with convert DX12 enabled" OFF)
+	
+    # Enable STL locks to work after building capture libs with certain versions of VS
+    add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
-        if(${CONVERT_EXPERIMENTAL_D3D12})
-            add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
-        endif()
 
         # Check Windows SDK version and print warning if there is a mismatch.
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
@@ -175,7 +182,7 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
-        
+
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     endif()
@@ -187,14 +194,14 @@ if(MSVC)
 
     # Add option to enable/disable AGS support.
     option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
-    
+
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
             if (CMAKE_SIZEOF_VOID_P EQUAL 8)
                 find_package(AGS)
                 if (TARGET AGS::AGS)
                     add_definitions(-DGFXRECON_AGS_SUPPORT)
-                
+
                     # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
                     # to determine the final result.
                     set(GFXRECON_AGS_SUPPORT_FINAL ON)
@@ -202,7 +209,8 @@ if(MSVC)
             endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
         endif() # GFXRECON_AGS_SUPPORT
     endif() # D3D12_SUPPORT
-	
+
+
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)
@@ -218,15 +226,36 @@ else(MSVC)
     endif()
 endif(MSVC)
 
+if(APPLE)
+    add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
+    set(CMAKE_PREFIX_PATH
+        "${CMAKE_SOURCE_DIR}/external/precompiled/macos"
+        ${CMAKE_PREFIX_PATH})
+endif()
+
 # GFXReconstruct provided find modules
 if(WIN32)
 find_package(Detours)
 endif() # WIN32
 
+option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
 find_package(LZ4)
+
+if(NOT LZ4_FOUND)
+    if(LZ4_OPTIONAL)
+        message(STATUS "LZ4 library not found, but declared optional. LZ4 support is disabled.")
+    else()
+        message(FATAL_ERROR "LZ4 library not found. Please install LZ4 or allow building without it by setting LZ4_OPTIONAL to ON.")
+    endif()# LZ4_OPTIONAL
+endif()# NOT LZ4_FOUND
+
 find_package(ZSTD)
 
-if(UNIX)
+if(MSVC)
+find_package(jsoncpp)
+endif() # MSVC
+
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
@@ -238,7 +267,7 @@ if(UNIX)
     if(BUILD_WSI_WAYLAND_SUPPORT)
         find_package(WAYLAND)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 # CMake provided find modules
 if(BUILD_STATIC)
@@ -246,12 +275,12 @@ if(BUILD_STATIC)
 else()
     find_package(ZLIB)
 endif()
-if(UNIX)
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if(BUILD_WSI_XLIB_SUPPORT)
         find_package(X11)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 add_library(windows_specific INTERFACE)
 
@@ -275,10 +304,16 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
+add_library(macos_specific INTERFACE)
+target_compile_definitions(macos_specific INTERFACE
+    VK_USE_PLATFORM_METAL_EXT
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
     $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+    $<$<BOOL:${APPLE}>:macos_specific>
+    $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
 
 if(BUILD_WERROR)
     if(MSVC)
@@ -292,12 +327,22 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
+add_library(spirv_registry INTERFACE)
+target_include_directories(spirv_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
+
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )
 target_include_directories(vulkan_memory_allocator INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
+
+# SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
+set(SPIRV_REFLECT_EXAMPLES OFF)
+set(SPIRV_REFLECT_EXECUTABLE OFF)
+set(SPIRV_REFLECT_STATIC_LIB ON)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+add_subdirectory(external/SPIRV-Reflect EXCLUDE_FROM_ALL)
 
 if (${RUN_TESTS})
     add_library(catch2 INTERFACE)

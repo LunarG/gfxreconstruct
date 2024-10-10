@@ -99,6 +99,7 @@ if __name__ == '__main__':
 
     if 'WindowsSDKVersion' in env:
         WINDOWS_SDK_VERSION = env['WindowsSDKVersion']
+        print('WindowsSDKVersion = "%s"' % WINDOWS_SDK_VERSION)
     else:
         print(
             'Please run in Visual Studio Developer Command Prompt to get environment variables, WindowsSDKVersion and WindowsSdkDir'

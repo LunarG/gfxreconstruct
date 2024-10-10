@@ -47,6 +47,8 @@ generate_targets = [
     'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
     'generated_vulkan_struct_handle_wrappers.cpp',
+    'generated_vulkan_struct_deep_copy.cpp',
+    'generated_vulkan_struct_deep_copy_stype.cpp',
     'generated_vulkan_api_call_encoders.h',
     'generated_vulkan_api_call_encoders.cpp',
     'generated_vulkan_command_buffer_util.h',
@@ -63,6 +65,8 @@ generate_targets = [
     'generated_vulkan_consumer.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
+    'generated_vulkan_replay_dump_resources.h',
+    'generated_vulkan_replay_dump_resources.cpp',
     'generated_vulkan_referenced_resource_consumer.h',
     'generated_vulkan_referenced_resource_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
@@ -78,6 +82,14 @@ generate_targets = [
     'generated_vulkan_struct_to_json.cpp',
     'generated_vulkan_enum_to_json.h',
     'generated_vulkan_enum_to_json.cpp',
+    'generated_vulkan_constant_maps.h',
+    'generated_vulkan_cpp_consumer.h',
+    'generated_vulkan_cpp_consumer.cpp',
+    'generated_vulkan_cpp_structs.h',
+    'generated_vulkan_cpp_structs.cpp',
+    'generated_vulkan_cpp_consumer_extension.h',
+    'generated_vulkan_cpp_consumer_extension.cpp',
+    'generated_vulkan_stype_util.h',
 ]
 
 if __name__ == '__main__':
@@ -89,7 +101,7 @@ if __name__ == '__main__':
         help='\n'.join(
             [
                 'Path to a directory that holds the Vulkan registry file (vk.xml) used to generate Vulkan source.',
-                'If this option is not provide the registry from the external Khronos Vulkan headers sub module will be used.'
+                'If this option is not provided the registry from the external Khronos Vulkan headers sub module will be used.'
             ]
         )
     )

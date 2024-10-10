@@ -7,9 +7,13 @@
         "vkAllocateMemory": "manager->OverrideAllocateMemory",
         "vkGetPhysicalDeviceToolPropertiesEXT": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
         "vkCreateAccelerationStructureKHR": "manager->OverrideCreateAccelerationStructureKHR",
+        "vkGetDeferredOperationResultKHR": "manager->OverrideGetDeferredOperationResultKHR",
+        "vkDeferredOperationJoinKHR": "manager->OverrideDeferredOperationJoinKHR",
         "vkGetPhysicalDeviceQueueFamilyProperties": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties",
         "vkGetPhysicalDeviceQueueFamilyProperties2": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2",
         "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR",
-        "vkCmdBuildAccelerationStructuresKHR": "manager->OverrideCmdBuildAccelerationStructuresKHR"
+        "vkCmdBuildAccelerationStructuresKHR": "manager->OverrideCmdBuildAccelerationStructuresKHR",
+        "vkGetPhysicalDeviceProperties2": "manager->OverrideGetPhysicalDeviceProperties2",
+        "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2"
     }
 }

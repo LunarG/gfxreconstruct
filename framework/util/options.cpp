@@ -141,7 +141,6 @@ std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
             }
             else
             {
-                const auto& back = ranges.back();
                 GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, where the range \"%s\" overlaps with the "
                                      "previous range \"%s\"",
                                      range.c_str(),
@@ -190,7 +189,13 @@ uint32_t ParseUintString(const std::string& value_string, uint32_t default_value
     {
         if (!value_string.empty())
         {
-            result = std::stoul(value_string);
+            unsigned long ul = std::stoul(value_string);
+            result           = static_cast<uint32_t>(ul);
+            if (ul > std::numeric_limits<uint32_t>::max())
+            {
+                result = default_value;
+                GFXRECON_LOG_WARNING("Settings Loader: Ignoring value too large to fit in a uint32_t %lu", ul);
+            }
         }
     }
     catch (...)

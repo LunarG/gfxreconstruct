@@ -204,23 +204,65 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
     });
 }
 
-void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
-    const ApiCallInfo&               call_info,
-    format::HandleId                 device,
-    format::HandleId                 descriptorSet,
-    format::HandleId                 descriptorUpdateTemplate,
-    DescriptorUpdateTemplateDecoder* pData)
+void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                             format::HandleId   device,
+                                                                             format::HandleId   descriptorSet,
+                                                                             format::HandleId descriptorUpdateTemplate,
+                                                                             DescriptorUpdateTemplateDecoder* pData,
+                                                                             bool use_KHR_suffix)
 {
     using namespace gfxrecon::util;
     const JsonOptions& json_options = GetJsonOptions();
 
-    auto& function = WriteApiCallStart(call_info, "vkUpdateDescriptorSetWithTemplateKHR");
+    const char* function_name =
+        use_KHR_suffix ? "vkUpdateDescriptorSetWithTemplateKHR" : "vkUpdateDescriptorSetWithTemplate";
+    auto& function = WriteApiCallStart(call_info, function_name);
     auto& args     = function[NameArgs()];
 
     HandleToJson(args["device"], device, json_options);
     HandleToJson(args["descriptorSet"], descriptorSet, json_options);
     HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options);
     FieldToJson(args["pData"], pData, json_options);
+
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
+    format::HandleId                 commandBuffer,
+    format::HandleId                 descriptorUpdateTemplate,
+    format::HandleId                 layout,
+    uint32_t                         set,
+    DescriptorUpdateTemplateDecoder* pData)
+{
+    const JsonOptions& json_options = GetJsonOptions();
+
+    auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplateKHR");
+    auto& args     = function[NameArgs()];
+
+    HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+    HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options);
+    HandleToJson(args["layout"], layout, json_options);
+    FieldToJson(args["set"], set, json_options);
+    FieldToJson(args["pData"], pData, json_options);
+
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                                                    call_info,
+    format::HandleId                                                      commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+{
+    const JsonOptions& json_options = GetJsonOptions();
+
+    auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2KHR");
+    auto& args     = function[NameArgs()];
+    const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* info =
+        pPushDescriptorSetWithTemplateInfo;
+
+    HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+    FieldToJson(args["pPushDescriptorSetWithTemplateInfo"], info, json_options);
 
     WriteBlockEnd();
 }

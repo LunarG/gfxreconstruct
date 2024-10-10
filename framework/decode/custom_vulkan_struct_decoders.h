@@ -26,11 +26,12 @@
 
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
+#include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
-#include "decode/pnext_node.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
@@ -38,19 +39,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-// TODO: This is currently used when mapping external object IDs to object handles that are created on replay. This
-// functionality could instead be provided through the replay consumer's PreProcessExternalObject and
-// PostProcessExternalObject methods if they were moved to the VulkanObjectInfo table, which would make them available
-// to the struct decoders.
-struct Decoded_VkBaseOutStructure
-{
-    using struct_type = VkBaseOutStructure;
-
-    VkBaseOutStructure* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
 
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
@@ -165,6 +153,18 @@ struct Decoded_VkAccelerationStructureGeometryKHR
     Decoded_VkAccelerationStructureGeometryDataKHR* geometry{ nullptr };
 };
 
+struct Decoded_VkPushDescriptorSetWithTemplateInfoKHR
+{
+    using struct_type = VkPushDescriptorSetWithTemplateInfoKHR;
+
+    struct_type* decoded_value{ nullptr };
+
+    PNextNode*                      pNext{ nullptr };
+    format::HandleId                descriptorUpdateTemplate{ format::kNullHandleId };
+    format::HandleId                layout{ format::kNullHandleId };
+    DescriptorUpdateTemplateDecoder pData;
+};
+
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL
 {
@@ -195,6 +195,50 @@ struct Decoded_SECURITY_ATTRIBUTES
     SECURITY_ATTRIBUTES* decoded_value{ nullptr };
 
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
+};
+
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkIndirectExecutionSetCreateInfoEXT DecodeStruct function, based on the value of
+// VkIndirectExecutionSetCreateInfoEXT::type.
+struct Decoded_VkIndirectExecutionSetInfoEXT
+{
+    using struct_type = VkIndirectExecutionSetEXT;
+
+    Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
+    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;
+};
+
+struct Decoded_VkIndirectExecutionSetCreateInfoEXT
+{
+    using struct_type = VkIndirectExecutionSetCreateInfoEXT;
+
+    VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode*                             pNext{ nullptr };
+    VkIndirectExecutionSetInfoTypeEXT      decoded_type;
+    Decoded_VkIndirectExecutionSetInfoEXT* info;
+};
+
+struct Decoded_VkIndirectCommandsTokenDataEXT
+{
+    using struct_type = VkIndirectCommandsTokenDataEXT;
+
+    Decoded_VkIndirectCommandsPushConstantTokenEXT* pPushConstant;
+    Decoded_VkIndirectCommandsVertexBufferTokenEXT* pVertexBuffer;
+    Decoded_VkIndirectCommandsIndexBufferTokenEXT*  pIndexBuffer;
+    Decoded_VkIndirectCommandsExecutionSetTokenEXT* pExecutionSet;
+};
+
+struct Decoded_VkIndirectCommandsLayoutTokenEXT
+{
+    using struct_type = VkIndirectCommandsLayoutTokenEXT;
+
+    VkIndirectCommandsLayoutTokenEXT* decoded_value;
+
+    PNextNode*                              pNext{ nullptr };
+    VkIndirectCommandsTokenTypeEXT          decoded_type;
+    Decoded_VkIndirectCommandsTokenDataEXT* data;
+    uint32_t                                offset;
 };
 
 GFXRECON_END_NAMESPACE(decode)

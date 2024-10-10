@@ -45,6 +45,7 @@ class ValueDecoder
     // Values
     static size_t DecodeInt8Value(const uint8_t* buffer, size_t buffer_size, int8_t* value)                         { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt8Value(const uint8_t* buffer, size_t buffer_size, uint8_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
+    static size_t DecodeInt16Value(const uint8_t* buffer, size_t buffer_size, int16_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt16Value(const uint8_t* buffer, size_t buffer_size, uint16_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, int32_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, uint32_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
@@ -61,11 +62,7 @@ class ValueDecoder
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeFloatValue(const uint8_t* buffer, size_t buffer_size, float* value)                         { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeDoubleValue(const uint8_t* buffer, size_t buffer_size, double* value)                       { return DecodeValue(buffer, buffer_size, value); }
-    static size_t DecodeVkBool32Value(const uint8_t* buffer, size_t buffer_size, VkBool32* value)                   { return DecodeValue(buffer, buffer_size, value); }
 
-    static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }
-    static size_t DecodeVkDeviceSizeValue(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* value)           { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
-    static size_t DecodeVkDeviceAddressValue(const uint8_t* buffer, size_t buffer_size, VkDeviceAddress* value)     { return DecodeValueFrom<format::DeviceAddressEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, size_t* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #if (defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)) && !defined(GFXRECON_ARCH64)
     // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
@@ -93,16 +90,12 @@ class ValueDecoder
     static size_t DecodeFlags64Value(const uint8_t* buffer, size_t buffer_size, T* value)                           { return DecodeValueFrom<format::Flags64EncodeType>(buffer, buffer_size, value); }
 
     // Arrays
+    static size_t DecodeCharArray(const uint8_t* buffer, size_t buffer_size, char* arr, size_t len)                 { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt32Array(const uint8_t* buffer, size_t buffer_size, int32_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeUInt32Array(const uint8_t* buffer, size_t buffer_size, uint32_t* arr, size_t len)           { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt64Array(const uint8_t* buffer, size_t buffer_size, int64_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeUInt64Array(const uint8_t* buffer, size_t buffer_size, uint64_t* arr, size_t len)           { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeFloatArray(const uint8_t* buffer, size_t buffer_size, float* arr, size_t len)               { return DecodeArray(buffer, buffer_size, arr, len); }
-    static size_t DecodeVkBool32Array(const uint8_t* buffer, size_t buffer_size, VkBool32* arr, size_t len)         { return DecodeArray(buffer, buffer_size, arr, len); }
-
-    static size_t DecodeVkSampleMaskArray(const uint8_t* buffer, size_t buffer_size, VkSampleMask* arr, size_t len) { return DecodeArrayFrom<format::SampleMaskEncodeType>(buffer, buffer_size, arr, len); }
-    static size_t DecodeVkDeviceSizeArray(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* arr, size_t len) { return DecodeArrayFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, arr, len); }
-    static size_t DecodeVkDeviceAddressArray(const uint8_t* buffer, size_t buffer_size, VkDeviceAddress* arr, size_t len) { return DecodeArrayFrom<format::DeviceAddressEncodeType>(buffer, buffer_size, arr, len); }
     static size_t DecodeSizeTArray(const uint8_t* buffer, size_t buffer_size, size_t* arr, size_t len)              { return DecodeArrayFrom<format::SizeTEncodeType>(buffer, buffer_size, arr, len); }
 
     static size_t DecodeUInt8Array(const uint8_t* buffer, size_t buffer_size, void* arr, size_t len)                { return DecodeArray(buffer, buffer_size, reinterpret_cast<uint8_t*>(arr), len); }

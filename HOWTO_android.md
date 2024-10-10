@@ -57,13 +57,48 @@ is to be used in all cases below for `{gfxreconstruct_root}`.
 git clone --recurse-submodules https://github.com/KhronosGroup/Vulkan-Samples.git
 ```
 
+Alternatively, if this is not the first time the tree is cloned, simply enter
+the folder containing the source and update to the latest, but also make sure
+that the submodules are re-inited and updated (because additional submodules may
+have been added).
+
+```bash
+cd Vulkan-Samples
+git pull
+git submodule init
+git submodule update --recursive
+```
+
 ### 3. Enter the Vulkan Samples source directory
 
 ```bash
 cd Vulkan-Samples
 ```
 
-### 4. Build the gradle files
+### 4. Build the necessary Android files
+
+To build/setup the Vulkan-Samples source for Android, follow the instructions in
+[the README](https://github.com/KhronosGroup/Vulkan-Samples/blob/main/docs/build.adoc#android)
+found in that GitHub repo.
+
+Follow these instructions up until the instructions to activate the build using
+Gradle, and then stop until GFXReconstruct has been enabled.
+
+In a nutshell, the following command should be executed to generate the
+necessary files, but it has been known to change:
+
+#### Current Vulkan-Samples Android generation
+
+On a clean tree, the first step is to generate the necessary Android files:
+
+```bash
+python3 scripts/generate.py android
+```
+
+#### Previous Vulkan-Samples Android generation
+
+On some older versions of `Vulkan-Samples` the Android files were
+generated using a different script:
 
 ```bash
 ./bldsys/scripts/generate_android_gradle.sh
@@ -284,7 +319,7 @@ layers so they don't interfere with the tool.
 
 ```bash
 adb shell settings put global enable_gpu_debug_layers 0
-adb shell settings put global gpu_debug_layers ""
+adb shell "settings put global gpu_debug_layers ''"
 ```
 
 ### 8. Install the replay application
@@ -405,7 +440,7 @@ After building, perform the following command:
 
 ```bash
 adb push \
-    ./android/layer/build/intermediates/cmake/debug/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
+    ./android/layer/build/intermediates/cxx/debug/*/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
     /storage/emulated/0/Download
 ```
 

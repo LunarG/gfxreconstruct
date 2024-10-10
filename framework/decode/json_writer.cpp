@@ -155,7 +155,7 @@ void JsonWriter::WriteMarker(const char* const name, const std::string_view mark
 {
     // Markers are dispatched to all decoders and consumers so de-duplicate them for JSON
     // output in case the build has multiple JSON consumers for different APIs enabled.
-    if (name != last_marker_name_ || marker_type != last_marker_type_ || frame_number != last_frame_number_)
+    if (frame_number != last_frame_number_ || name != last_marker_name_ || marker_type != last_marker_type_)
     {
         auto& json_data = WriteBlockStart();
 
@@ -175,6 +175,7 @@ nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string_view
 {
     auto& json_data = WriteBlockStart();
 
+    json_data[format::kNameIndex] = block_index_;
     nlohmann::ordered_json& meta = json_data[format::kNameMeta];
     meta[format::kNameName]      = command_name;
     return meta[format::kNameArgs];
@@ -205,9 +206,9 @@ bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size
     FILE* file_output = nullptr;
     if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
     {
-        util::platform::FileWrite(data, static_cast<size_t>(data_size), 1, file_output);
+        bool success = util::platform::FileWrite(data, static_cast<size_t>(data_size), file_output);
         util::platform::FileClose(file_output);
-        return true;
+        return success;
     }
     return false;
 }

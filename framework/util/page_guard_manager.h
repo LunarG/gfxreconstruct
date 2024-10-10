@@ -36,9 +36,23 @@
 #include <mutex>
 #include <unordered_map>
 #include <vector>
+#include <unordered_set>
+#include <atomic>
 
 #if !defined(WIN32)
 #include <pthread.h>
+#endif
+
+#if defined(WIN32) || defined(__APPLE__)
+#define USERFAULTFD_SUPPORTED 0
+#else
+#include <linux/userfaultfd.h>
+// Older kernels might not support all features we need from userfaultfd. Check what is available.
+#if defined(UFFD_USER_MODE_ONLY) && defined(UFFDIO_WRITEPROTECT) && defined(UFFDIO_WRITEPROTECT_MODE_WP)
+#define USERFAULTFD_SUPPORTED 1
+#else
+#define USERFAULTFD_SUPPORTED 0
+#endif
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -47,12 +61,19 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableCopyOnMap                 = true;
-    static const bool kDefaultEnableSeparateRead              = true;
-    static const bool kDefaultEnableReadWriteSamePage         = true;
-    static const bool kDefaultUnblockSIGSEGV                  = false;
-    static const bool kDefaultEnableSignalHandlerWatcher      = false;
-    static const int  kDefaultSignalHandlerWatcherMaxRestores = 1;
+    enum MemoryProtectionMode
+    {
+        kMProtectMode,
+        kUserFaultFdMode
+    };
+
+    static const bool                 kDefaultEnableCopyOnMap                 = true;
+    static const bool                 kDefaultEnableSeparateRead              = true;
+    static const bool                 kDefaultEnableReadWriteSamePage         = true;
+    static const bool                 kDefaultUnblockSIGSEGV                  = false;
+    static const bool                 kDefaultEnableSignalHandlerWatcher      = false;
+    static const int                  kDefaultSignalHandlerWatcherMaxRestores = 1;
+    static const MemoryProtectionMode kDefaultMemoryProtMode                  = kMProtectMode;
 
     static const uintptr_t kNullShadowHandle = 0;
 
@@ -63,12 +84,13 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool enable_copy_on_map,
-                       bool enable_separate_read,
-                       bool expect_read_write_same_page,
-                       bool unblock_SIGSEGV,
-                       bool enable_signal_handler_watcher,
-                       int  signal_handler_watcher_max_restores);
+    static void Create(bool                 enable_copy_on_map,
+                       bool                 enable_separate_read,
+                       bool                 expect_read_write_same_page,
+                       bool                 unblock_SIGSEGV,
+                       bool                 enable_signal_handler_watcher,
+                       int                  signal_handler_watcher_max_restores,
+                       MemoryProtectionMode protection_mode);
 
     static void Destroy();
 
@@ -119,15 +141,20 @@ class PageGuardManager
 
     const void* GetMappedMemory(uint64_t memory_id) const;
 
+    void UffdBlockRtSignal();
+
+    void UffdUnblockRtSignal();
+
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool enable_copy_on_map,
-                     bool enable_separate_read,
-                     bool expect_read_write_same_page,
-                     bool unblock_SIGSEGV,
-                     bool enable_signal_handler_watcher,
-                     int  signal_handler_watcher_max_restores);
+    PageGuardManager(bool                 enable_copy_on_map,
+                     bool                 enable_separate_read,
+                     bool                 expect_read_write_same_page,
+                     bool                 unblock_SIGSEGV,
+                     bool                 enable_signal_handler_watcher,
+                     int                  signal_handler_watcher_max_restores,
+                     MemoryProtectionMode protection_mode);
 
     ~PageGuardManager();
 
@@ -201,6 +228,7 @@ class PageGuardManager
   private:
     size_t GetSystemPagePotShift() const;
     void   InitializeSystemExceptionContext();
+    void   ReleaseTrackedMemory(const MemoryInfo* memory_info);
 
     void AddExceptionHandler();
     void RemoveExceptionHandler();
@@ -247,13 +275,47 @@ class PageGuardManager
     const bool enable_read_write_same_page_;
 
 #if !defined(WIN32)
-    pthread_t signal_handler_watcher_thread_;
+    pthread_t       signal_handler_watcher_thread_;
+    static uint32_t signal_handler_watcher_restores_;
 
     static void* SignalHandlerWatcher(void*);
     static bool  CheckSignalHandler();
     void         MarkAllTrackedMemoryAsDirty();
+#endif
 
-    static uint32_t signal_handler_watcher_restores_;
+    MemoryProtectionMode protection_mode_;
+    bool                 uffd_is_init_;
+
+#if USERFAULTFD_SUPPORTED == 1
+    int                          uffd_rt_signal_used_;
+    sigset_t                     uffd_signal_set_;
+    int                          uffd_fd_;
+    pthread_t                    uffd_handler_thread_;
+    static std::atomic<bool>     is_uffd_handler_thread_running_;
+    static std::atomic<bool>     stop_uffd_handler_thread_;
+    std::unique_ptr<uint8_t[]>   uffd_page_size_tmp_buff_;
+    std::unordered_set<uint64_t> uffd_fault_causing_threads;
+#endif
+
+    bool     InitializeUserFaultFd();
+    void     UffdTerminate();
+    uint32_t UffdBlockFaultingThreads();
+    void     UffdUnblockFaultingThreads(uint32_t n_threads_to_wait);
+    bool     UffdRegisterMemory(const void* address, size_t length);
+    void     UffdUnregisterMemory(const void* address, size_t length);
+    bool     UffdResetRegion(void* guard_address, size_t guard_range);
+
+#if USERFAULTFD_SUPPORTED == 1
+    bool         UffdInit();
+    bool         UffdSetSignalHandler();
+    void         UffdRemoveSignalHandler();
+    bool         UffdStartHandlerThread();
+    bool         UffdHandleFault(MemoryInfo* memory_info, uint64_t address, uint64_t flags, bool wake_thread);
+    bool         UffdWakeFaultingThread(uint64_t address);
+    void         UffdSignalHandler(int sig);
+    void*        UffdHandlerThread(void* args);
+    static void* UffdHandlerThreadHelper(void* this_);
+    static void  UffdStaticSignalHandler(int sig);
 #endif
 };
 

@@ -39,7 +39,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table) override;
+                                        const encode::VulkanDeviceTable*      device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -104,6 +104,10 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
+
+    virtual void CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
+                                     CommandBufferInfo*        command_buffer_info,
+                                     const VkDependencyInfo*   pDependencyInfo) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
                                                       SwapchainKHRInfo* swapchain_info,

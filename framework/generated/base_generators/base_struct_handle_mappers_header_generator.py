@@ -159,7 +159,7 @@ class BaseStructHandleMappersHeaderGenerator():
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
                 or (struct in self.structs_with_map_data)
-            ):
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{});'.format(
                     map_type, struct, platform_type, map_table

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,9 +23,9 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
-#include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
-#include "graphics/vulkan_util.h"
+#include "encode/vulkan_track_struct.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 #include <algorithm>
 
@@ -36,9 +36,9 @@ VulkanStateTracker::VulkanStateTracker() {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
-void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           wrapper,
-                                               format::ApiCallId               call_id,
-                                               const util::MemoryOutputStream* parameter_buffer)
+void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                               format::ApiCallId                      call_id,
+                                               const util::MemoryOutputStream*        parameter_buffer)
 {
     assert(wrapper != nullptr);
 
@@ -46,12 +46,12 @@ void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           w
         (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
     {
         // Clear command data on command buffer reset.
-        wrapper->command_data.Reset();
+        wrapper->command_data.Clear();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
         wrapper->tlas_build_info_map.clear();
 
-        for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
+        for (size_t i = 0; i < vulkan_state_info::CommandHandleType::NumHandleTypes; ++i)
         {
             wrapper->command_handles[i].clear();
         }
@@ -71,10 +71,10 @@ void VulkanStateTracker::TrackTrimCommandPool(VkDevice device, VkCommandPool com
 {
     assert(command_pool != VK_NULL_HANDLE);
 
-    auto wrapper               = GetWrapper<CommandPoolWrapper>(command_pool);
+    auto wrapper               = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(command_pool);
     wrapper->trim_command_pool = true;
 
-    auto device_wrapper = GetWrapper<DeviceWrapper>(device);
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->device     = device_wrapper;
 }
 
@@ -82,16 +82,16 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 {
     assert(command_pool != VK_NULL_HANDLE);
 
-    auto wrapper = GetWrapper<CommandPoolWrapper>(command_pool);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(command_pool);
 
     for (const auto& entry : wrapper->child_buffers)
     {
-        entry.second->command_data.Reset();
+        entry.second->command_data.Clear();
         entry.second->pending_layouts.clear();
         entry.second->recorded_queries.clear();
         entry.second->tlas_build_info_map.clear();
 
-        for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
+        for (size_t i = 0; i < vulkan_state_info::CommandHandleType::NumHandleTypes; ++i)
         {
             entry.second->command_handles[i].clear();
         }
@@ -103,7 +103,7 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper = GetWrapper<PhysicalDeviceWrapper>(physical_device);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
 
     wrapper->memory_properties = *properties;
 }
@@ -114,7 +114,7 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper                             = GetWrapper<PhysicalDeviceWrapper>(physical_device);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
     wrapper->queue_family_properties_call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties         = std::make_unique<VkQueueFamilyProperties[]>(property_count);
@@ -128,7 +128,7 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper                             = GetWrapper<PhysicalDeviceWrapper>(physical_device);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
     wrapper->queue_family_properties_call_id = call_id;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties2        = std::make_unique<VkQueueFamilyProperties2[]>(property_count);
@@ -137,33 +137,26 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
     // Copy pNext structure and update pNext pointers.
     for (uint32_t i = 0; i < property_count; ++i)
     {
-        if (properties[i].pNext != nullptr)
+        if (auto queue_family_properties_nv =
+                graphics::vulkan_struct_get_pnext<VkQueueFamilyCheckpointPropertiesNV>(properties + i))
         {
-            const VkBaseOutStructure* next = reinterpret_cast<const VkBaseOutStructure*>(properties[i].pNext);
-            if (next->sType == VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV)
-            {
-                const VkQueueFamilyCheckpointPropertiesNV* original =
-                    reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(next);
+            std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV> copy =
+                std::make_unique<VkQueueFamilyCheckpointPropertiesNV>(*queue_family_properties_nv);
 
-                std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV> copy =
-                    std::make_unique<VkQueueFamilyCheckpointPropertiesNV>(*original);
-
-                if (copy->pNext != nullptr)
-                {
-                    // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
-                    copy->pNext = nullptr;
-                    GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
-                }
-
-                wrapper->queue_family_properties2[i].pNext = copy.get();
-                wrapper->queue_family_checkpoint_properties.push_back(std::move(copy));
-            }
-            else
+            if (copy->pNext != nullptr)
             {
                 // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
-                wrapper->queue_family_properties2[i].pNext = nullptr;
+                copy->pNext = nullptr;
                 GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
             }
+            wrapper->queue_family_properties2[i].pNext = copy.get();
+            wrapper->queue_family_checkpoint_properties.push_back(std::move(copy));
+        }
+        else
+        {
+            // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
+            wrapper->queue_family_properties2[i].pNext = nullptr;
+            GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
         }
     }
 }
@@ -175,8 +168,10 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice phys
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    auto  wrapper             = GetWrapper<SurfaceKHRWrapper>(surface);
-    auto& entry               = wrapper->surface_support[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+    auto& entry =
+        wrapper
+            ->surface_support[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device)];
     entry[queue_family_index] = supported;
 }
 
@@ -186,15 +181,14 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (capabilities != nullptr));
 
-    auto  wrapper = GetWrapper<SurfaceKHRWrapper>(surface);
-    auto& entry   = wrapper->surface_capabilities[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+    auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
+        physical_device)];
 
-    entry.surface_info_pnext_memory.Reset();
     entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
     entry.surface_info.pNext   = nullptr;
     entry.surface_info.surface = surface;
 
-    entry.surface_capabilities_pnext_memory.Reset();
     entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
     entry.surface_capabilities.pNext               = nullptr;
     entry.surface_capabilities.surfaceCapabilities = *capabilities;
@@ -206,20 +200,19 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface_info.surface != VK_NULL_HANDLE));
 
-    auto  wrapper = GetWrapper<SurfaceKHRWrapper>(surface_info.surface);
-    auto& entry   = wrapper->surface_capabilities[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface_info.surface);
+    auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
+        physical_device)];
 
-    entry.surface_info_pnext_memory.Reset();
     entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
     entry.surface_info.pNext   = nullptr;
     entry.surface_info.surface = surface_info.surface;
 
     if (surface_info.pNext != nullptr)
     {
-        entry.surface_info.pNext = TrackPNextStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
+        entry.surface_info.pNext = vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
     }
 
-    entry.surface_capabilities_pnext_memory.Reset();
     entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
     entry.surface_capabilities.pNext               = nullptr;
     entry.surface_capabilities.surfaceCapabilities = surface_capabilities->surfaceCapabilities;
@@ -227,7 +220,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
     if (surface_capabilities->pNext != nullptr)
     {
         entry.surface_capabilities.pNext =
-            const_cast<void*>(TrackPNextStruct(surface_capabilities->pNext, &entry.surface_capabilities_pnext_memory));
+            vulkan_trackers::TrackStruct(surface_capabilities->pNext, entry.surface_capabilities_pnext_memory);
     }
 }
 
@@ -240,23 +233,25 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
 
     if (surface != VK_NULL_HANDLE && format_count > 0)
     {
-        auto  wrapper = GetWrapper<SurfaceKHRWrapper>(surface);
-        auto& entry   = wrapper->surface_formats[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+        auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+        auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
+            physical_device)];
 
-        entry.surface_info_pnext_memory.Reset();
         entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
         entry.surface_info.pNext   = nullptr;
         entry.surface_info.surface = surface;
 
-        entry.surface_formats.resize(format_count);
-        entry.surface_formats_pnext_memory.resize(format_count);
+        std::vector<VkSurfaceFormat2KHR> surface_formats(format_count);
+
         for (uint32_t i = 0; i < format_count; ++i)
         {
-            entry.surface_formats_pnext_memory[i].Reset();
-            entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-            entry.surface_formats[i].pNext         = nullptr;
-            entry.surface_formats[i].surfaceFormat = formats[i];
+            surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
+            surface_formats[i].pNext         = nullptr;
+            surface_formats[i].surfaceFormat = formats[i];
         }
+        entry.surface_format_count = format_count;
+        entry.surface_formats =
+            vulkan_trackers::TrackStructs(surface_formats.data(), format_count, entry.surface_formats_memory);
     }
 }
 
@@ -269,34 +264,23 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
 
     if (surface_info.surface != VK_NULL_HANDLE && surface_format_count > 0)
     {
-        auto  wrapper = GetWrapper<SurfaceKHRWrapper>(surface_info.surface);
-        auto& entry   = wrapper->surface_formats[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+        auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface_info.surface);
+        auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
+            physical_device)];
 
-        entry.surface_info_pnext_memory.Reset();
         entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
         entry.surface_info.pNext   = nullptr;
         entry.surface_info.surface = surface_info.surface;
 
         if (surface_info.pNext != nullptr)
         {
-            entry.surface_info.pNext = TrackPNextStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
+            entry.surface_info.pNext =
+                vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
         }
 
-        entry.surface_formats.resize(surface_format_count);
-        entry.surface_formats_pnext_memory.resize(surface_format_count);
-        for (uint32_t i = 0; i < surface_format_count; ++i)
-        {
-            entry.surface_formats_pnext_memory[i].Reset();
-            entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-            entry.surface_formats[i].pNext         = nullptr;
-            entry.surface_formats[i].surfaceFormat = surface_formats[i].surfaceFormat;
-
-            if (surface_formats[i].pNext != nullptr)
-            {
-                entry.surface_formats[i].pNext = const_cast<void*>(
-                    TrackPNextStruct(surface_formats[i].pNext, &entry.surface_formats_pnext_memory[i]));
-            }
-        }
+        entry.surface_format_count = surface_format_count;
+        entry.surface_formats =
+            vulkan_trackers::TrackStructs(surface_formats, surface_format_count, entry.surface_formats_memory);
     }
 }
 
@@ -308,15 +292,15 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (modes != nullptr));
 
-    auto  wrapper = GetWrapper<SurfaceKHRWrapper>(surface);
-    auto& entry   = wrapper->surface_present_modes[GetWrappedId<PhysicalDeviceWrapper>(physical_device)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+    auto& entry = wrapper->surface_present_modes[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
+        physical_device)];
     entry.present_modes.assign(modes, modes + mode_count);
 
     entry.surface_info_pnext = nullptr;
-    entry.surface_info_pnext_memory.Reset();
     if (surface_info_pnext != nullptr)
     {
-        entry.surface_info_pnext = TrackPNextStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+        entry.surface_info_pnext = vulkan_trackers::TrackStruct(surface_info_pnext, entry.surface_info_pnext_memory);
     }
 }
 
@@ -327,25 +311,36 @@ void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice           
 {
     assert((device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (pModes != nullptr));
 
-    auto  wrapper       = GetWrapper<SurfaceKHRWrapper>(surface);
-    auto& entry         = wrapper->group_surface_present_modes[GetWrappedId<DeviceWrapper>(device)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+    auto& entry =
+        wrapper->group_surface_present_modes[vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device)];
     entry.present_modes = *pModes;
 
     entry.surface_info_pnext = nullptr;
-    entry.surface_info_pnext_memory.Reset();
     if (surface_info_pnext != nullptr)
     {
-        entry.surface_info_pnext = TrackPNextStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+        entry.surface_info_pnext = vulkan_trackers::TrackStruct(surface_info_pnext, entry.surface_info_pnext_memory);
     }
 }
 
 void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
 {
-    assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
-    auto wrapper       = GetWrapper<BufferWrapper>(buffer);
-    wrapper->device_id = GetWrappedId<DeviceWrapper>(device);
+    auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
+}
+
+void VulkanStateTracker::TrackOpaqueBufferDeviceAddress(VkDevice        device,
+                                                        VkBuffer        buffer,
+                                                        VkDeviceAddress opaque_address)
+{
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+
+    auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->device_id      = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->opaque_address = opaque_address;
 }
 
 void VulkanStateTracker::TrackBufferMemoryBinding(
@@ -353,16 +348,15 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper            = GetWrapper<BufferWrapper>(buffer);
-    wrapper->bind_device    = GetWrapper<DeviceWrapper>(device);
-    wrapper->bind_memory_id = GetWrappedId<DeviceMemoryWrapper>(memory);
+    auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
-    wrapper->bind_pnext_memory.Reset();
 
     if (bind_info_pnext != nullptr)
     {
-        wrapper->bind_pnext = TrackPNextStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+        wrapper->bind_pnext = vulkan_trackers::TrackStruct(bind_info_pnext, wrapper->bind_pnext_memory);
     }
 }
 
@@ -374,15 +368,17 @@ void VulkanStateTracker::TrackTLASBuildCommand(
 {
     if (info_count && infos && pp_buildRange_infos)
     {
-        CommandBufferWrapper* buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        vulkan_wrappers::CommandBufferWrapper* buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
         for (uint32_t i = 0; i < info_count; ++i)
         {
             if (infos[i].type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR &&
                 infos[i].dstAccelerationStructure != VK_NULL_HANDLE && infos[i].geometryCount && infos[i].pGeometries)
             {
-                AccelerationStructureKHRWrapper* tlas_wrapper =
-                    GetWrapper<AccelerationStructureKHRWrapper>(infos[i].dstAccelerationStructure);
+                vulkan_wrappers::AccelerationStructureKHRWrapper* tlas_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                        infos[i].dstAccelerationStructure);
 
                 tlas_wrapper->blas.clear();
 
@@ -391,12 +387,18 @@ void VulkanStateTracker::TrackTLASBuildCommand(
                     if (infos[i].pGeometries[g].geometryType == VK_GEOMETRY_TYPE_INSTANCES_KHR)
                     {
                         const VkDeviceAddress address = infos[i].pGeometries[g].geometry.instances.data.deviceAddress;
-                        const CommandBufferWrapper::tlas_build_info tlas_info = {
-                            address, pp_buildRange_infos[i]->primitiveCount, pp_buildRange_infos[i]->primitiveOffset
-                        };
+                        const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
+                        // According to spec both address and primitiveCount can be 0.
+                        // Nothing to handle in these cases.
+                        if (address && primitive_count)
+                        {
+                            const vulkan_wrappers::CommandBufferWrapper::tlas_build_info tlas_info = {
+                                address, primitive_count, pp_buildRange_infos[i]->primitiveOffset
+                            };
 
-                        buf_wrapper->tlas_build_info_map.emplace_back(
-                            std::make_pair(tlas_wrapper, std::move(tlas_info)));
+                            buf_wrapper->tlas_build_info_map.emplace_back(
+                                std::make_pair(tlas_wrapper, std::move(tlas_info)));
+                        }
                     }
                 }
             }
@@ -410,16 +412,15 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     // If VkBindImageMemorySwapchainInfoKHR is in pnext, memory must be VK_NULL_HANDLE.
     assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
-    auto wrapper            = GetWrapper<ImageWrapper>(image);
-    wrapper->bind_device    = GetWrapper<DeviceWrapper>(device);
-    wrapper->bind_memory_id = GetWrappedId<DeviceMemoryWrapper>(memory);
+    auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+    wrapper->bind_device    = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->bind_memory_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
-    wrapper->bind_pnext_memory.Reset();
 
     if (bind_info_pnext != nullptr)
     {
-        wrapper->bind_pnext = TrackPNextStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+        wrapper->bind_pnext = vulkan_trackers::TrackStruct(bind_info_pnext, wrapper->bind_pnext_memory);
     }
 }
 
@@ -432,8 +433,7 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper           = GetWrapper<DeviceMemoryWrapper>(memory);
-    wrapper->map_device    = GetWrapper<DeviceWrapper>(device);
+    auto wrapper           = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     wrapper->mapped_data   = mapped_data;
     wrapper->mapped_offset = mapped_offset;
     wrapper->mapped_size   = mapped_size;
@@ -444,16 +444,18 @@ void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, co
 {
     assert((command_buffer != VK_NULL_HANDLE) && (begin_info != nullptr));
 
-    auto wrapper                     = GetWrapper<CommandBufferWrapper>(command_buffer);
-    wrapper->active_render_pass      = GetWrapper<RenderPassWrapper>(begin_info->renderPass);
-    wrapper->render_pass_framebuffer = GetWrapper<FramebufferWrapper>(begin_info->framebuffer);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    wrapper->active_render_pass =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(begin_info->renderPass);
+    wrapper->render_pass_framebuffer =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::FramebufferWrapper>(begin_info->framebuffer);
 }
 
 void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
 {
     assert(command_buffer != VK_NULL_HANDLE);
 
-    auto wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
     assert((wrapper->active_render_pass != VK_NULL_HANDLE) && (wrapper->render_pass_framebuffer != VK_NULL_HANDLE));
 
     auto render_pass_wrapper = wrapper->active_render_pass;
@@ -480,11 +482,11 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
 {
     assert((command_buffer != VK_NULL_HANDLE) && (command_buffers != nullptr));
 
-    auto primary_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+    auto primary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
     for (uint32_t i = 0; i < command_buffer_count; ++i)
     {
-        auto secondary_wrapper = GetWrapper<CommandBufferWrapper>(command_buffers[i]);
+        auto secondary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[i]);
         assert(secondary_wrapper != nullptr);
 
         for (const auto& layout_entry : secondary_wrapper->pending_layouts)
@@ -520,11 +522,11 @@ void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        auto wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
         {
-            auto image_wrapper                      = GetWrapper<ImageWrapper>(image_barriers[i].image);
+            auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image_barriers[i].image);
             wrapper->pending_layouts[image_wrapper] = image_barriers[i].newLayout;
         }
     }
@@ -538,11 +540,11 @@ void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        auto wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
         {
-            auto image_wrapper                      = GetWrapper<ImageWrapper>(image_barriers[i].image);
+            auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image_barriers[i].image);
             wrapper->pending_layouts[image_wrapper] = image_barriers[i].newLayout;
         }
     }
@@ -559,7 +561,8 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
 
             for (uint32_t cmd = 0; cmd < command_buffer_count; ++cmd)
             {
-                auto command_wrapper = GetWrapper<CommandBufferWrapper>(command_buffers[cmd]);
+                auto command_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[cmd]);
                 assert(command_wrapper != nullptr);
 
                 TrackQuerySubmissions(command_wrapper);
@@ -579,7 +582,8 @@ void VulkanStateTracker::TrackCommandBufferSubmissions2(uint32_t submit_count, c
 
             for (uint32_t cmd = 0; cmd < command_buffer_count; ++cmd)
             {
-                auto command_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer_infos[cmd].commandBuffer);
+                auto command_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                    command_buffer_infos[cmd].commandBuffer);
                 assert(command_wrapper != nullptr);
 
                 TrackQuerySubmissions(command_wrapper);
@@ -588,7 +592,7 @@ void VulkanStateTracker::TrackCommandBufferSubmissions2(uint32_t submit_count, c
     }
 }
 
-void VulkanStateTracker::TrackQuerySubmissions(CommandBufferWrapper* command_wrapper)
+void VulkanStateTracker::TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper)
 {
     // Apply pending image layouts.
     for (const auto& layout_entry : command_wrapper->pending_layouts)
@@ -630,10 +634,10 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
     // exists at state write time by checking for the ID in the active state table.
     if (writes != nullptr)
     {
-        for (uint32_t i = 0; i < write_count; ++i)
+        for (uint32_t wi = 0; wi < write_count; ++wi)
         {
-            const VkWriteDescriptorSet* write   = &writes[i];
-            auto                        wrapper = GetWrapper<DescriptorSetWrapper>(write->dstSet);
+            const VkWriteDescriptorSet* write = &writes[wi];
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
@@ -648,30 +652,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             for (;;)
             {
                 auto& binding = wrapper->bindings[current_binding];
-
-                binding.write_pnext = nullptr;
-                binding.write_pnext_memory.Reset();
-                if (write->pNext != nullptr)
-                {
-                    binding.write_pnext = TrackPNextStruct(write->pNext, &binding.write_pnext_memory);
-                    auto* pnext         = reinterpret_cast<const VkBaseInStructure*>(binding.write_pnext);
-                    switch (pnext->sType)
-                    {
-                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-                        {
-                            auto* acc_struct = reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(
-                                const_cast<void*>(binding.write_pnext));
-                            binding.record_write_set_accel_structs.clear();
-                            std::copy(acc_struct->pAccelerationStructures,
-                                      acc_struct->pAccelerationStructures + acc_struct->accelerationStructureCount,
-                                      std::back_inserter(binding.record_write_set_accel_structs));
-                            acc_struct->pAccelerationStructures = binding.record_write_set_accel_structs.data();
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
 
                 // Update current and write counts for binding's descriptor count. If current count is
                 // greater than the count for the descriptor range defined by dstArrayElement through binding count,
@@ -697,7 +677,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            dst_sampler_ids[i] = GetWrappedId<SamplerWrapper>(src_info[i].sampler);
+                            dst_sampler_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
@@ -711,8 +692,10 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            dst_sampler_ids[i] = GetWrappedId<SamplerWrapper>(src_info[i].sampler);
-                            dst_image_ids[i]   = GetWrappedId<ImageViewWrapper>(src_info[i].imageView);
+                            dst_sampler_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            dst_image_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
@@ -727,7 +710,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            dst_image_ids[i] = GetWrappedId<ImageViewWrapper>(src_info[i].imageView);
+                            dst_image_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
@@ -743,7 +727,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            dst_buffer_ids[i] = GetWrappedId<BufferWrapper>(src_info[i].buffer);
+                            dst_buffer_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
@@ -757,22 +742,33 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            dst_view_ids[i] = GetWrappedId<BufferViewWrapper>(src_info[i]);
-                            dst_info[i]     = src_info[i];
+                            dst_view_ids[i] =
+                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
+                            dst_info[i] = src_info[i];
                         }
                         break;
                     }
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // TODO
-                        break;
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        auto write_inline_uniform_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
+
+                        if (write_inline_uniform_struct != nullptr)
+                        {
+                            uint8_t*       dst_inline_uniform_data = binding.inline_uniform_block.get();
+                            const uint8_t* src_inline_uniform_data =
+                                reinterpret_cast<const uint8_t*>(write_inline_uniform_struct->pData);
+                            memcpy(dst_inline_uniform_data, src_inline_uniform_data, current_writes);
+                        }
+                    }
+                    break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                         // TODO
                         break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     {
-                        VkWriteDescriptorSetAccelerationStructureKHR* write_accel_struct =
-                            graphics::GetPNextStruct<VkWriteDescriptorSetAccelerationStructureKHR>(
-                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR);
+                        auto write_accel_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(write);
 
                         if (write_accel_struct != nullptr)
                         {
@@ -785,7 +781,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             for (uint32_t i = 0; i < current_writes; ++i)
                             {
                                 dst_accel_struct_ids[i] =
-                                    GetWrappedId<AccelerationStructureKHRWrapper>(src_accel_struct[i]);
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                                        src_accel_struct[i]);
                                 dst_accel_struct[i] = src_accel_struct[i];
                             }
                         }
@@ -817,8 +814,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
         for (uint32_t i = 0; i < copy_count; ++i)
         {
             auto copy        = &copies[i];
-            auto dst_wrapper = GetWrapper<DescriptorSetWrapper>(copy->dstSet);
-            auto src_wrapper = GetWrapper<DescriptorSetWrapper>(copy->srcSet);
+            auto dst_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->dstSet);
+            auto src_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->srcSet);
             assert((dst_wrapper != nullptr) && (src_wrapper != nullptr));
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
@@ -869,6 +866,12 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
                            &src_binding.acceleration_structures[current_src_array_element],
                            (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
+                }
+                if (src_binding.inline_uniform_block != nullptr)
+                {
+                    memcpy(&dst_binding.inline_uniform_block[current_dst_array_element],
+                           &src_binding.inline_uniform_block[current_src_array_element],
+                           current_copies);
                 }
                 if (src_binding.texel_buffer_views != nullptr)
                 {
@@ -931,7 +934,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
     // exists at state write time by checking for the ID in the active state table.
     if ((template_info != nullptr) && (data != nullptr))
     {
-        auto           wrapper = GetWrapper<DescriptorSetWrapper>(set);
+        auto           wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(set);
         const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
 
         for (const auto& entry : template_info->image_info)
@@ -966,12 +969,14 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                     if ((binding.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
                         (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
                     {
-                        dst_sampler_ids[i] = GetWrappedId<SamplerWrapper>(image_info->sampler);
+                        dst_sampler_ids[i] =
+                            vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(image_info->sampler);
                     }
 
                     if (binding.type != VK_DESCRIPTOR_TYPE_SAMPLER)
                     {
-                        dst_image_ids[i] = GetWrappedId<ImageViewWrapper>(image_info->imageView);
+                        dst_image_ids[i] =
+                            vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(image_info->imageView);
                     }
 
                     memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
@@ -1021,8 +1026,9 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_info  = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
-                    dst_buffer_ids[i] = GetWrappedId<BufferWrapper>(buffer_info->buffer);
+                    auto buffer_info = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
+                    dst_buffer_ids[i] =
+                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer_info->buffer);
                     memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
 
                     src_address += entry.stride;
@@ -1071,7 +1077,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
                     auto buffer_view = reinterpret_cast<const VkBufferView*>(src_address);
-                    dst_view_ids[i]  = GetWrappedId<BufferViewWrapper>(*buffer_view);
+                    dst_view_ids[i]  = vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(*buffer_view);
                     dst_info[i]      = *buffer_view;
 
                     src_address += entry.stride;
@@ -1119,9 +1125,10 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
-                    dst_view_ids[i]   = GetWrappedId<AccelerationStructureKHRWrapper>(*accel_struct);
-                    dst_info[i]       = *accel_struct;
+                    const auto* accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
+                    dst_view_ids[i] =
+                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(*accel_struct);
+                    dst_info[i] = *accel_struct;
 
                     src_address += entry.stride;
                 }
@@ -1140,6 +1147,44 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 }
             }
         }
+        for (const auto& entry : template_info->inline_uniform_block)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+                GFXRECON_ASSERT(binding.inline_uniform_block != nullptr);
+
+                // Check count for consecutive updates.
+                const uint32_t current_num_bytes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_num_bytes, true);
+
+                const uint8_t* src_address = bytes + current_offset;
+                uint8_t*       dst_address = binding.inline_uniform_block.get() + entry.array_element;
+                memcpy(dst_address, src_address, current_num_bytes);
+
+                // Check for consecutive update.
+                if (current_count == current_num_bytes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_num_bytes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_num_bytes * entry.stride);
+                }
+            }
+        }
     }
 }
 
@@ -1147,7 +1192,7 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
 {
     assert(descriptor_pool != VK_NULL_HANDLE);
 
-    auto wrapper = GetWrapper<DescriptorPoolWrapper>(descriptor_pool);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(descriptor_pool);
 
     // Pool reset implicitly frees descriptor sets, so remove all wrappers from the state tracker.
     std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -1162,10 +1207,11 @@ void VulkanStateTracker::TrackQueryActivation(
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
 
-    auto                      wrapper              = GetWrapper<CommandBufferWrapper>(command_buffer);
-    const CommandPoolWrapper* command_pool_wrapper = wrapper->parent_pool;
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    const vulkan_wrappers::CommandPoolWrapper* command_pool_wrapper = wrapper->parent_pool;
 
-    auto& query_pool_info         = wrapper->recorded_queries[GetWrapper<QueryPoolWrapper>(query_pool)];
+    auto& query_pool_info =
+        wrapper->recorded_queries[vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
     auto& query_info              = query_pool_info[query];
     query_info.active             = true;
     query_info.flags              = flags;
@@ -1180,8 +1226,9 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
 
-    auto  wrapper         = GetWrapper<CommandBufferWrapper>(command_buffer);
-    auto& query_pool_info = wrapper->recorded_queries[GetWrapper<QueryPoolWrapper>(query_pool)];
+    auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    auto& query_pool_info =
+        wrapper->recorded_queries[vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
 
     for (uint32_t i = first_query; i < query_count; ++i)
     {
@@ -1193,7 +1240,7 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
 {
     assert(query_pool != VK_NULL_HANDLE);
 
-    auto wrapper = GetWrapper<QueryPoolWrapper>(query_pool);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool);
     assert((first_query + query_count) <= wrapper->pending_queries.size());
 
     for (uint32_t i = first_query; i < query_count; ++i)
@@ -1206,7 +1253,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(VkSemaphore signal)
 {
     if (signal != VK_NULL_HANDLE)
     {
-        auto wrapper = GetWrapper<SemaphoreWrapper>(signal);
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(signal);
         assert(wrapper != nullptr);
         wrapper->signaled = true;
     }
@@ -1223,7 +1270,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
         {
             for (uint32_t i = 0; i < wait_count; ++i)
             {
-                auto wrapper = GetWrapper<SemaphoreWrapper>(waits[i]);
+                auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(waits[i]);
                 assert(wrapper != nullptr);
                 wrapper->signaled = false;
             }
@@ -1233,7 +1280,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
         {
             for (uint32_t i = 0; i < signal_count; ++i)
             {
-                auto wrapper = GetWrapper<SemaphoreWrapper>(signals[i]);
+                auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(signals[i]);
                 assert(wrapper != nullptr);
                 wrapper->signaled = true;
             }
@@ -1252,7 +1299,7 @@ void VulkanStateTracker::TrackSemaphoreInfoSignalState(uint32_t                 
         {
             for (uint32_t i = 0; i < wait_count; ++i)
             {
-                auto wrapper = GetWrapper<SemaphoreWrapper>(wait_infos[i].semaphore);
+                auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(wait_infos[i].semaphore);
                 assert(wrapper != nullptr);
                 wrapper->signaled = false;
             }
@@ -1262,7 +1309,8 @@ void VulkanStateTracker::TrackSemaphoreInfoSignalState(uint32_t                 
         {
             for (uint32_t i = 0; i < signal_count; ++i)
             {
-                auto wrapper = GetWrapper<SemaphoreWrapper>(signal_infos[i].semaphore);
+                auto wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(signal_infos[i].semaphore);
                 assert(wrapper != nullptr);
                 wrapper->signaled = true;
             }
@@ -1273,7 +1321,7 @@ void VulkanStateTracker::TrackSemaphoreInfoSignalState(uint32_t                 
 void VulkanStateTracker::TrackAcquireImage(
     uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask)
 {
-    auto wrapper = GetWrapper<SwapchainKHRWrapper>(swapchain);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
 
     assert(wrapper != nullptr);
 
@@ -1283,10 +1331,12 @@ void VulkanStateTracker::TrackAcquireImage(
         wrapper->image_acquired_info[image_index].last_presented_queue = VK_NULL_HANDLE;
     }
 
-    wrapper->image_acquired_info[image_index].is_acquired           = true;
-    wrapper->image_acquired_info[image_index].acquired_device_mask  = deviceMask;
-    wrapper->image_acquired_info[image_index].acquired_semaphore_id = GetWrappedId<SemaphoreWrapper>(semaphore);
-    wrapper->image_acquired_info[image_index].acquired_fence_id     = GetWrappedId<FenceWrapper>(fence);
+    wrapper->image_acquired_info[image_index].is_acquired          = true;
+    wrapper->image_acquired_info[image_index].acquired_device_mask = deviceMask;
+    wrapper->image_acquired_info[image_index].acquired_semaphore_id =
+        vulkan_wrappers::GetWrappedId<vulkan_wrappers::SemaphoreWrapper>(semaphore);
+    wrapper->image_acquired_info[image_index].acquired_fence_id =
+        vulkan_wrappers::GetWrappedId<vulkan_wrappers::FenceWrapper>(fence);
 }
 
 void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
@@ -1298,7 +1348,7 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
 
     for (uint32_t i = 0; i < count; ++i)
     {
-        auto     wrapper     = GetWrapper<SwapchainKHRWrapper>(swapchains[i]);
+        auto     wrapper     = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchains[i]);
         uint32_t image_index = image_indices[i];
 
         assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
@@ -1315,8 +1365,8 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
 {
     assert((device != VK_NULL_HANDLE) && (accel_struct != VK_NULL_HANDLE));
 
-    auto wrapper       = GetWrapper<AccelerationStructureKHRWrapper>(accel_struct);
-    wrapper->device_id = GetWrappedId<DeviceWrapper>(device);
+    auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(accel_struct);
+    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
 
     assert(address);
@@ -1327,11 +1377,19 @@ void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDevic
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper       = GetWrapper<DeviceMemoryWrapper>(memory);
-    wrapper->device_id = GetWrappedId<DeviceWrapper>(device);
+    auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
 
     device_memory_addresses_map.emplace(address, wrapper);
+}
+
+void VulkanStateTracker::TrackRayTracingPipelineProperties(
+    VkPhysicalDevice physicalDevice, VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    wrapper->ray_tracing_pipeline_properties        = *ray_properties;
+    wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
 }
 
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
@@ -1341,9 +1399,9 @@ void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
 {
     assert((device != VK_NULL_HANDLE) && (pipeline != VK_NULL_HANDLE));
 
-    auto           wrapper   = GetWrapper<PipelineWrapper>(pipeline);
+    auto           wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pipeline);
     const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
-    wrapper->device_id       = GetWrappedId<DeviceWrapper>(device);
+    wrapper->device_id       = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->shader_group_handle_data.assign(byte_data, byte_data + data_size);
 }
 
@@ -1351,7 +1409,7 @@ void VulkanStateTracker::TrackAcquireFullScreenExclusiveMode(VkDevice device, Vk
 {
     assert(swapchain != VK_NULL_HANDLE);
 
-    auto wrapper                                = GetWrapper<SwapchainKHRWrapper>(swapchain);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
     wrapper->acquire_full_screen_exclusive_mode = true;
 }
 
@@ -1359,7 +1417,7 @@ void VulkanStateTracker::TrackReleaseFullScreenExclusiveMode(VkDevice device, Vk
 {
     assert(swapchain != VK_NULL_HANDLE);
 
-    auto wrapper                                = GetWrapper<SwapchainKHRWrapper>(swapchain);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
     wrapper->release_full_screen_exclusive_mode = true;
 }
 
@@ -1368,12 +1426,12 @@ void VulkanStateTracker::TrackSetPrivateData(
 {
     assert(privateDataSlot != VK_NULL_HANDLE);
 
-    auto wrapper        = GetWrapper<PrivateDataSlotWrapper>(privateDataSlot);
-    auto device_wrapper = GetWrapper<DeviceWrapper>(device);
+    auto wrapper        = vulkan_wrappers::GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(privateDataSlot);
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
 
     wrapper->device        = device_wrapper;
     wrapper->object_type   = objectType;
-    wrapper->object_handle = GetWrappedId(objectHandle, objectType);
+    wrapper->object_handle = vulkan_wrappers::GetWrappedId(objectHandle, objectType);
     wrapper->data          = data;
 }
 
@@ -1381,15 +1439,15 @@ void VulkanStateTracker::TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR
 {
     assert(swapChain != VK_NULL_HANDLE);
 
-    auto wrapper        = GetWrapper<SwapchainKHRWrapper>(swapChain);
-    auto device_wrapper = GetWrapper<DeviceWrapper>(device);
+    auto wrapper        = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapChain);
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
 
     wrapper->device                   = device_wrapper;
     wrapper->using_local_dimming_AMD  = true;
     wrapper->local_dimming_enable_AMD = localDimmingEnable;
 }
 
-void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::InstanceWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1413,7 +1471,7 @@ void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1427,7 +1485,7 @@ void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::CommandPoolWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1441,7 +1499,7 @@ void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorPoolWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1455,7 +1513,7 @@ void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::SwapchainKHRWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1469,7 +1527,7 @@ void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(DeviceMemoryWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1481,7 +1539,7 @@ void VulkanStateTracker::DestroyState(DeviceMemoryWrapper* wrapper)
     }
 }
 
-void VulkanStateTracker::DestroyState(AccelerationStructureKHRWrapper* wrapper)
+void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper)
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
@@ -1503,13 +1561,18 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
 
     for (uint32_t c = 0; c < command_buffer_count; ++c)
     {
-        const CommandBufferWrapper* cmd_buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffers[c]);
+        const vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[c]);
 
         for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
         {
+            // Sanity checks. Build infos with one of these 0 should not be inserted in the map
+            assert(tlas_build_info.second.address);
+            assert(tlas_build_info.second.blas_count);
+
             // Find to which device memory this address belongs
-            const VkDeviceAddress      address         = tlas_build_info.second.address;
-            const DeviceMemoryWrapper* dev_mem_wrapper = nullptr;
+            const VkDeviceAddress                       address         = tlas_build_info.second.address;
+            const vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = nullptr;
             for (const auto& dev_mem : device_memory_addresses_map)
             {
                 if (address >= dev_mem.second->address &&
@@ -1543,6 +1606,8 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             const VkAccelerationStructureInstanceKHR* instances = nullptr;
             const util::PageGuardManager*             manager   = util::PageGuardManager::Get();
 
+            // Check with page guard manager first. The memory might be already and the
+            // PageGuardManager can provide the pointer
             if (manager)
             {
                 const void* mapped_memory = manager->GetMappedMemory(dev_mem_wrapper->handle_id);
@@ -1553,19 +1618,17 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 }
             }
 
-            const uint32_t blas_count = tlas_build_info.second.blas_count;
-            assert(blas_count);
-
-            bool needs_unmapping = false;
+            const uint32_t blas_count      = tlas_build_info.second.blas_count;
+            bool           needs_unmapping = false;
             if (!instances)
             {
                 // If PageGuardManager is not used or if it couldn't find the memory id it means that
                 // we need to map the memory.
-                VkDevice           device        = dev_mem_wrapper->map_device->handle;
-                const DeviceTable* device_table  = GetDeviceTable(device);
-                const VkDeviceSize map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
-                void*              mapped_memory = nullptr;
-                const VkResult     result =
+                VkDevice                 device        = dev_mem_wrapper->parent_device->handle;
+                const VulkanDeviceTable* device_table  = vulkan_wrappers::GetDeviceTable(device);
+                const VkDeviceSize       map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
+                void*                    mapped_memory = nullptr;
+                const VkResult           result =
                     device_table->MapMemory(device, dev_mem_wrapper->handle, total_offset, map_size, 0, &mapped_memory);
 
                 if (result == VK_SUCCESS)
@@ -1578,7 +1641,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
 
             if (instances)
             {
-                AccelerationStructureKHRWrapper* tlas_wrapper = tlas_build_info.first;
+                vulkan_wrappers::AccelerationStructureKHRWrapper* tlas_wrapper = tlas_build_info.first;
 
                 for (uint32_t b = 0; b < blas_count; ++b)
                 {
@@ -1596,8 +1659,8 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 // If we had to map the device memory unmap it now
                 if (needs_unmapping)
                 {
-                    VkDevice           device       = dev_mem_wrapper->map_device->handle;
-                    const DeviceTable* device_table = GetDeviceTable(device);
+                    VkDevice                 device       = dev_mem_wrapper->parent_device->handle;
+                    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
                     device_table->UnmapMemory(device, dev_mem_wrapper->handle);
                 }
             }

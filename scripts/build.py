@@ -39,13 +39,19 @@ def is_windows():
     '''
     return 'windows' == platform.system().lower()
 
+def is_mac():
+    '''
+    Check if the system is macOS
+    '''
+    return 'darwin' == platform.system().lower()
 
 ARCHITECTURES = ['x64', 'x86', 'arm', 'arm64']
+if is_mac():
+    ARCHITECTURES = ['universal', 'x64', 'arm64']
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-CMAKE_VERSION_3_13 = [3, 13, 0]
 CONFIGURATIONS = ['release', 'debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
 VERSION = '0.0.0'
@@ -84,6 +90,9 @@ def parse_args():
         choices=CONFIGURATIONS, default=DEFAULT_CONFIGURATION,
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
+    arg_parser.add_argument('-j', '--parallel', dest='jobs',
+            action='store', default=None,
+            help='Specify a parallel build level. Level 0 is equivalent to the use of all logical CPUs')
     arg_parser.add_argument(
         '--clean', dest='clean', action='store_true', default=False,
         help='Clean the build targets')
@@ -123,6 +132,10 @@ def parse_args():
         '--lint', dest='lint',
         action='store_true', default=False,
         help='Run static analysis lint tests on code')
+    arg_parser.add_argument(
+        '--cmake-extra', dest='cmake_extra',
+        action='append', default=[],
+        help='Extra variables to set on the cmake invocation')
     return arg_parser.parse_args()
 
 
@@ -220,6 +233,7 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DBUILD_LAUNCHER_AND_INTERCEPTOR={}'.format(
                 'OFF' if not args.build_launcher else 'ON'))
+        generate_options.extend('-D' + arg for arg in args.cmake_extra)
     
     return generate_options
 
@@ -240,6 +254,17 @@ def cmake_generate_build_files(args):
             cmake_generate_args.extend(['-A', 'Win32'])
         elif 'arm64' == args.architecture:
             cmake_generate_args.extend(['-A', 'ARM64'])
+    elif 'darwin' == system:
+        if 'debug' == args.configuration:
+            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
+        else:
+            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        if 'universal' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64')
+        elif 'x64' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=x86_64')
+        elif 'arm64' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=arm64')
     else:
         if 'debug' == args.configuration:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
@@ -257,14 +282,9 @@ def cmake_generate_build_files(args):
     cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
-    if(cmake_version() < CMAKE_VERSION_3_13):
-        work_dir = get_build_dir(
-            args.build_dir, args.configuration, args.architecture)
-        cmake_generate_args.append(BUILD_ROOT)
-    else:
-        cmake_generate_args.extend([
-            '-S', '.',
-            '-B', get_build_dir(args.build_dir, args.configuration, args.architecture)])
+    cmake_generate_args.extend([
+        '-S', '.',
+        '-B', get_build_dir(args.build_dir, args.configuration, args.architecture)])
     os.makedirs(work_dir, mode=0o744, exist_ok=True)
     cmake_generate_result = subprocess.run(
         cmake_generate_args, cwd=work_dir, env=cmake_generate_env)
@@ -277,6 +297,11 @@ def cmake_build(args):
     Build using CMake
     '''
     cmake_build_args = ['cmake', '--build', '.']
+
+    if args.jobs:
+        if args.jobs == '0':
+            args.jobs = str(os.cpu_count()) if (os.cpu_count() is not None) else '1'
+        cmake_build_args.extend(['--parallel', args.jobs])
     if is_windows():
         cmake_build_args.extend(
             ['--config', args.configuration.capitalize()])

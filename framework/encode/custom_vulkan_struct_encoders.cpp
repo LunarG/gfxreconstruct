@@ -38,7 +38,7 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
     if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
     {
         // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-        encoder->EncodeHandleValue<SamplerWrapper>(value.sampler);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::SamplerWrapper>(value.sampler);
     }
     else
     {
@@ -51,7 +51,7 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
     // Conditional encoding for image view handle based on descriptor type.
     if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
     {
-        encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageViewWrapper>(value.imageView);
     }
     else
     {
@@ -82,12 +82,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatistic
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)
@@ -116,7 +116,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorSetWrapper>(value.dstSet);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorSetWrapper>(value.dstSet);
     encoder->EncodeUInt32Value(value.dstBinding);
     encoder->EncodeUInt32Value(value.dstArrayElement);
     encoder->EncodeUInt32Value(value.descriptorCount);
@@ -145,12 +145,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             omit_texel_buffer_data = false;
             break;
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-            // TODO
-            break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            // Handles are encoded in the VkWriteDescriptorSetInlineUniformBlock structure in the pNext chain
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             // Handles are encoded in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext chain
             break;
@@ -169,7 +168,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
     }
 
     EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
-    encoder->EncodeHandleArray<BufferViewWrapper>(
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::BufferViewWrapper>(
         value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
 }
 
@@ -278,6 +277,59 @@ void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
     encoder->EncodeUInt32Value(value.nLength);
     EncodeStructPtr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
     encoder->EncodeInt32Value(value.bInheritHandle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeUInt32Value(value.set);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            EncodeStructPtr(encoder, value.info.pPipelineInfo);
+            break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            EncodeStructPtr(encoder, value.info.pShaderInfo);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
+            EncodeStructPtr(encoder, value.data.pPushConstant);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            EncodeStructPtr(encoder, value.data.pVertexBuffer);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            EncodeStructPtr(encoder, value.data.pIndexBuffer);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            EncodeStructPtr(encoder, value.data.pExecutionSet);
+            break;
+        default:
+            break;
+    }
+    encoder->EncodeUInt32Value(value.offset);
 }
 
 GFXRECON_END_NAMESPACE(encode)

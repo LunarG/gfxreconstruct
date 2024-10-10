@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2015-2020 Valve Corporation
-** Copyright (c) 2015-2020 LunarG, Inc.
+** Copyright (c) 2015-2023 Valve Corporation
+** Copyright (c) 2015-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -102,6 +102,12 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
 #include <signal.h>
 #include <unistd.h>
 
+#ifdef __APPLE__
+static constexpr uint32_t MEMPROT_SIGNAL = SIGBUS;
+#else
+static constexpr uint32_t MEMPROT_SIGNAL = SIGSEGV;
+#endif
+
 const uint32_t kGuardReadWriteProtect = PROT_NONE;
 const uint32_t kGuardReadOnlyProtect  = PROT_READ;
 const uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
@@ -116,7 +122,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
     bool              handled = false;
     PageGuardManager* manager = PageGuardManager::Get();
-    if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
+    if ((id == MEMPROT_SIGNAL) && (info->si_addr != nullptr) && (manager != nullptr))
     {
         bool is_write = true;
 #if defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
@@ -125,7 +131,11 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
             auto ucontext = reinterpret_cast<const ucontext_t*>(data);
 #if (defined(__x86_64__) || defined(__i386__))
+#ifdef __APPLE__
+            if ((ucontext->uc_mcontext->__es.__err & 0x2) == 0)
+#else
             if ((ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) == 0)
+#endif
             {
                 is_write = false;
             }
@@ -139,7 +149,12 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 #elif defined(__aarch64__)
             // Check WnR bit of the ESR_EL1 register, which indicates write when 1 and read when 0.
             static const uint32_t kEsrElxWnRBit = 1u << 6;
-
+#ifdef __APPLE__
+            if ((ucontext->uc_mcontext->__es.__esr & kEsrElxWnRBit) == 0)
+            {
+                is_write = false;
+            }
+#else
             const uint8_t* reserved = ucontext->uc_mcontext.__reserved;
             auto           ctx      = reinterpret_cast<const _aarch64_ctx*>(reserved);
 
@@ -160,6 +175,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
                     ctx = reinterpret_cast<const _aarch64_ctx*>(reserved);
                 }
             }
+#endif
 #endif
         }
 #endif
@@ -200,38 +216,66 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
 }
 
 PageGuardManager::PageGuardManager() :
-    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
-    system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
-    enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
-    enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
-    signal_handler_watcher_max_restores_(kDefaultSignalHandlerWatcherMaxRestores),
-    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
-{
-    InitializeSystemExceptionContext();
-}
+    PageGuardManager(kDefaultEnableCopyOnMap,
+                     kDefaultEnableSeparateRead,
+                     kDefaultUnblockSIGSEGV,
+                     kDefaultEnableSignalHandlerWatcher,
+                     kDefaultSignalHandlerWatcherMaxRestores,
+                     kDefaultEnableReadWriteSamePage,
+                     kDefaultMemoryProtMode)
+{}
 
-PageGuardManager::PageGuardManager(bool enable_copy_on_map,
-                                   bool enable_separate_read,
-                                   bool expect_read_write_same_page,
-                                   bool unblock_SIGSEGV,
-                                   bool enable_signal_handler_watcher,
-                                   int  signal_handler_watcher_max_restores) :
+PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
+                                   bool                 enable_separate_read,
+                                   bool                 expect_read_write_same_page,
+                                   bool                 unblock_SIGSEGV,
+                                   bool                 enable_signal_handler_watcher,
+                                   int                  signal_handler_watcher_max_restores,
+                                   MemoryProtectionMode protection_mode) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
     enable_signal_handler_watcher_(enable_signal_handler_watcher),
     signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
-    enable_read_write_same_page_(expect_read_write_same_page)
+    enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode), uffd_is_init_(false)
 {
-    InitializeSystemExceptionContext();
+    if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
+    {
+        GFXRECON_LOG_WARNING("Kernel does not support all features for userfaultfd memory tracking mode. Falling back "
+                             "to mprotect mode.");
+
+        protection_mode_ = kMProtectMode;
+    }
+
+    if (kMProtectMode == protection_mode_)
+    {
+        InitializeSystemExceptionContext();
+    }
+    else
+    {
+        if (!InitializeUserFaultFd())
+        {
+            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
+
+            protection_mode_ = kMProtectMode;
+            InitializeSystemExceptionContext();
+        }
+    }
 }
 
 PageGuardManager::~PageGuardManager()
 {
-    if (exception_handler_ != nullptr)
+    if (kMProtectMode == protection_mode_)
     {
-        ClearExceptionHandler(exception_handler_);
+        if (exception_handler_ != nullptr)
+        {
+            ClearExceptionHandler(exception_handler_);
+        }
+    }
+    else
+    {
+        UffdTerminate();
     }
 }
 
@@ -263,7 +307,7 @@ bool PageGuardManager::CheckSignalHandler()
         assert(instance_->exception_handler_count_);
 
         struct sigaction current_handler;
-        int              result = sigaction(SIGSEGV, nullptr, &current_handler);
+        int              result = sigaction(MEMPROT_SIGNAL, nullptr, &current_handler);
 
         if (result != -1)
         {
@@ -310,12 +354,13 @@ void* PageGuardManager::SignalHandlerWatcher(void* args)
 }
 #endif // !defined(WIN32)
 
-void PageGuardManager::Create(bool enable_copy_on_map,
-                              bool enable_separate_read,
-                              bool expect_read_write_same_page,
-                              bool unblock_SIGSEGV,
-                              bool enable_signal_handler_watcher,
-                              int  signal_handler_watcher_max_restores)
+void PageGuardManager::Create(bool                 enable_copy_on_map,
+                              bool                 enable_separate_read,
+                              bool                 expect_read_write_same_page,
+                              bool                 unblock_SIGSEGV,
+                              bool                 enable_signal_handler_watcher,
+                              int                  signal_handler_watcher_max_restores,
+                              MemoryProtectionMode protection_mode)
 {
     if (instance_ == nullptr)
     {
@@ -324,7 +369,8 @@ void PageGuardManager::Create(bool enable_copy_on_map,
                                          expect_read_write_same_page,
                                          unblock_SIGSEGV,
                                          enable_signal_handler_watcher,
-                                         signal_handler_watcher_max_restores);
+                                         signal_handler_watcher_max_restores,
+                                         protection_mode);
 
 #if !defined(WIN32)
         if (enable_signal_handler_watcher &&
@@ -453,7 +499,7 @@ void PageGuardManager::AddExceptionHandler()
 #else
         // Retrieve the current SIGSEGV handler info before replacing the current signal handler to determine if our
         // replacement signal handler should use an alternate signal stack.
-        int result = sigaction(SIGSEGV, nullptr, &s_old_sigaction);
+        int result = sigaction(MEMPROT_SIGNAL, nullptr, &s_old_sigaction);
 
         if (result != -1)
         {
@@ -477,7 +523,7 @@ void PageGuardManager::AddExceptionHandler()
                 sa.sa_flags |= SA_ONSTACK;
             }
 
-            result = sigaction(SIGSEGV, &sa, nullptr);
+            result = sigaction(MEMPROT_SIGNAL, &sa, nullptr);
         }
 
         if (result != -1)
@@ -538,7 +584,7 @@ void PageGuardManager::ClearExceptionHandler(void* exception_handler)
     }
 
     // Restore the old signal handler.
-    if (sigaction(SIGSEGV, &s_old_sigaction, nullptr) == -1)
+    if (sigaction(MEMPROT_SIGNAL, &s_old_sigaction, nullptr) == -1)
     {
         GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
     }
@@ -616,12 +662,12 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
         sigprocmask(SIG_SETMASK, nullptr, &x);
 
         // Check if SIGSEGV is blocked
-        int ret = sigismember(&x, SIGSEGV);
+        int ret = sigismember(&x, MEMPROT_SIGNAL);
         if (ret == 1)
         {
             if (!unblock_sigsegv_)
             {
-                GFXRECON_LOG_WARNING("SIGSEGV is blocked while page guard manager expects the signal to be handled. "
+                GFXRECON_LOG_WARNING("SIGSEGV is blocked while page_guard mechanism expects the signal to be handled. "
                                      "Things might fail and/or crash with segmentation fault. To force-enable SIGSEGV "
                                      "try setting GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV environment variable to 1.\n");
             }
@@ -629,11 +675,12 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
             {
                 // Unblock SIGSEGV
                 sigemptyset(&x);
-                sigaddset(&x, SIGSEGV);
+                sigaddset(&x, MEMPROT_SIGNAL);
                 if (sigprocmask(SIG_UNBLOCK, &x, nullptr))
                 {
-                    GFXRECON_LOG_ERROR(
-                        "sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)", syscall(__NR_gettid), errno);
+                    GFXRECON_LOG_ERROR("sigprocmask failed to unblock SIGSEGV on thread %lld (errno: %d)",
+                                       platform::GetCurrentThreadId(),
+                                       errno);
                 }
             }
         }
@@ -694,6 +741,7 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
                                     const ModifiedMemoryFunc& handle_modified)
 {
     assert(memory_info != nullptr);
+    assert(memory_info->is_modified);
 
     bool   active_range = false;
     size_t start_index  = 0;
@@ -723,15 +771,18 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
             // enable_read_write_same_page_ is false.
             if (memory_info->status_tracker.IsActiveReadBlock(i))
             {
-                assert(memory_info->shadow_memory != nullptr);
-
-                void* page_address =
-                    static_cast<uint8_t*>(memory_info->aligned_address) + (i << system_page_pot_shift_);
-                size_t segment_size = GetMemorySegmentSize(memory_info, i);
-
                 memory_info->status_tracker.SetActiveReadBlock(i, false);
 
-                SetMemoryProtection(page_address, segment_size, kGuardReadWriteProtect);
+                if (protection_mode_ == kMProtectMode)
+                {
+                    assert(memory_info->shadow_memory != nullptr);
+
+                    void* page_address =
+                        static_cast<uint8_t*>(memory_info->aligned_address) + (i << system_page_pot_shift_);
+                    size_t segment_size = GetMemorySegmentSize(memory_info, i);
+
+                    SetMemoryProtection(page_address, segment_size, kGuardReadWriteProtect);
+                }
             }
 
             // If the previous pages were modified by a write operation, process the modified range now.
@@ -777,7 +828,16 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
         // Page guard was disabled when these pages were accessed.  We enable it now for write, to
         // trap any writes made to the memory while we are performing the copy from shadow memory
         // to mapped memory.
-        SetMemoryProtection(guard_address, guard_range, kGuardReadOnlyProtect);
+        if (kMProtectMode == protection_mode_)
+        {
+            SetMemoryProtection(guard_address, guard_range, kGuardReadOnlyProtect);
+        }
+        else if (kUserFaultFdMode == protection_mode_)
+        {
+            assert(memory_info->aligned_address == memory_info->shadow_memory);
+            // uffd requires page aligned addresses and sizes.
+            UffdUnregisterMemory(guard_address, page_count << system_page_pot_shift_);
+        }
 
         // Copy from shadow memory to the original mapped memory.
         if (start_index == 0)
@@ -797,8 +857,15 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
         // the memory range.
         handle_modified(memory_id, memory_info->shadow_memory, page_offset, page_range);
 
-        // Reset page guard to detect both read and write accesses when using shadow memory.
-        SetMemoryProtection(guard_address, guard_range, kGuardReadWriteProtect);
+        if (kMProtectMode == protection_mode_)
+        {
+            // Reset page guard to detect both read and write accesses when using shadow memory.
+            SetMemoryProtection(guard_address, guard_range, kGuardReadWriteProtect);
+        }
+        else if (kUserFaultFdMode == protection_mode_)
+        {
+            UffdResetRegion(guard_address, page_range);
+        }
     }
     else
     {
@@ -806,8 +873,11 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
         {
             void* guard_address = static_cast<uint8_t*>(memory_info->aligned_address) + page_offset;
 
-            // Reset page guard to detect only write accesses when not using shadow memory.
-            SetMemoryProtection(guard_address, page_range, kGuardReadOnlyProtect);
+            if (kMProtectMode == protection_mode_)
+            {
+                // Reset page guard to detect only write accesses when not using shadow memory.
+                SetMemoryProtection(guard_address, page_range, kGuardReadOnlyProtect);
+            }
         }
 
         // Copy directly from the mapped memory.
@@ -890,7 +960,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
             {
                 aligned_address = shadow_memory;
 
-                if (enable_copy_on_map_)
+                if (enable_copy_on_map_ && kUserFaultFdMode != protection_mode_)
                 {
                     MemoryCopy(shadow_memory, mapped_memory, mapped_range);
                 }
@@ -929,7 +999,23 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
     if (aligned_address != nullptr)
     {
-        size_t guard_range       = mapped_range + aligned_offset;
+        size_t guard_range = mapped_range + aligned_offset;
+
+        // Userfaultfd requires the registered region to be multiples of the page size
+        if (kUserFaultFdMode == protection_mode_ && guard_range != GetAlignedSize(guard_range))
+        {
+            if (!use_shadow_memory)
+            {
+                assert(shadow_memory == nullptr);
+                GFXRECON_LOG_WARNING("Registering an externally allocated memory region to uffd using a range (%zu) "
+                                     "greater than the requested/original size (%zu).",
+                                     GetAlignedSize(guard_range),
+                                     guard_range);
+            }
+
+            guard_range = GetAlignedSize(guard_range);
+        }
+
         size_t total_pages       = guard_range >> system_page_pot_shift_;
         size_t last_segment_size = guard_range & (system_page_size_ - 1); // guard_range % system_page_size_
 
@@ -990,24 +1076,31 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
             start_address = shadow_memory;
         }
 
-        std::lock_guard<std::mutex> lock(tracked_memory_lock_);
-
         if (!use_write_watch)
         {
-            AddExceptionHandler();
-
-            // When using shadow memory, enable page guard for read and write operations so that shadow memory can be
-            // synchronized with the mapped memory on both read and write access.  When not using shadow memory, only
-            // detect write access.
-            if (use_shadow_memory)
+            if (kMProtectMode == protection_mode_)
             {
-                success = SetMemoryProtection(aligned_address, guard_range, kGuardReadWriteProtect);
+                AddExceptionHandler();
+
+                // When using shadow memory, enable page guard for read and write operations so that shadow memory can
+                // be synchronized with the mapped memory on both read and write access.  When not using shadow memory,
+                // only detect write access.
+                if (use_shadow_memory)
+                {
+                    success = SetMemoryProtection(aligned_address, guard_range, kGuardReadWriteProtect);
+                }
+                else
+                {
+                    success = SetMemoryProtection(aligned_address, guard_range, kGuardReadOnlyProtect);
+                }
             }
             else
             {
-                success = SetMemoryProtection(aligned_address, guard_range, kGuardReadOnlyProtect);
+                success = UffdRegisterMemory(aligned_address, guard_range);
             }
         }
+
+        std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
         if (success)
         {
@@ -1033,8 +1126,15 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
             {
                 if (!use_write_watch)
                 {
-                    RemoveExceptionHandler();
-                    SetMemoryProtection(aligned_address, guard_range, kGuardNoProtect);
+                    if (kMProtectMode == protection_mode_)
+                    {
+                        RemoveExceptionHandler();
+                        SetMemoryProtection(aligned_address, guard_range, kGuardNoProtect);
+                    }
+                    else
+                    {
+                        UffdUnregisterMemory(aligned_address, guard_range);
+                    }
                 }
 
                 if (shadow_memory != nullptr)
@@ -1056,6 +1156,27 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
     return (shadow_memory != nullptr) ? shadow_memory : mapped_memory;
 }
 
+void PageGuardManager::ReleaseTrackedMemory(const MemoryInfo* memory_info)
+{
+    if (!memory_info->use_write_watch)
+    {
+        if (kMProtectMode == protection_mode_)
+        {
+            RemoveExceptionHandler();
+            SetMemoryProtection(
+                memory_info->aligned_address, memory_info->mapped_range + memory_info->aligned_offset, kGuardNoProtect);
+        }
+        else
+        {
+            UffdUnregisterMemory(memory_info->shadow_memory, memory_info->shadow_range);
+        }
+    }
+    if ((memory_info->shadow_memory != nullptr) && memory_info->own_shadow_memory)
+    {
+        FreeMemory(memory_info->shadow_memory, memory_info->shadow_range);
+    }
+}
+
 void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
@@ -1063,19 +1184,7 @@ void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
     auto entry = memory_info_.find(memory_id);
     if (entry != memory_info_.end())
     {
-        const MemoryInfo& memory_info = entry->second;
-
-        if (!memory_info.use_write_watch)
-        {
-            RemoveExceptionHandler();
-            SetMemoryProtection(
-                memory_info.aligned_address, memory_info.mapped_range + memory_info.aligned_offset, kGuardNoProtect);
-        }
-
-        if ((memory_info.shadow_memory != nullptr) && memory_info.own_shadow_memory)
-        {
-            FreeMemory(memory_info.shadow_memory, memory_info.shadow_range);
-        }
+        ReleaseTrackedMemory(&entry->second);
 
         memory_info_.erase(entry);
     }
@@ -1115,6 +1224,12 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
 
     auto entry = memory_info_.find(memory_id);
 
+    uint32_t n_threads_to_wait = 0;
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        n_threads_to_wait = UffdBlockFaultingThreads();
+    }
+
     if (entry != memory_info_.end())
     {
         auto memory_info = &entry->second;
@@ -1131,11 +1246,23 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
             ProcessEntry(entry->first, memory_info, handle_modified);
         }
     }
+
+    // Unblock threads
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        UffdUnblockFaultingThreads(n_threads_to_wait);
+    }
 }
 
 void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    uint32_t n_threads_to_wait = 0;
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        n_threads_to_wait = UffdBlockFaultingThreads();
+    }
 
     for (auto entry = memory_info_.begin(); entry != memory_info_.end(); ++entry)
     {
@@ -1153,10 +1280,18 @@ void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
             ProcessEntry(entry->first, memory_info, handle_modified);
         }
     }
+
+    // Unblock threads
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        UffdUnblockFaultingThreads(n_threads_to_wait);
+    }
 }
 
 bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bool clear_guard)
 {
+    assert(protection_mode_ == kMProtectMode);
+
     MemoryInfo* memory_info = nullptr;
 
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);

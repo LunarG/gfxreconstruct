@@ -31,6 +31,7 @@
 
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -41,13 +42,28 @@ typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
+enum class SkipGetFenceStatus
+{
+    NoSkip,
+    SkipUnsuccessful,
+    SkipAll,
+    COUNT
+};
+
+// Default color attachment index selection for dump resources feature.
+// This default value essentially defines to dump all attachments.
+static constexpr int kUnspecifiedColorAttachment = -1;
+
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
     bool                         skip_failed_allocations{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };
+    bool                         use_colorspace_fallback{ false };
+    bool                         offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
+    bool                         virtual_swapchain_skip_blit{ false };
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
@@ -58,6 +74,33 @@ struct VulkanReplayOptions : public ReplayOptions
     uint32_t                     screenshot_width, screenshot_height;
     float                        screenshot_scale;
     std::string                  replace_dir;
+    SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
+    std::vector<util::UintRange> skip_get_fence_ranges;
+    bool                         wait_before_present{ false };
+
+    // Dumping resources related configurable replay options
+    std::vector<uint64_t>                           BeginCommandBuffer_Indices;
+    std::vector<std::vector<uint64_t>>              Draw_Indices;
+    std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
+    std::vector<std::vector<uint64_t>>              Dispatch_Indices;
+    std::vector<std::vector<uint64_t>>              TraceRays_Indices;
+    std::unordered_set<uint64_t>                    QueueSubmit_Indices;
+    std::string                                     dump_resources;
+    std::string                                     dump_resources_output_dir;
+    util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
+
+    // Flag to quickly check whether the feature is enabled or not
+    bool  dumping_resources{ false };
+    bool  dump_resources_before{ false };
+    bool  dump_resources_dump_depth{ false };
+    int   dump_resources_color_attachment_index{ kUnspecifiedColorAttachment };
+    float dump_resources_scale{ 1.0f };
+    bool  dump_resources_dump_vertex_index_buffer{ false };
+    bool  dump_resources_json_per_command{ false };
+    bool  dump_resources_dump_immutable_resources{ false };
+    bool  dump_resources_dump_all_image_subresources{ false };
+
+    bool preload_measurement_range{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

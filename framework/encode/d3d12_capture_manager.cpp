@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -35,44 +35,55 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 static constexpr char kDx12RuntimeName[] = "D3D12Core.dll";
 
-D3D12CaptureManager*  D3D12CaptureManager::instance_   = nullptr;
+D3D12CaptureManager*  D3D12CaptureManager::singleton_  = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
 D3D12CaptureManager::D3D12CaptureManager() :
-    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
+    ApiCaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
     debug_layer_enabled_(false), debug_device_lost_enabled_(false),
     track_enable_debug_layer_object_id_(format::kNullHandleId), frame_buffer_renderer_(nullptr)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
 {
-    bool ret = CaptureManager::CreateInstance([]() -> CaptureManager* { return instance_; },
-                                              []() {
-                                                  assert(instance_ == nullptr);
-                                                  instance_ = new D3D12CaptureManager();
-                                              },
-                                              []() {
-                                                  if (instance_)
-                                                  {
-                                                      delete instance_;
-                                                      instance_ = nullptr;
-                                                  }
-                                              });
-    if (instance_->IsAnnotated() == true && instance_->resource_value_annotator_ == nullptr)
+    bool ret = CommonCaptureManager::CreateInstance<D3D12CaptureManager>();
+
+    GFXRECON_ASSERT(singleton_);
+
+    if (singleton_->IsAnnotated() == true && singleton_->resource_value_annotator_ == nullptr)
     {
-        instance_->resource_value_annotator_ = std::make_unique<Dx12ResourceValueAnnotator>();
+        singleton_->resource_value_annotator_ = std::make_unique<Dx12ResourceValueAnnotator>();
     }
     return ret;
 }
 
+D3D12CaptureManager* D3D12CaptureManager::InitSingleton()
+{
+    if (!singleton_)
+    {
+        singleton_ = new D3D12CaptureManager();
+    }
+    return singleton_;
+}
+
+void D3D12CaptureManager::DestroySingleton()
+{
+    if (singleton_)
+    {
+        delete singleton_;
+        singleton_ = nullptr;
+    }
+}
+
 void D3D12CaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
+    GFXRECON_ASSERT(singleton_ && singleton_->common_manager_);
+    singleton_->common_manager_->DestroyInstance(singleton_);
 }
 
 void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    if (IsCaptureModeTrack() && SUCCEEDED(result))
     {
         if ((handle != nullptr) && (*handle != nullptr))
         {
@@ -92,7 +103,7 @@ void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, v
 #ifdef GFXRECON_AGS_SUPPORT
 void D3D12CaptureManager::EndAgsApiCallCapture(HRESULT result, void* object_ptr)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         if (SUCCEEDED(result))
         {
@@ -110,7 +121,7 @@ void D3D12CaptureManager::EndAgsApiCallCapture(HRESULT result, void* object_ptr)
 
 void D3D12CaptureManager::EndAgsApiCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         assert(state_tracker_ != nullptr);
 
@@ -129,7 +140,7 @@ void D3D12CaptureManager::EndAgsApiCallCapture(ID3D12GraphicsCommandList_Wrapper
 void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                                                ID3D12Device_Wrapper*       create_object_wrapper)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (dest_descriptor.ptr != 0))
+    if (IsCaptureModeTrack() && (dest_descriptor.ptr != 0))
     {
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
@@ -145,7 +156,7 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
 
 void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         assert(state_tracker_ != nullptr);
 
@@ -160,7 +171,7 @@ void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrap
 
 void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
 {
-    Dx12StateWriter state_writer(file_stream, compressor_.get(), thread_id);
+    Dx12StateWriter state_writer(file_stream, GetCompressor(), thread_id);
     state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }
 
@@ -195,7 +206,7 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
             info->child_images.resize(image_count);
             info->swap_effect = swap_effect;
 
-            if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+            if (IsCaptureModeTrack())
             {
                 // TODO: In VK version, this thing is done in InitializeGroupObjectState,
                 //       This might need to be removed to InitializeGroupObjectState when it's ready.
@@ -277,7 +288,7 @@ void D3D12CaptureManager::ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
 
         PreAcquireSwapChainImages(wrapper, nullptr, final_buffer_count, info->swap_effect);
 
-        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        if (IsCaptureModeTrack())
         {
             state_tracker_->TrackResizeBuffers(
                 wrapper, format::ApiCall_IDXGISwapChain_ResizeBuffers, GetThreadData()->parameter_buffer_.get());
@@ -349,7 +360,8 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
 
         auto layouts = std::make_unique<D3D12_PLACED_SUBRESOURCE_FOOTPRINT[]>(num_subresources);
 
-        device->GetCopyableFootprints(&full_desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
+        graphics::dx12::RobustGetCopyableFootprint(
+            device, resource, &full_desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
 
         info->num_subresources    = num_subresources;
         info->mapped_subresources = std::make_unique<MappedSubresource[]>(num_subresources);
@@ -362,7 +374,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                 layouts[i].Footprint.Depth;
         }
     }
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, false);
     }
@@ -382,7 +394,7 @@ void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(ID3D12Resource_W
     info->subresource_sizes    = std::make_unique<uint64_t[]>(info->num_subresources);
     info->subresource_sizes[0] = 0;
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, true);
     }
@@ -418,7 +430,7 @@ bool D3D12CaptureManager::IsAccelerationStructureResource(format::HandleId id)
 void D3D12CaptureManager::CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id)
 {
     // Report that write watch was ignored because the application enabled it.
-    if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+    if (IsPageGuardMemoryModeExternal() &&
         ((flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
     {
         GFXRECON_LOG_WARNING(
@@ -432,7 +444,7 @@ bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE         type,
                                         D3D12_HEAP_FLAGS        flags,
                                         D3D12_CPU_PAGE_PROPERTY page_property)
 {
-    if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+    if (IsPageGuardMemoryModeExternal() &&
         ((flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) != D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) &&
         IsUploadResource(type, page_property))
     {
@@ -584,8 +596,8 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
                                                      swapchain_info->command_queue,
                                                      swapchain,
                                                      GetCurrentFrame(),
-                                                     screenshot_prefix_,
-                                                     screenshot_format_);
+                                                     common_manager_->GetScreenshotPrefix(),
+                                                     common_manager_->GetScreenshotFormat());
         }
         else
         {
@@ -595,16 +607,20 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
     }
 }
 
-void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
+void D3D12CaptureManager::PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                      IDXGISwapChain_Wrapper*                                swapchain_wrapper,
+                                      UINT                                                   flags)
 {
-    EndFrame();
+    if ((flags & DXGI_PRESENT_TEST) == 0)
+    {
+        EndFrame(current_lock);
+    }
 }
 
 void D3D12CaptureManager::PreProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
                                                             UINT                    sync_interval,
                                                             UINT                    flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
 
@@ -616,7 +632,6 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wra
                                                               UINT                           present_flags,
                                                               const DXGI_PRESENT_PARAMETERS* present_parameters)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
@@ -624,32 +639,32 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wra
     PrePresent(wrapper);
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
-                                                             HRESULT                 result,
-                                                             UINT                    sync_interval,
-                                                             UINT                    flags)
+void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    IDXGISwapChain_Wrapper*                                wrapper,
+    HRESULT                                                result,
+    UINT                                                   sync_interval,
+    UINT                                                   flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
 
-    PostPresent(wrapper);
+    PostPresent(current_lock, wrapper, flags);
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
-                                                               HRESULT                        result,
-                                                               UINT                           sync_interval,
-                                                               UINT                           present_flags,
-                                                               const DXGI_PRESENT_PARAMETERS* present_parameters)
+void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    IDXGISwapChain_Wrapper*                                wrapper,
+    HRESULT                                                result,
+    UINT                                                   sync_interval,
+    UINT                                                   present_flags,
+    const DXGI_PRESENT_PARAMETERS*                         present_parameters)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
-    GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
 
-    PostPresent(wrapper);
+    PostPresent(current_lock, wrapper, present_flags);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
@@ -740,8 +755,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
         info->descriptor_increment = increment;
 
-        size_t offset    = 0;
-        auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        size_t                      offset    = 0;
+        auto                        cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         D3D12_GPU_DESCRIPTOR_HANDLE gpu_start{ 0 };
 
         // D3D12 validation layer states GetGPUDescriptorHandleForHeapStart() should only be used for heaps
@@ -932,6 +947,44 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateReservedResource2(
+    ID3D12Device10_Wrapper*         wrapper,
+    HRESULT                         result,
+    const D3D12_RESOURCE_DESC*      desc,
+    D3D12_BARRIER_LAYOUT            initial_layout,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    UINT32                          num_castable_formats,
+    const DXGI_FORMAT*              castable_formats,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     D3D12_HEAP_TYPE_DEFAULT,
+                                     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+                                     D3D12_MEMORY_POOL_UNKNOWN,
+                                     D3D12_RESOURCE_STATE_COMMON,
+                                     false,
+                                     nullptr,
+                                     0);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                                                const void*            address,
                                                                                REFIID                 riid,
@@ -941,14 +994,15 @@ void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(I
     GFXRECON_UNREFERENCED_PARAMETER(riid);
     GFXRECON_UNREFERENCED_PARAMETER(heap);
 
-    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    if (IsCaptureModeWrite())
     {
         MEMORY_BASIC_INFORMATION info{};
 
         auto result = VirtualQuery(address, &info, sizeof(info));
         if (result > 0)
         {
-            WriteCreateHeapAllocationCmd(reinterpret_cast<uint64_t>(address), info.RegionSize);
+            common_manager_->WriteCreateHeapAllocationCmd(
+                api_family_, reinterpret_cast<uint64_t>(address), info.RegionSize);
         }
         else
         {
@@ -965,7 +1019,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device3_OpenExistingHeapFromAddress(
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         if (SUCCEEDED(result) && (heap != nullptr) && ((*heap) != nullptr))
         {
@@ -1075,6 +1129,49 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateCommittedResource3(
+    ID3D12Device10_Wrapper*         wrapper,
+    HRESULT                         result,
+    const D3D12_HEAP_PROPERTIES*    heap_properties,
+    D3D12_HEAP_FLAGS                heap_flags,
+    const D3D12_RESOURCE_DESC1*     desc,
+    D3D12_BARRIER_LAYOUT            initial_layout,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    UINT32                          num_castable_formats,
+    const DXGI_FORMAT*              castable_formats,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap_properties != nullptr) && (desc != nullptr) &&
+        (resource != nullptr) && ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     heap_properties->Type,
+                                     heap_properties->CPUPageProperty,
+                                     heap_properties->MemoryPoolPreference,
+                                     D3D12_RESOURCE_STATE_COMMON,
+                                     UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
+                                     nullptr,
+                                     0);
+
+        CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
     ID3D12Device8_Wrapper*      wrapper,
     HRESULT                     result,
@@ -1113,6 +1210,49 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreatePlacedResource2(
+    ID3D12Device10_Wrapper*     wrapper,
+    HRESULT                     result,
+    ID3D12Heap*                 heap,
+    UINT64                      heap_offset,
+    const D3D12_RESOURCE_DESC1* desc,
+    D3D12_BARRIER_LAYOUT        initial_layout,
+    const D3D12_CLEAR_VALUE*    optimized_clear_value,
+    UINT32                      num_castable_formats,
+    const DXGI_FORMAT*          castable_formats,
+    REFIID                      riid,
+    void**                      resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+        auto heap_info        = heap_wrapper->GetObjectInfo();
+        assert(heap_info != nullptr);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     heap_info->heap_type,
+                                     heap_info->page_property,
+                                     heap_info->memory_pool,
+                                     D3D12_RESOURCE_STATE_COMMON,
+                                     heap_info->has_write_watch,
+                                     heap_wrapper,
+                                     heap_offset);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
     ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data)
 {
@@ -1132,7 +1272,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
             {
                 auto& mapped_subresource = info->mapped_subresources[subresource];
 
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 if (++mapped_subresource.map_count == 1)
                 {
                     mapped_subresource.data = (*data);
@@ -1153,7 +1293,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                             use_shadow_memory = false;
                             use_write_watch   = true;
                         }
-                        else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
+                        else if (IsPageGuardMemoryModeShadowPersistent() &&
                                  (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                         {
                             mapped_subresource.shadow_allocation =
@@ -1221,7 +1361,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
             {
                 auto& mapped_subresource = info->mapped_subresources[subresource];
 
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 if (++mapped_subresource.map_count == 1)
                 {
                     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -1253,7 +1393,7 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
             if (mapped_subresource.data != nullptr)
             {
                 // Handle first case, when mapped_subresource.data != null (like we've always done):
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 if (mapped_subresource.map_count > 0)
                 {
                     if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
@@ -1339,7 +1479,7 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
                 // WriteToSubresource."
                 //
                 // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-map
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 if (mapped_subresource.map_count > 0)
                 {
                     if (--mapped_subresource.map_count == 0)
@@ -1386,7 +1526,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Res
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
 
-    if (SUCCEEDED(result) && (heap_flags != nullptr) && (GetPageGuardMemoryMode() == kMemoryModeExternal))
+    if (SUCCEEDED(result) && (heap_flags != nullptr) && (IsPageGuardMemoryModeExternal()))
     {
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
@@ -1413,7 +1553,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Res
 void D3D12CaptureManager::PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
                                                                           D3D12_GPU_VIRTUAL_ADDRESS result)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result != 0))
+    if (IsCaptureModeTrack() && (result != 0))
     {
         state_tracker_->TrackResourceGpuVa(wrapper, result);
     }
@@ -1428,7 +1568,7 @@ bool D3D12CaptureManager::AddFillMemoryResourceValueCommand(
     const std::map<uint64_t, Dx12ResourceValueAnnotator::Dx12FillCommandResourceValue>& resource_values)
 {
     bool success = true;
-    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    if (IsCaptureModeWrite())
     {
         std::vector<uint8_t>                         write_buffer;
         format::FillMemoryResourceValueCommandHeader rv_header;
@@ -1468,10 +1608,10 @@ bool D3D12CaptureManager::AddFillMemoryResourceValueCommand(
 
         std::vector<uint8_t> compressed_write_buffer;
 
-        if (compressor_ != nullptr)
+        if (GetCompressor() != nullptr)
         {
             size_t compressed_size =
-                compressor_->Compress(write_buffer.size(), write_buffer.data(), &compressed_write_buffer, 0);
+                GetCompressor()->Compress(write_buffer.size(), write_buffer.data(), &compressed_write_buffer, 0);
 
             if ((compressed_size > 0) && (compressed_size < uncompressed_size))
             {
@@ -1548,7 +1688,7 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
             {
                 // If any subresources were mapped, the resource wrapper needs to be removed from the mapped resource
                 // table.
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_resources_.erase(wrapper);
             }
         }
@@ -1559,7 +1699,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wra
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
 
-    if ((GetPageGuardMemoryMode() == kMemoryModeExternal))
+    if (IsPageGuardMemoryModeExternal())
     {
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
@@ -1577,9 +1717,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wra
     }
 }
 
-void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                            UINT                        num_lists,
-                                                                            ID3D12CommandList* const*   lists)
+void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
@@ -1601,7 +1743,7 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
-        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+        std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
         for (auto resource_wrapper : mapped_resources_)
         {
             auto info = resource_wrapper->GetObjectInfo();
@@ -1630,16 +1772,18 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
         }
     }
 
-    PreQueueSubmit();
+    PreQueueSubmit(current_lock);
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                             UINT                        num_lists,
-                                                                             ID3D12CommandList* const*   lists)
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
-    PostQueueSubmit();
+    PostQueueSubmit(current_lock);
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackExecuteCommandLists(wrapper, num_lists, lists);
     }
@@ -1656,7 +1800,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_Ge
 
     result.ptr = reinterpret_cast<size_t>(info->descriptor_memory.get());
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         info->cpu_start = result.ptr;
     }
@@ -1673,7 +1817,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_Ge
 
     auto result = heap->GetGPUDescriptorHandleForHeapStart();
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         info->gpu_start = result.ptr;
     }
@@ -1799,6 +1943,54 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                             ppv_resource);
 }
 
+HRESULT
+D3D12CaptureManager::OverrideID3D12Device10_CreateCommittedResource3(ID3D12Device10_Wrapper*      wrapper,
+                                                                     const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                     D3D12_HEAP_FLAGS             heap_flags,
+                                                                     const D3D12_RESOURCE_DESC1*  desc,
+                                                                     D3D12_BARRIER_LAYOUT         initial_layout,
+                                                                     const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                                     ID3D12ProtectedResourceSession* protected_session,
+                                                                     UINT32             num_castable_formats,
+                                                                     const DXGI_FORMAT* castable_formats,
+                                                                     REFIID             riid_resource,
+                                                                     void**             ppv_resource)
+{
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device10>();
+
+    if ((desc == nullptr) || (heap_properties == nullptr))
+    {
+        return E_INVALIDARG;
+    }
+    else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
+    {
+        auto properties_copy = *heap_properties;
+        EnableWriteWatch(heap_flags, properties_copy);
+
+        return device->CreateCommittedResource3(&properties_copy,
+                                                heap_flags,
+                                                desc,
+                                                initial_layout,
+                                                optimized_clear_value,
+                                                protected_session,
+                                                num_castable_formats,
+                                                castable_formats,
+                                                riid_resource,
+                                                ppv_resource);
+    }
+
+    return device->CreateCommittedResource3(heap_properties,
+                                            heap_flags,
+                                            desc,
+                                            initial_layout,
+                                            optimized_clear_value,
+                                            protected_session,
+                                            num_castable_formats,
+                                            castable_formats,
+                                            riid_resource,
+                                            ppv_resource);
+}
+
 HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                                              const D3D12_HEAP_DESC* desc,
                                                              REFIID                 riid,
@@ -1905,6 +2097,61 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     GFXRECON_UNREFERENCED_PARAMETER(pipeline_state);
 
     return E_INVALIDARG;
+}
+
+HRESULT D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper*                 factory2_wrapper,
+    IUnknown*                              pDevice,
+    HWND                                   hWnd,
+    const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+    IDXGIOutput*                           pRestrictToOutput,
+    IDXGISwapChain1**                      ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result =
+        factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                        IUnknown*                    pDevice,
+                                                                        IUnknown*                    pWindow,
+                                                                        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                        IDXGIOutput*                 pRestrictToOutput,
+                                                                        IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForCoreWindow(pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                         IUnknown*                    pDevice,
+                                                                         const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                         IDXGIOutput*                 pRestrictToOutput,
+                                                                         IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForComposition(pDevice, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
 }
 
 PFN_D3D12_GET_DEBUG_INTERFACE D3D12CaptureManager::GetDebugInterfacePtr()
@@ -2088,7 +2335,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Fence_SetEventOnCompletion(ID3D12Fen
 {
     assert(wrapper != nullptr);
 
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    if (IsCaptureModeTrack() && SUCCEEDED(result))
     {
         state_tracker_->TrackFenceSetEventOnCompletion(wrapper, value, event);
     }
@@ -2098,7 +2345,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Fence_Signal(ID3D12Fence_Wrapper* wr
 {
     assert(wrapper != nullptr);
 
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    if (IsCaptureModeTrack() && SUCCEEDED(result))
     {
         state_tracker_->TrackFenceSignal(wrapper, value);
     }
@@ -2113,7 +2360,7 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQue
 
     assert(fence != nullptr);
 
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    if (IsCaptureModeTrack() && SUCCEEDED(result))
     {
         auto fence_wrapper = reinterpret_cast<ID3D12Fence_Wrapper*>(fence);
         state_tracker_->TrackFenceSignal(fence_wrapper, value);
@@ -2124,7 +2371,7 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
                                                                                 UINT                       num_barriers,
                                                                                 const D3D12_RESOURCE_BARRIER* barriers)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackResourceBarriers(list_wrapper, num_barriers, barriers);
     }
@@ -2139,7 +2386,7 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_BuildRaytracing
     GFXRECON_UNREFERENCED_PARAMETER(num_postbuild_info_descs);
     GFXRECON_UNREFERENCED_PARAMETER(postbuild_info_descs);
 
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackBuildRaytracingAccelerationStructure(list_wrapper, desc);
     }
@@ -2151,7 +2398,7 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_CopyRaytracingA
     D3D12_GPU_VIRTUAL_ADDRESS                         source_acceleration_structure_data,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackCopyRaytracingAccelerationStructure(
             list_wrapper, dest_acceleration_structure_data, source_acceleration_structure_data, mode);
@@ -2167,10 +2414,10 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Devic
                                                                      REFIID                  riid,
                                                                      void**                  ppCommandList)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, false, type);
+        state_tracker_->TrackCommandListCreation(list_wrapper, false, type, pCommandAllocator);
     }
 }
 
@@ -2182,10 +2429,10 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
                                                                        REFIID                   riid,
                                                                        void**                   ppCommandList)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, true, type);
+        state_tracker_->TrackCommandListCreation(list_wrapper, true, type, nullptr);
     }
 }
 
@@ -2226,7 +2473,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CopyDescriptors(ID3D12Device_
                                                                    const UINT*                        src_range_sizes,
                                                                    D3D12_DESCRIPTOR_HEAP_TYPE         heap_type)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         UINT dest_range_i = 0;
         UINT src_range_i  = 0;
@@ -2271,7 +2518,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CopyDescriptorsSimple(ID3D12D
                                                                          D3D12_CPU_DESCRIPTOR_HANDLE src_start,
                                                                          D3D12_DESCRIPTOR_HEAP_TYPE  heap_type)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (num_descriptors > 0))
+    if (IsCaptureModeTrack() && (num_descriptors > 0))
     {
         auto dest_descriptor_info = GetDescriptorInfo(dest_start.ptr);
         auto src_descriptor_info  = GetDescriptorInfo(src_start.ptr);
@@ -2292,7 +2539,7 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_UpdateTileMappings(
     const UINT*                            range_tile_counts,
     D3D12_TILE_MAPPING_FLAGS               flags)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
         auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
@@ -2314,7 +2561,7 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_CopyTileMappings(
     D3D12_TILE_MAPPING_FLAGS               flags)
 {
     // TODO: Implement tracking for CopyTileMappings.
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         GFXRECON_LOG_ERROR("ID3D12CommandQueue::CopyTileMappings support is not implemented for trimmed capture.");
     }
@@ -2326,7 +2573,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateShaderResourceView(
     const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
 
@@ -2344,7 +2591,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateUnorderedAccessView(
     const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE             DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource, pCounterResource);
     }
@@ -2355,7 +2602,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateRenderTargetView(ID3D12
                                                                           const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
                                                                           D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
     }
@@ -2366,7 +2613,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12
                                                                           const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
                                                                           D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
     }
@@ -2377,7 +2624,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateConstantBufferView(
     const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         D3D12_GPU_VIRTUAL_ADDRESS address = 0;
 
@@ -2396,7 +2643,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
     ID3D12Resource*             pFeedbackResource,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pTargetedResource, pFeedbackResource);
     }
@@ -2404,7 +2651,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
 
 void D3D12CaptureManager::PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_Wrapper* debug_wrapper)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         // Track object id since ID3D12Debug could be released very soon.
         track_enable_debug_layer_object_id_ = debug_wrapper->GetCaptureId();
@@ -2413,7 +2660,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_W
 
 void D3D12CaptureManager::PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1_Wrapper* debug1_wrapper)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         // Track object id since ID3D12Debug1 could be released very soon.
         track_enable_debug_layer_object_id_ = debug1_wrapper->GetCaptureId();
@@ -2423,7 +2670,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1
 void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
     ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         track_enable_dred_info_.dred_settings1_object_id         = dred_wrapper->GetCaptureId();
         track_enable_dred_info_.set_auto_breadcrumbs_enablement_ = enablement;
@@ -2433,7 +2680,7 @@ void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_Se
 void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
     ID3D12DeviceRemovedExtendedDataSettings1_Wrapper* dred1_wrapper, D3D12_DRED_ENABLEMENT enablement)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         track_enable_dred_info_.dred_settings1_object_id           = dred1_wrapper->GetCaptureId();
         track_enable_dred_info_.set_breadcrumb_context_enablement_ = enablement;
@@ -2443,7 +2690,7 @@ void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings1_S
 void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
     ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         track_enable_dred_info_.dred_settings1_object_id   = dred_wrapper->GetCaptureId();
         track_enable_dred_info_.set_page_fault_enablement_ = enablement;
@@ -2453,7 +2700,7 @@ void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_Se
 void D3D12CaptureManager::PostProcess_SetPrivateData(
     IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, UINT DataSize, const void* pData)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackPrivateData(wrapper, Name, DataSize, pData);
     }
@@ -2465,7 +2712,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12D
                                                                          ID3D12Pageable* const*          ppObjects,
                                                                          const D3D12_RESIDENCY_PRIORITY* pPriorities)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackResidencyPriority(device_wrapper, NumObjects, ppObjects, pPriorities);
     }
@@ -2497,8 +2744,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device5_CreateStateObject(ID3D12Devi
                                                                       REFIID                         riid,
                                                                       void**                         state_object)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack && SUCCEEDED(result) && (state_object != nullptr) &&
-        (*state_object != nullptr))
+    if (IsCaptureModeTrack() && SUCCEEDED(result) && (state_object != nullptr) && (*state_object != nullptr))
     {
         state_tracker_->TrackCreateStateObject(device5_wrapper, desc, state_object);
     }
@@ -2511,8 +2757,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device7_AddToStateObject(ID3D12Devic
                                                                      REFIID             riid,
                                                                      void**             new_state_object)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack && SUCCEEDED(result) && (new_state_object != nullptr) &&
-        (*new_state_object != nullptr))
+    if (IsCaptureModeTrack() && SUCCEEDED(result) && (new_state_object != nullptr) && (*new_state_object != nullptr))
     {
         state_tracker_->TrackAddToStateObject(device7_wrapper, addition, state_object_to_grow_from, new_state_object);
     }
@@ -2521,7 +2766,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device7_AddToStateObject(ID3D12Devic
 void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
     ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if (IsCaptureModeTrack())
     {
         state_tracker_->TrackGetShaderIdentifier(
             properties_wrapper, result, export_name, GetThreadData()->parameter_buffer_.get());
@@ -2535,7 +2780,7 @@ void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdent
 
 void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc)
 {
-    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    if ((IsCaptureModeWrite()))
     {
         format::DxgiAdapterInfoCommandHeader adapter_info_header;
         memset(&adapter_info_header, 0, sizeof(adapter_info_header));
@@ -2589,7 +2834,7 @@ void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Fl
 
 void D3D12CaptureManager::WriteDx12DriverInfo()
 {
-    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    if (IsCaptureModeWrite())
     {
         std::string       driverinfo = "";
         std::vector<LUID> adapter_luids;
@@ -2605,7 +2850,7 @@ void D3D12CaptureManager::WriteDx12DriverInfo()
 
 void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
 {
-    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    if ((IsCaptureModeWrite()))
     {
         format::DriverInfoBlock driver_info_header = {};
 
@@ -2626,7 +2871,7 @@ void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
 
 void D3D12CaptureManager::WriteDx12RuntimeInfo()
 {
-    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    if (IsCaptureModeWrite())
     {
         static bool wrote_dx12_runtime_info = false;
 
@@ -2674,7 +2919,7 @@ void D3D12CaptureManager::WriteDx12RuntimeInfo()
 
 void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeInfo& runtime_info)
 {
-    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    if ((IsCaptureModeWrite()))
     {
         format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
         memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
@@ -2695,6 +2940,19 @@ void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeIn
                                    sizeof(runtime_info));
 
         WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
+    }
+}
+
+void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain)
+{
+    if (width == 0 || height == 0)
+    {
+        DXGI_SWAP_CHAIN_DESC1 swapchain_desc;
+        if (swapchain != NULL)
+        {
+            swapchain->GetDesc1(&swapchain_desc);
+            WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
+        }
     }
 }
 

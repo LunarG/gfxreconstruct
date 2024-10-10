@@ -48,13 +48,13 @@ class FileOutputStream : public OutputStream
 
     /// @brief Change from current file to a new one, closing the old only if it was owned.
     /// @param file The new file to stream writes into.
-    void Reset(FILE* file);
+    virtual void Reset(FILE* file);
 
     virtual ~FileOutputStream() override;
 
     virtual bool IsValid() override { return (file_ != nullptr); }
 
-    virtual size_t Write(const void* data, size_t len) override;
+    virtual bool Write(const void* data, size_t len) override;
 
     virtual void Flush() override { platform::FileFlush(file_); }
 
@@ -75,7 +75,7 @@ class FileNoLockOutputStream : public FileOutputStream
     {}
     FileNoLockOutputStream(FILE* file, bool owned = false) : FileOutputStream(file, owned) {}
 
-    virtual size_t Write(const void* data, size_t len) override;
+    virtual bool Write(const void* data, size_t len) override;
 };
 
 GFXRECON_END_NAMESPACE(util)

@@ -35,6 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class MetadataConsumerBase
 {
   public:
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
     virtual void
@@ -103,6 +104,11 @@ class MetadataConsumerBase
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data)
     {}
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index) {}
+
+  protected:
+    uint64_t block_index_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -47,7 +47,7 @@ typedef void*          HMONITOR;
 // Define a version of the WIN32 SECURITY_ATTRIBUTES struct that
 // is suitable for decoding on non-WIN32 platforms.
 typedef uint32_t DWORD;
-typedef int32_t  BOOL;
+// typedef int32_t  BOOL; // Conflicts with objective-c declaration on macOS
 typedef void*    LPVOID;
 typedef uint8_t  BYTE;
 typedef uint16_t WORD;
@@ -93,7 +93,7 @@ struct SECURITY_ATTRIBUTES
 {
     DWORD  nLength;
     LPVOID lpSecurityDescriptor;
-    BOOL   bInheritHandle;
+    int32_t /* BOOL */ bInheritHandle;
 };
 #endif // WIN32
 

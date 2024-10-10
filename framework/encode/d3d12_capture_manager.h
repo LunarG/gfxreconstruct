@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@
 #ifndef GFXRECON_ENCODE_D3D12_CAPTURE_MANAGER_H
 #define GFXRECON_ENCODE_D3D12_CAPTURE_MANAGER_H
 
-#include "encode/capture_manager.h"
+#include "encode/api_capture_manager.h"
 
 #include <cassert>
 #include <stdint.h>
@@ -41,14 +41,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class D3D12CaptureManager : public CaptureManager
+class D3D12CaptureManager : public ApiCaptureManager
 {
   public:
-    static D3D12CaptureManager* Get() { return instance_; }
-
+    static D3D12CaptureManager* Get() { return singleton_; }
     // Creates the capture manager instance if none exists, or increments a reference count if an instance already
     // exists.
     static bool CreateInstance();
+
+    static D3D12CaptureManager* InitSingleton();
+    static void                 DestroySingleton();
 
     // Decrement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
     // already zero.
@@ -157,7 +159,7 @@ class D3D12CaptureManager : public CaptureManager
     template <typename ParentWrapper>
     void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
     {
-        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+        if (IsCaptureModeTrack() && SUCCEEDED(result))
         {
             if ((handle != nullptr) && (*handle != nullptr))
             {
@@ -184,7 +186,7 @@ class D3D12CaptureManager : public CaptureManager
                                          GetHandlesFunc             func,
                                          GetHandlesArgs... args)
     {
-        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        if (IsCaptureModeTrack())
         {
             assert(state_tracker_ != nullptr);
 
@@ -205,7 +207,7 @@ class D3D12CaptureManager : public CaptureManager
         {
             resource_value_annotator_->RemoveObjectGPUVA(wrapper);
         }
-        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        if (IsCaptureModeTrack())
         {
             state_tracker_->RemoveEntry(wrapper);
             state_tracker_->TrackRelease(wrapper);
@@ -249,13 +251,17 @@ class D3D12CaptureManager : public CaptureManager
                                              UINT                           present_flags,
                                              const DXGI_PRESENT_PARAMETERS* present_parameters);
 
-    void
-    PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
+    void PostProcess_IDXGISwapChain_Present(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                            IDXGISwapChain_Wrapper*                                wrapper,
+                                            HRESULT                                                result,
+                                            UINT                                                   sync_interval,
+                                            UINT                                                   flags);
 
-    void PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
-                                              HRESULT                        result,
-                                              UINT                           sync_interval,
-                                              UINT                           present_flags,
+    void PostProcess_IDXGISwapChain1_Present1(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                              IDXGISwapChain_Wrapper*                                wrapper,
+                                              HRESULT                                                result,
+                                              UINT                                                   sync_interval,
+                                              UINT                                                   present_flags,
                                               const DXGI_PRESENT_PARAMETERS* present_parameters);
 
     void PreProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
@@ -340,6 +346,17 @@ class D3D12CaptureManager : public CaptureManager
                                                            REFIID                          riid,
                                                            void**                          resource);
 
+    void PostProcess_ID3D12Device10_CreateReservedResource2(ID3D12Device10_Wrapper*         wrapper,
+                                                            HRESULT                         result,
+                                                            const D3D12_RESOURCE_DESC*      desc,
+                                                            D3D12_BARRIER_LAYOUT            initial_layout,
+                                                            const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                            ID3D12ProtectedResourceSession* protected_session,
+                                                            UINT32                          num_castable_formats,
+                                                            const DXGI_FORMAT*              castable_formats,
+                                                            REFIID                          riid,
+                                                            void**                          resource);
+
     void PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                               const void*            address,
                                                               REFIID                 riid,
@@ -377,6 +394,19 @@ class D3D12CaptureManager : public CaptureManager
                                                             REFIID                          riid,
                                                             void**                          resource);
 
+    void PostProcess_ID3D12Device10_CreateCommittedResource3(ID3D12Device10_Wrapper*         wrapper,
+                                                             HRESULT                         result,
+                                                             const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                             D3D12_HEAP_FLAGS                heap_flags,
+                                                             const D3D12_RESOURCE_DESC1*     desc,
+                                                             D3D12_BARRIER_LAYOUT            initial_layout,
+                                                             const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                             ID3D12ProtectedResourceSession* protected_session,
+                                                             UINT32                          num_castable_formats,
+                                                             const DXGI_FORMAT*              castable_formats,
+                                                             REFIID                          riid,
+                                                             void**                          resource);
+
     void PostProcess_ID3D12Device8_CreatePlacedResource1(ID3D12Device8_Wrapper*      wrapper,
                                                          HRESULT                     result,
                                                          ID3D12Heap*                 heap,
@@ -386,6 +416,18 @@ class D3D12CaptureManager : public CaptureManager
                                                          const D3D12_CLEAR_VALUE*    optimized_clear_value,
                                                          REFIID                      riid,
                                                          void**                      resource);
+
+    void PostProcess_ID3D12Device10_CreatePlacedResource2(ID3D12Device10_Wrapper*     wrapper,
+                                                          HRESULT                     result,
+                                                          ID3D12Heap*                 heap,
+                                                          UINT64                      heap_offset,
+                                                          const D3D12_RESOURCE_DESC1* desc,
+                                                          D3D12_BARRIER_LAYOUT        initial_layout,
+                                                          const D3D12_CLEAR_VALUE*    optimized_clear_value,
+                                                          UINT32                      num_castable_formats,
+                                                          const DXGI_FORMAT*          castable_formats,
+                                                          REFIID                      riid,
+                                                          void**                      resource);
 
     void PostProcess_ID3D12Resource_Map(
         ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data);
@@ -406,13 +448,17 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
 
-    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                           UINT                        num_lists,
-                                                           ID3D12CommandList* const*   lists);
+    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+        ID3D12CommandQueue_Wrapper*                            wrapper,
+        UINT                                                   num_lists,
+        ID3D12CommandList* const*                              lists);
 
-    void PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                            UINT                        num_lists,
-                                                            ID3D12CommandList* const*   lists);
+    void PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+        ID3D12CommandQueue_Wrapper*                            wrapper,
+        UINT                                                   num_lists,
+        ID3D12CommandList* const*                              lists);
 
     void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
@@ -598,6 +644,18 @@ class D3D12CaptureManager : public CaptureManager
                                                           REFIID                          riid_resource,
                                                           void**                          ppv_resource);
 
+    HRESULT OverrideID3D12Device10_CreateCommittedResource3(ID3D12Device10_Wrapper*         wrapper,
+                                                            const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                            D3D12_HEAP_FLAGS                heap_flags,
+                                                            const D3D12_RESOURCE_DESC1*     desc,
+                                                            D3D12_BARRIER_LAYOUT            initial_layout,
+                                                            const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                            ID3D12ProtectedResourceSession* protected_session,
+                                                            UINT32                          num_castable_formats,
+                                                            const DXGI_FORMAT*              castable_formats,
+                                                            REFIID                          riid_resource,
+                                                            void**                          ppv_resource);
+
     HRESULT OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                             const D3D12_HEAP_DESC* desc,
                                             REFIID                 riid,
@@ -636,6 +694,27 @@ class D3D12CaptureManager : public CaptureManager
                                                      D3D12_FEATURE         feature,
                                                      void*                 feature_support_data,
                                                      UINT                  feature_support_data_size);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForHwnd(IDXGIFactory2_Wrapper*                 factory2_wrapper,
+                                                         IUnknown*                              pDevice,
+                                                         HWND                                   hWnd,
+                                                         const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+                                                         const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+                                                         IDXGIOutput*                           pRestrictToOutput,
+                                                         IDXGISwapChain1**                      ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                               IUnknown*                    pDevice,
+                                                               IUnknown*                    pWindow,
+                                                               const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                               IDXGIOutput*                 pRestrictToOutput,
+                                                               IDXGISwapChain1**            ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                IUnknown*                    pDevice,
+                                                                const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                IDXGIOutput*                 pRestrictToOutput,
+                                                                IDXGISwapChain1**            ppSwapChain);
 
     void OverrideGetRaytracingAccelerationStructurePrebuildInfo(
         ID3D12Device5_Wrapper*                                      device5_wrapper,
@@ -685,10 +764,14 @@ class D3D12CaptureManager : public CaptureManager
     bool AddFillMemoryResourceValueCommand(
         const std::map<uint64_t, Dx12ResourceValueAnnotator::Dx12FillCommandResourceValue>& resource_values);
 
+    void SetAgsVersion(int ags_version) { ags_version_ = ags_version; }
+
+    int GetAgsVersion() { return ags_version_; }
+
   protected:
     D3D12CaptureManager();
 
-    virtual ~D3D12CaptureManager() override {}
+    virtual ~D3D12CaptureManager() {}
 
     virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<Dx12StateTracker>(); }
 
@@ -731,18 +814,23 @@ class D3D12CaptureManager : public CaptureManager
     bool     IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
+    void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
     bool                          RvAnnotationActive();
 
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);
-    static D3D12CaptureManager*       instance_;
+    void                              PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                  IDXGISwapChain_Wrapper*                                wrapper,
+                                                  UINT                                                   flags);
+
+    static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
+    int                ags_version_{};        ///< ags version.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.

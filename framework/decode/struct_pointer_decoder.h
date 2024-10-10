@@ -199,7 +199,7 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
             size_t len       = GetLength();
             struct_memory_   = DecodeAllocator::Allocate<typename T::struct_type*>(len, false);
             decoded_structs_ = DecodeAllocator::Allocate<T*>(len, false);
-
+            inner_lens_.resize(len);
             for (size_t i = 0; i < len; ++i)
             {
                 uint32_t attrib = 0;
@@ -217,15 +217,14 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
 
                     assert((attrib & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct);
 
-                    size_t inner_len = 0;
-                    bytes_read +=
-                        ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &inner_len);
+                    bytes_read += ValueDecoder::DecodeSizeTValue(
+                        (buffer + bytes_read), (buffer_size - bytes_read), &inner_lens_[i]);
 
                     typename T::struct_type* inner_struct_memory =
-                        DecodeAllocator::Allocate<typename T::struct_type>(inner_len);
-                    T* inner_decoded_structs = DecodeAllocator::Allocate<T>(inner_len);
+                        DecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
+                    T* inner_decoded_structs = DecodeAllocator::Allocate<T>(inner_lens_[i]);
 
-                    for (size_t j = 0; j < inner_len; ++j)
+                    for (size_t j = 0; j < inner_lens_[i]; ++j)
                     {
                         inner_decoded_structs[j].decoded_value = &inner_struct_memory[j];
                         // Note: We only expect this class to be used with structs that have a decode_struct function.
@@ -249,8 +248,11 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
         return bytes_read;
     }
 
+    size_t GetInnerLength(size_t index) const { return inner_lens_[index]; }
+
   private:
     T**                       decoded_structs_; ///< Memory to hold decoded data.
+    std::vector<size_t>       inner_lens_;
     typename T::struct_type** struct_memory_;   ///< Decoded Vulkan structures.
 };
 

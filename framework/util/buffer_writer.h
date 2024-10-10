@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2020 Valve Corporation
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,25 +20,21 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "util/hash.h"
+#ifndef GFXRECON_UTIL_BUFFER_WRITER_H
+#define GFXRECON_UTIL_BUFFER_WRITER_H
+
+#include "util/defines.h"
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
-GFXRECON_BEGIN_NAMESPACE(hash)
+GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-uint32_t CheckSum(const uint32_t* code, size_t code_size)
-{
-    uint32_t sum            = 0;
-    size_t   uint_code_size = code_size / sizeof(uint32_t);
-    for (size_t i = 0; i < uint_code_size; i++)
-    {
-        uint32_t u = code[i];
-        uint32_t s = i % 32;
-        sum ^= (u << s) | (u >> (32 - s));
-    }
-    return sum;
-}
+bool WriteBuffer(const std::string& filename, const void* data, size_t size);
 
-GFXRECON_END_NAMESPACE(hash)
-GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(bufferwriter)
+
+#endif /* GFXRECON_UTIL_BUFFER_WRITER_H */
