@@ -125,7 +125,11 @@ struct SECURITY_ATTRIBUTES
 {
     DWORD  nLength;
     LPVOID lpSecurityDescriptor;
+#ifndef __APPLE__
     BOOL   bInheritHandle;
+#else  /* __APPLE__ */
+    int32_t bInheritHandle;
+#endif /* ifndef __APPLE__ */
 };
 
 struct GUID
