@@ -186,19 +186,25 @@ class ApiDecoder
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data) = 0;
 
-    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
+    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) {};
 
-    virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
+    virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) {};
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index){};
+    virtual void SetCurrentBlockIndex(uint64_t block_index) {};
 
-    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
+    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) {};
 
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
-                                                        const std::vector<format::HandleId>& blases){};
+                                                        const std::vector<format::HandleId>& blases) {};
 
     virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                        const char*                             env_string){};
+                                                        const char*                             env_string) {};
+
+    virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
+                                                                      size_t         buffer_size) {};
+
+    virtual void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
+                                                                     size_t         buffer_size) {};
 };
 
 GFXRECON_END_NAMESPACE(decode)

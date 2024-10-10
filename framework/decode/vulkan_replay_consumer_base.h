@@ -189,16 +189,29 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                 format::HandleId   commandBuffer,
                                                                 StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>*
                                                                     pPushDescriptorSetWithTemplateInfo) override;
-    virtual void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                                               call_info,
-        VkResult                                                         returnValue,
-        format::HandleId                                                 device,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+    void         Process_vkCreateRayTracingPipelinesKHR(
+                const ApiCallInfo&                                               call_info,
+                VkResult                                                         returnValue,
+                format::HandleId                                                 device,
+                format::HandleId                                                 deferredOperation,
+                format::HandleId                                                 pipelineCache,
+                uint32_t                                                         createInfoCount,
+                StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+                StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+                HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+
+    void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        format::HandleId                                                           device,
+        uint32_t                                                                   info_count,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppRangeInfos,
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>&              instance_buffers_data) override;
+
+    void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+        format::HandleId device, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos) override;
+
+    void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id) override;
 
     template <typename T>
     void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)

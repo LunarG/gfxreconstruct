@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -107,8 +108,24 @@ class MetadataConsumerBase
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
+    virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        format::HandleId                                                           device_id,
+        uint32_t                                                                   info_count,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos,
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>&              instance_buffers_data)
+    {}
+
+    virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+        format::HandleId device_id, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
+    {}
+
+    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
+    {}
+
   protected:
-    uint64_t block_index_;
+    uint64_t block_index_ = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)
