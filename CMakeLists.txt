@@ -40,7 +40,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 4)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 5)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
@@ -166,15 +166,12 @@ if(MSVC)
 
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
-
-    # Add option to enable/disable D3D12 gfxrecon-convert support.
-    option(CONVERT_EXPERIMENTAL_D3D12 "Build with convert DX12 enabled" OFF)
+	
+    # Enable STL locks to work after building capture libs with certain versions of VS
+    add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
-        if(${CONVERT_EXPERIMENTAL_D3D12})
-            add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
-        endif()
 
         # Check Windows SDK version and print warning if there is a mismatch.
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
@@ -185,6 +182,7 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
+
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     endif()
@@ -211,6 +209,7 @@ if(MSVC)
             endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
         endif() # GFXRECON_AGS_SUPPORT
     endif() # D3D12_SUPPORT
+
 
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
@@ -251,6 +250,10 @@ if(NOT LZ4_FOUND)
 endif()# NOT LZ4_FOUND
 
 find_package(ZSTD)
+
+if(MSVC)
+find_package(jsoncpp)
+endif() # MSVC
 
 if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
@@ -317,10 +320,6 @@ if(BUILD_WERROR)
         target_compile_options(platform_specific INTERFACE /WX)
     else()
         target_compile_options(platform_specific INTERFACE -Werror)
-        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-            # TODO: Actually fix these warnings
-            target_compile_options(platform_specific INTERFACE -Wno-error=switch)
-        endif()
     endif()
 endif()
 
@@ -328,12 +327,22 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
+add_library(spirv_registry INTERFACE)
+target_include_directories(spirv_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
+
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )
 target_include_directories(vulkan_memory_allocator INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
+
+# SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
+set(SPIRV_REFLECT_EXAMPLES OFF)
+set(SPIRV_REFLECT_EXECUTABLE OFF)
+set(SPIRV_REFLECT_STATIC_LIB ON)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+add_subdirectory(external/SPIRV-Reflect EXCLUDE_FROM_ALL)
 
 if (${RUN_TESTS})
     add_library(catch2 INTERFACE)

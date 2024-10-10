@@ -2944,7 +2944,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_RO
             }
             case D3D_ROOT_SIGNATURE_VERSION_1_2:
             {
-                /// @todo Uncomment this once the union member is added to the decoded struct: FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
+                FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
                 GFXRECON_LOG_ERROR("Unknown D3D_ROOT_SIGNATURE_VERSION_1_2 in D3D12_VERSIONED_ROOT_SIGNATURE_DESC.");
                 break;
             }
@@ -3972,10 +3972,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_DE
             }
             case D3D12_DRED_VERSION_1_3:
             {
-                // This field was missing in the custom struct at time of writing.
-                // See issue and revise this codegen by uncommenting line below when the issue
-                // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
-                // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
+                FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
                 FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                 break;
             }

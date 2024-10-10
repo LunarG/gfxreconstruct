@@ -33,6 +33,7 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
                     $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
 )

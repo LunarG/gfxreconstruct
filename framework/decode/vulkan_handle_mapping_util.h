@@ -51,13 +51,21 @@ static typename T::HandleType MapHandle(format::HandleId             id,
         if (info != nullptr)
         {
             handle = info->handle;
+
+            if constexpr (has_handle_future_v<T>)
+            {
+                if (info->handle == VK_NULL_HANDLE && info->future.valid())
+                {
+                    const auto& [result, async_handles] = info->future.get();
+                    handle                              = async_handles[info->future_handle_index];
+                }
+            }
         }
         else
         {
             GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
         }
     }
-
     return handle;
 }
 
@@ -92,6 +100,15 @@ static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::H
                 if (info != nullptr)
                 {
                     handles[i] = info->handle;
+
+                    if constexpr (has_handle_future_v<T>)
+                    {
+                        if (info->handle == VK_NULL_HANDLE && info->future.valid())
+                        {
+                            const auto& [result, async_handles] = info->future.get();
+                            handles[i]                          = async_handles[info->future_handle_index];
+                        }
+                    }
                 }
                 else
                 {
@@ -187,6 +204,61 @@ static void AddHandleArray(format::HandleId              parent_id,
             info.capture_id = ids[i];
             info.parent_id  = parent_id;
             (object_info_table->*AddFunc)(std::move(info));
+        }
+    }
+}
+
+template <typename T>
+static void AddHandleArrayAsync(format::HandleId        parent_id,
+                                const format::HandleId* ids,
+                                size_t                  ids_len,
+                                VulkanObjectInfoTable*  object_info_table,
+                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                std::shared_future<handle_create_result_t<typename T::HandleType>> future)
+{
+    static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
+    assert(object_info_table != nullptr);
+
+    if (ids != nullptr)
+    {
+        for (size_t i = 0; i < ids_len; ++i)
+        {
+            T info;
+            info.handle              = VK_NULL_HANDLE; // handle does not yet exist
+            info.capture_id          = ids[i];
+            info.parent_id           = parent_id;
+            info.future              = future;
+            info.future_handle_index = i;
+            (object_info_table->*AddFunc)(std::move(info));
+        }
+    }
+}
+
+template <typename T>
+static void AddHandleArrayAsync(format::HandleId        parent_id,
+                                const format::HandleId* ids,
+                                size_t                  ids_len,
+                                VulkanObjectInfoTable*  object_info_table,
+                                std::vector<T>&&        initial_infos,
+                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                std::shared_future<handle_create_result_t<typename T::HandleType>> future)
+{
+    static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
+    assert(object_info_table != nullptr);
+
+    if (ids != nullptr)
+    {
+        assert(ids_len <= initial_infos.size());
+
+        for (size_t i = 0; i < ids_len; ++i)
+        {
+            auto info_iter                 = std::next(initial_infos.begin(), i);
+            info_iter->handle              = VK_NULL_HANDLE; // handle does not yet exist
+            info_iter->capture_id          = ids[i];
+            info_iter->parent_id           = parent_id;
+            info_iter->future              = future;
+            info_iter->future_handle_index = i;
+            (object_info_table->*AddFunc)(std::move(*info_iter));
         }
     }
 }

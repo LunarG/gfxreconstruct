@@ -87,8 +87,6 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
     assert(output_stream != nullptr);
 }
 
-VulkanStateWriter::~VulkanStateWriter() {}
-
 uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
     // clang-format off
@@ -109,6 +107,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WritePhysicalDeviceState(state_table);
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
+
+    // physical-device / raytracing properties
+    WriteRayTracingPipelinePropertiesState(state_table);
 
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
@@ -144,6 +145,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteImageViewState(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
+
+    // Retrieve buffer-device-addresses
+    WriteBufferDeviceAddressState(state_table);
 
     // Render object creation.
     StandardCreateWrite<vulkan_wrappers::RenderPassWrapper>(state_table);
@@ -1121,17 +1125,39 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     });
 }
 
+void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            auto physical_device_wrapper = wrapper->bind_device->physical_device;
+            auto call_id                 = physical_device_wrapper->instance_api_version >= VK_MAKE_VERSION(1, 2, 0)
+                                               ? format::ApiCall_vkGetBufferDeviceAddress
+                                               : format::ApiCall_vkGetBufferDeviceAddressKHR;
+
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, wrapper->handle };
+            EncodeStructPtr(&encoder_, &info);
+            encoder_.EncodeVkDeviceAddressValue(wrapper->address);
+            WriteFunctionCall(call_id, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
+    });
+}
+
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->opaque_address != 0))
         {
             // If the buffer has a device address, write the 'set opaque address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->opaque_address);
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -1166,6 +1192,25 @@ void VulkanStateWriter::WriteTlasToBlasDependenciesMetadata(const VulkanStateTab
             }
 
             ++blocks_written_;
+        }
+    });
+}
+
+void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if (wrapper->ray_tracing_pipeline_properties != std::nullopt)
+        {
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            VkPhysicalDeviceProperties2 properties2 = {};
+            properties2.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
+            EncodeStructPtr(&encoder_, &properties2);
+            WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
+            parameter_stream_.Clear();
         }
     });
 }
@@ -1210,70 +1255,87 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
     std::vector<format::HardwareBufferPlaneInfo> plane_info;
 
-    // The multi-plane functions are declared for API 26, but are only available to link with API 29.  So, this
-    // could be turned into a run-time check dependent on dlsym returning a valid pointer for
-    // AHardwareBuffer_lockPlanes.
-#if __ANDROID_API__ >= 29
-    AHardwareBuffer_Planes ahb_planes;
-    result =
-        AHardwareBuffer_lockPlanes(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &ahb_planes);
-    if (result == 0)
-    {
-        data = ahb_planes.planes[0].data;
+    AHardwareBuffer_Desc desc;
+    AHardwareBuffer_describe(hardware_buffer, &desc);
 
-        for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
-        {
-            format::HardwareBufferPlaneInfo ahb_plane_info;
-            ahb_plane_info.offset =
-                reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
-            ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
-            ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
-            plane_info.emplace_back(std::move(ahb_plane_info));
-        }
-    }
-    else
+    if ((desc.usage & AHARDWAREBUFFER_USAGE_CPU_READ_MASK) != 0)
     {
-        GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
-    }
+        // The multi-plane functions are declared for API 26, but are only available to link with API 29.  So, this
+        // could be turned into a run-time check dependent on dlsym returning a valid pointer for
+        // AHardwareBuffer_lockPlanes.
+#if __ANDROID_API__ >= 29
+        AHardwareBuffer_Planes ahb_planes;
+        result =
+            AHardwareBuffer_lockPlanes(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &ahb_planes);
+        if (result == 0)
+        {
+            data = ahb_planes.planes[0].data;
+
+            for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
+            {
+                format::HardwareBufferPlaneInfo ahb_plane_info;
+                ahb_plane_info.offset =
+                    reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
+                ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
+                ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
+                plane_info.emplace_back(std::move(ahb_plane_info));
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
+        }
 #endif
 
-    // Write CreateHardwareBufferCmd with or without the AHB payload
-    WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+        // Write CreateHardwareBufferCmd with or without the AHB payload
+        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
 
-    // If AHardwareBuffer_lockPlanes failed (or is not available) try AHardwareBuffer_lock
-    if (result != 0)
-    {
-        result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
-    }
-
-    if (result == 0)
-    {
-        if (data == nullptr)
+        // If AHardwareBuffer_lockPlanes failed (or is not available) try AHardwareBuffer_lock
+        if (result != 0)
         {
-            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+            result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
+        }
+
+        if (result == 0)
+        {
+            if (data == nullptr)
+            {
+                GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+
+                // Dump zeros for AHB payload.
+                std::vector<uint8_t> zeros(allocation_size, 0);
+                WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
+            }
+            else
+            {
+                WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
+            }
+
+            result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
+            if (result != 0)
+            {
+                GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
 
             // Dump zeros for AHB payload.
             std::vector<uint8_t> zeros(allocation_size, 0);
             WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
         }
-        else
-        {
-            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
-        }
-
-        result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
-        if (result != 0)
-        {
-            GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
-        }
     }
     else
     {
-        GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
-
+        // The AHB is not CPU-readable
         // Dump zeros for AHB payload.
         std::vector<uint8_t> zeros(allocation_size, 0);
         WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
+
+        GFXRECON_LOG_WARNING("AHardwareBuffer cannot be read: hardware buffer data will be omitted "
+                             "from the capture file");
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(memory_id);
@@ -1301,7 +1363,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         if (snapshot_entry.need_staging_copy)
         {
             VkResult result = resource_util.ReadFromBufferResource(
-                buffer_wrapper->handle, buffer_wrapper->created_size, buffer_wrapper->queue_family_index, data);
+                buffer_wrapper->handle, buffer_wrapper->created_size, 0, buffer_wrapper->queue_family_index, data);
 
             if (result == VK_SUCCESS)
             {
@@ -1411,7 +1473,9 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         {
             std::vector<uint64_t> subresource_offsets;
             std::vector<uint64_t> subresource_sizes;
-            VkResult              result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
+            bool                  scaling_supported;
+
+            VkResult result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
                                                                          image_wrapper->format,
                                                                          image_wrapper->image_type,
                                                                          image_wrapper->extent,
@@ -1425,6 +1489,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                                                          data,
                                                                          subresource_offsets,
                                                                          subresource_sizes,
+                                                                         scaling_supported,
                                                                          true);
 
             if (result == VK_SUCCESS)
@@ -1705,7 +1770,9 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
                 ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
                 graphics::VulkanResourcesUtil     resource_util(device_wrapper->handle,
+                                                            device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
+                                                            *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->physical_device->memory_properties);
 
                 bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
@@ -1824,8 +1891,11 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
         const vulkan_wrappers::DeviceWrapper* device_wrapper = resource_entry.first;
         VkResult                              result         = VK_SUCCESS;
 
-        graphics::VulkanResourcesUtil resource_util(
-            device_wrapper->handle, device_wrapper->layer_table, device_wrapper->physical_device->memory_properties);
+        graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
+                                                    device_wrapper->physical_device->handle,
+                                                    device_wrapper->layer_table,
+                                                    *device_wrapper->physical_device->layer_table_ref,
+                                                    device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)
         {
@@ -2071,7 +2141,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
 {
     const VkResult result = VK_SUCCESS;
 
-    uint32_t format_count = static_cast<uint32_t>(formats.surface_formats.size());
+    uint32_t format_count = formats.surface_format_count;
 
     // First write the call to retrieve the size.
     encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2087,7 +2157,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
     encoder_.EncodeHandleIdValue(physical_device_id);
     EncodeStructPtr(&encoder_, &formats.surface_info);
     encoder_.EncodeUInt32Ptr(&format_count);
-    EncodeStructArray(&encoder_, formats.surface_formats.data(), format_count);
+    EncodeStructArray(&encoder_, formats.surface_formats, format_count);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);

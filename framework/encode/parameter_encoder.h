@@ -67,6 +67,7 @@ class ParameterEncoder
     void EncodeDoubleValue(double value)                                                                              { EncodeValue(value); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
     void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
+    void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
@@ -291,6 +292,11 @@ class ParameterEncoder
         }
     }
 #endif
+
+    void EncodeRawBytes(const void* bytes, size_t num_bytes)
+    {
+        output_stream_->Write(bytes, num_bytes);
+    }
 
   private:
     uint32_t GetPointerAttributeMask(const void* ptr, bool omit_data, bool omit_addr)

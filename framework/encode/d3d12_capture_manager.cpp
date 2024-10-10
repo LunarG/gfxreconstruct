@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -607,11 +607,13 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
     }
 }
 
-void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper, UINT flags)
+void D3D12CaptureManager::PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                      IDXGISwapChain_Wrapper*                                swapchain_wrapper,
+                                      UINT                                                   flags)
 {
     if ((flags & DXGI_PRESENT_TEST) == 0)
     {
-        EndFrame();
+        EndFrame(current_lock);
     }
 }
 
@@ -619,7 +621,6 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapp
                                                             UINT                    sync_interval,
                                                             UINT                    flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
 
@@ -631,7 +632,6 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wra
                                                               UINT                           present_flags,
                                                               const DXGI_PRESENT_PARAMETERS* present_parameters)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
@@ -639,32 +639,32 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wra
     PrePresent(wrapper);
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
-                                                             HRESULT                 result,
-                                                             UINT                    sync_interval,
-                                                             UINT                    flags)
+void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    IDXGISwapChain_Wrapper*                                wrapper,
+    HRESULT                                                result,
+    UINT                                                   sync_interval,
+    UINT                                                   flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
 
-    PostPresent(wrapper, flags);
+    PostPresent(current_lock, wrapper, flags);
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
-                                                               HRESULT                        result,
-                                                               UINT                           sync_interval,
-                                                               UINT                           present_flags,
-                                                               const DXGI_PRESENT_PARAMETERS* present_parameters)
+void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    IDXGISwapChain_Wrapper*                                wrapper,
+    HRESULT                                                result,
+    UINT                                                   sync_interval,
+    UINT                                                   present_flags,
+    const DXGI_PRESENT_PARAMETERS*                         present_parameters)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
-    GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
 
-    PostPresent(wrapper, present_flags);
+    PostPresent(current_lock, wrapper, present_flags);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
@@ -755,8 +755,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
         info->descriptor_increment = increment;
 
-        size_t offset    = 0;
-        auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        size_t                      offset    = 0;
+        auto                        cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         D3D12_GPU_DESCRIPTOR_HANDLE gpu_start{ 0 };
 
         // D3D12 validation layer states GetGPUDescriptorHandleForHeapStart() should only be used for heaps
@@ -1717,9 +1717,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wra
     }
 }
 
-void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                            UINT                        num_lists,
-                                                                            ID3D12CommandList* const*   lists)
+void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
@@ -1770,14 +1772,16 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
         }
     }
 
-    PreQueueSubmit();
+    PreQueueSubmit(current_lock);
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                             UINT                        num_lists,
-                                                                             ID3D12CommandList* const*   lists)
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    ID3D12CommandQueue_Wrapper*                            wrapper,
+    UINT                                                   num_lists,
+    ID3D12CommandList* const*                              lists)
 {
-    PostQueueSubmit();
+    PostQueueSubmit(current_lock);
 
     if (IsCaptureModeTrack())
     {
@@ -2095,6 +2099,61 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     return E_INVALIDARG;
 }
 
+HRESULT D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper*                 factory2_wrapper,
+    IUnknown*                              pDevice,
+    HWND                                   hWnd,
+    const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+    IDXGIOutput*                           pRestrictToOutput,
+    IDXGISwapChain1**                      ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result =
+        factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                        IUnknown*                    pDevice,
+                                                                        IUnknown*                    pWindow,
+                                                                        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                        IDXGIOutput*                 pRestrictToOutput,
+                                                                        IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForCoreWindow(pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                         IUnknown*                    pDevice,
+                                                                         const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                         IDXGIOutput*                 pRestrictToOutput,
+                                                                         IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForComposition(pDevice, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
 PFN_D3D12_GET_DEBUG_INTERFACE D3D12CaptureManager::GetDebugInterfacePtr()
 {
     PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
@@ -2358,7 +2417,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Devic
     if (IsCaptureModeTrack())
     {
         auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, false, type);
+        state_tracker_->TrackCommandListCreation(list_wrapper, false, type, pCommandAllocator);
     }
 }
 
@@ -2373,7 +2432,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
     if (IsCaptureModeTrack())
     {
         auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, true, type);
+        state_tracker_->TrackCommandListCreation(list_wrapper, true, type, nullptr);
     }
 }
 
@@ -2881,6 +2940,19 @@ void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeIn
                                    sizeof(runtime_info));
 
         WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
+    }
+}
+
+void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain)
+{
+    if (width == 0 || height == 0)
+    {
+        DXGI_SWAP_CHAIN_DESC1 swapchain_desc;
+        if (swapchain != NULL)
+        {
+            swapchain->GetDesc1(&swapchain_desc);
+            WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
+        }
     }
 }
 

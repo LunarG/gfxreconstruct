@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,6 +32,149 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
+
+static uint64_t FindSubresourcePixelByteSize(DXGI_FORMAT format)
+{
+    static const std::unordered_map<DXGI_FORMAT, uint8_t> byte_size_map = {
+        { DXGI_FORMAT_R32G32B32A32_TYPELESS, 16 },
+        { DXGI_FORMAT_R32G32B32A32_FLOAT, 16 },
+        { DXGI_FORMAT_R32G32B32A32_UINT, 16 },
+        { DXGI_FORMAT_R32G32B32A32_SINT, 16 },
+        { DXGI_FORMAT_R32G32B32_TYPELESS, 12 },
+        { DXGI_FORMAT_R32G32B32_FLOAT, 12 },
+        { DXGI_FORMAT_R32G32B32_UINT, 12 },
+        { DXGI_FORMAT_R32G32B32_SINT, 12 },
+        { DXGI_FORMAT_R16G16B16A16_TYPELESS, 8 },
+        { DXGI_FORMAT_R16G16B16A16_FLOAT, 8 },
+        { DXGI_FORMAT_R16G16B16A16_UNORM, 8 },
+        { DXGI_FORMAT_R16G16B16A16_UINT, 8 },
+        { DXGI_FORMAT_R16G16B16A16_SNORM, 8 },
+        { DXGI_FORMAT_R16G16B16A16_SINT, 8 },
+        { DXGI_FORMAT_R32G32_TYPELESS, 8 },
+        { DXGI_FORMAT_R32G32_FLOAT, 8 },
+        { DXGI_FORMAT_R32G32_UINT, 8 },
+        { DXGI_FORMAT_R32G32_SINT, 8 },
+        { DXGI_FORMAT_R32G8X24_TYPELESS, 8 },
+        { DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 4 },
+        { DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS, 4 },
+        { DXGI_FORMAT_X32_TYPELESS_G8X24_UINT, 4 },
+        { DXGI_FORMAT_R10G10B10A2_TYPELESS, 4 },
+        { DXGI_FORMAT_R10G10B10A2_UNORM, 4 },
+        { DXGI_FORMAT_R10G10B10A2_UINT, 4 },
+        { DXGI_FORMAT_R11G11B10_FLOAT, 4 },
+        { DXGI_FORMAT_R8G8B8A8_TYPELESS, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UNORM, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UINT, 4 },
+        { DXGI_FORMAT_R8G8B8A8_SNORM, 4 },
+        { DXGI_FORMAT_R8G8B8A8_SINT, 4 },
+        { DXGI_FORMAT_R16G16_TYPELESS, 4 },
+        { DXGI_FORMAT_R16G16_FLOAT, 4 },
+        { DXGI_FORMAT_R16G16_UNORM, 4 },
+        { DXGI_FORMAT_R16G16_UINT, 4 },
+        { DXGI_FORMAT_R16G16_SNORM, 4 },
+        { DXGI_FORMAT_R16G16_SINT, 4 },
+        { DXGI_FORMAT_R32_TYPELESS, 4 },
+        { DXGI_FORMAT_D32_FLOAT, 4 },
+        { DXGI_FORMAT_R32_FLOAT, 4 },
+        { DXGI_FORMAT_R32_UINT, 4 },
+        { DXGI_FORMAT_R32_SINT, 4 },
+        { DXGI_FORMAT_R24G8_TYPELESS, 4 },
+        { DXGI_FORMAT_D24_UNORM_S8_UINT, 4 },
+        { DXGI_FORMAT_R24_UNORM_X8_TYPELESS, 4 },
+        { DXGI_FORMAT_X24_TYPELESS_G8_UINT, 4 },
+        { DXGI_FORMAT_R8G8_TYPELESS, 2 },
+        { DXGI_FORMAT_R8G8_UNORM, 2 },
+        { DXGI_FORMAT_R8G8_UINT, 2 },
+        { DXGI_FORMAT_R8G8_SNORM, 2 },
+        { DXGI_FORMAT_R8G8_SINT, 2 },
+        { DXGI_FORMAT_R16_TYPELESS, 2 },
+        { DXGI_FORMAT_R16_FLOAT, 2 },
+        { DXGI_FORMAT_D16_UNORM, 2 },
+        { DXGI_FORMAT_R16_UNORM, 2 },
+        { DXGI_FORMAT_R16_UINT, 2 },
+        { DXGI_FORMAT_R16_SNORM, 2 },
+        { DXGI_FORMAT_R16_SINT, 2 },
+        { DXGI_FORMAT_R8_TYPELESS, 1 },
+        { DXGI_FORMAT_R8_UNORM, 1 },
+        { DXGI_FORMAT_R8_UINT, 1 },
+        { DXGI_FORMAT_R8_SNORM, 1 },
+        { DXGI_FORMAT_R8_SINT, 1 },
+        { DXGI_FORMAT_A8_UNORM, 1 },
+        { DXGI_FORMAT_R9G9B9E5_SHAREDEXP, 4 },
+        { DXGI_FORMAT_R8G8_B8G8_UNORM,
+          2 }, // Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values are
+               // repeated, and the G8 values are unique to each pixel
+        { DXGI_FORMAT_G8R8_G8B8_UNORM,
+          2 }, //  Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values
+               //  are repeated, and the G8 values are unique to each pixel
+        { DXGI_FORMAT_B5G6R5_UNORM, 2 }, // A three-component, 16-bit unsigned-normalized-integer format that supports 5
+                                         // bits for blue, 6 bits for green, and 5 bits for red
+        { DXGI_FORMAT_B5G5R5A1_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8A8_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8X8_UNORM, 4 },
+        { DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8A8_TYPELESS, 4 },
+        { DXGI_FORMAT_B8G8R8A8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_B8G8R8X8_TYPELESS, 4 },
+        { DXGI_FORMAT_B8G8R8X8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_P8, 1 },
+        { DXGI_FORMAT_A8P8, 2 },
+        { DXGI_FORMAT_B4G4R4A4_UNORM, 2 },
+
+        { DXGI_FORMAT_P208, 1 },
+        { DXGI_FORMAT_V208, 1 },
+        { DXGI_FORMAT_V408, 1 },
+
+        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE, 4 },
+        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE, 4 }
+    };
+
+    const auto iter = byte_size_map.find(format);
+    if (iter != byte_size_map.end())
+    {
+        return iter->second;
+    }
+
+    return 0;
+}
+
+static uint64_t FindCompressedSubresourcePixelByteSize(DXGI_FORMAT format)
+{
+    static const std::unordered_map<DXGI_FORMAT, uint8_t> byte_size_map = {
+        { DXGI_FORMAT_BC1_TYPELESS, 8 },   { DXGI_FORMAT_BC1_UNORM, 8 },  { DXGI_FORMAT_BC1_UNORM_SRGB, 8 },
+        { DXGI_FORMAT_BC2_TYPELESS, 16 },  { DXGI_FORMAT_BC2_UNORM, 16 }, { DXGI_FORMAT_BC2_UNORM_SRGB, 16 },
+        { DXGI_FORMAT_BC3_TYPELESS, 16 },  { DXGI_FORMAT_BC3_UNORM, 16 }, { DXGI_FORMAT_BC3_UNORM_SRGB, 16 },
+        { DXGI_FORMAT_BC4_TYPELESS, 8 },   { DXGI_FORMAT_BC4_UNORM, 8 },  { DXGI_FORMAT_BC4_SNORM, 8 },
+        { DXGI_FORMAT_BC5_TYPELESS, 16 },  { DXGI_FORMAT_BC5_UNORM, 16 }, { DXGI_FORMAT_BC5_SNORM, 16 },
+        { DXGI_FORMAT_BC6H_TYPELESS, 16 }, { DXGI_FORMAT_BC6H_UF16, 16 }, { DXGI_FORMAT_BC6H_SF16, 16 },
+        { DXGI_FORMAT_BC7_TYPELESS, 16 },  { DXGI_FORMAT_BC7_UNORM, 16 }, { DXGI_FORMAT_BC7_UNORM_SRGB, 16 }
+    };
+
+    const auto iter = byte_size_map.find(format);
+    if (iter != byte_size_map.end())
+    {
+        return iter->second;
+    }
+
+    return 0;
+}
+
+static uint32_t CalculateBoxRange(uint32_t start, uint32_t end)
+{
+    return end - start;
+}
+
+static uint32_t CalculateBoxRangeBC(uint32_t start, uint32_t end)
+{
+    return ((end + 3) / 4) - (start / 4);
+}
+
+UINT GetTexturePitch(UINT64 width)
+{
+    return (width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
+           D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}
 
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                           queue,
@@ -76,8 +220,7 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                 {
                     D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
 
-                    auto pitch = (fb_desc.Width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
-                                 D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+                    auto pitch = GetTexturePitch(fb_desc.Width);
 
                     graphics::CpuImage captured_image = {};
 
@@ -114,13 +257,12 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                         "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
                                     // Intentional fall-through
                                 case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImageNoAlpha(
-                                            filename + ".bmp",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch)))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write BMP file %s",
@@ -128,13 +270,13 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     }
                                     break;
                                 case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImageNoAlpha(
-                                            filename + ".png",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WritePngImage(filename + ".png",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch),
+                                                                          util::imagewriter::kFormat_RGBA))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write PNG file %s",
@@ -380,25 +522,16 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
     }
     else if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
     {
-        if (inputs_desc.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+        if (inputs_desc.NumDescs > 0)
         {
-            if (inputs_desc.NumDescs > 0)
-            {
-                GFXRECON_ASSERT(inputs_desc.InstanceDescs != 0);
+            GFXRECON_ASSERT(inputs_desc.InstanceDescs != 0);
 
-                inputs_buffer_size = inputs_desc.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
-                InputsBufferEntry entry{};
-                entry.desc_gpu_va = &inputs_desc.InstanceDescs;
-                entry.offset      = 0;
-                entry.size        = inputs_buffer_size;
-                entries.push_back(entry);
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR(
-                "Unsupported instance descs layout (DescsLayout=%d) used in BuildRaytracingAccelerationStructure.",
-                inputs_desc.DescsLayout);
+            inputs_buffer_size = inputs_desc.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+            InputsBufferEntry entry{};
+            entry.desc_gpu_va = &inputs_desc.InstanceDescs;
+            entry.offset      = 0;
+            entry.size        = inputs_buffer_size;
+            entries.push_back(entry);
         }
     }
     else
@@ -417,107 +550,9 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
 //       unpadded size through inserting some API calls.
 uint64_t GetSubresourcePixelByteSize(DXGI_FORMAT format)
 {
-    uint64_t                                 size          = 0;
-    std::unordered_map<DXGI_FORMAT, uint8_t> byte_size_map = {
-        { DXGI_FORMAT_R32G32B32A32_TYPELESS, 16 },
-        { DXGI_FORMAT_R32G32B32A32_FLOAT, 16 },
-        { DXGI_FORMAT_R32G32B32A32_UINT, 16 },
-        { DXGI_FORMAT_R32G32B32A32_SINT, 16 },
-        { DXGI_FORMAT_R32G32B32_TYPELESS, 12 },
-        { DXGI_FORMAT_R32G32B32_FLOAT, 12 },
-        { DXGI_FORMAT_R32G32B32_UINT, 12 },
-        { DXGI_FORMAT_R32G32B32_SINT, 12 },
-        { DXGI_FORMAT_R16G16B16A16_TYPELESS, 8 },
-        { DXGI_FORMAT_R16G16B16A16_FLOAT, 8 },
-        { DXGI_FORMAT_R16G16B16A16_UNORM, 8 },
-        { DXGI_FORMAT_R16G16B16A16_UINT, 8 },
-        { DXGI_FORMAT_R16G16B16A16_SNORM, 8 },
-        { DXGI_FORMAT_R16G16B16A16_SINT, 8 },
-        { DXGI_FORMAT_R32G32_TYPELESS, 8 },
-        { DXGI_FORMAT_R32G32_FLOAT, 8 },
-        { DXGI_FORMAT_R32G32_UINT, 8 },
-        { DXGI_FORMAT_R32G32_SINT, 8 },
-        { DXGI_FORMAT_R32G8X24_TYPELESS, 8 },
-        { DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 4 },
-        { DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS, 4 },
-        { DXGI_FORMAT_X32_TYPELESS_G8X24_UINT, 4 },
-        { DXGI_FORMAT_R10G10B10A2_TYPELESS, 4 },
-        { DXGI_FORMAT_R10G10B10A2_UNORM, 4 },
-        { DXGI_FORMAT_R10G10B10A2_UINT, 4 },
-        { DXGI_FORMAT_R11G11B10_FLOAT, 4 },
-        { DXGI_FORMAT_R8G8B8A8_TYPELESS, 4 },
-        { DXGI_FORMAT_R8G8B8A8_UNORM, 4 },
-        { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 4 },
-        { DXGI_FORMAT_R8G8B8A8_UINT, 4 },
-        { DXGI_FORMAT_R8G8B8A8_SNORM, 4 },
-        { DXGI_FORMAT_R8G8B8A8_SINT, 4 },
-        { DXGI_FORMAT_R16G16_TYPELESS, 4 },
-        { DXGI_FORMAT_R16G16_FLOAT, 4 },
-        { DXGI_FORMAT_R16G16_UNORM, 4 },
-        { DXGI_FORMAT_R16G16_UINT, 4 },
-        { DXGI_FORMAT_R16G16_SNORM, 4 },
-        { DXGI_FORMAT_R16G16_SINT, 4 },
-        { DXGI_FORMAT_R32_TYPELESS, 4 },
-        { DXGI_FORMAT_D32_FLOAT, 4 },
-        { DXGI_FORMAT_R32_FLOAT, 4 },
-        { DXGI_FORMAT_R32_UINT, 4 },
-        { DXGI_FORMAT_R32_SINT, 4 },
-        { DXGI_FORMAT_R24G8_TYPELESS, 4 },
-        { DXGI_FORMAT_D24_UNORM_S8_UINT, 4 },
-        { DXGI_FORMAT_R24_UNORM_X8_TYPELESS, 4 },
-        { DXGI_FORMAT_X24_TYPELESS_G8_UINT, 4 },
-        { DXGI_FORMAT_R8G8_TYPELESS, 2 },
-        { DXGI_FORMAT_R8G8_UNORM, 2 },
-        { DXGI_FORMAT_R8G8_UINT, 2 },
-        { DXGI_FORMAT_R8G8_SNORM, 2 },
-        { DXGI_FORMAT_R8G8_SINT, 2 },
-        { DXGI_FORMAT_R16_TYPELESS, 2 },
-        { DXGI_FORMAT_R16_FLOAT, 2 },
-        { DXGI_FORMAT_D16_UNORM, 2 },
-        { DXGI_FORMAT_R16_UNORM, 2 },
-        { DXGI_FORMAT_R16_UINT, 2 },
-        { DXGI_FORMAT_R16_SNORM, 2 },
-        { DXGI_FORMAT_R16_SINT, 2 },
-        { DXGI_FORMAT_R8_TYPELESS, 1 },
-        { DXGI_FORMAT_R8_UNORM, 1 },
-        { DXGI_FORMAT_R8_UINT, 1 },
-        { DXGI_FORMAT_R8_SNORM, 1 },
-        { DXGI_FORMAT_R8_SINT, 1 },
-        { DXGI_FORMAT_A8_UNORM, 1 },
-        { DXGI_FORMAT_R9G9B9E5_SHAREDEXP, 4 },
-        { DXGI_FORMAT_R8G8_B8G8_UNORM,
-          2 }, // Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values are
-               // repeated, and the G8 values are unique to each pixel
-        { DXGI_FORMAT_G8R8_G8B8_UNORM,
-          2 }, //  Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values
-               //  are repeated, and the G8 values are unique to each pixel
-        { DXGI_FORMAT_B5G6R5_UNORM, 2 }, // A three-component, 16-bit unsigned-normalized-integer format that supports 5
-                                         // bits for blue, 6 bits for green, and 5 bits for red
-        { DXGI_FORMAT_B5G5R5A1_UNORM, 4 },
-        { DXGI_FORMAT_B8G8R8A8_UNORM, 4 },
-        { DXGI_FORMAT_B8G8R8X8_UNORM, 4 },
-        { DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM, 4 },
-        { DXGI_FORMAT_B8G8R8A8_TYPELESS, 4 },
-        { DXGI_FORMAT_B8G8R8A8_UNORM_SRGB, 4 },
-        { DXGI_FORMAT_B8G8R8X8_TYPELESS, 4 },
-        { DXGI_FORMAT_B8G8R8X8_UNORM_SRGB, 4 },
-        { DXGI_FORMAT_P8, 1 },
-        { DXGI_FORMAT_A8P8, 2 },
-        { DXGI_FORMAT_B4G4R4A4_UNORM, 2 },
+    uint64_t size = FindSubresourcePixelByteSize(format);
 
-        { DXGI_FORMAT_P208, 1 },
-        { DXGI_FORMAT_V208, 1 },
-        { DXGI_FORMAT_V408, 1 },
-
-        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE, 4 },
-        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE, 4 }
-    };
-
-    if (byte_size_map.find(format) != byte_size_map.end())
-    {
-        size = byte_size_map[format];
-    }
-    else
+    if (size == 0)
     {
         GFXRECON_LOG_ERROR("Unsupported format: %d", format);
     }
@@ -566,95 +601,108 @@ uint64_t GetOneRowSizeByDXGIFormat(ID3D12Resource*      resource,
 uint64_t GetSubresourceWriteDataSize(
     ID3D12Resource* resource, UINT dst_subresource, const D3D12_BOX* dst_box, UINT src_row_pitch, UINT src_depth_pitch)
 {
-    uint64_t            data_size      = 0;
-    D3D12_RESOURCE_DESC resource_desc  = resource->GetDesc();
-    D3D12_BOX           valid_size_box = {};
-    bool                empty_box      = false;
+    D3D12_RESOURCE_DESC resource_desc = resource->GetDesc();
+    auto                data_size     = 0ull;
+    auto                empty_box     = false;
 
-    if (dst_box != nullptr)
+    if (dst_box == nullptr)
+    {
+        // If pDstBox == nullptr, the data is written to the destination subresource with no offset
+        // Quote: A pointer to a box that defines the portion of the destination subresource to copy
+        //        the resource data into. If NULL, the data is written to the destination subresource
+        //        with no offset.
+        // Source:
+        // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+
+        switch (resource_desc.Dimension)
+        {
+            case D3D12_RESOURCE_DIMENSION_BUFFER:
+                data_size = resource_desc.Width;
+                break;
+            case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+                data_size = GetSubresourceSizeTex1D(resource_desc.Format,
+                                                    static_cast<uint32_t>(resource_desc.Width),
+                                                    resource_desc.MipLevels,
+                                                    dst_subresource);
+                break;
+            case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+                data_size = GetSubresourceSizeTex2D(resource_desc.Format,
+                                                    resource_desc.Height,
+                                                    resource_desc.MipLevels,
+                                                    src_row_pitch,
+                                                    dst_subresource);
+                break;
+            case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+                data_size = GetSubresourceSizeTex3D(
+                    resource_desc.DepthOrArraySize, resource_desc.MipLevels, src_depth_pitch, dst_subresource);
+                break;
+            case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+                GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
+                break;
+            default:
+                GFXRECON_LOG_ERROR("Detected invalid resource dimension");
+                break;
+        }
+    }
+    else
     {
         if ((dst_box->left >= dst_box->right) || (dst_box->front >= dst_box->back) || (dst_box->top >= dst_box->bottom))
         {
             empty_box = true;
         }
 
-        // When the box is empty, WriteToSubresource call doesn't perform any operation
+        // When the box is empty, UpdateSubresource call doesn't perform any operation
         // Quote: An empty box results in a no-op. A box is empty if the top value is greater than or equal to
         //        the bottom value, or the left value is greater than or equal to the right value, or the front
         //        value is greater than or equal to the back value. When the box is empty, this method doesn't
         //        perform any operation.
-        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+        // Source:
+        // https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-updatesubresource
         if (!empty_box)
         {
-            valid_size_box.right  = dst_box->right - dst_box->left;
-            valid_size_box.back   = dst_box->back - dst_box->front;
-            valid_size_box.bottom = dst_box->bottom - dst_box->top;
-        }
-
-        // The dimensions of the valid_size_box must fit the destination
-        // Quote: The dimensions of the source must fit the destination (see D3D12_BOX).
-        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
-        if (valid_size_box.right > resource_desc.Width)
-        {
-            valid_size_box.right = static_cast<UINT>(resource_desc.Width);
-        }
-
-        if (valid_size_box.bottom > resource_desc.Height)
-        {
-            valid_size_box.bottom = static_cast<UINT>(resource_desc.Height);
-        }
-
-        if (valid_size_box.back > resource_desc.DepthOrArraySize)
-        {
-            valid_size_box.back = static_cast<UINT>(resource_desc.DepthOrArraySize);
-        }
-    }
-    else
-    {
-        // If pDstBox == nullptr, the data is written to the destination subresource with no offset
-        // Quote: A pointer to a box that defines the portion of the destination subresource to copy
-        //        the resource data into. If NULL, the data is written to the destination subresource
-        //        with no offset.
-        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
-        valid_size_box.right  = static_cast<UINT>(resource_desc.Width);
-        valid_size_box.bottom = static_cast<UINT>(resource_desc.Height);
-        valid_size_box.back   = static_cast<UINT>(resource_desc.DepthOrArraySize);
-    }
-
-    if (!empty_box)
-    {
-        switch (resource_desc.Dimension)
-        {
-            case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
-                data_size = GetOneRowSizeByDXGIFormat(
-                    resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
-                break;
-            case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
-                data_size = static_cast<uint64_t>(src_row_pitch) * static_cast<uint64_t>((valid_size_box.bottom - 1)) +
-                            GetOneRowSizeByDXGIFormat(
-                                resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
-                break;
-            case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-                data_size = static_cast<uint64_t>(src_depth_pitch) * static_cast<uint64_t>((valid_size_box.back - 1)) +
-                            static_cast<uint64_t>(src_row_pitch) * static_cast<uint64_t>((valid_size_box.bottom - 1)) +
-                            GetOneRowSizeByDXGIFormat(
-                                resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
-                break;
-            case D3D12_RESOURCE_DIMENSION_UNKNOWN:
-                GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimensions");
-                data_size = 0;
-                break;
-            case D3D12_RESOURCE_DIMENSION_BUFFER:
-                // If the resource is a buffer, all coordinates are in bytes
-                // Quote: If the resources are buffers, all coordinates are in bytes;
-                // Source:
-                // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-copytextureregion
-                data_size = valid_size_box.right;
-                break;
-            default:
-                GFXRECON_LOG_ERROR("Detected invalid resource dimensions");
-                data_size = 0;
-                break;
+            switch (resource_desc.Dimension)
+            {
+                case D3D12_RESOURCE_DIMENSION_BUFFER:
+                    data_size = static_cast<uint64_t>(CalculateBoxRange(dst_box->left, dst_box->right));
+                    break;
+                case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+                {
+                    if (IsFormatCompressed(resource_desc.Format))
+                    {
+                        data_size =
+                            CalculateBoxRangeBC(dst_box->left, dst_box->right) * GetPixelByteSize(resource_desc.Format);
+                    }
+                    else
+                    {
+                        data_size =
+                            CalculateBoxRange(dst_box->left, dst_box->right) * GetPixelByteSize(resource_desc.Format);
+                    }
+                    break;
+                }
+                case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+                {
+                    if (IsFormatCompressed(resource_desc.Format))
+                    {
+                        data_size = CalculateBoxRangeBC(dst_box->top, dst_box->bottom) * src_row_pitch;
+                    }
+                    else
+                    {
+                        data_size = CalculateBoxRange(dst_box->top, dst_box->bottom) * src_row_pitch;
+                    }
+                    break;
+                }
+                case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+                {
+                    data_size = CalculateBoxRange(dst_box->front, dst_box->back) * src_depth_pitch;
+                    break;
+                }
+                case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+                    GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
+                    break;
+                default:
+                    GFXRECON_LOG_ERROR("Detected invalid resource dimension");
+                    break;
+            }
         }
     }
 
@@ -1298,6 +1346,108 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
     {
         *pTotalBytes = total_bytes;
     }
+}
+
+bool IsFormatCompressed(DXGI_FORMAT format)
+{
+    switch (format)
+    {
+        case DXGI_FORMAT_BC1_TYPELESS:
+        case DXGI_FORMAT_BC1_UNORM:
+        case DXGI_FORMAT_BC1_UNORM_SRGB:
+        case DXGI_FORMAT_BC2_TYPELESS:
+        case DXGI_FORMAT_BC2_UNORM:
+        case DXGI_FORMAT_BC2_UNORM_SRGB:
+        case DXGI_FORMAT_BC3_TYPELESS:
+        case DXGI_FORMAT_BC3_UNORM:
+        case DXGI_FORMAT_BC3_UNORM_SRGB:
+        case DXGI_FORMAT_BC4_TYPELESS:
+        case DXGI_FORMAT_BC4_UNORM:
+        case DXGI_FORMAT_BC4_SNORM:
+        case DXGI_FORMAT_BC5_TYPELESS:
+        case DXGI_FORMAT_BC5_UNORM:
+        case DXGI_FORMAT_BC5_SNORM:
+        case DXGI_FORMAT_BC6H_TYPELESS:
+        case DXGI_FORMAT_BC6H_UF16:
+        case DXGI_FORMAT_BC6H_SF16:
+        case DXGI_FORMAT_BC7_TYPELESS:
+        case DXGI_FORMAT_BC7_UNORM:
+        case DXGI_FORMAT_BC7_UNORM_SRGB:
+            return true;
+    }
+
+    return false;
+}
+
+uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format)
+{
+    auto size = FindCompressedSubresourcePixelByteSize(format);
+
+    if (size == 0)
+    {
+        GFXRECON_LOG_ERROR("Unsupported format: %d", format);
+    }
+
+    return size;
+}
+
+uint64_t GetPixelByteSize(DXGI_FORMAT format)
+{
+    auto size = graphics::dx12::FindSubresourcePixelByteSize(format);
+
+    if (size == 0)
+    {
+        // Check for BC format.
+        size = FindCompressedSubresourcePixelByteSize(format);
+
+        if ((size == 0) && (format == DXGI_FORMAT_R1_UNORM))
+        {
+            size = 1;
+        }
+    }
+
+    if (size == 0)
+    {
+        GFXRECON_LOG_ERROR("Unsupported format: %d", format);
+    }
+
+    return size;
+}
+
+uint64_t GetSubresourceSizeTex1D(DXGI_FORMAT format, uint32_t width, uint32_t mip_levels, uint32_t subresource)
+{
+    auto mip_level = subresource % mip_levels;
+    auto mip_width = std::max(width >> mip_level, 1u);
+
+    if (IsFormatCompressed(format))
+    {
+        mip_width = (mip_width + 3) / 4;
+    }
+
+    return static_cast<uint64_t>(mip_width) * GetPixelByteSize(format);
+}
+
+uint64_t GetSubresourceSizeTex2D(
+    DXGI_FORMAT format, uint32_t height, uint32_t mip_levels, uint32_t row_pitch, uint32_t subresource)
+{
+
+    auto mip_level  = subresource % mip_levels;
+    auto mip_height = std::max(height >> mip_level, 1u);
+
+    if (IsFormatCompressed(format))
+    {
+        mip_height = (mip_height + 3) / 4;
+    }
+
+    return static_cast<uint64_t>(mip_height) * row_pitch;
+}
+
+uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource)
+{
+    auto mip_level = subresource % mip_levels;
+    auto mip_depth = std::max(depth >> mip_level, 1u);
+
+    return static_cast<uint64_t>(mip_depth) * depth_pitch;
 }
 
 GFXRECON_END_NAMESPACE(dx12)

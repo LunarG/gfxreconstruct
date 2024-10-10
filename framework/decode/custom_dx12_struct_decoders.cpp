@@ -461,6 +461,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VER
             wrapper->Desc_1_1->decoded_value = &(value->Desc_1_1);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_1);
             break;
+        case D3D_ROOT_SIGNATURE_VERSION_1_2:
+            wrapper->Desc_1_2                = DecodeAllocator::Allocate<Decoded_D3D12_ROOT_SIGNATURE_DESC2>();
+            wrapper->Desc_1_2->decoded_value = &(value->Desc_1_2);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_2);
+            break;
     }
 
     return bytes_read;
@@ -582,6 +587,11 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_
             wrapper->Dred_1_2->decoded_value = &(value->Dred_1_2);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_2);
             break;
+        case D3D12_DRED_VERSION_1_3:
+            wrapper->Dred_1_3                = DecodeAllocator::Allocate<Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3>();
+            wrapper->Dred_1_3->decoded_value = &(value->Dred_1_3);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_3);
+            break;
     }
 
     return bytes_read;
@@ -596,9 +606,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
 
-    wrapper->Clear = DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS>();
-    wrapper->Clear->decoded_value = &(value->Clear);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Clear);
+    switch (value->Type)
+    {
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR:
+            wrapper->Clear = DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS>();
+            wrapper->Clear->decoded_value = &(value->Clear);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Clear);
+            break;
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            wrapper->PreserveLocal =
+                DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS>();
+            wrapper->PreserveLocal->decoded_value = &(value->PreserveLocal);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PreserveLocal);
+            break;
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS:
+            // These cases have no additional values to decode.
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value->Type);
+            break;
+    }
 
     return bytes_read;
 }
@@ -612,9 +643,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
 
-    wrapper->Resolve = DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS>();
-    wrapper->Resolve->decoded_value = &(value->Resolve);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Resolve);
+    switch (value->Type)
+    {
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
+            wrapper->Resolve = DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS>();
+            wrapper->Resolve->decoded_value = &(value->Resolve);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Resolve);
+            break;
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            wrapper->PreserveLocal =
+                DecodeAllocator::Allocate<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS>();
+            wrapper->PreserveLocal->decoded_value = &(value->PreserveLocal);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PreserveLocal);
+            break;
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS:
+            // These cases have no additional values to decode.
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value->Type);
+            break;
+    }
 
     return bytes_read;
 }

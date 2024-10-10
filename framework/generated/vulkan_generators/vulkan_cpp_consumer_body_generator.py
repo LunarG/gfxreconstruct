@@ -890,25 +890,12 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             elif arg.is_pointer and self.is_output_parameter(arg):
                 varName = makeSnakeCaseName(arg.name + 'Name')
                 streamName = makeSnakeCaseName('stream_' + arg.name)
+                varType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
+                if arg.pointer_count > 1:
+                    varType += '*' * (arg.pointer_count - 1)
 
-                body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
-
-                if originalBaseType in self.stype_values: # The output parameter has an sType value, generate the struct, just to be safe for now.
-                    body += makeGen(f'std::stringstream {streamName};', locals(), indent=4)
-
-                    body += makeGenVarCall(None, varName,
-                                           f'GenerateStruct_{arg.base_type}',
-                                           [streamName,
-                                            f'{arg.name}->GetPointer()',
-                                            f'{arg.name}->GetMetaStructPointer()',
-                                            '*this'],
-                                           locals(), indent=4)
-                    body += makeCppOutputStream(streamName)
-                    callTempl.append('&%s')
-                    callArgs.append(f'{varName}.c_str()')
-                    continue
+                varDef = []
                 if arg.is_array:
-                    callTempl.append('%s')
                     arrayValue = f', {arg.array_length}'
                     if arg.array_length_value.base_type == 'size_t':
                         arrayInfo = '[%" PRIu64 "]'
@@ -918,10 +905,10 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     if arg.array_length_value.is_pointer:
                         arrayLenVarName = makeSnakeCaseName(f'in_{arg.array_length_value.name}')
                         if arg.array_length_value.base_type != 'size_t':
-                            body += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                            varDef += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=8)
                             arrayValue = f', *{arrayLenVarName}'
                         else:
-                            body += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                            varDef += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=8)
                             arrayValue = f', util::platform::SizeTtoUint64(*{arrayLenVarName})'
                     else:
                         if arg.array_length_value.base_type == 'size_t':
@@ -929,17 +916,28 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                         else:
                             arrayValue = f', {arg.array_length_value.name}'
 
+                    varDef += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=8, addType=False)
+                    # zero-initialize array in case it contains pointers
+                    # TODO: It may be necessary to initialize it using the capture value in the future
+                    varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s{arrayInfo} = {{{{}}}};\\n", {varName}.c_str(){arrayValue});', locals(), indent=8)
                 else:
-                    callTempl.append('&%s')
-                    arrayInfo = ''
-                    arrayValue = ''
+                    varDef += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=8, addType=False)
+                    if self.is_struct(arg.base_type):
+                        # zero-initialize struct in case it contains pointers
+                        # TODO: It may be necessary to initialize it using the capture value in the future
+                        varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s = {{{{}}}};\\n", {varName}.c_str());', locals(), indent=8)
+                    else:
+                        # scalar output args are often in+out (vkGet*, vkEnum*) so initialize them using the capture value
+                        varDef += makeGen(f'fprintf(file, "\\t\\t{varType} %s = %s;\\n", {varName}.c_str(), util::ToString(*{arg.name}->GetPointer()).c_str());', locals(), indent=8)
+                    varDef += makeGen('{varName}.insert(0, "&");', locals(), indent=8)
 
+                # only define a local output variable if the captured pointer is non-null
+                body += makeGenVar(varName, None, handleObjectType, locals(), indent=4)
+                body += makeGenCond(f'!{arg.name}->IsNull()',varDef, [], locals(), indent=4)
+
+                callTempl.append('%s')
                 callArgs.append(f'{varName}.c_str()')
 
-                varType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
-                if arg.pointer_count > 1:
-                    varType += '*' * (arg.pointer_count - 1)
-                body += makeGen(f'fprintf(file, "\\t\\t{varType} %s{arrayInfo};\\n", {varName}.c_str(){arrayValue});', locals(), indent=4)
             elif self.is_handle(arg.base_type):
                 if arg.is_array:
                     # Generate an array of strings containing the handle id names
@@ -970,11 +968,11 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     strArrayVarName = makeSnakeCaseName(arg.name + 'Array')
                     strValuesVarName = makeSnakeCaseName(arg.name + 'Values')
 
-                    body += makeGenVar(strArrayVarName, None, handleObjectType, locals(), indent=4)
+                    body += makeGenVar(strArrayVarName, strArrayVarName, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
                                            [f'{arg.name}->GetPointer()',
                                             f'{arg.name}->GetPointer() + {arg.array_length}',
-                                            '[&](const format::HandleId current) {{ return this->GetHandle(current); }}',
+                                            '[&](const {arg.base_type} current) {{ return util::ToString(current); }}',
                                             '", "'], locals(), indent=4)
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
                         body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)

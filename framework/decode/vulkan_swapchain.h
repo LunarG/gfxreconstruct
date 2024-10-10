@@ -48,8 +48,9 @@ class ScreenshotHandler;
 
 struct VulkanSwapchainOptions
 {
-    bool    skip_additional_present_blts{ false };
-    int32_t select_surface_index{ -1 };
+    bool    virtual_swapchain_skip_blit{ false };
+    int32_t surface_index{ -1 };
+    bool    offscreen_swapchain_frame_boundary{ false };
 };
 
 class VulkanSwapchain
@@ -59,7 +60,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
-    void SetOptions(VulkanSwapchainOptions& options) { swapchain_options_ = options; }
+    void SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
 
     virtual VkResult CreateSurface(VkResult                            original_result,
                                    InstanceInfo*                       instance_info,
@@ -160,6 +161,10 @@ class VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) = 0;
+
+    virtual void CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
+                                     CommandBufferInfo*        command_buffer_info,
+                                     const VkDependencyInfo*   pDependencyInfo) = 0;
 
     virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
                                                       SwapchainKHRInfo* swapchain_info,

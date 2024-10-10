@@ -349,7 +349,7 @@ Building on MacOS requires the installation of the following packages:
   - install e.g. via https://brew.sh/
 
 ### MacOS Build
-The approach is identical to a linux-build with one addition.
+The approach is identical to a linux-build with few additions.
 
 #### Explicit CPU-Architecture
 Building for specific cpu-architectures can be accomplished by using the cmake-variable `CMAKE_OSX_ARCHITECTURES` 
@@ -365,6 +365,33 @@ cd build
 make -j4
 ```
 
+#### Code signing
+Capturing applications that are code-signed will require `libVkLayer_gfxreconstruct.dylib` to be code-signed as well.
+
+If a signed application tries to load an unsigned layer, an error-message will be issued by the OS:
+```
+ERROR: dlopen(/path/to/libVkLayer_gfxreconstruct.dylib, 0x0005): ...
+'libVkLayer_gfxreconstruct.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs)
+```
+
+In this case the layer can be signed using the same certificate, allowing it to be loaded at runtime.
+This can be achieved with either XCode or via command-line using `Apple's codesign utility`.
+
+Example usage of Apple's codesign commandline utility:
+```bash
+# unlock keychain
+security unlock-keychain
+
+# invoke Apple's codesign-utility
+codesign --force --timestamp --sign "Your Apple Developer Team ID" -v libVkLayer_gfxreconstruct.dylib
+
+# optionally print/verify resulting information
+codesign -dvvv libVkLayer_gfxreconstruct.dylib`
+```
+
+Apple's developer information about code-signing can be found here:
+https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html
+
 ## Building for Android
 
 ### Android Development Requirements
@@ -373,29 +400,26 @@ make -j4
   - The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
   - [Android SDK 33 (13 Tiramisu) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
   - [Android NDK 21.3.6528147 (r21d)](https://developer.android.com/ndk/guides/)
-- [Java JDK 1.11](https://jdk.java.net/11)
+- [Java JDK 17](https://jdk.java.net/17/)
 
 #### Additional Linux Command-Linux Prerequisites
 
 Additional requirements for building from the Linux command-line:
 - Define `ANDROID_HOME`to be the path to the SDK installed on your system by Android Studio.
   - Refer to Android Studio to find out where the files are installed
-    - **NOTE:** For older Android Stud io's you may also have to set `ANDROID_SDK_ROOT` to the same value
+    - **NOTE:** For older Android Studio's you may also have to set `ANDROID_SDK_ROOT` to the same value
   - For example:
 
 ```bash
-        export ANDROID_HOME=$HOME/Android/Sdk`
+        export ANDROID_HOME=$HOME/Android/Sdk
 ```
 
 - Define JAVA_HOME to the path to the directory of the JDK.
   - For example:
 
 ```bash
-      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.18.0.10-1.fc37.x86_64
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
-
-- Make the `gradlew` script executable
-  - `chmod +x android/gradlew`
 
 ### Android Build
 

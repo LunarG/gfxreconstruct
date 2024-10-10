@@ -34,6 +34,8 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     def __init__(
         self,
         replay_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        dump_resources_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        replay_async_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
@@ -55,6 +57,8 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             extraVulkanHeaders=extraVulkanHeaders
         )
         self.replay_overrides = replay_overrides
+        self.dump_resources_overrides = dump_resources_overrides
+        self.replay_async_overrides = replay_async_overrides
 
 
 class VulkanReplayConsumerBodyGenerator(
@@ -69,6 +73,7 @@ class VulkanReplayConsumerBodyGenerator(
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
     # will be replaced by the override value.
     REPLAY_OVERRIDES = {}
+    DUMP_RESOURCES_OVERRIDES = {}
 
     # Map of pool object types associating the pool type with the allocated type and the allocated type with the pool type.
     POOL_OBJECT_ASSOCIATIONS = {
@@ -81,7 +86,7 @@ class VulkanReplayConsumerBodyGenerator(
     SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
 
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
-    
+
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
 
     def __init__(
@@ -110,7 +115,8 @@ class VulkanReplayConsumerBodyGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.replay_overrides:
-            self.__load_replay_overrides(gen_opts.replay_overrides)
+            self.__load_replay_overrides(gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
+                                         gen_opts.replay_async_overrides)
 
         write(
             '#include "generated/generated_vulkan_replay_consumer.h"',
@@ -186,7 +192,7 @@ class VulkanReplayConsumerBodyGenerator(
         write('        InitializeOutputStructPNextImpl(in_pnext, output_struct);', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
-       
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -247,9 +253,13 @@ class VulkanReplayConsumerBodyGenerator(
         """Return VulkanReplayConsumer class member function definition."""
         body = ''
         is_override = name in self.REPLAY_OVERRIDES
+        is_dump_resources = self.is_dump_resources_api_call(name)
 
         is_skip_offscreen = True
-        
+
+        # function 'can' use asynchronous control-flow
+        is_async = name in self.REPLAY_ASYNC_OVERRIDES
+
         for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
             if key in name:
                 is_skip_offscreen = False
@@ -304,11 +314,16 @@ class VulkanReplayConsumerBodyGenerator(
                 call_expr = '{}(returnValue, {})'.format(
                     self.REPLAY_OVERRIDES[name], arglist
                 )
-            elif return_type == 'VkResult':
+            elif return_type in ['VkResult', 'VkDeviceAddress']:
                 # Override functions receive the decoded return value in addition to parameters.
-                call_expr = '{}({}, returnValue, {})'.format(
-                    self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
-                )
+                if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
+                    call_expr = '{}({}, returnValue, {})'.format(
+                        self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
+                    )
+                else:
+                    call_expr = '{}({}, call_info.index, returnValue, {})'.format(
+                        self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
+                    )
             else:
                 call_expr = '{}({}, {})'.format(
                     self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
@@ -323,12 +338,75 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
             body += '\n'
         if return_type == 'VkResult':
+            if is_async:
+                body += '    if (UseAsyncOperations())\n'
+                body += '    {\n'
+                body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
+                body += '        if(task)\n'
+                body += '        {\n'
+                body += '           {}\n'.format(postexpr[0])
+                body += '           return;\n'
+                body += '        }\n'
+                body += '    }\n'
+                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
+
             body += '    VkResult replay_result = {};\n'.format(call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
-                name
-            )
+            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
         else:
             body += '    {};\n'.format(call_expr)
+
+        # Dump resources code generation
+        if is_dump_resources:
+            is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
+
+            dump_resource_arglist = ''
+            if is_override:
+                for val in values:
+                    if val.is_pointer and self.is_struct(val.base_type):
+                        if is_dr_override:
+                            dump_resource_arglist += val.name
+                        else:
+                            dump_resource_arglist += val.name + '->GetPointer()'
+                    elif self.is_handle(val.base_type):
+                        if val.is_pointer:
+                            dump_resource_arglist += val.name + '->GetHandlePointer()'
+                        else:
+                            dump_resource_arglist += 'in_' + val.name + '->handle'
+                    else:
+                        dump_resource_arglist += val.name
+                    dump_resource_arglist += ', '
+                dump_resource_arglist = dump_resource_arglist[:-2]
+            else:
+                if is_dr_override:
+                    for val in values:
+                        if val.is_pointer and not self.is_handle(val.base_type):
+                            if self.is_struct(val.base_type):
+                                dump_resource_arglist += val.name
+                            else:
+                                dump_resource_arglist += 'in_' + val.name
+                        elif val.base_type == 'VkPipeline':
+                            dump_resource_arglist += 'GetObjectInfoTable().GetPipelineInfo(pipeline)'
+                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type == 'VkCommandBuffer':
+                            dump_resource_arglist += 'in_' + val.name
+                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type != 'VkCommandBuffer':
+                            dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type[2:] + "Info(" + val.name + ")"
+                        else:
+                            dump_resource_arglist += val.name
+                        dump_resource_arglist += ', '
+                    dump_resource_arglist = dump_resource_arglist[:-2]
+                else:
+                    dump_resource_arglist = arglist
+
+            body += '\n'
+            body += '    if (options_.dumping_resources)\n'
+            body += '    {\n'
+            if return_type == 'VkResult':
+                body += '        resource_dumper.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            else:
+                body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+
+            body += '    }\n'
+
         if postexpr:
             body += '\n'
             body += '\n'.join(
@@ -569,7 +647,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 .format(length_name, paramname=value.name)
                             )
                             if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
-                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, in_pCreateInfos);}}'.format(length_name))
+                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name))
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
@@ -623,6 +701,18 @@ class VulkanReplayConsumerBodyGenerator(
                                         )
                                     )
                                 else:
+                                    # additionally add an asynchronous flavour to postexpr, so both are available later
+                                    if name in self.REPLAY_ASYNC_OVERRIDES:
+                                        postexpr.append(
+                                            'AddHandlesAsync<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
+                                            .format(
+                                                self.get_parent_id(value, values),
+                                                arg_name,
+                                                length_name,
+                                                paramname=value.name,
+                                                basetype=value.base_type[2:]
+                                            )
+                                        )
                                     postexpr.append(
                                         'AddHandles<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -720,7 +810,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(value.name, arg_name, name=name)
-                                    )                                    
+                                    )
                             else:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                     paramname=value.name
@@ -734,7 +824,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(paramname=value.name, name=name)
-                                    )                                    
+                                    )
                         elif self.is_handle(value.base_type):
                             # Add mapping for the newly created handle
                             preexpr.append(
@@ -808,14 +898,14 @@ class VulkanReplayConsumerBodyGenerator(
                                     if need_temp_value:
                                         if value.base_type in self.structs_with_handle_ptrs:
                                             preexpr.append(
-                                                'SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                                'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
                                                 .format(
                                                     value.base_type,
                                                     paramname=value.name
                                                 )
                                             )
                                         postexpr.append(
-                                            'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
+                                            'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     value, values
@@ -947,6 +1037,15 @@ class VulkanReplayConsumerBodyGenerator(
 
         return expr
 
-    def __load_replay_overrides(self, filename):
+    def is_async_handle_type(self, basetype):
+        return basetype in ["VkPipeline", "VkShaderExt"]
+
+    def __load_replay_overrides(self, filename, dump_resources_overrides_filename, replay_async_overrides_filename):
         overrides = json.loads(open(filename, 'r').read())
         self.REPLAY_OVERRIDES = overrides['functions']
+
+        dump_resources_overrides = json.loads(open(dump_resources_overrides_filename, 'r').read())
+        self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides['functions']
+
+        replay_async_overrides = json.loads(open(replay_async_overrides_filename, 'r').read())
+        self.REPLAY_ASYNC_OVERRIDES = replay_async_overrides['functions']

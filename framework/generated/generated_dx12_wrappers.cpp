@@ -2155,7 +2155,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
     if (call_scope == 1)
     {
-        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
@@ -2175,6 +2185,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             result,
             SyncInterval,
@@ -4881,7 +4892,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
     if (call_scope == 1)
     {
-        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,
@@ -4904,6 +4925,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             result,
             SyncInterval,
@@ -5321,7 +5343,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForHwnd(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             hWnd,
             pDesc,
@@ -5406,7 +5429,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForCoreWindow(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             encode::GetWrappedObject<IUnknown>(pWindow),
             pDesc,
@@ -5879,7 +5903,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForComposition(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
@@ -15357,6 +15382,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             NumCommandLists,
             ppCommandLists);
@@ -15374,6 +15400,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             NumCommandLists,
             ppCommandLists);

@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -251,13 +251,17 @@ class D3D12CaptureManager : public ApiCaptureManager
                                              UINT                           present_flags,
                                              const DXGI_PRESENT_PARAMETERS* present_parameters);
 
-    void
-    PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
+    void PostProcess_IDXGISwapChain_Present(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                            IDXGISwapChain_Wrapper*                                wrapper,
+                                            HRESULT                                                result,
+                                            UINT                                                   sync_interval,
+                                            UINT                                                   flags);
 
-    void PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
-                                              HRESULT                        result,
-                                              UINT                           sync_interval,
-                                              UINT                           present_flags,
+    void PostProcess_IDXGISwapChain1_Present1(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                              IDXGISwapChain_Wrapper*                                wrapper,
+                                              HRESULT                                                result,
+                                              UINT                                                   sync_interval,
+                                              UINT                                                   present_flags,
                                               const DXGI_PRESENT_PARAMETERS* present_parameters);
 
     void PreProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
@@ -444,13 +448,17 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
 
-    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                           UINT                        num_lists,
-                                                           ID3D12CommandList* const*   lists);
+    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+        ID3D12CommandQueue_Wrapper*                            wrapper,
+        UINT                                                   num_lists,
+        ID3D12CommandList* const*                              lists);
 
-    void PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                            UINT                        num_lists,
-                                                            ID3D12CommandList* const*   lists);
+    void PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+        ID3D12CommandQueue_Wrapper*                            wrapper,
+        UINT                                                   num_lists,
+        ID3D12CommandList* const*                              lists);
 
     void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
@@ -687,6 +695,27 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                      void*                 feature_support_data,
                                                      UINT                  feature_support_data_size);
 
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForHwnd(IDXGIFactory2_Wrapper*                 factory2_wrapper,
+                                                         IUnknown*                              pDevice,
+                                                         HWND                                   hWnd,
+                                                         const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+                                                         const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+                                                         IDXGIOutput*                           pRestrictToOutput,
+                                                         IDXGISwapChain1**                      ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                               IUnknown*                    pDevice,
+                                                               IUnknown*                    pWindow,
+                                                               const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                               IDXGIOutput*                 pRestrictToOutput,
+                                                               IDXGISwapChain1**            ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                IUnknown*                    pDevice,
+                                                                const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                IDXGIOutput*                 pRestrictToOutput,
+                                                                IDXGISwapChain1**            ppSwapChain);
+
     void OverrideGetRaytracingAccelerationStructurePrebuildInfo(
         ID3D12Device5_Wrapper*                                      device5_wrapper,
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
@@ -785,13 +814,17 @@ class D3D12CaptureManager : public ApiCaptureManager
     bool     IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
+    void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
     bool                          RvAnnotationActive();
 
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper, UINT flags);
+    void                              PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                  IDXGISwapChain_Wrapper*                                wrapper,
+                                                  UINT                                                   flags);
+
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.

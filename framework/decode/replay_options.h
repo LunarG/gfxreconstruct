@@ -41,21 +41,26 @@ struct ScreenshotRange
 
 struct ReplayOptions
 {
-    bool     enable_validation_layer{ false };
-    bool     sync_queue_submissions{ false };
-    bool     enable_debug_device_lost{ false };
-    bool     create_dummy_allocations{ false };
-    bool     omit_null_hardware_buffers{ false };
-    bool     quit_after_measurement_frame_range{ false };
-    bool     flush_measurement_frame_range{ false };
-    bool     flush_inside_measurement_range{ false };
-    bool     force_windowed{ false };
-    uint32_t windowed_width{ 0 };
-    uint32_t windowed_height{ 0 };
-    bool     force_windowed_origin{ false };
-    int32_t  window_topleft_x{ 0 };
-    int32_t  window_topleft_y{ 0 };
-    int32_t  override_gpu_index{ -1 };
+    bool        enable_validation_layer{ false };
+    bool        sync_queue_submissions{ false };
+    bool        enable_debug_device_lost{ false };
+    bool        create_dummy_allocations{ false };
+    bool        omit_null_hardware_buffers{ false };
+    bool        quit_after_measurement_frame_range{ false };
+    bool        flush_measurement_frame_range{ false };
+    bool        flush_inside_measurement_range{ false };
+    bool        force_windowed{ false };
+    uint32_t    windowed_width{ 0 };
+    uint32_t    windowed_height{ 0 };
+    bool        force_windowed_origin{ false };
+    int32_t     window_topleft_x{ 0 };
+    int32_t     window_topleft_y{ 0 };
+    int32_t     override_gpu_index{ -1 };
+    std::string capture_filename;
+    bool        enable_print_block_info{ false };
+    int64_t     block_index_from{ -1 };
+    int64_t     block_index_to{ -1 };
+    int32_t     num_pipeline_creation_jobs{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

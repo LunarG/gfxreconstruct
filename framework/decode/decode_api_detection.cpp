@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected)
+bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected, bool no_block_limit)
 {
     dx12_detected   = false;
     vulkan_detected = false;
@@ -37,12 +37,16 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer;
+        uint64_t vulkan_block_limit = no_block_limit ? gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit
+                                                     : gfxrecon::decode::VulkanDetectionConsumer::kDefaultBlockLimit;
+        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer(vulkan_block_limit);
         gfxrecon::decode::VulkanDecoder           vulkan_decoder;
         vulkan_decoder.AddConsumer(&vulkan_detection_consumer);
         file_processor.AddDecoder(&vulkan_decoder);
 #if defined(D3D12_SUPPORT)
-        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer;
+        uint64_t dx12_block_limit = no_block_limit ? gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit
+                                                   : gfxrecon::decode::Dx12DetectionConsumer::kDefaultBlockLimit;
+        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer(dx12_block_limit);
         gfxrecon::decode::Dx12Decoder           dx12_decoder;
         dx12_decoder.AddConsumer(&dx12_detection_consumer);
         file_processor.AddDecoder(&dx12_decoder);

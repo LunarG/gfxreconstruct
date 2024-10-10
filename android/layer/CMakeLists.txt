@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+project(VkLayer_gfxreconstruct)
+
 get_filename_component(GFXRECON_SOURCE_DIR ../.. ABSOLUTE)
 
 include(../framework/cmake-config/PlatformConfig.cmake)

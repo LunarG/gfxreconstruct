@@ -382,16 +382,22 @@ bool FileTransformer::ReadCompressedParameterBuffer(size_t  compressed_buffer_si
 
 bool FileTransformer::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, input_file_);
-    bytes_read_ += bytes_read;
-    return (bytes_read == buffer_size);
+    if (util::platform::FileRead(buffer, buffer_size, input_file_))
+    {
+        bytes_read_ += buffer_size;
+        return true;
+    }
+    return false;
 }
 
 bool FileTransformer::WriteBytes(const void* buffer, size_t buffer_size)
 {
-    size_t bytes_written = util::platform::FileWrite(buffer, 1, buffer_size, output_file_);
-    bytes_written_ += bytes_written;
-    return (bytes_written == buffer_size);
+    if (util::platform::FileWrite(buffer, buffer_size, output_file_))
+    {
+        bytes_written_ += buffer_size;
+        return true;
+    }
+    return false;
 }
 
 bool FileTransformer::SkipBytes(uint64_t skip_size)

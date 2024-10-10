@@ -117,20 +117,24 @@ class CommonCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type);
 
-    void EndFrame(format::ApiFamilyId api_family);
+    void EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
-    void PreQueueSubmit(format::ApiFamilyId api_family);
-    void PostQueueSubmit(format::ApiFamilyId api_family);
+    void PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
+    void PostQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
 
-    void CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
+    void CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
+                                          uint32_t                         current_boundary_count,
+                                          std::shared_lock<ApiCallMutexT>& current_lock);
 
-    void CheckStartCaptureForTrackMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
+    void CheckStartCaptureForTrackMode(format::ApiFamilyId              api_family,
+                                       uint32_t                         current_boundary_count,
+                                       std::shared_lock<ApiCallMutexT>& current_lock);
 
     bool IsTrimHotkeyPressed();
 
@@ -256,6 +260,7 @@ class CommonCaptureManager
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
+    bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
@@ -266,8 +271,8 @@ class CommonCaptureManager
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
-    void        ActivateTrimming();
-    void        DeactivateTrimming();
+    void        ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
+    void        DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -380,6 +385,7 @@ class CommonCaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
+    bool                                    force_fifo_present_mode_;
 
     struct
     {

@@ -3680,6 +3680,47 @@ void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const A
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
 }
 
+void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                                                    call_info,
+    format::HandleId                                                      commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+{
+    FILE*       file = GetFrameFile();
+    std::string var_name;
+
+    Decoded_VkPushDescriptorSetWithTemplateInfoKHR* decoded_info =
+        pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
+
+    fprintf(file, "\t{\n");
+
+    pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate2KHR");
+
+    DescriptorUpdateTemplateDecoder pData;
+    const uint8_t*                  ptr = static_cast<const uint8_t*>(decoded_info->pNext->GetPointer());
+    pData.Decode(ptr, pData.GetLength());
+    GenerateDescriptorUpdateTemplateData(&pData, decoded_info->descriptorUpdateTemplate, file, var_name);
+
+    fprintf(file,
+            "\t\tVkPushDescriptorSetWithTemplateInfoKHR info;\n\
+		             \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR;\n\
+		             \t\tinfo.pNext = nullptr;\n\
+		             \t\tinfo.descriptorUpdateTemplate = %s;\n\
+		             \t\tinfo.layout = %s\n\
+		             \t\tinfo.set = %u\n\
+		             \t\tinfo.pData = %s\n",
+            this->GetHandle(decoded_info->descriptorUpdateTemplate).c_str(),
+            this->GetHandle(decoded_info->layout).c_str(),
+            decoded_info->decoded_value->set,
+            var_name.c_str());
+
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDescriptorSetWithTemplate2KHR(%s, &info);\n",
+            this->GetHandle(commandBuffer).c_str());
+    fprintf(file, "\t}\n");
+
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
+}
+
 void VulkanCppConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     const ApiCallInfo&                                               call_info,
     VkResult                                                         returnValue,

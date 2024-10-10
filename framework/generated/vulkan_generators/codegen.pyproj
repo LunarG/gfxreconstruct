@@ -35,6 +35,8 @@
     <Compile Include="vulkan_referenced_resource_consumer_body_generator.py" />
     <Compile Include="vulkan_referenced_resource_consumer_header_generator.py" />
     <Compile Include="vulkan_replay_consumer_body_generator.py" />
+    <Compile Include="vulkan_replay_dump_resources_body_generator.py" />
+    <Compile Include="vulkan_replay_dump_resources_header_generator.py" />
     <Compile Include="base_generator.py" />
     <Compile Include="vulkan_struct_decoders_header_generator.py" />
     <Compile Include="decode_pnext_struct_generator.py" />

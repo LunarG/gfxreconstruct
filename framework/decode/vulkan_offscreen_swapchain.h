@@ -110,10 +110,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    const VkSemaphore* signal_semaphores,
                                    VkFence            fence);
 
-    bool                         insert_frame_boundary_{ false };
-    std::vector<VkCommandPool>   command_pools_{ VK_NULL_HANDLE };
-    std::vector<VkCommandBuffer> command_buffers_{ VK_NULL_HANDLE };
-    VkFrameBoundaryEXT           frame_boundary_;
+    VkFrameBoundaryEXT frame_boundary_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

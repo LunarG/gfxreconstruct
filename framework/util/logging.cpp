@@ -293,7 +293,7 @@ void Log::LogMessage(
             // Write the newline since we want to separate each log-line but don't
             // want the messages themselves to have to add it.
             output_message = "\n";
-            platform::FileWrite(output_message.c_str(), 1, 1, log_file_ptr);
+            platform::FileWrite(output_message.c_str(), 1, log_file_ptr);
 
             if (settings_.flush_after_write || settings_.leave_file_open)
             {

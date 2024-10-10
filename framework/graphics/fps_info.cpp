@@ -63,13 +63,14 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  bool                   quit_after_range,
                  bool                   flush_measurement_range,
                  bool                   flush_inside_measurement_range,
+                 bool                   preload_measurement_range,
                  const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
     flush_inside_measurement_range_(flush_inside_measurement_range), has_measurement_range_(has_measurement_range),
     started_measurement_(false), ended_measurement_(false), frame_start_time_(0), frame_durations_(),
-    measurement_file_name_(measurement_file_name)
+    preload_measurement_range_(preload_measurement_range), measurement_file_name_(measurement_file_name)
 {
     if (has_measurement_range_)
     {
@@ -146,12 +147,8 @@ void FpsInfo::EndFrame(uint64_t frame)
                 {
                     const std::string json_string = file_content.dump(util::kJsonIndentWidth);
 
-                    const size_t size_written =
-                        util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
-                    util::platform::FileClose(file_pointer);
-
                     // It either writes a fully valid file, or it doesn't write anything !
-                    if (size_written != json_string.size())
+                    if (!util::platform::FileWrite(json_string.data(), json_string.size(), file_pointer))
                     {
                         GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.",
                                            measurement_file_name_.c_str());
@@ -165,6 +162,7 @@ void FpsInfo::EndFrame(uint64_t frame)
                                                remove_result);
                         }
                     }
+                    util::platform::FileClose(file_pointer);
                 }
                 else
                 {
@@ -233,6 +231,16 @@ void FpsInfo::LogToConsole()
                                measurement_start_frame_,
                                measurement_end_frame_);
     }
+}
+
+uint64_t FpsInfo::ShouldPreloadFrames(uint64_t current_frame) const
+{
+    uint64_t result = 0;
+    if (preload_measurement_range_ && current_frame == measurement_start_frame_)
+    {
+        result = measurement_end_frame_ - measurement_start_frame_;
+    }
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

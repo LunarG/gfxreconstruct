@@ -50,9 +50,11 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
-
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
+
+    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                             env_string)
+    {}
 };
 
 /* Utility */

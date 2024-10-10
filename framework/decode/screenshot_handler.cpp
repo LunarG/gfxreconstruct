@@ -21,13 +21,11 @@
 */
 
 #include "decode/screenshot_handler.h"
-
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "decode/decoder_util.h"
 
-#include <condition_variable>
 #include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -38,13 +36,6 @@ static constexpr uint32_t kDefaultQueueIndex       = 0;
 
 static constexpr size_t kUnormIndex = 0;
 static constexpr size_t kSrgbIndex  = 1;
-
-const VkFormat kImageFormats[][2] = {
-    // Vulkan image formats for util::ScreenshotFormat::kBmp
-    { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_B8G8R8A8_SRGB },
-    // Vulkan image formats for util::ScreenshotFormat::kPng
-    { VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R8G8B8A8_SRGB }
-};
 
 inline void WriteImageFile(const std::string&     filename,
                            util::ScreenshotFormat file_format,
@@ -59,14 +50,14 @@ inline void WriteImageFile(const std::string&     filename,
             GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
             // Intentional fall-through
         case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImageNoAlpha(filename + ".bmp", width, height, size, data))
+            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
             }
             break;
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
         case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImageNoAlpha(filename + ".png", width, height, size, data))
+            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
             }
@@ -481,14 +472,7 @@ bool ScreenshotHandler::IsSrgbFormat(VkFormat image_format) const
 
 VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
 {
-    if (IsSrgbFormat(image_format))
-    {
-        return kImageFormats[static_cast<size_t>(screenshot_format_)][kSrgbIndex];
-    }
-    else
-    {
-        return kImageFormats[static_cast<size_t>(screenshot_format_)][kUnormIndex];
-    }
+    return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
 VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                         device,

@@ -41,6 +41,7 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -71,20 +72,36 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
-// struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
-struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
-struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
-struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
-struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
-struct VideoSessionKHRWrapper               : public HandleWrapper<VkVideoSessionKHR> {};
-struct VideoSessionParametersKHRWrapper     : public HandleWrapper<VkVideoSessionParametersKHR> {};
-struct ShaderEXTWrapper                     : public HandleWrapper<VkShaderEXT> {};
+struct ShaderModuleWrapper                            : public HandleWrapper<VkShaderModule> {};
+// struct PipelineCacheWrapper                           : public HandleWrapper<VkPipelineCache> {};
+struct SamplerWrapper                                 : public HandleWrapper<VkSampler> {};
+struct SamplerYcbcrConversionWrapper                  : public HandleWrapper<VkSamplerYcbcrConversion> {};
+struct DebugReportCallbackEXTWrapper                  : public HandleWrapper<VkDebugReportCallbackEXT> {};
+struct DebugUtilsMessengerEXTWrapper                  : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
+struct ValidationCacheEXTWrapper                      : public HandleWrapper<VkValidationCacheEXT> {};
+struct IndirectCommandsLayoutNVWrapper                : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
+struct PerformanceConfigurationINTELWrapper           : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
+struct MicromapEXTWrapper                             : public HandleWrapper<VkMicromapEXT> {};
+struct OpticalFlowSessionNVWrapper                    : public HandleWrapper<VkOpticalFlowSessionNV> {};
+struct VideoSessionKHRWrapper                         : public HandleWrapper<VkVideoSessionKHR> {};
+struct VideoSessionParametersKHRWrapper               : public HandleWrapper<VkVideoSessionParametersKHR> {};
+struct ShaderEXTWrapper                               : public HandleWrapper<VkShaderEXT> {};
+
+struct PipelineBinaryKHRWrapper                       : public HandleWrapper<VkPipelineBinaryKHR> {};
+struct PipelineBinaryCreateInfoKHRWrapper             : public HandleWrapper<VkPipelineBinaryCreateInfoKHR> {};
+struct PipelineBinaryDataInfoKHRWrapper               : public HandleWrapper<VkPipelineBinaryDataInfoKHR> {};
+struct PipelineBinaryDataKHRWrapper                   : public HandleWrapper<VkPipelineBinaryDataKHR> {};
+struct PipelineBinaryHandlesInfoKHRWrapper            : public HandleWrapper<VkPipelineBinaryHandlesInfoKHR> {};
+struct PipelineBinaryKeyKHRWrapper                    : public HandleWrapper<VkPipelineBinaryKeyKHR> {};
+struct PipelineBinaryKeysAndDataKHRWrapper            : public HandleWrapper<VkPipelineBinaryKeysAndDataKHR> {};
+struct ReleaseCapturedPipelineDataInfoKHRWrapper      : public HandleWrapper<VkReleaseCapturedPipelineDataInfoKHR> {};
+struct DevicePipelineBinaryInternalCacheControlKHRWrapper      : public HandleWrapper<VkDevicePipelineBinaryInternalCacheControlKHR> {};
+struct PipelineBinaryInfoKHRWrapper      : public HandleWrapper<VkPipelineBinaryInfoKHR> {};
+struct PhysicalDevicePipelineBinaryFeaturesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryFeaturesKHR> {};
+struct PhysicalDevicePipelineBinaryPropertiesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryPropertiesKHR> {};
+struct IndirectCommandsLayoutEXTWrapper : public HandleWrapper<VkIndirectCommandsLayoutEXT> {};
+struct IndirectExecutionSetEXTWrapper : public HandleWrapper<VkIndirectExecutionSetEXT> {};
+
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -121,6 +138,9 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties[]>  queue_family_properties;
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
+
+    // Track RayTracingPipelinePropertiesKHR
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> ray_tracing_pipeline_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
@@ -186,10 +206,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
-    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
-                                          // HandleUnwrapMemory.
+    DeviceWrapper*             bind_device{ nullptr };
+    const void*                bind_pnext{ nullptr };
+    std::unique_ptr<uint8_t[]> bind_pnext_memory;
+
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
@@ -198,14 +218,15 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
+    VkDeviceAddress  opaque_address{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
-    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
-                                          // HandleUnwrapMemory.
+    DeviceWrapper*             bind_device{ nullptr };
+    const void*                bind_pnext{ nullptr };
+    std::unique_ptr<uint8_t[]> bind_pnext_memory;
+
     format::HandleId         bind_memory_id{ format::kNullHandleId };
     VkDeviceSize             bind_offset{ 0 };
     uint32_t                 queue_family_index{ 0 };
@@ -413,20 +434,21 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 struct SurfaceCapabilities
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    HandleUnwrapMemory              surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    VkSurfaceCapabilities2KHR surface_capabilities;
-    HandleUnwrapMemory        surface_capabilities_pnext_memory;
+    VkSurfaceCapabilities2KHR  surface_capabilities;
+    std::unique_ptr<uint8_t[]> surface_capabilities_pnext_memory;
 };
 
 // For vkGetPhysicalDeviceSurfaceFormatsKHR
 struct SurfaceFormats
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    HandleUnwrapMemory              surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    std::vector<VkSurfaceFormat2KHR> surface_formats;
-    std::vector<HandleUnwrapMemory>  surface_formats_pnext_memory;
+    VkSurfaceFormat2KHR*       surface_formats;
+    uint32_t                   surface_format_count;
+    std::unique_ptr<uint8_t[]> surface_formats_memory;
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
@@ -434,7 +456,7 @@ struct SurfacePresentModes
 {
     std::vector<VkPresentModeKHR> present_modes;
     const void*                   surface_info_pnext{ nullptr };
-    HandleUnwrapMemory            surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>    surface_info_pnext_memory;
 };
 
 // For vkGetDeviceGroupSurfacePresentModesKHR
@@ -442,7 +464,7 @@ struct GroupSurfacePresentModes
 {
     VkDeviceGroupPresentModeFlagsKHR present_modes{ 0 };
     const void*                      surface_info_pnext{ nullptr };
-    HandleUnwrapMemory               surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>       surface_info_pnext_memory;
 };
 
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>

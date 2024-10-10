@@ -76,6 +76,16 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                               const VkAllocationCallbacks* allocation_callbacks,
                               ResourceData                 allocator_data) override;
 
+    virtual VkResult CreateVideoSession(const VkVideoSessionCreateInfoKHR* create_info,
+                                        const VkAllocationCallbacks*       allocation_callbacks,
+                                        format::HandleId                   capture_id,
+                                        VkVideoSessionKHR*                 session,
+                                        std::vector<ResourceData>*         allocator_datas) override;
+
+    virtual void DestroyVideoSession(VkVideoSessionKHR            session,
+                                     const VkAllocationCallbacks* allocation_callbacks,
+                                     std::vector<ResourceData>    allocator_datas) override;
+
     virtual void GetImageSubresourceLayout(VkImage                    image,
                                            const VkImageSubresource*  subresource,
                                            VkSubresourceLayout*       layout,
@@ -140,6 +150,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                       const MemoryData*            allocator_memory_datas,
                                       VkMemoryPropertyFlags*       bind_memory_properties) override;
 
+    virtual VkResult BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
+                                            uint32_t                               bind_info_count,
+                                            const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                            const ResourceData*                    allocator_session_datas,
+                                            const MemoryData*                      allocator_memory_datas,
+                                            VkMemoryPropertyFlags*                 bind_memory_properties) override;
+
     virtual VkResult MapMemory(VkDeviceMemory   memory,
                                VkDeviceSize     offset,
                                VkDeviceSize     size,
@@ -179,6 +196,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                  const VkBindImageMemoryInfo* bind_infos,
                                                  const ResourceData*          allocator_resource_datas,
                                                  const MemoryData*            allocator_memory_datas) override;
+
+    virtual void ReportBindVideoSessionIncompatibility(VkVideoSessionKHR                      video_session,
+                                                       uint32_t                               bind_info_count,
+                                                       const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                       const ResourceData*                    allocator_resource_datas,
+                                                       const MemoryData* allocator_memory_datas) override;
 
     // Direct allocation methods that perform memory allocation and resource creation without performing memory
     // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
@@ -282,6 +305,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     }
 
     virtual bool SupportsOpaqueDeviceAddresses() override { return false; }
+    virtual bool SupportBindVideoSessionMemory() override { return true; }
 
   private:
     struct MemoryAllocInfo;
@@ -293,6 +317,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkSubresourceLayout rebind{};
     };
 
+    enum ObjectType
+    {
+        none          = 0,
+        buffer        = 1,
+        image         = 2,
+        video_session = 3,
+    };
+
     struct ResourceAllocInfo
     {
         MemoryAllocInfo* memory_info{ nullptr };
@@ -302,7 +334,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize     original_offset{ 0 };
         VkDeviceSize     rebind_offset{ 0 };
         VkDeviceSize     size{ 0 };
-        bool             is_image{ false };
+        ObjectType       object_type{ none };
         VkFlags          usage{ 0 };
         VkImageTiling    tiling{};
         uint32_t         height{ 0 };
@@ -322,6 +354,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::unique_ptr<uint8_t[]>                       original_content;
         std::unordered_map<VkBuffer, ResourceAllocInfo*> original_buffers;
         std::unordered_map<VkImage, ResourceAllocInfo*>  original_images;
+        std::unordered_map<VkVideoSessionKHR, ResourceAllocInfo*> original_sessions;
     };
 
   private:
@@ -377,6 +410,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                        VkImageTiling               tiling,
                                        VkMemoryPropertyFlags       capture_properties,
                                        const VkMemoryRequirements& replay_requirements);
+
+    VmaMemoryUsage GetVideoSeesionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
+                                              const VkMemoryRequirements& replay_requirements);
 
     VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
 

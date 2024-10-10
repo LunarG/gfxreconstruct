@@ -23,7 +23,7 @@ name: Release Build
 on:
   push:
     tags:
-      - v*
+      - v[0-9]*
 
 jobs:
   linux:
@@ -41,7 +41,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -59,7 +61,7 @@ jobs:
         mv build/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv build/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -79,7 +81,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --skip-tests --parallel 0
@@ -92,10 +96,57 @@ jobs:
         copy layer\vk_layer_settings.txt build\windows\x64\output\bin\
         move build\windows\x64\output\bin gfxreconstruct-dev
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
+
+  macOS:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "macOS Release",
+            os: macos-latest,
+            artifact: "gfxreconstruct-macos-release",
+            type: "release",
+            build_dir: "build"
+          }
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v3
+        with:
+          path: ~/deps
+          key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
+      - name: Build dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: .github/workflows/scripts/build-dependencies-macos.sh
+      - name: Run build script
+        run: |
+          python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
+      - name: Prepare artifacts
+        run: |
+          cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+          cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+          cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+          cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+          mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
+          mv ${{ matrix.config.build_dir }}/darwin/universal/output/lib*/*.dylib gfxreconstruct-dev/
+          mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: ./gfxreconstruct-dev
 
   android:
     name: ${{ matrix.config.name }}
@@ -111,10 +162,17 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Update submodules
       run: |
         git submodule update --init
+    - name: Set up Java
+      uses: "actions/setup-java@v4"
+      with:
+        java-version: 17
+        distribution: "temurin"
     - name: Gradle build
       run: |
         cd android
@@ -128,12 +186,12 @@ jobs:
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
         cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -141,10 +199,12 @@ jobs:
   release:
     name: Create Release for Tag
     runs-on: ubuntu-latest
-    needs: [ linux, windows, android ]
+    needs: [ linux, windows, android, macOS ]
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Get tag body
       id: get_tag_body
       run: |
@@ -171,7 +231,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./release_url
     - name: Upload release URL
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: release_url
         path: ./release_url
@@ -201,6 +261,14 @@ jobs:
             type: "application/zip"
           }
         - {
+          name: "Upload MacOS Release Artifact",
+          os: ubuntu-latest,
+          artifact: "gfxreconstruct-macos-release",
+          command: "tar czf",
+          suffix: "macos.tar.gz",
+          type: "application/x-gtar"
+        }
+        - {
             name: "Upload Android Release Artifact",
             os: ubuntu-latest,
             artifact: "gfxreconstruct-android",
@@ -215,7 +283,7 @@ jobs:
         tag_name=`echo "${{ github.ref }}" | cut -d "/" -f 3`
         echo "::set-output name=tag_name::$tag_name"
     - name: Download artifacts
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
@@ -223,7 +291,7 @@ jobs:
       run: |
         ${{ matrix.config.command }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
     - name: Download release URL
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: release_url
         path: ./

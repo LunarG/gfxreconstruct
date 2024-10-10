@@ -510,9 +510,27 @@ class VulkanCppStructGenerator(BaseGenerator):
         if arg.base_type in self.handle_names:
             handleObjectType = makeObjectType(arg.base_type)
 
-        # TODO: is the output parameter okay here?
         if not arg.is_array:
-            local_body.append(self.generateTodoFor(arg.name + " (output?)", indent))
+            if self.is_struct(arg.base_type):
+                varName = makeSnakeCaseName(arg.name + "Name")
+                header = makeGenVar(varName, None, handleObjectType, locals(), indent, useThis=False)
+                header += makeGenCond(f'{struct_prefix}{arg.name} != NULL', [
+                    makeGenVarCall(None,
+                                   varName,
+                                   f'GenerateStruct_{arg.base_type}',
+                                   ['out',
+                                    f'{struct_prefix}{arg.name}',
+                                    f'metaInfo->{arg.name}->GetMetaStructPointer()',
+                                    'consumer'],
+                                   locals(), indent=indent + 4),
+                    makeGen('{varName}.insert(0, "&");', locals(), indent + 4),
+                ], [], locals(), indent=indent)
+                local_header.append(header)
+                local_body.append(makeOutStructSet(varName, locals(), isFirstArg, isLastArg, indent))
+            else:
+                # TODO: non-struct output parameters
+                local_body.append(self.generateTodoFor(arg.name + " (non-struct output)", indent))
+
         else:
             if arg.array_length_value is None:
                 if lengths[0].isnumeric() or lengths[0].isupper():

@@ -39,6 +39,12 @@ void MapStructHandles(VkDescriptorType               type,
 
 void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
+                      const VulkanObjectInfoTable&                object_info_table);
+
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
+                      const VulkanObjectInfoTable&                         object_info_table);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
