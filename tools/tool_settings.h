@@ -422,6 +422,12 @@ static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
             return VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME;
         }
 #endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+        case WsiPlatform::kDisplay:
+        {
+            return VK_KHR_DISPLAY_EXTENSION_NAME;
+        }
+#endif
         default:
         {
             return std::string();
