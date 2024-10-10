@@ -154,6 +154,7 @@ enum class MetaDataType : uint16_t
     kReserved30                             = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
+    kViewRelativeLocation                   = 33,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
