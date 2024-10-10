@@ -64,7 +64,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
     dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename),
-    reached_end_command_buffer(false)
+    reached_end_command_buffer(false), dump_images_raw(options.dump_resources_dump_raw_images)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -918,6 +918,8 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilen
                                                                                     uint32_t              mip,
                                                                                     uint32_t              layer,
                                                                                     VkImageAspectFlagBits aspect,
+                                                                                    VkImageTiling         tiling,
+                                                                                    VkImageType           type,
                                                                                     bool                  is_dispatch,
                                                                                     uint64_t              qs_index,
                                                                                     uint64_t              bcb_index,
@@ -928,9 +930,21 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilen
                                                                                     VkShaderStageFlagBits stage,
                                                                                     bool before_cmd) const
 {
-    const util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(format);
-    const std::string                    shader_stage_name   = ShaderStageToStr(stage);
-    const std::string                    aspect_str          = ImageAspectToStr(aspect);
+    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+    assert(device_info);
+
+    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
+                                                                       device_table,
+                                                                       instance_table,
+                                                                       object_info_table,
+                                                                       format,
+                                                                       tiling,
+                                                                       type,
+                                                                       image_file_format,
+                                                                       dump_images_raw);
+
+    const std::string shader_stage_name = ShaderStageToStr(stage);
+    const std::string aspect_str        = ImageAspectToStr(aspect);
 
     std::stringstream filename;
     filename << capture_filename << '_';
@@ -940,7 +954,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilen
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                  << bcb_index << "_before_stage_" << shader_stage_name << "_set_" << desc_set << "_binding_"
                  << desc_binding << "_index_" << array_index;
-        if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
+        if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(format).c_str();
         }
@@ -951,7 +965,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilen
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                  << bcb_index << "_" << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name
                  << "_set_" << desc_set << "_binding_" << desc_binding << "_index_" << array_index;
-        if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
+        if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(format).c_str();
         }
@@ -963,7 +977,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilen
         filename << "_mip_" << mip << "_layer_" << layer;
     }
 
-    filename << ImageFileExtension(format, image_file_format);
+    filename << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -1086,6 +1100,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                                                                 mip,
                                                                                 layer,
                                                                                 aspect,
+                                                                                modified_image_info.tiling,
+                                                                                modified_image_info.type,
                                                                                 is_dispatch,
                                                                                 qs_index,
                                                                                 bcb_index,
@@ -1120,6 +1136,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                            scaling_supported,
                                            image_file_format,
                                            false,
+                                           dump_images_raw,
                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             if (res != VK_SUCCESS)
             {
@@ -1201,6 +1218,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                                                             mip,
                                                                             layer,
                                                                             aspect,
+                                                                            modified_image_info.tiling,
+                                                                            modified_image_info.type,
                                                                             is_dispatch,
                                                                             qs_index,
                                                                             bcb_index,
@@ -1235,6 +1254,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                        scaling_supported,
                                        image_file_format,
                                        false,
+                                       dump_images_raw,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
         if (res != VK_SUCCESS)
         {
@@ -1383,6 +1403,8 @@ std::string DispatchTraceRaysDumpingContext::GenerateImageDescriptorFilename(VkF
                                                                              uint32_t              layer,
                                                                              format::HandleId      image_id,
                                                                              VkImageAspectFlagBits aspect,
+                                                                             VkImageTiling         tiling,
+                                                                             VkImageType           type,
                                                                              uint64_t              qs_index,
                                                                              uint64_t              bcb_index) const
 {
@@ -1391,7 +1413,20 @@ std::string DispatchTraceRaysDumpingContext::GenerateImageDescriptorFilename(VkF
 
     base_filename << capture_filename << '_';
 
-    if (VkFormatToImageWriterDataFormat(format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
+    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+    assert(device_info);
+
+    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
+                                                                       device_table,
+                                                                       instance_table,
+                                                                       object_info_table,
+                                                                       format,
+                                                                       tiling,
+                                                                       type,
+                                                                       image_file_format,
+                                                                       dump_images_raw);
+
+    if (output_image_format != KFormatRaw && output_image_format != KFormatAstc)
     {
         base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_aspect_" << aspect_str;
     }
@@ -1404,17 +1439,16 @@ std::string DispatchTraceRaysDumpingContext::GenerateImageDescriptorFilename(VkF
 
     if (dump_all_image_subresources)
     {
-
         std::stringstream sub_resources_str;
         sub_resources_str << base_filename.str() << "_mip_" << mip << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(format, image_file_format);
+        sub_resources_str << ImageFileExtension(output_image_format);
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(sub_resources_str.str());
         return (filedirname / filebasename).string();
     }
     else
     {
-        base_filename << ImageFileExtension(format, image_file_format);
+        base_filename << ImageFileExtension(output_image_format);
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(base_filename.str());
         return (filedirname / filebasename).string();
@@ -1679,8 +1713,15 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
             {
                 for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
                 {
-                    filenames[f++] = GenerateImageDescriptorFilename(
-                        img_info->format, mip, layer, img_info->capture_id, aspect, qs_index, bcb_index);
+                    filenames[f++] = GenerateImageDescriptorFilename(img_info->format,
+                                                                     mip,
+                                                                     layer,
+                                                                     img_info->capture_id,
+                                                                     aspect,
+                                                                     img_info->tiling,
+                                                                     img_info->type,
+                                                                     qs_index,
+                                                                     bcb_index);
 
                     if (!dump_all_image_subresources)
                     {
@@ -1705,7 +1746,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                                        dump_resources_scale,
                                        scaling_supported,
                                        image_file_format,
-                                       dump_all_image_subresources);
+                                       dump_all_image_subresources,
+                                       dump_images_raw);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -2127,6 +2169,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                                                           mip,
                                                                                           layer,
                                                                                           aspect,
+                                                                                          img_info->tiling,
+                                                                                          img_info->type,
                                                                                           true,
                                                                                           qs_index,
                                                                                           bcb_index,
@@ -2231,6 +2275,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                                                       mip,
                                                                                       layer,
                                                                                       aspect,
+                                                                                      img_info->tiling,
+                                                                                      img_info->type,
                                                                                       true,
                                                                                       qs_index,
                                                                                       bcb_index,
@@ -2347,6 +2393,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                                                                layer,
                                                                                                img_info->capture_id,
                                                                                                aspect,
+                                                                                               img_info->tiling,
+                                                                                               img_info->type,
                                                                                                qs_index,
                                                                                                bcb_index);
 
@@ -2560,6 +2608,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                                                           mip,
                                                                                           layer,
                                                                                           aspect,
+                                                                                          img_info->tiling,
+                                                                                          img_info->type,
                                                                                           false,
                                                                                           qs_index,
                                                                                           bcb_index,
@@ -2663,6 +2713,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                                                       mip,
                                                                                       layer,
                                                                                       aspect,
+                                                                                      img_info->tiling,
+                                                                                      img_info->type,
                                                                                       false,
                                                                                       qs_index,
                                                                                       bcb_index,
@@ -2781,6 +2833,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                                                                    layer,
                                                                                                    img_info->capture_id,
                                                                                                    aspect,
+                                                                                                   img_info->tiling,
+                                                                                                   img_info->type,
                                                                                                    qs_index,
                                                                                                    bcb_index);
 
