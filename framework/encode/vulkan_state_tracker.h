@@ -303,6 +303,8 @@ class VulkanStateTracker
 
     void TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address);
 
+    void TrackOpaqueBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress opaque_address);
+
     void TrackBufferMemoryBinding(VkDevice       device,
                                   VkBuffer       buffer,
                                   VkDeviceMemory memory,
@@ -394,6 +396,9 @@ class VulkanStateTracker
                                const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
+
+    void TrackRayTracingPipelineProperties(VkPhysicalDevice                                 physicalDevice,
+                                           VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties);
 
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
 

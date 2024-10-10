@@ -190,17 +190,24 @@ class DrawCallsDumpingContext
 
     void SetRenderArea(const VkRect2D& new_render_area);
 
-    std::vector<std::string> GenerateRenderTargetImageFilename(VkFormat format,
-                                                               uint64_t cmd_buf_index,
-                                                               uint64_t qs_index,
-                                                               uint64_t bcb_index,
-                                                               uint64_t dc_index,
-                                                               int      attachment_index) const;
+    std::string GenerateRenderTargetImageFilename(VkFormat              format,
+                                                  VkImageAspectFlagBits aspect,
+                                                  uint32_t              mip_level,
+                                                  uint32_t              layer,
+                                                  uint64_t              cmd_buf_index,
+                                                  uint64_t              qs_index,
+                                                  uint64_t              bcb_index,
+                                                  uint64_t              dc_index,
+                                                  int                   attachment_index) const;
 
-    std::vector<std::string> GenerateImageDescriptorFilename(uint64_t         qs_index,
-                                                             uint64_t         bcb_index,
-                                                             uint64_t         rp,
-                                                             const ImageInfo* img_info) const;
+    std::string GenerateImageDescriptorFilename(VkFormat              format,
+                                                VkImageAspectFlagBits aspect,
+                                                format::HandleId      image_id,
+                                                uint32_t              level,
+                                                uint32_t              layer,
+                                                uint64_t              qs_index,
+                                                uint64_t              bcb_index,
+                                                uint64_t              rp) const;
 
     std::string GenerateBufferDescriptorFilename(uint64_t         qs_index,
                                                  uint64_t         bcb_index,

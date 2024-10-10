@@ -8,9 +8,6 @@ The text output is written by default to a .json file in the directory of the
 specified GFXReconstruct capture file. Use `--output` to override the default
 filename for the output.
 
-Configure with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable conversion of D3D12 captures.
-
-
 ```text
 gfxrecon-convert - A tool to convert GFXReconstruct capture files to text.
 

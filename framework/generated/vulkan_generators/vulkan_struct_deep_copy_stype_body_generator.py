@@ -127,6 +127,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
                         'VkMetalSurfaceCreateInfoEXT',
                         'VkDirectFBSurfaceCreateInfoEXT',
                         'VkScreenSurfaceCreateInfoQNX',
+                        'VkPushDescriptorSetWithTemplateInfoKHR'
                         ]:
             return False
         return True

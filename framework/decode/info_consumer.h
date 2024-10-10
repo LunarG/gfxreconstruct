@@ -25,6 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "info_consumer.h"
+#include "util/strings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -43,6 +44,7 @@ class InfoConsumer
     const char*       GetOriginalFileName() const { return exe_info.OriginalFilename; }
     const char*       GetProductName() const { return exe_info.ProductName; }
     const char*       GetProductVersion() const { return exe_info.ProductVersion; }
+    const std::vector<std::string>& GetEnvironmentVariables() const { return env_vars; }
 
     void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
     {
@@ -73,6 +75,11 @@ class InfoConsumer
         }
     }
 
+    void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
+    {
+        env_vars = util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
+    }
+
   private:
     static int const                   MaxBlockIdx                                               = 50;
     char                               driver_info[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};
@@ -80,6 +87,7 @@ class InfoConsumer
     bool                               found_driver_info_{ false };
     gfxrecon::util::filepath::FileInfo exe_info = {};
     bool                               found_exe_info_{ false };
+    std::vector<std::string>           env_vars;
 };
 
 GFXRECON_END_NAMESPACE(decode)

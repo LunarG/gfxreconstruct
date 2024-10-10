@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2020-2024 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2020 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -108,6 +108,18 @@ class VulkanRealignAllocator : public VulkanDefaultAllocator
     // Util function to update the resource data (memcpy to mapped memory).
     VkResult UpdateResourceData(
         format::HandleId capture_id, MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data);
+
+    VkResult CopyImageSubresourceDataAccordingToLayoutInfo(const SubresourceLayoutInfo& copy_subresource_info,
+                                                           VkDeviceSize                 capture_image_data_start,
+                                                           VkDeviceSize                 replay_image_data_start,
+                                                           VkImageType                  image_type,
+                                                           uint32_t                     array_layers,
+                                                           VkFormat                     format,
+                                                           VkExtent3D                   extent,
+                                                           MemoryData                   allocator_data,
+                                                           uint64_t                     offset,
+                                                           uint64_t                     size,
+                                                           const uint8_t*               data);
 
     std::unique_ptr<VkMappedMemoryRange[]> UpdateMappedMemoryOffsets(uint32_t                   memory_range_count,
                                                                      const VkMappedMemoryRange* memory_ranges,

@@ -192,12 +192,30 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
     std::vector<Instruction> instructions;
 
-    // First build up instructions object to make it easier to work with the SPIR-V
+    bool found_buffer_ref = false;
+
+    // build up instructions object to make it easier to work with the SPIR-V
+    // also checks for required capability
     while (spirv_ptr < spirv_end)
     {
         Instruction& insn = instructions.emplace_back(spirv_ptr);
         spirv_ptr += insn.length();
         GFXRECON_ASSERT(insn.length() > 0);
+
+        if (insn.opcode() == spv::OpCapability && insn.word(1) == spv::CapabilityPhysicalStorageBufferAddresses)
+        {
+            found_buffer_ref = true;
+        }
+
+        // arrived at 'OpFunction' -> we have seen all metadata incl. capabilities
+        if (insn.opcode() == spv::OpFunction)
+        {
+            // CapabilityPhysicalStorageBufferAddresses not found
+            if (!found_buffer_ref)
+            {
+                return true;
+            }
+        }
     }
     if (spirv_ptr != spirv_end)
     {
@@ -282,8 +300,12 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                                                    buffer_reference_info.binding,
                                                                    buffer_reference_info.set,
                                                                    &spv_result);
-                                td        = spv_descriptor_binding->type_description;
-                                root_name = spv_descriptor_binding->name;
+                                td = spv_descriptor_binding->type_description;
+
+                                // spirv_reflect sets the name by tracking SPIR-V instructions like OpName. Some
+                                // optimizations may remove these instructions, resulting in a nullptr name. Actually we
+                                // can find some title removes all such names.
+                                root_name = spv_descriptor_binding->name ? spv_descriptor_binding->name : "";
                             }
 
                             if (root_name.empty())

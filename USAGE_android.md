@@ -327,6 +327,7 @@ option values.
 | Page guard unblock SIGSEGV                     | debug.gfxrecon.page_guard_unblock_sigsegv                     | BOOL    | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Page guard signal handler watcher              | debug.gfxrecon.page_guard_signal_handler_watcher              | BOOL    | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Page guard signal handler watcher max restores | debug.gfxrecon.page_guard_signal_handler_watcher_max_restores | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative value will make the watcher thread run indefinitely. Default is `1`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Force FIFO present mode                        | debug.gfxrecon.force_fifo_present_mode                        | BOOL    | When the `force_fifo_present_mode` is enabled, force all present modes in vkGetPhysicalDeviceSurfacePresentModesKHR to VK_PRESENT_MODE_FIFO_KHR, app present mode is set in vkCreateSwapchain to VK_PRESENT_MODE_FIFO_KHR. Otherwise the original present mode will be used. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 #### Settings File
 
@@ -708,7 +709,9 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--dump-resources-dump-vertex-index-buffers]
                           [--dump-resources-json-output-per-command]
                           [--dump-resources-dump-immutable-resources]
-                          [--dump-resources-dump-all-image-subresources] [file]
+                          [--dump-resources-dump-all-image-subresources]
+                          [--pbi-all] [--pbis <index1,index2>]
+                          [file]
 
 Launch the replay tool.
 
@@ -853,7 +856,7 @@ optional arguments:
                         of instrumentation data on some platforms.
    --dump-resources <arg>
                         <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
-                        NextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>
+                        NextSubpass=<p>,Dispatch=<q>,TraceRays=<r>,QueueSubmit=<s>
                         GPU resources are dumped after the given vkCmdDraw*,
                         vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
                         Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or
@@ -899,6 +902,10 @@ optional arguments:
               Enables dumping of resources that are used as inputs in the commands requested for dumping
   --dump-resources-dump-all-image-subresources
               Enables dumping of all image sub resources (mip map levels and array layers)
+  --pbi-all
+              Print all block information.
+  --pbis <index1,index2>
+              Print block information between block index1 and block index2.
 ```
 
 The command will force-stop an active replay process before starting the replay

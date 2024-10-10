@@ -206,9 +206,9 @@ bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size
     FILE* file_output = nullptr;
     if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
     {
-        util::platform::FileWrite(data, static_cast<size_t>(data_size), 1, file_output);
+        bool success = util::platform::FileWrite(data, static_cast<size_t>(data_size), file_output);
         util::platform::FileClose(file_output);
-        return true;
+        return success;
     }
     return false;
 }

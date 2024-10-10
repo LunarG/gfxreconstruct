@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -295,6 +296,483 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
     return found;
 }
 
+// Get the info on target image format. The function returns true if the target format
+// is supported, and returns texel size and other info to the corresponding pointer if the
+// pointer is not nullptr and the image format is supported.
+//
+// VkFormat format,
+//         The target image format for which the function will return its related info.
+//
+// VkDeviceSize *texel_size,
+//         The texel size of target image format.
+//
+// bool *is_texel_block_size,
+//         For the target format, if the texel size is the size for texel rectangle block.
+//
+// uint16_t *block_width_pointer,
+//         If *is_texel_block_size is true, the width of texel rectangle.
+//
+// uint16_t *block_height_pointer
+//         If *is_texel_block_size is true, the height of texel rectangle.
+//
+bool GetImageTexelSize(VkFormat      format,
+                       VkDeviceSize* texel_size_ptr,
+                       bool*         is_texel_block_format_ptr,
+                       uint16_t*     block_width_ptr,
+                       uint16_t*     block_height_ptr)
+{
+    if (vkuFormatPlaneCount(format) > 1)
+    {
+        // multi-planar format is not supported.
+        GFXRECON_LOG_WARNING_ONCE("The multi-planar format is not supported for the function GetImageTexelSize!");
+        return false;
+    }
+    else
+    {
+        const struct VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
+
+        if (is_texel_block_format_ptr)
+        {
+            *is_texel_block_format_ptr = false;
+        }
+
+        if (format_info.texel_per_block > 1)
+        {
+            if (is_texel_block_format_ptr)
+            {
+                *is_texel_block_format_ptr = true;
+            }
+        }
+
+        if (texel_size_ptr != nullptr)
+        {
+            *texel_size_ptr = format_info.block_size;
+        }
+
+        if (block_width_ptr != nullptr)
+        {
+            *block_width_ptr = format_info.block_extent.width;
+        }
+
+        if (block_height_ptr != nullptr)
+        {
+            *block_height_ptr = format_info.block_extent.height;
+        }
+
+        return true;
+    }
+}
+
+// The function gets texel coordinates for a specific location within subresource data range. There are the following
+// two cases for the location within subresource data range (The image must be a linear tiling image.):
+//
+//     1. The location points to a valid image texel. For this case, the coordinate (x,y,z,layer) of this texel will
+//        be returned to the corresponding pointer, pointer_offset_in_texel_or_padding will return the offset which is
+//        relative to the start of the texel data. For example, assume the texel size is 32 bytes for the image format,
+//        if the pointer_offset_in_texel_or_padding return value 6, it means the input parameter
+//        offset_to_subresource_data_start points to the texel and at the location within the texel data where the
+//        offset is 6 (relative to the start of the 32 bytes texel data). pointer_padding_location will return false.
+//        pointer_current_row_left_size returns the size from this location to the end of this row (only texel of this
+//        row be calculated, it doesn't include any padding after valid texel data).
+//
+//     2. The location points to invalid image data which should be padding area within the subresource data range. For
+//        this case, the texel coordinates point to the texel of which its texel data is just before the location.
+//        pointer_padding_location will return true. pointer_offset_in_texel_or_padding will return the offset which is
+//        relative to the start of the padding range.
+//
+// VkImageType imageType, uint32_t arrayLayers, VkFormat format, VkExtent3D &extent,
+//     Image type, format, array layers and extent from the image create info.
+//
+// const VkSubresourceLayout &subresource_layout,
+//     Target subresource layout info, offset_to_subresource_data_start must be in the subresource data range.
+//
+// VkDeviceSize offset_to_subresource_data_start
+//     the location in the subresource for which the function get the corresponding coordinates.
+//
+// bool *pointer_texel_rectangle_block_coordinates,
+//     If true, it indicate the returned coordinate (x ,y) unit is texel rectangle block.
+//
+// uint32_t *pointer_x, uint32_t *pointer_y, uint32_t *pointer_z, uint32_t *pointer_layer,
+//     point to the returned coordinates for location offset_to_subresource_data_start.
+//
+// VkDeviceSize *pointer_offset_in_texel_or_padding, bool *pointer_padding_location,
+//     If returned *pointer_padding_location is false, pointer_offset_in_texel_or_padding point to the returned offset
+//     in target texel.
+//
+// VkDeviceSize *pointer_current_row_remaining_size
+//     The remaining size which is the size of the range from offset_to_subresource_data_start to the row end.
+//
+bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
+                                   uint32_t                   arrayLayers,
+                                   VkFormat                   format,
+                                   const VkExtent3D&          extent,
+                                   const VkSubresourceLayout& subresource_layout,
+                                   VkDeviceSize               offset_to_subresource_data_start,
+                                   bool*                      texel_rectangle_block_coordinates_ptr,
+                                   uint32_t*                  x_ptr,
+                                   uint32_t*                  y_ptr,
+                                   uint32_t*                  z_ptr,
+                                   uint32_t*                  layer_ptr,
+                                   VkDeviceSize*              offset_in_texel_or_padding_ptr,
+                                   bool*                      padding_location_ptr,
+                                   VkDeviceSize*              current_row_remaining_size_ptr)
+{
+    bool         is_texel_block_size = false;
+    VkDeviceSize texel_size          = 0;
+    uint16_t     block_width = 0, block_height = 0;
+    bool         result = GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
+
+    if (!result)
+    {
+        // The image format is not supported
+        return false;
+    }
+
+    bool         padding_location = false;
+    uint32_t     x, y, z, layer;
+    VkDeviceSize offset_in_texel_or_padding, current_row_remaining_size = 0;
+    VkDeviceSize current_offset = offset_to_subresource_data_start;
+
+    if ((arrayLayers > 1) && (subresource_layout.arrayPitch != 0))
+    {
+        layer          = current_offset / subresource_layout.arrayPitch;
+        current_offset = current_offset % subresource_layout.arrayPitch;
+        if (layer >= arrayLayers)
+        {
+            // offset_to_subresource_data_start is beyond the range of subresource data.
+            return false;
+        }
+    }
+    else
+    {
+        // Doc states the value of arrayPitch is undefined for images that were not created as arrays.
+        layer = 0;
+    }
+
+    switch (imageType)
+    {
+        case VK_IMAGE_TYPE_3D:
+            GFXRECON_ASSERT((extent.depth > 0) && (extent.height > 0) && (extent.width > 0));
+            GFXRECON_ASSERT((subresource_layout.depthPitch > 0) && (subresource_layout.rowPitch > 0));
+
+            z = current_offset / subresource_layout.depthPitch;
+
+            if (z >= extent.depth)
+            {
+                // offset_to_subresource_data_start is beyond the range of subresource data. Because current
+                // Vulakn specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
+                // exist;
+                result = false;
+            }
+            else
+            {
+                current_offset = current_offset % subresource_layout.depthPitch;
+
+                y = current_offset / subresource_layout.rowPitch;
+
+                current_offset = current_offset % subresource_layout.rowPitch;
+
+                x = current_offset / texel_size;
+                if (x >= extent.width)
+                {
+                    x                          = extent.width - 1;
+                    offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
+                    padding_location           = true;
+                    current_row_remaining_size = 0;
+                }
+                else
+                {
+                    offset_in_texel_or_padding = current_offset % texel_size;
+                    current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+                }
+            }
+
+            break;
+
+        case VK_IMAGE_TYPE_2D:
+            GFXRECON_ASSERT((extent.height > 0) && (extent.width > 0));
+            GFXRECON_ASSERT(subresource_layout.rowPitch > 0);
+
+            z = 0; // Doc states depthPitch is defined only for 3D images.
+
+            y              = current_offset / subresource_layout.rowPitch;
+            current_offset = current_offset % subresource_layout.rowPitch;
+
+            x = current_offset / texel_size;
+
+            if (x >= extent.width)
+            {
+                x                          = extent.width - 1;
+                offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
+                padding_location           = true;
+                current_row_remaining_size = 0;
+            }
+            else
+            {
+                offset_in_texel_or_padding = current_offset % texel_size;
+                current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+            }
+
+            break;
+
+        case VK_IMAGE_TYPE_1D:
+            GFXRECON_ASSERT((extent.width > 0));
+            z = 0;
+            y = 0;
+
+            x = current_offset / texel_size;
+
+            if (x >= extent.width)
+            {
+                x                          = extent.width - 1;
+                offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
+                padding_location           = true;
+                current_row_remaining_size = 0;
+            }
+            else
+            {
+                offset_in_texel_or_padding = current_offset % texel_size;
+                current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+            }
+
+            break;
+
+        default:
+            return false;
+            break;
+    }
+
+    if (x_ptr != nullptr)
+    {
+        *x_ptr = x;
+    }
+
+    if (y_ptr != nullptr)
+    {
+        *y_ptr = y;
+    }
+
+    if (z_ptr != nullptr)
+    {
+        *z_ptr = z;
+    }
+
+    if (layer_ptr != nullptr)
+    {
+        *layer_ptr = layer;
+    }
+
+    if (texel_rectangle_block_coordinates_ptr != nullptr)
+    {
+        *texel_rectangle_block_coordinates_ptr = is_texel_block_size;
+    }
+
+    if (offset_in_texel_or_padding_ptr != nullptr)
+    {
+        *offset_in_texel_or_padding_ptr = offset_in_texel_or_padding;
+    }
+
+    if (padding_location_ptr != nullptr)
+    {
+        *padding_location_ptr = padding_location;
+    }
+
+    if (current_row_remaining_size_ptr != nullptr)
+    {
+        *current_row_remaining_size_ptr = current_row_remaining_size;
+    }
+
+    return result;
+}
+
+// Get the offset which is relative to the start of subresource data for a location (pointed by texel
+// coordinates and related values) within the subresource. The image must be a linear tiling image.
+//
+// VkImageType imageType, uint32_t arrayLayers, VkFormat format, VkExtent3D &extent
+//     Image type, format, array layers and extent from the image create info.
+//
+// const VkSubresourceLayout &subresource_layout
+//     Target subresource layout info.
+//
+// bool *pointer_compressed_texel_block_coordinates
+//     If true, it indicates the coordinate (x ,y) unit is a compressed texel block otherwise it's texel coordinate.
+//
+// uint32_t x, y, z, layer
+//     The coordinates to specify the target location in subresource data.
+//
+// VkDeviceSize offset_in_texel_or_padding, bool padding_location,
+//     If padding_location is false, offset_in_texel_or_padding is the offset in texel, otherwise, it is the
+//     offset from the target location to the start of the padding range.
+//
+// VkDeviceSize offset_to_subresource_data_start
+//     the offset which corresponds to the target location.
+//
+bool GetOffsetFromTexelCoordinates(VkImageType         imageType,
+                                   uint32_t            arrayLayers,
+                                   VkFormat            format,
+                                   const VkExtent3D&   extent,
+                                   VkSubresourceLayout subresource_layout,
+                                   bool                compressed_texel_block_coordinates,
+                                   uint32_t            x,
+                                   uint32_t            y,
+                                   uint32_t            z,
+                                   uint32_t            layer,
+                                   VkDeviceSize        offset_in_texel_or_padding,
+                                   bool                padding_location,
+                                   VkDeviceSize*       offset_to_subresource_data_start)
+{
+    VkDeviceSize texel_size = 0;
+    bool         is_texel_block_size;
+    uint16_t     block_width, block_height;
+    bool         is_format_supportted =
+        GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
+
+    if (!is_format_supportted)
+    {
+        return false;
+    }
+
+    if (arrayLayers <= 1)
+    {
+        // Doc states that the value of arrayPitch is undefined for images that were not created as arrays.
+        subresource_layout.arrayPitch = 0;
+    }
+
+    if (imageType != VK_IMAGE_TYPE_3D)
+    {
+        // Doc states depthPitch is defined only for 3D images.
+        subresource_layout.depthPitch = 0;
+    }
+
+    if (is_texel_block_size && (!compressed_texel_block_coordinates))
+    {
+        // If the image format is compressed format and the input coordinates (x, y, z) is not compressed texel block
+        // coordinates, proceed the following convertion.
+        x = x / block_width;
+        y = y / block_height;
+    }
+
+    VkDeviceSize offset = layer * subresource_layout.arrayPitch + z * subresource_layout.depthPitch +
+                          y * subresource_layout.rowPitch + static_cast<VkDeviceSize>(x) * texel_size;
+
+    if (padding_location)
+    {
+        offset += offset_in_texel_or_padding + texel_size;
+    }
+    else
+    {
+        offset += offset_in_texel_or_padding;
+    }
+
+    if (offset_to_subresource_data_start != nullptr)
+    {
+        *offset_to_subresource_data_start = offset;
+    }
+
+    return is_format_supportted;
+}
+
+// Get texel coordinates for next row. The input or output coordinates are texel coordinates.
+// The image must be a linear tiling image and the meaning of next row in the following handling is
+// defined by the subresource layout. For example, assume the image is 2d array image,
+// for the last row in a image in the array, the next row will be the first row of next image in the array.
+//
+// VkImageType imageType, uint32_t arrayLayers, VkFormat format, VkExtent3D &extent
+//     Image type, format, array layers and extent from the image create info.
+//
+// uint32_t& y, z, layer
+//     The coordinates to specify the target location in subresource data, the function gets the next
+//     row of the target location and also returns the corresponding next row coordinates to y, z,
+//     layer.
+//
+bool NextRowTexelCoordinates(VkImageType       imageType,
+                             uint32_t          arrayLayers,
+                             VkFormat          format,
+                             const VkExtent3D& extent,
+                             uint32_t&         y,
+                             uint32_t&         z,
+                             uint32_t&         layer)
+{
+    VkDeviceSize texel_size = 0;
+    bool         is_texel_block_size;
+    uint16_t     block_width, block_height;
+    bool         is_format_supportted =
+        GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
+
+    if (!is_format_supportted)
+    {
+        return false;
+    }
+
+    bool result = false;
+
+    switch (imageType)
+    {
+        case VK_IMAGE_TYPE_1D:
+
+            if ((arrayLayers > 1) && ((layer + 1) < arrayLayers))
+            {
+                y      = 0;
+                z      = 0;
+                result = true;
+                layer++;
+            }
+            break;
+
+        case VK_IMAGE_TYPE_2D:
+
+            if ((y + 1) < extent.height)
+            {
+                y++;
+                result = true;
+            }
+            else if ((arrayLayers > 1) && ((layer + 1) < arrayLayers))
+            {
+                y = 0;
+                layer++;
+                result = true;
+            }
+
+            break;
+
+        case VK_IMAGE_TYPE_3D:
+
+            if ((y + 1) < extent.height)
+            {
+                y++;
+                result = true;
+            }
+            else if ((z + 1) < extent.depth)
+            {
+                y = 0;
+                z++;
+                result = true;
+            }
+            else
+            {
+                // If target app and driver implementation strictly follow Vulkan Doc, arrayLayers must be one
+                // for VK_IMAGE_TYPE_3D image.
+                if ((layer + 1) < arrayLayers)
+                {
+                    GFXRECON_LOG_WARNING_ONCE("arrayLayers in create info for the VK_IMAGE_TYPE_3D image used by "
+                                              "target application is not one, "
+                                              "the case is not strictly following Vulkan doc!");
+                    y = 0;
+                    z = 0;
+                    layer++;
+                    result = true;
+                }
+            }
+            break;
+
+        default:
+            return false;
+            break;
+    }
+
+    return result;
+}
+
 uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage                image,
                                                            VkFormat               format,
                                                            VkImageType            type,
@@ -389,49 +867,6 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
     }
 
     return resource_size;
-}
-
-uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkImage                image,
-                                                          VkFormat               format,
-                                                          const VkExtent3D&      extent,
-                                                          uint32_t               mip_levels,
-                                                          uint32_t               array_layers,
-                                                          VkImageAspectFlagBits  aspect,
-                                                          std::vector<uint64_t>* subresource_offsets,
-                                                          std::vector<uint64_t>* subresource_sizes,
-                                                          bool                   all_layers_per_level)
-{
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-
-    subresource_offsets->clear();
-    subresource_sizes->clear();
-
-    const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
-    // Not expecting a fractional number from a linear image
-    assert(texel_size == static_cast<uint64_t>(texel_size));
-
-    uint64_t offset = 0;
-    for (uint32_t m = 0; m < mip_levels; ++m)
-    {
-        for (uint32_t l = 0; l < array_layers; ++l)
-        {
-            const uint32_t mip_width  = std::max(1u, (extent.width >> m));
-            const uint32_t mip_height = std::max(1u, (extent.height >> m));
-            const uint64_t stride     = mip_width * static_cast<uint64_t>(texel_size);
-            const uint64_t size       = all_layers_per_level ? stride * mip_height * array_layers : stride * mip_height;
-
-            subresource_offsets->push_back(offset);
-            subresource_sizes->push_back(size);
-            offset += size;
-
-            if (all_layers_per_level)
-            {
-                break;
-            }
-        }
-    }
-
-    return offset;
 }
 
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
@@ -980,6 +1415,16 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 {
     assert((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
+    VkFormatProperties format_properties{};
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
+    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
+        return VK_ERROR_FEATURE_NOT_PRESENT;
+    }
+
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
@@ -1050,7 +1495,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                     memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                     memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[0].image                           = image;
+                    memory_barriers[0].image                           = *resolved_image;
                     memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
                     memory_barriers[0].subresourceRange.baseMipLevel   = 0;
                     memory_barriers[0].subresourceRange.levelCount     = 1;
@@ -1064,7 +1509,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 
                         memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
                         memory_barriers[1].pNext                           = nullptr;
-                        memory_barriers[1].srcAccessMask                   = 0;
+                        memory_barriers[1].srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
                         memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
                         memory_barriers[1].oldLayout                       = current_layout;
                         memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -1111,17 +1556,16 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     device_table_.CmdResolveImage(command_buffer_,
                                                   image,
                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                  image,
+                                                  *resolved_image,
                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                   1,
                                                   &region);
 
-                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    memory_barriers[0].dstAccessMask = 0;
-                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
                     // Prepare the resolved image for the next staging copy.
-                    memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    memory_barriers[0].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
                     if (num_barriers == 2)
                     {
@@ -1215,10 +1659,16 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     subresource_offsets.clear();
     subresource_sizes.clear();
 
+    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
+    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
+
+    scaling_supported =
+        IsBlitSupported(format, tiling, format) && IsScalingSupported(format, tiling, format, type, extent, scale);
+
     resource_size = GetImageResourceSizesOptimal(image,
                                                  format,
                                                  type,
-                                                 scaled_extent,
+                                                 scaling_supported ? scaled_extent : extent,
                                                  mip_levels,
                                                  array_layers,
                                                  tiling,
@@ -1294,6 +1744,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         result = BlitImage(copy_image,
                            format,
                            type,
+                           tiling,
                            extent,
                            scaled_extent,
                            mip_levels,
@@ -1302,8 +1753,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                            queue_family_index,
                            scale,
                            scaled_image,
-                           scaled_image_mem,
-                           scaling_supported);
+                           scaled_image_mem);
 
         if (result != VK_SUCCESS)
         {
@@ -1326,7 +1776,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     // Copy image to staging buffer
     CopyImageBuffer(scaled_image,
                     staging_buffer_.buffer,
-                    scaled_extent,
+                    scaling_supported ? scaled_extent : extent,
                     mip_levels,
                     array_layers,
                     aspect,
@@ -1606,73 +2056,113 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
     return result;
 }
 
+bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
+                                          VkImageTiling  src_image_tiling,
+                                          VkFormat       dst_format,
+                                          VkImageTiling* dst_image_tiling) const
+{
+    VkFormatProperties src_format_props;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, src_format, &src_format_props);
+
+    if (src_image_tiling == VK_IMAGE_TILING_OPTIMAL &&
+        (src_format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT) != VK_FORMAT_FEATURE_BLIT_SRC_BIT)
+    {
+        return false;
+    }
+    else if (src_image_tiling == VK_IMAGE_TILING_LINEAR &&
+             (src_format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT) != VK_FORMAT_FEATURE_BLIT_SRC_BIT)
+    {
+        return false;
+    }
+
+    VkFormatProperties dst_format_props;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, dst_format, &dst_format_props);
+    if ((dst_format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    {
+        if (dst_image_tiling != nullptr)
+        {
+            *dst_image_tiling = VK_IMAGE_TILING_OPTIMAL;
+        }
+        return true;
+    }
+    else if ((dst_format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    {
+        if (dst_image_tiling != nullptr)
+        {
+            *dst_image_tiling = VK_IMAGE_TILING_LINEAR;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
+                                             VkImageTiling     src_image_tiling,
+                                             VkFormat          dst_format,
+                                             VkImageType       type,
+                                             const VkExtent3D& extent,
+                                             float             scale) const
+{
+    VkImageTiling dst_image_tiling;
+    bool          is_blit_supported = IsBlitSupported(src_format, src_image_tiling, dst_format, &dst_image_tiling);
+
+    if (is_blit_supported && scale > 1.0f)
+    {
+        VkImageFormatProperties dst_img_format_props;
+        instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
+                                                               dst_format,
+                                                               type,
+                                                               dst_image_tiling,
+                                                               VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                                                               0,
+                                                               &dst_img_format_props);
+
+        if (dst_img_format_props.maxExtent.width < extent.width * scale ||
+            dst_img_format_props.maxExtent.height < extent.height * scale)
+        {
+            return false;
+        }
+    }
+
+    return is_blit_supported;
+}
+
 VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkFormat              format,
                                         VkImageType           type,
+                                        VkImageTiling         tiling,
                                         const VkExtent3D&     extent,
-                                        VkExtent3D&           scaled_extent,
+                                        const VkExtent3D&     scaled_extent,
                                         uint32_t              mip_levels,
                                         uint32_t              array_layers,
                                         VkImageAspectFlagBits aspect,
                                         uint32_t              queue_family_index,
                                         float                 scale,
                                         VkImage&              scaled_image,
-                                        VkDeviceMemory&       scaled_image_mem,
-                                        bool&                 scaling_supported)
+                                        VkDeviceMemory&       scaled_image_mem)
 {
-    scaled_extent    = extent;
     scaled_image     = VK_NULL_HANDLE;
     scaled_image_mem = VK_NULL_HANDLE;
-    VkImageTiling tiling;
+    VkImageTiling dst_img_tiling;
 
-    VkFormatProperties format_props;
-    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
-
-    // Check if the new image can be the target image of a vkCmdBlit command
-    if (((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
-        ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
-         VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
-    {
-        tiling            = VK_IMAGE_TILING_OPTIMAL;
-        scaling_supported = true;
-    }
-    else if (((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
-             ((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
-              VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
-    {
-        tiling            = VK_IMAGE_TILING_LINEAR;
-        scaling_supported = true;
-    }
-    else
+    bool scaling_supported = IsBlitSupported(format, tiling, format, &dst_img_tiling);
+    if (!scaling_supported)
     {
         GFXRECON_LOG_WARNING("Image with format %s cannot be scaled. Scaling will be disabled for these images.",
                              util::ToString<VkFormat>(format).c_str());
-        scaling_supported = false;
     }
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
     if (scaling_supported && scale > 1.0f)
     {
-        VkImageFormatProperties img_format_props;
-        instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
-                                                               format,
-                                                               type,
-                                                               VK_IMAGE_TILING_OPTIMAL,
-                                                               VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-                                                               0,
-                                                               &img_format_props);
-
-        if (img_format_props.maxExtent.width < extent.width * scale ||
-            img_format_props.maxExtent.height < extent.height * scale)
+        scaling_supported = IsScalingSupported(format, tiling, format, type, extent, scale);
+        if (!scaling_supported)
         {
             GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
-                                    "implementation's limits (%u x %u) for the specific image configuration "
-                                    "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
+                                    "implementation's limits for image formats of %s",
                                     static_cast<uint32_t>(extent.width * scale),
                                     static_cast<uint32_t>(extent.height * scale),
-                                    img_format_props.maxExtent.width,
-                                    img_format_props.maxExtent.height,
                                     util::ToString<VkFormat>(format).c_str());
 
             scaling_supported = false;
@@ -1684,9 +2174,6 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
         return VK_SUCCESS;
     }
 
-    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
-    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
-
     // Create a scaled image and then blit to scaled image
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -1697,7 +2184,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     create_info.mipLevels             = mip_levels;
     create_info.arrayLayers           = array_layers;
     create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    create_info.tiling                = tiling;
+    create_info.tiling                = dst_img_tiling;
     create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
