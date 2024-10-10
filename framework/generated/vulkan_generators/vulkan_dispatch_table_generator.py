@@ -113,7 +113,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         """Method override."""
         self.newline()
 
-        write('typedef const void* DispatchKey;', file=self.outFile)
+        write('typedef const void* VulkanDispatchKey;', file=self.outFile)
         self.newline()
 
         write(
@@ -121,12 +121,12 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static DispatchKey GetDispatchKey(const void* handle)',
+            'static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)',
             file=self.outFile
         )
         write('{', file=self.outFile)
         write(
-            '    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);',
+            '    const VulkanDispatchKey* dispatch_key = reinterpret_cast<const VulkanDispatchKey*>(handle);',
             file=self.outFile
         )
         write('    return (*dispatch_key);', file=self.outFile)
@@ -136,7 +136,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         self.generate_no_op_funcs()
         self.newline()
 
-        write('struct LayerTable', file=self.outFile)
+        write('struct VulkanLayerTable', file=self.outFile)
         write('{', file=self.outFile)
         write(
             '    PFN_vkCreateInstance CreateInstance{ nullptr };',
@@ -159,7 +159,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
+            'static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -219,7 +219,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
-        write('struct InstanceTable', file=self.outFile)
+        write('struct VulkanInstanceTable', file=self.outFile)
         write('{', file=self.outFile)
 
         for name in self.instance_cmd_names:
@@ -232,7 +232,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
     def generate_device_cmd_table(self):
         """Generate device dispatch table structure."""
-        write('struct DeviceTable', file=self.outFile)
+        write('struct VulkanDeviceTable', file=self.outFile)
         write('{', file=self.outFile)
 
         for name in self.device_cmd_names:
@@ -260,7 +260,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_instance_table_func(self):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write(
-            'static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)',
+            'static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -273,7 +273,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                     '    table->GetInstanceProcAddr = gpa;', file=self.outFile
                 )
             else:
-                expr = '    LoadFunction(gpa, instance, "{}", &table->{});'.format(
+                expr = '    LoadVulkanFunction(gpa, instance, "{}", &table->{});'.format(
                     name, name[2:]
                 )
                 write(expr, file=self.outFile)
@@ -283,7 +283,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_device_table_func(self):
         """Generate function to set the device table's functions with a getprocaddress routine."""
         write(
-            'static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)',
+            'static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -294,7 +294,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             if name == 'vkGetDeviceProcAddr':
                 write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
             else:
-                expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
+                expr = '    LoadVulkanFunction(gpa, device, "{}", &table->{});'.format(
                     name, name[2:]
                 )
                 write(expr, file=self.outFile)
@@ -314,7 +314,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             [self.make_full_typename(value) for value in values]
         )
         if return_type == 'void':
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
+            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
                 proto, params, name
             )
         else:
@@ -327,6 +327,6 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                     .format(return_type)
                 )
                 return_value = '{}{{}}'.format(return_type)
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
+            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
                 proto, params, name, return_value
             )

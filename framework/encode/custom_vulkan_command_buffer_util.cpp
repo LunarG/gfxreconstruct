@@ -30,17 +30,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
-                                         VkPipelineLayout            layout,
-                                         uint32_t                    descriptorWriteCount,
-                                         const VkWriteDescriptorSet* pDescriptorWrites)
+void TrackCmdPushDescriptorSetKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                         VkPipelineLayout                       layout,
+                                         uint32_t                               descriptorWriteCount,
+                                         const VkWriteDescriptorSet*            pDescriptorWrites)
 {
     assert(wrapper != nullptr);
 
     if (layout != VK_NULL_HANDLE)
     {
-        wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(
-            GetWrappedId<PipelineLayoutWrapper>(layout));
+        wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(
+            vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
     }
 
     if (pDescriptorWrites != nullptr)
@@ -66,8 +66,11 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                 if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] !=
                                     VK_NULL_HANDLE)
                                 {
-                                    wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(
-                                        GetWrappedId<AccelerationStructureKHRWrapper>(
+                                    wrapper
+                                        ->command_handles
+                                            [vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle]
+                                        .insert(vulkan_wrappers::GetWrappedId<
+                                                vulkan_wrappers::AccelerationStructureKHRWrapper>(
                                             pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
                                 }
                             }
@@ -87,8 +90,11 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                 if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] !=
                                     VK_NULL_HANDLE)
                                 {
-                                    wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(
-                                        GetWrappedId<AccelerationStructureNVWrapper>(
+                                    wrapper
+                                        ->command_handles
+                                            [vulkan_state_info::CommandHandleType::AccelerationStructureNVHandle]
+                                        .insert(vulkan_wrappers::GetWrappedId<
+                                                vulkan_wrappers::AccelerationStructureNVWrapper>(
                                             pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
                                 }
                             }
@@ -105,8 +111,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
 
             if (descriptorWrite.dstSet != VK_NULL_HANDLE)
             {
-                wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(
-                    GetWrappedId<DescriptorSetWrapper>(descriptorWrite.dstSet));
+                wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(
+                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(descriptorWrite.dstSet));
             }
 
             switch (descriptorWrite.descriptorType)
@@ -129,13 +135,14 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                             //  VkSampler provided in the VkDescriptorWrite.
                             if (descriptorWrite.pImageInfo[pImageInfo_index].sampler != VK_NULL_HANDLE)
                             {
-                                wrapper->command_handles[CommandHandleType::SamplerHandle].insert(
-                                    GetWrappedId<SamplerWrapper>(descriptorWrite.pImageInfo[pImageInfo_index].sampler));
+                                wrapper->command_handles[vulkan_state_info::CommandHandleType::SamplerHandle].insert(
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(
+                                        descriptorWrite.pImageInfo[pImageInfo_index].sampler));
                             }
                             if (descriptorWrite.pImageInfo[pImageInfo_index].imageView != VK_NULL_HANDLE)
                             {
-                                wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(
-                                    GetWrappedId<ImageViewWrapper>(
+                                wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(
                                         descriptorWrite.pImageInfo[pImageInfo_index].imageView));
                             }
                         }
@@ -154,8 +161,9 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                         {
                             if (descriptorWrite.pBufferInfo[pBufferInfo_index].buffer != VK_NULL_HANDLE)
                             {
-                                wrapper->command_handles[CommandHandleType::BufferHandle].insert(
-                                    GetWrappedId<BufferWrapper>(descriptorWrite.pBufferInfo[pBufferInfo_index].buffer));
+                                wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(
+                                        descriptorWrite.pBufferInfo[pBufferInfo_index].buffer));
                             }
                         }
                     }
@@ -172,20 +180,15 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                         {
                             if (descriptorWrite.pTexelBufferView[pTexelBufferView_index] != VK_NULL_HANDLE)
                             {
-                                wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(
-                                    GetWrappedId<BufferViewWrapper>(
+                                wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferViewHandle].insert(
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(
                                         descriptorWrite.pTexelBufferView[pTexelBufferView_index]));
                             }
                         }
                     }
                 }
                 break;
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                {
-                    assert(false && "Maintentance required to support pushed inline uniform block descriptors when "
-                                    "creating trimmed captures");
-                }
-                break;
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:

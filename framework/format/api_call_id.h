@@ -50,11 +50,14 @@ constexpr uint16_t GetApiCallFamily(uint32_t call_id)
 
 enum ApiFamilyId : uint16_t
 {
-    ApiFamily_None   = 0,
-    ApiFamily_Vulkan = 1,
-    ApiFamily_Dxgi   = 2,
-    ApiFamily_D3D12  = 3,
-    ApiFamily_AGS    = 4,
+    ApiFamily_None      = 0,
+    ApiFamily_Vulkan    = 1,
+    ApiFamily_Dxgi      = 2,
+    ApiFamily_D3D12     = 3,
+    ApiFamily_AGS       = 4,
+    ApiFamily_D3D11     = 5,
+    ApiFamily_D3D11On12 = 6,
+    ApiFamily_OpenXR    = 7
 };
 
 enum ApiCallId : uint32_t
@@ -708,6 +711,30 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e2),
     ApiCall_vkCmdSetDescriptorBufferOffsets2EXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12e3),
     ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT                                         = MakeApiCallId(ApiFamily_Vulkan, 0x12e4),
+    ApiCall_vkCmdSetRenderingAttachmentLocationsKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e5),
+    ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12e6),
+    ApiCall_vkCmdSetLineStippleKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e7),
+    ApiCall_vkSetLatencySleepModeNV                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e8),
+    ApiCall_vkLatencySleepNV                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12e9),
+    ApiCall_vkSetLatencyMarkerNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12ea),
+    ApiCall_vkGetLatencyTimingsNV                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12eb),
+    ApiCall_vkQueueNotifyOutOfBandNV                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12ec),
+    ApiCall_vkCreatePipelineBinariesKHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x12ed),
+    ApiCall_vkDestroyPipelineBinaryKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12ee),
+    ApiCall_vkGetPipelineBinaryDataKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12ef),
+    ApiCall_vkGetPipelineKeyKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12f0),
+    ApiCall_vkReleaseCapturedPipelineDataKHR                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f1),
+    ApiCall_vkAntiLagUpdateAMD                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f2),
+    ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT                                           = MakeApiCallId(ApiFamily_Vulkan, 0x12f3),
+    ApiCall_vkCmdPreprocessGeneratedCommandsEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12f4),
+    ApiCall_vkCmdExecuteGeneratedCommandsEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f5),
+    ApiCall_vkCreateIndirectCommandsLayoutEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12f6),
+    ApiCall_vkDestroyIndirectCommandsLayoutEXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f7),
+    ApiCall_vkCreateIndirectExecutionSetEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12f8),
+    ApiCall_vkDestroyIndirectExecutionSetEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f9),
+    ApiCall_vkUpdateIndirectExecutionSetPipelineEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12fa),
+    ApiCall_vkUpdateIndirectExecutionSetShaderEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12fb),
+    ApiCall_vkCmdSetDepthClampRangeEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12fc),
 
     ApiCall_VulkanLast,
 
@@ -1239,7 +1266,8 @@ enum ApiCallId : uint32_t
     ApiCall_Ags_agsDriverExtensionsDX12_PushMarker_6_0_1                                          = MakeApiCallId(ApiFamily_AGS, 0x1007),
     ApiCall_Ags_agsDriverExtensionsDX12_PopMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1008),
     ApiCall_Ags_agsDriverExtensionsDX12_SetMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1009),
-
+    ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0                                        = MakeApiCallId(ApiFamily_AGS, 0x100a),
+    
     ApiCall_D3D12Last,
 
     // clang-format on

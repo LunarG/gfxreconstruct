@@ -53,6 +53,7 @@ typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.
 typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
+typedef uint32_t FormatEncodeType;
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
@@ -62,11 +63,14 @@ const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
 const size_t   kAdapterDescriptionSize    = 128;
+const int8_t   kNoneIndex                 = -1;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation     = "operation";
-const char* const kAnnotationLabelReplayOptions = "replayopts";
+const char* const kAnnotationLabelOperation          = "operation";
+const char* const kAnnotationLabelReplayOptions      = "replayopts";
+const char* const kAnnotationLabelRemovedResource    = "removed-resource";
+const char* const kAnnotationPipelineCreationAttempt = "pipelinecreationattempt";
 
 const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
 const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
@@ -145,6 +149,12 @@ enum class MetaDataType : uint16_t
     kReserved25                             = 25,
     kDx12RuntimeInfoCommand                 = 26,
     kParentToChildDependency                = 27,
+    kReserved28                             = 28,
+    kReserved29                             = 29,
+    kReserved30                             = 30,
+    kReserved31                             = 31,
+    kSetEnvironmentVariablesCommand         = 32,
+    kViewRelativeLocation                   = 33,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -217,12 +227,13 @@ struct EnabledOptions
 // Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).
 enum class ResourceValueType : uint8_t
 {
-    kUnknown                      = 0,
-    kGpuVirtualAddress            = 1,
-    kGpuDescriptorHandle          = 2,
-    kShaderIdentifier             = 3,
-    kIndirectArgumentDispatchRays = 4,
-    kExecuteIndirectCountBuffer   = 5
+    kUnknown                       = 0,
+    kGpuVirtualAddress             = 1,
+    kGpuDescriptorHandle           = 2,
+    kShaderIdentifier              = 3,
+    kIndirectArgumentDispatchRays  = 4,
+    kExecuteIndirectCountBuffer    = 5,
+    kRaytracingInstanceDescPointer = 6,
 };
 
 #pragma pack(push)
@@ -638,6 +649,17 @@ struct ParentToChildDependencyHeader
     ParentToChildDependencyType dependency_type;
     format::HandleId            parent_id;
     uint32_t                    child_count;
+};
+
+static constexpr char kEnvironmentStringDelimeter = (char)-1;
+struct SetEnvironmentVariablesCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint64_t       string_length;
+
+    // In the capture file, a string will immediately follow this block
+    // containing a list of environment variables and their values
 };
 
 // Restore size_t to normal behavior.

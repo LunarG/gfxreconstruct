@@ -193,7 +193,12 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override {}
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
+
+    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                        const char*                             env_string) override;
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
@@ -206,6 +211,10 @@ class VulkanDecoderBase : public ApiDecoder
     size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                         const uint8_t*     parameter_buffer,
                                                         size_t             buffer_size);
+
+    size_t Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
+                                                         const uint8_t*     parameter_buffer,
+                                                         size_t             buffer_size);
 
     size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                        const uint8_t*     parameter_buffer,

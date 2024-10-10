@@ -102,8 +102,23 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
 
 template <>
 void FieldToJson(nlohmann::ordered_json&                   jdata,
+                 const PointerDecoder<uint32_t, uint32_t>& data,
+                 const util::JsonOptions&                  options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                 jdata,
+                 const PointerDecoder<int32_t, int32_t>& data,
+                 const util::JsonOptions&                options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                   jdata,
                  const PointerDecoder<uint64_t, uint64_t>& data,
                  const util::JsonOptions&                  options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                 jdata,
+                 const PointerDecoder<int64_t, int64_t>& data,
+                 const util::JsonOptions&                options);
 
 template <typename DecodedType>
 void FieldToJson(nlohmann::ordered_json&                  jdata,
@@ -143,6 +158,18 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
             for (size_t i = 0; i < length; ++i)
             {
                 FieldToJson(jdata[i], meta_struct[i], options);
+            }
+        }
+        else if (data->IsArray2D())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                size_t inner_length = data->GetInnerLength(i);
+                auto&  jdata_arr    = jdata.emplace_back(nlohmann::ordered_json::array_t(inner_length));
+                for (size_t j = 0; j < inner_length; ++j)
+                {
+                    FieldToJson(jdata_arr[j], &meta_struct[i][j], options);
+                }
             }
         }
         else if (length == 1)
@@ -275,6 +302,12 @@ inline void
 FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const util::JsonOptions& options)
 {
     FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
+}
+
+inline void
+FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<int64_t, void*>* data, const util::JsonOptions& options)
+{
+    FieldToJsonAsHex<int64_t, void*>(jdata, data, options);
 }
 
 /// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of

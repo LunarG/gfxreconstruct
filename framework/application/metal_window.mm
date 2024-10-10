@@ -40,6 +40,7 @@ typedef void(^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
 @implementation GFXReconWindowDelegate
 - (void)windowWillClose:(NSNotification*)notification {
+    GFXRECON_LOG_DEBUG_ONCE("User closed window");
     [NSApp terminate:self];
 }
 @end
@@ -101,7 +102,7 @@ MetalWindow::MetalWindow(MetalContext* metal_context)
 
 MetalWindow::~MetalWindow() = default;
 
-bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     @autoreleasepool
     {
@@ -111,19 +112,23 @@ bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int
         NSWindowStyleMask style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
         if (width >= screen_frame.size.width && height >= screen_frame.size.height)
             style |= NSWindowStyleMaskFullScreen;
-        window_ = [[NSWindow alloc] initWithContentRect:[screen convertRectFromBacking:NSMakeRect(xpos, ypos, width, height)]
+
+        auto frame_rect = NSMakeRect(xpos, ypos, width, height);
+        window_ = [[NSWindow alloc] initWithContentRect:frame_rect
                                               styleMask:style
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
         [window_ setDelegate:window_delegate_];
         [window_ setCollectionBehavior:NSWindowCollectionBehaviorManaged | NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorFullScreenAllowsTiling];
         layer_ = [CAMetalLayer layer];
-        NSView* content = [[GFXReconView alloc] initWithFrame:[window_ contentRectForFrameRect:[window_ frame]]
+        NSView* content = [[GFXReconView alloc] initWithFrame:frame_rect
                                                           app:metal_context_->GetApplication()];
         [window_ setContentView:content];
         [content setWantsLayer:YES];
         [content setLayer:layer_];
-        [layer_ setContentsScale:[window_ backingScaleFactor]];
+
+        // avoid highDPI settings, i.e. ignore [window_ backingScaleFactor]
+        [layer_ setContentsScale:1.0];
         SetTitle(title);
         SetSize(width, height);
         SetPosition(xpos, ypos);
@@ -142,6 +147,7 @@ bool MetalWindow::Destroy()
     if (window_)
     {
         [static_cast<GFXReconView*>([window_ contentView]) setApp:nil];
+        [window_ setDelegate:nil];
         [window_ close];
         metal_context_->UnregisterWindow(this);
     }
@@ -199,7 +205,12 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
             window_frame.size.height = std::min<CGFloat>(screen_frame.size.height, height);
             window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
             window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
-            [window_ setFrame:[window_ frameRectForContentRect:[screen convertRectFromBacking:window_frame]] display:YES];
+            [window_ setFrame:[window_ frameRectForContentRect: window_frame] display:YES];
+
+            NSSize content_size;
+            content_size.width = window_frame.size.width;
+            content_size.height = window_frame.size.height;
+            [window_ setContentSize: content_size];
         }
     }
 }
@@ -237,10 +248,10 @@ std::string MetalWindow::GetWsiExtension() const
     return VK_EXT_METAL_SURFACE_EXTENSION_NAME;
 }
 
-VkResult MetalWindow::CreateSurface(const encode::InstanceTable* table,
-                                    VkInstance                   instance,
-                                    VkFlags                      flags,
-                                    VkSurfaceKHR*                pSurface)
+VkResult MetalWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                    VkInstance                         instance,
+                                    VkFlags                            flags,
+                                    VkSurfaceKHR*                      pSurface)
 {
     if (table)
     {
@@ -253,7 +264,7 @@ VkResult MetalWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void MetalWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void MetalWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table)
         table->DestroySurfaceKHR(instance, surface, nullptr);
@@ -264,12 +275,12 @@ MetalWindowFactory::MetalWindowFactory(MetalContext* metal_context) : metal_cont
     assert(metal_context_);
 }
 
-decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(metal_context_);
     decode::Window* window = new MetalWindow(metal_context_);
     Application* application = metal_context_->GetApplication();
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 
@@ -282,9 +293,9 @@ void MetalWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 MetalWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                  VkPhysicalDevice             physical_device,
-                                                                  uint32_t                     queue_family_index)
+VkBool32 MetalWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                  VkPhysicalDevice                   physical_device,
+                                                                  uint32_t                           queue_family_index)
 {
     return true;
 }

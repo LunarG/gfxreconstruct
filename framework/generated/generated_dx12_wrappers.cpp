@@ -193,8 +193,8 @@ HRESULT WINAPI CreateDXGIFactory(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -253,8 +253,8 @@ HRESULT WINAPI CreateDXGIFactory1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -318,8 +318,8 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -381,8 +381,8 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -440,8 +440,8 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -503,8 +503,8 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -570,8 +570,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -652,8 +652,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -704,8 +704,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetUsage(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -756,8 +756,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::SetEvictionPriority(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -808,8 +808,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -881,8 +881,8 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -938,8 +938,8 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1010,8 +1010,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1063,8 +1063,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Map(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1119,8 +1119,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Unmap()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1171,8 +1171,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::GetDC(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1228,8 +1228,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1301,8 +1301,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1363,8 +1363,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1416,8 +1416,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1493,8 +1493,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1548,8 +1548,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1617,8 +1617,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1678,8 +1678,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::WaitForVBlank()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1726,8 +1726,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1780,8 +1780,8 @@ void STDMETHODCALLTYPE IDXGIOutput_Wrapper::ReleaseOwnership()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1823,8 +1823,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControlCapabilities(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1875,8 +1875,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetGammaControl(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1927,8 +1927,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControl(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -1979,8 +1979,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2031,8 +2031,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2083,8 +2083,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2155,7 +2155,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
     if (call_scope == 1)
     {
-        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
@@ -2175,6 +2185,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             result,
             SyncInterval,
@@ -2205,8 +2216,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2273,8 +2284,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2331,8 +2342,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2393,8 +2404,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2449,8 +2460,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2521,8 +2532,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeTarget(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2573,8 +2584,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2630,8 +2641,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFrameStatistics(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2682,8 +2693,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2755,8 +2766,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2818,8 +2829,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::MakeWindowAssociation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2875,8 +2886,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::GetWindowAssociation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2929,8 +2940,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -2997,8 +3008,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3079,8 +3090,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3140,8 +3151,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3219,8 +3230,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3283,8 +3294,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::SetGPUThreadPriority(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3335,8 +3346,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetGPUThreadPriority(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3392,8 +3403,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3453,8 +3464,8 @@ BOOL STDMETHODCALLTYPE IDXGIFactory1_Wrapper::IsCurrent()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3504,8 +3515,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter1_Wrapper::GetDesc1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3560,8 +3571,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::SetMaximumFrameLatency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3612,8 +3623,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3689,8 +3700,8 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3734,8 +3745,8 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3800,8 +3811,8 @@ void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3850,8 +3861,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3919,8 +3930,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -3983,8 +3994,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4048,8 +4059,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4115,8 +4126,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::MapDesktopSurface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4166,8 +4177,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::UnMapDesktopSurface()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4212,8 +4223,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::ReleaseFrame()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4265,8 +4276,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4337,8 +4348,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4402,8 +4413,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4475,8 +4486,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4541,8 +4552,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4605,8 +4616,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::EnqueueSetEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4661,8 +4672,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetDesc1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4713,8 +4724,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetFullscreenDesc(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4765,8 +4776,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetHwnd(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4818,8 +4829,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4881,7 +4892,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
     if (call_scope == 1)
     {
-        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,
@@ -4904,6 +4925,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             result,
             SyncInterval,
@@ -4933,8 +4955,8 @@ BOOL STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::IsTemporaryMonoSupported()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -4980,8 +5002,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5037,8 +5059,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetBackgroundColor(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5089,8 +5111,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetBackgroundColor(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5141,8 +5163,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetRotation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5193,8 +5215,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRotation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5248,8 +5270,8 @@ BOOL STDMETHODCALLTYPE IDXGIFactory2_Wrapper::IsWindowedStereoEnabled()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5300,8 +5322,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5321,7 +5343,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForHwnd(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             hWnd,
             pDesc,
@@ -5386,8 +5409,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5406,7 +5429,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForCoreWindow(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             encode::GetWrappedObject<IUnknown>(pWindow),
             pDesc,
@@ -5464,8 +5488,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::GetSharedResourceAdapterLuid(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5523,8 +5547,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5586,8 +5610,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5641,8 +5665,8 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterStereoStatus(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5691,8 +5715,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5754,8 +5778,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5809,8 +5833,8 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterOcclusionStatus(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5860,8 +5884,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5879,7 +5903,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForComposition(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
@@ -5936,8 +5961,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter2_Wrapper::GetDesc2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -5995,8 +6020,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6064,8 +6089,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6126,8 +6151,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6179,8 +6204,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6249,8 +6274,8 @@ HRESULT WINAPI CreateDXGIFactory2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6315,8 +6340,8 @@ HRESULT WINAPI DXGIGetDebugInterface1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6380,8 +6405,8 @@ void STDMETHODCALLTYPE IDXGIDevice3_Wrapper::Trim()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6428,8 +6453,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetSourceSize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6486,8 +6511,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetSourceSize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6543,8 +6568,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMaximumFrameLatency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6595,8 +6620,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMaximumFrameLatency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6646,8 +6671,8 @@ HANDLE STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetFrameLatencyWaitableObject(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6693,8 +6718,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMatrixTransform(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6745,8 +6770,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMatrixTransform(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6800,8 +6825,8 @@ BOOL STDMETHODCALLTYPE IDXGIOutput2_Wrapper::SupportsOverlays()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6850,8 +6875,8 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6919,8 +6944,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -6981,8 +7006,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetSourceRect(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7033,8 +7058,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetTargetRect(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7086,8 +7111,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetDestSize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7143,8 +7168,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetSourceRect(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7195,8 +7220,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetTargetRect(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7248,8 +7273,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetDestSize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7305,8 +7330,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetColorSpace(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7356,8 +7381,8 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7427,8 +7452,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7509,8 +7534,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7611,8 +7636,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7663,8 +7688,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::SetPresentDuration(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7717,8 +7742,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7785,8 +7810,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7856,8 +7881,8 @@ UINT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::GetCurrentBackBufferIndex()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7904,8 +7929,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::CheckColorSpaceSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -7961,8 +7986,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::SetColorSpace1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8019,8 +8044,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8110,8 +8135,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8183,8 +8208,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8251,8 +8276,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8318,8 +8343,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8373,8 +8398,8 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterHardwareContentProtectio
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8423,8 +8448,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8487,8 +8512,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8550,8 +8575,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8605,8 +8630,8 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8667,8 +8692,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8750,8 +8775,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8819,8 +8844,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8890,8 +8915,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -8960,8 +8985,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9027,8 +9052,8 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9075,8 +9100,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter4_Wrapper::GetDesc3(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9131,8 +9156,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::GetDesc1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9183,8 +9208,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::CheckHardwareCompositionSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9242,8 +9267,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9319,8 +9344,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::RegisterAdaptersChangedEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9376,8 +9401,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9455,8 +9480,8 @@ HRESULT WINAPI D3D12SerializeRootSignature(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9528,8 +9553,8 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9599,8 +9624,8 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9667,8 +9692,8 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9739,8 +9764,8 @@ HRESULT WINAPI D3D12CreateDevice(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9809,8 +9834,8 @@ HRESULT WINAPI D3D12GetDebugInterface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9871,8 +9896,8 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -9937,8 +9962,8 @@ HRESULT WINAPI D3D12GetInterface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10007,8 +10032,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10071,8 +10096,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10134,8 +10159,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10191,8 +10216,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetName(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10248,8 +10273,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10349,8 +10374,8 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10417,8 +10442,8 @@ HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetR
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10473,8 +10498,8 @@ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12VersionedRoot
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10543,8 +10568,8 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10612,8 +10637,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10673,8 +10698,8 @@ void STDMETHODCALLTYPE ID3D12Resource_Wrapper::Unmap(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10725,8 +10750,8 @@ D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10771,8 +10796,8 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10824,8 +10849,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10900,8 +10925,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -10973,8 +10998,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11049,8 +11074,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11115,8 +11140,8 @@ UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11163,8 +11188,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::SetEventOnCompletion(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11220,8 +11245,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::Signal(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11275,8 +11300,8 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11342,8 +11367,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11418,8 +11443,8 @@ D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDe
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11464,8 +11489,8 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11512,8 +11537,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11622,8 +11647,8 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11672,8 +11697,8 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11720,8 +11745,8 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11775,8 +11800,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11824,8 +11849,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11889,8 +11914,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -11957,8 +11982,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12017,8 +12042,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12088,8 +12113,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12162,8 +12187,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12218,8 +12243,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12293,8 +12318,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12359,8 +12384,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12406,8 +12431,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12458,8 +12483,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12509,8 +12534,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12555,8 +12580,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12601,8 +12626,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12648,8 +12673,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12701,8 +12726,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12748,8 +12773,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12801,8 +12826,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12847,8 +12872,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12894,8 +12919,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -12948,8 +12973,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13003,8 +13028,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13061,8 +13086,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13120,8 +13145,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13184,8 +13209,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13246,8 +13271,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13300,8 +13325,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13354,8 +13379,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13408,8 +13433,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13462,8 +13487,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13516,8 +13541,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13569,8 +13594,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13624,8 +13649,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13689,8 +13714,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13755,8 +13780,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13823,8 +13848,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13899,8 +13924,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -13967,8 +13992,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14047,8 +14072,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14123,8 +14148,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14176,8 +14201,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14234,8 +14259,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14295,8 +14320,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14368,8 +14393,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14426,8 +14451,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14484,8 +14509,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14539,8 +14564,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14585,8 +14610,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14666,8 +14691,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14750,8 +14775,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14829,8 +14854,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14882,8 +14907,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -14946,8 +14971,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15032,8 +15057,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15084,8 +15109,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15176,8 +15201,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15272,8 +15297,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15344,8 +15369,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15357,6 +15382,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             NumCommandLists,
             ppCommandLists);
@@ -15374,6 +15400,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
+            shared_api_call_lock,
             this,
             NumCommandLists,
             ppCommandLists);
@@ -15399,8 +15426,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15457,8 +15484,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15512,8 +15539,8 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::EndEvent()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15556,8 +15583,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15614,8 +15641,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15671,8 +15698,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetTimestampFrequency(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15724,8 +15751,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetClockCalibration(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15780,8 +15807,8 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15846,8 +15873,8 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15895,8 +15922,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -15964,8 +15991,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16033,8 +16060,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16104,8 +16131,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16178,8 +16205,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16262,8 +16289,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16327,8 +16354,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16394,8 +16421,8 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDescriptorHandleIncrementSize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16450,8 +16477,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16526,8 +16553,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16588,8 +16615,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16656,8 +16683,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16721,8 +16748,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16781,8 +16808,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16840,8 +16867,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16899,8 +16926,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -16980,8 +17007,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17047,8 +17074,8 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17110,8 +17137,8 @@ D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCustomHeapPrope
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17173,8 +17200,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17263,8 +17290,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17337,8 +17364,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17428,8 +17455,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17509,8 +17536,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17583,8 +17610,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17652,8 +17679,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17715,8 +17742,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17775,8 +17802,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17837,8 +17864,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17908,8 +17935,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDeviceRemovedReason()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -17960,8 +17987,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18045,8 +18072,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18112,8 +18139,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::SetStablePowerState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18167,8 +18194,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18243,8 +18270,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18320,8 +18347,8 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18388,8 +18415,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18448,8 +18475,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18526,8 +18553,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18600,8 +18627,8 @@ SIZE_T STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::GetSerializedSize()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18648,8 +18675,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::Serialize(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18712,8 +18739,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18794,8 +18821,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18871,8 +18898,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -18947,8 +18974,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19017,8 +19044,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19092,8 +19119,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19161,8 +19188,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19232,8 +19259,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19311,8 +19338,8 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19372,8 +19399,8 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19438,8 +19465,8 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceS
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19493,8 +19520,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19572,8 +19599,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19646,8 +19673,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19742,8 +19769,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19820,8 +19847,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19905,8 +19932,8 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -19990,8 +20017,8 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20057,8 +20084,8 @@ LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20105,8 +20132,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20170,8 +20197,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20242,8 +20269,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20309,8 +20336,8 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20401,8 +20428,8 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20455,8 +20482,8 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderStackSize
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20506,8 +20533,8 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20551,8 +20578,8 @@ void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20605,8 +20632,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20669,8 +20696,8 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::RemoveDevice()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20713,8 +20740,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommands(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20774,8 +20801,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20851,8 +20878,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -20935,8 +20962,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21003,8 +21030,8 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21066,8 +21093,8 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21141,8 +21168,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoB
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21187,8 +21214,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageF
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21233,8 +21260,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetWatso
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21283,8 +21310,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21333,8 +21360,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings2_Wrapper::UseMark
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21401,8 +21428,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadc
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21458,8 +21485,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetPageFaultA
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21514,8 +21541,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetAutoBread
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21571,8 +21598,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21632,8 +21659,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapper::GetPageFault
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21688,8 +21715,8 @@ D3D12_DRED_DEVICE_STATE STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapp
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21742,8 +21769,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21812,8 +21839,8 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResource
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21866,8 +21893,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -21942,8 +21969,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22016,8 +22043,8 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22090,8 +22117,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22189,8 +22216,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22276,8 +22303,8 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22341,8 +22368,8 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22429,8 +22456,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22494,8 +22521,8 @@ D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_Wrapper::GetDesc1()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22546,8 +22573,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22610,8 +22637,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22679,8 +22706,8 @@ UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResource
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22741,8 +22768,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22803,8 +22830,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22846,8 +22873,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22904,8 +22931,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -22962,8 +22989,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23035,8 +23062,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23107,8 +23134,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23167,8 +23194,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23213,8 +23240,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23291,8 +23318,8 @@ HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::FindValue(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23361,8 +23388,8 @@ HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::StoreValue(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23425,8 +23452,8 @@ void STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::SetDeleteOnDestroy()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23467,8 +23494,8 @@ D3D12_SHADER_CACHE_SESSION_DESC STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapp
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23520,8 +23547,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateShaderCacheSession(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23588,8 +23615,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::ShaderCacheControl(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23648,8 +23675,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateCommandQueue1(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23733,8 +23760,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23758,7 +23785,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
             riidResource,
             ppvResource);
 
-        result = GetWrappedObjectAs<ID3D12Device10>()->CreateCommittedResource3(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device10_CreateCommittedResource3(
+            this,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -23843,8 +23871,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreatePlacedResource2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -23947,8 +23975,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateReservedResource2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24042,8 +24070,8 @@ void STDMETHODCALLTYPE ID3D12Device11_Wrapper::CreateSampler2(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24106,8 +24134,8 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device12_Wrapper::GetReso
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24204,8 +24232,8 @@ HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::ShareWithHost
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24263,8 +24291,8 @@ HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::CreateFenceFd
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24343,8 +24371,8 @@ void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24390,8 +24418,8 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24458,8 +24486,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration_Wrapper::SetSDKVersion(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24522,8 +24550,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::CreateDeviceFactory(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24591,8 +24619,8 @@ void STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::FreeUnusedSDKs()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24653,8 +24681,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::InitializeFromGlobalState
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24699,8 +24727,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::ApplyToGlobalState()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24746,8 +24774,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::SetFlags(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24797,8 +24825,8 @@ D3D12_DEVICE_FACTORY_FLAGS STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetFla
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24846,8 +24874,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetConfigurationInterface
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24916,8 +24944,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::EnableExperimentalFeature
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -24986,8 +25014,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::CreateDevice(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25077,8 +25105,8 @@ D3D12_DEVICE_CONFIGURATION_DESC STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrap
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25125,8 +25153,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::GetEnabledExperimen
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25184,8 +25212,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::SerializeVersionedR
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25255,8 +25283,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::CreateVersionedRoot
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25330,8 +25358,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25381,8 +25409,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25433,8 +25461,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25494,8 +25522,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25552,8 +25580,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackSten
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25609,8 +25637,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::RSSetDepthBias(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25665,8 +25693,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::IASetIndexBufferStrip
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25736,8 +25764,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DSRDeviceFactory_Wrapper::CreateDSRDevice(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25833,8 +25861,8 @@ LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25879,8 +25907,8 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -25948,8 +25976,8 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26010,8 +26038,8 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26085,8 +26113,8 @@ void STDMETHODCALLTYPE ID3D12Debug_Wrapper::EnableDebugLayer()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26145,8 +26173,8 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::EnableDebugLayer()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26186,8 +26214,8 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::SetEnableGPUBasedValidation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26232,8 +26260,8 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::SetEnableSynchronizedCommandQueueVa
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26298,8 +26326,8 @@ void STDMETHODCALLTYPE ID3D12Debug2_Wrapper::SetGPUBasedValidationFlags(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26348,8 +26376,8 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetEnableGPUBasedValidation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26394,8 +26422,8 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetEnableSynchronizedCommandQueueVa
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26440,8 +26468,8 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetGPUBasedValidationFlags(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26489,8 +26517,8 @@ void STDMETHODCALLTYPE ID3D12Debug4_Wrapper::DisableDebugLayer()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26534,8 +26562,8 @@ void STDMETHODCALLTYPE ID3D12Debug5_Wrapper::SetEnableAutoName(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26584,8 +26612,8 @@ void STDMETHODCALLTYPE ID3D12Debug6_Wrapper::SetForceLegacyBarrierValidation(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26654,8 +26682,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::SetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26718,8 +26746,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::GetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26780,8 +26808,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::ReportLiveDeviceObjects(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26852,8 +26880,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::SetFeatureMask(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26903,8 +26931,8 @@ D3D12_DEBUG_FEATURE STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::GetFeatureMask(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -26950,8 +26978,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::ReportLiveDeviceObjects(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27008,8 +27036,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice2_Wrapper::SetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27072,8 +27100,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice2_Wrapper::GetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27156,8 +27184,8 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandQueue_Wrapper::AssertResourceState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27222,8 +27250,8 @@ void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertResourceAccess(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27280,8 +27308,8 @@ void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertTextureLayout(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27360,8 +27388,8 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::AssertResourceState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27424,8 +27452,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::SetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27488,8 +27516,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::GetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27572,8 +27600,8 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::AssertResourceState(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27634,8 +27662,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::SetFeatureMask(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27685,8 +27713,8 @@ D3D12_DEBUG_FEATURE STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::GetFeature
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27738,8 +27766,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::SetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27802,8 +27830,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::GetDebugParameter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27868,8 +27896,8 @@ void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertResourceAccess(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -27926,8 +27954,8 @@ void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertTextureLayout(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28004,8 +28032,8 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::Present(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28061,8 +28089,8 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::SharedFenceSignal(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28112,8 +28140,8 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::BeginCapturableWork(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28158,8 +28186,8 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::EndCapturableWork(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28225,8 +28253,8 @@ void STDMETHODCALLTYPE ID3D12ManualWriteTrackingResource_Wrapper::TrackWrite(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28298,8 +28326,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetMessageCountLimit(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28347,8 +28375,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearStoredMessages()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28392,8 +28420,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMessage(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28453,8 +28481,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesAllowedByStorage
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28499,8 +28527,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesDeniedByStorageF
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28545,8 +28573,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumStoredMessages()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28591,8 +28619,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumStoredMessagesAllowedByR
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28637,8 +28665,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesDiscardedByMessa
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28683,8 +28711,8 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMessageCountLimit()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28730,8 +28758,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddStorageFilterEntries(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28783,8 +28811,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetStorageFilter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28837,8 +28865,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearStorageFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28879,8 +28907,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushEmptyStorageFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28925,8 +28953,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushCopyOfStorageFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -28972,8 +29000,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushStorageFilter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29021,8 +29049,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PopStorageFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29063,8 +29091,8 @@ UINT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetStorageFilterStackSize()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29110,8 +29138,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddRetrievalFilterEntries(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29163,8 +29191,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetRetrievalFilter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29217,8 +29245,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearRetrievalFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29259,8 +29287,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushEmptyRetrievalFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29305,8 +29333,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushCopyOfRetrievalFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29352,8 +29380,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushRetrievalFilter(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29401,8 +29429,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PopRetrievalFilter()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29443,8 +29471,8 @@ UINT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetRetrievalFilterStackSize()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29493,8 +29521,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddMessage(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29561,8 +29589,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddApplicationMessage(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29619,8 +29647,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnCategory(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29677,8 +29705,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnSeverity(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29735,8 +29763,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnID(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29792,8 +29820,8 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnCategory(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29844,8 +29872,8 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnSeverity(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29896,8 +29924,8 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnID(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29946,8 +29974,8 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetMuteDebugOutput(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -29993,8 +30021,8 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMuteDebugOutput()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -30047,8 +30075,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::RegisterMessageCallback(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -30114,8 +30142,8 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::UnregisterMessageCallback(
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();

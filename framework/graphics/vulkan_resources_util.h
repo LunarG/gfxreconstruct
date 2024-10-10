@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,6 +28,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <vector>
 
@@ -45,11 +47,14 @@ class VulkanResourcesUtil
     VulkanResourcesUtil() = delete;
 
     VulkanResourcesUtil(VkDevice                                device,
-                        const encode::DeviceTable&              device_table,
+                        VkPhysicalDevice                        physical_device,
+                        const encode::VulkanDeviceTable&        device_table,
+                        const encode::VulkanInstanceTable&      instance_table,
                         const VkPhysicalDeviceMemoryProperties& memory_properties) :
         device_(device),
-        device_table_(device_table), memory_properties_(memory_properties), queue_family_index_(UINT32_MAX),
-        command_pool_(VK_NULL_HANDLE), command_buffer_(VK_NULL_HANDLE)
+        physical_device_(physical_device), device_table_(device_table), instance_table_(instance_table),
+        memory_properties_(memory_properties), queue_family_index_(UINT32_MAX), command_pool_(VK_NULL_HANDLE),
+        command_buffer_(VK_NULL_HANDLE)
     {
         assert(device != VK_NULL_HANDLE);
         assert(memory_properties.memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
@@ -90,30 +95,6 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_sizes    = nullptr,
                                           bool                   all_layers_per_level = false);
 
-    // Will return the size requirements and offsets for each subresource contained in the specified image.
-    // Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
-    //
-    // This function will use texel size values from the Vulkan Utilities Library and is intented to be used
-    // with images that can be created with Linear tiling and therefore it is possible to be accesses directly
-    // without using a staging buffer.
-    //
-    // The sizes are returned in the subresource_sizes vector and will be in the order:
-    //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
-    // Where M denotes the mip map levels and L the array layers.
-    // The offsets will be returned in the subresource_offsets vector in the same manner.
-    // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
-    //
-    // Return value is the total size of the image.
-    uint64_t GetImageResourceSizesLinear(VkImage                image,
-                                         VkFormat               format,
-                                         const VkExtent3D&      extent,
-                                         uint32_t               mip_levels,
-                                         uint32_t               array_layers,
-                                         VkImageAspectFlagBits  aspect,
-                                         std::vector<uint64_t>* subresource_offsets  = nullptr,
-                                         std::vector<uint64_t>* subresource_sizes    = nullptr,
-                                         bool                   all_layers_per_level = false);
-
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when accessing the image content directly is not possible
     // and a staging buffer is required.
@@ -133,7 +114,9 @@ class VulkanResourcesUtil
                                           std::vector<uint8_t>&  data,
                                           std::vector<uint64_t>& subresource_offsets,
                                           std::vector<uint64_t>& subresource_sizes,
-                                          bool                   all_layers_per_level = false);
+                                          bool&                  scaling_supported,
+                                          bool                   all_layers_per_level = false,
+                                          float                  scale                = 1.0f);
 
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when the image content can be accessed directly and expects to received a
@@ -166,8 +149,20 @@ class VulkanResourcesUtil
                                          const std::vector<uint64_t>& subresource_sizes);
 
     // Use this function to dump the content of a buffer resource into the data vector.
-    VkResult
-    ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint32_t queue_family_index, std::vector<uint8_t>& data);
+    VkResult ReadFromBufferResource(
+        VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
+
+    bool IsBlitSupported(VkFormat       src_format,
+                         VkImageTiling  src_image_tiling,
+                         VkFormat       dst_format,
+                         VkImageTiling* dst_image_tiling = nullptr) const;
+
+    bool IsScalingSupported(VkFormat          src_format,
+                            VkImageTiling     src_image_tiling,
+                            VkFormat          dst_format,
+                            VkImageType       type,
+                            const VkExtent3D& extent,
+                            float             scale) const;
 
   private:
     VkResult CreateCommandPool(uint32_t queue_family_index);
@@ -195,12 +190,14 @@ class VulkanResourcesUtil
     void TransitionImageToTransferOptimal(VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect);
+                                          VkImageAspectFlags aspect,
+                                          uint32_t           queue_family_index);
 
     void TransitionImageFromTransferOptimal(VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect);
+                                            VkImageAspectFlags aspect,
+                                            uint32_t           queue_family_index);
 
     void CopyImageBuffer(VkImage                      image,
                          VkBuffer                     buffer,
@@ -212,7 +209,7 @@ class VulkanResourcesUtil
                          bool                         all_layers_per_level,
                          CopyBufferImageDirection     copy_direction);
 
-    void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size);
+    void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size, uint64_t offset);
 
     VkResult ResolveImage(VkImage           image,
                           VkFormat          format,
@@ -231,6 +228,20 @@ class VulkanResourcesUtil
 
     void InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size);
 
+    VkResult BlitImage(VkImage               image,
+                       VkFormat              format,
+                       VkImageType           type,
+                       VkImageTiling         tiling,
+                       const VkExtent3D&     extent,
+                       const VkExtent3D&     scaled_extent,
+                       uint32_t              mip_levels,
+                       uint32_t              array_layers,
+                       VkImageAspectFlagBits aspect,
+                       uint32_t              queue_family_index,
+                       float                 scale,
+                       VkImage&              scaled_image,
+                       VkDeviceMemory&       scaled_image_mem);
+
     struct StagingBufferContext
     {
         StagingBufferContext() = default;
@@ -243,7 +254,9 @@ class VulkanResourcesUtil
     };
 
     VkDevice                                device_;
-    const encode::DeviceTable&              device_table_;
+    const encode::VulkanDeviceTable&        device_table_;
+    VkPhysicalDevice                        physical_device_;
+    const encode::VulkanInstanceTable&      instance_table_;
     const VkPhysicalDeviceMemoryProperties& memory_properties_;
     uint32_t                                queue_family_index_;
     VkCommandPool                           command_pool_;
@@ -251,7 +264,9 @@ class VulkanResourcesUtil
     StagingBufferContext                    staging_buffer_;
 };
 
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil);
+void GetFormatAspects(VkFormat                            format,
+                      std::vector<VkImageAspectFlagBits>* aspects,
+                      bool*                               combined_depth_stencil = nullptr);
 
 VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
@@ -262,6 +277,49 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
                          VkMemoryPropertyFlags                   desired_flags,
                          uint32_t*                               found_index,
                          VkMemoryPropertyFlags*                  found_flags);
+
+bool GetImageTexelSize(VkFormat      format,
+                       VkDeviceSize* texel_size,
+                       bool*         is_texel_block_size,
+                       uint16_t*     block_width_pointer,
+                       uint16_t*     block_height_pointer);
+
+bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
+                                   uint32_t                   arrayLayers,
+                                   VkFormat                   format,
+                                   const VkExtent3D&          extent,
+                                   const VkSubresourceLayout& subresource_layout,
+                                   VkDeviceSize               offset_to_subresource_data_start,
+                                   bool*                      pointer_texel_rectangle_block_coordinates,
+                                   uint32_t*                  pointer_x,
+                                   uint32_t*                  pointer_y,
+                                   uint32_t*                  pointer_z,
+                                   uint32_t*                  pointer_layer,
+                                   VkDeviceSize*              pointer_offset_in_texel_or_padding,
+                                   bool*                      pointer_padding_location,
+                                   VkDeviceSize*              pointer_current_row_left_size);
+
+bool GetOffsetFromTexelCoordinates(VkImageType         imageType,
+                                   uint32_t            arrayLayers,
+                                   VkFormat            format,
+                                   const VkExtent3D&   extent,
+                                   VkSubresourceLayout subresource_layout,
+                                   bool                compressed_texel_block_coordinates,
+                                   uint32_t            x,
+                                   uint32_t            y,
+                                   uint32_t            z,
+                                   uint32_t            layer,
+                                   VkDeviceSize        offset_in_texel_or_padding,
+                                   bool                padding_location,
+                                   VkDeviceSize*       offset_to_subresource_data_start);
+
+bool NextRowTexelCoordinates(VkImageType       imageType,
+                             uint32_t          arrayLayers,
+                             VkFormat          format,
+                             const VkExtent3D& extent,
+                             uint32_t&         y,
+                             uint32_t&         z,
+                             uint32_t&         layer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(encode)

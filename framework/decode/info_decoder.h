@@ -192,6 +192,9 @@ class InfoDecoder : public ApiDecoder
         const uint8_t*                                                  build_inputs_data) override
     {}
 
+    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                        const char*                             env_string) override;
+
   private:
     std::vector<InfoConsumer*> consumers_;
 };

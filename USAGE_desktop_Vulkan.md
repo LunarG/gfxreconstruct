@@ -33,6 +33,7 @@ to one of these other documents:
     1. [Command Line Arguments](#command-line-arguments)
     2. [Key Controls](#key-controls)
     3. [Virtual Swapchain](#virtual-swapchain)
+    4. [Dumping resources](#dumping-resources)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -124,6 +125,101 @@ The following command would be executed from the command line to set the
 export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 ```
 
+#### Understanding GFXReconstruct Layer Memory Capture
+
+The Vulkan API allows Vulkan memory objects to be mapped by an application
+for direct modification.
+To successfully capture an application, the GFXReconstruct layer must be able to
+detect if the application modifies the mapped memory in order to dump the changes
+in the capture file so that they can be re-applied while replaying.
+To achieve this GFXR utilizes four different modes:
+
+##### 1. `assisted`
+This mode expects the application to call `vkFlushMappedMemoryRanges`
+after memory is modified; the memory ranges specified to the
+`vkFlushMappedMemoryRanges` call will be written to the capture file
+during the call.
+
+##### 2. `unassisted`
+This mode writes the full content of mapped memory to the capture file
+on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient
+for performance and it will bloat capture file sizes. May be unusable
+with real-world applications that map large amounts of memory.
+
+##### 3. `page_guard`
+`page_guard` tracks modifications to individual memory pages, which are
+written to the capture file on calls to `vkFlushMappedMemoryRanges`,
+`vkUnmapMemory`, and `vkQueueSubmit`. This method requires allocating
+shadow memory for all mapped memory. The way the changes are being tracked
+varies depending on the operating system.
+- On Windows `Vectored Exception Handling` mechanism is used on the shadow
+memories that correspond to the mapped device memory regions.
+- On Linux and Android the shadow memory regions are similarly trapped by
+changing its access protection to `PROT_NONE`. Every access from the
+application will generate a `SIGSEGV` which is handled by the appropriate
+signal handler installed by the page guard manager.
+
+Because a shadow memory is allocated and returned to the application instead
+of the actual mapped memory returned by the driver, both reads and writes need
+to be tracked.
+- Writes need to be dumped to the capture file.
+- Reads must trigger a memory copy from the actual mapped memory into the shadow
+memory so that the application will read the correct/updated data each time.
+
+`page_guard` is the most efficient, both performance and capture file size
+wise, mechanism. However, as described in
+[Conflicts With Crash Detection Libraries](#conflicts-with-crash-detection-libraries),
+it has some limitation when capturing applications that install their own
+signal handler for handling the `SIGSEGV` signal. This limitation exists
+only on Linux and Android applications. To work around this
+limitation there is the `userfaultfd` mechanism.
+
+##### 4. `userfaultfd`
+This mode utilizes the userfaultfd mechanism provided by the Linux kernel which
+allows user space applications to detect and handle page faults.
+Under the hood `userfaultfd` is the same mechanism as `page_guard` but instead of trapping
+the shadow memory regions with the `PROT_NONE` + `SIGSEGV` trick, it
+registers those memory regions for tracking to the userfaultfd mechanism.
+
+Shadow memory regions are registered using the
+`UFFDIO_REGISTER_MODE_WP | UFFDIO_REGISTER_MODE_MISSING` flags with the
+userfaultfd mechanism and a handler thread is started and polls for faults
+to trigger. The combination of those flags will trigger a fault in two cases:
+- When an unallocated page is accessed with either a write or a read.
+- When a page is written.
+
+This imposes a limitation: When the shadow memory is freshly allocated all
+pages will be unallocated, making tracking both reads and writes simple as
+both will trigger a fault. However, after the first time the accesses are
+tracked and dumped to the capture file, the reads cannot be tracked any longer
+as the pages will be already allocated and won't trigger a fault.
+To workaround this each time the memory is examined, the dirty regions are
+being "reset". This involves unregistering those subregions from userfaultfd,
+requesting new pages from the OS to be provided at the same virtual addresses
+and then the subregions are registered again for tracking.
+This has a performance penalty as in this case both reads and writes need
+to be copied from the actual mapped memory into the shadow memory when
+detected, while the `page_guard` method requires this only for reads.
+
+Also there is another limitation. The way the new pages are requested each
+time and the regions are unregistered and registered again, makes this
+mechanism prone to race conditions when there are multiple threads. If a
+thread is accessing a specific page within a region and at the same time
+that region is being reset, then the access is not trapped and undefined
+behavior occurs.
+
+In order to work around this a list of the thread ids that access each
+region is kept. When that specific region is being reset a signal is
+sent to each thread which will force them to enter a signal handler that
+GFXR registers for that signal. The signal handler essentially performs a
+form of synchronization between the thread that is triggering the reset and
+the rest of the threads that potentially are touching pages that are being
+reset. The signal used one of the real time signals, the first in the range
+[`SIGRTMIN`, `SIGRTMAX`] that has no handler already installed.
+
+`userfaultfd` is less efficient performance wise than `page_guard` but
+should be fast enough for real-world applications and games.
+
 ### Capture Options
 
 The GFXReconstruct layer supports several options, which may be enabled
@@ -159,43 +255,84 @@ Options with the BOOL type accept the following values:
 The capture layer will generate a warning message for unrecognized or invalid
 option values.
 
-Option | Environment Variable | Type | Description
-------| ------------- |------|-------------
-Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
-Capture Specific Frames | GFXRECON_CAPTURE_FRAMES | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
-Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured. Default is: `false`
-Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
-Hotkey Capture Trigger Frames | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
-Capture Specific GPU Queue Submits | GFXRECON_CAPTURE_QUEUE_SUBMITS | STRING | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames.  Default is: Empty string (all queue submits are captured).
-Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
-Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
-Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
-Log Level | GFXRECON_LOG_LEVEL | STRING | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`
-Log Output to Console | GFXRECON_LOG_OUTPUT_TO_CONSOLE | BOOL | Log messages will be written to stdout. Default is: `true`
-Log File | GFXRECON_LOG_FILE | STRING | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).
-Log Detailed | GFXRECON_LOG_DETAILED | BOOL | Include name and line number from the file responsible for the log message. Default is: `false`
-Log Allow Indents | GFXRECON_LOG_ALLOW_INDENTS | BOOL | Apply additional indentation formatting to log messages. Default is: `false`
-Log Break on Error | GFXRECON_LOG_BREAK_ON_ERROR | BOOL | Trigger a debug break when logging an error. Default is: `false`
-Log File Create New | GFXRECON_LOG_FILE_CREATE_NEW | BOOL | Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false. Default is: `true`
-Log File Flush After Write | GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE | BOOL | Flush the log file to disk after each write when true. Default is: `false`
-Log File Keep Open | GFXRECON_LOG_FILE_KEEP_OPEN | BOOL | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`
-Log Output to Debug Console | GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING | BOOL | Windows only option.  Log messages will be written to the Debug Console with `OutputDebugStringA`. Default is: `false`
-Memory Tracking Mode | GFXRECON_MEMORY_TRACKING_MODE | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory and that the `SIGSEGV` signal is enabled in the thread's signal mask.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real-world applications that map large amounts of memory.</li></ul>
-Page Guard Copy on Map | GFXRECON_PAGE_GUARD_COPY_ON_MAP | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped. Default is: `true`
-Page Guard Separate Read Tracking | GFXRECON_PAGE_GUARD_SEPARATE_READ | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page. Default is: `true`
-Page Guard External Memory | GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY | BOOL | When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows. Default is `false`
-Page Guard Persistent Memory | GFXRECON_PAGE_GUARD_PERSISTENT_MEMORY | BOOL | When the `page_guard` memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed.  This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance.  This option is ignored when GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled. Default is `false`
-Page Guard Align Buffer Sizes | GFXRECON_PAGE_GUARD_ALIGN_BUFFER_SIZES | BOOL | When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size.  This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the `page_guard` shadow allocation to the real allocation.  This data loss can result in visible corruption during capture.  Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.  This option is only available for the Vulkan API.  Default is `false`
-Page Guard Unblock SIGSEGV | GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`
-Page Guard Signal Handler Watcher | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
-Page Guard Signal Handler Watcher Max Restores | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely. Default is `1`
-Force Command Serialization | GFXRECON_FORCE_COMMAND_SERIALIZATION | BOOL | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.
-Queue Zero Only | GFXRECON_QUEUE_ZERO_ONLY | BOOL | Forces to using only QueueFamilyIndex: 0 and queueCount: 1 on capturing to avoid replay error for unavailble VkQueue.
-Allow Pipeline Compile Required | GFXRECON_ALLOW_PIPELINE_COMPILE_REQUIRED | BOOL | The default behaviour forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.
+| Option                                         | Environment Variable                                    | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------------------- | ------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Capture File Name                              | GFXRECON_CAPTURE_FILE                                   | STRING  | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Capture Specific Frames                        | GFXRECON_CAPTURE_FRAMES                                 | STRING  | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).                                                                                                                                                                                                                                                                                                                                                                   |
+| Quit after capturing frame ranges              | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES                      | BOOL    | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Hotkey Capture Trigger                         | GFXRECON_CAPTURE_TRIGGER                                | STRING  | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Hotkey Capture Trigger Frames                  | GFXRECON_CAPTURE_TRIGGER_FRAMES                         | STRING  | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Capture Specific GPU Queue Submits             | GFXRECON_CAPTURE_QUEUE_SUBMITS                          | STRING  | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames.  Default is: Empty string (all queue submits are captured).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Capture File Compression Type                  | GFXRECON_CAPTURE_COMPRESSION_TYPE                       | STRING  | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Capture File Timestamp                         | GFXRECON_CAPTURE_FILE_TIMESTAMP                         | BOOL    | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Capture File Flush After Write                 | GFXRECON_CAPTURE_FILE_FLUSH                             | BOOL    | Flush output stream after each packet is written to the capture file.  Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Log Level                                      | GFXRECON_LOG_LEVEL                                      | STRING  | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Log Output to Console                          | GFXRECON_LOG_OUTPUT_TO_CONSOLE                          | BOOL    | Log messages will be written to stdout. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Log File                                       | GFXRECON_LOG_FILE                                       | STRING  | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Log Detailed                                   | GFXRECON_LOG_DETAILED                                   | BOOL    | Include name and line number from the file responsible for the log message. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Log Allow Indents                              | GFXRECON_LOG_ALLOW_INDENTS                              | BOOL    | Apply additional indentation formatting to log messages. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Log Break on Error                             | GFXRECON_LOG_BREAK_ON_ERROR                             | BOOL    | Trigger a debug break when logging an error. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Log File Create New                            | GFXRECON_LOG_FILE_CREATE_NEW                            | BOOL    | Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Log File Flush After Write                     | GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE                     | BOOL    | Flush the log file to disk after each write when true. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Log File Keep Open                             | GFXRECON_LOG_FILE_KEEP_OPEN                             | BOOL    | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Log Output to Debug Console                    | GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING                  | BOOL    | Windows only option.  Log messages will be written to the Debug Console with `OutputDebugStringA`. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Memory Tracking Mode                           | GFXRECON_MEMORY_TRACKING_MODE                           | STRING  | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `userfaultfd`, `assisted`, and `unassisted`. See [Understanding GFXReconstruct Layer Memory Capture](#understanding-gfxreconstruct-layer-memory-capture) for more details. Default is `page_guard`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Page Guard Copy on Map                         | GFXRECON_PAGE_GUARD_COPY_ON_MAP                         | BOOL    | When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Page Guard Separate Read Tracking              | GFXRECON_PAGE_GUARD_SEPARATE_READ                       | BOOL    | When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Page Guard External Memory                     | GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY                     | BOOL    | When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows. Default is `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Page Guard Persistent Memory                   | GFXRECON_PAGE_GUARD_PERSISTENT_MEMORY                   | BOOL    | When the `page_guard` memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed.  This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance.  This option is ignored when GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled. Default is `false`                                                                                                                                                                                                 |
+| Page Guard Align Buffer Sizes                  | GFXRECON_PAGE_GUARD_ALIGN_BUFFER_SIZES                  | BOOL    | When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size.  This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the `page_guard` shadow allocation to the real allocation.  This data loss can result in visible corruption during capture.  Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.  This option is only available for the Vulkan API.  Default is `true` |
+| Page Guard Unblock SIGSEGV                     | GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV                     | BOOL    | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Page Guard Signal Handler Watcher              | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER              | BOOL    | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Page Guard Signal Handler Watcher Max Restores | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely. Default is `1`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Force Command Serialization                    | GFXRECON_FORCE_COMMAND_SERIALIZATION                    | BOOL    | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Queue Zero Only                                | GFXRECON_QUEUE_ZERO_ONLY                                | BOOL    | Forces to using only QueueFamilyIndex: 0 and queueCount: 1 on capturing to avoid replay error for unavailble VkQueue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Allow Pipeline Compile Required                | GFXRECON_ALLOW_PIPELINE_COMPILE_REQUIRED                | BOOL    | The default behaviour forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.                                                                                                                                                                                                                                                                                                                                                                                     |
 #### Memory Tracking Known Issues
 
-There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
-If the access is made by a system call (like `fread()`) then there won't be a segmentation fault generated and the function will fail. As a result the mapped region will not be updated.
+### Capture Limitations
+
+#### Conflicts With Crash Detection Libraries
+
+As described in
+[Understanding GFXReconstruct Layer Memory Capture](#understanding-gfxreconstruct-layer-memory-capture),
+the capture layer, when it utilizing the `page_guard` mechanism, it uses a signal
+handler to detect modifications to mapped memory.
+Only one signal handler for that signal can be registered at a time, which can
+lead to a potential conflict with crash detection libraries that will also
+register a signal handler.
+
+Conflict between the `page_guard` mechanism  and crash detection libraries depends on the
+order with which each component registers its signal handler.
+The capture layer will not register its signal handler until the first call to
+`vkMapMemory`.
+As long as the application initializes the crash detection library before
+calling `vkMapMemory`, there should be no conflict.
+
+The conflict occurs when the application initializes its Vulkan component and
+its crash detection library concurrently.
+Applications have been observed to initialize Vulkan and begin uploading
+resources with one or more threads, while at the same time initializing a crash
+detection library from another thread.
+For this scenario, the crash detection library sets its signal handler after the
+first call to `vkMapMemory`, while a resource upload thread is actively writing
+to the mapped memory.
+After the crash detection library sets its signal handler, it immediately
+receives a SIGSEGV event generated by the concurrent write to mapped memory,
+which it detects as a crash and terminates the application.
+
+`userfaultfd` mechanism was introduced in order to work around such conflicts.
+
+#### Memory Tracking Limitations
+
+There is a limitation with the `page_guard` memory tracking method used by the
+GFXReconstruct capture layer.
+The logic behind that method is to apply a memory protection to the
+guarded/shadowed regions so that accesses made by the user to trigger a
+segmentation fault which is handled by GFXReconstruct.
+If the access is made by a system call (like `fread()`) then there won't be a
+segmentation fault generated and the function will fail.
+As a result the mapped region will not be updated.
 
 #### Settings File
 
@@ -389,13 +526,26 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
+                        [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] [--no-debug-popup] <file>
-                        [--use-colorspace-fallback]
+                        [--no-debug-popup] [--use-colorspace-fallback]
+                        [--wait-before-present]
+                        [--dump-resources <arg>] [--dump-resources-before-draw]
+                        [--dump-resources-scale <scale>] [--dump-resources-dir <dir>]
+                        [--dump-resources-image-format <format>]
+                        [--dump-resources-dump-depth-attachment]
+                        [--dump-resources-dump-color-attachment-index <index>]
+                        [--dump-resources-dump-vertex-index-buffers]
+                        [--dump-resources-json-output-per-command]
+                        [--dump-resources-dump-immutable-resources]
+                        [--dump-resources-dump-all-image-subresources] <file>
+                        [--pbi-all] [--pbis <index1,index2>]
+                        [--pipeline-creation-jobs | --pcj <num_jobs>]
+
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -438,6 +588,7 @@ Optional arguments:
                         Image file format to use for screenshot generation.
                         Available formats are:
                             bmp         Bitmap file format.  This is the default format.
+                            png         Portable Network Graphics file format.
   --screenshot-dir <dir>
                         Directory to write screenshots.  Default is the current
                         working directory.
@@ -494,12 +645,8 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
-  --api <api>           Use the specified API for replay (Windows only).
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
+  --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
+                        (Same as --force-windowed-origin)
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
   --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
@@ -511,6 +658,8 @@ Optional arguments:
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
                                         and windows. To see rendering, add the --screenshots option.
+  --vssb
+                        Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
                         Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
   --measurement-frame-range <start_frame>-<end_frame>
@@ -532,20 +681,102 @@ Optional arguments:
               If this is specified the replayer will flush
               and wait for all current GPU work to finish at the
               start and end of the measurement range.
+  --flush-inside-measurement-range
+              If this is specified the replayer will flush and wait
+              for all current GPU work to finish at the end of each
+              frame inside the measurement range.
   --use-colorspace-fallback
               Swap the swapchain color space if unsupported by replay device.
               Check if color space is not supported by replay device and
               fallback to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.
+  --offscreen-swapchain-frame-boundary
+              Should only be used with offscreen swapchain.
+              Activates the extension VK_EXT_frame_boundary (always supported if
+              trimming, checks for driver support otherwise) and inserts command
+              buffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR
+              was called in the original capture.
+              This allows preserving frames when capturing a replay that uses.
+              offscreen swapchain.
+  --sgfs <status>
+              Specify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus:
+                status=0 : Don't skip
+                status=1 : Skip unsuccessful calls
+                status=2 : Allways skip
+              If no skip frame range is specified (--sgfr), the status applies to all
+              frames.
+  --sgfr <frame-ranges>
+              Frame ranges where --sgfs applies. The format is:
+                <frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*
+  --wait-before-present
+              Force wait on completion of queue operations for all queues
+              before calling Present. This is needed for accurate acquisition
+              of instrumentation data on some platforms.
+   --dump-resources <arg>
+              <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
+              NextSubpass=<p>,Dispatch=<q>,TraceRays=<r>,QueueSubmit=<s>
+              GPU resources are dumped after the given vkCmdDraw*,
+              vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
+              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
+              each is a block index from the capture file.  The additional parameters are used to identify during which occurence
+              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
+              indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
+                  BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
+                  BeginCmdBuffer, Dispatch and QueueSubmit
+                  BeginCmdBuffer, TraceRays and QueueSubmit
+  --dump-resources <filename>
+              Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
+              list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
+  --dump-resources <filename>.json
+              Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
+              in the gfxreconstruct documentation.
+  --dump-resources-image-format <format>
+              Image file format to use for image resource dumping.
+              Available formats are:
+                  bmp         Bitmap file format.  This is the default format.
+                  png         Png file format.
+  --dump-resources-before-draw
+              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
+              --dump-resources argument, also dump resources before those calls.
+  --dump-resources-scale <scale>
+              Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number
+              greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.
+  --dump-resources-dir <dir>
+              Directory to write dump resources output files. Default is the current working directory.
+  --dump-resources-image-format <format>
+              Image file format to use when dumping image resources. Available formats are: bmp, png
+  --dump-resources-dump-depth-attachment
+              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
+  --dump-resources-dump-color-attachment-index <index>
+              Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
+              based integer. Default is to dump all color attachments.
+  --dump-resources-dump-vertex-index-buffers
+              Enables dumping of vertex and index buffers while dumping draw call resources.
+  --dump-resources-json-output-per-command
+              Enables storing a json output file for each dumped command. Overrides default behavior which
+              is generating one output json file that contains the information for all dumped commands.
+  --dump-resources-dump-immutable-resources
+              Enables dumping of resources that are used as inputs in the commands requested for dumping.
+  --dump-resources-dump-all-image-subresources
+              Enables dumping of all image sub resources (mip map levels and array layers).
+  --pbi-all             
+              Print all block information.
+  --pbis <index1,index2>
+              Print block information between block index1 and block index2.
+  --pipeline-creation-jobs | --pcj <num_jobs>
+              Specify the number of asynchronous pipeline-creation jobs as integer.
+              If <num_jobs> is negative it will be added to the number of cpu-cores, e.g. -1 -> num_cores - 1.
+              Default: 0 (do not use asynchronous operations)
+  
 ```
 
 ### Key Controls
 
 The `gfxrecon-replay` tool for Desktop supports the following key controls:
 
-Key(s) | Action
--------|-------
-Space, p | Toggle pause/play.
-Right arrow, n | Advance to the next frame when paused.
+| Key(s)         | Action                                 |
+| -------------- | -------------------------------------- |
+| Space, p       | Toggle pause/play.                     |
+| Right arrow, n | Advance to the next frame when paused. |
 
 ### Virtual Swapchain
 
@@ -556,6 +787,21 @@ Virtual Swapchain insulates higher layers in the Vulkan stack from these problem
 ### Debug mode VMA errors
 
 gfxrec-replay with the -m rebind option uses the Vulkan Memory Allocator library for memory allocations. If gfxrecon-replay is compiled debuggable, VMA_ASSERT errors in VMA can be trapped for debugging by setting GFXRECON_LOG_BREAK_ON_ERROR to true.
+
+### Fence skipping
+
+There can be situations where one wants to alter Vulkan fences behavior without being able to modifying the application. For example, for GPU performance measurements, we might want to "pack frames" when replaying by removing fences that we know unnecessary. For these situations, the options `--skip-get-fence-status`(`--sgfs`) and `--skip-get-fence-ranges`(`--sgfr`) have been created.
+
+There are three possible status that can be set using `--sgfs`:
+- `0` - Don't skip: The default status, nothing particular happens.
+- `1` - Skip unsuccessful: `vkWaitForFences`/`vkGetFenceStatus` is called only if the result at capture time was `VK_SUCCESS`. Else, the result obtained at capture time is directly returned.
+- `2` - Skip all: `vkWaitForFences`/`vkGetFenceStatus` is never called and `VK_SUCCESS` is returned directly instead.
+
+The `--sgfr` option specify at which frames these conditions apply. If `--sgfr` is not specified, they apply to all frames.
+
+### Dumping resources
+
+GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
 ## Other Capture File Processing Tools
 

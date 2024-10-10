@@ -93,47 +93,47 @@ void HandleToJson(nlohmann::ordered_json& jdata,
 // library hidden in the assignments so we can give the inlining of that code a
 // natural place to stop right here.
 
-void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t data, const util::JsonOptions& options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const util::JsonOptions& options)
 {
     jdata = static_cast<bool>(data);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, long long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long long& data, const JsonOptions& options)
 {
     jdata = data;
 }
@@ -179,7 +179,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, con
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, const util::JsonOptions& options)
 {
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
     std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
 
@@ -345,15 +352,10 @@ static bool WriteBinaryFile(const std::string& filename, uint64_t data_size, con
     bool  written_all = false;
     if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
     {
-        const uint64_t written = util::platform::FileWrite(data, 1, static_cast<size_t>(data_size), file_output);
-        if (written >= data_size)
+        written_all = util::platform::FileWrite(data, static_cast<size_t>(data_size), file_output);
+        if (!written_all)
         {
-            written_all = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR(
-                "Only wrote %" PRIu64 " bytes of %" PRIu64 " data to file %s.", written, data_size, filename.c_str());
+            GFXRECON_LOG_ERROR("Failed to write %" PRIu64 " bytes to file %s.", data_size, filename.c_str());
         }
         util::platform::FileClose(file_output);
     }

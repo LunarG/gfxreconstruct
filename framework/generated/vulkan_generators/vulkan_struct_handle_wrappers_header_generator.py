@@ -99,6 +99,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -215,6 +216,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('    return values;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -255,7 +257,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ):
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
                     struct
@@ -273,34 +275,35 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             body += '    if (value != nullptr)\n'
             body += '    {\n'
 
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
+
             members = self.structs_with_handles[struct]
             for member in members:
                 if self.is_struct(member.base_type):
                     if member.is_array:
-                        body += '        CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        vulkan_wrappers::CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member.base_type, member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
                             member.name
                         )
                     else:
-                        body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
                             member.name
                         )
                 else:
                     if member.is_array:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name,
-                            member.array_length
+                        body += '        vulkan_wrappers::CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name
+                        body += '        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name
                         )
                     else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name
+                        body += '        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name
                         )
 
             body += '    }\n'

@@ -319,7 +319,7 @@ layers so they don't interfere with the tool.
 
 ```bash
 adb shell settings put global enable_gpu_debug_layers 0
-adb shell settings put global gpu_debug_layers ""
+adb shell "settings put global gpu_debug_layers ''"
 ```
 
 ### 8. Install the replay application
@@ -440,7 +440,7 @@ After building, perform the following command:
 
 ```bash
 adb push \
-    ./android/layer/build/intermediates/cmake/debug/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
+    ./android/layer/build/intermediates/cxx/debug/*/obj/arm64-v8a/libVkLayer_gfxreconstruct.so \
     /storage/emulated/0/Download
 ```
 

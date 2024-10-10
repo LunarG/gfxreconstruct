@@ -24,20 +24,21 @@
 #ifndef GFXRECON_UTIL_WAYLAND_LOADER_H
 #define GFXRECON_UTIL_WAYLAND_LOADER_H
 
+#include <wayland-client.h>
+
 #include "util/defines.h"
 #include "util/platform.h"
-
-#include <wayland-client.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+class wayland_xdg_shell_table;
+
 class WaylandLoader
 {
   public:
-    class FunctionTable
+    struct FunctionTable
     {
-      public:
         // client functions
         decltype(wl_display_connect)*          display_connect;
         decltype(wl_display_disconnect)*       display_disconnect;
@@ -45,9 +46,6 @@ class WaylandLoader
         decltype(wl_display_dispatch_pending)* display_dispatch_pending;
         decltype(wl_display_flush)*            display_flush;
         decltype(wl_display_roundtrip)*        display_roundtrip;
-        decltype(wl_compositor_interface)*     compositor_interface;
-        decltype(wl_shell_interface)*          shell_interface;
-        decltype(wl_seat_interface)*           seat_interface;
 
         // proxy functions
         decltype(wl_proxy_add_listener)*                  proxy_add_listener;
@@ -57,12 +55,18 @@ class WaylandLoader
         decltype(wl_proxy_marshal_constructor_versioned)* proxy_marshal_constructor_versioned;
 
         // interfaces
+        decltype(wl_compositor_interface)*    compositor_interface;
+        decltype(wl_shell_interface)*         shell_interface;
+        decltype(wl_seat_interface)*          seat_interface;
         decltype(wl_registry_interface)*      registry_interface;
         decltype(wl_keyboard_interface)*      keyboard_interface;
         decltype(wl_output_interface)*        output_interface;
         decltype(wl_pointer_interface)*       pointer_interface;
-        decltype(wl_shell_surface_interface)* shell_surface_interface;
         decltype(wl_surface_interface)*       surface_interface;
+        decltype(wl_shell_surface_interface)* shell_surface_interface;
+
+        // additional protocols
+        std::unique_ptr<wayland_xdg_shell_table> xdg;
 
         // inline functions, adapted from wayland-client-protocol.h
         struct wl_surface* compositor_create_surface(struct wl_compositor* wl_compositor) const
@@ -258,10 +262,14 @@ class WaylandLoader
             this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_SET_BUFFER_SCALE, scale);
         }
 
+        void surface_commit(struct wl_surface* wl_surface) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_COMMIT);
+        }
+
         void surface_destroy(struct wl_surface* wl_surface) const
         {
             this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_DESTROY);
-
             this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_surface));
         }
     };
@@ -282,5 +290,7 @@ class WaylandLoader
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#include "generated/generated_wayland_xdg_shell.h"
 
 #endif // GFXRECON_UTIL_WAYLAND_LOADER_H

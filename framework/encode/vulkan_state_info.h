@@ -36,6 +36,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan_state_info)
 
 //
 // Types for state tracking.
@@ -66,11 +67,8 @@ struct DescriptorBindingInfo
 struct DescriptorInfo
 {
     VkDescriptorType                              type;
-    const void*                                   write_pnext{ nullptr };
-    HandleUnwrapMemory                            write_pnext_memory;
-    std::vector<VkAccelerationStructureKHR>       record_write_set_accel_structs;
     uint32_t                                      count{ 0 };
-    bool                                          immutable_samplers{ 0 };
+    bool                                          immutable_samplers{ false };
     std::unique_ptr<bool[]>                       written;
     std::unique_ptr<format::HandleId[]>           handle_ids;  // Image, buffer, or buffer view IDs depending on type.
     std::unique_ptr<format::HandleId[]>           sampler_ids; // Sampler IDs for image type.
@@ -78,6 +76,7 @@ struct DescriptorInfo
     std::unique_ptr<VkDescriptorBufferInfo[]>     buffers;
     std::unique_ptr<VkBufferView[]>               texel_buffer_views;
     std::unique_ptr<VkAccelerationStructureKHR[]> acceleration_structures;
+    std::unique_ptr<uint8_t[]>                    inline_uniform_block;
     std::unique_ptr<VkDescriptorType[]>           mutable_type;
 };
 
@@ -131,10 +130,13 @@ enum CommandHandleType : uint32_t
     ShaderEXTHandle,
     DescriptorSetLayoutHandle,
     DescriptorUpdateTemplateHandle,
+    IndirectCommandsLayoutEXTHandle,
+    IndirectExecutionSetEXTHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
 
+GFXRECON_END_NAMESPACE(vulkan_state_info)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

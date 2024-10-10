@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_DECODER_UTIL_H
 
 #include "util/defines.h"
+#include "decode/vulkan_object_info.h"
 
 #include <string>
 
@@ -33,18 +34,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename T>
 bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
 {
-    int completed_consumers = 0;
-    if (consumers.size() == 0)
-    {
-        return true;
-    }
-
     for (auto it = std::begin(consumers); it != std::end(consumers);)
     {
         if ((*it)->IsComplete(block_index) == true)
         {
             it = consumers.erase(it);
-            completed_consumers++;
         }
         else
         {
@@ -52,7 +46,32 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
         }
     }
 
-    return completed_consumers == consumers.size();
+    return consumers.empty();
+}
+
+static VkQueue GetDeviceQueue(const encode::VulkanDeviceTable* device_table,
+                              const DeviceInfo*                device_info,
+                              uint32_t                         queue_family_index,
+                              uint32_t                         queue_index)
+{
+    VkQueue queue = VK_NULL_HANDLE;
+
+    const auto queue_family_flags = device_info->queue_family_creation_flags.find(queue_family_index);
+    assert(queue_family_flags != device_info->queue_family_creation_flags.end());
+
+    // If the queue has flags, it has to use GetDeviceQueue2 to get it.
+    if (queue_family_flags->second != 0)
+    {
+        const VkDeviceQueueInfo2 queue_info = {
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, queue_family_flags->second, queue_family_index, queue_index
+        };
+        device_table->GetDeviceQueue2(device_info->handle, &queue_info, &queue);
+    }
+    else
+    {
+        device_table->GetDeviceQueue(device_info->handle, queue_family_index, queue_index, &queue);
+    }
+    return queue;
 }
 
 GFXRECON_END_NAMESPACE(decode)

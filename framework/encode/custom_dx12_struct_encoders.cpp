@@ -309,6 +309,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_ROOT_SIGNATUR
         case D3D_ROOT_SIGNATURE_VERSION_1_1:
             EncodeStruct(encoder, value.Desc_1_1);
             break;
+        case D3D_ROOT_SIGNATURE_VERSION_1_2:
+            EncodeStruct(encoder, value.Desc_1_2);
+            break;
         default:
             break;
     }
@@ -385,6 +388,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVE
         case D3D12_DRED_VERSION_1_2:
             EncodeStruct(encoder, value.Dred_1_2);
             break;
+        case D3D12_DRED_VERSION_1_3:
+            EncodeStruct(encoder, value.Dred_1_3);
+            break;
         default:
             break;
     }
@@ -393,13 +399,51 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value)
 {
     encoder->EncodeEnumValue(value.Type);
-    EncodeStruct(encoder, value.Clear);
+
+    switch (value.Type)
+    {
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR:
+            EncodeStruct(encoder, value.Clear);
+            break;
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            EncodeStruct(encoder, value.PreserveLocal);
+            break;
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE:
+        case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS:
+            // These cases have no additional values to encode.
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value.Type);
+            break;
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value)
 {
     encoder->EncodeEnumValue(value.Type);
-    EncodeStruct(encoder, value.Resolve);
+
+    switch (value.Type)
+    {
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
+            EncodeStruct(encoder, value.Resolve);
+            break;
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            EncodeStruct(encoder, value.PreserveLocal);
+            break;
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE:
+        case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS:
+            // These cases have no additional values to encode.
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value.Type);
+            break;
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)

@@ -47,6 +47,7 @@ app_category = 'android.intent.category.LAUNCHER'
 
 # ADB commands
 adb_install = 'adb install -g -t -r'
+adb_sdk_version = 'adb shell getprop ro.build.version.sdk'
 adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_action, app_category)
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
@@ -85,14 +86,34 @@ def CreateReplayParser():
     parser.add_argument('--validate', action='store_true', default=False, help='Enables the Khronos Vulkan validation layer (forwarded to replay tool)')
     parser.add_argument('--onhb', '--omit-null-hardware-buffers', action='store_true', default=False, help='Omit Vulkan calls that would pass a NULL AHardwareBuffer* (forwarded to replay tool)')
     parser.add_argument('--use-colorspace-fallback', action='store_true', default=False, help='Swap the swapchain color space if unsupported by replay device. Check if color space is not supported by replay device and swap to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).')
+    parser.add_argument('--offscreen-swapchain-frame-boundary', action='store_true', default=False, help='Should only be used with offscreen swapchain. Activates the extension VK_EXT_frame_boundary (always supported if trimming, checks for driver support otherwise) and inserts command buffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR was called in the original capture. This allows preserving frames when capturing a replay that uses. offscreen swapchain. (forwarded to replay tool)')
     parser.add_argument('--mfr', '--measurement-frame-range', metavar='START-END', help='Custom framerange to measure FPS for. This range will include the start frame but not the end frame. The measurement frame range defaults to all frames except the loading frame but can be configured for any range. If the end frame is past the last frame in the trace it will be clamped to the frame after the last (so in that case the results would include the last frame). (forwarded to replay tool)')
     parser.add_argument('--measurement-file', metavar='DEVICE_FILE', help='Write measurements to a file at the specified path. Default is: \'/sdcard/gfxrecon-measurements.json\' on android and \'./gfxrecon-measurements.json\' on desktop. (forwarded to replay tool)')
     parser.add_argument('--quit-after-measurement-range', action='store_true', default=False, help='If this is specified the replayer will abort when it reaches the <end_frame> specified in the --measurement-frame-range argument. (forwarded to replay tool)')
     parser.add_argument('--flush-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at the start and end of the measurement range. (forwarded to replay tool)')
+    parser.add_argument('--flush-inside-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at end of each frame inside the measurement range. (forwarded to replay tool)')
+    parser.add_argument('--sgfs', '--skip-get-fence-status', metavar='STATUS', default=0, help='Specify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus. Default is 0 - No skip (forwarded to replay tool)')
+    parser.add_argument('--sgfr', '--skip-get-fence-ranges', metavar='FRAME-RANGES', default='', help='Frame ranges where --sgfs applies. Default is all frames (forwarded to replay tool)')
+    parser.add_argument('--wait-before-present', action='store_true', default=False, help='Force wait on completion of queue operations for all queues before calling Present. This is needed for accurate acquisition of instrumentation data on some platforms.')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('--swapchain', metavar='MODE', choices=['virtual', 'captured', 'offscreen'], help='Choose a swapchain mode to replay. Available modes are: virtual, captured, offscreen (forwarded to replay tool)')
+    parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
+    parser.add_argument('--dump-resources', metavar='DUMP_RESOURCES', help='--dump-resources <filename> Extract --dump-resources args from the specified file.')
+    parser.add_argument('--dump-resources-before-draw', action='store_true', default=False, help= 'In addition to dumping gpu resources after the Vulkan draw calls specified by the --dump-resources argument, also dump resources before the draw calls.')
+    parser.add_argument('--dump-resources-image-format', metavar='FORMAT', choices=['bmp', 'png'], help='Image file format to use when dumping image resources. Available formats are: bmp, png')
+    parser.add_argument('--dump-resources-scale', metavar='DR_SCALE', help='tScale images generated by dump resources by the given scale factor. The scale factor must be a floating point number greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.')
+    parser.add_argument('--dump-resources-dir', metavar='DIR', help='Directory to write dump resources output files. Default is "/sdcard" (forwarded to replay tool)')
+    parser.add_argument('--dump-resources-dump-depth-attachment', action='store_true', default=False, help= 'Dump depth attachment when dumping a draw call. Default is false.')
+    parser.add_argument('--dump-resources-dump-color-attachment-index', metavar='N', help='Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero based integer. Default is to dump all color attachments.')
+    parser.add_argument('--dump-resources-dump-vertex-index-buffers', action='store_true', default=False, help= 'Enables dumping of vertex and index buffers while dumping draw call resources. Default is disabled.')
+    parser.add_argument('--dump-resources-json-output-per-command', action='store_true', default=False, help= 'Enables storing a json output file for each dumped command. Default is disabled.')
+    parser.add_argument('--dump-resources-dump-immutable-resources', action='store_true', default=False, help= 'Dump immutable immutable shader resources.')
+    parser.add_argument('--dump-resources-dump-all-image-subresources', action='store_true', default=False, help= 'Dump all available mip levels and layers when dumping images.')
+    parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
+    parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
+    parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
     return parser
 
 def MakeExtrasString(args):
@@ -180,19 +201,86 @@ def MakeExtrasString(args):
 
     if args.quit_after_measurement_range:
         arg_list.append('--quit-after-measurement-range')
-        arg_list.append('{}'.format(args.quit_after_measurement_range))
 
     if args.flush_measurement_range:
         arg_list.append('--flush-measurement-range')
-        arg_list.append('{}'.format(args.flush_measurement_range))
+
+    if args.flush_inside_measurement_range:
+        arg_list.append('--flush-inside-measurement-range')
 
     if args.swapchain:
         arg_list.append('--swapchain')
         arg_list.append('{}'.format(args.swapchain))
 
+    if args.offscreen_swapchain_frame_boundary:
+        arg_list.append('--offscreen-swapchain-frame-boundary')
+
+    if args.vssb:
+        arg_list.append('--vssb')
+
+    if args.sgfs:
+        arg_list.append('--sgfs')
+        arg_list.append('{}'.format(args.sgfs))
+
+    if args.sgfr:
+        arg_list.append('--sgfr')
+        arg_list.append('{}'.format(args.sgfr))
+
     if args.memory_translation:
         arg_list.append('-m')
         arg_list.append('{}'.format(args.memory_translation))
+
+    if args.wait_before_present:
+        arg_list.append('--wait-before-present')
+
+    if args.dump_resources:
+        arg_list.append('--dump-resources')
+        arg_list.append('{}'.format(args.dump_resources))
+
+    if args.dump_resources_before_draw:
+        arg_list.append('--dump-resources-before-draw')
+
+    if args.dump_resources_image_format:
+        arg_list.append('--dump-resources-image-format')
+        arg_list.append('{}'.format(args.dump_resources_image_format))
+
+    if args.dump_resources_scale:
+        arg_list.append('--dump-resources-scale')
+        arg_list.append('{}'.format(args.dump_resources_scale))
+
+    if args.dump_resources_dir:
+        arg_list.append('--dump-resources-dir')
+        arg_list.append('{}'.format(args.dump_resources_dir))
+
+    if args.dump_resources_dump_depth_attachment:
+        arg_list.append('--dump-resources-dump-depth-attachment')
+
+    if args.dump_resources_dump_color_attachment_index:
+        arg_list.append('--dump-resources-dump-color-attachment-index')
+        arg_list.append('{}'.format(args.dump_resources_dump_color_attachment_index))
+
+    if args.dump_resources_dump_vertex_index_buffers:
+        arg_list.append('--dump-resources-dump-vertex-index-buffers')
+
+    if args.dump_resources_json_output_per_command:
+        arg_list.append('--dump-resources-json-output-per-command')
+
+    if args.dump_resources_dump_immutable_resources:
+        arg_list.append('--dump-resources-dump-immutable-resources')
+
+    if args.dump_resources_dump_all_image_subresources:
+        arg_list.append('--dump-resources-dump-all-image-subresources')
+
+    if args.pbi_all:
+        arg_list.append('--pbi-all')
+
+    if args.pbis:
+        arg_list.append('--pbis')
+        arg_list.append('{}'.format(args.pbis))
+
+    if args.pcj:
+        arg_list.append('--pcj')
+        arg_list.append('{}'.format(args.pcj))
 
     if args.file:
         arg_list.append(args.file)
@@ -205,7 +293,9 @@ def MakeExtrasString(args):
 def InstallApk(install_args):
     install_parser = CreateInstallApkParser()
     args = install_parser.parse_args(install_args)
-    cmd = adb_install + ' ' + args.file
+    sdk = int(subprocess.check_output(shlex.split(adb_sdk_version)).decode())
+    force_queryable = ' --force-queryable' if sdk >= 30 else ''
+    cmd = adb_install + force_queryable + ' ' + args.file
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 

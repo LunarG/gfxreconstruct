@@ -429,7 +429,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart,
                             heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         // Write GetGPUDescriptorHandleForHeapStart call.
@@ -441,7 +441,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart,
                             heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         // Write call to query the device for heap increment size.
@@ -450,7 +450,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
                         heap_info->create_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
@@ -476,7 +476,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
                     parameter_stream_.Write(&dest_index, sizeof(dest_index));
                     WriteMethodCall(
                         descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
-                    parameter_stream_.Reset();
+                    parameter_stream_.Clear();
                 }
                 else
                 {
@@ -519,7 +519,7 @@ void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapp
         {
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
         }
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -527,14 +527,14 @@ void Dx12StateWriter::WriteAddRefCommand(format::HandleId handle_id, unsigned lo
 {
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_AddRef, handle_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count)
 {
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, handle_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
     if (result_ref_count == 0)
@@ -586,7 +586,7 @@ void Dx12StateWriter::WriteResourceCreationState(
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress,
                             resource_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             // Track the GPU VAs for buffers written to the trim state block. This map is used to determine if a given
             // GPU VA references a buffer that was written to the trim state block. Addresses do not need to be mapped,
@@ -677,7 +677,7 @@ void Dx12StateWriter::WriteResourceCreationState(
 
         mappable_resource->Unmap(map_info.subresource, &graphics::dx12::kZeroRange);
 
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -778,8 +778,10 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     temp_subresource_sizes_.clear();
     temp_subresource_offsets_.clear();
 
-    bool is_reserved_resouce = (resource_info->create_call_id == format::ApiCall_ID3D12Device_CreateReservedResource) ||
-                               (resource_info->create_call_id == format::ApiCall_ID3D12Device4_CreateReservedResource1);
+    bool is_reserved_resouce =
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device_CreateReservedResource) ||
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device4_CreateReservedResource1) ||
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device10_CreateReservedResource2);
     bool is_texture_with_unknown_layout =
         graphics::dx12::IsTextureWithUnknownLayout(resource_info->dimension, resource_info->layout);
 
@@ -940,7 +942,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
                 WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion,
                                 fence_wrapper->GetCaptureId(),
                                 &parameter_stream_);
-                parameter_stream_.Reset();
+                parameter_stream_.Clear();
             }
         }
 
@@ -949,7 +951,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         encoder_.EncodeInt32Value(S_OK);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12Fence_Signal, fence_wrapper->GetCaptureId(), &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     });
 }
 
@@ -981,7 +983,7 @@ void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(
                 format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     });
 }
@@ -1008,7 +1010,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         {
             if (list_info->is_closed)
             {
-                WriteCommandListCreation(list_wrapper);
+                WriteCommandListCreation(list_wrapper, state_table);
                 WriteCommandListCommands(list_wrapper, state_table);
             }
             else
@@ -1028,7 +1030,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (list_info->is_closed)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
             WriteCommandListCommands(list_wrapper, state_table);
         }
         else
@@ -1044,7 +1046,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (list_info->was_reset)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
         }
     }
     for (auto list_wrapper : open_command_lists)
@@ -1053,7 +1055,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (!list_info->was_reset)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
         }
 
         // Write commands for all open command lists.
@@ -1073,6 +1075,8 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     size_t         data_size = list_info->command_data.GetDataSize();
     const uint8_t* data      = list_info->command_data.GetData();
 
+    // TODO: Don't write any commands, including the Reset or Close commands, if the command allocator used in the most
+    // recent Reset command no longer exists.
     while (offset < data_size)
     {
         const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
@@ -1106,7 +1110,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
                 // Ags function call, targeting command list.
                 parameter_stream_.Write(parameter_data, (*parameter_size));
                 WriteFunctionCall((*call_id), &parameter_stream_);
-                parameter_stream_.Reset();
+                parameter_stream_.Clear();
 
                 // The output below, in this case, should be skipped.
                 write_current_command = false;
@@ -1118,7 +1122,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
         {
             parameter_stream_.Write(parameter_data, (*parameter_size));
             WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
         offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
     }
@@ -1126,11 +1130,28 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     GFXRECON_ASSERT(offset == data_size);
 }
 
-void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper)
+void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper,
+                                               const Dx12StateTable&            state_table)
 {
+    auto list_info = list_wrapper->GetObjectInfo();
+
+    // Create the command allocator if it doesn't exist.
+    bool create_temp_command_allocator =
+        (list_info->create_command_allocator_id != format::kNullHandleId) &&
+        (state_table.GetID3D12CommandAllocator_Wrapper(list_info->create_command_allocator_id) == nullptr);
+    if (create_temp_command_allocator)
+    {
+        GFXRECON_LOG_DEBUG(
+            "Writing the creation for a temporary command allocator %" PRIu64
+            " that was used to create command list %" PRIu64
+            " but has since been released. The command allocator will be freed after the command list creation.",
+            list_info->create_command_allocator_id,
+            list_wrapper->GetCaptureId());
+        StandardCreateWrite(list_info->create_command_allocator_id, *list_info->create_command_allocator_info.get());
+    }
+
     // Write call to create the command list.
     StandardCreateWrite(list_wrapper);
-    auto list_info = list_wrapper->GetObjectInfo();
 
     // If the command list was created open and reset since creation, write a command to close it. This frees up the
     // command allocator used in creation. This list's command_data will contain a reset, possibly with a different
@@ -1140,6 +1161,11 @@ void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* 
     {
         WriteCommandListClose(list_wrapper);
     }
+
+    if (create_temp_command_allocator)
+    {
+        WriteReleaseCommand(list_info->create_command_allocator_id, 0);
+    }
 }
 
 void Dx12StateWriter::WriteCommandListClose(const ID3D12CommandList_Wrapper* list_wrapper)
@@ -1147,7 +1173,7 @@ void Dx12StateWriter::WriteCommandListClose(const ID3D12CommandList_Wrapper* lis
     encoder_.EncodeUInt32Value(S_OK);
     WriteMethodCall(
         format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close, list_wrapper->GetCaptureId(), &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 bool Dx12StateWriter::CheckCommandListObjects(const ID3D12CommandListInfo* list_info, const Dx12StateTable& state_table)
@@ -1327,7 +1353,7 @@ void Dx12StateWriter::WriteEnableDebugLayer()
         encoder_.EncodeHandleIdPtr(&debug_object_id);
         encoder_.EncodeUInt32Value(S_OK);
         WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer, debug_object_id, &parameter_stream_);
         WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, debug_object_id, &parameter_stream_);
     }
@@ -1342,26 +1368,26 @@ void Dx12StateWriter::WriteEnableDRED()
         encoder_.EncodeHandleIdPtr(&enable_dred_info.dred_settings1_object_id);
         encoder_.EncodeUInt32Value(S_OK);
         WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_auto_breadcrumbs_enablement_);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement,
                         enable_dred_info.dred_settings1_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_breadcrumb_context_enablement_);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement,
             enable_dred_info.dred_settings1_object_id,
             &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_page_fault_enablement_);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement,
                         enable_dred_info.dred_settings1_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         WriteMethodCall(
             format::ApiCallId::ApiCall_IUnknown_Release, enable_dred_info.dred_settings1_object_id, &parameter_stream_);
@@ -1371,26 +1397,44 @@ void Dx12StateWriter::WriteEnableDRED()
 void Dx12StateWriter::WriteAccelerationStructuresState(const Dx12StateTable& state_table)
 {
     std::map<uint64_t, const DxAccelerationStructureBuildInfo*> build_infos;
+    ID3D12Device_Wrapper*                                       device_wrapper = nullptr;
 
     // Find all acceleration structures that exist on resources.
+    uint64_t max_inputs_buffer_size = 0;
     state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
         GFXRECON_ASSERT(resource_wrapper != nullptr);
         GFXRECON_ASSERT(resource_wrapper->GetObjectInfo() != nullptr);
 
         const auto resource_info = resource_wrapper->GetObjectInfo();
 
+        if (device_wrapper == nullptr)
+        {
+            device_wrapper = resource_info->device_wrapper;
+        }
+
         for (const auto& pair : resource_info->acceleration_structure_builds)
         {
             GFXRECON_ASSERT(build_infos.count(pair.second.id) == 0);
             build_infos[pair.second.id] = &pair.second;
+            max_inputs_buffer_size      = std::max(max_inputs_buffer_size, pair.second.input_data_size);
         }
     });
 
-    WriteAccelerationStructuresState(build_infos);
+    if (build_infos.size() > 0)
+    {
+        GFXRECON_ASSERT(device_wrapper != nullptr);
+        ID3D12Device* device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+        GFXRECON_ASSERT(device != nullptr);
+
+        std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util =
+            std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_inputs_buffer_size);
+        WriteAccelerationStructuresState(build_infos, resource_data_util.get());
+    }
 }
 
 void Dx12StateWriter::WriteAccelerationStructuresState(
-    std::map<uint64_t, const DxAccelerationStructureBuildInfo*> as_builds)
+    std::map<uint64_t, const DxAccelerationStructureBuildInfo*> as_builds,
+    graphics::Dx12ResourceDataUtil*                             resource_data_util)
 {
     uint64_t                            accel_struct_file_bytes = 0;
     std::set<D3D12_GPU_VIRTUAL_ADDRESS> blas_addresses;
@@ -1416,9 +1460,27 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         }
 
         uint8_t* inputs_data_ptr = nullptr;
-        HRESULT  hr = graphics::dx12::MapSubresource(as_build.input_data_resource, 0, nullptr, inputs_data_ptr);
-        if (SUCCEEDED(hr) && (inputs_data_ptr != nullptr))
+        temp_subresource_data_.clear();
+        temp_subresource_sizes_.clear();
+        temp_subresource_offsets_.clear();
+
+        // Read the build inputs data from the resource.
+        HRESULT hr = resource_data_util->ReadFromResource(
+            as_build.input_data_resource,
+            false,
+            { { D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE } },
+            { { D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE } },
+            temp_subresource_data_,
+            temp_subresource_offsets_,
+            temp_subresource_sizes_);
+
+        if (SUCCEEDED(hr))
         {
+            GFXRECON_ASSERT(temp_subresource_sizes_.size() == 1);
+            GFXRECON_ASSERT(temp_subresource_sizes_[0] == as_build.input_data_size);
+
+            inputs_data_ptr = temp_subresource_data_.data() + as_build.input_data_header_size;
+
             // Check that the instance desc addresses are correct for TLAS.
             if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
             {
@@ -1429,7 +1491,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                 {
                     D3D12_GPU_VIRTUAL_ADDRESS* address = reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(
                         inputs_data_ptr + i * address_stride + address_offset);
-                    if (blas_addresses.count(*address) == 0)
+                    if ((*address != 0x0) && (blas_addresses.count(*address) == 0))
                     {
                         valid = false;
                         break;
@@ -1496,7 +1558,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         cmd.inputs_num_geometry_descs    = 0;
         if (write_build_data)
         {
-            cmd.inputs_data_size = as_build.input_data_size;
+            cmd.inputs_data_size = as_build.input_data_size - as_build.input_data_header_size;
             if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
             {
                 cmd.inputs_num_geometry_descs = as_build.inputs.NumDescs;
@@ -1510,15 +1572,15 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                 GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE.");
             }
 
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, as_build.input_data_size);
-            inputs_data_ptr_file_size = static_cast<size_t>(as_build.input_data_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, cmd.inputs_data_size);
+            inputs_data_ptr_file_size = static_cast<size_t>(cmd.inputs_data_size);
             if (compressor_ != nullptr)
             {
                 // Compress block data.
                 size_t compressed_size =
                     compressor_->Compress(inputs_data_ptr_file_size, inputs_data_ptr, &compressed_parameter_buffer_, 0);
 
-                if ((compressed_size > 0) && (compressed_size < as_build.input_data_size))
+                if ((compressed_size > 0) && (compressed_size < cmd.inputs_data_size))
                 {
                     cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 
@@ -1576,7 +1638,6 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
             // Write inputs data.
             output_stream_->Write(inputs_data_ptr, inputs_data_ptr_file_size);
             accel_struct_file_bytes += inputs_data_ptr_file_size;
-            as_build.input_data_resource->Unmap(0, nullptr);
         }
 
         // Track which accel struct addresses have been written to the trim state block.

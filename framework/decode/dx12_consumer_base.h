@@ -29,6 +29,7 @@
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "format/api_call_id.h"
 
 #include <d3d12.h>
 #include <dxgi1_5.h>
@@ -43,8 +44,6 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     virtual ~Dx12ConsumerBase() {}
 
     virtual void Process_DriverInfo(const char* info_record) {}
-
-    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
@@ -83,7 +82,12 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                            UINT                                     SrcDepthPitch)
     {}
 
-    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; }
+    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                             env_string) {};
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
+
+    void SetCurrentApiCallId(format::ApiCallId api_call_id) { current_api_call_id_ = api_call_id; }
 
     bool ContainsDxrWorkload() const { return dxr_workload_; }
 
@@ -91,15 +95,19 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     bool ContainsOptFillMem() const { return opt_fillmem_; }
 
-  protected:
-    auto GetCurrentBlockIndex() { return current_block_index_; }
+    uint32_t GetDXGITestPresentCount() const { return dxgi_present_test_; }
 
-    bool dxr_workload_{ false };
-    bool ei_workload_{ false };
-    bool opt_fillmem_{ false };
+  protected:
+    auto GetCurrentBlockIndex() { return block_index_; }
+    auto GetCurrentApiCallId() { return current_api_call_id_; }
+
+    bool     dxr_workload_{ false };
+    bool     ei_workload_{ false };
+    bool     opt_fillmem_{ false };
+    uint32_t dxgi_present_test_{ 0 };
 
   private:
-    uint64_t current_block_index_{ 0 };
+    format::ApiCallId current_api_call_id_{ format::ApiCall_Unknown };
 };
 
 GFXRECON_END_NAMESPACE(decode)

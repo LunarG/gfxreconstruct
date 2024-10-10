@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,18 +26,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const int32_t  kDefaultWindowPositionX = 0;
-const int32_t  kDefaultWindowPositionY = 0;
-const uint32_t kDefaultWindowWidth     = 320;
-const uint32_t kDefaultWindowHeight    = 240;
-
 void VulkanSwapchain::Clean()
 {
-    if (options_surface_index_ >= create_surface_count_)
+    if (swapchain_options_.surface_index >= create_surface_count_)
     {
         GFXRECON_LOG_WARNING("Rendering was restricted to surface index %u, but a surface was never created for that "
                              "index; replay created %d surface(s)",
-                             options_surface_index_,
+                             swapchain_options_.surface_index,
                              create_surface_count_);
     }
 
@@ -55,15 +51,18 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
                                         const std::string&                  wsi_extension,
                                         VkFlags                             flags,
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                        const encode::InstanceTable*        instance_table,
+                                        const encode::VulkanInstanceTable*  instance_table,
                                         application::Application*           application,
-                                        int32_t                             options_surface_index)
+                                        const int32_t                       xpos,
+                                        const int32_t                       ypos,
+                                        const uint32_t                      width,
+                                        const uint32_t                      height,
+                                        bool                                force_windowed)
 {
     assert(instance_info != nullptr);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = options_surface_index;
+    instance_table_ = instance_table;
+    application_    = application;
 
     VkInstance    instance       = instance_info->handle;
     VkSurfaceKHR* replay_surface = nullptr;
@@ -76,7 +75,7 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.
-    if ((options_surface_index_ == -1) || (options_surface_index_ == create_surface_count_))
+    if ((swapchain_options_.surface_index == -1) || (swapchain_options_.surface_index == create_surface_count_))
     {
         // Create a window for our surface.
         assert(application_);
@@ -84,11 +83,11 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
         assert(wsi_context);
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         assert(window_factory);
-        auto window =
-            window_factory
-                ? window_factory->Create(
-                      kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight)
-                : nullptr;
+
+        // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
+        // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
+        // behavior will change, and replay will instead render in windowed mode.
+        auto window = window_factory ? window_factory->Create(xpos, ypos, width, height, force_windowed) : nullptr;
 
         if (window == nullptr)
         {

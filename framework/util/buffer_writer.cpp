@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,37 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_scoped_destroy_lock.h"
+#include "buffer_writer.h"
+#include "platform.h"
+#include "logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-std::shared_mutex ScopedDestroyLock::mutex_for_create_destroy_handle_;
-
-ScopedDestroyLock::ScopedDestroyLock(bool shared)
+bool WriteBuffer(const std::string& filename, const void* data, size_t size)
 {
-    lock_shared_ = shared;
-    if (shared)
-    {
-        mutex_for_create_destroy_handle_.lock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.lock();
-    }
-};
+    assert(data);
+    assert(size);
 
-ScopedDestroyLock::~ScopedDestroyLock()
-{
-    if (lock_shared_)
-    {
-        mutex_for_create_destroy_handle_.unlock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.unlock();
-    }
-};
+    FILE*   file   = nullptr;
+    int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
 
-GFXRECON_END_NAMESPACE(encode)
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
+    if ((result) || (file == nullptr))
+    {
+        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
+        return false;
+    }
+
+    bool success = util::platform::FileWrite(data, size, file);
+
+    util::platform::FileClose(file);
+
+    return success;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(bufferwriter)

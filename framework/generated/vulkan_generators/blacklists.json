@@ -10,14 +10,10 @@
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplateKHR",
+    "vkCmdPushDescriptorSetWithTemplate2KHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",
-    "vkCreateRayTracingPipelinesKHR",
-    "vkSetLatencySleepModeNV",
-    "vkLatencySleepNV",
-    "vkSetLatencyMarkerNV",
-    "vkGetLatencyTimingsNV",
-    "vkQueueNotifyOutOfBandNV"
+    "vkCreateRayTracingPipelinesKHR"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -34,16 +30,12 @@
     "VkDescriptorImageInfo",
     "VkWriteDescriptorSet",
     "VkPerformanceValueINTEL",
+    "VkPushDescriptorSetWithTemplateInfoKHR",
     "VkAccelerationStructureGeometryKHR",
     "VkAccelerationStructureMotionInstanceNV",
-    "VkGetLatencyMarkerInfoNV",
-    "VkLatencySleepInfoNV",
-    "VkLatencySleepModeInfoNV",
-    "VkLatencyTimingsFrameReportNV",
-    "VkOutOfBandQueueTypeInfoNV",
-    "VkSetLatencyMarkerInfoNV",
-    "VkLatencySubmissionPresentIdNV",
-    "VkLatencySurfaceCapabilitiesNV",
-    "VkSwapchainLatencyCreateInfoNV"
+    "VkIndirectExecutionSetInfoEXT",
+    "VkIndirectExecutionSetCreateInfoEXT",
+    "VkIndirectCommandsTokenDataEXT",
+    "VkIndirectCommandsLayoutTokenEXT"
   ]
 }

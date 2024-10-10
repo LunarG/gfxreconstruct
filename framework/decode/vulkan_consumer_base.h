@@ -25,8 +25,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
-#include "decode/metadata_consumer_base.h"
-#include "decode/marker_consumer_base.h"
+#include "decode/common_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -40,21 +39,17 @@
 
 #include "vulkan/vulkan.h"
 
+#include <numeric>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
+class VulkanConsumerBase : public CommonConsumerBase
 {
   public:
     VulkanConsumerBase() {}
 
     virtual ~VulkanConsumerBase() {}
-
-    virtual void WaitDevicesIdle() {}
-
-    virtual bool IsComplete(uint64_t block_index) { return false; }
-
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,
@@ -76,6 +71,12 @@ class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)
+    {}
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+        const ApiCallInfo&                                                    call_info,
+        format::HandleId                                                      commandBuffer,
+        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
     {}
 
     virtual void Process_vkCreateRayTracingPipelinesKHR(

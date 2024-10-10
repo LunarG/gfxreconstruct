@@ -94,6 +94,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -203,6 +204,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -240,7 +242,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ):
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
 
@@ -275,7 +277,11 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if 'pNext' in member.name:
                 body += '        if (value->pNext != nullptr)\n'
                 body += '        {\n'
-                body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
+                # Workaround for spec missing const in VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext, should be removed next header update
+                if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
+                    body += '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
+                else:
+                    body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.

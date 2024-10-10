@@ -17,10 +17,13 @@
       "CreateCommittedResource1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource1"
     },
     "ID3D12Device5": {
-        "GetRaytracingAccelerationStructurePrebuildInfo": "D3D12CaptureManager::Get()->OverrideGetRaytracingAccelerationStructurePrebuildInfo"
+      "GetRaytracingAccelerationStructurePrebuildInfo": "D3D12CaptureManager::Get()->OverrideGetRaytracingAccelerationStructurePrebuildInfo"
     },
     "ID3D12Device8": {
       "CreateCommittedResource2": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource2"
+    },
+    "ID3D12Device10": {
+      "CreateCommittedResource3": "D3D12CaptureManager::Get()->OverrideID3D12Device10_CreateCommittedResource3"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "D3D12CaptureManager::Get()->OverrideID3D12Device1_CreatePipelineLibrary"
@@ -31,6 +34,11 @@
     },
     "ID3D12PipelineLibrary1": {
       "LoadPipeline": "D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary1_LoadPipeline"
+    },
+    "IDXGIFactory2": {
+      "CreateSwapChainForHwnd": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd",
+      "CreateSwapChainForCoreWindow": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow",
+      "CreateSwapChainForComposition": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition"
     }
   }
 }

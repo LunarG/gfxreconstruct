@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -125,7 +125,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
         list_info->is_closed = false;
 
         // Clear command data on command buffer reset.
-        list_info->command_data.Reset();
+        list_info->command_data.Clear();
 
         // Clear pending resource transitions.
         list_info->transition_barriers.clear();
@@ -192,6 +192,19 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
                                                 UINT                        num_lists,
                                                 ID3D12CommandList* const*   lists)
 {
+    GFXRECON_ASSERT(queue_wrapper != nullptr);
+    GFXRECON_ASSERT(queue_wrapper->GetObjectInfo() != nullptr);
+    auto queue_info = queue_wrapper->GetObjectInfo();
+    auto queue      = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
+    auto device     = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
+
+    graphics::dx12::ID3D12CommandAllocatorComPtr     post_build_as_copy_cmd_allocator = nullptr;
+    graphics::dx12::ID3D12GraphicsCommandList4ComPtr post_build_as_copy_cmd_list      = nullptr;
+
+    HRESULT  result                                 = S_OK;
+    uint64_t highest_as_build_id                    = 0;
+    bool     executing_acceleration_structure_build = false;
+
     for (UINT i = 0; i < num_lists; ++i)
     {
         auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
@@ -227,60 +240,168 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
             }
         }
 
-        GFXRECON_ASSERT(queue_wrapper != nullptr);
-        GFXRECON_ASSERT(queue_wrapper->GetObjectInfo() != nullptr);
-        auto queue_info = queue_wrapper->GetObjectInfo();
-
         bool has_acceleration_structure_build =
             !list_info->acceleration_structure_builds.empty() || !list_info->acceleration_structure_copies.empty();
         if (has_acceleration_structure_build)
         {
+            executing_acceleration_structure_build = true;
+            bool has_tlas_with_array_of_pointers   = false;
+            for (const auto& as_build_info : list_info->acceleration_structure_builds)
+            {
+                if (as_build_info.is_tlas_with_array_of_pointers)
+                {
+                    has_tlas_with_array_of_pointers = true;
+                }
+            }
+
+            // If the command list contains a TLAS build that uses the ARRAY_OF_POINTER DescLayout then use
+            // COPY_MODE_VISUALIZATION to save the inputs to the build.
+            if (has_tlas_with_array_of_pointers)
+            {
+                D3D12_COMMAND_LIST_TYPE list_type = queue->GetDesc().Type;
+
+                if (post_build_as_copy_cmd_allocator == nullptr)
+                {
+                    result = device->CreateCommandAllocator(list_type, IID_PPV_ARGS(&post_build_as_copy_cmd_allocator));
+                }
+                if (SUCCEEDED(result))
+                {
+                    if (post_build_as_copy_cmd_list == nullptr)
+                    {
+                        result = device->CreateCommandList(0,
+                                                           list_type,
+                                                           post_build_as_copy_cmd_allocator,
+                                                           nullptr,
+                                                           IID_PPV_ARGS(&post_build_as_copy_cmd_list));
+                    }
+                    if (SUCCEEDED(result))
+                    {
+                        for (const auto& as_build_info : list_info->acceleration_structure_builds)
+                        {
+                            if (as_build_info.is_tlas_with_array_of_pointers &&
+                                as_build_info.input_data_resource != nullptr)
+                            {
+                                {
+                                    D3D12_RESOURCE_TRANSITION_BARRIER pre_transition;
+                                    pre_transition.pResource   = as_build_info.input_data_resource;
+                                    pre_transition.Subresource = 0;
+                                    pre_transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+                                    pre_transition.StateAfter  = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+                                    D3D12_RESOURCE_BARRIER pre_barrier;
+                                    pre_barrier.Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                                    pre_barrier.Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                                    pre_barrier.Transition = pre_transition;
+                                    post_build_as_copy_cmd_list->ResourceBarrier(1, &pre_barrier);
+                                }
+
+                                {
+                                    auto dst_gpuva = as_build_info.input_data_resource->GetGPUVirtualAddress();
+                                    auto src_gpuva = as_build_info.dest_gpu_va;
+                                    post_build_as_copy_cmd_list->CopyRaytracingAccelerationStructure(
+                                        dst_gpuva,
+                                        src_gpuva,
+                                        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_VISUALIZATION_DECODE_FOR_TOOLS);
+                                }
+
+                                {
+                                    D3D12_RESOURCE_TRANSITION_BARRIER post_transition;
+                                    post_transition.pResource   = as_build_info.input_data_resource;
+                                    post_transition.Subresource = 0;
+                                    post_transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+                                    post_transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST;
+                                    D3D12_RESOURCE_BARRIER post_barrier;
+                                    post_barrier.Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                                    post_barrier.Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                                    post_barrier.Transition = post_transition;
+                                    post_build_as_copy_cmd_list->ResourceBarrier(1, &post_barrier);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (FAILED(result))
+                {
+                    GFXRECON_LOG_ERROR("Failed to record command list to copy instance descs for TLAS build.");
+                }
+            }
+
             // Add acceleration structure build infos to their destination resources.
-            uint64_t highest_build_id = 0;
             for (auto& accel_struct_build : list_info->acceleration_structure_builds)
             {
-                auto build_id    = CommitAccelerationStructureBuildInfo(accel_struct_build);
-                highest_build_id = std::max(build_id, highest_build_id);
-                queue_info->pending_acceleration_structure_build_resources[build_id] =
-                    accel_struct_build.input_data_resource;
+                auto build_id       = CommitAccelerationStructureBuildInfo(accel_struct_build);
+                highest_as_build_id = std::max(build_id, highest_as_build_id);
+                GFXRECON_ASSERT(queue_info->acceleration_structure_build_tracking_objects.count(build_id) == 0);
+                queue_info->acceleration_structure_build_tracking_objects.emplace(
+                    build_id,
+                    AccelerationStructureBuildTrackingObjects(accel_struct_build.input_data_resource,
+                                                              post_build_as_copy_cmd_allocator,
+                                                              post_build_as_copy_cmd_list));
             }
 
             // Add acceleration structure copy infos to their resources.
             for (auto& accel_struct_copy : list_info->acceleration_structure_copies)
             {
                 graphics::dx12::ID3D12ResourceComPtr inputs_data_resource;
-                auto build_id    = CommitAccelerationStructureCopyInfo(accel_struct_copy, inputs_data_resource);
-                highest_build_id = std::max(build_id, highest_build_id);
-                queue_info->pending_acceleration_structure_build_resources[build_id] = inputs_data_resource;
+                auto build_id       = CommitAccelerationStructureCopyInfo(accel_struct_copy, inputs_data_resource);
+                highest_as_build_id = std::max(build_id, highest_as_build_id);
+                GFXRECON_ASSERT(queue_info->acceleration_structure_build_tracking_objects.count(build_id) == 0);
+                queue_info->acceleration_structure_build_tracking_objects.emplace(
+                    build_id,
+                    AccelerationStructureBuildTrackingObjects(
+                        inputs_data_resource, post_build_as_copy_cmd_allocator, post_build_as_copy_cmd_list));
             }
 
             GFXRECON_ASSERT(queue_wrapper->GetWrappedObject() != nullptr);
             auto queue = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
 
             // Create the fence that will be signaled by the queue to indicate that builds are complete.
-            if (queue_info->acceleration_structure_build_fence == nullptr)
+            if (queue_info->acceleration_structure_build_tracking_fence == nullptr)
             {
                 auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
-                GFXRECON_ASSERT(device);
+                GFXRECON_ASSERT(device != nullptr);
 
                 auto hr = device->CreateFence(
-                    0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&queue_info->acceleration_structure_build_fence));
+                    0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&queue_info->acceleration_structure_build_tracking_fence));
                 GFXRECON_ASSERT(SUCCEEDED(hr));
             }
-
-            // Add a signal to the queue to indicate that the acceleration structure builds have completed.
-            queue->Signal(queue_info->acceleration_structure_build_fence, highest_build_id);
         }
+    }
 
-        // Clear out any completed pending_acceleration_structure_build_resources.
-        if (!queue_info->pending_acceleration_structure_build_resources.empty())
+    if (executing_acceleration_structure_build)
+    {
+        // Execute the commands to copy the TLAS build inputs.
+        if (post_build_as_copy_cmd_list != nullptr)
         {
-            GFXRECON_ASSERT(queue_info->acceleration_structure_build_fence != nullptr);
-            auto& resources_map = queue_info->pending_acceleration_structure_build_resources;
-            auto  completed_end =
-                resources_map.upper_bound(queue_info->acceleration_structure_build_fence->GetCompletedValue());
-            resources_map.erase(resources_map.begin(), completed_end);
+            result = post_build_as_copy_cmd_list->Close();
+            if (SUCCEEDED(result))
+            {
+                ID3D12CommandList* cmd_list[] = { post_build_as_copy_cmd_list };
+                queue->ExecuteCommandLists(1, cmd_list);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to close command list to copy instance descs for TLAS build.");
+            }
         }
+
+        // Add a signal to the queue to indicate that the acceleration structure builds have completed.
+        if ((queue_info->acceleration_structure_build_tracking_fence != nullptr) && (highest_as_build_id > 0))
+        {
+            GFXRECON_ASSERT(queue_info->acceleration_structure_build_tracking_fence->GetCompletedValue() <=
+                            highest_as_build_id);
+            queue->Signal(queue_info->acceleration_structure_build_tracking_fence, highest_as_build_id);
+        }
+    }
+
+    // Clear out any completed entries in acceleration_structure_build_tracking_objects.
+    if (!queue_info->acceleration_structure_build_tracking_objects.empty())
+    {
+        GFXRECON_ASSERT(queue_info->acceleration_structure_build_tracking_fence != nullptr);
+        auto& objects_map = queue_info->acceleration_structure_build_tracking_objects;
+        auto  completed_end =
+            objects_map.upper_bound(queue_info->acceleration_structure_build_tracking_fence->GetCompletedValue());
+        objects_map.erase(objects_map.begin(), completed_end);
     }
 }
 
@@ -313,11 +434,16 @@ void Dx12StateTracker::TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapp
 
 void Dx12StateTracker::TrackCommandListCreation(ID3D12CommandList_Wrapper* list_wrapper,
                                                 bool                       created_closed,
-                                                D3D12_COMMAND_LIST_TYPE    command_list_type)
+                                                D3D12_COMMAND_LIST_TYPE    command_list_type,
+                                                ID3D12CommandAllocator*    pCommandAllocator)
 {
+    auto cmd_alloc_wrapper       = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pCommandAllocator);
+
     auto list_info               = list_wrapper->GetObjectInfo();
     list_info->is_closed         = created_closed;
     list_info->command_list_type = command_list_type;
+    list_info->create_command_allocator_id   = GetDx12WrappedId(pCommandAllocator);
+    list_info->create_command_allocator_info = cmd_alloc_wrapper->GetObjectInfo();
 }
 
 void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           create_object_wrapper,
@@ -337,7 +463,7 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
     }
     else
     {
-        descriptor_info->create_parameters->Reset();
+        descriptor_info->create_parameters->Clear();
         descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
     descriptor_info->is_copy         = false;
@@ -371,7 +497,7 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         }
         else
         {
-            dst->create_parameters->Reset();
+            dst->create_parameters->Clear();
         }
 
         // Copy the source descriptor's creation parameters to destination.
@@ -599,6 +725,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         // Save build input arguments.
         build_info.inputs = desc->Inputs;
 
+        build_info.is_tlas_with_array_of_pointers = false;
+
         // Save a copy of the input's geometry desc pointers.
         if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
         {
@@ -618,6 +746,20 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             build_info.inputs.pGeometryDescs  = nullptr;
             build_info.inputs.ppGeometryDescs = nullptr;
         }
+        else if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+        {
+            // This code path adds support for top level AS builds where `DescsLayout ==
+            // D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS`. Any top level AS build--regardless of DescLayout value--could
+            // also use this code path, but this path is newer and not as thoroughly tested so use the original code
+            // path where possible.
+            if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+            {
+                // In order to store TLAS instance descs, use CopyRaytracingAccelerationStructure with
+                // D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_VISUALIZATION_DECODE_FOR_TOOLS after the build
+                // command list has completed.
+                build_info.is_tlas_with_array_of_pointers = true;
+            }
+        }
 
         // Compute the required inputs buffer size and entry information.
         uint64_t                                       inputs_buffer_size = 0;
@@ -625,10 +767,21 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         graphics::dx12::GetAccelerationStructureInputsBufferEntries(
             build_info.inputs, build_info.inputs_geometry_descs.data(), inputs_buffer_size, inputs_buffer_entries);
 
+        // TLAS builds shouldn't have more than one input buffer entry.
+        GFXRECON_ASSERT((desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL) ||
+                        (inputs_buffer_entries.size() <= 1));
+
         // Save input data to a secodary resource.
         build_info.input_data_size = inputs_buffer_size;
-        if (inputs_buffer_size > 0)
+        if (build_info.input_data_size > 0)
         {
+            if (build_info.is_tlas_with_array_of_pointers)
+            {
+                build_info.input_data_header_size =
+                    sizeof(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER);
+                build_info.input_data_size += build_info.input_data_header_size;
+            }
+
             // Sort the entries by GPU VA so that entries from the same resource are contiguous.
             std::sort(inputs_buffer_entries.begin(),
                       inputs_buffer_entries.end(),
@@ -644,7 +797,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             auto existing_accel_struct = resource_info->acceleration_structure_builds.find(build_info.dest_gpu_va);
             if (existing_accel_struct != resource_info->acceleration_structure_builds.end())
             {
-                if ((existing_accel_struct->second.input_data_size == inputs_buffer_size) &&
+                if ((existing_accel_struct->second.input_data_size == build_info.input_data_size) &&
                     (!existing_accel_struct->second.was_copy_source) &&
                     (existing_accel_struct->second.copy_source_gpu_va == 0))
                 {
@@ -656,10 +809,10 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             if (inputs_data_resource == nullptr)
             {
                 inputs_data_resource = graphics::dx12::CreateBufferResource(device5,
-                                                                            inputs_buffer_size,
-                                                                            D3D12_HEAP_TYPE_READBACK,
+                                                                            build_info.input_data_size,
+                                                                            D3D12_HEAP_TYPE_DEFAULT,
                                                                             D3D12_RESOURCE_STATE_COPY_DEST,
-                                                                            D3D12_RESOURCE_FLAG_NONE);
+                                                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
             }
             GFXRECON_ASSERT(inputs_data_resource);
             build_info.input_data_resource = inputs_data_resource;
@@ -674,7 +827,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             // Add CopyBufferRegion(s) and ResourceBarrier(s) to command list to save the build input resource data.
             auto curr_entry_iter = inputs_buffer_entries.begin();
             auto end_entry_iter  = inputs_buffer_entries.end();
-            while (curr_entry_iter != end_entry_iter)
+            while (!build_info.is_tlas_with_array_of_pointers && curr_entry_iter != end_entry_iter)
             {
                 ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
                 {
@@ -1018,8 +1171,11 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
     // Mark that the source acceleration structure was copied.
     source_build_info.was_copy_source = true;
 
-    // TODO: Set dest_size from post build info.
-    dest_build_info.dest_size = 1;
+    if (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_CLONE != accel_struct_copy.mode)
+    {
+        // TODO: Set dest_size from post build info.
+        dest_build_info.dest_size = 1;
+    }
 
     inputs_data_resource = dest_build_info.input_data_resource;
 

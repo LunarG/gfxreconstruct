@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -66,7 +67,7 @@ typedef _com_ptr_t<_com_IIID<ID3D12StateObjectProperties, &__uuidof(ID3D12StateO
     ID3D12StateObjectPropertiesComPtr;
 typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
-    ID3D12VersionedRootSignatureDeserializerComPtr;
+                                                                     ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
 struct ActiveAdapterInfo
@@ -100,6 +101,8 @@ struct ResourceStateInfo
 
 const D3D12_RANGE kZeroRange       = { 0, 0 };
 const double      kMemoryTolerance = 2.1;
+
+UINT GetTexturePitch(UINT64 width);
 
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
@@ -265,6 +268,30 @@ inline format::AdapterType ExtractAdapterType(uint32_t extra_info)
 {
     return static_cast<format::AdapterType>((extra_info & kAdapterTypeMask));
 }
+
+void RobustGetCopyableFootprint(ID3D12Device*                       device,
+                                ID3D12Resource*                     resource,
+                                const D3D12_RESOURCE_DESC*          pResourceDesc,
+                                UINT                                FirstSubresource,
+                                UINT                                NumSubresources,
+                                UINT64                              BaseOffset,
+                                D3D12_PLACED_SUBRESOURCE_FOOTPRINT* pLayouts,
+                                UINT*                               pNumRows,
+                                UINT64*                             pRowSizeInBytes,
+                                UINT64*                             pTotalBytes);
+
+bool IsFormatCompressed(DXGI_FORMAT format);
+
+uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format);
+
+uint64_t GetPixelByteSize(DXGI_FORMAT format);
+
+uint64_t GetSubresourceSizeTex1D(DXGI_FORMAT format, uint32_t width, uint32_t mip_levels, uint32_t subresource);
+
+uint64_t GetSubresourceSizeTex2D(
+    DXGI_FORMAT format, uint32_t height, uint32_t mip_levels, uint32_t row_pitch, uint32_t subresource);
+
+uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

@@ -29,9 +29,7 @@ class BaseDecoderBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        platform_type = 'Vulkan'
-        if self.is_dx12_class():
-            platform_type = 'Dx12'
+        platform_type = self.get_api_prefix()
 
         first = True
         for cmd in self.get_filtered_cmd_names():
@@ -167,7 +165,7 @@ class BaseDecoderBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif type_name == 'Handle':
+        elif self.is_handle(value.base_type):
             is_handle = True
 
         # is_pointer will be False for static arrays.
@@ -194,6 +192,11 @@ class BaseDecoderBodyGenerator():
                     body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                         buffer_args, value.name
                     )
+                elif self.has_basetype(value.base_type):
+                    base_type = self.get_basetype(value.base_type)
+                    body += '    bytes_read += {}.Decode{}({});\n'.format(
+                        value.name, self.encode_types[base_type], buffer_args
+                    )
                 else:
                     body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, type_name, buffer_args
@@ -211,6 +214,11 @@ class BaseDecoderBodyGenerator():
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                     buffer_args, value.name
                 )
+            elif self.has_basetype(type_name) :
+                base_type = self.get_basetype(type_name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    self.encode_types[base_type], buffer_args, value.name
+                )
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, value.name
@@ -219,32 +227,20 @@ class BaseDecoderBodyGenerator():
         return body
 
     def generate_decode_cases(self):
-        """Generate the VulkanDecoder::DecodeFunctionCall method."""
-        write(
-            'void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,',
-            file=self.outFile
-        )
-        write(
-            '                                       const ApiCallInfo&            call_info,',
-            file=self.outFile
-        )
-        write(
-            '                                       const uint8_t*                parameter_buffer,',
-            file=self.outFile
-        )
-        write(
-            '                                       size_t                        buffer_size)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    switch(call_id)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('    default:', file=self.outFile)
-        write(
-            '        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);',
-            file=self.outFile
-        )
-        write('        break;', file=self.outFile)
+        prefix = self.get_api_prefix()
+        """Generate the (Platform)Decoder::DecodeFunctionCall method."""
+
+        body = f'void {prefix}Decoder::DecodeFunctionCall(format::ApiCallId             call_id,\n'
+        body += '                                       const ApiCallInfo&            call_info,\n'
+        body += '                                       const uint8_t*                parameter_buffer,\n'
+        body += '                                       size_t                        buffer_size)\n'
+        body += '{\n'
+        body += '    switch(call_id)\n'
+        body += '    {\n'
+        body += '    default:\n'
+        body += f'        {prefix}DecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);\n'
+        body += '        break;\n'
+        write(body, file=self.outFile)
 
         for cmd in self.cmd_names:
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)

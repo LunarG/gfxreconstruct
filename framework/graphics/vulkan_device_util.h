@@ -28,6 +28,12 @@
 
 #include "vulkan/vulkan.h"
 
+namespace gfxrecon::decode
+{
+//! forward declaration to avoid cyclic include
+struct ReplayDeviceInfo;
+} // namespace gfxrecon::decode
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
@@ -47,20 +53,27 @@ class VulkanDeviceUtil
     // Incoming create_info data will be modified. Use RestoreModifiedPhysicalDeviceFeatures
     // to revert incoming data to original values (e.g., prior to writing to the capture file).
     // feature_* property_* members store the state of the features/properties after this call.
-    VulkanDevicePropertyFeatureInfo EnableRequiredPhysicalDeviceFeatures(uint32_t instance_api_version,
-                                                                         const encode::InstanceTable* instance_table,
-                                                                         const VkPhysicalDevice       physical_device,
-                                                                         const VkDeviceCreateInfo*    create_info);
+    VulkanDevicePropertyFeatureInfo
+    EnableRequiredPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+                                         const encode::VulkanInstanceTable* instance_table,
+                                         const VkPhysicalDevice             physical_device,
+                                         const VkDeviceCreateInfo*          create_info);
 
     // Restore any incoming values that were modified in EnableRequiredPhysicalDeviceFeatures
     void RestoreModifiedPhysicalDeviceFeatures();
 
+    // Populates various property-structs in the provided replay_device_info
+    static void GetReplayDeviceProperties(uint32_t                           instance_api_version,
+                                          const encode::VulkanInstanceTable* instance_table,
+                                          VkPhysicalDevice                   physical_device,
+                                          decode::ReplayDeviceInfo*          replay_device_info);
+
   private:
     template <typename T>
-    VkBool32 EnableRequiredBufferDeviceAddressFeatures(uint32_t                     instance_api_version,
-                                                       const encode::InstanceTable* instance_table,
-                                                       const VkPhysicalDevice       physical_device,
-                                                       T*                           feature_struct);
+    VkBool32 EnableRequiredBufferDeviceAddressFeatures(uint32_t                           instance_api_version,
+                                                       const encode::VulkanInstanceTable* instance_table,
+                                                       const VkPhysicalDevice             physical_device,
+                                                       T*                                 feature_struct);
 
   private:
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay

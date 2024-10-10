@@ -46,26 +46,30 @@ TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
 
     VkBuffer buffer = kBufferHandle;
-    gfxrecon::encode::CreateWrappedHandle<gfxrecon::encode::DeviceWrapper,
-                                          gfxrecon::encode::NoParentWrapper,
-                                          gfxrecon::encode::BufferWrapper>(
-        VK_NULL_HANDLE, gfxrecon::encode::NoParentWrapper::kHandleValue, &buffer, GetHandleId);
+    gfxrecon::encode::vulkan_wrappers::CreateWrappedHandle<gfxrecon::encode::vulkan_wrappers::DeviceWrapper,
+                                                           gfxrecon::encode::vulkan_wrappers::NoParentWrapper,
+                                                           gfxrecon::encode::vulkan_wrappers::BufferWrapper>(
+        VK_NULL_HANDLE, gfxrecon::encode::vulkan_wrappers::NoParentWrapper::kHandleValue, &buffer, GetHandleId);
 
-    SECTION("The handle retrieved from the wrapper is the original buffer handle") { REQUIRE(buffer == kBufferHandle); }
+    SECTION("The handle retrieved from the wrapper is the original buffer handle")
+    {
+        REQUIRE(buffer == kBufferHandle);
+    }
 
     SECTION("The handle ID retrieved from the wrapper is 12")
     {
-        REQUIRE(gfxrecon::encode::GetWrappedId<gfxrecon::encode::BufferWrapper>(buffer) == kBufferId);
+        REQUIRE(gfxrecon::encode::vulkan_wrappers::GetWrappedId<gfxrecon::encode::vulkan_wrappers::BufferWrapper>(
+                    buffer) == kBufferId);
     }
 
     SECTION("The handle ID retrieved from an integer handle with type VK_OBJECT_TYPE_BUFFER is 12")
     {
         uint64_t object = gfxrecon::format::ToHandleId(buffer);
 
-        REQUIRE(gfxrecon::encode::GetWrappedId(object, VK_OBJECT_TYPE_BUFFER) == 12);
+        REQUIRE(gfxrecon::encode::vulkan_wrappers::GetWrappedId(object, VK_OBJECT_TYPE_BUFFER) == 12);
     }
 
-    gfxrecon::encode::DestroyWrappedHandle<gfxrecon::encode::BufferWrapper>(buffer);
+    gfxrecon::encode::vulkan_wrappers::DestroyWrappedHandle<gfxrecon::encode::vulkan_wrappers::BufferWrapper>(buffer);
 
     gfxrecon::util::Log::Release();
 }

@@ -33,7 +33,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -47,11 +49,11 @@ jobs:
         then
           clang-format --version # A check for version 9 should be added.
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD
+          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
           git diff --exit-code
         else
-          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style
+          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0
         fi
     - name: Prepare artifacts
       run: |
@@ -63,7 +65,7 @@ jobs:
         mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -92,11 +94,32 @@ jobs:
             cc: "cl", cxx: "cl"
           }
     steps:
-    - name: Clone repository
-      uses: actions/checkout@v1
+    - name: Require Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install Ply Python Module
+      run: pip install ply
+    - name: Run with VsDevCmd
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Install SDK 20348
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 20348
+    - name: Set WindowsSDKVersion
+      run:
+        echo ("WindowsSDKVersion=10.0.20348.0\") >> $env:GITHUB_ENV
+    - name: Clone repository from merge of PR branch and dev branch
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Check generated code
+      run: |
+        python3 framework/generated/generate_dx12.py # check generated code isn't out of date
+        git diff --exit-code
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
+        python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --parallel 0
     - name: Prepare artifacts
       run: |
         copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
@@ -106,7 +129,7 @@ jobs:
         copy layer\vk_layer_settings.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
         move ${{ matrix.config.build_dir }}\windows\x64\output\bin gfxreconstruct-dev
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
@@ -134,7 +157,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Cache dependencies
       id: cache-deps
       uses: actions/cache@v3
@@ -146,7 +171,7 @@ jobs:
       run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0
+        python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
@@ -161,7 +186,7 @@ jobs:
         cd gfxreconstruct-dev
         zip -r9 "../${{ matrix.config.artifact }}.zip" *
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ${{ matrix.config.artifact }}.zip
@@ -174,20 +199,39 @@ jobs:
       matrix:
         config:
         - {
-            name: "Android Release/Debug",
+            name: "Android Debug",
             os: ubuntu-latest,
-            artifact: "gfxreconstruct-dev-android"
+            type: "debug",
+            artifact: "gfxreconstruct-dev-android-debug"
+          }
+        - {
+            name: "Android Release",
+            os: ubuntu-latest,
+            type: "release",
+            artifact: "gfxreconstruct-dev-android-release"
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Update submodules
       run: |
         git submodule update --init
+    - name: Set up Java
+      uses: "actions/setup-java@v4"
+      with:
+        java-version: 17
+        distribution: "temurin"
     - name: Gradle build
       run: |
         cd android
-        sh gradlew assembleRelease assembleDebug
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          sh gradlew assembleRelease -Parm64-v8a
+        else
+          sh gradlew assembleDebug -Parm64-v8a
+        fi
     - name: Prepare artifacts
       run: |
         mkdir gfxreconstruct-dev
@@ -197,12 +241,15 @@ jobs:
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
-        cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+        else
+            cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        fi
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev

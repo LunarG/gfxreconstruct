@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2022-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -245,8 +245,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 HandleToJson(jdata["pTexelBufferView"], &meta_struct.pTexelBufferView, options);
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                // Nothing to do here for acceleration-structures and inline-uniform-blocks,
+                // as the rest of the data is stored in the pNext chain
+                break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
                 GFXRECON_LOG_WARNING("Descriptor type not supported at " __FILE__ ", line: %d.", __LINE__);
@@ -355,21 +358,34 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
 {
     if (pData)
     {
-        if (pData->GetImageInfoCount())
+        const size_t                        image_info_count = pData->GetImageInfoCount();
+        std::vector<nlohmann::ordered_json> image_infos(image_info_count);
+
+        for (size_t image_info_index = 0; image_info_index < image_info_count; ++image_info_index)
         {
-            FieldToJson(jdata["imageInfos"], pData->GetImageInfoMetaStructPointer(), options);
+            FieldToJson(
+                image_infos[image_info_index], pData->GetImageInfoMetaStructPointer() + image_info_index, options);
         }
-        if (pData->GetBufferInfoCount())
+        jdata["imageInfos"] = image_infos;
+
+        const size_t                        buffer_info_count = pData->GetBufferInfoCount();
+        std::vector<nlohmann::ordered_json> buffer_infos(buffer_info_count);
+
+        for (size_t buffer_info_index = 0; buffer_info_index < buffer_info_count; ++buffer_info_index)
         {
-            FieldToJson(jdata["bufferInfos"], pData->GetBufferInfoMetaStructPointer(), options);
+            FieldToJson(
+                buffer_infos[buffer_info_index], pData->GetBufferInfoMetaStructPointer() + buffer_info_index, options);
         }
-        const auto texel_buffer_view_count = pData->GetTexelBufferViewCount();
+        jdata["bufferInfos"] = buffer_infos;
+
+        const size_t texel_buffer_view_count = pData->GetTexelBufferViewCount();
         if (texel_buffer_view_count > 0)
         {
             HandleToJson(
                 jdata["bufferViews"], pData->GetTexelBufferViewHandleIdsPointer(), texel_buffer_view_count, options);
         }
-        const auto acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
+
+        const size_t acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
         if (acceleration_structure_count > 0)
         {
             HandleToJson(jdata["accelStructViews"],
@@ -377,11 +393,73 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
                          acceleration_structure_count,
                          options);
         }
+
+        const size_t inline_uniform_block_num_bytes = pData->GetInlineUniformBlockCount();
+        if (inline_uniform_block_num_bytes > 0)
+        {
+            jdata["inlineUniformBlock"] =
+                std::vector<uint8_t>(pData->GetInlineUniformBlockPointer(),
+                                     pData->GetInlineUniformBlockPointer() + inline_uniform_block_num_bytes);
+        }
     }
     else
     {
         jdata = nullptr;
     }
+}
+
+void FieldToJson(nlohmann::ordered_json&                                     jdata,
+                 const Decoded_VkPushDescriptorSetWithTemplateInfoKHR* const pData,
+                 const util::JsonOptions&                                    options)
+{
+    HandleToJson(jdata["descriptorUpdateTemplate"], pData->descriptorUpdateTemplate, options);
+    HandleToJson(jdata["layout"], pData->layout, options);
+    FieldToJson(jdata["set"], pData->decoded_value->set, options);
+    FieldToJson(jdata["pData"], &pData->pData, options);
+}
+
+void FieldToJson(nlohmann::ordered_json&                                  jdata,
+                 const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData,
+                 const util::JsonOptions&                                 options)
+{
+    FieldToJson(jdata["type"], pData->decoded_type, options);
+    switch (pData->decoded_type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            FieldToJson(jdata["info"], pData->info->pPipelineInfo, options);
+            break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            FieldToJson(jdata["info"], pData->info->pShaderInfo, options);
+            break;
+        default:
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json&                               jdata,
+                 const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
+                 const util::JsonOptions&                              options)
+{
+    FieldToJson(jdata["type"], pData->decoded_type, options);
+    switch (pData->decoded_type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
+            FieldToJson(jdata["data"], pData->data->pPushConstant, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            FieldToJson(jdata["data"], pData->data->pVertexBuffer, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            FieldToJson(jdata["data"], pData->data->pIndexBuffer, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            FieldToJson(jdata["data"], pData->data->pExecutionSet, options);
+            break;
+        default:
+            break;
+    }
+    FieldToJson(jdata["offset"], pData->offset, options);
 }
 
 GFXRECON_END_NAMESPACE(decode)

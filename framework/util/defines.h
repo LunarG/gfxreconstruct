@@ -60,4 +60,17 @@
         }                 \
     }
 
+// Useful to avoid sign extension when converting a 32bit pointer to uint64_t
+template <typename T>
+static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)
+{
+    return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(ptr));
+}
+
+#ifdef NDEBUG
+#define GFXRECON_RELEASE_BUILD 1
+#else
+#define GFXRECON_DEBUG_BUILD 1
+#endif
+
 #endif // GFXRECON_UTIL_DEFINES_H

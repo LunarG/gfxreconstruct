@@ -243,6 +243,7 @@ bool FileProcessor::ProcessBlocks()
 
     while (success)
     {
+        PrintBlockInfo();
         success = ContinueDecoding();
 
         if (success)
@@ -264,14 +265,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFunctionCall(block_header, api_call_id);
+                        bool should_break = false;
+                        success           = ProcessFunctionCall(block_header, api_call_id, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -288,14 +286,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessMethodCall(block_header, api_call_id);
+                        bool should_break = false;
+                        success           = ProcessMethodCall(block_header, api_call_id, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -329,24 +324,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFrameMarker(block_header, marker_type);
+                        bool should_break = false;
+                        success           = ProcessFrameMarker(block_header, marker_type, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(block_header.type, marker_type))
+                        if (should_break)
                         {
-                            // If the capture file contains frame markers, it will have a frame marker for every
-                            // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
-                            // encountered, reset the frame count and ignore frame-ending API calls in
-                            // IsFrameDelimiter(format::ApiCallId call_id).
-                            if (!capture_uses_frame_markers_)
-                            {
-                                capture_uses_frame_markers_ = true;
-                                current_frame_number_       = kFirstFrame;
-                            }
-
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -485,9 +467,12 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
-    bytes_read_ += bytes_read;
-    return (bytes_read == buffer_size);
+    if (util::platform::FileRead(buffer, buffer_size, file_descriptor_))
+    {
+        bytes_read_ += buffer_size;
+        return true;
+    }
+    return false;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
@@ -517,7 +502,9 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
     }
 }
 
-bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
+                                        format::ApiCallId          call_id,
+                                        bool&                      should_break)
 {
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
@@ -575,6 +562,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                 if (decoder->SupportsApiCall(call_id))
                 {
                     DecodeAllocator::Begin();
+                    decoder->SetCurrentApiCallId(call_id);
                     decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();
                 }
@@ -586,10 +574,20 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(call_id))
+    {
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
-bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
+                                      format::ApiCallId          call_id,
+                                      bool&                      should_break)
 {
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;
@@ -650,6 +648,7 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
                 if (decoder->SupportsApiCall(call_id))
                 {
                     DecodeAllocator::Begin();
+                    decoder->SetCurrentApiCallId(call_id);
                     decoder->DecodeMethodCall(
                         call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();
@@ -664,6 +663,14 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(call_id))
+    {
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
@@ -672,6 +679,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     bool success = false;
 
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+
     if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
@@ -860,7 +868,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchExeFileInfo(header.thread_id, header);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchExeFileInfo(header.thread_id, header);
+                }
             }
         }
     }
@@ -1807,19 +1818,54 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
+    {
+        format::SetEnvironmentVariablesCommand header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.string_length, sizeof(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
+            return success;
+        }
+
+        success = ReadParameterBuffer(static_cast<size_t>(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
+            return success;
+        }
+
+        const char* env_string = (const char*)parameter_buffer_.data();
+        for (auto decoder : decoders_)
+        {
+            decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
+        }
+    }
     else
     {
-        // Unrecognized metadata type.
-        GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+        if ((meta_data_type == format::MetaDataType::kReserved23) ||
+            (meta_data_type == format::MetaDataType::kReserved25))
+        {
+            // Only log a warning once if the capture file contains blocks that are a "reserved" meta data type.
+            GFXRECON_LOG_WARNING_ONCE("This capture file contains meta-data block(s) with reserved type(s) that are "
+                                      "not supported. Unsupported meta-data block types will be skipped.");
+        }
+        else
+        {
+            // Unrecognized metadata type.
+            GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+        }
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-
         success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_data_id));
     }
 
     return success;
 }
 
-bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
+                                       format::MarkerType         marker_type,
+                                       bool&                      should_break)
 {
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
     uint64_t frame_number = 0;
@@ -1849,6 +1895,24 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, 
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(block_header.type, marker_type))
+    {
+        // If the capture file contains frame markers, it will have a frame marker for every
+        // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
+        // encountered, reset the frame count and ignore frame-ending API calls in
+        // IsFrameDelimiter(format::ApiCallId call_id).
+        if (!capture_uses_frame_markers_)
+        {
+            capture_uses_frame_markers_ = true;
+            current_frame_number_       = kFirstFrame;
+        }
+
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
@@ -1963,6 +2027,16 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
                 (call_id == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID) ||
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
+    }
+}
+
+void FileProcessor::PrintBlockInfo() const
+{
+    if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
+                                     (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
+    {
+        GFXRECON_LOG_INFO(
+            "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
     }
 }
 

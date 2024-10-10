@@ -98,18 +98,72 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
                 value->pTexelBufferView = handle_mapping::MapHandleArray<BufferViewInfo>(
                     &wrapper->pTexelBufferView, object_mapper, &VulkanObjectInfoTable::GetBufferViewInfo);
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                // TODO
-                break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
                 break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                // Handles are mapped in the VkWriteDescriptorSetInlineUniformBlock structure in the pNext chain
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 // Handles are mapped in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext chain
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
                 break;
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
+                      const VulkanObjectInfoTable&                object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureGeometryKHR* value = wrapper->decoded_value;
+
+        switch (value->geometryType)
+        {
+            case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                MapStructHandles(wrapper->geometry->triangles, object_info_table);
+                break;
+            case VK_GEOMETRY_TYPE_AABBS_KHR:
+                // No handle there so the map func doesn't exist
+                break;
+            case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                // No handle there so the map func doesn't exist
+                break;
+            default:
+                GFXRECON_LOG_WARNING("Attempting to map unknown acceleration structure geometry type");
+                break;
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
+                      const VulkanObjectInfoTable&                         object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureBuildGeometryInfoKHR* value = wrapper->decoded_value;
+
+        value->srcAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(
+            wrapper->srcAccelerationStructure,
+            object_info_table,
+            &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+
+        value->dstAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(
+            wrapper->dstAccelerationStructure,
+            object_info_table,
+            &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+
+        MapStructArrayHandles<Decoded_VkAccelerationStructureGeometryKHR>(
+            wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_info_table);
+
+        if (wrapper->ppGeometries->GetMetaStructPointer() != nullptr)
+        {
+            for (size_t i = 0; i < wrapper->ppGeometries->GetLength(); ++i)
+            {
+                MapStructHandles(wrapper->ppGeometries->GetMetaStructPointer()[i], object_info_table);
+            }
         }
     }
 }

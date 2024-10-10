@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_METADATA_JSON_CONSUMER_H
 
 #include "util/defines.h"
+#include "util/file_path.h"
 #include "format/format_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -51,6 +52,7 @@ class MetadataJsonConsumer : public Base
     inline const util::JsonOptions& GetJsonOptions() const { return this->writer_->GetOptions(); } // temp
     inline nlohmann::ordered_json&  WriteMetaCommandStart(const std::string& command_name) const
     {
+        this->writer_->SetCurrentBlockIndex(this->block_index_);
         return this->writer_->WriteMetaCommandStart(command_name);
     }
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
@@ -74,6 +76,22 @@ class MetadataJsonConsumer : public Base
         FieldToJson(jdata["offset"], offset, json_options);
         FieldToJson(jdata["size"], size, json_options);
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "fill_memory.bin", size, data);
+        WriteBlockEnd();
+    }
+
+    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info) override
+    {
+        const util::JsonOptions& json_options = GetOptions();
+        auto&                    jdata        = WriteMetaCommandStart("ExeFileInfo");
+        FieldToJson(jdata["product_version"], info.ProductVersion, json_options);
+        FieldToJson(jdata["file_version"], info.FileVersion, json_options);
+        FieldToJson(jdata["app_version"], info.AppVersion, json_options);
+        FieldToJson(jdata["app_name"], info.AppName, json_options);
+        FieldToJson(jdata["company_name"], info.CompanyName, json_options);
+        FieldToJson(jdata["file_description"], info.FileDescription, json_options);
+        FieldToJson(jdata["internal_name"], info.InternalName, json_options);
+        FieldToJson(jdata["original_filename"], info.OriginalFilename, json_options);
+        FieldToJson(jdata["product_name"], info.ProductName, json_options);
         WriteBlockEnd();
     }
 
@@ -260,6 +278,29 @@ class MetadataJsonConsumer : public Base
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
         WriteBlockEnd();
     }
+
+    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                             env_string) override
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              json_data    = WriteMetaCommandStart("SetEnvironmentVariablesCommand");
+
+        std::vector<std::string> env_vars =
+            util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
+        for (std::string& e : env_vars)
+        {
+            std::vector<std::string> var_plus_val = util::strings::SplitString(e, '=');
+            if (var_plus_val.size() == 2)
+            {
+                const char* var = var_plus_val[0].c_str();
+                const char* val = var_plus_val[1].c_str();
+                json_data[var]  = val;
+            }
+        }
+
+        WriteBlockEnd();
+    }
+
     /// @}
 };
 
