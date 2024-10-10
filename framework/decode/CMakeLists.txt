@@ -97,6 +97,11 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_next_typed_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_object_info_table_base.h
+		    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_common_state.h
+		    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_session_state.h
+		    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_session_state.cpp
+		    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_swapchain_state.h
+		    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_swapchain_state.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_options.h

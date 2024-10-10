@@ -63,6 +63,11 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_object_info_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_common_state.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_session_state.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_session_state.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_swapchain_state.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_swapchain_state.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_options.h
