@@ -48,6 +48,7 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpVertexIndexBuffer"]    = options.dump_resources_dump_vertex_index_buffer;
     dr_options["dumpResourcesDumpImmutableResources"]   = options.dump_resources_dump_immutable_resources;
     dr_options["dumpResourcesDumpAllImageSubresources"] = options.dump_resources_dump_all_image_subresources;
+    dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
 };
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
