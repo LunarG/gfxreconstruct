@@ -1657,10 +1657,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         {
             GFXRECON_LOG_WARNING("Dump images could not be created for before and after resource of "
                                  "'%s_before\\after.bmp'. Only formats "
-                                 "with 4 bytes per pixel are supported. Current format %" PRIu32
-                                 " is %.2f bytes per pixel.",
+                                 "with 4 bytes per pixel are supported. Current format %s "
+                                 "is %.2f bytes per pixel.",
                                  file_name_sub.c_str(),
-                                 resource_data->footprints[sub_index].Footprint.Format,
+                                 util::ToString(resource_data->footprints[sub_index].Footprint.Format).c_str(),
                                  bytes_per_pixel);
             continue;
         }

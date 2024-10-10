@@ -502,12 +502,13 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                     {
                                         if (TEST_AVAILABLE_ARGS == 2 && !bundle_draw_call->is_draw)
                                         {
-                                            // Find a draw draw call in the following draw call.
+                                            // Finding the target in the following draw call.
                                             is_modified_args = true;
                                             ++dump_resources_target_.draw_call_index;
                                         }
                                         else
                                         {
+                                            // Found the target.
                                             draw_call->bundle_target_draw_call = bundle_draw_call;
 
                                             draw_call->execute_block_index = call_info.index;
@@ -516,6 +517,12 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                             break;
                                         }
                                     }
+                                }
+
+                                // Found the target.
+                                if (target_command_list_ != format::kNullHandleId)
+                                {
+                                    break;
                                 }
                             }
                         }
@@ -526,12 +533,13 @@ class Dx12BrowseConsumer : public Dx12Consumer
                             {
                                 if (TEST_AVAILABLE_ARGS == 2 && !draw_call->is_draw)
                                 {
-                                    // Find a draw call in the following draw call.
+                                    // Finding the target in the following draw call.
                                     is_modified_args = true;
                                     ++dump_resources_target_.draw_call_index;
                                 }
                                 else
                                 {
+                                    // Found the target.
                                     draw_call->execute_block_index = call_info.index;
                                     target_command_list_          = cmd_list;
                                     target_draw_call_index_        = draw_call_index;
@@ -542,12 +550,16 @@ class Dx12BrowseConsumer : public Dx12Consumer
                         ++draw_call_index;
                     }
 
-                    // It didn't find the target draw call.
-                    if (target_command_list_ == format::kNullHandleId)
+                    // Found the target.
+                    if (target_command_list_ != format::kNullHandleId)
+                    {
+                        break;
+                    }
+                    else
                     {
                         if (TEST_AVAILABLE_ARGS > 0)
                         {
-                            // Find a draw call in the following command list.
+                            // Finding the target in the following command list.
                             is_modified_args = true;
                             ++dump_resources_target_.command_index;
                             dump_resources_target_.draw_call_index = 0;
