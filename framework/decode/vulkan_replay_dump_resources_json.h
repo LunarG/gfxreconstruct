@@ -59,14 +59,17 @@ class VulkanReplayDumpResourcesJson
 
     nlohmann::ordered_json& GetCurrentSubEntry();
 
-    void InsertImageInfo(nlohmann::ordered_json&         json_entry,
-                         const ImageInfo*                image_info,
-                         const std::vector<std::string>& filenames,
-                         VkImageAspectFlagBits           aspect,
-                         bool                            scale_failed = false,
-                         uint32_t                        mip_level    = 0,
-                         uint32_t                        array_layer  = 0,
-                         const VkExtent3D*               extent       = nullptr);
+    void InsertImageInfo(nlohmann::ordered_json& json_entry,
+                         VkFormat                image_format,
+                         VkImageType             image_type,
+                         format::HandleId        image_id,
+                         const VkExtent3D&       extent,
+                         const std::string&      filename,
+                         VkImageAspectFlagBits   aspect,
+                         bool                    scale_failed,
+                         uint32_t                mip_level       = 0,
+                         uint32_t                array_layer     = 0,
+                         const std::string*      filename_before = nullptr);
 
     void
     InsertBufferInfo(nlohmann::ordered_json& json_entry, const BufferInfo* buffer_info, const std::string& filename);

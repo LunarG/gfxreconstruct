@@ -300,8 +300,12 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                                                    buffer_reference_info.binding,
                                                                    buffer_reference_info.set,
                                                                    &spv_result);
-                                td        = spv_descriptor_binding->type_description;
-                                root_name = spv_descriptor_binding->name;
+                                td = spv_descriptor_binding->type_description;
+
+                                // spirv_reflect sets the name by tracking SPIR-V instructions like OpName. Some
+                                // optimizations may remove these instructions, resulting in a nullptr name. Actually we
+                                // can find some title removes all such names.
+                                root_name = spv_descriptor_binding->name ? spv_descriptor_binding->name : "";
                             }
 
                             if (root_name.empty())

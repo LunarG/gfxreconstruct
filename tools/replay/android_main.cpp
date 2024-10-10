@@ -121,6 +121,10 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
 
+                file_processor->SetPrintBlockInfoFlag(replay_options.enable_print_block_info,
+                                                      replay_options.block_index_from,
+                                                      replay_options.block_index_to);
+
                 // Process --dump-resources arg. We do it here so that other gfxr tools that use
                 // the VulkanReplayOptions class won't have to link in the json library.
                 if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))

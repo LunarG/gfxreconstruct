@@ -34,7 +34,7 @@ class BaseReplayConsumerBodyGenerator():
         first = True
         for cmd in self.get_filtered_cmd_names():
 
-            if self.is_resource_dump_class() and cmd[:5] != "vkCmd":
+            if self.is_resource_dump_class() and self.is_dump_resources_api_call(cmd) == False:
                 continue
 
             info = self.feature_cmd_params[cmd]

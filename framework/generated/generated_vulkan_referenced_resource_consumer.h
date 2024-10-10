@@ -635,6 +635,18 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            buffer,
         VkDeviceSize                                offset) override;
 
+    virtual void Process_vkCmdPreprocessGeneratedCommandsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+        format::HandleId                            stateCommandBuffer) override;
+
+    virtual void Process_vkCmdExecuteGeneratedCommandsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    isPreprocessed,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo) override;
+
     virtual void Process_vkCmdBuildAccelerationStructuresKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

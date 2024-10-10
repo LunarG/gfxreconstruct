@@ -253,7 +253,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Return VulkanReplayConsumer class member function definition."""
         body = ''
         is_override = name in self.REPLAY_OVERRIDES
-        is_cmd = name[:5] == 'vkCmd'
+        is_dump_resources = self.is_dump_resources_api_call(name)
 
         is_skip_offscreen = True
 
@@ -356,18 +356,22 @@ class VulkanReplayConsumerBodyGenerator(
             body += '    {};\n'.format(call_expr)
 
         # Dump resources code generation
-        if is_cmd:
+        if is_dump_resources:
             is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
 
             dump_resource_arglist = ''
             if is_override:
                 for val in values:
-                    if val.is_pointer and self.is_struct(val.base_type) and not is_dr_override:
-                        dump_resource_arglist += val.name + '->GetPointer()'
-                    elif val.is_pointer and self.is_struct(val.base_type) and is_dr_override:
-                        dump_resource_arglist += val.name
+                    if val.is_pointer and self.is_struct(val.base_type):
+                        if is_dr_override:
+                            dump_resource_arglist += val.name
+                        else:
+                            dump_resource_arglist += val.name + '->GetPointer()'
                     elif self.is_handle(val.base_type):
-                        dump_resource_arglist += 'in_' + val.name + '->handle'
+                        if val.is_pointer:
+                            dump_resource_arglist += val.name + '->GetHandlePointer()'
+                        else:
+                            dump_resource_arglist += 'in_' + val.name + '->handle'
                     else:
                         dump_resource_arglist += val.name
                     dump_resource_arglist += ', '
@@ -391,15 +395,16 @@ class VulkanReplayConsumerBodyGenerator(
                         dump_resource_arglist += ', '
                     dump_resource_arglist = dump_resource_arglist[:-2]
                 else:
-                    if return_type == 'VkResult':
-                        dump_resource_arglist = 'returnValue, ' + arglist
-                    else:
-                        dump_resource_arglist = arglist
+                    dump_resource_arglist = arglist
 
             body += '\n'
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
-            body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            if return_type == 'VkResult':
+                body += '        resource_dumper.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            else:
+                body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+
             body += '    }\n'
 
         if postexpr:
@@ -893,14 +898,14 @@ class VulkanReplayConsumerBodyGenerator(
                                     if need_temp_value:
                                         if value.base_type in self.structs_with_handle_ptrs:
                                             preexpr.append(
-                                                'SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                                'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
                                                 .format(
                                                     value.base_type,
                                                     paramname=value.name
                                                 )
                                             )
                                         postexpr.append(
-                                            'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
+                                            'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     value, values

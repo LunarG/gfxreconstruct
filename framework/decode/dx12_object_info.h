@@ -69,6 +69,23 @@ enum class DxObjectInfoType : uint32_t
 };
 
 //
+// Enumerations for storing variable length array replay sizes.
+//
+enum class VariableLengthArrayIndices : uint32_t
+{
+    kDxgiObjectArrayGetPrivateData = 0,
+    kDxgiOutputArrayGetDisplayModeList,
+    kDxgiOutput1ArrayGetDisplayModeList1,
+    kD3D12ObjectArrayGetPrivateData,
+    kD3D12Device5ArrayEnumerateMetaCommands,
+    kD3D12Device5ArrayEnumerateMetaCommandParameters,
+    kD3D12InfoQueueArrayGetMessage,
+    kD3D12InfoQueueArrayGetStorageFilter,
+    kD3D12InfoQueueArrayGetRetrievalFilter,
+    kD3D12ShaderCacheSessionArrayFindValue
+};
+
+//
 // Structures for storing DirectX object info.
 //
 
@@ -197,11 +214,12 @@ struct DxObjectExtraInfo
 struct DxObjectInfo
 {
     // Standard info stored for all DX objects.
-    IUnknown*                          object{ nullptr };
-    format::HandleId                   capture_id{ format::kNullHandleId };
-    uint64_t                           ref_count{ 1 };
-    uint64_t                           extra_ref{ 0 };
-    std::unique_ptr<DxObjectExtraInfo> extra_info;
+    IUnknown*                                              object{ nullptr };
+    format::HandleId                                       capture_id{ format::kNullHandleId };
+    uint64_t                                               ref_count{ 1 };
+    uint64_t                                               extra_ref{ 0 };
+    std::unique_ptr<DxObjectExtraInfo>                     extra_info;
+    std::unordered_map<VariableLengthArrayIndices, size_t> array_counts;
 };
 
 struct DxgiSwapchainInfo : DxObjectExtraInfo

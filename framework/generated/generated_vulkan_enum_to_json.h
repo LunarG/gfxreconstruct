@@ -117,6 +117,8 @@ struct VkImageCreateFlags_t { };
 struct VkImagePipeSurfaceCreateFlagsFUCHSIA_t { };
 struct VkImageUsageFlags_t { };
 struct VkImageViewCreateFlags_t { };
+struct VkIndirectCommandsInputModeFlagsEXT_t { };
+struct VkIndirectCommandsLayoutUsageFlagsEXT_t { };
 struct VkIndirectCommandsLayoutUsageFlagsNV_t { };
 struct VkIndirectStateFlagsNV_t { };
 struct VkInstanceCreateFlags_t { };
@@ -274,6 +276,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureTyp
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAccessFlagBits2& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAcquireProfilingLockFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagModeAMD& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagStageAMD& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentDescriptionFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentLoadOp& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentStoreOp& value, const util::JsonOptions& options = util::JsonOptions());
@@ -316,6 +320,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverit
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFlagBitsEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthBiasRepresentationEXT& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthClampModeEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreateFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
@@ -376,8 +381,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& valu
 void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewCreateFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewType& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkIndexType& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsInputModeFlagBitsEXT& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsNV& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeNV& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectExecutionSetInfoTypeEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectStateFlagBitsNV& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkInstanceCreateFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& value, const util::JsonOptions& options = util::JsonOptions());
@@ -508,7 +517,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagBits
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264CapabilityFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateControlFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
@@ -595,6 +603,8 @@ void FieldToJson(VkImageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
 void FieldToJson(VkImagePipeSurfaceCreateFlagsFUCHSIA_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkImageViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkIndirectCommandsLayoutUsageFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkIndirectStateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());

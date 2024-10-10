@@ -127,6 +127,16 @@ std::string GenerateStruct_VkImportMemoryHostPointerInfoEXT(std::ostream&       
                                                             Decoded_VkImportMemoryHostPointerInfoEXT* metaInfo,
                                                             VulkanCppConsumerBase&                    consumer);
 
+std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream&                                out,
+                                                               const VkIndirectExecutionSetCreateInfoEXT*   structInfo,
+                                                               Decoded_VkIndirectExecutionSetCreateInfoEXT* metaInfo,
+                                                               VulkanCppConsumerBase&                       consumer);
+
+std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&                             out,
+                                                            const VkIndirectCommandsLayoutTokenEXT*   structInfo,
+                                                            Decoded_VkIndirectCommandsLayoutTokenEXT* metaInfo,
+                                                            VulkanCppConsumerBase&                    consumer);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

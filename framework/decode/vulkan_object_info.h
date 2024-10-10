@@ -103,6 +103,7 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
     kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR    = 7,
+    kDeviceArrayGetPipelineBinaryDataKHR                                = 8,
 
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
@@ -222,12 +223,25 @@ typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
 typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>      IndirectCommandsLayoutNVInfo;
 typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXTInfo;
-typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
-typedef VulkanObjectInfo<VkVideoSessionParametersKHR>     VideoSessionParametersKHRInfo;
+typedef VulkanObjectInfo<VkVideoSessionParametersKHR>                   VideoSessionParametersKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKHR>                           PipelineBinaryKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryCreateInfoKHR>                 PipelineBinaryCreateInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryDataInfoKHR>                   PipelineBinaryDataInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryDataKHR>                       PipelineBinaryDataKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryHandlesInfoKHR>                PipelineBinaryHandlesInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKeyKHR>                        PipelineBinaryKeyKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKeysAndDataKHR>                PipelineBinaryKeysAndDataKHRInfo;
+typedef VulkanObjectInfo<VkReleaseCapturedPipelineDataInfoKHR>          ReleaseCapturedPipelineDataInfoKHRInfo;
+typedef VulkanObjectInfo<VkDevicePipelineBinaryInternalCacheControlKHR> DevicePipelineBinaryInternalCacheControlKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryInfoKHR>                       PipelineBinaryInfoKHRInfo;
+typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryFeaturesKHR>     PhysicalDevicePipelineBinaryFeaturesKHRInfo;
+typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryPropertiesKHR>   PhysicalDevicePipelineBinaryPropertiesKHRInfo;
+typedef VulkanObjectInfo<VkIndirectCommandsLayoutEXT>                   IndirectCommandsLayoutEXTInfo;
+typedef VulkanObjectInfo<VkIndirectExecutionSetEXT>                     IndirectExecutionSetEXTInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.
@@ -619,6 +633,16 @@ struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<SubpassReferences> subpass_refs;
 
     std::vector<VkSubpassDependency> dependencies;
+
+    // Multiview info
+    bool has_multiview;
+
+    struct
+    {
+        std::vector<uint32_t> view_masks;
+        std::vector<int32_t>  view_offsets;
+        std::vector<uint32_t> correlation_masks;
+    } multiview;
 };
 
 struct DescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
@@ -660,6 +684,12 @@ struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
     // One entry per binding
     using DescriptorBindingsInfo = std::unordered_map<uint32_t, DescriptorSetBindingInfo>;
     DescriptorBindingsInfo descriptors;
+};
+
+struct AccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>
+{
+    VkDeviceAddress capture_address = 0;
+    VkDeviceAddress replay_address  = 0;
 };
 
 //

@@ -280,6 +280,9 @@ class VulkanReplayDumpResourcesBase
                                     PFN_vkCmdEndRenderingKHR func,
                                     VkCommandBuffer          commandBuffer);
 
+    void
+    OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
+
     VkResult QueueSubmit(const std::vector<VkSubmitInfo>& modified_submit_infos,
                          const encode::VulkanDeviceTable& device_table,
                          VkQueue                          queue,

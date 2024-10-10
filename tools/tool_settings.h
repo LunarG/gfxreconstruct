@@ -1073,6 +1073,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     {
         replay_options.wait_before_present = true;
     }
+    if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
+    {
+        replay_options.preload_measurement_range = true;
+    }
 
     replay_options.dump_resources              = arg_parser.GetArgumentValue(kDumpResourcesArgument);
     replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);

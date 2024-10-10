@@ -1010,7 +1010,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         {
             if (list_info->is_closed)
             {
-                WriteCommandListCreation(list_wrapper);
+                WriteCommandListCreation(list_wrapper, state_table);
                 WriteCommandListCommands(list_wrapper, state_table);
             }
             else
@@ -1030,7 +1030,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (list_info->is_closed)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
             WriteCommandListCommands(list_wrapper, state_table);
         }
         else
@@ -1046,7 +1046,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (list_info->was_reset)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
         }
     }
     for (auto list_wrapper : open_command_lists)
@@ -1055,7 +1055,7 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (!list_info->was_reset)
         {
-            WriteCommandListCreation(list_wrapper);
+            WriteCommandListCreation(list_wrapper, state_table);
         }
 
         // Write commands for all open command lists.
@@ -1075,6 +1075,8 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     size_t         data_size = list_info->command_data.GetDataSize();
     const uint8_t* data      = list_info->command_data.GetData();
 
+    // TODO: Don't write any commands, including the Reset or Close commands, if the command allocator used in the most
+    // recent Reset command no longer exists.
     while (offset < data_size)
     {
         const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
@@ -1128,11 +1130,28 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     GFXRECON_ASSERT(offset == data_size);
 }
 
-void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper)
+void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper,
+                                               const Dx12StateTable&            state_table)
 {
+    auto list_info = list_wrapper->GetObjectInfo();
+
+    // Create the command allocator if it doesn't exist.
+    bool create_temp_command_allocator =
+        (list_info->create_command_allocator_id != format::kNullHandleId) &&
+        (state_table.GetID3D12CommandAllocator_Wrapper(list_info->create_command_allocator_id) == nullptr);
+    if (create_temp_command_allocator)
+    {
+        GFXRECON_LOG_DEBUG(
+            "Writing the creation for a temporary command allocator %" PRIu64
+            " that was used to create command list %" PRIu64
+            " but has since been released. The command allocator will be freed after the command list creation.",
+            list_info->create_command_allocator_id,
+            list_wrapper->GetCaptureId());
+        StandardCreateWrite(list_info->create_command_allocator_id, *list_info->create_command_allocator_info.get());
+    }
+
     // Write call to create the command list.
     StandardCreateWrite(list_wrapper);
-    auto list_info = list_wrapper->GetObjectInfo();
 
     // If the command list was created open and reset since creation, write a command to close it. This frees up the
     // command allocator used in creation. This list's command_data will contain a reset, possibly with a different
@@ -1141,6 +1160,11 @@ void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* 
     if (list_info->was_reset && created_open)
     {
         WriteCommandListClose(list_wrapper);
+    }
+
+    if (create_temp_command_allocator)
+    {
+        WriteReleaseCommand(list_info->create_command_allocator_id, 0);
     }
 }
 
@@ -1467,7 +1491,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                 {
                     D3D12_GPU_VIRTUAL_ADDRESS* address = reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(
                         inputs_data_ptr + i * address_stride + address_offset);
-                    if (blas_addresses.count(*address) == 0)
+                    if ((*address != 0x0) && (blas_addresses.count(*address) == 0))
                     {
                         valid = false;
                         break;

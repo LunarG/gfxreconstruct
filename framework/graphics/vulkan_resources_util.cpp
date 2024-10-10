@@ -1415,6 +1415,16 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 {
     assert((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
+    VkFormatProperties format_properties{};
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
+    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
+        return VK_ERROR_FEATURE_NOT_PRESENT;
+    }
+
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
@@ -1555,7 +1565,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
                     memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
                     memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    memory_barriers[0].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
                     if (num_barriers == 2)
                     {
@@ -1652,10 +1662,13 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
     scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
 
+    scaling_supported =
+        IsBlitSupported(format, tiling, format) && IsScalingSupported(format, tiling, format, type, extent, scale);
+
     resource_size = GetImageResourceSizesOptimal(image,
                                                  format,
                                                  type,
-                                                 scaled_extent,
+                                                 scaling_supported ? scaled_extent : extent,
                                                  mip_levels,
                                                  array_layers,
                                                  tiling,
@@ -1731,6 +1744,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         result = BlitImage(copy_image,
                            format,
                            type,
+                           tiling,
                            extent,
                            scaled_extent,
                            mip_levels,
@@ -1739,8 +1753,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                            queue_family_index,
                            scale,
                            scaled_image,
-                           scaled_image_mem,
-                           scaling_supported);
+                           scaled_image_mem);
 
         if (result != VK_SUCCESS)
         {
@@ -1763,7 +1776,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     // Copy image to staging buffer
     CopyImageBuffer(scaled_image,
                     staging_buffer_.buffer,
-                    scaled_extent,
+                    scaling_supported ? scaled_extent : extent,
                     mip_levels,
                     array_layers,
                     aspect,
@@ -2043,9 +2056,82 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
     return result;
 }
 
+bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
+                                          VkImageTiling  src_image_tiling,
+                                          VkFormat       dst_format,
+                                          VkImageTiling* dst_image_tiling) const
+{
+    VkFormatProperties src_format_props;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, src_format, &src_format_props);
+
+    if (src_image_tiling == VK_IMAGE_TILING_OPTIMAL &&
+        (src_format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT) != VK_FORMAT_FEATURE_BLIT_SRC_BIT)
+    {
+        return false;
+    }
+    else if (src_image_tiling == VK_IMAGE_TILING_LINEAR &&
+             (src_format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT) != VK_FORMAT_FEATURE_BLIT_SRC_BIT)
+    {
+        return false;
+    }
+
+    VkFormatProperties dst_format_props;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, dst_format, &dst_format_props);
+    if ((dst_format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    {
+        if (dst_image_tiling != nullptr)
+        {
+            *dst_image_tiling = VK_IMAGE_TILING_OPTIMAL;
+        }
+        return true;
+    }
+    else if ((dst_format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    {
+        if (dst_image_tiling != nullptr)
+        {
+            *dst_image_tiling = VK_IMAGE_TILING_LINEAR;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
+                                             VkImageTiling     src_image_tiling,
+                                             VkFormat          dst_format,
+                                             VkImageType       type,
+                                             const VkExtent3D& extent,
+                                             float             scale) const
+{
+    VkImageTiling dst_image_tiling;
+    bool          is_blit_supported = IsBlitSupported(src_format, src_image_tiling, dst_format, &dst_image_tiling);
+
+    if (is_blit_supported && scale > 1.0f)
+    {
+        VkImageFormatProperties dst_img_format_props;
+        instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
+                                                               dst_format,
+                                                               type,
+                                                               dst_image_tiling,
+                                                               VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                                                               0,
+                                                               &dst_img_format_props);
+
+        if (dst_img_format_props.maxExtent.width < extent.width * scale ||
+            dst_img_format_props.maxExtent.height < extent.height * scale)
+        {
+            return false;
+        }
+    }
+
+    return is_blit_supported;
+}
+
 VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkFormat              format,
                                         VkImageType           type,
+                                        VkImageTiling         tiling,
                                         const VkExtent3D&     extent,
                                         const VkExtent3D&     scaled_extent,
                                         uint32_t              mip_levels,
@@ -2054,61 +2140,29 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         uint32_t              queue_family_index,
                                         float                 scale,
                                         VkImage&              scaled_image,
-                                        VkDeviceMemory&       scaled_image_mem,
-                                        bool&                 scaling_supported)
+                                        VkDeviceMemory&       scaled_image_mem)
 {
     scaled_image     = VK_NULL_HANDLE;
     scaled_image_mem = VK_NULL_HANDLE;
-    VkImageTiling tiling;
+    VkImageTiling dst_img_tiling;
 
-    VkFormatProperties format_props;
-    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
-
-    // Check if the new image can be the target image of a vkCmdBlit command
-    if (((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
-        ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
-         VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
-    {
-        tiling            = VK_IMAGE_TILING_OPTIMAL;
-        scaling_supported = true;
-    }
-    else if (((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
-             ((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
-              VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
-    {
-        tiling            = VK_IMAGE_TILING_LINEAR;
-        scaling_supported = true;
-    }
-    else
+    bool scaling_supported = IsBlitSupported(format, tiling, format, &dst_img_tiling);
+    if (!scaling_supported)
     {
         GFXRECON_LOG_WARNING("Image with format %s cannot be scaled. Scaling will be disabled for these images.",
                              util::ToString<VkFormat>(format).c_str());
-        scaling_supported = false;
     }
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
     if (scaling_supported && scale > 1.0f)
     {
-        VkImageFormatProperties img_format_props;
-        instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
-                                                               format,
-                                                               type,
-                                                               VK_IMAGE_TILING_OPTIMAL,
-                                                               VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-                                                               0,
-                                                               &img_format_props);
-
-        if (img_format_props.maxExtent.width < extent.width * scale ||
-            img_format_props.maxExtent.height < extent.height * scale)
+        scaling_supported = IsScalingSupported(format, tiling, format, type, extent, scale);
+        if (!scaling_supported)
         {
             GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
-                                    "implementation's limits (%u x %u) for the specific image configuration "
-                                    "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
+                                    "implementation's limits for image formats of %s",
                                     static_cast<uint32_t>(extent.width * scale),
                                     static_cast<uint32_t>(extent.height * scale),
-                                    img_format_props.maxExtent.width,
-                                    img_format_props.maxExtent.height,
                                     util::ToString<VkFormat>(format).c_str());
 
             scaling_supported = false;
@@ -2130,7 +2184,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     create_info.mipLevels             = mip_levels;
     create_info.arrayLayers           = array_layers;
     create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    create_info.tiling                = tiling;
+    create_info.tiling                = dst_img_tiling;
     create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;

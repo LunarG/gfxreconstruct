@@ -2155,5 +2155,19 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideEndCommandBuffer(const ApiCallInfo&     call_info,
+                                                             PFN_vkEndCommandBuffer func,
+                                                             VkCommandBuffer        commandBuffer)
+{
+    if (IsRecording(commandBuffer))
+    {
+        DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(commandBuffer);
+        if (context != nullptr)
+        {
+            context->EndCommandBuffer();
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
