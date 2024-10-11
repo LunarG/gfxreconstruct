@@ -146,6 +146,103 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
+    virtual void Process_vkCreateShadersEXT(
+        const gfxrecon::decode::ApiCallInfo&                                                     call_info,
+        VkResult                                                                                 returnValue,
+        gfxrecon::format::HandleId                                                               device,
+        uint32_t                                                                                 createInfoCount,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* pAllocator,
+        gfxrecon::decode::HandlePointerDecoder<VkShaderEXT>*                                     pShaders) override
+    {
+        if ((returnValue >= 0) && (pCreateInfos != nullptr) && !pCreateInfos->IsNull() && (pShaders != nullptr) &&
+            !pShaders->IsNull())
+        {
+            for (size_t i = 0; i < createInfoCount; i++)
+            {
+                const void* orig_code = pCreateInfos->GetPointer()[i].pCode;
+                size_t      orig_size = pCreateInfos->GetPointer()[i].codeSize;
+                uint64_t    handle_id = pShaders->GetPointer()[i];
+                std::string file_name = "sh" + std::to_string(handle_id);
+                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
+
+                FILE*   fp     = nullptr;
+                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
+                if (result == 0)
+                {
+                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
+                    {
+                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
+                    }
+                    gfxrecon::util::platform::FileClose(fp);
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
+                }
+            }
+        }
+    }
+
+    virtual void Process_vkCreateGraphicsPipelines(
+        const gfxrecon::decode::ApiCallInfo&                                                            call_info,
+        VkResult                                                                                        returnValue,
+        gfxrecon::format::HandleId                                                                      device,
+        gfxrecon::format::HandleId                                                                      pipelineCache,
+        uint32_t                                                                                        createInfoCount,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*        pAllocator,
+        gfxrecon::decode::HandlePointerDecoder<VkPipeline>* pPipelines) override
+    {
+        if ((returnValue >= 0) && (pCreateInfos != nullptr) && !pCreateInfos->IsNull())
+        {
+            for (size_t i = 0; i < createInfoCount; i++)
+            {
+                auto& pipeline_create_info = pCreateInfos->GetPointer()[i];
+                for (size_t j = 0; j < pipeline_create_info.stageCount; j++)
+                {
+                    auto& stage_create_info = pipeline_create_info.pStages[i];
+                    if (stage_create_info.module != VK_NULL_HANDLE)
+                        continue;
+
+                    const void* pNext = stage_create_info.pNext;
+                    while (pNext != nullptr)
+                    {
+                        auto* base = reinterpret_cast<const VkBaseInStructure*>(pNext);
+                        if (base->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
+                        {
+                            auto*       create_info = reinterpret_cast<const VkShaderModuleCreateInfo*>(base);
+                            const void* orig_code   = create_info->pCode;
+                            size_t      orig_size   = create_info->codeSize;
+                            uint64_t    handle_id   = pPipelines->GetPointer()[i];
+                            std::string file_name =
+                                "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
+                            std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
+
+                            FILE*   fp     = nullptr;
+                            int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
+                            if (result == 0)
+                            {
+                                if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
+                                {
+                                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete",
+                                                           file_name.c_str());
+                                }
+                                gfxrecon::util::platform::FileClose(fp);
+                            }
+                            else
+                            {
+                                GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open",
+                                                       file_name.c_str());
+                            }
+                        }
+                        pNext = base->pNext;
+                    }
+                }
+            }
+        }
+    }
+
   private:
     std::string extract_dir_;
 };
