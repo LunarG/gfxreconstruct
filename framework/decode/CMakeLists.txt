@@ -89,6 +89,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_detection_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_enum_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_feature_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_feature_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_mapping_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_mapping_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_json_consumer_base.h

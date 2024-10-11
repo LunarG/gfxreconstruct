@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2024 LunarG, Inc.
+** Copyright (c) 2020-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,25 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H
+#ifndef GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
+#define GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
 
-#include "decode/replay_options.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "util/defines.h"
 
-#include <functional>
-#include <string>
+#include "openxr/openxr.h"
+
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(feature_util)
 
-struct OpenXrReplayOptions : public ReplayOptions
-{
-    // TODO: Add options as needed
-};
+XrResult GetApiLayers(PFN_xrEnumerateApiLayerProperties instance_layer_proc, std::vector<XrApiLayerProperties>* layers);
 
+bool IsSupportedApiLayer(const std::vector<XrApiLayerProperties>& properties, const char* layer);
+
+XrResult GetInstanceExtensions(PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc,
+                               std::vector<XrExtensionProperties>*        properties);
+
+bool IsSupportedExtension(const std::vector<XrExtensionProperties>& properties, const char* extension);
+
+void RemoveUnsupportedExtensions(const std::vector<XrExtensionProperties>& properties,
+                                 std::vector<const char*>*                 extensions);
+
+GFXRECON_END_NAMESPACE(feature_util)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H
+#endif // ENABLE_OPENXR_SUPPORT
+
+#endif // GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
