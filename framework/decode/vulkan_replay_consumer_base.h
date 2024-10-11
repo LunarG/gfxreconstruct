@@ -1275,8 +1275,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     std::function<handle_create_result_t<VkPipeline>()>
-    AsyncCreateGraphicsPipelines(const ApiCallInfo&                                          call_info,
+    AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
+                                 const ApiCallInfo&                                          call_info,
                                  const DeviceInfo*                                           device_info,
                                  const PipelineCacheInfo*                                    pipeline_cache_info,
                                  uint32_t                                                    createInfoCount,
@@ -1285,8 +1286,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  HandlePointerDecoder<VkPipeline>*                           pPipelines);
 
     std::function<handle_create_result_t<VkPipeline>()>
-    AsyncCreateComputePipelines(const ApiCallInfo&                                         call_info,
+    AsyncCreateComputePipelines(PFN_vkCreateComputePipelines                               func,
                                 VkResult                                                   returnValue,
+                                const ApiCallInfo&                                         call_info,
                                 const DeviceInfo*                                          device_info,
                                 const PipelineCacheInfo*                                   pipeline_cache_info,
                                 uint32_t                                                   createInfoCount,
@@ -1295,8 +1297,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                 HandlePointerDecoder<VkPipeline>*                          pPipelines);
 
     std::function<handle_create_result_t<VkShaderEXT>()>
-    AsyncCreateShadersEXT(const ApiCallInfo&                                   call_info,
+    AsyncCreateShadersEXT(PFN_vkCreateShadersEXT                               func,
                           VkResult                                             returnValue,
+                          const ApiCallInfo&                                   call_info,
                           const DeviceInfo*                                    device_info,
                           uint32_t                                             createInfoCount,
                           StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,

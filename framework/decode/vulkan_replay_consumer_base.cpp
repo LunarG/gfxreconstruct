@@ -48,6 +48,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "decode/mark_injected_commands.h"
 
 #include "spirv_reflect.h"
 
@@ -2756,7 +2757,11 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
         if (screenshot_handler_ != nullptr)
         {
+            decode::BeginInjectedCommands();
+
             screenshot_handler_->DestroyDeviceResources(device, GetDeviceTable(device));
+
+            decode::EndInjectedCommands();
         }
 
         device_info->allocator->Destroy();
@@ -3459,6 +3464,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     if (screenshot_handler_ != nullptr)
     {
+        decode::BeginInjectedCommands();
+
         CommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -3494,6 +3501,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 }
             }
         }
+
+        decode::EndInjectedCommands();
     }
 
     return result;
@@ -3634,6 +3643,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
     // Check whether any of the submitted command buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
+        decode::BeginInjectedCommands();
+
         bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
@@ -3658,6 +3669,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
                 }
             }
         }
+
+        decode::EndInjectedCommands();
     }
 
     return result;
@@ -3926,6 +3939,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
         if ((original_result >= 0) && (result == VK_ERROR_OUT_OF_POOL_MEMORY))
         {
+            decode::BeginInjectedCommands();
+
             // Handle case where replay runs out of descriptor pool memory when capture did not by creating a new
             // descriptor pool and attempting the allocation a second time.
             VkDescriptorPool new_pool  = VK_NULL_HANDLE;
@@ -3972,6 +3987,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
                 result = func(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
             }
+
+            decode::EndInjectedCommands();
         }
 
         // The information gathered here is only relevant to the dump resources feature
@@ -6654,6 +6671,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     capture_image_indices_.clear();
     swapchain_infos_.clear();
 
+    decode::BeginInjectedCommands();
+
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
         auto meta_info = pPresentInfo->GetMetaStructPointer();
@@ -6901,6 +6920,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         VkDevice device = MapHandle<DeviceInfo>(queue_info->parent_id, &VulkanObjectInfoTable::GetDeviceInfo);
         GetDeviceTable(device)->DeviceWaitIdle(device);
     }
+
+    decode::EndInjectedCommands();
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
@@ -7485,8 +7506,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto     capture_id          = (*pAccelerationStructureKHR->GetPointer());
     auto     replay_create_info  = pCreateInfo->GetPointer();
     VkDevice device              = device_info->handle;
-    auto     device_table        = GetDeviceTable(device);
-    assert(device_table != nullptr);
 
     if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
     {
@@ -7505,13 +7524,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
                 capture_id);
         }
 
-        result = device_table->CreateAccelerationStructureKHR(
-            device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+        result = func(device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
     else
     {
-        result = device_table->CreateAccelerationStructureKHR(
-            device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+        result = func(device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
 
     return result;
@@ -7670,7 +7687,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
     VkResult                                 result          = VK_SUCCESS;
     VkDevice                                 device          = device_info->handle;
-    auto                                     device_table    = GetDeviceTable(device);
     const VkRayTracingPipelineCreateInfoKHR* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*             in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkPipeline*                              out_pPipelines  = pPipelines->GetHandlePointer();
@@ -7763,13 +7779,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             created_pipelines = out_pPipelines;
         }
 
-        result = device_table->CreateRayTracingPipelinesKHR(device,
-                                                            in_deferredOperation,
-                                                            in_pipelineCache,
-                                                            createInfoCount,
-                                                            modified_create_infos.data(),
-                                                            in_pAllocator,
-                                                            created_pipelines);
+        result = func(device,
+                      in_deferredOperation,
+                      in_pipelineCache,
+                      createInfoCount,
+                      modified_create_infos.data(),
+                      in_pAllocator,
+                      created_pipelines);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -7826,13 +7842,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             created_pipelines = out_pPipelines;
         }
 
-        result = device_table->CreateRayTracingPipelinesKHR(device,
-                                                            in_deferredOperation,
-                                                            in_pipelineCache,
-                                                            createInfoCount,
-                                                            in_pCreateInfos,
-                                                            in_pAllocator,
-                                                            created_pipelines);
+        result = func(device,
+                      in_deferredOperation,
+                      in_pipelineCache,
+                      createInfoCount,
+                      in_pCreateInfos,
+                      in_pAllocator,
+                      created_pipelines);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -8482,6 +8498,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
     if (screenshot_handler_ != nullptr)
     {
+        decode::BeginInjectedCommands();
+
         if (screenshot_handler_->IsScreenshotFrame() && image_info != nullptr)
         {
             const std::string filename_prefix =
@@ -8518,6 +8536,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         }
 
         screenshot_handler_->EndFrame();
+
+        decode::EndInjectedCommands();
     }
 
     func(device, semaphore, image);
@@ -9688,8 +9708,9 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
 }
 
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(
-    const ApiCallInfo&                                          call_info,
+    PFN_vkCreateGraphicsPipelines                               func,
     VkResult                                                    returnValue,
+    const ApiCallInfo&                                          call_info,
     const DeviceInfo*                                           device_info,
     const PipelineCacheInfo*                                    pipeline_cache_info,
     uint32_t                                                    createInfoCount,
@@ -9734,6 +9755,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     auto task = [this,
                  device_handle,
                  pipeline_cache_handle,
+                 func,
                  returnValue,
                  call_info,
                  in_pAllocator,
@@ -9742,8 +9764,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto     create_infos  = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
-        auto     device_table  = GetDeviceTable(device_handle);
-        VkResult replay_result = device_table->CreateGraphicsPipelines(
+        VkResult replay_result = func(
             device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
 
@@ -9760,8 +9781,9 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
 }
 
 std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateComputePipelines(
-    const ApiCallInfo&                                         call_info,
+    PFN_vkCreateComputePipelines                               func,
     VkResult                                                   returnValue,
+    const ApiCallInfo&                                         call_info,
     const DeviceInfo*                                          device_info,
     const PipelineCacheInfo*                                   pipeline_cache_info,
     uint32_t                                                   createInfoCount,
@@ -9801,6 +9823,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     auto task = [this,
                  device_handle,
                  pipeline_cache_handle,
+                 func,
                  returnValue,
                  call_info,
                  in_pAllocator,
@@ -9809,8 +9832,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                  handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto     create_infos  = reinterpret_cast<const VkComputePipelineCreateInfo*>(create_info_data.data());
-        auto     device_table  = GetDeviceTable(device_handle);
-        VkResult replay_result = device_table->CreateComputePipelines(
+        VkResult replay_result = func(
             device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
 
@@ -9827,8 +9849,9 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
 }
 
 std::function<handle_create_result_t<VkShaderEXT>()>
-VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&                                   call_info,
+VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT                               func,
                                                 VkResult                                             returnValue,
+                                                const ApiCallInfo&                                   call_info,
                                                 const DeviceInfo*                                    device_info,
                                                 uint32_t                                             createInfoCount,
                                                 StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
@@ -9858,6 +9881,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
                  device_handle,
+                 func,
                  returnValue,
                  call_info,
                  in_pAllocator,
@@ -9866,9 +9890,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
                  handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkShaderEXT> {
         std::vector<VkShaderEXT> out_shaders(createInfoCount);
         auto                     create_infos = reinterpret_cast<const VkShaderCreateInfoEXT*>(create_info_data.data());
-        auto                     device_table = GetDeviceTable(device_handle);
-        VkResult                 replay_result = device_table->CreateShadersEXT(
-            device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
+
+        VkResult replay_result = func(device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
 
         if (replay_result == VK_SUCCESS)

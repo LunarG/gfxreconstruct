@@ -24,7 +24,8 @@
 
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
-
+#include "decode/mark_injected_commands.h"
+#include "vulkan/vulkan_core.h"
 #include <array>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -148,7 +149,13 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
 {
     if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
+        // CleanSwapchainResourceData() makes Vulkan API calls that are not in the capture file.
+        // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+        decode::BeginInjectedCommands();
+
         CleanSwapchainResourceData(device_info, swapchain_info);
+
+        decode::EndInjectedCommands();
 
         VkDevice       device    = device_info->handle;
         VkSwapchainKHR swapchain = swapchain_info->handle;
@@ -585,8 +592,16 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                 
             return result;
         }
 
-        return CreateSwapchainResourceData(
+        // CreateSwapchainResourceData() makes Vulkan API calls that are not in the capture file.
+        // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+        decode::BeginInjectedCommands();
+
+        VkResult res = CreateSwapchainResourceData(
             device_info, swapchain_info, capture_image_count, replay_image_count, images, false);
+
+        decode::EndInjectedCommands();
+
+        return res;
     }
 
     return result;
@@ -672,6 +687,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         // evaluation.
         return func(queue_info->handle, present_info);
     }
+
+    // Below Vulkan API calls are made that are not in the capture file.
+    // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+    decode::BeginInjectedCommands();
 
     VkQueue  queue              = queue_info->handle;
     uint32_t queue_family_index = queue_info->family_index;
@@ -792,11 +811,14 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         result = device_table_->ResetCommandBuffer(command_buffer, 0);
         if (result != VK_SUCCESS)
         {
+            decode::EndInjectedCommands();
+
             return result;
         }
         result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
         if (result != VK_SUCCESS)
         {
+            decode::EndInjectedCommands();
             return result;
         }
 
@@ -871,6 +893,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         result = device_table_->EndCommandBuffer(command_buffer);
         if (result != VK_SUCCESS)
         {
+            decode::EndInjectedCommands();
+
             return result;
         }
 
@@ -896,13 +920,18 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
 
         if (result != VK_SUCCESS)
         {
+            decode::EndInjectedCommands();
+
             return result;
         }
     }
 
+    decode::EndInjectedCommands();
+
     VkPresentInfoKHR modified_present_info   = *present_info;
     modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(present_wait_semaphores.size());
     modified_present_info.pWaitSemaphores    = present_wait_semaphores.data();
+
     return func(queue, &modified_present_info);
 }
 
