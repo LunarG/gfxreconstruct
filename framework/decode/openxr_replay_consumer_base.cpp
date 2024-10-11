@@ -40,6 +40,7 @@
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
 
+#include "decode/openxr_feature_util.h"
 #include "decode/openxr_handle_mapping_util.h"
 #include "decode/vulkan_handle_mapping_util.h"
 
@@ -526,47 +527,69 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     XrInstanceCreateInfo* create_info = info->GetPointer();
     assert(create_info);
 
+    std::vector<const char*> modified_extensions;
+    XrInstanceCreateInfo     modified_create_info;
+    memcpy(&modified_create_info, create_info, sizeof(XrInstanceCreateInfo));
+
+    // Transfer requested extensions to filtered extension
+    for (uint32_t i = 0; i < create_info->enabledExtensionCount; ++i)
+    {
+        modified_extensions.push_back(create_info->enabledExtensionNames[i]);
+    }
+
+    // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are needed in
+    // the replay application.
     PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc;
     xrGetInstanceProcAddr(
         XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", (PFN_xrVoidFunction*)&instance_extension_proc);
 
-    uint32_t                           ext_count = 0;
-    std::vector<XrExtensionProperties> ext_props;
-    XrResult                           ext_result = instance_extension_proc(nullptr, 0, &ext_count, nullptr);
-    if (ext_result == XR_SUCCESS && ext_count > 0)
+    // Sanity checks depending on extension availability
+    std::vector<XrExtensionProperties> available_extensions;
+    if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == XR_SUCCESS)
     {
-        ext_props.resize(ext_count);
-        for (uint32_t i = 0; i < ext_props.size(); ++i)
+        if (options_.remove_unsupported_features)
         {
-            ext_props[i].type = XR_TYPE_EXTENSION_PROPERTIES;
-            ext_props[i].next = nullptr;
+            // Remove enabled extensions that are not available from the replay instance.
+            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
-        ext_result = instance_extension_proc(nullptr, ext_count, &ext_count, ext_props.data());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
+                             "extension availability.");
     }
 
 #if defined(__ANDROID__)
     XrInstanceCreateInfoAndroidKHR init_android = {
         XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
-        nullptr,
+        create_info->next,
         android_app_->activity->vm,
         android_app_->activity->clazz,
     };
 
     // Remove the original XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR structure with incorrect info
-    // TODO: This breaks if there is any structure in front of this in the next call chain.
-    const XrBaseInStructure* next_struct = reinterpret_cast<const XrBaseInStructure*>(create_info->next);
-    while (next_struct != nullptr && next_struct->type == XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR)
+    XrBaseInStructure*       last_next_struct = reinterpret_cast<XrBaseInStructure*>(&init_android);
+    const XrBaseInStructure* next_struct      = reinterpret_cast<const XrBaseInStructure*>(create_info->next);
+    while (next_struct != nullptr)
     {
+        // Skip any old Android create info structs
+        if (next_struct->type == XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR)
+        {
+            last_next_struct->next = next_struct->next;
+        }
+        else
+        {
+            last_next_struct = const_cast<XrBaseInStructure*>(next_struct);
+        }
         next_struct = next_struct->next;
     }
-    init_android.next = reinterpret_cast<const void*>(next_struct);
-
-    XrInstanceCreateInfo new_create_info = *create_info;
-    new_create_info.next                 = &init_android;
-    create_info                          = &new_create_info;
+    modified_create_info.next = &init_android;
 #endif // IGL_PLATFORM_ANDROID
 
-    auto replay_result = xrCreateInstance(create_info, replay_instance);
+    modified_create_info.enabledExtensionCount = static_cast<uint32_t>(modified_extensions.size());
+    modified_create_info.enabledExtensionNames = modified_extensions.data();
+
+    auto replay_result = xrCreateInstance(&modified_create_info, replay_instance);
     CheckResult("xrCreateApiLayerInstance", returnValue, replay_result, call_info);
 
     AddInstanceTable(*replay_instance);

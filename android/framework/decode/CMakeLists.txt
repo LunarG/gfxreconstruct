@@ -57,6 +57,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_enum_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_feature_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_feature_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_handle_mapping_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_handle_mapping_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_node.h
