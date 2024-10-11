@@ -36,8 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct OpenXrReplayOptions : public ReplayOptions
 {
-    bool        enable_openxr{ true };
-    std::string replace_dir;
+    bool enable_openxr{ true };
 };
 
 GFXRECON_END_NAMESPACE(decode)

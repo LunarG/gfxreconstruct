@@ -1010,7 +1010,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.virtual_swapchain_skip_blit = true;
     }
 
-    replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
+    replay_options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 

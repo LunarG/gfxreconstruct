@@ -56,13 +56,7 @@ struct DxReplayOptions : public ReplayOptions
     bool                 override_object_names{ false };
     bool                 enable_dump_resources{ false };
     DumpResourcesTarget  dump_resources_target{};
-
-    util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
-    std::vector<ScreenshotRange> screenshot_ranges;
-    std::string                  screenshot_dir;
-    std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
-    std::string                  replace_dir;
-    int32_t                      memory_usage{ kDefaultBatchingMemoryUsage };
+    int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
 };
 
 GFXRECON_END_NAMESPACE(decode)
