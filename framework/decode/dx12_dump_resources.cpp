@@ -1472,7 +1472,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     // prepare for output data
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = capture_file_name;
+    json_filename_    = util::filepath::GetFilename(capture_file_name);
+
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
     if (ext_pos != std::string::npos && (path_sep_pos == std::string::npos || ext_pos > path_sep_pos))
