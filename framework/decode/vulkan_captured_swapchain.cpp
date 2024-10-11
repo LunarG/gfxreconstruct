@@ -43,6 +43,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                   
         device = device_info->handle;
     }
     device_table_         = device_table;
+    device_               = device;
     auto replay_swapchain = swapchain->GetHandlePointer();
     return func(device, create_info, allocator, replay_swapchain);
 }
