@@ -9502,7 +9502,9 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
         {
             auto& stage_create_info = pipeline_create_info.pStages[i];
             if (stage_create_info.module != VK_NULL_HANDLE)
+            {
                 continue;
+            }
 
             void* pNext = const_cast<void*>(stage_create_info.pNext);
             while (pNext != nullptr)
