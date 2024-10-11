@@ -154,6 +154,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
                                                    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    void PostCall_ID3D12Device_CreateSampler(const ApiCallInfo&                                call_info,
+                                             DxObjectInfo*                                     object_info,
+                                             StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
+                                             Decoded_D3D12_CPU_DESCRIPTOR_HANDLE               DestDescriptor);
+
     void
     PostCall_ID3D12Device_CreateShaderResourceView(const ApiCallInfo& call_info,
                                                    DxObjectInfo*      object_info,

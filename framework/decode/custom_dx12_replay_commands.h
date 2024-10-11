@@ -75,6 +75,16 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConsta
 };
 
 template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSampler>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CreateSampler(args...);
+    }
+};
+
+template <>
 struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
 {
     template <typename... Args>
