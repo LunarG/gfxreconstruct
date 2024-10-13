@@ -74,7 +74,7 @@ static bool AreIndicesSorted(const std::vector<uint64_t>& indices)
     return true;
 }
 
-static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
+static bool CheckIndicesForErrors(gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
 {
     // Indices should be provided sorted
     if (vulkan_replay_options.Draw_Indices.size())
@@ -175,20 +175,40 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         GFXRECON_LOG_ERROR("Draw indices must always be accompanied by RenderPass indices");
         return true;
     }
-    for (int i = 0; i < vulkan_replay_options.Draw_Indices.size(); i++)
+
+
+    auto draw_it = vulkan_replay_options.Draw_Indices.begin();
+    auto rp_it   = vulkan_replay_options.RenderPass_Indices.begin();
+    for (; draw_it != vulkan_replay_options.Draw_Indices.end() &&
+           rp_it != vulkan_replay_options.RenderPass_Indices.end(); ++draw_it,++rp_it)
     {
-        if (!vulkan_replay_options.Draw_Indices[i].empty() && vulkan_replay_options.RenderPass_Indices[i].empty())
+        GFXRECON_WRITE_CONSOLE("%zu - %zu", draw_it->size(), rp_it->size());
+    }
+
+    // Remove ill formed draw call - render pass indices.
+    draw_it = vulkan_replay_options.Draw_Indices.begin();
+    rp_it   = vulkan_replay_options.RenderPass_Indices.begin();
+    for (; draw_it != vulkan_replay_options.Draw_Indices.end() &&
+           rp_it != vulkan_replay_options.RenderPass_Indices.end();)
+    {
+        if (draw_it->empty() || rp_it->empty())
         {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("Each Draw item must have a corresponding RenderPass item");
-            return true;
+            draw_it = vulkan_replay_options.Draw_Indices.erase(draw_it);
+            rp_it   = vulkan_replay_options.RenderPass_Indices.erase(rp_it);
         }
-        else if (vulkan_replay_options.Draw_Indices[i].empty() && !vulkan_replay_options.RenderPass_Indices[i].empty())
+        else
         {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("RenderPass item is not accompanied by draw call indices");
-            return true;
+            ++draw_it;
+            ++rp_it;
         }
+    }
+
+    draw_it = vulkan_replay_options.Draw_Indices.begin();
+    rp_it   = vulkan_replay_options.RenderPass_Indices.begin();
+    for (; draw_it != vulkan_replay_options.Draw_Indices.end() &&
+           rp_it != vulkan_replay_options.RenderPass_Indices.end(); ++draw_it,++rp_it)
+    {
+        GFXRECON_WRITE_CONSOLE("%zu - %zu", draw_it->size(), rp_it->size());
     }
 
     // Each dump command must specify one and only one of draw, tracerays, or dispatch
