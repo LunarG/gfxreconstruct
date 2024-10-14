@@ -1441,6 +1441,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                       VkShaderCreateInfoEXT*  create_infos,
                                                                       const format::HandleId* shaders) const;
 
+    struct CreateInstanceInfoState
+    {
+        std::vector<const char*> modified_layers;
+        std::vector<const char*> modified_extensions;
+        VkInstanceCreateInfo     modified_create_info;
+    };
+    CreateInstanceInfoState
+    ModifyCreateInstanceInfo(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
+                             HandlePointerDecoder<VkInstance>*                         pInstance);
+
+    void PostCreateInstanceUpdateConsumerData(const VkInstance*                 replay_instance,
+                                              const VkInstanceCreateInfo&       modified_create_info,
+                                              HandlePointerDecoder<VkInstance>* pInstance);
+
   private:
     struct HardwareBufferInfo
     {
