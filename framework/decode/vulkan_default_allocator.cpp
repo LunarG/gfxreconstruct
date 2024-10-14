@@ -488,6 +488,22 @@ VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(uint32_t          
     return functions_.invalidate_memory_ranges(device_, memory_range_count, memory_ranges);
 }
 
+VkResult VulkanDefaultAllocator::SetDebugUtilsObjectNameEXT(VkDevice                       device,
+                                                            VkDebugUtilsObjectNameInfoEXT* name_info,
+                                                            uintptr_t                      allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    return functions_.set_debug_utils_object_name(device, name_info);
+}
+
+VkResult VulkanDefaultAllocator::SetDebugUtilsObjectTagEXT(VkDevice                      device,
+                                                           VkDebugUtilsObjectTagInfoEXT* tag_info,
+                                                           uintptr_t                     allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    return functions_.set_debug_utils_object_tag(device, tag_info);
+}
+
 VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
                                                         uint64_t       offset,
                                                         uint64_t       size,

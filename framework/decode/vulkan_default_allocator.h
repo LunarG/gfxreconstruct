@@ -152,6 +152,14 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
+    virtual VkResult SetDebugUtilsObjectNameEXT(VkDevice                       device,
+                                                VkDebugUtilsObjectNameInfoEXT* name_info,
+                                                uintptr_t                      allocator_data) override;
+
+    virtual VkResult SetDebugUtilsObjectTagEXT(VkDevice                      device,
+                                               VkDebugUtilsObjectTagInfoEXT* tag_info,
+                                               uintptr_t                     allocator_data) override;
+
     virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
