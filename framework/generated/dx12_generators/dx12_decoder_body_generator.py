@@ -21,7 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from base_generator_defines import BaseGeneratorDefines, write
 from dx12_base_generator import Dx12BaseGenerator
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
@@ -33,17 +33,20 @@ class Dx12DecoderBodyGenerator(
     BaseDecoderBodyGenerator
 ):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
+
     def __init__(self, source_dict, dx12_prefix_strings, diag_file):
-        Dx12DecoderHeaderGenerator.__init__(self, source_dict, dx12_prefix_strings,
+        Dx12DecoderHeaderGenerator.__init__(
+            self,
+            source_dict,
+            dx12_prefix_strings,
             err_file=sys.stderr,
             warn_file=sys.stderr,
             diag_file=sys.stdout,
             feature_break=False
-            )
-        
+        )
+
         BaseStructDecodersBodyGenerator.__init__(self)
         BaseDecoderBodyGenerator.__init__(self)
-
 
     def write_include(self):
         """Method override."""
@@ -61,8 +64,10 @@ class Dx12DecoderBodyGenerator(
         self.method_names = []
         Dx12BaseGenerator.generate_feature(self)
         self.write_function_call()
-        BaseDecoderBodyGenerator.generate_feature(self)
-        BaseDecoderBodyGenerator.generate_commands(self) # Dx12 only has one "feature", so no need to push this to endFile
+        BaseGeneratorDefines.generate_feature(self)
+        BaseDecoderBodyGenerator.generate_commands(
+            self
+        )  # Dx12 only has one "feature", so no need to push this to endFile
         self.newline()
         self.generate_dx12_method_feature()
 
@@ -83,7 +88,7 @@ class Dx12DecoderBodyGenerator(
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
-            cmddef += self.make_cmd_body(return_type, method, values, True)
+            cmddef += self.make_cmd_body(return_type, method, values)
             cmddef += '\n'
             cmddef += '    return bytes_read;\n'
             cmddef += '}'

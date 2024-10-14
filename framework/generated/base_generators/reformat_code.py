@@ -30,6 +30,7 @@
 
 CPP_DEFAULT_INDENT = '    '
 
+
 ## Sort out the indentation of a generated chunk of C++ code that puts braces on
 ## their own lines. Strips wholy-whitespace lines and trailing white.
 ## @note It relies on the C++ code having braces on their own lines or else it
@@ -54,6 +55,7 @@ def indent_cpp_code(code, left_level=0, indent=CPP_DEFAULT_INDENT):
 
     return formatted_code
 
+
 def format_cpp_code(code, left_level=0, indent=CPP_DEFAULT_INDENT):
     """! Fixes the indenting of a block of code in a curlies-based language and removes
          newline characters before and after.
@@ -64,14 +66,17 @@ def format_cpp_code(code, left_level=0, indent=CPP_DEFAULT_INDENT):
     formatted_code = remove_leading_empty_lines(formatted_code)
     return formatted_code
 
+
 def remove_leading_empty_lines(code):
     return code.lstrip('\n')
+
 
 def remove_trailing_newlines(code):
     return code.rstrip('\n')
 
+
 def remove_trailing_empty_lines(code):
     modified = code.rstrip('\n')
-    if(len(modified) > 0 and code[-1] == '\n'):
+    if (len(modified) > 0 and code[-1] == '\n'):
         modified += '\n'
     return modified

@@ -4130,4 +4130,4 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_H

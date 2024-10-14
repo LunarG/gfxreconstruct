@@ -1946,15 +1946,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnable(
     }
 }
 
-
-
-
-
-
-
-
-
-
 void VulkanReplayDumpResources::Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginVideoCodingKHR                func,
@@ -2082,7 +2073,6 @@ void VulkanReplayDumpResources::Process_vkCmdEndRenderingKHR(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdSetDeviceMaskKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDeviceMaskKHR                   func,
@@ -2139,14 +2129,6 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBaseKHR(
         }
     }
 }
-
-
-
-
-
-
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetKHR(
     const ApiCallInfo&                          call_info,
@@ -2207,7 +2189,6 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRenderPass2KHR                func,
@@ -2246,17 +2227,6 @@ void VulkanReplayDumpResources::Process_vkCmdEndRenderPass2KHR(
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountKHR               func,
@@ -2290,7 +2260,6 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountKHR(
         OverrideCmdDrawIndexedIndirectCountKHR(call_info, func, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateKHR(
     const ApiCallInfo&                          call_info,
@@ -2370,11 +2339,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
         }
     }
 }
-
-
-
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
@@ -2735,7 +2699,6 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysIndirect2KHR(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer2KHR                func,
@@ -2750,7 +2713,6 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
         OverrideCmdBindIndexBuffer2KHR(call_info, func, commandBuffer, buffer, offset, size, indexType);
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
@@ -2778,7 +2740,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
         }
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
@@ -2935,8 +2896,6 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
         }
     }
 }
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
@@ -3191,7 +3150,6 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCountEXT(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountAMD               func,
@@ -3253,11 +3211,6 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountAMD(
         }
     }
 }
-
-
-
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
@@ -3337,11 +3290,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingNV(
         }
     }
 }
-
-
-
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEXT(
     const ApiCallInfo&                          call_info,
@@ -3423,9 +3371,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleModeEXT(
     }
 }
 
-
-
-
 void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginDebugUtilsLabelEXT            func,
@@ -3503,7 +3448,6 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetSampleLocationsEXT              func,
@@ -3529,8 +3473,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEXT(
         }
     }
 }
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdBindShadingRateImageNV(
     const ApiCallInfo&                          call_info,
@@ -3745,7 +3687,6 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdWriteBufferMarkerAMD               func,
@@ -3774,7 +3715,6 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
         }
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksNV(
     const ApiCallInfo&                          call_info,
@@ -4026,15 +3966,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceOverrideINTEL(
     }
 }
 
-
-
-
-
-
-
-
-
-
 void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleEXT                  func,
@@ -4061,7 +3992,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEXT(
         }
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetCullModeEXT(
     const ApiCallInfo&                          call_info,
@@ -4386,8 +4316,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOpEXT(
     }
 }
 
-
-
 void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPreprocessGeneratedCommandsNV      func,
@@ -4495,8 +4423,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias2EXT(
     }
 }
 
-
-
 void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetFragmentShadingRateEnumNV       func,
@@ -4524,9 +4450,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateEnumNV(
     }
 }
 
-
-
-
 void VulkanReplayDumpResources::Process_vkCmdSetVertexInputEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetVertexInputEXT                  func,
@@ -4541,8 +4464,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetVertexInputEXT(
         OverrideCmdSetVertexInputEXT(call_info, func, commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
     }
 }
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
@@ -4570,7 +4491,6 @@ void VulkanReplayDumpResources::Process_vkCmdBindInvocationMaskHUAWEI(
         }
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetPatchControlPointsEXT(
     const ApiCallInfo&                          call_info,
@@ -4701,7 +4621,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnableEXT(
         }
     }
 }
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetColorWriteEnableEXT(
     const ApiCallInfo&                          call_info,
@@ -4980,8 +4899,6 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterIndirectHUAWEI(
         }
     }
 }
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
@@ -5828,7 +5745,6 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageReductionModeNV(
     }
 }
 
-
 void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdOpticalFlowExecuteNV               func,
@@ -5883,8 +5799,6 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
         }
     }
 }
-
-
 
 void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,

@@ -2008,4 +2008,4 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H

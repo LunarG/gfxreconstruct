@@ -117,11 +117,14 @@ class Dx12CppHeader(CppHeader):
 
             if 'DEFINE_ENUM_FLAG_OPERATORS(' in line:
                 continue
-            
+
             if interface_scope == 0:
                 source += line
                 enum_scope = line.startswith('typedef enum ')
-                if (line.startswith('#if') and ('!defined(CINTERFACE)' in line)) or enum_scope:
+                if (
+                    line.startswith('#if') and
+                    ('!defined(CINTERFACE)' in line)
+                ) or enum_scope:
                     interface_scope = 1
             else:
                 if enum_scope:
@@ -131,7 +134,7 @@ class Dx12CppHeader(CppHeader):
                 else:
                     if line.startswith('#if'):
                         interface_scope += 1
-                        
+
                         if 'defined(_MSC_VER) || !defined(_WIN32)' in line:
                             retval_param = True
 

@@ -24,7 +24,7 @@ import os
 import sys
 
 # API Call Encoders
-from base_generator import write
+from base_generator_defines import write
 from dx12_base_generator import Dx12GeneratorOptions
 from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGenerator
 from dx12_api_call_encoders_body_generator import Dx12ApiCallEncodersBodyGenerator
@@ -93,7 +93,9 @@ def make_gen_opts(args):
     json_blocklists = os.path.join(args.configs, "json_blocklists.json")
     # Structs, functions etc. to exclude from codegen of the header files for conversion to JSON.
     # (we can codegen a lot more header content than body as the function signatures are not tricky)
-    json_headers_blocklists = os.path.join(args.configs, "json_headers_blocklists.json")
+    json_headers_blocklists = os.path.join(
+        args.configs, "json_headers_blocklists.json"
+    )
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -631,6 +633,7 @@ def make_gen_opts(args):
             protect_feature=False
         )
     ]
+
 
 def gen_target(args, source_dict):
     """Generate a target based on the options in the matching gen_opts{} object.

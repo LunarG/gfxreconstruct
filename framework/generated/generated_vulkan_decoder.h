@@ -58,6 +58,7 @@ class VulkanDecoder : public VulkanDecoderBase
                                     size_t                        buffer_size) override;
 
   private:
+
     size_t Decode_vkCreateInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -1308,4 +1309,4 @@ class VulkanDecoder : public VulkanDecoderBase
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_VULKAN_DECODER_H

@@ -23,8 +23,7 @@
 
 import re
 import sys
-from base_generator import write
-import base_utils
+from base_generator_defines import write
 from copy import deepcopy
 
 
@@ -35,31 +34,27 @@ class BaseStructDecodersBodyGenerator():
         """Performs C++ code generation for the feature."""
         body = '\n'
         for struct in self.all_structs:
-            typename = struct
-            if struct in self.all_struct_aliases:
-                typename = self.all_struct_aliases[struct]
+            if struct in self.all_unions or self.is_struct_black_listed(
+                struct
+            ) or struct in self.all_struct_aliases:
+                continue
+
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
-                typename
+                struct
             )
             body += '{\n'
             body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
             body += '\n'
             body += '    size_t bytes_read = 0;\n'
-            body += '    {}* value = wrapper->decoded_value;\n'.format(typename)
+            body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
             body += self.make_decode_struct_body(
-                typename, self.all_struct_members[typename]
+                struct, self.all_struct_members[struct]
             )
             body += '\n'
             body += '    return bytes_read;\n'
             body += '}\n\n'
         return body
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[struct]
 
     def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
@@ -69,16 +64,17 @@ class BaseStructDecodersBodyGenerator():
 
         for value in values:
             # pNext fields require special treatment and are not processed by type name
-            if 'pNext' in value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+            if self.hasExtendedTypeMemberName() and (
+                self.getExtendedTypeMemberName() == value.name
+                and value.base_type == 'void'
+            ):
+                member_name = self.getExtendedTypeMemberName()
+                func_id = member_name[0:1].upper()
+                func_id += member_name[1:]
+                main_body += f'    bytes_read += Decode{func_id}Struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{{}}));\n'.format(
                     value.name
                 )
-                main_body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
-            elif 'next' == value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
-                    value.name
-                )
-                main_body += '    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;\n'
+                main_body += f'    value->{member_name} = wrapper->{member_name} ? wrapper->{member_name}->GetPointer() : nullptr;\n'
             else:
                 preamble, main_body, epilogue = BaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value, preamble, main_body, epilogue
@@ -89,7 +85,9 @@ class BaseStructDecodersBodyGenerator():
         body = preamble + main_body + epilogue
         return body
 
-    def make_decode_invocation(self, name, value, preamble, main_body, epilogue):
+    def make_decode_invocation(
+        self, name, value, preamble, main_body, epilogue
+    ):
         """Generate the struct member decoder function call invocation."""
         buffer_args = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
@@ -117,7 +115,7 @@ class BaseStructDecodersBodyGenerator():
         elif self.is_atom(value.base_type):
             is_atom = True
         elif self.is_opaque(value.base_type):
-            is_opaque  = True
+            is_opaque = True
         elif type_name == 'Enum':
             is_enum = True
 
@@ -158,7 +156,8 @@ class BaseStructDecodersBodyGenerator():
                         array_dimension = ''
                         # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *.
                         # But vk keeps 2d array.
-                        if self.is_dx12_class() and value.array_dimension and value.array_dimension > 0:
+                        if self.treat2dArrayAs1dArray(
+                        ) and value.array_dimension and value.array_dimension > 0:
                             array_dimension = '*'
                         # The pointer decoder will write directly to the struct member's memory.
                         main_body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(
@@ -181,9 +180,12 @@ class BaseStructDecodersBodyGenerator():
                     elif self.has_basetype(value.base_type):
                         base_type = self.get_basetype(value.base_type)
                         main_body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
-                            value.name, self.encode_types[base_type], buffer_args
+                            value.name, self.encode_types[base_type],
+                            buffer_args
                         )
                     else:
+                        if self.is_enum(type_name):
+                            type_name = 'Enum'
                         main_body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
                             value.name, type_name, buffer_args
                         )
@@ -191,7 +193,9 @@ class BaseStructDecodersBodyGenerator():
                     if not is_static_array:
                         if is_handle or is_atom or is_opaque or is_class:
                             # Point the real struct's member pointer to the handle pointer decoder's handle memory.
-                            main_body += '    value->{} = nullptr;\n'.format(value.name)
+                            main_body += '    value->{} = nullptr;\n'.format(
+                                value.name
+                            )
                         else:
                             # Point the real struct's member pointer to the pointer decoder's memory.
                             convert_const_cast_begin = ''
@@ -228,7 +232,7 @@ class BaseStructDecodersBodyGenerator():
                     )
                     main_body += '                break;\n'
                     for child in self.base_header_structs[value.base_type]:
-                        switch_type = base_utils.GenerateStructureType(child)
+                        switch_type = self.generate_structure_type(child)
 
                         new_value = deepcopy(value)
                         new_value.base_type = child
@@ -268,8 +272,12 @@ class BaseStructDecodersBodyGenerator():
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
                 )
-                default_type = self.get_default_handle_atom_value(value.base_type)
-                main_body += '    value->{} = {};\n'.format(value.name, default_type)
+                default_type = self.get_default_handle_atom_value(
+                    value.base_type
+                )
+                main_body += '    value->{} = {};\n'.format(
+                    value.name, default_type
+                )
             elif self.is_generic_struct_handle_value(name, value.name):
                 main_body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
@@ -278,7 +286,9 @@ class BaseStructDecodersBodyGenerator():
             elif value.bitfield_width:
                 # Bit fields need to be read into a tempoaray and then assigned to the struct member.
                 temp_param_name = 'temp_{}'.format(value.name)
-                main_body += '    {} {};\n'.format(value.base_type, temp_param_name)
+                main_body += '    {} {};\n'.format(
+                    value.base_type, temp_param_name
+                )
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, temp_param_name
                 )
@@ -304,6 +314,8 @@ class BaseStructDecodersBodyGenerator():
                         buffer_args, value.name
                     )
             else:
+                if self.is_enum(type_name):
+                    type_name = 'Enum'
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
                     type_name, buffer_args, value.name
                 )

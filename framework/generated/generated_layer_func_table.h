@@ -691,4 +691,4 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif //  GFXRECON_GENERATED_LAYER_FUNC_TABLE_H

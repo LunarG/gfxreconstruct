@@ -21,11 +21,51 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import os
+import re
+import shutil
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo
+from base_generator_defines import BaseGeneratorDefines, ValueInfo, make_re_string, write
+import tempfile
+try:
+    from pathlib import Path
+except ImportError:
+    # For limited python 2 compat as used by some Vulkan consumers
+    from pathlib2 import Path  # type: ignore
 
 
-class Dx12GeneratorOptions(BaseGeneratorOptions):
+def noneStr(s):
+    """Return string argument, or "" if argument is None.
+
+    Used in converting etree Elements into text.
+    s - string to convert"""
+    if s:
+        return s
+    return ""
+
+
+def enquote(s):
+    """Return string argument with surrounding quotes,
+    for serialization into Python code."""
+    if s:
+        if isinstance(s, str):
+            return f"'{s}'"
+        else:
+            return s
+    return None
+
+
+class MissingGeneratorOptionsError(RuntimeError):
+    """Error raised when a Generator tries to do something that requires GeneratorOptions but it is None."""
+
+    def __init__(self, msg=None):
+        full_msg = 'Missing generator options object self.genOpts'
+        if msg:
+            full_msg += f": {msg}"
+        super().__init__(full_msg)
+
+
+class Dx12GeneratorOptions():
     """Options for generating C++ function declarations for Dx12 API."""
 
     def __init__(
@@ -38,14 +78,39 @@ class Dx12GeneratorOptions(BaseGeneratorOptions):
         protect_file=False,
         protect_feature=True
     ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
-        )
+        self.blacklists = blacklists
+        self.platform_types = platform_types
+        self.filename = filename
+        self.directory = directory
+        self.prefix_text = prefix_text
+        self.protect_file = protect_file
+        self.protect_feature = protect_feature
+        self.apicall = ''
+        self.apientry = ''
+        self.apientryp = ''
+        self.indent_func_proto = ''
+        self.align_func_param = ''
+        self.code_generator = True
+        self.conventions = None
+        self.apiname = 'Dx12',
+        self.profile = None,
+        self.versions = None,
+        self.emitversions = None,
+        self.default_extensions = None,
+        self.add_extensions = None,
+        self.remove_extensions = None,
+        self.emit_extensions = None,
 
 
-class Dx12BaseGenerator(BaseGenerator):
+class Dx12BaseGenerator(BaseGeneratorDefines):
 
+    NO_STRUCT_BREAKDOWN = [
+        'LARGE_INTEGER',
+        'D3D12_AUTO_BREADCRUMB_NODE',
+        'D3D12_AUTO_BREADCRUMB_NODE1',
+        'D3D12_DRED_ALLOCATION_NODE',
+        'D3D12_DRED_ALLOCATION_NODE1',
+    ]
     ARRAY_SIZE_LIST = [
         ['D3D12_AUTO_BREADCRUMB_NODE', 'pCommandHistory', 'BreadcrumbCount'],
         ['D3D12_AUTO_BREADCRUMB_NODE1', 'pCommandHistory', 'BreadcrumbCount'],
@@ -134,8 +199,7 @@ class Dx12BaseGenerator(BaseGenerator):
 
     # ID3D23CommandList is top parent class for all ID3D12GraphicsCommandList[n]
     FAMILY_CLASSES_EXECPTION = {
-        'ID3D12GraphicsCommandList':
-        'ID3D12CommandList'
+        'ID3D12GraphicsCommandList': 'ID3D12CommandList'
     }
 
     ADD_RV_ANNOTATION_METHODS = [
@@ -145,19 +209,21 @@ class Dx12BaseGenerator(BaseGenerator):
     ]
 
     REMOVE_RV_ANNOTATION_TYPES = {
-        'D3D12_GPU_VIRTUAL_ADDRESS':'',
-        'D3D12_GPU_DESCRIPTOR_HANDLE':'',
-        'D3D12_INDEX_BUFFER_VIEW':'',
-        'D3D12_VERTEX_BUFFER_VIEW':'',
-        'D3D12_STREAM_OUTPUT_BUFFER_VIEW':'',
-        'D3D12_CONSTANT_BUFFER_VIEW_DESC':'',
-        'D3D12_SHADER_RESOURCE_VIEW_DESC':'',
-        'D3D12_WRITEBUFFERIMMEDIATE_PARAMETER':'',
-        'D3D12_DISPATCH_RAYS_DESC':'',
-        'D3D12_RAYTRACING_GEOMETRY_DESC':'',
-        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
-        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
-        'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC':'',
+        'D3D12_GPU_VIRTUAL_ADDRESS': '',
+        'D3D12_GPU_DESCRIPTOR_HANDLE': '',
+        'D3D12_INDEX_BUFFER_VIEW': '',
+        'D3D12_VERTEX_BUFFER_VIEW': '',
+        'D3D12_STREAM_OUTPUT_BUFFER_VIEW': '',
+        'D3D12_CONSTANT_BUFFER_VIEW_DESC': '',
+        'D3D12_SHADER_RESOURCE_VIEW_DESC': '',
+        'D3D12_WRITEBUFFERIMMEDIATE_PARAMETER': '',
+        'D3D12_DISPATCH_RAYS_DESC': '',
+        'D3D12_RAYTRACING_GEOMETRY_DESC': '',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC':
+        'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS':
+        'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC': '',
     }
 
     def __init__(
@@ -169,22 +235,50 @@ class Dx12BaseGenerator(BaseGenerator):
         diag_file=sys.stdout,
         feature_break=True
     ):
-        BaseGenerator.__init__(
-            self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=feature_break,
-            err_file=err_file,
-            warn_file=warn_file,
-            diag_file=diag_file
-        )
+        self.outFile = None
+        self.errFile = err_file
+        self.warnFile = warn_file
+        self.diagFile = diag_file
+        # Internal state
+        self.featureName = None
+        """The current feature name being generated."""
+
+        self.genOpts = None
+        """The GeneratorOptions subclass instance."""
+
+        self.registry = None
+        """The specification registry object."""
+
+        self.featureDictionary = {}
+        """The dictionary of dictionaries of API features."""
+
+        # Used for extension enum value generation
+        self.extBase = 1000000000
+        self.extBlockSize = 1000
+        self.madeDirs = {}
+
+        # API dictionary, which may be loaded by the beginFile method of
+        # derived generators.
+        self.apidict = None
+
+        BaseGeneratorDefines.__init__(self)
         self.source_dict = source_dict
         self.dx12_prefix_strings = dx12_prefix_strings
         self.feature_method_params = dict()
         self.check_blacklist = False
-        self.all_structs = list()         # List of all struct names
-        self.all_struct_members = dict()  # Map of all struct names to lists of per-member ValueInfo
-        self.all_struct_aliases = dict()  # Map of all struct aliases
+
+        self.structs_with_map_data = dict()
+
+        self.MAP_STRUCT_TYPE = {
+            'D3D12_GPU_DESCRIPTOR_HANDLE': [
+                'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
+                'descriptor_map'
+            ],
+            'D3D12_GPU_VIRTUAL_ADDRESS':
+            ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
+        }
+        self.dx12_return_value = None
+        self.dx12_return_decode_type = None
 
     def clean_type_define(self, type):
         rtn = ''
@@ -376,6 +470,88 @@ class Dx12BaseGenerator(BaseGenerator):
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
         )
 
+    def make_decoded_param_type(self, value):
+        """Method override."""
+        return BaseGeneratorDefines.make_decoded_param_type(self, value, False)
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        self.genOpts = gen_opts
+
+        # Open a temporary file for accumulating output.
+        if self.genOpts.filename is not None:
+            self.outFile = tempfile.NamedTemporaryFile(
+                mode='w', encoding='utf-8', newline='\n', delete=False
+            )
+        else:
+            self.outFile = sys.stdout
+
+        BaseGeneratorDefines.beginFile(self, gen_opts)
+
+        # User-supplied prefix text, if any (list of strings)
+        if (gen_opts.prefix_text):
+            for s in gen_opts.prefix_text:
+                write(s, file=self.outFile)
+
+        # Multiple inclusion protection & C++ wrappers.
+        if (gen_opts.protect_file and self.genOpts.filename):
+            header_sym = 'GFXRECON_' + os.path.basename(
+                self.genOpts.filename
+            ).replace('.h', '_H').upper()
+            write('#ifndef ', header_sym, file=self.outFile)
+            write('#define ', header_sym, file=self.outFile)
+            self.newline()
+
+    def endFile(self):
+        """Method override."""
+        # Finish C++ wrapper and multiple inclusion protection
+        if (self.genOpts.protect_file and self.genOpts.filename):
+            self.newline()
+            write('#endif', file=self.outFile)
+
+        if self.errFile:
+            self.errFile.flush()
+        if self.warnFile:
+            self.warnFile.flush()
+        if self.diagFile:
+            self.diagFile.flush()
+        if self.outFile:
+            self.outFile.flush()
+            if self.outFile != sys.stdout and self.outFile != sys.stderr:
+                self.outFile.close()
+
+            if self.genOpts is None:
+                raise MissingGeneratorOptionsError()
+
+            # On successfully generating output, move the temporary file to the
+            # target file.
+            if self.genOpts.filename is not None:
+                directory = Path(self.genOpts.directory)
+                if sys.platform == 'win32':
+                    if not Path.exists(directory):
+                        os.makedirs(directory)
+                shutil.copy(
+                    self.outFile.name, directory / self.genOpts.filename
+                )
+                os.remove(self.outFile.name)
+        self.genOpts = None
+
+    def beginFeature(self, interface, emit):
+        """Write interface for a feature and tag generated features as having been done.
+
+        - interface - element for the `<version>` / `<extension>` to generate
+        - emit - actually write to the header only when True"""
+        self.emit = emit
+        self.featureName = None
+        self.featureExtraProtect = None
+
+    def endFeature(self):
+        """Finish an interface file, closing it when done.
+
+        Derived classes responsible for emitting feature"""
+        self.featureName = None
+        self.featureExtraProtect = None
+
     def get_api_prefix(self):
         return 'Dx12'
 
@@ -397,10 +573,13 @@ class Dx12BaseGenerator(BaseGenerator):
         for k, v in header_dict.items():
             for class_name, class_value in v.classes.items():
                 if self.is_required_struct_data(class_name, class_value):
-                    self.feature_struct_members[
-                        class_name] = self.make_value_info(
+                    self.all_structs.append(class_name)
+                    self.set_struct_members(
+                        class_name,
+                        self.makeValueInfo(
                             class_value['properties']['public']
                         )
+                    )
 
     def genCmd(self, cmdinfo, name, alias):
         """Method override."""
@@ -409,10 +588,151 @@ class Dx12BaseGenerator(BaseGenerator):
             for m in v.functions:
                 if self.is_required_function_data(m):
                     name = m['name']
-                    self.feature_cmd_params[name] = (
-                        self.clean_type_define(m['rtnType']), '',
-                        self.make_value_info(m['parameters'])
+                    self.save_command_and_params(
+                        name, (
+                            self.clean_type_define(m['rtnType']), '',
+                            self.makeValueInfo(m['parameters'])
+                        )
                     )
+
+    def make_consumer_func_decl(self, return_type, name, values):
+        """make_consumer_decl - return OpenXrConsumer class member function declaration.
+        Generate OpenXrConsumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        param_decl = self.make_aligned_param_decl(
+            'format::HandleId', 'object_id', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        if return_type != 'void':
+            method_name = name[name.find('::Process_') + 10:]
+            return_value = self.get_return_value_info(return_type, method_name)
+            rtn_type1 = self.make_decoded_param_type(return_value)
+            if rtn_type1.find('Decoder') != -1:
+                rtn_type1 += '*'
+            param_decl = self.make_aligned_param_decl(
+                rtn_type1, 'return_value', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+
+        for value in values:
+            param_type = self.make_decoded_param_type(value)
+
+            if 'Decoder' in param_type:
+                param_type = '{}*'.format(param_type)
+
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
+
+    def check_struct_member_handles(
+        self,
+        typename,
+        structs_with_handles,
+        structs_with_handle_ptrs=None,
+        ignore_output=False,
+        structs_with_map_data=None,
+        extra_types=None
+    ):
+        """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
+        Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
+        An optional list of structure types that contain handle members with pointer types may also be generated.
+        """
+        handles = []
+        has_handle_pointer = False
+        map_data = []
+
+        for value in self.all_struct_members[typename]:
+            if (
+                self.is_struct(value.base_type)
+                and value.base_type not in self.NO_STRUCT_BREAKDOWN
+            ):
+                self.check_struct_member_handles(
+                    value.base_type, structs_with_handles,
+                    structs_with_handle_ptrs, ignore_output,
+                    structs_with_map_data, extra_types
+                )
+
+            if self.is_handle(value.base_type) or self.is_class(value) or (
+                extra_types and value.base_type in extra_types
+            ):
+                # The member is a handle.
+                handles.append(value)
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.is_pointer or value.is_array)
+                ):
+                    has_handle_pointer = True
+            elif self.is_struct(value.base_type) and (
+                (value.base_type in structs_with_handles) and
+                ((not ignore_output) or (not '_Out_' in value.full_type))
+            ):
+                # The member is a struct that contains a handle.
+                handles.append(value)
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.name in structs_with_handle_ptrs)
+                ):
+                    has_handle_pointer = True
+            elif self.is_union(value.base_type):
+                # Check the anonymous union for objects.
+                union_members = self.get_union_members(value.base_type)
+                for union_info in union_members:
+                    if self.is_struct(
+                        union_info.base_type
+                    ) and (union_info.base_type in structs_with_handles):
+                        handles.append(value)
+                        has_handle_pointer = True
+                    elif (
+                        union_info.base_type in self.MAP_STRUCT_TYPE
+                        and (structs_with_map_data is not None)
+                    ):
+                        map_data.append(value)
+
+            if (structs_with_map_data is not None) and (
+                (value.base_type in self.MAP_STRUCT_TYPE) or
+                (value.base_type in structs_with_map_data)
+            ):
+                map_data.append(value)
+
+        if map_data:
+            structs_with_map_data[typename] = map_data
+
+        if handles:
+            # Process the list of struct members a second time to check for
+            # members with the same type as the struct.  The current struct
+            # type has not been added to the table of structs with handles
+            # yet, so we must check the struct members a second time, looking
+            # for members with the struct type, now that we know the current
+            # struct type contains members that are handles/objects.  Any
+            # struct members that have the same type as the struct must be
+            # added to the handle member list.
+            for value in self.all_struct_members[typename]:
+                if (value.base_type == typename) and (
+                    (not ignore_output) or (not '_Out_' in value.full_type)
+                ):
+                    handles.append(value)
+
+            structs_with_handles[typename] = handles
+            if (structs_with_handle_ptrs is not None) and has_handle_pointer:
+                structs_with_handle_ptrs.append(typename)
+            return True
+        return False
 
     def gen_method(self):
         header_dict = self.source_dict['header_dict']
@@ -423,7 +743,7 @@ class Dx12BaseGenerator(BaseGenerator):
                         name = k + '_' + m['name']
                         self.feature_method_params[name] = (
                             self.clean_type_define(m['rtnType']), '',
-                            self.make_value_info(m['parameters'])
+                            self.makeValueInfo(m['parameters'])
                         )
 
     def get_filtered_method_names(self):
@@ -432,7 +752,7 @@ class Dx12BaseGenerator(BaseGenerator):
             if not self.is_method_black_listed(key)
         ]
 
-    def make_value_info(self, params):
+    def makeValueInfo(self, params):
         """Method override."""
         values = []
         for p in params:
@@ -626,7 +946,6 @@ class Dx12BaseGenerator(BaseGenerator):
     def make_invocation_type_name(self, base_type):
         """Method override."""
         type = self.convert_function(base_type)
-        type = BaseGenerator.make_invocation_type_name(self, type)
         if type == 'Function':
             type = 'FunctionPtr'
         else:
@@ -654,9 +973,8 @@ class Dx12BaseGenerator(BaseGenerator):
         if struct_source_data['declaration_method'] == 'struct' and (
             not self.check_blacklist
             or not struct_source_data['name'] in self.STRUCT_BLACKLIST
-        ) and struct_type[-4:] != 'Vtbl' and struct_type.find(
-            "::<anon-union-"
-        ) == -1:
+        ) and struct_type[
+            -4:] != 'Vtbl' and struct_type.find("::<anon-union-") == -1:
             return True
         return False
 
@@ -696,3 +1014,62 @@ class Dx12BaseGenerator(BaseGenerator):
         if value.full_type.find('_Out') != -1:
             return True
         return False
+
+    def newline(self):
+        """Print a newline to the output file (utility function)"""
+        write('', file=self.outFile)
+
+    def treat2dArrayAs1dArray(self):
+        return True
+
+    def getMapperObjectInfo(self, needs_ref=False):
+        # Return object_table_prefix, map_type, base_type, and map_table
+        map_info = 'graphics::Dx12GpuVaMap'
+        if needs_ref:
+            map_info += '&'
+        else:
+            map_info += '*'
+        map_info += ' gpu_va_map'
+        return 'Dx12', 'Object', 'object', map_info
+
+    def needsObjectInfoTableOnArrayMap(self):
+        return False
+
+    def mapperNeedsValuePointerOnType(self, type):
+        return super().mapperNeedsValuePointerOnType(
+            type
+        ) or type.base_type in self.MAP_STRUCT_TYPE
+
+    def decodeApiCallNonVoidReturnType(self, return_type, value_name):
+        self.dx12_return_value = self.get_return_value_info(
+            return_type, value_name
+        )
+        self.dx12_return_decode_type = self.make_decoded_param_type(
+            self.dx12_return_value
+        )
+        body = '    {} return_value;\n'.format(self.dx12_return_decode_type)
+
+        if self.dx12_return_decode_type == 'Decoded_{}'.format(return_type):
+            body += '    {} value_returned;\n'.format(return_type)
+            body += '    return_value.decoded_value = &value_returned;\n'
+        return body
+
+    def decodeInvokeNonVoidReturnApiCall(
+        self, base_decoder_call, return_type, preamble, main_body, epilogue
+    ):
+        return base_decoder_call(
+            self, self.dx12_return_value, preamble, main_body, epilogue
+        )
+
+    def decodeAddApiSpecificArguments(self, name, return_type, arglist):
+        new_arglist = arglist
+        if return_type and return_type != 'void':
+            if self.dx12_return_decode_type.find('Decoder') != -1:
+                new_arglist = ', '.join(['&return_value', arglist])
+            else:
+                new_arglist = ', '.join(['return_value', arglist])
+
+        if name in self.get_filtered_method_names():
+            new_arglist = 'object_id, ' + new_arglist
+
+        return new_arglist

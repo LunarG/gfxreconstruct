@@ -20,7 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
+from base_generator_defines import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12ConsumerHeaderGeneratorOptions
 
@@ -56,8 +56,12 @@ class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
         self.write_dx12_consumer_class('Replay')
 
     def write_include(self):
-        code = ("\n" "#include \"decode/dx12_replay_consumer_base.h\"\n" "\n")
+        code = ("\n"
+                "#include \"decode/dx12_replay_consumer_base.h\"\n"
+                "\n")
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info, return_type, return_value):
+    def get_consumer_function_body(
+        self, class_name, method_info, return_type, return_value
+    ):
         return ' override;'

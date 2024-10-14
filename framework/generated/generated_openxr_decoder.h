@@ -57,6 +57,7 @@ class OpenXrDecoder : public OpenXrDecoderBase
                                     size_t                        buffer_size) override;
 
   private:
+
     size_t Decode_xrDestroyInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrGetInstanceProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -608,7 +609,6 @@ class OpenXrDecoder : public OpenXrDecoderBase
     size_t Decode_xrCancelFutureEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
 };
 
 GFXRECON_END_NAMESPACE(decode)

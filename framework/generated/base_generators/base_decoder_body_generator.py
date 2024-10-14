@@ -22,30 +22,24 @@
 # IN THE SOFTWARE.
 
 import re
-from base_generator import ValueInfo, write
-import base_utils
+from base_generator_defines import BaseGeneratorDefines, ValueInfo, make_re_string, write
 from copy import deepcopy
 
 
 class BaseDecoderBodyGenerator():
     """Base class for generating decoder body code."""
-    def __init__(self) :
-        # Generation is deferred until endFile
-        self.cmd_names = []
-        self.cmd_info = dict()
-        # Names of any commands whose decoders are manually generated
-        self.MANUALLY_GENERATED_COMMANDS = [
-        ]
 
     def generate_commands(self):
         platform_type = self.get_api_prefix()
 
         first = True
         for cmd in self.cmd_names:
-            if self.is_manually_generated_cmd_name(cmd):
+            if self.is_manually_generated_cmd_name(
+                cmd
+            ) or self.is_cmd_black_listed(cmd):
                 continue
 
-            info = self.cmd_info[cmd]
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -64,13 +58,7 @@ class BaseDecoderBodyGenerator():
             write(cmddef, file=self.outFile)
             first = False
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.cmd_names.append(cmd)
-            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
-
-    def make_cmd_body(self, return_type, name, values, dx12_method=False):
+    def make_cmd_body(self, return_type, name, values):
         """Generate C++ code for the decoder method body."""
         preamble = ''
         main_body = ''
@@ -85,15 +73,19 @@ class BaseDecoderBodyGenerator():
             # structure that is used, and then pass the information down.
             if value.base_type in self.base_header_structs.keys():
                 has_base_header_to_peak = True
-                is_base_header_value    = True
+                is_base_header_value = True
                 decode_type = self.make_decoded_param_type(value)
                 main_body += '    {}* {};\n'.format(decode_type, value.name)
-                main_body += '    {} {};\n'.format(decode_type, base_utils.MakeSimpleVarName(value.base_type))
+                main_body += '    {} {};\n'.format(
+                    decode_type, self.make_simple_var_name(value.base_type)
+                )
                 for child in self.base_header_structs[value.base_type]:
                     new_value = deepcopy(value)
                     new_value.base_type = child
-                    decode_type = self.make_decoded_param_type(new_value)
-                    main_body += '    {} {};\n'.format(decode_type, base_utils.MakeSimpleVarName(child))
+                    child_decode_type = self.make_decoded_param_type(new_value)
+                    main_body += '    {} {};\n'.format(
+                        child_decode_type, self.make_simple_var_name(child)
+                    )
             else:
                 decode_type = self.make_decoded_param_type(value)
                 main_body += '    {} {};\n'.format(decode_type, value.name)
@@ -115,27 +107,8 @@ class BaseDecoderBodyGenerator():
             else:
                 arg_names.append(value.name)
 
-        # Vulkan return is very simple. Value is only for Dx12 Method.
-        dx12_return_value = None
-        dx12_return_decode_type = None
         if return_type and return_type != 'void':
-            if dx12_method:
-                dx12_return_value = self.get_return_value_info(
-                    return_type, name
-                )
-                dx12_return_decode_type = self.make_decoded_param_type(
-                    dx12_return_value
-                )
-                main_body += '    {} return_value;\n'.format(
-                    dx12_return_decode_type
-                )
-
-                if dx12_return_decode_type == 'Decoded_{}'.format(return_type):
-                    main_body += '    {} value_returned;\n'.format(return_type)
-                    main_body += '    return_value.decoded_value = &value_returned;\n'
-
-            else:
-                main_body += '    {} return_value;\n'.format(return_type)
+            main_body += self.decodeApiCallNonVoidReturnType(return_type, name)
 
         # Blank line after declarations.
         if values or return_type:
@@ -154,15 +127,12 @@ class BaseDecoderBodyGenerator():
             preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
                 self, value, preamble, main_body, epilogue
             )
+
         if return_type and return_type != 'void':
-            if dx12_method:
-                preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
-                    self, dx12_return_value, preamble, main_body, epilogue
-                )
-            else:
-                preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
-                    self, ValueInfo('return_value', return_type, return_type), preamble, main_body, epilogue
-                )
+            preamble, main_body, epilogue = self.decodeInvokeNonVoidReturnApiCall(
+                BaseDecoderBodyGenerator.make_decode_invocation, return_type,
+                preamble, main_body, epilogue
+            )
 
         # Blank line after Decode() method invocations.
         if values or return_type:
@@ -170,14 +140,9 @@ class BaseDecoderBodyGenerator():
 
         # Make the argument list for the API call
         arglist = ', '.join([arg_name for arg_name in arg_names])
-        if return_type and return_type != 'void':
-            if dx12_method and dx12_return_decode_type.find('Decoder') != -1:
-                arglist = ', '.join(['&return_value', arglist])
-            else:
-                arglist = ', '.join(['return_value', arglist])
-
-        if dx12_method:
-            arglist = 'object_id, ' + arglist
+        arglist = self.decodeAddApiSpecificArguments(
+            name, return_type, arglist
+        )
 
         if arglist[-2:] == ', ':
             arglist = arglist[:-2]
@@ -185,7 +150,9 @@ class BaseDecoderBodyGenerator():
 
         main_body += '    for (auto consumer : GetConsumers())\n'
         main_body += '    {\n'
-        main_body += '        consumer->Process_{}({});\n'.format(name, arglist)
+        main_body += '        consumer->Process_{}({});\n'.format(
+            name, arglist
+        )
         main_body += '    }\n'
 
         if len(preamble) > 0:
@@ -243,7 +210,9 @@ class BaseDecoderBodyGenerator():
                     is_class and value.pointer_count > 1
                 ):
                     if type_name in self.base_header_structs.keys():
-                        base_type_name = base_utils.MakeSimpleVarName(value.base_type)
+                        base_type_name = self.make_simple_var_name(
+                            value.base_type
+                        )
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
                         main_body += '                                                   (buffer_size - bytes_read),\n'
                         main_body += '                                                   peak_is_null,\n'
@@ -256,10 +225,10 @@ class BaseDecoderBodyGenerator():
                         main_body += '         switch (xr_type)\n'
                         main_body += '         {\n'
                         for child in self.base_header_structs[value.base_type]:
-                            switch_type = base_utils.GenerateStructureType(child)
+                            switch_type = self.generate_structure_type(child)
 
                             main_body += f'             case {switch_type}:\n'
-                            child_var = base_utils.MakeSimpleVarName(child)
+                            child_var = self.make_simple_var_name(child)
                             main_body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
                             main_body += f'                 {value.name} = reinterpret_cast<StructPointerDecoder<Decoded_{value.base_type}>*>(&{child_var});\n'
                             main_body += '                 break;\n'
@@ -284,8 +253,8 @@ class BaseDecoderBodyGenerator():
                             epilogue += f'        delete[] {value.name}_store;\n'
                             epilogue += '    }\n'
                         main_body += '    bytes_read += {}.Decode({});\n'.format(
-                                value.name, buffer_args
-                            )
+                            value.name, buffer_args
+                        )
                     else:
                         main_body += '    bytes_read += {}.Decode({});\n'.format(
                             value.name, buffer_args
@@ -299,8 +268,10 @@ class BaseDecoderBodyGenerator():
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, self.encode_types[base_type], buffer_args
                     )
- 
+
                 else:
+                    if self.is_enum(type_name):
+                        type_name = 'Enum'
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, type_name, buffer_args
                     )
@@ -317,12 +288,14 @@ class BaseDecoderBodyGenerator():
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                     buffer_args, value.name
                 )
-            elif self.has_basetype(type_name) :
+            elif self.has_basetype(type_name):
                 base_type = self.get_basetype(type_name)
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     self.encode_types[base_type], buffer_args, value.name
                 )
             else:
+                if self.is_enum(type_name):
+                    type_name = 'Enum'
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, value.name
                 )
@@ -346,6 +319,9 @@ class BaseDecoderBodyGenerator():
         write(body, file=self.outFile)
 
         for cmd in self.cmd_names:
+            if self.is_cmd_black_listed(cmd):
+                continue
+
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
             cmddef += '        Decode_{}(call_info, parameter_buffer, buffer_size);\n'.format(
                 cmd

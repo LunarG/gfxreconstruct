@@ -48,6 +48,7 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
     OpenXrReplayConsumer(std::shared_ptr<application::Application> application, const OpenXrReplayOptions& options) : OpenXrReplayConsumerBase(application, options) { }
 
     virtual ~OpenXrReplayConsumer() override { }
+
     virtual void Process_xrDestroyInstance(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
