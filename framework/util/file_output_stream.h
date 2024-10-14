@@ -29,6 +29,7 @@
 #include "util/output_stream.h"
 #include "util/platform.h"
 
+#include <cstdint>
 #include <cstdio>
 #include <string>
 
@@ -58,11 +59,16 @@ class FileOutputStream : public OutputStream
 
     virtual void Flush() override { platform::FileFlush(file_); }
 
+    virtual int64_t GetOffset() const { return platform::FileTell(file_); }
+
+    virtual const std::string& GetFilename() const { return filename; }
+
   protected:
     FileOutputStream(const FileOutputStream&)            = delete;
     FileOutputStream& operator=(const FileOutputStream&) = delete;
     FILE*             file_;
     bool              own_file_;
+    const std::string filename;
 };
 
 class FileNoLockOutputStream : public FileOutputStream

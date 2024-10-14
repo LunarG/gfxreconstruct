@@ -35,6 +35,7 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cassert>
 #include <algorithm>
@@ -337,7 +338,9 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.store_op.push_back(create_info->pAttachments[i].storeOp);
+            wrapper->attachment_info.stencil_store_op.push_back(create_info->pAttachments[i].stencilStoreOp);
         }
     }
 }
@@ -363,7 +366,9 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.store_op.push_back(create_info->pAttachments[i].storeOp);
+            wrapper->attachment_info.stencil_store_op.push_back(create_info->pAttachments[i].stencilStoreOp);
         }
     }
 }
@@ -603,7 +608,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->created_size = create_info->size;
+    wrapper->size = create_info->size;
 
     // TODO: Do we need to track the queue family that the buffer is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
@@ -643,6 +648,12 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
+    VkMemoryRequirements     image_mem_reqs;
+    assert(wrapper->handle != VK_NULL_HANDLE);
+    device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
+    wrapper->size = image_mem_reqs.size;
 }
 
 template <>
@@ -725,6 +736,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     wrapper->create_parameters = std::move(create_parameters);
 
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
+    wrapper->buffer    = buffer;
     wrapper->buffer_id = buffer->handle_id;
 }
 
@@ -847,20 +859,26 @@ inline void InitializePoolObjectState(VkDevice                               par
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 descriptor_info.sampler_ids = std::make_unique<format::HandleId[]>(binding_info.count);
                 descriptor_info.images      = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
                 break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                descriptor_info.storage_images = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 descriptor_info.buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
                 break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                descriptor_info.storage_buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                descriptor_info.uniform_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.storage_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 descriptor_info.inline_uniform_block = std::make_unique<uint8_t[]>(binding_info.count);
@@ -873,10 +891,13 @@ inline void InitializePoolObjectState(VkDevice                               par
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
-                descriptor_info.sampler_ids        = std::make_unique<format::HandleId[]>(binding_info.count);
-                descriptor_info.images             = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
-                descriptor_info.buffers            = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
-                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.sampler_ids     = std::make_unique<format::HandleId[]>(binding_info.count);
+                descriptor_info.images          = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.storage_images  = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.buffers         = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.storage_buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.uniform_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.storage_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 descriptor_info.acceleration_structures =
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 descriptor_info.mutable_type = std::make_unique<VkDescriptorType[]>(binding_info.count);

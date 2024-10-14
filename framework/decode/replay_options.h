@@ -61,6 +61,7 @@ struct ReplayOptions
     int64_t     block_index_from{ -1 };
     int64_t     block_index_to{ -1 };
     int32_t     num_pipeline_creation_jobs{ 0 };
+    std::string asset_file_path;
 };
 
 GFXRECON_END_NAMESPACE(decode)
