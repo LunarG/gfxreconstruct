@@ -72,6 +72,7 @@ enum DataFormats
     kFormat_RGBA,
     kFormat_BGR,
     kFormat_R16G16B16A16_SFLOAT,
+    kFormat_R32G32B32A32_SFLOAT,
     kFormat_B10G11R11_UFLOAT,
     kFormat_BGRA,
     kFormat_A2B10G10R10,
@@ -105,6 +106,9 @@ constexpr size_t DataFormatsSizes(DataFormats format)
 
         case kFormat_R16G16B16A16_SFLOAT:
             return 8;
+
+        case kFormat_R32G32B32A32_SFLOAT:
+            return 16;
 
         case kFormat_ASTC:
             GFXRECON_LOG_WARNING("%s(): Cannot calculate element size for ASTC.", __func__);
