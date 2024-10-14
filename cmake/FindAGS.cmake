@@ -45,7 +45,21 @@ endif()
 
 if(AGS_ARCH AND AGS_MSVC_TOOLSET AND AGS_MSVC_RUNTIME)
 
-    set(AGS_SEARCH_PATH "${CMAKE_SOURCE_DIR}/external/AGS_SDK/ags_lib")
+    set(AGS_SDK_DIR "${CMAKE_BINARY_DIR}/external/AGS_SDK")
+    set(AGS_SDK_GIT "https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK.git")
+    set(AGS_SDK_COMMIT "f686755b60a18521eb2fe7b40d7b3e35125cf151") # Release 6.2.0
+    
+    message(STATUS "Fetching AGS_SDK files from ${AGS_SDK_GIT}")
+    include(FetchContent)
+    FetchContent_Declare(
+      AGS_SDK
+      GIT_REPOSITORY   ${AGS_SDK_GIT}
+      GIT_TAG          ${AGS_SDK_COMMIT}
+      SOURCE_DIR       ${AGS_SDK_DIR}
+    )
+    FetchContent_MakeAvailable(AGS_SDK)
+
+    set(AGS_SEARCH_PATH "${AGS_SDK_DIR}/ags_lib")
 
     find_path(AGS_INCLUDE_DIR NAMES amd_ags.h PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES inc)
     mark_as_advanced(AGS_INCLUDE_DIR)
