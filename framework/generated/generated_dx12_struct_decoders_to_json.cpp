@@ -2964,7 +2964,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GPU_DESCRIPT
     {
         const D3D12_GPU_DESCRIPTOR_HANDLE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& meta_struct = *data;
-        FieldToJson(jdata["ptr"], decoded_value.ptr, options);
+        FieldToJsonAsHex(jdata["ptr"], decoded_value.ptr, options);
     }
 }
 
