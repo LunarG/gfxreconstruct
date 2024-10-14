@@ -484,8 +484,8 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
 
     VulkanReplayConsumerBase* vulkan_replay_consumer_ = nullptr;
 
-    std::vector<XrEventDataBuffer> received_events_;
-    std::vector<XrEventDataBuffer> skipped_unhandled_events_;
+    std::deque<XrEventDataBuffer> unhandled_events_from_replay_;
+    std::deque<XrEventDataBuffer> unhandled_events_from_capture_;
 
     // Replay specific state:
 
