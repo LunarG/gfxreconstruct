@@ -32,7 +32,7 @@ elseif(${MSVC_TOOLSET_VERSION} EQUAL 142)
 elseif(${MSVC_TOOLSET_VERSION} EQUAL 143)
     set(AGS_MSVC_TOOLSET "2022")
 else()
-    message(WARNING "AGS support requires MSVC version 2015, 2017, 2019, or 2022.")
+    message(WARNING "AGS support requires MSVC version 2017, 2019, or 2022.")
 endif()
 
 # If CMAKE_MSVC_RUNTIME_LIBRARY is set, use that to determine MSVC runtime. Otherwise default to /MD.

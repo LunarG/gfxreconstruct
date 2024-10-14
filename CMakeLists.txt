@@ -208,7 +208,7 @@ if(MSVC)
                 else()
                     message(WARNING "GFXRECON_AGS_SUPPORT was requested but the required dependencies were not found. "
                             "AGS support will be disabled.")
-                endif() # TARGET AGS::AGS
+                endif() # AGS_FOUND
             else()
                 message(WARNING "GFXRECON_AGS_SUPPORT was requested but is not supported. An x64 build is required. "
                         "AGS support will be disabled.")
