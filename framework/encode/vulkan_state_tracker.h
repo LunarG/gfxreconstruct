@@ -25,6 +25,7 @@
 
 #include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_device_address_tracker.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "encode/vulkan_state_tracker_initializers.h"
 #include "encode/vulkan_state_writer.h"
@@ -390,10 +391,15 @@ class VulkanStateTracker
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
 
-    void TrackTLASBuildCommand(VkCommandBuffer                                        command_buffer,
-                               uint32_t                                               info_count,
-                               const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
-                               const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
+    //    void TrackTLASBuildCommand(VkCommandBuffer                                        command_buffer,
+    //                               uint32_t                                               info_count,
+    //                               const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+    //                               const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
+    void
+         TrackAccelerationStructureBuildCommand(VkCommandBuffer                                        command_buffer,
+                                                uint32_t                                               info_count,
+                                                const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+                                                const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
@@ -479,6 +485,8 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrapper);
 
+    void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
@@ -490,7 +498,10 @@ class VulkanStateTracker
     std::unordered_map<VkDeviceAddress, const vulkan_wrappers::DeviceMemoryWrapper*> device_memory_addresses_map;
 
     // Keeps track of acceleration structures' device addresses
+    // TODO: refactor with encode::VulkanDeviceAddressTracker
     std::unordered_map<VkDeviceAddress, vulkan_wrappers::AccelerationStructureKHRWrapper*> as_device_addresses_map;
+
+    encode::VulkanDeviceAddressTracker device_address_tracker_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
