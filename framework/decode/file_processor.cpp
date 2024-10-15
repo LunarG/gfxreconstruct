@@ -583,11 +583,11 @@ bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigi
     return SeekActiveFile(file_stack_.top().filename, offset, origin);
 }
 
-bool FileProcessor::SetActiveFile(const std::string& filename, bool eteof)
+bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till_eof)
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack_.emplace(filename, eteof);
+        file_stack_.emplace(filename, execute_till_eof);
         return true;
     }
     else
@@ -599,11 +599,11 @@ bool FileProcessor::SetActiveFile(const std::string& filename, bool eteof)
 bool FileProcessor::SetActiveFile(const std::string&             filename,
                                   int64_t                        offset,
                                   util::platform::FileSeekOrigin origin,
-                                  bool                           eteof)
+                                  bool                           execute_till_eof)
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack_.emplace(filename, eteof);
+        file_stack_.emplace(filename, execute_till_eof);
         return SeekActiveFile(filename, offset, origin);
     }
     else
