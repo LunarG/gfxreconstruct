@@ -512,7 +512,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;
 
-    VkAccelerationStructureTypeKHR type_;
+    VkAccelerationStructureTypeKHR type;
     // Only used when tracking
 
     struct ASInputBuffer
