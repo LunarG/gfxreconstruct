@@ -260,9 +260,9 @@ class FileProcessor
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
-    bool SetActiveFile(const std::string& filename, bool eteof);
+    bool SetActiveFile(const std::string& filename, bool execute_till_eof);
 
-    bool SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin, bool eteof);
+    bool SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin, bool execute_till_eof);
 
     void DecrementRemainingCommands();
 
@@ -298,7 +298,7 @@ class FileProcessor
     struct ActiveFileContext
     {
         ActiveFileContext(const std::string& filename) : filename(filename){};
-        ActiveFileContext(const std::string& filename, bool eteof) : filename(filename), execute_till_eof(eteof){};
+        ActiveFileContext(const std::string& filename, bool execute_till_eof) : filename(filename), execute_till_eof(execute_till_eof){};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };
