@@ -181,8 +181,8 @@ size_t AgsDecoder::Decode_agsDriverExtensionsDX12_CreateDevice_601(const ApiCall
                                                                    const uint8_t*     parameter_buffer,
                                                                    size_t             buffer_size)
 {
-    GFXRECON_LOG_WARNING("The current capture was made with AGS 6.0.1 but will be replayed with AGS 6.2.0. If replay "
-                         "encounters error, a new capture may be needed.");
+    GFXRECON_LOG_WARNING("The current capture was made with an older version of AGS 6.x but will be replayed with AGS "
+                         "6.2.0. If replay encounters errors, a new capture may be needed.");
     return Decode_agsDriverExtensionsDX12_CreateDevice_620(call_info, parameter_buffer, buffer_size);
 }
 

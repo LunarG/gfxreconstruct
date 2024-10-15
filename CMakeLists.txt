@@ -199,17 +199,22 @@ if(MSVC)
         if (${GFXRECON_AGS_SUPPORT})
             if (CMAKE_SIZEOF_VOID_P EQUAL 8)
                 find_package(AGS)
-                if (TARGET AGS::AGS)
+                if (AGS_FOUND)
                     add_definitions(-DGFXRECON_AGS_SUPPORT)
 
                     # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
                     # to determine the final result.
                     set(GFXRECON_AGS_SUPPORT_FINAL ON)
-                endif() # TARGET AGS::AGS
+                else()
+                    message(WARNING "GFXRECON_AGS_SUPPORT was requested but the required dependencies were not found. "
+                            "AGS support will be disabled.")
+                endif() # AGS_FOUND
+            else()
+                message(WARNING "GFXRECON_AGS_SUPPORT was requested but is not supported. An x64 build is required. "
+                        "AGS support will be disabled.")
             endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
         endif() # GFXRECON_AGS_SUPPORT
     endif() # D3D12_SUPPORT
-
 
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.

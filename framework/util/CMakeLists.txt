@@ -167,7 +167,9 @@ if (WAYLAND_LIBRARY)
 endif()
 
 if (${GFXRECON_AGS_SUPPORT_FINAL})
-    target_link_libraries(gfxrecon_util AGS::AGS)
+    target_include_directories(gfxrecon_util PUBLIC ${AGS_INCLUDE_DIR})    
+    target_link_libraries(gfxrecon_util optimized ${AGS_LIBRARY_RELEASE})
+    target_link_libraries(gfxrecon_util debug ${AGS_LIBRARY_DEBUG})
 endif()
 
 if (TARGET Detours::Detours)

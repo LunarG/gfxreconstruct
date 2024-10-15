@@ -528,7 +528,7 @@ Some applications adopt vendor-specific libraries to leverage GPU capabilities n
 
 The GFXReconstruct capture process for AGS also leans on DLL substitution for interception. When an application loads amd_ags_x64.dll, it loads a proxy version provided by GFXReconstruct instead. From that point on, GFXReconstruct can record AGS function calls, process them, and call into the real AGS runtime.
 
-This is supported for AGS version 6.0.1.
+This is supported for AGS versions 6.0 - 6.2.0. Versions 5.x or older are not supported. Only x64 applications are supported.
 
 
 ### How to Capture AGS
@@ -540,7 +540,7 @@ The process is the same as normal, with the addition that we must also perform s
 Steps:
 1.	Identify the app executable.
 2.	Identify the official AGS DLL that came bundled with the application, which usually lives beside its executable.
-3.	Verify the AGS version that was shipped with the application. This can be done by inspecting its file properties. If the version is 6.0.1, then AGS calls made by this application can be captured.
+3.	Verify the AGS version that was shipped with the application. This can be done by inspecting its file properties. If the version is 6.0 - 6.2.0 then AGS calls made by this application can be captured.
 4.	Rename the official AGS DLL to `amd_ags_x64_orig.dll`.
 5.	Copy the GFXReconstruct capture libraries, plus the proxy AGS DLL, beside the application executable.
 6.	Rename the proxy AGS DLL to `amd_ags_x64.dll`.
@@ -558,8 +558,4 @@ Steps:
 
 ### How to Process AGS Files
 
-Both gfxrecon-replay and gfxrecon-optimize are able to read and process capture files that contain with AGS calls. From a user point of view, their usage remains unchanged. The only additional requirement is that the official AGS DLL must live in the same directory as gfxrecon-replay and gfxrecon-optimize. This is because both tools need to find and reference the official AGS DLL in order to issue AGS calls.
-
-
-
-
+Both gfxrecon-replay and gfxrecon-optimize are able to read and process capture files that contain AGS calls. From a user point of view, their usage remains unchanged.
