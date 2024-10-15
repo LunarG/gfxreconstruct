@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -107,7 +107,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              uint32_t         pre_transform) override;
 
     virtual void
-    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                       format::HandleId                                    memory_id,
                                        uint64_t                                            buffer_id,
                                        uint32_t                                            format,
                                        uint32_t                                            width,
@@ -190,16 +191,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         format::HandleId                                                   commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
 
-    void         Process_vkCreateRayTracingPipelinesKHR(
-                const ApiCallInfo&                                               call_info,
-                VkResult                                                         returnValue,
-                format::HandleId                                                 device,
-                format::HandleId                                                 deferredOperation,
-                format::HandleId                                                 pipelineCache,
-                uint32_t                                                         createInfoCount,
-                StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-                StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-                HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+    void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
     void ProcessBuildVulkanAccelerationStructuresMetaCommand(
         format::HandleId                                                           device,
@@ -1403,6 +1404,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      VulkanShaderModuleInfo*                                    shader_module_info,
                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
+    VkResult OverrideCreateSamplerYcbcrConversion(
+        PFN_vkCreateSamplerYcbcrConversion                                      func,
+        VkResult                                                                result,
+        const VulkanDeviceInfo*                                                 device_info,
+        const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
+        HandlePointerDecoder<VkSamplerYcbcrConversion>*                         pSampler);
+
+    VkResult OverrideCreateSamplerYcbcrConversionKHR(
+        PFN_vkCreateSamplerYcbcrConversionKHR                                      func,
+        VkResult                                                                   result,
+        const VulkanDeviceInfo*                                                    device_info,
+        const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfoKHR>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                 pAllocator,
+        HandlePointerDecoder<VkSamplerYcbcrConversionKHR>*                         pSampler);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
@@ -1627,6 +1644,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     struct HardwareBufferMemoryInfo
     {
         AHardwareBuffer*                     hardware_buffer;
+        format::HandleId                     device_id;
         bool                                 compatible_strides;
         std::vector<HardwareBufferPlaneInfo> plane_info;
     };

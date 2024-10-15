@@ -1368,6 +1368,7 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     {
         const vulkan_wrappers::DeviceMemoryWrapper* wrapper = hardware_buffer.second;
         CommonProcessHardwareBuffer(thread_data_->thread_id_,
+                                    wrapper->parent_device,
                                     wrapper->hardware_buffer_memory_id,
                                     wrapper->hardware_buffer,
                                     wrapper->allocation_size,
@@ -2274,6 +2275,12 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         assert((image_wrapper != nullptr) && ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
                                               (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
 
+        if (image_wrapper->external_memory_android)
+        {
+            // No need to process this image memory as its corresponding AHB is processed instead
+            continue;
+        }
+
         if (snapshot_entry.need_staging_copy)
         {
             std::vector<uint64_t> subresource_offsets;
@@ -2377,6 +2384,12 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         std::vector<uint8_t>                        data;
 
         assert(image_wrapper != nullptr);
+
+        if (image_wrapper->external_memory_android)
+        {
+            // No need to process this image memory as its corresponding AHB is processed instead
+            continue;
+        }
 
         if (image_wrapper->dirty)
         {
@@ -2740,8 +2753,14 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     snapshot_info.need_staging_copy = need_staging_copy;
                     snapshot_info.aspect            = aspect;
 
-                    if (wrapper->external_format)
+                    if (wrapper->external_format || wrapper->external_memory_android)
                     {
+                        // The original external format is not restored at replay time, but RGBA8 is used, meaning the
+                        // image size at replay might be different than current size.
+                        const VkDeviceSize rgba8_size  = 4;
+                        const VkDeviceSize replay_size = wrapper->extent.width * wrapper->extent.height * rgba8_size;
+                        *max_staging_copy_size         = std::max(*max_staging_copy_size, replay_size);
+
                         snapshot_info.resource_size = wrapper->size;
                         snapshot_info.level_sizes.push_back(wrapper->size);
                     }

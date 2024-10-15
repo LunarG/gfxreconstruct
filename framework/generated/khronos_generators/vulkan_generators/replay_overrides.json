@@ -137,6 +137,8 @@
     "vkCmdBindDescriptorSets" : "OverrideCmdBindDescriptorSets",
     "vkCmdBindDescriptorSets2KHR" : "OverrideCmdBindDescriptorSets2",
     "vkCmdBindDescriptorSets2" : "OverrideCmdBindDescriptorSets2",
-    "vkCmdExecuteCommands" : "OverrideCmdExecuteCommands"
+    "vkCmdExecuteCommands" : "OverrideCmdExecuteCommands",
+    "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
+    "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR"
   }
 }

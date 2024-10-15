@@ -738,12 +738,14 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
             wrapper->physical_device = physical_device_wrapper;
         }
 
+        wrapper->queue_family_indices.resize(pCreateInfo_unwrapped->queueCreateInfoCount);
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
             assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
                    wrapper->queue_family_creation_flags.end());
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+            wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
 
@@ -1035,6 +1037,22 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
             }
         }
     }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
+    auto dedicated_alloc_info =
+        graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(pAllocateInfo_unwrapped);
+    auto import_ahb_info =
+        graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(pAllocateInfo_unwrapped);
+    if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE && import_ahb_info == nullptr)
+    {
+        // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
+        VkMemoryRequirements memory_requirements = {};
+        vulkan_wrappers::GetDeviceTable(device)->GetImageMemoryRequirements(
+            device, dedicated_alloc_info->image, &memory_requirements);
+        pAllocateInfo_unwrapped->allocationSize = memory_requirements.size;
+    }
+#endif
 
     if (IsPageGuardMemoryModeExternal())
     {
@@ -1752,7 +1770,8 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
     {
         const size_t ahb_size = properties.allocationSize;
         assert(ahb_size);
-        CommonProcessHardwareBuffer(thread_id, memory_id, hardware_buffer, ahb_size, this, nullptr);
+
+        CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr);
     }
     else
     {

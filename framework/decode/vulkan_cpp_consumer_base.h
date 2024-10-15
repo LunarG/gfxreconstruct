@@ -656,7 +656,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                              uint32_t         height,
                                              uint32_t         pre_transform) override;
     virtual void
-    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                       format::HandleId                                    memory_id,
                                        uint64_t                                            buffer_id,
                                        uint32_t                                            format,
                                        uint32_t                                            width,

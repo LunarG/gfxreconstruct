@@ -609,7 +609,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     }
 
     // AHB image memory requirements can only be queried after the memory is bound
-    if (wrapper->external_format)
+    if (wrapper->external_format || wrapper->external_memory_android)
     {
         const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
         VkMemoryRequirements     image_mem_reqs;

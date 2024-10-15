@@ -47,7 +47,8 @@ class MetadataConsumerBase
     virtual void
     ProcessResizeWindowCommand2(format::HandleId surface_id, uint32_t width, uint32_t height, uint32_t pre_transform)
     {}
-    virtual void ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+    virtual void ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                                    format::HandleId                                    memory_id,
                                                     uint64_t                                            buffer_id,
                                                     uint32_t                                            format,
                                                     uint32_t                                            width,
