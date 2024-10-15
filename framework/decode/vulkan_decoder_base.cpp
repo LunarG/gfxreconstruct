@@ -625,24 +625,24 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
     }
 }
 
-//void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
-//                                                                                       size_t         buffer_size)
-//{
-//    format::HandleId device_id;
-//    VkQueryType      query_type;
-//    format::HandleId acceleration_structure_id;
-//
-//    std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, sizeof(format::HandleId), &device_id);
-//    bytes_read += ValueDecoder::DecodeEnumValue(parameter_buffer + bytes_read, sizeof(VkQueryType), &query_type);
-//    bytes_read += ValueDecoder::DecodeHandleIdValue(
-//        parameter_buffer + bytes_read, sizeof(format::HandleId), &acceleration_structure_id);
-//
-//    for (auto consumer : consumers_)
-//    {
-//        consumer->ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
-//            device_id, query_type, acceleration_structure_id);
-//    }
-//}
+void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
+                                                                                       size_t         buffer_size)
+{
+    format::HandleId device_id;
+    VkQueryType      query_type;
+    format::HandleId acceleration_structure_id;
+
+    std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, sizeof(format::HandleId), &device_id);
+    bytes_read += ValueDecoder::DecodeEnumValue(parameter_buffer + bytes_read, sizeof(VkQueryType), &query_type);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        parameter_buffer + bytes_read, sizeof(format::HandleId), &acceleration_structure_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+            device_id, query_type, acceleration_structure_id);
+    }
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

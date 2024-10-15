@@ -206,6 +206,9 @@ class VulkanDecoderBase : public ApiDecoder
     void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
                                                              size_t         buffer_size) override;
 
+    void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
+                                                                        size_t         buffer_size) override;
+
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 

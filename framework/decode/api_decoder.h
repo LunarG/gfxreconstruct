@@ -205,6 +205,9 @@ class ApiDecoder
 
     virtual void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
                                                                      size_t         buffer_size) {};
+
+    virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
+                                                                                size_t         buffer_size) {};
 };
 
 GFXRECON_END_NAMESPACE(decode)
