@@ -26,11 +26,33 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+VulkanDeviceAddressTracker::VulkanDeviceAddressTracker(VulkanDeviceAddressTracker&& other) noexcept :
+    VulkanDeviceAddressTracker()
+{
+    swap(*this, other);
+}
+
+VulkanDeviceAddressTracker& VulkanDeviceAddressTracker::operator=(VulkanDeviceAddressTracker other)
+{
+    swap(*this, other);
+    return *this;
+}
+
+void swap(VulkanDeviceAddressTracker& lhs, VulkanDeviceAddressTracker& rhs) noexcept
+{
+    std::lock(lhs.mutex_, rhs.mutex_);
+    std::lock_guard<std::shared_mutex> lock_lhs(lhs.mutex_, std::adopt_lock);
+    std::lock_guard<std::shared_mutex> lock_rhs(rhs.mutex_, std::adopt_lock);
+    std::swap(lhs.buffer_addresses_, rhs.buffer_addresses_);
+    std::swap(lhs.acceleration_structure_addresses_, rhs.acceleration_structure_addresses_);
+}
+
 void encode::VulkanDeviceAddressTracker::TrackBuffer(const vulkan_wrappers::BufferWrapper* wrapper)
 {
     if (wrapper != nullptr && wrapper->handle != VK_NULL_HANDLE && wrapper->address != 0 && wrapper->created_size != 0)
     {
-        _buffer_addresses[wrapper->address] = { wrapper->handle, wrapper->created_size };
+        std::unique_lock lock(mutex_);
+        buffer_addresses_[wrapper->address] = { wrapper->handle, wrapper->created_size };
     }
 }
 
@@ -38,7 +60,8 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const vulkan_wrappers::BufferWrapp
 {
     if (wrapper != nullptr)
     {
-        _buffer_addresses.erase(wrapper->address);
+        std::unique_lock lock(mutex_);
+        buffer_addresses_.erase(wrapper->address);
     }
 }
 
@@ -47,7 +70,8 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
 {
     if (wrapper != nullptr && wrapper->handle != VK_NULL_HANDLE && wrapper->address != 0)
     {
-        _acceleration_structure_addresses[wrapper->address] = wrapper->handle;
+        std::unique_lock lock(mutex_);
+        acceleration_structure_addresses_[wrapper->address] = wrapper->handle;
     }
 }
 
@@ -56,21 +80,24 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 {
     if (wrapper != nullptr)
     {
-        _acceleration_structure_addresses.erase(wrapper->address);
+        std::unique_lock lock(mutex_);
+        acceleration_structure_addresses_.erase(wrapper->address);
     }
 }
 
 VkBuffer VulkanDeviceAddressTracker::GetBufferByDeviceAddress(VkDeviceAddress device_address) const
 {
-    if (!_buffer_addresses.empty())
+    std::shared_lock lock(mutex_);
+
+    if (!buffer_addresses_.empty())
     {
         // find first address equal or greater
-        auto address_it = _buffer_addresses.lower_bound(device_address);
+        auto address_it = buffer_addresses_.lower_bound(device_address);
 
-        if (address_it == _buffer_addresses.end() || address_it->first > device_address)
+        if (address_it == buffer_addresses_.end() || address_it->first > device_address)
         {
             // not found
-            if (address_it == _buffer_addresses.begin())
+            if (address_it == buffer_addresses_.begin())
             {
                 return nullptr;
             }
@@ -92,8 +119,9 @@ VkBuffer VulkanDeviceAddressTracker::GetBufferByDeviceAddress(VkDeviceAddress de
 VkAccelerationStructureKHR
 VulkanDeviceAddressTracker::GetAccelerationStructureByDeviceAddress(VkDeviceAddress device_address) const
 {
-    auto address_it = _acceleration_structure_addresses.find(device_address);
-    if (address_it != _acceleration_structure_addresses.end())
+    std::shared_lock lock(mutex_);
+    auto address_it = acceleration_structure_addresses_.find(device_address);
+    if (address_it != acceleration_structure_addresses_.end())
     {
         return address_it->second;
     }

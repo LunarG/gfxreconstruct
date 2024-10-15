@@ -25,6 +25,7 @@
 #define GFXRECON_ENCODE_VULKAN_DEVICE_ADDRESS_TRACKER_H
 
 #include "encode/vulkan_handle_wrappers.h"
+#include <shared_mutex>
 #include <map>
 #include <unordered_map>
 
@@ -40,9 +41,13 @@ class VulkanDeviceAddressTracker
     VulkanDeviceAddressTracker(const VulkanDeviceAddressTracker&) = delete;
 
     //! allow moving
-    VulkanDeviceAddressTracker(VulkanDeviceAddressTracker&&) = default;
+    VulkanDeviceAddressTracker(VulkanDeviceAddressTracker&&) noexcept;
 
     ~VulkanDeviceAddressTracker() = default;
+
+    VulkanDeviceAddressTracker& operator=(VulkanDeviceAddressTracker);
+
+    friend void swap(VulkanDeviceAddressTracker& lhs, VulkanDeviceAddressTracker& rhs) noexcept;
 
     /**
      * @brief   Track an existing buffer by its VkDeviceAddress.
@@ -98,9 +103,11 @@ class VulkanDeviceAddressTracker
         size_t   size   = 0;
     };
     //! use a sorted (BST-based) map to look-up ranges
-    std::map<VkDeviceAddress, buffer_item_t> _buffer_addresses;
+    std::map<VkDeviceAddress, buffer_item_t> buffer_addresses_;
 
-    std::unordered_map<VkDeviceAddress, VkAccelerationStructureKHR> _acceleration_structure_addresses;
+    std::unordered_map<VkDeviceAddress, VkAccelerationStructureKHR> acceleration_structure_addresses_;
+
+    mutable std::shared_mutex mutex_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
