@@ -56,28 +56,28 @@ class VulkanDeviceAddressTracker
     /**
      * @brief   Stop tracking of a currently tracked buffer.
      *
-     * @param   wrapper a provided buffer-wrapper.
+     * @param   wrapper     provided buffer-wrapper.
      */
     void RemoveBuffer(const vulkan_wrappers::BufferWrapper* wrapper);
 
     /**
      * @brief   Track an existing acceleration-structure by its VkDeviceAddress.
      *
-     * @param   wrapper a provided acceleration-structure wrapper containing a handle and device-address.
+     * @param   wrapper     provided acceleration-structure wrapper containing a handle and device-address.
      */
     void TrackAccelerationStructure(const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
     /**
      * @brief   Stop tracking of a currently tracked acceleration-structure.
      *
-     * @param   wrapper a provided acceleration-structure wrapper.
+     * @param   wrapper     provided acceleration-structure wrapper.
      */
     void RemoveAccelerationStructure(const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
     /**
      * @brief   Retrieve a buffer by providing a VkDeviceAddress within its range.
      *
-     * @param   device_address  a capture-time VkDeviceAddress pointing inside a buffer.
+     * @param   device_address      VkDeviceAddress pointing inside a buffer.
      * @return  a found VkBuffer-handle or VK_NULL_HANDLE.
      */
     [[nodiscard]] VkBuffer GetBufferByDeviceAddress(VkDeviceAddress device_address) const;
@@ -85,7 +85,7 @@ class VulkanDeviceAddressTracker
     /**
      * @brief   Retrieve an acceleration-structure by providing a capture-time VkDeviceAddress.
      *
-     * @param   device_address  a capture-time VkDeviceAddress for an acceleration-structure.
+     * @param   device_address      VkDeviceAddress for an acceleration-structure.
      * @return  a found AccelerationStructureKHR-handle or VK_NULL_HANDLE.
      */
     [[nodiscard]] VkAccelerationStructureKHR
