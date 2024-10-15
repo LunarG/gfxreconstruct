@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1292,7 +1292,8 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
 
         if (result == VK_SUCCESS)
         {
-            VkImageCreateInfo image_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+            VkImageCreateInfo image_info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+
             image_info.pNext                 = nullptr;
             image_info.flags                 = 0;
             image_info.imageType             = type;
@@ -1346,7 +1347,6 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                         scissor_rect.extent.height = level_copy.imageExtent.height;
 
                         VkImageViewCreateInfo view_info         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-                        view_info.pNext                         = nullptr;
                         view_info.flags                         = 0;
                         view_info.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
                         view_info.format                        = format;

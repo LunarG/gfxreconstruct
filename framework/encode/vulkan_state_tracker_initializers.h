@@ -647,11 +647,19 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
 
-    auto* external_format_android = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
-    if (external_format_android != nullptr && external_format_android->externalFormat != 0)
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(create_info);
+    wrapper->external_memory_android =
+        (external_memory != nullptr) &&
+        ((external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID) ==
+         VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID);
+
+    auto* external_format    = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
+    wrapper->external_format = (external_format != nullptr) && (external_format->externalFormat != 0);
+
+    if (wrapper->external_memory_android || wrapper->external_format)
     {
-        wrapper->external_format = true;
-        wrapper->size            = 0;
+        // Can not get image memory requirements before binding memory
+        wrapper->size = 0;
     }
     else
     {

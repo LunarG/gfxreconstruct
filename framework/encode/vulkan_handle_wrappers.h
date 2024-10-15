@@ -170,6 +170,7 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::vector<uint32_t>                                  queue_family_indices;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -219,6 +220,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
     VkFormat              format{ VK_FORMAT_UNDEFINED };
     bool                  external_format{ false };
+    bool                  external_memory_android{ false };
     VkExtent3D            extent{ 0, 0, 0 };
     uint32_t              mip_levels{ 0 };
     uint32_t              array_layers{ 0 };

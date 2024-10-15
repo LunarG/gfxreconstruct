@@ -2576,16 +2576,15 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSamplerYcbcrConversionCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     if (!pYcbcrConversion->IsNull()) { pYcbcrConversion->SetHandleLength(1); }
-    VkSamplerYcbcrConversion* out_pYcbcrConversion = pYcbcrConversion->GetHandlePointer();
+    VulkanSamplerYcbcrConversionInfo handle_info;
+    pYcbcrConversion->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSamplerYcbcrConversion(in_device, in_pCreateInfo, in_pAllocator, out_pYcbcrConversion);
+    VkResult replay_result = OverrideCreateSamplerYcbcrConversion(GetDeviceTable(in_device->handle)->CreateSamplerYcbcrConversion, returnValue, in_device, pCreateInfo, pAllocator, pYcbcrConversion);
     CheckResult("vkCreateSamplerYcbcrConversion", returnValue, replay_result, call_info);
 
-    AddHandle<VulkanSamplerYcbcrConversionInfo>(device, pYcbcrConversion->GetPointer(), out_pYcbcrConversion, &CommonObjectInfoTable::AddVkSamplerYcbcrConversionInfo);
+    AddHandle<VulkanSamplerYcbcrConversionInfo>(device, pYcbcrConversion->GetPointer(), pYcbcrConversion->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSamplerYcbcrConversionInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(
@@ -5416,16 +5415,15 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSamplerYcbcrConversionCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     if (!pYcbcrConversion->IsNull()) { pYcbcrConversion->SetHandleLength(1); }
-    VkSamplerYcbcrConversion* out_pYcbcrConversion = pYcbcrConversion->GetHandlePointer();
+    VulkanSamplerYcbcrConversionInfo handle_info;
+    pYcbcrConversion->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSamplerYcbcrConversionKHR(in_device, in_pCreateInfo, in_pAllocator, out_pYcbcrConversion);
+    VkResult replay_result = OverrideCreateSamplerYcbcrConversionKHR(GetDeviceTable(in_device->handle)->CreateSamplerYcbcrConversionKHR, returnValue, in_device, pCreateInfo, pAllocator, pYcbcrConversion);
     CheckResult("vkCreateSamplerYcbcrConversionKHR", returnValue, replay_result, call_info);
 
-    AddHandle<VulkanSamplerYcbcrConversionInfo>(device, pYcbcrConversion->GetPointer(), out_pYcbcrConversion, &CommonObjectInfoTable::AddVkSamplerYcbcrConversionInfo);
+    AddHandle<VulkanSamplerYcbcrConversionInfo>(device, pYcbcrConversion->GetPointer(), pYcbcrConversion->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSamplerYcbcrConversionInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(

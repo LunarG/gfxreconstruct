@@ -121,7 +121,8 @@ class MetadataJsonConsumer : public Base
     }
 
     virtual void
-    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                       format::HandleId                                    memory_id,
                                        uint64_t                                            buffer_id,
                                        uint32_t                                            format,
                                        uint32_t                                            width,
@@ -133,6 +134,7 @@ class MetadataJsonConsumer : public Base
     {
         const util::JsonOptions& json_options = GetOptions();
         auto&                    jdata        = WriteMetaCommandStart("CreateHardwareBufferCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
         HandleToJson(jdata["memory_id"], memory_id, json_options);
         HandleToJson(jdata["buffer_id"], buffer_id, json_options);
         FieldToJson(jdata["format"], format, json_options);

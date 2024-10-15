@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -381,53 +381,205 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
             void*                           buffer_data = nullptr;
             const HardwareBufferMemoryInfo& buffer_info = entry->second;
 
-            int lock_result = AHardwareBuffer_lock(
-                buffer_info.hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &buffer_data);
+            AHardwareBuffer_Desc desc;
+            AHardwareBuffer_describe(buffer_info.hardware_buffer, &desc);
 
-            if (lock_result == 0)
+            if ((desc.usage & AHARDWAREBUFFER_USAGE_CPU_READ_MASK) != 0)
             {
-                assert(buffer_data != nullptr);
 
-                if (buffer_info.plane_info.size() == 1)
+                int lock_result = AHardwareBuffer_lock(
+                    buffer_info.hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &buffer_data);
+
+                if (lock_result == 0)
                 {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
+                    assert(buffer_data != nullptr);
 
-                    size_t   data_size         = static_cast<size_t>(size);
-                    size_t   data_offset       = static_cast<size_t>(offset);
-                    size_t   capture_row_pitch = buffer_info.plane_info[0].capture_row_pitch;
-                    size_t   replay_row_pitch  = buffer_info.plane_info[0].replay_row_pitch;
-                    uint32_t height            = buffer_info.plane_info[0].height;
+                    if (buffer_info.plane_info.size() == 1)
+                    {
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
 
-                    resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),
-                                                         data,
-                                                         data_offset,
-                                                         data_size,
-                                                         replay_row_pitch,
-                                                         capture_row_pitch,
-                                                         height);
+                        size_t   data_size         = static_cast<size_t>(size);
+                        size_t   data_offset       = static_cast<size_t>(offset);
+                        size_t   capture_row_pitch = buffer_info.plane_info[0].capture_row_pitch;
+                        size_t   replay_row_pitch  = buffer_info.plane_info[0].replay_row_pitch;
+                        uint32_t height            = buffer_info.plane_info[0].height;
+
+                        resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),
+                                                             data,
+                                                             data_offset,
+                                                             data_size,
+                                                             replay_row_pitch,
+                                                             capture_row_pitch,
+                                                             height);
+                    }
+                    else
+                    {
+                        // TODO: multi-plane image format support when strides do not match.
+                        GFXRECON_LOG_WARNING(
+                            "Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
+                            "mismatched capture/replay strides (Memory ID = %" PRIu64 "): support not yet implemented",
+                            memory_id);
+                    }
+
+                    lock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
+                    if (lock_result != 0)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                            memory_id);
+                    }
                 }
                 else
                 {
-                    // TODO: multi-plane image format support when strides do not match.
-                    GFXRECON_LOG_WARNING("Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
-                                         "mismatched capture/replay strides (Memory ID = %" PRIu64
-                                         "): support not yet implemented",
-                                         memory_id);
-                }
-
-                lock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
-                if (lock_result != 0)
-                {
                     GFXRECON_LOG_WARNING(
-                        "AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
-                        memory_id);
+                        "AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")", memory_id);
                 }
             }
-            else
+            else if (buffer_info.device_id != 0)
             {
-                GFXRECON_LOG_WARNING("AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
-                                     memory_id);
+                // Need to fill AHB memory from Vulkan.
+
+                VkResult vk_result = VK_SUCCESS;
+
+                VulkanDeviceInfo* device_info  = object_info_table_->GetVkDeviceInfo(buffer_info.device_id);
+                VkDevice          device       = device_info->handle;
+                auto              device_table = GetDeviceTable(device);
+                auto physical_device_info      = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+                auto memory_properties         = &physical_device_info->capture_memory_properties;
+
+                VkAndroidHardwareBufferFormatPropertiesANDROID format_properties;
+                format_properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
+                format_properties.pNext = nullptr;
+
+                VkAndroidHardwareBufferPropertiesANDROID properties;
+                properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+                properties.pNext = &format_properties;
+
+                if (vk_result == VK_SUCCESS)
+                    vk_result = device_table->GetAndroidHardwareBufferPropertiesANDROID(
+                        device, buffer_info.hardware_buffer, &properties);
+
+                // External format data cannot be refilled at replay time, therefore we expect format to be defined.
+                if (format_properties.format == VK_FORMAT_UNDEFINED)
+                {
+                    GFXRECON_LOG_ERROR("Can not fill GPU AHB with unknown Vulkan format.");
+                    if (format_properties.externalFormat != 0)
+                    {
+                        GFXRECON_LOG_ERROR("Replaying GPU AHB with external format is not supported.");
+                    }
+                    return;
+                }
+
+                const VkDeviceSize ahb_size = properties.allocationSize;
+                GFXRECON_ASSERT(ahb_size != 0);
+
+                VkExternalMemoryImageCreateInfo external_memory_image_create_info;
+                external_memory_image_create_info.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
+                external_memory_image_create_info.pNext = nullptr;
+                external_memory_image_create_info.handleTypes =
+                    VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID;
+
+                VkImageUsageFlags image_usage  = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+                VkImageLayout     final_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                if (desc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE)
+                {
+                    final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    image_usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+                }
+                if (desc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT)
+                {
+                    final_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                    image_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                }
+
+                VkImageCreateInfo image_info;
+                image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+                image_info.pNext                 = &external_memory_image_create_info;
+                image_info.flags                 = 0u;
+                image_info.imageType             = VK_IMAGE_TYPE_2D;
+                image_info.format                = format_properties.format;
+                image_info.extent                = { desc.width, desc.height, 1u };
+                image_info.mipLevels             = 1u;
+                image_info.arrayLayers           = 1u;
+                image_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+                image_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+                image_info.usage                 = image_usage;
+                image_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+                image_info.queueFamilyIndexCount = 0u;
+                image_info.pQueueFamilyIndices   = nullptr;
+                image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+                VkImage ahb_image = VK_NULL_HANDLE;
+                if (vk_result == VK_SUCCESS)
+                    vk_result = device_table->CreateImage(device, &image_info, nullptr, &ahb_image);
+
+                VkImportAndroidHardwareBufferInfoANDROID import_ahb_info = {};
+                import_ahb_info.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
+                import_ahb_info.pNext  = nullptr;
+                import_ahb_info.buffer = buffer_info.hardware_buffer;
+
+                VkMemoryDedicatedAllocateInfo memory_dedicated_allocate_info = {};
+                memory_dedicated_allocate_info.sType  = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+                memory_dedicated_allocate_info.pNext  = &import_ahb_info;
+                memory_dedicated_allocate_info.image  = ahb_image;
+                memory_dedicated_allocate_info.buffer = VK_NULL_HANDLE;
+
+                VkMemoryAllocateInfo memory_allocate_info = {};
+                memory_allocate_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                memory_allocate_info.pNext                = &memory_dedicated_allocate_info;
+                memory_allocate_info.allocationSize       = ahb_size;
+
+                uint32_t memory_index = memory_properties->memoryTypeCount;
+                for (uint32_t i = 0; i < memory_properties->memoryTypeCount; ++i)
+                {
+                    if ((properties.memoryTypeBits & (1 << i)) &&
+                        (memory_properties->memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) > 0)
+                    {
+                        memory_index = i;
+                        break;
+                    }
+                }
+                GFXRECON_ASSERT(memory_index < memory_properties->memoryTypeCount);
+                memory_allocate_info.memoryTypeIndex = memory_index;
+
+                VkDeviceMemory image_memory = VK_NULL_HANDLE;
+                if (vk_result == VK_SUCCESS)
+                    vk_result = device_table->AllocateMemory(device, &memory_allocate_info, nullptr, &image_memory);
+
+                if (vk_result == VK_SUCCESS)
+                    vk_result = device_table->BindImageMemory(device, ahb_image, image_memory, 0);
+
+                VkBufferImageCopy copy_region = {};
+                copy_region.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+                copy_region.imageExtent       = { desc.width, desc.height, 1 };
+
+                ProcessBeginResourceInitCommand(buffer_info.device_id, size, size);
+
+                VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+                initializer->InitializeImage(size,
+                                             data,
+                                             0,
+                                             ahb_image,
+                                             image_info.imageType,
+                                             VK_FORMAT_R8G8B8A8_UNORM,
+                                             image_info.extent,
+                                             VK_IMAGE_ASPECT_COLOR_BIT,
+                                             image_info.samples,
+                                             image_info.usage,
+                                             image_info.initialLayout,
+                                             final_layout,
+                                             image_info.arrayLayers,
+                                             1,
+                                             &copy_region);
+
+                ProcessEndResourceInitCommand(buffer_info.device_id);
+
+                device_table->FreeMemory(device, image_memory, nullptr);
+                device_table->DestroyImage(device, ahb_image, nullptr);
+
+                if (vk_result != VK_SUCCESS)
+                    GFXRECON_LOG_ERROR("Failed to copy data to AHardwareBuffer that is not cpu readable");
             }
         }
     }
@@ -519,6 +671,7 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand2(format::HandleId surf
 }
 
 void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
+    format::HandleId                                    device_id,
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,
     uint32_t                                            format,
@@ -531,6 +684,14 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffers_.find(buffer_id) == hardware_buffers_.end());
+
+    // In case of a AHB GPU visible only, we could not capture data in its external format.
+    // Data was sampled in RGBA format, so we override format and stride.
+    if ((usage & AHARDWAREBUFFER_USAGE_CPU_WRITE_MASK) == 0)
+    {
+        format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+        stride = width;
+    }
 
     AHardwareBuffer_Desc desc = {};
     desc.format               = format;
@@ -591,6 +752,7 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
 
         HardwareBufferMemoryInfo& memory_info = hardware_buffer_memory_info_[memory_id];
         memory_info.hardware_buffer           = buffer;
+        memory_info.device_id                 = device_id;
         memory_info.compatible_strides        = true;
 
         // Check for matching strides.
@@ -2697,7 +2859,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 {
     const VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto     instance_table = GetInstanceTable(physical_device);
+    auto instance_table = GetInstanceTable(physical_device);
     assert(instance_table != nullptr);
 
     auto replay_create_info = pCreateInfo->GetPointer();
@@ -4499,10 +4661,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 #endif
 
         // Check if this allocation was captured with an opaque address
-        bool                uses_address           = false;
-        bool                address_override_found = false;
-        bool                uses_import_memory     = false;
-        uint64_t            opaque_address         = 0;
+        bool     uses_address           = false;
+        bool     address_override_found = false;
+        bool     uses_import_memory     = false;
+        uint64_t opaque_address         = 0;
 
         // FD is not available at replay time
         graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
@@ -4512,6 +4674,36 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         size_t                                            host_pointer_size = 0;
         std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
             nullptr, [&](void* memory) { util::platform::FreeRawMemory(memory, host_pointer_size); });
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
+        auto dedicated_alloc_info =
+            graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info);
+        auto import_ahb_info =
+            graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(modified_allocate_info);
+        if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE &&
+            import_ahb_info == nullptr)
+        {
+            // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
+            VkMemoryRequirements memory_requirements = {};
+            VkDevice             device              = device_info->handle;
+            GetDeviceTable(device)->GetImageMemoryRequirements(
+                device, dedicated_alloc_info->image, &memory_requirements);
+            modified_allocate_info->allocationSize = memory_requirements.size;
+        }
+
+        // On the other hand, if it is importing an Android Hardware Buffer
+        if (import_ahb_info)
+        {
+            // allocationSize needs to be equal to VkAndroidHardwareBufferPropertiesANDROID::allocationSize
+            VkAndroidHardwareBufferPropertiesANDROID properties = {};
+            properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+            VkDevice device  = device_info->handle;
+            GetDeviceTable(device)->GetAndroidHardwareBufferPropertiesANDROID(
+                device, import_ahb_info->buffer, &properties);
+            modified_allocate_info->allocationSize = properties.allocationSize;
+        }
+#endif
 
         while (current_struct != nullptr)
         {
@@ -4896,7 +5088,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
     }
 
     // Memory requirements for image with external format can only be queried after the memory is bound
-    if (image_info->external_format)
+    if (image_info->external_format || image_info->external_memory_android)
     {
         VkMemoryRequirements image_mem_reqs;
         GetDeviceTable(device_info->handle)
@@ -5257,6 +5449,19 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         modified_create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 
+    auto* create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
+    // The original image might be external.
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(create_info);
+    // The external memory might be an unknown format.
+    auto* external_format     = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
+    bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
+    if (create_info->format == VK_FORMAT_UNDEFINED && external_memory != nullptr && has_external_format)
+    {
+        // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
+        create_info->format             = VK_FORMAT_R8G8B8A8_UNORM;
+        external_format->externalFormat = 0;
+    }
+
     VkResult result = allocator->CreateImage(
         pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
@@ -5290,13 +5495,16 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             image_info->queue_family_index = 0;
         }
 
+        image_info->external_format = has_external_format;
+
+        image_info->external_memory_android =
+            (external_memory != nullptr &&
+             (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID) != 0);
+
         // Memory requirements for image with external format can only be queried after the memory is bound
-        auto* external_format_android = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(replay_create_info);
-        if (external_format_android != nullptr && external_format_android->externalFormat != 0)
-        {
-            image_info->external_format = true;
-        }
-        else
+        // Also, if image was created with the VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID
+        // external memory handle type, then image must be bound to memory
+        if (!image_info->external_memory_android && !image_info->external_format)
         {
             VkMemoryRequirements image_mem_reqs;
             GetDeviceTable(device_info->handle)
@@ -5333,6 +5541,62 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
     }
 
     allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateSamplerYcbcrConversion(
+    PFN_vkCreateSamplerYcbcrConversion                                      func,
+    VkResult                                                                result,
+    const VulkanDeviceInfo*                                                 device_info,
+    const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
+    HandlePointerDecoder<VkSamplerYcbcrConversion>*                         pSampler)
+{
+    const auto*                        replay_create_info   = pCreateInfo->GetPointer();
+    VkSamplerYcbcrConversionCreateInfo modified_create_info = *replay_create_info;
+
+    // In case of an external format conversion, format is undefined
+    if (modified_create_info.format == VK_FORMAT_UNDEFINED)
+    {
+        // Replaying external formats is not supported
+        const auto* external_format =
+            graphics::vulkan_struct_remove_pnext<VkExternalFormatANDROID>(&modified_create_info);
+        GFXRECON_ASSERT(external_format != nullptr);
+
+        // External formatted images are expected to have been captured as RGBA8
+        modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
+        // Use a model conversion which does not modify color components
+        modified_create_info.ycbcrModel = VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY;
+    }
+    return func(
+        device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), pSampler->GetHandlePointer());
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateSamplerYcbcrConversionKHR(
+    PFN_vkCreateSamplerYcbcrConversionKHR                                      func,
+    VkResult                                                                   result,
+    const VulkanDeviceInfo*                                                    device_info,
+    const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfoKHR>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                 pAllocator,
+    HandlePointerDecoder<VkSamplerYcbcrConversionKHR>*                         pSampler)
+{
+    const auto*                           replay_create_info   = pCreateInfo->GetPointer();
+    VkSamplerYcbcrConversionCreateInfoKHR modified_create_info = *replay_create_info;
+
+    // In case of an external format conversion, format is undefined
+    if (modified_create_info.format == VK_FORMAT_UNDEFINED)
+    {
+        // Replaying external formats is not supported
+        const auto* external_format =
+            graphics::vulkan_struct_remove_pnext<VkExternalFormatANDROID>(&modified_create_info);
+        GFXRECON_ASSERT(external_format != nullptr);
+
+        // External formatted images are expected to have been captured as RGBA8
+        modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
+        // Use a model conversion which does not modify color components
+        modified_create_info.ycbcrModel = VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY;
+    }
+    return func(
+        device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), pSampler->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
@@ -8894,7 +9158,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     const VkAllocationCallbacks* allocator   = GetAllocationCallbacks(allocator_decoder);
     VkImageView*                 out_view    = view_decoder->GetHandlePointer();
 
-    VkResult result = func(device, create_info, allocator, out_view);
+    VkImageViewCreateInfo modified_create_info = *create_info;
+
+    // If image has external format, this format is undefined.
+    if (modified_create_info.format == VK_FORMAT_UNDEFINED)
+    {
+        if (graphics::vulkan_struct_get_pnext<VkSamplerYcbcrConversionInfo>(&modified_create_info))
+        {
+            // Replaying images with external format is not supported.
+            // The imported image is expected to have RGBA8 format.
+            modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
+        }
+    }
+
+    VkResult result = func(device, &modified_create_info, allocator, out_view);
 
     if ((result == VK_SUCCESS) && ((*out_view) != VK_NULL_HANDLE))
     {

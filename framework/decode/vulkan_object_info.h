@@ -401,6 +401,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     VkImageType           type{};
     VkFormat              format{};
     bool                  external_format{ false };
+    bool                  external_memory_android{ false };
     VkExtent3D            extent{ 0, 0, 0 };
     VkImageTiling         tiling{};
     VkSampleCountFlagBits sample_count{};
