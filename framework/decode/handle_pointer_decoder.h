@@ -90,6 +90,10 @@ class HandlePointerDecoder
     const T* GetHandlePointer() const { return handle_data_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size) { return decoder_.DecodeHandleId(buffer, buffer_size); }
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size)
+    {
+        return decoder_.PreloadDecodeHandleId(buffer, buffer_size);
+    }
 
     // The value returned is only guaranteed to be valid if the current consumer has called SetConsumerData.
     void* GetConsumerData(size_t index) const

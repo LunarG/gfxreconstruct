@@ -109,6 +109,16 @@ from vulkan_stype_util_generator import VulkanSTypeUtilGenerator, VulkanSTypeUti
 from vulkan_cpp_struct_generator import VulkanCppStructGenerator, VulkanCppStructGeneratorOptions
 from vulkan_cpp_consumer_extension_generator import VulkanCppConsumerExtensionGenerator, VulkanCppConsumerExtensionGeneratorOptions
 
+# Preload
+from vulkan_struct_packet_header_generator import VulkanStructPacketsHeaderGenerator, VulkanStructPacketsHeaderGeneratorOptions
+from vulkan_preload_decoder_body_generator import VulkanPreloadDecoderBodyGenerator, VulkanPreloadDecoderBodyGeneratorOptions
+from vulkan_preload_decoder_header_generator import VulkanPreloadDecoderHeaderGenerator, VulkanPreloadDecoderHeaderGeneratorOptions
+from vulkan_preload_replayer_header_generator import VulkanPreloadReplayerHeaderGenerator, VulkanPreloadReplayerHeaderGeneratorOptions
+from vulkan_preload_replayer_body_generator import VulkanPreloadReplayerBodyGenerator, VulkanPreloadReplayerBodyGeneratorOptions
+# from vulkan_preload_struct_decoders_forward_generator import VulkanPreloadStructDecodersForwardGenerator, VulkanPreloadStructDecodersForwardGeneratorOptions
+# from vulkan_preload_struct_decoders_body_generator import VulkanPreloadStructDecodersBodyGenerator, VulkanPreloadStructDecodersBodyGeneratorOptions
+from vulkan_preload_decode_pnext_struct_generator import VulkanPreloadDecodePNextStructGenerator, VulkanPreloadDecodePNextStructGeneratorOptions
+
 # Simple timer functions
 start_time = None
 
@@ -914,6 +924,87 @@ def make_gen_opts(args):
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_packet.h'] = [
+        VulkanStructPacketsHeaderGenerator,
+        VulkanStructPacketsHeaderGeneratorOptions(
+            filename           = 'generated_vulkan_struct_packet.h',
+            directory          = directory,
+            blacklists         = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = False,
+            protect_feature    = False,
+            extraVulkanHeaders=extraVulkanHeaders)
+    ]
+
+    gen_opts['generated_vulkan_preload_decoder.h'] = [
+        VulkanPreloadDecoderHeaderGenerator,
+        VulkanPreloadDecoderHeaderGeneratorOptions(
+            filename='generated_vulkan_preload_decoder.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_preload_decoder.cpp'] = [
+        VulkanPreloadDecoderBodyGenerator,
+        VulkanPreloadDecoderBodyGeneratorOptions(
+            filename='generated_vulkan_preload_decoder.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_preload_replayer.h'] = [
+        VulkanPreloadReplayerHeaderGenerator,
+        VulkanPreloadReplayerHeaderGeneratorOptions(
+            filename='generated_vulkan_preload_replayer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_preload_replayer.cpp'] = [
+        VulkanPreloadReplayerBodyGenerator,
+        VulkanPreloadReplayerBodyGeneratorOptions(
+            filename='generated_vulkan_preload_replayer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_preload_decode_pnext_struct.cpp'] = [
+        VulkanPreloadDecodePNextStructGenerator,
+        VulkanPreloadDecodePNextStructGeneratorOptions(
+            filename='generated_vulkan_preload_decode_pnext_struct.cpp',
+            directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,

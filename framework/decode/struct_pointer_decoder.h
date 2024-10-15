@@ -27,6 +27,7 @@
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/pointer_decoder_base.h"
 #include "decode/decode_allocator.h"
+#include "decode/preload_decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
@@ -155,6 +156,63 @@ class StructPointerDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding structs.
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct);
+
+        if (!IsNull())
+        {
+            size_t len = GetLength();
+
+            if (!is_memory_external_)
+            {
+                assert(struct_memory_ == nullptr);
+
+                struct_memory_ = PreloadDecodeAllocator::Allocate<typename T::struct_type>(len);
+                capacity_      = len;
+            }
+            else
+            {
+                assert(struct_memory_ != nullptr);
+                assert(len <= capacity_);
+
+                if ((struct_memory_ == nullptr) || (len > capacity_))
+                {
+                    GFXRECON_LOG_WARNING("Struct pointer decoder's external memory capacity (%" PRIuPTR
+                                         ") is smaller than the decoded array size (%" PRIuPTR
+                                         "); an internal memory allocation will be used instead",
+                                         capacity_,
+                                         len);
+
+                    is_memory_external_ = false;
+                    struct_memory_      = PreloadDecodeAllocator::Allocate<typename T::struct_type>(len);
+                    capacity_           = len;
+                }
+            }
+
+            decoded_structs_ = PreloadDecodeAllocator::Allocate<T>(len);
+
+            if (HasData())
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    decoded_structs_[i].decoded_value = &struct_memory_[i];
+
+                    // Note: We only expect this class to be used with structs that have a decode_struct function.
+                    //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                    //       updated to support the new type.
+                    bytes_read +=
+                        PreloadDecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+                }
+            }
+        }
+
+        return bytes_read;
+    }
+
   private:
     /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
     /// to an externally provided allocation when #is_memory_external_ is true.
@@ -183,6 +241,70 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
     typename T::struct_type** GetPointer() { return struct_memory_; }
 
     const typename T::struct_type** GetPointer() const { return struct_memory_; }
+
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding 2D struct arrays.
+        assert((GetAttributeMask() & (format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray2D)) ==
+               (format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray2D));
+
+        if (!IsNull() && HasData())
+        {
+            assert(struct_memory_ == nullptr);
+
+            size_t len       = GetLength();
+            struct_memory_   = PreloadDecodeAllocator::Allocate<typename T::struct_type*>(len, false);
+            decoded_structs_ = PreloadDecodeAllocator::Allocate<T*>(len, false);
+            inner_lens_.resize(len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                uint32_t attrib = 0;
+                bytes_read +=
+                    ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+                if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+                {
+                    if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+                    {
+                        uint64_t address;
+                        bytes_read +=
+                            ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+                    }
+
+                    assert((attrib & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct);
+
+                    bytes_read += ValueDecoder::DecodeSizeTValue(
+                        (buffer + bytes_read), (buffer_size - bytes_read), &inner_lens_[i]);
+
+                    typename T::struct_type* inner_struct_memory =
+                        PreloadDecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
+                    T* inner_decoded_structs = PreloadDecodeAllocator::Allocate<T>(inner_lens_[i]);
+
+                    for (size_t j = 0; j < inner_lens_[i]; ++j)
+                    {
+                        inner_decoded_structs[j].decoded_value = &inner_struct_memory[j];
+                        // Note: We only expect this class to be used with structs that have a decode_struct function.
+                        //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                        //       updated to support the new type.
+                        bytes_read += PreloadDecodeStruct(
+                            (buffer + bytes_read), (buffer_size - bytes_read), &inner_decoded_structs[j]);
+                    }
+
+                    struct_memory_[i]   = inner_struct_memory;
+                    decoded_structs_[i] = inner_decoded_structs;
+                }
+                else
+                {
+                    struct_memory_[i]   = nullptr;
+                    decoded_structs_[i] = nullptr;
+                }
+            }
+        }
+
+        return bytes_read;
+    }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {

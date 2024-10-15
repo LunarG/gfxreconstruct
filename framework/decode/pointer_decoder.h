@@ -26,6 +26,7 @@
 
 #include "decode/pointer_decoder_base.h"
 #include "decode/decode_allocator.h"
+#include "decode/preload_decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -136,6 +137,33 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+
+    // Preload: Decode
+    size_t PreloadDecodeInt8(const uint8_t* buffer, size_t buffer_size)         { return PreloadDecodeFrom<int8_t>(buffer, buffer_size); }
+    size_t PreloadDecodeInt16(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<int16_t>(buffer, buffer_size); }
+    size_t PreloadDecodeUInt16(const uint8_t* buffer, size_t buffer_size)       { return PreloadDecodeFrom<uint16_t>(buffer, buffer_size); }
+    size_t PreloadDecodeInt32(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<int32_t>(buffer, buffer_size); }
+    size_t PreloadDecodeUInt32(const uint8_t* buffer, size_t buffer_size)       { return PreloadDecodeFrom<uint32_t>(buffer, buffer_size); }
+    size_t PreloadDecodeInt64(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t PreloadDecodeUInt64(const uint8_t* buffer, size_t buffer_size)       { return PreloadDecodeFrom<uint64_t>(buffer, buffer_size); }
+    size_t PreloadDecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<float>(buffer, buffer_size); }
+
+    // Preload: Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
+    size_t PreloadDecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return PreloadDecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
+
+    // Preload: Decode for array of bytes.
+    size_t PreloadDecodeUInt8(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<uint8_t>(buffer, buffer_size); }
+    size_t PreloadDecodeVoid(const uint8_t* buffer, size_t buffer_size)         { return PreloadDecodeFrom<uint8_t>(buffer, buffer_size); }
+
+    // Decode for special types that may require conversion.
+    size_t PreloadDecodeEnum(const uint8_t* buffer, size_t buffer_size)            { return PreloadDecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeFlags(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size)    { return PreloadDecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeHandleId(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return PreloadDecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return PreloadDecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+
     // clang-format on
 
   private:
@@ -222,6 +250,55 @@ class PointerDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
+    template <typename SrcT>
+    size_t PreloadDecodeFrom(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should not be decoding string arrays or structs.
+        assert((GetAttributeMask() & (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray)) !=
+               (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray)) !=
+               (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
+
+        if (!IsNull())
+        {
+            if (!is_memory_external_)
+            {
+                bytes_read += PreloadDecodeInternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
+            }
+            else
+            {
+                bytes_read += DecodeExternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
+            }
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t PreloadDecodeInternal(const uint8_t* buffer, size_t buffer_size)
+    {
+        assert(data_ == nullptr);
+
+        size_t bytes_read = 0;
+        size_t len        = GetLength();
+
+        if (HasData())
+        {
+            data_      = PreloadDecodeAllocator::Allocate<T>(len, false);
+            bytes_read = ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, len);
+        }
+        else
+        {
+            // Allocate and default initialize
+            data_ = PreloadDecodeAllocator::Allocate<T>(len);
+        }
+
+        return bytes_read;
+    }
+
   private:
     /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
     /// to an externally provided allocation when #is_memory_external_ is true.
@@ -273,6 +350,29 @@ class PointerDecoder<T*> : public PointerDecoderBase
     size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+
+    // Preload:  Decode
+    size_t PreloadDecodeInt32(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<int32_t>(buffer, buffer_size); }
+    size_t PreloadDecodeUInt32(const uint8_t* buffer, size_t buffer_size)          { return PreloadDecodeFrom<uint32_t>(buffer, buffer_size); }
+    size_t PreloadDecodeInt64(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t PreloadDecodeUInt64(const uint8_t* buffer, size_t buffer_size)          { return PreloadDecodeFrom<uint64_t>(buffer, buffer_size); }
+    size_t PreloadDecodeFloat(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<float>(buffer, buffer_size); }
+
+    // Preload: Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
+    size_t PreloadDecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)         { return PreloadDecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
+
+    // Preload: Decode for array of bytes.
+    size_t PreloadDecodeUInt8(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<uint8_t>(buffer, buffer_size); }
+    size_t PreloadDecodeVoid(const uint8_t* buffer, size_t buffer_size)            { return PreloadDecodeFrom<uint8_t>(buffer, buffer_size); }
+
+    // Preload: Decode for special types that may require conversion.
+    size_t PreloadDecodeEnum(const uint8_t* buffer, size_t buffer_size)            { return PreloadDecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeFlags(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size)    { return PreloadDecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeHandleId(const uint8_t* buffer, size_t buffer_size)        { return PreloadDecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return PreloadDecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return PreloadDecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
+    size_t PreloadDecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return PreloadDecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
 
   private:
@@ -337,6 +437,82 @@ class PointerDecoder<T*> : public PointerDecoderBase
                     ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &inner_len);
 
                 T* inner_data = DecodeAllocator::Allocate<T>(inner_len);
+                bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(
+                    (buffer + bytes_read), (buffer_size - bytes_read), inner_data, inner_len);
+
+                data_[i]          = inner_data;
+                inner_lengths_[i] = inner_len;
+            }
+            else
+            {
+                data_[i] = nullptr;
+            }
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t PreloadDecodeFrom(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should not be decoding pointers, arrays, or structs.
+        assert((GetAttributeMask() & format::PointerAttributes::kIsSingle) != format::PointerAttributes::kIsSingle);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray) != format::PointerAttributes::kIsArray);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
+
+        // We should only be decoding 2D arrays
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D);
+
+        if (!IsNull() && HasData())
+        {
+            bytes_read += PreloadDecodeInternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t PreloadDecodeInternal(const uint8_t* buffer, size_t buffer_size)
+    {
+        assert(data_ == nullptr);
+
+        size_t bytes_read = 0;
+        size_t len        = GetLength();
+
+        data_          = PreloadDecodeAllocator::Allocate<T*>(len, false);
+        inner_lengths_ = PreloadDecodeAllocator::Allocate<size_t>(len);
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            uint32_t attrib = 0;
+            bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+            if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+            {
+                if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+                {
+                    uint64_t address;
+                    bytes_read +=
+                        ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+                }
+
+                // We should not be decoding string arrays or structs.
+                assert((GetAttributeMask() &
+                        (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray)) !=
+                       (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
+                assert((GetAttributeMask() &
+                        (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray)) !=
+                       (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray));
+                assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) !=
+                       format::PointerAttributes::kIsStruct);
+
+                size_t inner_len = 0;
+                bytes_read +=
+                    ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &inner_len);
+
+                T* inner_data = PreloadDecodeAllocator::Allocate<T>(inner_len);
                 bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(
                     (buffer + bytes_read), (buffer_size - bytes_read), inner_data, inner_len);
 

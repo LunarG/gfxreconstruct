@@ -25,7 +25,7 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
+class VulkanPreloadStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function and forward type declarations for Vulkan struct decoding."""
 
     def __init__(
@@ -52,8 +52,8 @@ class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructDecodersForwardGenerator(BaseGenerator):
-    """VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
+class VulkanPreloadStructDecodersForwardGenerator(BaseGenerator):
+    """VulkanPreloadStructDecodersForwardGenerator - subclass of BaseGenerator.
     Generates C++ type and function declarations for decoding Vulkan API structures.
     Generate C++ function and forward type declarations for Vulkan struct decoding.
     """
@@ -105,13 +105,6 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
             write('struct Decoded_{};'.format(struct), file=self.outFile)
 
         self.newline()
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )
 
         for struct in self.get_filtered_struct_names():
             write(

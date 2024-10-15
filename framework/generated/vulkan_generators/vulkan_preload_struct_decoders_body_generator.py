@@ -10,7 +10,7 @@
 # sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in
+# The above copyright notice and this permission notiPacketFVulkanStructDecce shall be included in
 # all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -26,7 +26,7 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
 
 
-class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanPreloadStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan struct decoding."""
 
     def __init__(
@@ -53,10 +53,10 @@ class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructDecodersBodyGenerator(
+class VulkanPreloadStructDecodersBodyGenerator(
     BaseStructDecodersBodyGenerator, BaseGenerator
 ):
-    """VulkanStructDecodersBodyGenerator - subclass of BaseGenerator.
+    """VulkanPreloadStructDecodersBodyGenerator - subclass of BaseGenerator.
     Generates C++ functions for decoding Vulkan API structures.
     Generate C++ functions for Vulkan struct decoding."""
 
@@ -78,7 +78,7 @@ class VulkanStructDecodersBodyGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         write(
-            '#include "generated/generated_vulkan_struct_decoders.h"',
+            '#include "generated/generated_vulkan_preload_struct_decoders.h"',
             file=self.outFile
         )
         self.newline()
@@ -92,11 +92,6 @@ class VulkanStructDecodersBodyGenerator(
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-        write(
-            'size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);',
-            file=self.outFile
-        )
         self.newline()
         write(
             'size_t PreloadDecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);',
@@ -120,7 +115,6 @@ class VulkanStructDecodersBodyGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseStructDecodersBodyGenerator.generate_feature(self)
         first = True
         for struct in self.get_filtered_struct_names():
             body = '' if first else '\n'
@@ -133,7 +127,7 @@ class VulkanStructDecodersBodyGenerator(
             body += '    size_t bytes_read = 0;\n'
             body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
-            body += self.make_preload_decode_struct_body(
+            body += self.make_decode_struct_body(
                 struct, self.feature_struct_members[struct]
             )
             body += '\n'
@@ -143,7 +137,7 @@ class VulkanStructDecodersBodyGenerator(
             write(body, file=self.outFile)
             first = False
 
-    def make_preload_decode_struct_body(self, name, values):
+    def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
         body = ''
 
@@ -204,14 +198,14 @@ class VulkanStructDecodersBodyGenerator(
                 access_op = '.'
 
                 if is_struct:
-                    body += '    wrapper->{} = PreloadDecodeAllocator::Allocate<{}>();\n'.format(
+                    body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
                         value.name, self.make_decoded_param_type(value)
                     )
                     access_op = '->'
 
                 if is_static_array:
                     array_dimension = ''
-                    # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *.
+                    # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *. 
                     # But vk keeps 2d array.
                     if self.is_dx12_class() and value.array_dimension and value.array_dimension > 0:
                         array_dimension = '*'
@@ -268,7 +262,7 @@ class VulkanStructDecodersBodyGenerator(
                         )
         else:
             if is_struct:
-                body += '    wrapper->{} = PreloadDecodeAllocator::Allocate<{}>();\n'.format(
+                body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
                     value.name, self.make_decoded_param_type(value)
                 )
                 body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(

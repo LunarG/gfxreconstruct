@@ -116,6 +116,62 @@ class BasicStringDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding individual strings.
+        assert((GetAttributeMask() & DecodeAttrib) == DecodeAttrib);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray) != format::PointerAttributes::kIsArray);
+
+        if (!IsNull() && HasData())
+        {
+            size_t string_len = GetLength();
+            size_t alloc_len  = string_len + 1;
+
+            if (!is_memory_external_)
+            {
+                assert(data_ == nullptr);
+
+                data_     = PreloadDecodeAllocator::Allocate<CharT>(alloc_len, false);
+                capacity_ = alloc_len;
+                bytes_read += ValueDecoder::DecodeArrayFrom<EncodeT>(
+                    (buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                data_[string_len] = '\0';
+            }
+            else
+            {
+                assert(data_ != nullptr);
+
+                if (alloc_len <= capacity_)
+                {
+                    ValueDecoder::DecodeArrayFrom<EncodeT>(
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                    data_[string_len] = '\0';
+                }
+                else
+                {
+                    size_t truncate_len = capacity_ - 1;
+                    ValueDecoder::DecodeArrayFrom<EncodeT>(
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, truncate_len);
+                    data_[truncate_len] = '\0';
+
+                    GFXRECON_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
+                                         ") is smaller than the decoded string size (%" PRIuPTR
+                                         "); data will be truncated",
+                                         capacity_,
+                                         alloc_len);
+                }
+
+                // We always need to advance the position within the buffer by the amount of data that was expected to
+                // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
+                bytes_read += string_len * sizeof(EncodeT);
+            }
+        }
+
+        return bytes_read;
+    }
+
   private:
     CharT* data_;
     size_t capacity_;

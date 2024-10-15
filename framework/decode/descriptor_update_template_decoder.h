@@ -82,6 +82,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     const uint8_t* GetInlineUniformBlockPointer() const { return inline_uniform_block_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size);
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size);
 
   private:
     uint8_t* template_memory_;

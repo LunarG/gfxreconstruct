@@ -90,6 +90,12 @@ generate_targets = [
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
     'generated_vulkan_stype_util.h',
+    'generated_vulkan_struct_packet.h',
+    'generated_vulkan_preload_decoder.h',
+    'generated_vulkan_preload_decoder.cpp',
+    'generated_vulkan_preload_replayer.h',
+    'generated_vulkan_preload_replayer.cpp',
+    'generated_vulkan_preload_decode_pnext_struct.cpp',
 ]
 
 if __name__ == '__main__':

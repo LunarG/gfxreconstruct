@@ -59,6 +59,11 @@ class PNextTypedNode : public PNextNode
         return struct_pointer_.Decode(buffer, buffer_size);
     }
 
+    virtual size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size) override
+    {
+        return struct_pointer_.PreloadDecode(buffer, buffer_size);
+    }
+
   private:
     StructPointerDecoder<T> struct_pointer_;
 };

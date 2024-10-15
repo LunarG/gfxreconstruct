@@ -53,6 +53,8 @@ class PNextNode
     virtual const void* GetMetaStructPointer() const = 0;
 
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
+
+    virtual size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
 template <typename T>

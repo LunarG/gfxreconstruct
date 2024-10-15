@@ -117,6 +117,72 @@ class BasicStringArrayDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
+    size_t PreloadDecode(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding string arrays.
+        assert((GetAttributeMask() & (DecodeAttrib | format::PointerAttributes::kIsArray)) ==
+               (DecodeAttrib | format::PointerAttributes::kIsArray));
+
+        if (!IsNull() && HasData())
+        {
+            size_t len         = GetLength();
+            strings_           = PreloadDecodeAllocator::Allocate<CharT*>(len);
+            string_attributes_ = PreloadDecodeAllocator::Allocate<uint32_t>(len);
+            string_addresses_  = PreloadDecodeAllocator::Allocate<uint64_t>(len);
+            string_lengths_    = PreloadDecodeAllocator::Allocate<size_t>(len);
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                uint32_t attrib = 0;
+                bytes_read +=
+                    ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+                if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+                {
+                    if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+                    {
+                        bytes_read += ValueDecoder::DecodeAddress(
+                            (buffer + bytes_read), (buffer_size - bytes_read), &string_addresses_[i]);
+                    }
+
+                    assert((attrib & DecodeAttrib) == DecodeAttrib);
+
+                    size_t slen = 0;
+                    bytes_read +=
+                        ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &slen);
+
+                    CharT* value = PreloadDecodeAllocator::Allocate<CharT>(slen + 1, false);
+
+                    if (((attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData))
+                    {
+                        bytes_read += ValueDecoder::DecodeArrayFrom<EncodeT>(
+                            (buffer + bytes_read), (buffer_size - bytes_read), value, slen);
+                        value[slen] = '\0';
+                    }
+                    else
+                    {
+                        value[0] = '\0';
+                    }
+
+                    strings_[i]        = value;
+                    string_lengths_[i] = slen;
+                }
+                else
+                {
+                    strings_[i]          = nullptr;
+                    string_addresses_[i] = 0;
+                    string_lengths_[i]   = 0;
+                }
+
+                string_attributes_[i] = attrib;
+            }
+        }
+
+        return bytes_read;
+    }
+
   private:
     CharT**   strings_{ nullptr };
     uint32_t* string_attributes_{ nullptr };

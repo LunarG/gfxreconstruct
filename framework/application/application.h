@@ -89,6 +89,12 @@ class Application final
         return file_processor_->GetCurrentFrameNumber();
     }
 
+    void SetAPIDetected(bool detected_d3d12, bool detected_vulkan)
+    {
+        detected_d3d12_  = detected_d3d12;
+        detected_vulkan_ = detected_vulkan;
+    }
+
   private:
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.
@@ -99,6 +105,8 @@ class Application final
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.
+    bool                                                         detected_d3d12_;    ///<Indicates that the trace uses D3D12
+    bool                                                         detected_vulkan_;   ///<Indicates that the trace uses Vulkan
                                                                                      ///< capture file data.
     // clang-format on
 };

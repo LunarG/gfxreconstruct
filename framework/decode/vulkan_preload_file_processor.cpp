@@ -1,7 +1,6 @@
 /*
-** Copyright (c) 2018-2020,2022 Valve Corporation
-** Copyright (c) 2018-2020,2022 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,94 +21,48 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/file_processor.h"
-
-#include "decode/decode_allocator.h"
-#include "format/format_util.h"
-#include "util/compressor.h"
+#include "decode/vulkan_preload_file_processor.h"
 #include "util/logging.h"
-#include "util/platform.h"
-
-#include "decode/preload_decode_allocator.h"
-#include "generated/generated_vulkan_struct_packet.h"
-
-#include <cassert>
-#include <numeric>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO GH #1195: frame numbering should be 1-based.
-const uint32_t kFirstFrame = 0;
-
-FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
+VulkanPreloadFileProcessor::VulkanPreloadFileProcessor() :
+    status_(PreloadStatus::kInactive), vulkan_preload_decoder_(nullptr)
 {}
 
-FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
+void VulkanPreloadFileProcessor::ReplayPreloadedPackets()
 {
-    block_limit_ = block_limit;
+    vulkan_preload_replayer_.ReplayPackets(vulkan_preload_decoder_);
 }
-
-FileProcessor::~FileProcessor()
+void VulkanPreloadFileProcessor::PreloadNextFrames(size_t count)
 {
-    if (nullptr != compressor_)
+    preload_frames_ = count;
+    status_         = PreloadStatus::kRecord;
+    while (count-- != 0U)
     {
-        delete compressor_;
-        compressor_ = nullptr;
-    }
-
-    if (file_descriptor_)
-    {
-        fclose(file_descriptor_);
-    }
-
-    DecodeAllocator::DestroyInstance();
-}
-
-void FileProcessor::WaitDecodersIdle()
-{
-    for (auto decoder : decoders_)
-    {
-        decoder->WaitIdle();
-    }
-};
-
-bool FileProcessor::Initialize(const std::string& filename)
-{
-    bool success = false;
-
-    int32_t result = util::platform::FileOpen(&file_descriptor_, filename.c_str(), "rb");
-
-    if ((result == 0) && (file_descriptor_ != nullptr))
-    {
-        success = ProcessFileHeader();
-
-        if (success)
+        if (!ProcessNextFrame())
         {
-            filename_    = filename;
-            error_state_ = kErrorNone;
-        }
-        else
-        {
-            fclose(file_descriptor_);
-            file_descriptor_ = nullptr;
+            break;
         }
     }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
-        error_state_ = kErrorOpeningFile;
-    }
-
-    return success;
+    status_ = PreloadStatus::kReplay;
 }
 
-bool FileProcessor::ProcessNextFrame()
+bool VulkanPreloadFileProcessor::ProcessNextFrame()
 {
-    bool success = IsFileValid();
+    bool success = true;
+    switch (status_)
+    {
+        case PreloadStatus::kInactive:
+        case PreloadStatus::kRecord:
+            success = IsFileValid();
+            break;
+        case PreloadStatus::kReplay:
+            success = (GetErrorState() == Error::kErrorNone);
+        default:
+            break;
+    }
 
     if (success)
     {
@@ -131,122 +84,19 @@ bool FileProcessor::ProcessNextFrame()
     return success;
 }
 
-bool FileProcessor::ProcessAllFrames()
-{
-    bool success = true;
-
-    block_index_ = 0;
-
-    while (success)
-    {
-        if (success)
-        {
-            success = ProcessNextFrame();
-        }
-    }
-
-    return (error_state_ == kErrorNone);
-}
-
-bool FileProcessor::ContinueDecoding()
-{
-    bool early_exit = false;
-    // If a block limit was specified, obey it.
-    // If not (block_limit_ = 0),  then the consumer may determine early exit
-    if (block_limit_ > 0)
-    {
-        if (block_index_ > block_limit_)
-        {
-            early_exit = true;
-        }
-    }
-    else
-    {
-        int completed_decoders = 0;
-
-        for (auto& decoder : decoders_)
-        {
-            if (decoder->IsComplete(block_index_) == true)
-            {
-                completed_decoders++;
-            }
-        }
-
-        if (completed_decoders == decoders_.size())
-        {
-            early_exit = true;
-        }
-    }
-
-    return !early_exit;
-}
-
-bool FileProcessor::ProcessFileHeader()
-{
-    bool success = false;
-
-    if (ReadBytes(&file_header_, sizeof(file_header_)))
-    {
-        success = format::ValidateFileHeader(file_header_);
-
-        if (success)
-        {
-            file_options_.resize(file_header_.num_options);
-
-            size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
-
-            success = ReadBytes(file_options_.data(), option_data_size);
-
-            if (success)
-            {
-                for (const auto& option : file_options_)
-                {
-                    switch (option.key)
-                    {
-                        case format::FileOption::kCompressionType:
-                            enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
-                            break;
-                        default:
-                            GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
-                            break;
-                    }
-                }
-
-                compressor_ = format::CreateCompressor(enabled_options_.compression_type);
-
-                if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
-                {
-                    GFXRECON_LOG_ERROR("Failed to initialize file compression module (type = %u); replay of "
-                                       "compressed data will not be possible",
-                                       enabled_options_.compression_type);
-                    success      = false;
-                    error_state_ = kErrorUnsupportedCompressionType;
-                }
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("File header contains invalid four character code");
-            error_state_ = kErrorInvalidFourCC;
-        }
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to read file header");
-        error_state_ = kErrorReadingFileHeader;
-    }
-
-    return success;
-}
-
-bool FileProcessor::ProcessBlocks()
+bool VulkanPreloadFileProcessor::ProcessBlocks()
 {
     format::BlockHeader block_header;
     bool                success = true;
 
     while (success)
     {
-        PrintBlockInfo();
+        if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
+                                         (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
+        {
+            GFXRECON_LOG_INFO(
+                "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
+        }
         success = ContinueDecoding();
 
         if (success)
@@ -269,28 +119,14 @@ bool FileProcessor::ProcessBlocks()
                     if (success)
                     {
                         bool should_break = false;
-                        success           = ProcessFunctionCall(block_header, api_call_id, should_break);
-
-                        if (should_break)
+                        if (status_ == PreloadStatus::kRecord)
                         {
-                            break;
+                            success = ProcessFunctionCall(block_header, api_call_id, should_break);
                         }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                    }
-                }
-                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
-                {
-                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                    if (success)
-                    {
-                        bool should_break = false;
-                        success           = ProcessMethodCall(block_header, api_call_id, should_break);
+                        else
+                        {
+                            success = FileProcessor::ProcessFunctionCall(block_header, api_call_id, should_break);
+                        }
 
                         if (should_break)
                         {
@@ -311,7 +147,14 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessMetaData(block_header, meta_data_id);
+                        if (status_ == PreloadStatus::kRecord)
+                        {
+                            success = ProcessMetaData(block_header, meta_data_id);
+                        }
+                        else
+                        {
+                            success = FileProcessor::ProcessMetaData(block_header, meta_data_id);
+                        }
                     }
                     else
                     {
@@ -328,7 +171,7 @@ bool FileProcessor::ProcessBlocks()
                     if (success)
                     {
                         bool should_break = false;
-                        success           = ProcessFrameMarker(block_header, marker_type, should_break);
+                        success           = FileProcessor::ProcessFrameMarker(block_header, marker_type, should_break);
 
                         if (should_break)
                         {
@@ -349,7 +192,7 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessStateMarker(block_header, marker_type);
+                        success = FileProcessor::ProcessStateMarker(block_header, marker_type);
                     }
                     else
                     {
@@ -366,7 +209,7 @@ bool FileProcessor::ProcessBlocks()
 
                         if (success)
                         {
-                            success = ProcessAnnotation(block_header, annotation_type);
+                            success = FileProcessor::ProcessAnnotation(block_header, annotation_type);
                         }
                         else
                         {
@@ -384,10 +227,7 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     // Unrecognized block type.
-                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
-                                         block_header.type,
-                                         current_frame_number_,
-                                         block_index_);
+                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
@@ -408,106 +248,18 @@ bool FileProcessor::ProcessBlocks()
                 }
             }
         }
-        ++block_index_;
-    }
 
-    return success;
-}
-
-bool FileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
-{
-    assert(block_header != nullptr);
-
-    bool success = false;
-
-    if (ReadBytes(block_header, sizeof(*block_header)))
-    {
-        success = true;
-    }
-
-    return success;
-}
-
-bool FileProcessor::ReadParameterBuffer(size_t buffer_size)
-{
-    if (buffer_size > parameter_buffer_.size())
-    {
-        parameter_buffer_.resize(buffer_size);
-    }
-
-    return ReadBytes(parameter_buffer_.data(), buffer_size);
-}
-
-bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
-                                                  size_t  expected_uncompressed_size,
-                                                  size_t* uncompressed_buffer_size)
-{
-    // This should only be null if initialization failed.
-    assert(compressor_ != nullptr);
-
-    if (compressed_buffer_size > compressed_parameter_buffer_.size())
-    {
-        compressed_parameter_buffer_.resize(compressed_buffer_size);
-    }
-
-    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
-    {
-        if (parameter_buffer_.size() < expected_uncompressed_size)
         {
-            parameter_buffer_.resize(expected_uncompressed_size);
-        }
-
-        size_t uncompressed_size = compressor_->Decompress(
-            compressed_buffer_size, compressed_parameter_buffer_, expected_uncompressed_size, &parameter_buffer_);
-        if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
-        {
-            *uncompressed_buffer_size = uncompressed_size;
-            return true;
+            ++block_index_;
         }
     }
-    return false;
-}
-
-bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
-{
-    if (util::platform::FileRead(buffer, buffer_size, file_descriptor_))
-    {
-        bytes_read_ += buffer_size;
-        return true;
-    }
-    return false;
-}
-
-bool FileProcessor::SkipBytes(size_t skip_size)
-{
-    bool success = util::platform::FileSeek(file_descriptor_, skip_size, util::platform::FileSeekCurrent);
-
-    if (success)
-    {
-        // These technically count as bytes read/processed.
-        bytes_read_ += skip_size;
-    }
 
     return success;
 }
 
-void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
-{
-    // Report incomplete block at end of file as a warning, other I/O errors as an error.
-    if (feof(file_descriptor_) && !ferror(file_descriptor_))
-    {
-        GFXRECON_LOG_WARNING("Incomplete block at end of file");
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("%s (frame %u block %" PRIu64 ")", error_message, current_frame_number_, block_index_);
-        error_state_ = error_code;
-    }
-}
-
-bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
-                                        format::ApiCallId          call_id,
-                                        bool&                      should_break)
+bool VulkanPreloadFileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
+                                                     format::ApiCallId          call_id,
+                                                     bool&                      should_break)
 {
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
@@ -560,15 +312,12 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsApiCall(call_id))
             {
-                if (decoder->SupportsApiCall(call_id))
-                {
-                    DecodeAllocator::Begin();
-                    decoder->SetCurrentApiCallId(call_id);
-                    decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
-                    DecodeAllocator::End();
-                }
+                DecodeAllocator::Begin();
+                vulkan_preload_decoder_->DecodeFunctionCall(
+                    call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                DecodeAllocator::End();
             }
         }
     }
@@ -588,96 +337,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     return success;
 }
 
-bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
-                                      format::ApiCallId          call_id,
-                                      bool&                      should_break)
-{
-    size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
-    uint64_t         uncompressed_size     = 0;
-    format::HandleId object_id             = 0;
-    ApiCallInfo      call_info{ block_index_ };
-
-    bool success = ReadBytes(&object_id, sizeof(object_id));
-    success      = success && ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
-
-    if (success)
-    {
-        parameter_buffer_size -= (sizeof(object_id) + sizeof(call_info.thread_id));
-
-        if (format::IsBlockCompressed(block_header.type))
-        {
-            parameter_buffer_size -= sizeof(uncompressed_size);
-            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
-
-            if (success)
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
-
-                size_t actual_size = 0;
-                success            = ReadCompressedParameterBuffer(
-                    parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
-
-                if (success)
-                {
-                    assert(actual_size == uncompressed_size);
-                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read compressed function call block data");
-                }
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
-                                     "Failed to read compressed function call block header");
-            }
-        }
-        else
-        {
-            success = ReadParameterBuffer(parameter_buffer_size);
-
-            if (!success)
-            {
-                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
-            }
-        }
-
-        if (success)
-        {
-            for (auto decoder : decoders_)
-            {
-                if (decoder->SupportsApiCall(call_id))
-                {
-                    DecodeAllocator::Begin();
-                    decoder->SetCurrentApiCallId(call_id);
-                    decoder->DecodeMethodCall(
-                        call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
-                    DecodeAllocator::End();
-                }
-            }
-
-            ++api_call_index_;
-        }
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-    }
-
-    // Break from loop on frame delimiter.
-    if (IsFrameDelimiter(call_id))
-    {
-        // Make sure to increment the frame number on the way out.
-        ++current_frame_number_;
-        ++block_index_;
-        should_break = true;
-    }
-    return success;
-}
-
-bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
+bool VulkanPreloadFileProcessor::ProcessMetaData(const format::BlockHeader& block_header,
+                                                 format::MetaDataId         meta_data_id)
 {
     bool success = false;
 
@@ -713,16 +374,13 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchFillMemoryCommand(header.thread_id,
-                                                           header.memory_id,
-                                                           header.memory_offset,
-                                                           header.memory_size,
-                                                           parameter_buffer_.data());
-                    }
+                    vulkan_preload_decoder_->DispatchFillMemoryCommand(header.thread_id,
+                                                                       header.memory_id,
+                                                                       header.memory_offset,
+                                                                       header.memory_size,
+                                                                       parameter_buffer_.data());
                 }
             }
             else
@@ -742,6 +400,20 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read fill memory meta-data block header");
         }
+    }
+    else if (meta_data_type == format::MetaDataType::kFixDeviceAddressCommand)
+    {
+        format::FixDeviceAddressCommandHeader header;
+        success        = ReadBytes(&header.relation_id, sizeof(header.relation_id));
+        success        = ReadBytes(&header.num_of_locations, sizeof(header.num_of_locations));
+        auto locations = new format::AddressLocationInfo[header.num_of_locations];
+        success        = ReadBytes(locations, header.num_of_locations * sizeof(format::AddressLocationInfo));
+
+        if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
+        {
+            vulkan_preload_decoder_->DispatchFixDeviceAddresCommand(header, locations);
+        }
+        delete[] locations;
     }
     else if (meta_data_type == format::MetaDataType::kFillMemoryResourceValueCommand)
     {
@@ -770,12 +442,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchFillMemoryResourceValueCommand(header, parameter_buffer_.data());
-                    }
+                    vulkan_preload_decoder_->DispatchFillMemoryResourceValueCommand(header, parameter_buffer_.data());
                 }
             }
             else
@@ -804,13 +473,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchResizeWindowCommand(
-                        command.thread_id, command.surface_id, command.width, command.height);
-                }
+                vulkan_preload_decoder_->DispatchResizeWindowCommand(
+                    command.thread_id, command.surface_id, command.width, command.height);
             }
         }
         else
@@ -833,13 +499,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchResizeWindowCommand2(
-                        command.thread_id, command.surface_id, command.width, command.height, command.pre_transform);
-                }
+                vulkan_preload_decoder_->DispatchResizeWindowCommand2(
+                    command.thread_id, command.surface_id, command.width, command.height, command.pre_transform);
             }
         }
         else
@@ -869,12 +532,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchExeFileInfo(header.thread_id, header);
-                }
+                vulkan_preload_decoder_->DispatchExeFileInfo(header.thread_id, header);
             }
         }
     }
@@ -915,12 +575,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 auto        message_start = parameter_buffer_.begin();
                 std::string message(message_start, std::next(message_start, static_cast<size_t>(message_size)));
 
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchDisplayMessageCommand(header.thread_id, message);
-                    }
+                    vulkan_preload_decoder_->DispatchDisplayMessageCommand(header.thread_id, message);
                 }
             }
             else
@@ -971,21 +628,18 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
-                                                                     header.memory_id,
-                                                                     header.buffer_id,
-                                                                     header.format,
-                                                                     header.width,
-                                                                     header.height,
-                                                                     header.stride,
-                                                                     header.usage,
-                                                                     header.layers,
-                                                                     entries);
-                    }
+                    vulkan_preload_decoder_->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                                 header.memory_id,
+                                                                                 header.buffer_id,
+                                                                                 header.format,
+                                                                                 header.width,
+                                                                                 header.height,
+                                                                                 header.stride,
+                                                                                 header.usage,
+                                                                                 header.layers,
+                                                                                 entries);
                 }
             }
             else
@@ -1042,21 +696,18 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
-                                                                     header.memory_id,
-                                                                     header.buffer_id,
-                                                                     header.format,
-                                                                     header.width,
-                                                                     header.height,
-                                                                     header.stride,
-                                                                     header.usage,
-                                                                     header.layers,
-                                                                     entries);
-                    }
+                    vulkan_preload_decoder_->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                                 header.memory_id,
+                                                                                 header.buffer_id,
+                                                                                 header.format,
+                                                                                 header.width,
+                                                                                 header.height,
+                                                                                 header.stride,
+                                                                                 header.usage,
+                                                                                 header.layers,
+                                                                                 entries);
                 }
             }
             else
@@ -1114,11 +765,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
-            {
-                decoder->DispatchCreateHeapAllocationCommand(
-                    header.thread_id, header.allocation_id, header.allocation_size);
-            }
+
+            vulkan_preload_decoder_->DispatchCreateHeapAllocationCommand(
+                header.thread_id, header.allocation_id, header.allocation_size);
         }
         else
         {
@@ -1154,20 +803,17 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
-                                                                    header.physical_device_id,
-                                                                    header.api_version,
-                                                                    header.driver_version,
-                                                                    header.vendor_id,
-                                                                    header.device_id,
-                                                                    header.device_type,
-                                                                    header.pipeline_cache_uuid,
-                                                                    device_name);
-                    }
+                    vulkan_preload_decoder_->DispatchSetDevicePropertiesCommand(header.thread_id,
+                                                                                header.physical_device_id,
+                                                                                header.api_version,
+                                                                                header.driver_version,
+                                                                                header.vendor_id,
+                                                                                header.device_id,
+                                                                                header.device_type,
+                                                                                header.pipeline_cache_uuid,
+                                                                                device_name);
                 }
             }
             else
@@ -1227,13 +873,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchSetDeviceMemoryPropertiesCommand(
-                            header.thread_id, header.physical_device_id, types, heaps);
-                    }
+                    vulkan_preload_decoder_->DispatchSetDeviceMemoryPropertiesCommand(
+                        header.thread_id, header.physical_device_id, types, heaps);
                 }
             }
             else
@@ -1262,13 +905,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchSetOpaqueAddressCommand(
-                        header.thread_id, header.device_id, header.object_id, header.address);
-                }
+                vulkan_preload_decoder_->DispatchSetOpaqueAddressCommand(
+                    header.thread_id, header.device_id, header.object_id, header.address);
             }
         }
         else
@@ -1293,16 +933,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchSetRayTracingShaderGroupHandlesCommand(header.thread_id,
-                                                                            header.device_id,
-                                                                            header.pipeline_id,
-                                                                            static_cast<size_t>(header.data_size),
-                                                                            parameter_buffer_.data());
-                }
+                vulkan_preload_decoder_->DispatchSetRayTracingShaderGroupHandlesCommand(
+                    header.thread_id,
+                    header.device_id,
+                    header.pipeline_id,
+                    static_cast<size_t>(header.data_size),
+                    parameter_buffer_.data());
             }
         }
         else
@@ -1343,16 +981,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchSetSwapchainImageStateCommand(header.thread_id,
-                                                                       header.device_id,
-                                                                       header.swapchain_id,
-                                                                       header.last_presented_image,
-                                                                       entries);
-                    }
+                    vulkan_preload_decoder_->DispatchSetSwapchainImageStateCommand(
+                        header.thread_id, header.device_id, header.swapchain_id, header.last_presented_image, entries);
                 }
             }
             else
@@ -1381,13 +1013,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchBeginResourceInitCommand(
-                        header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
-                }
+                vulkan_preload_decoder_->DispatchBeginResourceInitCommand(
+                    header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
             }
         }
         else
@@ -1407,12 +1036,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
-                }
+                vulkan_preload_decoder_->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
             }
         }
         else
@@ -1449,16 +1075,13 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchInitBufferCommand(header.thread_id,
-                                                           header.device_id,
-                                                           header.buffer_id,
-                                                           header.data_size,
-                                                           parameter_buffer_.data());
-                    }
+                    vulkan_preload_decoder_->DispatchInitBufferCommand(header.thread_id,
+                                                                       header.device_id,
+                                                                       header.buffer_id,
+                                                                       header.data_size,
+                                                                       parameter_buffer_.data());
                 }
             }
             else
@@ -1521,19 +1144,16 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            for (auto decoder : decoders_)
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
             {
-                if (decoder->SupportsMetaDataId(meta_data_id))
-                {
-                    decoder->DispatchInitImageCommand(header.thread_id,
-                                                      header.device_id,
-                                                      header.image_id,
-                                                      header.data_size,
-                                                      header.aspect,
-                                                      header.layout,
-                                                      level_sizes,
-                                                      parameter_buffer_.data());
-                }
+                vulkan_preload_decoder_->DispatchInitImageCommand(header.thread_id,
+                                                                  header.device_id,
+                                                                  header.image_id,
+                                                                  header.data_size,
+                                                                  header.aspect,
+                                                                  header.layout,
+                                                                  level_sizes,
+                                                                  parameter_buffer_.data());
             }
         }
         else
@@ -1582,12 +1202,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                for (auto decoder : decoders_)
+                if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                 {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchInitSubresourceCommand(header, parameter_buffer_.data());
-                    }
+                    vulkan_preload_decoder_->DispatchInitSubresourceCommand(header, parameter_buffer_.data());
                 }
             }
             else
@@ -1608,161 +1225,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             HandleBlockReadError(kErrorReadingBlockHeader,
                                  "Failed to read init subresource data meta-data block header");
-        }
-    }
-    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand)
-    {
-        // Parse command header.
-        format::InitDx12AccelerationStructureCommandHeader header;
-        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-        success = success &&
-                  ReadBytes(&header.dest_acceleration_structure_data, sizeof(header.dest_acceleration_structure_data));
-        success = success && ReadBytes(&header.copy_source_gpu_va, sizeof(header.copy_source_gpu_va));
-        success = success && ReadBytes(&header.copy_mode, sizeof(header.copy_mode));
-        success = success && ReadBytes(&header.inputs_type, sizeof(header.inputs_type));
-        success = success && ReadBytes(&header.inputs_flags, sizeof(header.inputs_flags));
-        success = success && ReadBytes(&header.inputs_num_instance_descs, sizeof(header.inputs_num_instance_descs));
-        success = success && ReadBytes(&header.inputs_num_geometry_descs, sizeof(header.inputs_num_geometry_descs));
-        success = success && ReadBytes(&header.inputs_data_size, sizeof(header.inputs_data_size));
-
-        // Parse geometry descs.
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
-        if (success)
-        {
-            for (uint32_t i = 0; i < header.inputs_num_geometry_descs; ++i)
-            {
-                format::InitDx12AccelerationStructureGeometryDesc geom_desc;
-                success = success && ReadBytes(&geom_desc.geometry_type, sizeof(geom_desc.geometry_type));
-                success = success && ReadBytes(&geom_desc.geometry_flags, sizeof(geom_desc.geometry_flags));
-                success = success && ReadBytes(&geom_desc.aabbs_count, sizeof(geom_desc.aabbs_count));
-                success = success && ReadBytes(&geom_desc.aabbs_stride, sizeof(geom_desc.aabbs_stride));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_has_transform, sizeof(geom_desc.triangles_has_transform));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_index_format, sizeof(geom_desc.triangles_index_format));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_vertex_format, sizeof(geom_desc.triangles_vertex_format));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_index_count, sizeof(geom_desc.triangles_index_count));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_vertex_count, sizeof(geom_desc.triangles_vertex_count));
-                success =
-                    success && ReadBytes(&geom_desc.triangles_vertex_stride, sizeof(geom_desc.triangles_vertex_stride));
-                geom_descs.push_back(geom_desc);
-            }
-        }
-
-        if (success)
-        {
-            if (header.inputs_data_size > 0)
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.inputs_data_size);
-
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    size_t uncompressed_size = 0;
-                    size_t compressed_size =
-                        static_cast<size_t>(block_header.size) -
-                        (sizeof(header) - sizeof(header.meta_header.block_header)) -
-                        (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * header.inputs_num_geometry_descs);
-
-                    success = ReadCompressedParameterBuffer(
-                        compressed_size, static_cast<size_t>(header.inputs_data_size), &uncompressed_size);
-                }
-                else
-                {
-                    success = ReadParameterBuffer(static_cast<size_t>(header.inputs_data_size));
-                }
-            }
-
-            if (success)
-            {
-                for (auto decoder : decoders_)
-                {
-                    if (decoder->SupportsMetaDataId(meta_data_id))
-                    {
-                        decoder->DispatchInitDx12AccelerationStructureCommand(
-                            header, geom_descs, parameter_buffer_.data());
-                    }
-                }
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingBlockData,
-                                     "Failed to read init DX12 acceleration structure meta-data block");
-            }
-        }
-        else
-        {
-            HandleBlockReadError(kErrorReadingBlockHeader,
-                                 "Failed to read init DX12 acceleration structure meta-data block header");
-        }
-    }
-    else if (meta_data_type == format::MetaDataType::kDxgiAdapterInfoCommand)
-    {
-        format::DxgiAdapterInfoCommandHeader adapter_info_header;
-        memset(&adapter_info_header, 0, sizeof(adapter_info_header));
-
-        success = ReadBytes(&adapter_info_header.thread_id, sizeof(adapter_info_header.thread_id));
-
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.Description,
-                                       sizeof(adapter_info_header.adapter_desc.Description));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.VendorId,
-                                       sizeof(adapter_info_header.adapter_desc.VendorId));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.DeviceId,
-                                       sizeof(adapter_info_header.adapter_desc.DeviceId));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.SubSysId,
-                                       sizeof(adapter_info_header.adapter_desc.SubSysId));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.Revision,
-                                       sizeof(adapter_info_header.adapter_desc.Revision));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.DedicatedVideoMemory,
-                                       sizeof(adapter_info_header.adapter_desc.DedicatedVideoMemory));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.DedicatedSystemMemory,
-                                       sizeof(adapter_info_header.adapter_desc.DedicatedSystemMemory));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.SharedSystemMemory,
-                                       sizeof(adapter_info_header.adapter_desc.SharedSystemMemory));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidLowPart,
-                                       sizeof(adapter_info_header.adapter_desc.LuidLowPart));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidHighPart,
-                                       sizeof(adapter_info_header.adapter_desc.LuidHighPart));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.extra_info,
-                                       sizeof(adapter_info_header.adapter_desc.extra_info));
-
-        if (success)
-        {
-            for (auto decoder : decoders_)
-            {
-                decoder->DispatchGetDxgiAdapterInfo(adapter_info_header);
-            }
-        }
-        else
-        {
-            HandleBlockReadError(kErrorReadingBlockData, "Failed to read adapter info meta-data block");
-        }
-    }
-    else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
-    {
-        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
-        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
-
-        success = ReadBytes(&dx12_runtime_info_header.thread_id, sizeof(dx12_runtime_info_header.thread_id));
-
-        success = success && ReadBytes(&dx12_runtime_info_header.runtime_info.version,
-                                       sizeof(dx12_runtime_info_header.runtime_info.version));
-
-        success = success && ReadBytes(&dx12_runtime_info_header.runtime_info.src,
-                                       sizeof(dx12_runtime_info_header.runtime_info.src));
-
-        if (success)
-        {
-            for (auto decoder : decoders_)
-            {
-                decoder->DispatchGetDx12RuntimeInfo(dx12_runtime_info_header);
-            }
-        }
-        else
-        {
-            HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
     else if (meta_data_type == format::MetaDataType::kParentToChildDependency)
@@ -1792,12 +1254,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
                     if (success)
                     {
-                        for (auto decoder : decoders_)
+                        if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
                         {
-                            if (decoder->SupportsMetaDataId(meta_data_id))
-                            {
-                                decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
-                            }
+                            vulkan_preload_decoder_->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
                         }
                     }
                     else
@@ -1821,28 +1280,66 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
-    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
+    else if (meta_data_type == format::MetaDataType::kVulkanBuildAccelerationStructuresCommand)
     {
-        format::SetEnvironmentVariablesCommand header;
-        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && ReadBytes(&header.string_length, sizeof(header.string_length));
-        if (!success)
-        {
-            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
-            return success;
-        }
+        format::VulkanMetaBuildAccelerationStructuresHeader header;
+        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        success                      = ReadParameterBuffer(parameter_buffer_size);
 
-        success = ReadParameterBuffer(static_cast<size_t>(header.string_length));
-        if (!success)
+        if (success)
         {
-            HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
-            return success;
-        }
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
+            {
+                DecodeAllocator::Begin();
 
-        const char* env_string = (const char*)parameter_buffer_.data();
-        for (auto decoder : decoders_)
+                vulkan_preload_decoder_->DispatchVulkanAccelerationStructuresBuildMetaCommand(parameter_buffer_.data(),
+                                                                                              parameter_buffer_size);
+
+                DecodeAllocator::End();
+            }
+        }
+        else
         {
-            decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read acceleration structure init meta-data block header");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kVulkanCopyAccelerationStructuresCommand)
+    {
+        format::VulkanCopyAccelerationStructuresCommandHeader header;
+        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        success                      = ReadParameterBuffer(parameter_buffer_size);
+
+        if (success)
+        {
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
+            {
+                DecodeAllocator::Begin();
+
+                vulkan_preload_decoder_->DispatchVulkanAccelerationStructuresCopyMetaCommand(parameter_buffer_.data(),
+                                                                                             parameter_buffer_size);
+
+                DecodeAllocator::End();
+            }
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kVulkanWriteAccelerationStructuresPropertiesCommand)
+    {
+        format::VulkanCopyAccelerationStructuresCommandHeader header;
+        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        success                      = ReadParameterBuffer(parameter_buffer_size);
+
+        if (success)
+        {
+            if (vulkan_preload_decoder_->SupportsMetaDataId(meta_data_id))
+            {
+                DecodeAllocator::Begin();
+
+                vulkan_preload_decoder_->DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(
+                    parameter_buffer_.data(), parameter_buffer_size);
+
+                DecodeAllocator::End();
+            }
         }
     }
     else
@@ -1866,60 +1363,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     return success;
 }
 
-bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
-                                       format::MarkerType         marker_type,
-                                       bool&                      should_break)
-{
-    // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
-    uint64_t frame_number = 0;
-    bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
-
-    if (success)
-    {
-        // Validate frame end marker's frame number matches current_frame_number_ when capture_uses_frame_markers_ is
-        // true.
-        GFXRECON_ASSERT((marker_type != format::kEndMarker) || (!capture_uses_frame_markers_) ||
-                        (current_frame_number_ == (frame_number - first_frame_)));
-
-        for (auto decoder : decoders_)
-        {
-            if (marker_type == format::kEndMarker)
-            {
-                decoder->DispatchFrameEndMarker(frame_number);
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
-            }
-        }
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
-    }
-
-    // Break from loop on frame delimiter.
-    if (IsFrameDelimiter(block_header.type, marker_type))
-    {
-        // If the capture file contains frame markers, it will have a frame marker for every
-        // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
-        // encountered, reset the frame count and ignore frame-ending API calls in
-        // IsFrameDelimiter(format::ApiCallId call_id).
-        if (!capture_uses_frame_markers_)
-        {
-            capture_uses_frame_markers_ = true;
-            current_frame_number_       = kFirstFrame;
-        }
-
-        // Make sure to increment the frame number on the way out.
-        ++current_frame_number_;
-        ++block_index_;
-        should_break = true;
-    }
-    return success;
-}
-
-bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+bool VulkanPreloadFileProcessor::ProcessStateMarker(const format::BlockHeader& block_header,
+                                                    format::MarkerType         marker_type)
 {
     uint64_t frame_number = 0;
     bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
@@ -1936,20 +1381,17 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
             first_frame_ = frame_number;
         }
 
-        for (auto decoder : decoders_)
+        if (marker_type == format::kBeginMarker)
         {
-            if (marker_type == format::kBeginMarker)
-            {
-                decoder->DispatchStateBeginMarker(frame_number);
-            }
-            else if (marker_type == format::kEndMarker)
-            {
-                decoder->DispatchStateEndMarker(frame_number);
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
-            }
+            vulkan_preload_decoder_->DispatchStateBeginMarker(frame_number);
+        }
+        else if (marker_type == format::kEndMarker)
+        {
+            vulkan_preload_decoder_->DispatchStateEndMarker(frame_number);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
         }
     }
     else
@@ -1958,89 +1400,6 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
     }
 
     return success;
-}
-
-bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
-{
-    bool                                             success      = false;
-    decltype(format::AnnotationHeader::label_length) label_length = 0;
-    decltype(format::AnnotationHeader::data_length)  data_length  = 0;
-
-    success = ReadBytes(&label_length, sizeof(label_length));
-    success = success && ReadBytes(&data_length, sizeof(data_length));
-    if (success)
-    {
-        if ((label_length > 0) || (data_length > 0))
-        {
-            std::string label;
-            std::string data;
-            const auto  size_sum = label_length + data_length;
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
-            const size_t total_length = static_cast<size_t>(size_sum);
-
-            success = ReadParameterBuffer(total_length);
-            if (success)
-            {
-                if (label_length > 0)
-                {
-                    auto label_start = parameter_buffer_.begin();
-                    label.assign(label_start, std::next(label_start, label_length));
-                }
-
-                if (data_length > 0)
-                {
-                    auto data_start = std::next(parameter_buffer_.begin(), label_length);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
-                    data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
-                }
-
-                assert(annotation_handler_ != nullptr);
-                annotation_handler_->ProcessAnnotation(block_index_, annotation_type, label, data);
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingBlockData, "Failed to read annotation block");
-            }
-        }
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
-    }
-
-    return success;
-}
-
-bool FileProcessor::IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const
-{
-    return ((block_type == format::BlockType::kFrameMarkerBlock) && (marker_type == format::MarkerType::kEndMarker));
-}
-
-bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
-{
-    if (capture_uses_frame_markers_)
-    {
-        return false;
-    }
-    else
-    {
-        // This code is deprecated and no new API calls should be added. Instead, end of frame markers are used to track
-        // the file processor's frame count.
-        return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
-                (call_id == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID) ||
-                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
-                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
-    }
-}
-
-void FileProcessor::PrintBlockInfo() const
-{
-    if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
-                                     (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
-    {
-        GFXRECON_LOG_INFO(
-            "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
-    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

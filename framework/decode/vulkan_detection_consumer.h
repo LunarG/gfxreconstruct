@@ -43,6 +43,14 @@ class VulkanDetectionConsumer : public VulkanConsumer
         block_limit_(block_limit), vulkan_consumer_usage_(false)
     {}
     bool         WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
+    virtual void Process_vkCreateInstance(const ApiCallInfo& call_info,
+                                          VkResult           returnValue,
+                                          StructPointerDecoder<Decoded_VkInstanceCreateInfo>*,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
+                                          HandlePointerDecoder<VkInstance>*) override
+    {
+        vulkan_consumer_usage_ = true;
+    }
     virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
                                         VkResult                   returnValue,
                                         gfxrecon::format::HandleId physicalDevice,

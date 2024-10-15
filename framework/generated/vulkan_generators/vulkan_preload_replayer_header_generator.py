@@ -25,8 +25,8 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function and forward type declarations for Vulkan struct decoding."""
+class VulkanPreloadReplayerHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating a C++ class declaration for Vulkan API parameter decoding."""
 
     def __init__(
         self,
@@ -52,10 +52,11 @@ class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructDecodersForwardGenerator(BaseGenerator):
-    """VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
-    Generates C++ type and function declarations for decoding Vulkan API structures.
-    Generate C++ function and forward type declarations for Vulkan struct decoding.
+class VulkanPreloadReplayerHeaderGenerator(BaseGenerator):
+    """VulkanPreloadReplayerHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ member declarations for the VulkanPreloadReplayer class responsible for decoding
+    Vulkan API call parameter data.
+    Generate a C++ class declaration for Vulkan API parameter decoding.
     """
 
     def __init__(
@@ -63,8 +64,8 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=True,
+            process_cmds=True,
+            process_structs=False,
             feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
@@ -75,17 +76,36 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        write('#include "decode/vulkan_decoder_base.h"', file=self.outFile)
+        write('#include "decode/vulkan_preload_replayer_base.h"', file=self.outFile)
+        # write(
+        #     '#include "generated/generated_vulkan_struct_packet.h"',
+        #     file=self.outFile
+        # )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         self.includeVulkanHeaders(gen_opts)
         self.newline()
-        write('#include <cstdint>', file=self.outFile)
-        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+        write(
+            'class VulkanPreloadReplayer : public VulkanPreloadReplayerBase',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('  public:', file=self.outFile)
+        write('    VulkanPreloadReplayer() { }\n', file=self.outFile)
+        write('    virtual ~VulkanPreloadReplayer() { }\n', file=self.outFile)
+        write(
+            '    virtual void ReplayFunctionCall(format::PacketCallId& packet_call_id, void* packet);\n',
+            file=self.outFile
+        )
+        write('  private:', end='', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -95,27 +115,17 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
+        if self.feature_cmd_params:
             return True
         return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            write('struct Decoded_{};'.format(struct), file=self.outFile)
-
-        self.newline()
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
+        first = True
+        for cmd in self.get_filtered_cmd_names():
+            cmddef = '' if first else '\n'
+            cmddef += '    void Replay_{}(Packet_{}* packet);'.format(
+                cmd,cmd
             )
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t PreloadDecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )
+            write(cmddef, file=self.outFile)
+            first = False

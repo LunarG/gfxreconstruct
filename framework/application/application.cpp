@@ -25,6 +25,9 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "decode/preload_file_processor.h"
+#include "decode/vulkan_preload_file_processor.h"
+
+#include "decode/preload_decode_allocator.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 #include "application/win32_context.h"
@@ -155,9 +158,25 @@ void Application::Run()
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
                 if (preload_frames_count > 0U)
                 {
-                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
-                    GFXRECON_ASSERT(preload_processor)
-                    preload_processor->PreloadNextFrames(preload_frames_count);
+                    if (detected_vulkan_)
+                    {
+                        auto* preload_processor = dynamic_cast<decode::VulkanPreloadFileProcessor*>(file_processor_);
+                        GFXRECON_ASSERT(preload_processor)
+                        decode::PreloadDecodeAllocator::Begin();
+                        preload_processor->PreloadNextFrames(preload_frames_count);
+
+                        fps_info_->BeginFrame(frame_number);
+                        preload_processor->ReplayPreloadedPackets();
+                        fps_info_->EndFrame(frame_number);
+
+                        decode::PreloadDecodeAllocator::End();
+                    }
+                    else
+                    {
+                        auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                        GFXRECON_ASSERT(preload_processor)
+                        preload_processor->PreloadNextFrames(preload_frames_count);
+                    }
                 }
 
                 fps_info_->BeginFrame(frame_number);

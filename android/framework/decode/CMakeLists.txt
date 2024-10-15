@@ -19,6 +19,16 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/preload_file_processor.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/preload_file_processor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/preload_decode_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/preload_decode_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/preload_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/preload_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_replayer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_replayer_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_decoder_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_decoder_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_file_processor.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_preload_file_processor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
@@ -115,6 +125,12 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_packet.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decoder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_preload_replayer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_preload_replayer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decode_pnext_struct.cpp
               )
 
 target_include_directories(gfxrecon_decode

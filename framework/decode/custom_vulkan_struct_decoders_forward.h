@@ -71,6 +71,32 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrap
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
 
+// Preload
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
+size_t
+PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineExecutableStatisticValueKHR* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressKHR* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressConstKHR* wrapper);
+size_t
+PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper);
+size_t PreloadDecodeStruct(const uint8_t*                                   buffer,
+                           size_t                                           buffer_size,
+                           Decoded_VkAccelerationStructureMotionInstanceNV* wrapper);
+
+size_t PreloadDecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
+size_t
+PreloadDecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
+size_t
+PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryKHR* wrapper);
+size_t
+PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* wrapper);
+
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
+size_t PreloadDecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

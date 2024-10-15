@@ -49,6 +49,10 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_to_json.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_decode_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_decode_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.h
@@ -198,6 +202,12 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_replayer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_replayer_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_decoder_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_decoder_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_file_processor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_preload_file_processor.cpp
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.h>
@@ -227,6 +237,12 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_packet.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decoder.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decoder.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_preload_replayer.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_preload_replayer.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_preload_decode_pnext_struct.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
