@@ -3208,6 +3208,8 @@ void VulkanCppConsumerBase::ProcessResizeWindowCommand2(format::HandleId surface
 }
 
 void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
+    format::HandleId                                    device_id,
+    format::HandleId                                    queue_id,
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,
     uint32_t                                            format,

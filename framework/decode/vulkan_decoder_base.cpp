@@ -126,6 +126,8 @@ void VulkanDecoderBase::DispatchResizeWindowCommand2(
 
 void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
     format::ThreadId                                    thread_id,
+    format::HandleId                                    device_id,
+    format::HandleId                                    queue_id,
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,
     uint32_t                                            format,
@@ -141,7 +143,7 @@ void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
     for (auto consumer : consumers_)
     {
         consumer->ProcessCreateHardwareBufferCommand(
-            memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
+            device_id, queue_id, memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
     }
 }
 

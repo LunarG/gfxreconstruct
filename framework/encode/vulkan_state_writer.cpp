@@ -1356,6 +1356,7 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     {
         const vulkan_wrappers::DeviceMemoryWrapper* wrapper = hardware_buffer.second;
         CommonProcessHardwareBuffer(thread_id_,
+                                    wrapper->parent_device,
                                     wrapper->hardware_buffer_memory_id,
                                     wrapper->hardware_buffer,
                                     wrapper->allocation_size,
