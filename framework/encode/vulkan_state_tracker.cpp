@@ -1627,12 +1627,12 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
 void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 {
     assert(wrapper != nullptr);
-//    auto memory_wrapper = state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
-//    if (memory_wrapper)
-//    {
-//        memory_wrapper->bound_buffers.erase(wrapper);
-//    }
-//
+    //    auto memory_wrapper = state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+    //    if (memory_wrapper)
+    //    {
+    //        memory_wrapper->bound_buffers.erase(wrapper);
+    //    }
+    //
     device_address_tracker_.RemoveBuffer(wrapper);
 
     state_table_.VisitWrappers([&wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
@@ -1648,17 +1648,17 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                 if (wrapper->handle_id == buffer.handle_id)
                 {
                     buffer.destroyed              = true;
-//                    auto [resource_util, created] = resource_utils.try_emplace(
-//                        buffer.bind_device->handle_id,
-//                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
-//                                                      buffer.bind_device->physical_device->handle,
-//                                                      buffer.bind_device->layer_table,
-//                                                      *buffer.bind_device->physical_device->layer_table_ref,
-//                                                      buffer.bind_device->physical_device->memory_properties));
-//                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
-//                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
-//                    resource_util->second.ReadFromBufferResource(
-//                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                    auto [resource_util, created] = resource_utils_.try_emplace(
+                        buffer.bind_device->handle,
+                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
+                                                      buffer.bind_device->physical_device->handle,
+                                                      buffer.bind_device->layer_table,
+                                                      *buffer.bind_device->physical_device->layer_table_ref,
+                                                      buffer.bind_device->physical_device->memory_properties));
+                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
+                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
+                    resource_util->second.ReadFromBufferResource(
+                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
                 }
             }
         }
