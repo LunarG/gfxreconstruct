@@ -28,6 +28,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_table_base.h"
 #include "encode/vulkan_track_struct.h"
+#include "format/format.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
@@ -1873,6 +1874,12 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
     }
 
     wrapper->descriptor_sets_bound_to.clear();
+
+    for (vulkan_wrappers::ImageViewWrapper* view_wrapper : wrapper->image_views)
+    {
+        view_wrapper->image    = nullptr;
+        view_wrapper->image_id = format::kNullHandleId;
+    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper)
@@ -1884,7 +1891,10 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper
         entry->dirty = true;
     }
 
-    wrapper->descriptor_sets_bound_to.clear();
+    if (wrapper->image != nullptr)
+    {
+        wrapper->image->image_views.erase(wrapper);
+    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
@@ -1912,6 +1922,12 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
     }
 
     wrapper->descriptor_sets_bound_to.clear();
+
+    for (vulkan_wrappers::BufferViewWrapper* view_wrapper : wrapper->buffer_views)
+    {
+        view_wrapper->buffer    = nullptr;
+        view_wrapper->buffer_id = format::kNullHandleId;
+    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrapper)
@@ -1923,7 +1939,10 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrappe
         entry->dirty = true;
     }
 
-    wrapper->descriptor_sets_bound_to.clear();
+    if (wrapper->buffer != nullptr)
+    {
+        wrapper->buffer->buffer_views.erase(wrapper);
+    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
@@ -2125,6 +2144,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                 break;
         }
     }
+
+    wrapper->bindings.clear();
 }
 
 void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               command_buffer_count,

@@ -738,6 +738,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
     wrapper->buffer    = buffer;
     wrapper->buffer_id = buffer->handle_id;
+
+    buffer->buffer_views.insert(wrapper);
 }
 
 template <>
@@ -760,6 +762,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageViewWrapper, VkImage
     auto image        = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(create_info->image);
     wrapper->image_id = image->handle_id;
     wrapper->image    = image;
+
+    image->image_views.insert(wrapper);
 }
 
 template <>

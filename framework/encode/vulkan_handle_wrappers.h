@@ -201,14 +201,18 @@ struct AssetWrapperBase
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
+struct BufferViewWrapper;
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
     VkDeviceAddress  opaque_address{ 0 };
+
+    std::set<BufferViewWrapper*> buffer_views;
 };
 
+struct ImageViewWrapper;
 struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
     VkImageType              image_type{ VK_IMAGE_TYPE_2D };
@@ -221,6 +225,8 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
+
+    std::set<ImageViewWrapper*> image_views;
 };
 
 struct SamplerWrapper : public HandleWrapper<VkSampler>
