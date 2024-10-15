@@ -115,6 +115,11 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
+    // If queue family properties were already retrieved with a count larger than the current property_count, we must
+    // not discard those additional properties
+    if (property_count < wrapper->queue_family_properties_count)
+        return;
+
     wrapper->queue_family_properties_call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties         = std::make_unique<VkQueueFamilyProperties[]>(property_count);
@@ -129,6 +134,11 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
+    // If queue family properties were already retrieved with a count larger than the current property_count, we must
+    // not discard those additional properties
+    if (property_count < wrapper->queue_family_properties_count)
+        return;
+
     wrapper->queue_family_properties_call_id = call_id;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties2        = std::make_unique<VkQueueFamilyProperties2[]>(property_count);
