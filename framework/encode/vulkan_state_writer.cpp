@@ -1509,24 +1509,22 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
 {
     for (ASInputBuffer& buffer : command.input_buffers)
     {
-        if (!buffer.destroyed)
+        if (buffer.destroyed)
         {
-            continue;
+            WriteASInputBufferState(buffer);
+            WriteASInputMemoryState(buffer);
+            InitializeASInputBuffer(buffer);
         }
-        WriteASInputBufferState(buffer);
-        WriteASInputMemoryState(buffer);
-        InitializeASInputBuffer(buffer);
     }
 
     UpdateAddresses(command);
     EncodeAccelerationStructureBuildMetaCommand(device, command);
     for (ASInputBuffer& buffer : command.input_buffers)
     {
-        if (!buffer.destroyed)
+        if (buffer.destroyed)
         {
-            continue;
+            WriteDestroyASInputBuffer(buffer);
         }
-        WriteDestroyASInputBuffer(buffer);
     }
 }
 
