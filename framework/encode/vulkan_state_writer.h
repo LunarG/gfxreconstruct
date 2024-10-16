@@ -382,7 +382,7 @@ class VulkanStateWriter
     WriteGetAccelerationStructureDeviceAddressKHRCall(const VulkanStateTable& state_table,
                                                       const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
-    void UpdateAddresses(AccelerationStructureBuildCommandData& command);
+    static void UpdateAddresses(AccelerationStructureBuildCommandData& command);
 
     using ASInputBuffer = vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer;
     void BeginAccelerationStructuresSection(format::HandleId device_id, uint64_t max_resource_size);

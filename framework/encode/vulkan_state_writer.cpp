@@ -1537,51 +1537,49 @@ void VulkanStateWriter::UpdateAddresses(AccelerationStructureBuildCommandData& c
         return;
     }
 
-    std::vector<VkDeviceAddress*> addresses_to_replace;
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress*> addresses_to_replace;
+    auto insert_address = [&addresses_to_replace](const VkDeviceAddress& address) {
+        addresses_to_replace[address] = const_cast<VkDeviceAddress*>(&address);
+    };
+
     for (uint32_t g = 0; g < command.geometry_info.geometryCount; ++g)
     {
-        switch (command.geometry_info.pGeometries[g].geometryType)
+        auto geometry = command.geometry_info.pGeometries != nullptr ? command.geometry_info.pGeometries + g
+                                                                     : command.geometry_info.ppGeometries[g];
+
+        switch (geometry->geometryType)
         {
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_TRIANGLES_KHR:
             {
-                addresses_to_replace = {
-                    const_cast<VkDeviceAddress*>(
-                        &command.geometry_info.pGeometries[g].geometry.triangles.vertexData.deviceAddress),
-                    const_cast<VkDeviceAddress*>(
-                        &command.geometry_info.pGeometries[g].geometry.triangles.indexData.deviceAddress),
-                    const_cast<VkDeviceAddress*>(
-                        &command.geometry_info.pGeometries[g].geometry.triangles.transformData.deviceAddress)
-                };
+                insert_address(geometry->geometry.triangles.vertexData.deviceAddress);
+                insert_address(geometry->geometry.triangles.indexData.deviceAddress);
+                insert_address(geometry->geometry.triangles.transformData.deviceAddress);
                 break;
             }
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_AABBS_KHR:
             {
-                addresses_to_replace = { const_cast<VkDeviceAddress*>(
-                    &command.geometry_info.pGeometries[g].geometry.aabbs.data.deviceAddress) };
+                insert_address(geometry->geometry.aabbs.data.deviceAddress);
                 break;
             }
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_INSTANCES_KHR:
             {
-                addresses_to_replace = { const_cast<VkDeviceAddress*>(
-                    &command.geometry_info.pGeometries[g].geometry.instances.data.deviceAddress) };
+                insert_address(geometry->geometry.instances.data.deviceAddress);
                 break;
             }
             case VK_GEOMETRY_TYPE_MAX_ENUM_KHR:
                 break;
         }
     }
-    // O(geometryCount * 3) at worst, improve?
-    for (VkDeviceAddress* address : addresses_to_replace)
+
+    for (const ASInputBuffer& buffer : command.input_buffers)
     {
-        for (const ASInputBuffer& buffer : command.input_buffers)
+        if (buffer.destroyed)
         {
-            if (!buffer.destroyed)
+            auto it = addresses_to_replace.find(buffer.capture_address);
+            if (it != addresses_to_replace.end())
             {
-                continue;
-            }
-            if (buffer.capture_address == *address)
-            {
-                *address = buffer.actual_address;
+                VkDeviceAddress* address = it->second;
+                *address                 = buffer.actual_address;
             }
         }
     }

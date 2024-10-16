@@ -397,28 +397,29 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
 
         vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData dst_command{};
         // Extract command information for 1 AccelerationStructure
-        for (uint32_t geometry = 0; geometry < p_infos[info].geometryCount; ++geometry)
+        for (uint32_t g = 0; g < p_infos[info].geometryCount; ++g)
         {
-            // TODO: pGeometries vs ppGeometries -> handle both cases
+            auto geometry =
+                p_infos[info].pGeometries != nullptr ? p_infos[info].pGeometries + g : p_infos[info].ppGeometries[g];
 
             std::vector<VkDeviceAddress> to_extract;
-            switch (p_infos[info].pGeometries[geometry].geometryType)
+            switch (geometry->geometryType)
             {
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_TRIANGLES_KHR:
                 {
-                    to_extract = { p_infos[info].pGeometries[geometry].geometry.triangles.vertexData.deviceAddress,
-                                   p_infos[info].pGeometries[geometry].geometry.triangles.indexData.deviceAddress,
-                                   p_infos[info].pGeometries[geometry].geometry.triangles.transformData.deviceAddress };
+                    to_extract = { geometry->geometry.triangles.vertexData.deviceAddress,
+                                   geometry->geometry.triangles.indexData.deviceAddress,
+                                   geometry->geometry.triangles.transformData.deviceAddress };
                     break;
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_AABBS_KHR:
                 {
-                    to_extract = { p_infos[info].pGeometries[geometry].geometry.aabbs.data.deviceAddress };
+                    to_extract = { geometry->geometry.aabbs.data.deviceAddress };
                     break;
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
-                    to_extract = { p_infos[info].pGeometries[geometry].geometry.instances.data.deviceAddress };
+                    to_extract = { geometry->geometry.instances.data.deviceAddress };
                     break;
                 }
                 case VK_GEOMETRY_TYPE_MAX_ENUM_KHR:
@@ -486,7 +487,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     address, primitive_count, pp_buildRange_infos[info]->primitiveOffset
                 };
 
-                cmd_buf_wrapper->tlas_build_info_map.emplace_back(std::make_pair(wrapper, std::move(tlas_info)));
+                cmd_buf_wrapper->tlas_build_info_map.emplace_back(wrapper, tlas_info);
             }
         }
     }
