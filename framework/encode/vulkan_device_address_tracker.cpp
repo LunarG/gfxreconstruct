@@ -41,8 +41,8 @@ VulkanDeviceAddressTracker& VulkanDeviceAddressTracker::operator=(VulkanDeviceAd
 void swap(VulkanDeviceAddressTracker& lhs, VulkanDeviceAddressTracker& rhs) noexcept
 {
     std::lock(lhs.mutex_, rhs.mutex_);
-    std::lock_guard<std::shared_mutex> lock_lhs(lhs.mutex_, std::adopt_lock);
-    std::lock_guard<std::shared_mutex> lock_rhs(rhs.mutex_, std::adopt_lock);
+    std::lock_guard lock_lhs(lhs.mutex_, std::adopt_lock);
+    std::lock_guard lock_rhs(rhs.mutex_, std::adopt_lock);
     std::swap(lhs.buffer_addresses_, rhs.buffer_addresses_);
     std::swap(lhs.acceleration_structure_addresses_, rhs.acceleration_structure_addresses_);
 }
