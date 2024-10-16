@@ -181,16 +181,20 @@ void Application::Run()
 
 void Application::SetPaused(bool paused)
 {
-    paused_ = paused;
-
-    if (paused_ && (file_processor_ != nullptr))
+    if (file_processor_ != nullptr && paused_ != paused)
     {
         uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
-        if (current_frame > 0)
+        if (paused)
         {
-            GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
+            GFXRECON_LOG_INFO("Paused at frame %u", current_frame);
+        }
+        else
+        {
+            GFXRECON_LOG_INFO("Resumed from frame %u", current_frame);
         }
     }
+
+    paused_ = paused;
 }
 
 bool Application::PlaySingleFrame()
