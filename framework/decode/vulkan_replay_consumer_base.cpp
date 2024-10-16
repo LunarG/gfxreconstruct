@@ -1987,7 +1987,7 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
     }
 }
 
-void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info)
+bool VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info)
 {
     assert(allocate_info != nullptr);
 
@@ -2001,18 +2001,23 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Deco
         if (entry != hardware_buffers_.end())
         {
             import_ahb_info->decoded_value->buffer = entry->second.hardware_buffer;
+            return true;
         }
         else
         {
             GFXRECON_LOG_WARNING("Failed to find a valid AHardwareBuffer handle for the "
                                  "VkImportAndroidHardwareBufferInfoANDROID "
-                                 "extension structure provided to vkAllocateMemory")
+                                 "extension structure provided to vkAllocateMemory");
+
+            return false;
         }
 #else
         GFXRECON_LOG_WARNING("vkAllocateMemory called with the VkImportAndroidHardwareBufferInfoANDROID "
                              "extension structure, which is not supported by this platform")
 #endif
     }
+
+    return true;
 }
 
 void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info)
@@ -4139,14 +4144,31 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
 
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        ProcessImportAndroidHardwareBufferInfo(pAllocateInfo->GetMetaStructPointer());
-#endif
-
         VulkanResourceAllocator::MemoryData allocator_data;
         auto                                replay_allocate_info = pAllocateInfo->GetPointer();
         auto                                replay_memory        = pMemory->GetHandlePointer();
         auto                                capture_id           = (*pMemory->GetPointer());
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (!ProcessImportAndroidHardwareBufferInfo(pAllocateInfo->GetMetaStructPointer()))
+        {
+            // Need to remove VkImportAndroidHardwareBufferInfoANDROID from the pNext chain
+            VkBaseOutStructure* previous_struct =
+                const_cast<VkBaseOutStructure*>(reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info));
+            VkBaseOutStructure* current_struct =
+                reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+            while (current_struct != nullptr)
+            {
+                if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
+                {
+                    previous_struct->pNext = current_struct->pNext;
+                    break;
+                }
+                previous_struct = current_struct;
+                current_struct  = current_struct->pNext;
+            }
+        }
+#endif
 
         // Check if this allocation was captured with an opaque address
         bool                uses_address           = false;
