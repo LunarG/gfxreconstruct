@@ -1329,6 +1329,9 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     }
     else
     {
+        // Write CreateHardwareBufferCmd without the AHB payload
+        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
         // The AHB is not CPU-readable
         // Dump zeros for AHB payload.
         std::vector<uint8_t> zeros(allocation_size, 0);
