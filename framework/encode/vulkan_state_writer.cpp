@@ -1242,21 +1242,27 @@ void VulkanStateWriter::WriteASInputMemoryState(ASInputBuffer& buffer)
         device_wrapper->handle, &allocate_info, alloc_callbacks, &buffer.bind_memory_handle);
     device_wrapper->layer_table.BindBufferMemory(device_wrapper->handle, buffer.handle, buffer.bind_memory_handle, 0);
 
-    VkBufferDeviceAddressInfoKHR pInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR, nullptr, buffer.handle };
-    buffer.actual_address = device_wrapper->layer_table.GetBufferDeviceAddressKHR(device_wrapper->handle, &pInfo);
-
-    VkDeviceMemoryOpaqueCaptureAddressInfo info{ VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
-                                                 nullptr,
-                                                 buffer.bind_memory_handle };
+    VkBufferDeviceAddressInfoKHR           buffer_address_info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
+                                                      nullptr,
+                                                      buffer.handle };
+    VkDeviceMemoryOpaqueCaptureAddressInfo memory_opaque_address_info{
+        VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO, nullptr, buffer.bind_memory_handle
+    };
 
     uint64_t address = 0;
     if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
     {
-        address = device_wrapper->layer_table.GetDeviceMemoryOpaqueCaptureAddress(device_wrapper->handle, &info);
+        buffer.actual_address =
+            device_wrapper->layer_table.GetBufferDeviceAddress(device_wrapper->handle, &buffer_address_info);
+        address = device_wrapper->layer_table.GetDeviceMemoryOpaqueCaptureAddress(device_wrapper->handle,
+                                                                                  &memory_opaque_address_info);
     }
     else
     {
-        address = device_wrapper->layer_table.GetDeviceMemoryOpaqueCaptureAddressKHR(device_wrapper->handle, &info);
+        buffer.actual_address =
+            device_wrapper->layer_table.GetBufferDeviceAddressKHR(device_wrapper->handle, &buffer_address_info);
+        address = device_wrapper->layer_table.GetDeviceMemoryOpaqueCaptureAddressKHR(device_wrapper->handle,
+                                                                                     &memory_opaque_address_info);
     }
 
     WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer.bind_memory, address);
@@ -1280,12 +1286,11 @@ void VulkanStateWriter::WriteASInputMemoryState(ASInputBuffer& buffer)
 
     // Manual encoding because tmp objects are not in the state table
     encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-    encoder_.EncodeStructPtrPreamble(&pInfo);
-    encoder_.EncodeEnumValue(pInfo.sType);
-    EncodePNextStruct(&encoder_, pInfo.pNext);
+    encoder_.EncodeStructPtrPreamble(&buffer_address_info);
+    encoder_.EncodeEnumValue(buffer_address_info.sType);
+    EncodePNextStruct(&encoder_, buffer_address_info.pNext);
     encoder_.EncodeHandleIdValue(buffer.handle_id);
     encoder_.EncodeVkDeviceAddressValue(buffer.actual_address);
-
     auto call_id = device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0)
                        ? format::ApiCall_vkGetBufferDeviceAddress
                        : format::ApiCall_vkGetBufferDeviceAddressKHR;
