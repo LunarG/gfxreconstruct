@@ -52,9 +52,7 @@ class VulkanDeviceAddressTracker
     /**
      * @brief   Track an existing buffer by its VkDeviceAddress.
      *
-     * @param   buffer  a provided buffer-handle
-     * @param   address a device-address
-     * @param   size    buffer-size in bytes
+     * @param   wrapper     provided buffer-wrapper.
      */
     void TrackBuffer(const vulkan_wrappers::BufferWrapper* wrapper);
 

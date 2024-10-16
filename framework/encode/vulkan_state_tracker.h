@@ -391,10 +391,6 @@ class VulkanStateTracker
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
 
-    //    void TrackTLASBuildCommand(VkCommandBuffer                                        command_buffer,
-    //                               uint32_t                                               info_count,
-    //                               const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
-    //                               const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
     void
          TrackAccelerationStructureBuildCommand(VkCommandBuffer                                        command_buffer,
                                                 uint32_t                                               info_count,

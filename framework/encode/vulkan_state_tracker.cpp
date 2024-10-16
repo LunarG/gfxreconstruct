@@ -1628,13 +1628,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
 
 void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 {
-    assert(wrapper != nullptr);
-    //    auto memory_wrapper = state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
-    //    if (memory_wrapper)
-    //    {
-    //        memory_wrapper->bound_buffers.erase(wrapper);
-    //    }
-    //
+    GFXRECON_ASSERT(wrapper != nullptr);
     device_address_tracker_.RemoveBuffer(wrapper);
 
     state_table_.VisitWrappers([&wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
