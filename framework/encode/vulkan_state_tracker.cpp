@@ -384,23 +384,24 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     }
 
     auto cmd_buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
-    for (uint32_t info = 0; info < info_count; ++info)
+    for (uint32_t i = 0; i < info_count; ++i)
     {
-        if (p_infos[info].dstAccelerationStructure == VK_NULL_HANDLE || p_infos[info].geometryCount == 0 ||
-            (p_infos[info].pGeometries == nullptr && p_infos[info].ppGeometries == nullptr))
+        const VkAccelerationStructureBuildGeometryInfoKHR& build_info = p_infos[i];
+
+        if (build_info.dstAccelerationStructure == VK_NULL_HANDLE || build_info.geometryCount == 0 ||
+            (build_info.pGeometries == nullptr && build_info.ppGeometries == nullptr))
         {
             continue;
         }
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-            p_infos[info].dstAccelerationStructure);
+            build_info.dstAccelerationStructure);
 
         vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData dst_command{};
         // Extract command information for 1 AccelerationStructure
-        for (uint32_t g = 0; g < p_infos[info].geometryCount; ++g)
+        for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            auto geometry =
-                p_infos[info].pGeometries != nullptr ? p_infos[info].pGeometries + g : p_infos[info].ppGeometries[g];
+            auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
 
             std::vector<VkDeviceAddress> to_extract;
             switch (geometry->geometryType)
@@ -450,41 +451,41 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                 buffer.usage              = target_buffer_wrapper->usage;
             }
 
-            dst_command.geometry_info                     = p_infos[info];
+            dst_command.geometry_info                     = build_info;
             VkAccelerationStructureGeometryKHR* unwrapped = gfxrecon::encode::vulkan_trackers::TrackStructs(
-                p_infos[info].pGeometries, p_infos[info].geometryCount, dst_command.geometry_info_memory);
+                build_info.pGeometries, build_info.geometryCount, dst_command.geometry_info_memory);
             dst_command.geometry_info.pGeometries = unwrapped;
 
             dst_command.build_range_infos.insert(dst_command.build_range_infos.end(),
-                                                 pp_buildRange_infos[info],
-                                                 pp_buildRange_infos[info] + p_infos[info].geometryCount);
+                                                 pp_buildRange_infos[i],
+                                                 pp_buildRange_infos[i] + build_info.geometryCount);
         }
 
-        if (p_infos[info].mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
+        if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
         {
             wrapper->latest_build_command_ = std::move(dst_command);
         }
-        else if (p_infos[info].mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
+        else if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
         {
             wrapper->latest_update_command_ = std::move(dst_command);
         }
 
         wrapper->blas.clear();
 
-        for (uint32_t g = 0; g < p_infos[info].geometryCount; ++g)
+        for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            if (p_infos[info].pGeometries[g].geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
+            if (build_info.pGeometries[g].geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
             {
                 continue;
             }
-            const VkDeviceAddress address         = p_infos[info].pGeometries[g].geometry.instances.data.deviceAddress;
-            const uint32_t        primitive_count = pp_buildRange_infos[info]->primitiveCount;
+            const VkDeviceAddress address         = build_info.pGeometries[g].geometry.instances.data.deviceAddress;
+            const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
             // According to spec both address and primitiveCount can be 0.
             // Nothing to handle in these cases.
             if (address && primitive_count)
             {
                 const vulkan_wrappers::CommandBufferWrapper::tlas_build_info tlas_info = {
-                    address, primitive_count, pp_buildRange_infos[info]->primitiveOffset
+                    address, primitive_count, pp_buildRange_infos[i]->primitiveOffset
                 };
 
                 cmd_buf_wrapper->tlas_build_info_map.emplace_back(wrapper, tlas_info);
