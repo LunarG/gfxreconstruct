@@ -91,7 +91,9 @@ bool IsSupportedExtension(const std::vector<XrExtensionProperties>& properties, 
 {
     assert(extension != nullptr);
 
-    auto pred = [extension](const XrExtensionProperties& property) { return strcmp(property.extensionName, extension) == 0; };
+    auto pred = [extension](const XrExtensionProperties& property) {
+        return strcmp(property.extensionName, extension) == 0;
+    };
     return std::any_of(properties.begin(), properties.end(), pred);
 }
 
