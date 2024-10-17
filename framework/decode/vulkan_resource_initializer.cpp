@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanResourceInitializer::VulkanResourceInitializer(const DeviceInfo*                       device_info,
+VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                                                      VkDeviceSize                            max_copy_size,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,

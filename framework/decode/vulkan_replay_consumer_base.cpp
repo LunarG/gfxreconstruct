@@ -223,7 +223,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     WaitDevicesIdle();
 
     // Cleanup screenshot resources before destroying device.
-    object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
+    object_info_table_.VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
 
@@ -262,7 +262,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
 void VulkanReplayConsumerBase::WaitDevicesIdle()
 {
-    object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
+    object_info_table_.VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
 
@@ -305,7 +305,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
-    const DeviceMemoryInfo* memory_info = object_info_table_.GetDeviceMemoryInfo(memory_id);
+    const VulkanDeviceMemoryInfo* memory_info = object_info_table_.GetVkDeviceMemoryInfo(memory_id);
 
     if (memory_info != nullptr)
     {
@@ -400,7 +400,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     // We need to find the surface associated with this ID, and then lookup its window.
-    const SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
+    const VulkanSurfaceKHRInfo* surface_info = object_info_table_.GetVkSurfaceKHRInfo(surface_id);
 
     if (surface_info != nullptr)
     {
@@ -438,7 +438,7 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand2(format::HandleId surf
                                                            uint32_t         pre_transform)
 {
     // We need to find the surface associated with this ID, and then lookup its window.
-    const SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
+    const VulkanSurfaceKHRInfo* surface_info = object_info_table_.GetVkSurfaceKHRInfo(surface_id);
 
     if (surface_info != nullptr)
     {
@@ -636,7 +636,7 @@ void VulkanReplayConsumerBase::ProcessSetDevicePropertiesCommand(format::HandleI
                                                                  const uint8_t pipeline_cache_uuid[format::kUuidSize],
                                                                  const std::string& device_name)
 {
-    PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(physical_device_id);
+    VulkanPhysicalDeviceInfo* physical_device_info = object_info_table_.GetVkPhysicalDeviceInfo(physical_device_id);
 
     if (physical_device_info != nullptr)
     {
@@ -659,7 +659,7 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     const std::vector<format::DeviceMemoryType>& memory_types,
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
-    PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(physical_device_id);
+    VulkanPhysicalDeviceInfo* physical_device_info = object_info_table_.GetVkPhysicalDeviceInfo(physical_device_id);
 
     if (physical_device_info != nullptr)
     {
@@ -686,7 +686,7 @@ void VulkanReplayConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId d
                                                               format::HandleId object_id,
                                                               uint64_t         address)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(device_id);
 
     if (device_info != nullptr)
     {
@@ -700,7 +700,7 @@ void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(for
                                                                              size_t           data_size,
                                                                              const uint8_t*   data)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(device_id);
     if (device_info != nullptr)
     {
         // There should only be one dataset per pipeline.
@@ -717,8 +717,8 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
-    const DeviceInfo* device_info    = object_info_table_.GetDeviceInfo(device_id);
-    SwapchainKHRInfo* swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_id);
+    const VulkanDeviceInfo* device_info    = object_info_table_.GetVkDeviceInfo(device_id);
+    VulkanSwapchainKHRInfo* swapchain_info = object_info_table_.GetVkSwapchainKHRInfo(swapchain_id);
 
     if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
@@ -758,7 +758,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 {
     GFXRECON_UNREFERENCED_PARAMETER(max_resource_size);
 
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(device_id);
 
     if (device_info != nullptr)
     {
@@ -801,7 +801,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 
 void VulkanReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(device_id);
 
     if ((device_info != nullptr) && (device_info->resource_initializer != nullptr))
     {
@@ -814,8 +814,8 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
                                                         uint64_t         data_size,
                                                         const uint8_t*   data)
 {
-    DeviceInfo*       device_info = object_info_table_.GetDeviceInfo(device_id);
-    const BufferInfo* buffer_info = object_info_table_.GetBufferInfo(buffer_id);
+    VulkanDeviceInfo*       device_info = object_info_table_.GetVkDeviceInfo(device_id);
+    const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(buffer_id);
 
     if ((device_info != nullptr) && (buffer_info != nullptr))
     {
@@ -891,8 +891,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                                                        const std::vector<uint64_t>& level_sizes,
                                                        const uint8_t*               data)
 {
-    DeviceInfo*      device_info = object_info_table_.GetDeviceInfo(device_id);
-    const ImageInfo* image_info  = object_info_table_.GetImageInfo(image_id);
+    VulkanDeviceInfo*      device_info = object_info_table_.GetVkDeviceInfo(device_id);
+    const VulkanImageInfo* image_info  = object_info_table_.GetVkImageInfo(image_id);
 
     if ((device_info != nullptr) && (image_info != nullptr))
     {
@@ -1198,7 +1198,7 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
     }
 }
 
-void VulkanReplayConsumerBase::SetInstancePhysicalDeviceEntries(InstanceInfo*           instance_info,
+void VulkanReplayConsumerBase::SetInstancePhysicalDeviceEntries(VulkanInstanceInfo*     instance_info,
                                                                 size_t                  capture_device_count,
                                                                 const format::HandleId* capture_devices,
                                                                 size_t                  replay_device_count,
@@ -1233,7 +1233,7 @@ void VulkanReplayConsumerBase::SetInstancePhysicalDeviceEntries(InstanceInfo*   
     }
 }
 
-void VulkanReplayConsumerBase::CheckReplayDeviceInfo(PhysicalDeviceInfo* physical_device_info)
+void VulkanReplayConsumerBase::CheckReplayDeviceInfo(VulkanPhysicalDeviceInfo* physical_device_info)
 {
     assert(physical_device_info != nullptr);
 
@@ -1242,7 +1242,7 @@ void VulkanReplayConsumerBase::CheckReplayDeviceInfo(PhysicalDeviceInfo* physica
         // A physical device handle was obtained without calling vkEnumeratePhysicalDevices or
         // vkEnumeratePhysicalDeviceGroups, so the physical device initialization that would have been performed when
         // replaying those calls will be performed here.
-        auto instance_info = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+        auto instance_info = object_info_table_.GetVkInstanceInfo(physical_device_info->parent_id);
         if (instance_info != nullptr)
         {
             assert(physical_device_info->handle != VK_NULL_HANDLE);
@@ -1258,9 +1258,9 @@ void VulkanReplayConsumerBase::CheckReplayDeviceInfo(PhysicalDeviceInfo* physica
     }
 }
 
-void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(InstanceInfo*       instance_info,
-                                                             PhysicalDeviceInfo* physical_device_info,
-                                                             VkPhysicalDevice    replay_device)
+void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(VulkanInstanceInfo*       instance_info,
+                                                             VulkanPhysicalDeviceInfo* physical_device_info,
+                                                             VkPhysicalDevice          replay_device)
 {
     assert((instance_info != nullptr) && (physical_device_info != nullptr));
 
@@ -1270,7 +1270,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(InstanceInfo*      
     physical_device_info->replay_device_info        = &instance_info->replay_device_info[replay_device];
 }
 
-void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
+void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceInfo*         physical_device_info,
                                                            const VkPhysicalDeviceProperties* capture_properties,
                                                            const VkPhysicalDeviceProperties* replay_properties)
 {
@@ -1293,7 +1293,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*  
     replay_device_info->properties = *replay_properties;
 }
 
-void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*                physical_device_info,
+void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceInfo*          physical_device_info,
                                                            const VkPhysicalDeviceProperties2* capture_properties,
                                                            const VkPhysicalDeviceProperties2* replay_properties)
 {
@@ -1316,7 +1316,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*  
 }
 
 void VulkanReplayConsumerBase::SetPhysicalDeviceMemoryProperties(
-    PhysicalDeviceInfo*                     physical_device_info,
+    VulkanPhysicalDeviceInfo*               physical_device_info,
     const VkPhysicalDeviceMemoryProperties* capture_properties,
     const VkPhysicalDeviceMemoryProperties* replay_properties)
 {
@@ -1333,11 +1333,11 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceMemoryProperties(
     replay_device_info->memory_properties = *replay_properties;
 }
 
-void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info)
+void VulkanReplayConsumerBase::SelectPhysicalDevice(VulkanPhysicalDeviceInfo* physical_device_info)
 {
     assert((physical_device_info != nullptr) && (physical_device_info->parent_id != format::kNullHandleId));
 
-    InstanceInfo* instance_info = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+    VulkanInstanceInfo* instance_info = object_info_table_.GetVkInstanceInfo(physical_device_info->parent_id);
 
     if (instance_info != nullptr)
     {
@@ -1366,13 +1366,13 @@ void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical
     }
 }
 
-void VulkanReplayConsumerBase::SelectPhysicalDeviceGroup(PhysicalDeviceInfo*                  physical_device_info,
+void VulkanReplayConsumerBase::SelectPhysicalDeviceGroup(VulkanPhysicalDeviceInfo*            physical_device_info,
                                                          const std::vector<format::HandleId>& capture_device_group,
                                                          std::vector<VkPhysicalDevice>&       replay_device_group)
 {
     assert((physical_device_info != nullptr) && (physical_device_info->parent_id != format::kNullHandleId));
 
-    InstanceInfo* instance_info = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+    VulkanInstanceInfo* instance_info = object_info_table_.GetVkInstanceInfo(physical_device_info->parent_id);
 
     if (instance_info != nullptr)
     {
@@ -1401,7 +1401,8 @@ void VulkanReplayConsumerBase::SelectPhysicalDeviceGroup(PhysicalDeviceInfo*    
     }
 }
 
-bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info)
+bool VulkanReplayConsumerBase::GetOverrideDevice(VulkanInstanceInfo*       instance_info,
+                                                 VulkanPhysicalDeviceInfo* physical_device_info)
 {
     const auto& replay_devices      = instance_info->replay_devices;
     int32_t     replay_devices_size = static_cast<int32_t>(replay_devices.size());
@@ -1463,8 +1464,8 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, Ph
     return true;
 }
 
-bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*                  instance_info,
-                                                      PhysicalDeviceInfo*            physical_device_info,
+bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(VulkanInstanceInfo*            instance_info,
+                                                      VulkanPhysicalDeviceInfo*      physical_device_info,
                                                       std::vector<VkPhysicalDevice>& replay_device_group)
 {
     VkInstance instance               = instance_info->handle;
@@ -1559,7 +1560,8 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*             
     return true;
 }
 
-void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info)
+void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       instance_info,
+                                                 VulkanPhysicalDeviceInfo* physical_device_info)
 {
     // Dispatch table for retrieving physical device properties, if necessary.
     auto table = GetInstanceTable(physical_device_info->handle);
@@ -1614,14 +1616,14 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
     }
 }
 
-void VulkanReplayConsumerBase::GetMatchingDeviceGroup(InstanceInfo*                        instance_info,
-                                                      PhysicalDeviceInfo*                  physical_device_info,
+void VulkanReplayConsumerBase::GetMatchingDeviceGroup(VulkanInstanceInfo*                  instance_info,
+                                                      VulkanPhysicalDeviceInfo*            physical_device_info,
                                                       const std::vector<format::HandleId>& capture_device_group,
                                                       std::vector<VkPhysicalDevice>&       replay_device_group)
 {
     for (auto handle_id : capture_device_group)
     {
-        auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(handle_id);
+        auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(handle_id);
         GetMatchingDevice(instance_info, physical_device_info);
         replay_device_group.emplace_back(physical_device_info->handle);
     }
@@ -1687,7 +1689,7 @@ void VulkanReplayConsumerBase::GetMatchingDeviceGroup(InstanceInfo*             
     }
 }
 
-void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceInfo* physical_device_info)
+void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(VulkanPhysicalDeviceInfo* physical_device_info)
 {
     CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
@@ -1714,7 +1716,7 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceIn
 }
 
 void VulkanReplayConsumerBase::CheckPhysicalDeviceGroupCompatibility(
-    InstanceInfo*                        instance_info,
+    VulkanInstanceInfo*                  instance_info,
     const std::vector<format::HandleId>& capture_device_group,
     const std::vector<VkPhysicalDevice>& replay_device_group)
 {
@@ -1730,7 +1732,7 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceGroupCompatibility(
     {
         for (size_t i = 0; i < capture_size; ++i)
         {
-            auto capture_info = GetObjectInfoTable().GetPhysicalDeviceInfo(capture_device_group[i]);
+            auto capture_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(capture_device_group[i]);
             if (i < replay_size)
             {
                 auto*       replay_device_info = &instance_info->replay_device_info[replay_device_group[i]];
@@ -1755,7 +1757,7 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceGroupCompatibility(
 
         for (size_t i = 0; i < capture_size; ++i)
         {
-            auto capture_info = GetObjectInfoTable().GetPhysicalDeviceInfo(capture_device_group[i]);
+            auto capture_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(capture_device_group[i]);
 
             std::ostringstream string_stream;
             string_stream << "[vendorID = " << capture_info->capture_vendor_id
@@ -1818,7 +1820,7 @@ bool VulkanReplayConsumerBase::CheckTrimDeviceExtensions(VkPhysicalDevice       
     return have_extensions;
 }
 
-void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceInfo*       physical_device_info,
+void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalDeviceInfo* physical_device_info,
                                                            VkDevice                        device,
                                                            const std::vector<std::string>& enabled_device_extensions,
                                                            VulkanResourceAllocator*        allocator)
@@ -1958,7 +1960,7 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
         HMONITOR   hmonitor     = nullptr;
-        const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
+        const auto surface_info = object_info_table_.GetVkSurfaceKHRInfo(swapchain_info->surface);
 
         if ((surface_info != nullptr) && (surface_info->window != nullptr))
         {
@@ -2022,7 +2024,7 @@ void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainC
     const auto create_info = swapchain_info->decoded_value;
     if (create_info != nullptr)
     {
-        const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
+        const auto surface_info = object_info_table_.GetVkSurfaceKHRInfo(swapchain_info->surface);
         if (surface_info && (surface_info->window != nullptr))
         {
             uint32_t pre_transform = 0;
@@ -2099,7 +2101,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
 
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
-            auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            auto swapchain_info = object_info_table_.GetVkSwapchainKHRInfo(swapchain_ids[i]);
             if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr) &&
                 (swapchain_info->images.size() > 0))
             {
@@ -2152,14 +2154,15 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
     }
 }
 
-bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info)
+bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
+    const VulkanCommandBufferInfo* command_buffer_info)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     if (command_buffer_info->is_frame_boundary)
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
-            DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+            VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(command_buffer_info->parent_id);
 
             auto instance_table = GetInstanceTable(device_info->parent);
             GFXRECON_ASSERT(instance_table != nullptr);
@@ -2170,13 +2173,14 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
 
             for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
             {
-                auto framebuffer_info = object_info_table_.GetFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+                auto framebuffer_info =
+                    object_info_table_.GetVkFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
 
                 for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
                 {
                     auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
-                    auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
-                    auto image_info      = object_info_table_.GetImageInfo(image_view_info->image_id);
+                    auto image_view_info = object_info_table_.GetVkImageViewInfo(image_view_id);
+                    auto image_info      = object_info_table_.GetVkImageInfo(image_view_info->image_id);
 
                     // Only screenshot images that are color attachments.
                     if ((image_info->usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) !=
@@ -2233,7 +2237,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
     return false;
 }
 
-bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext)
+bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
+                                                               const PNextNode*        pnext)
 {
     const auto* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pnext);
     if (frame_boundary == nullptr ||
@@ -2256,7 +2261,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const DeviceInfo*
                 screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
 
             const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
-            const ImageInfo*       image_info = GetObjectInfoTable().GetImageInfo(handleId);
+            const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
 
             const uint32_t screenshot_width =
                 options_.screenshot_scale
@@ -2497,7 +2502,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (modified_create_info.pApplicationInfo != nullptr)
         {
-            auto instance_info = reinterpret_cast<InstanceInfo*>(pInstance->GetConsumerData(0));
+            auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
             assert(instance_info != nullptr);
 
             instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
@@ -2511,8 +2516,8 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 }
 
 VkResult
-VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_result,
-                                               PhysicalDeviceInfo* physical_device_info,
+VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  original_result,
+                                               VulkanPhysicalDeviceInfo* physical_device_info,
                                                const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
                                                const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                                HandlePointerDecoder<VkDevice>*                            pDevice)
@@ -2682,7 +2687,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
     AddDeviceTable(*replay_device, get_device_proc_addr);
 
-    auto device_info = reinterpret_cast<DeviceInfo*>(pDevice->GetConsumerData(0));
+    auto device_info = reinterpret_cast<VulkanDeviceInfo*>(pDevice->GetConsumerData(0));
     assert(device_info != nullptr);
 
     device_info->replay_device_group = std::move(replay_device_group);
@@ -2745,7 +2750,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
 void VulkanReplayConsumerBase::OverrideDestroyDevice(
     PFN_vkDestroyDevice                                        func,
-    const DeviceInfo*                                          device_info,
+    const VulkanDeviceInfo*                                    device_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     VkDevice device = VK_NULL_HANDLE;
@@ -2768,7 +2773,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 VkResult
 VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices          func,
                                                            VkResult                                original_result,
-                                                           InstanceInfo*                           instance_info,
+                                                           VulkanInstanceInfo*                     instance_info,
                                                            PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
                                                            HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices)
 {
@@ -2796,7 +2801,8 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 
         for (uint32_t i = 0; i < replay_device_count; ++i)
         {
-            auto physical_device_info = reinterpret_cast<PhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
+            auto physical_device_info =
+                reinterpret_cast<VulkanPhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
             assert(physical_device_info != nullptr);
 
             SetPhysicalDeviceInstanceInfo(instance_info, physical_device_info, replay_devices[i]);
@@ -2811,14 +2817,14 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 
             for (uint32_t i = replay_device_count; i < capture_device_count; ++i)
             {
-                PhysicalDeviceInfo overflow_info;
+                VulkanPhysicalDeviceInfo overflow_info;
 
                 overflow_info.handle     = overflow_device;
                 overflow_info.capture_id = capture_devices[i];
                 overflow_info.parent_id  = instance_info->capture_id;
                 SetPhysicalDeviceInstanceInfo(instance_info, &overflow_info, overflow_device);
 
-                object_info_table_.AddPhysicalDeviceInfo(std::move(overflow_info));
+                object_info_table_.AddVkPhysicalDeviceInfo(std::move(overflow_info));
             }
         }
     }
@@ -2829,7 +2835,7 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     PFN_vkEnumeratePhysicalDeviceGroups                            func,
     VkResult                                                       original_result,
-    InstanceInfo*                                                  instance_info,
+    VulkanInstanceInfo*                                            instance_info,
     PointerDecoder<uint32_t>*                                      pPhysicalDeviceGroupCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
@@ -2926,14 +2932,14 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
                 // There is currently no way to provide pre-initialized info data for a newly created handle that is a
                 // member of a struct, so we insert the handle here.  The generated code will also perform a handle
                 // insertion, which will be ignored.
-                PhysicalDeviceInfo physical_device_info;
+                VulkanPhysicalDeviceInfo physical_device_info;
 
                 physical_device_info.handle     = entry.second;
                 physical_device_info.capture_id = entry.first;
                 physical_device_info.parent_id  = instance_info->capture_id;
                 SetPhysicalDeviceInstanceInfo(instance_info, &physical_device_info, entry.second);
 
-                object_info_table_.AddPhysicalDeviceInfo(std::move(physical_device_info));
+                object_info_table_.AddVkPhysicalDeviceInfo(std::move(physical_device_info));
             }
         }
 
@@ -2954,14 +2960,14 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
 
             for (size_t i = replay_devices.size(); i < capture_devices.size(); ++i)
             {
-                PhysicalDeviceInfo overflow_info;
+                VulkanPhysicalDeviceInfo overflow_info;
 
                 overflow_info.handle     = overflow_device;
                 overflow_info.capture_id = capture_devices[i];
                 overflow_info.parent_id  = instance_info->capture_id;
                 SetPhysicalDeviceInstanceInfo(instance_info, &overflow_info, overflow_device);
 
-                object_info_table_.AddPhysicalDeviceInfo(std::move(overflow_info));
+                object_info_table_.AddVkPhysicalDeviceInfo(std::move(overflow_info));
             }
         }
     }
@@ -2970,7 +2976,7 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
 }
 
 void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue           func,
-                                                      DeviceInfo*                    device_info,
+                                                      VulkanDeviceInfo*              device_info,
                                                       uint32_t                       queueFamilyIndex,
                                                       uint32_t                       queueIndex,
                                                       HandlePointerDecoder<VkQueue>* pQueue)
@@ -2987,13 +2993,13 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
     // Add tracking for which VkQueue objects are associated with what queue family and index.
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
-    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    auto queue_info          = reinterpret_cast<VulkanQueueInfo*>(pQueue->GetConsumerData(0));
     queue_info->family_index = queueFamilyIndex;
     queue_info->queue_index  = queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2                             func,
-                                                       DeviceInfo*                                       device_info,
+                                                       VulkanDeviceInfo*                                 device_info,
                                                        StructPointerDecoder<Decoded_VkDeviceQueueInfo2>* pQueueInfo,
                                                        HandlePointerDecoder<VkQueue>*                    pQueue)
 {
@@ -3010,14 +3016,14 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
     // Add tracking for which VkQueue objects are associated with what queue family and index.
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
-    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    auto queue_info          = reinterpret_cast<VulkanQueueInfo*>(pQueue->GetConsumerData(0));
     queue_info->family_index = in_pQueueInfo->queueFamilyIndex;
     queue_info->queue_index  = in_pQueueInfo->queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
     PFN_vkGetPhysicalDeviceProperties                         func,
-    PhysicalDeviceInfo*                                       physical_device_info,
+    VulkanPhysicalDeviceInfo*                                 physical_device_info,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
     assert((physical_device_info != nullptr) && (pProperties != nullptr) && !pProperties->IsNull() &&
@@ -3034,7 +3040,7 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
     PFN_vkGetPhysicalDeviceProperties2                         func,
-    PhysicalDeviceInfo*                                        physical_device_info,
+    VulkanPhysicalDeviceInfo*                                  physical_device_info,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
     assert((physical_device_info != nullptr) && (pProperties != nullptr) && !pProperties->IsNull() &&
@@ -3052,7 +3058,7 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
     PFN_vkGetPhysicalDeviceMemoryProperties                         func,
-    PhysicalDeviceInfo*                                             physical_device_info,
+    VulkanPhysicalDeviceInfo*                                       physical_device_info,
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties)
 {
     assert((physical_device_info != nullptr) && (pMemoryProperties != nullptr) && !pMemoryProperties->IsNull() &&
@@ -3069,7 +3075,7 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties2(
     PFN_vkGetPhysicalDeviceMemoryProperties2                         func,
-    PhysicalDeviceInfo*                                              physical_device_info,
+    VulkanPhysicalDeviceInfo*                                        physical_device_info,
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
     assert((physical_device_info != nullptr) && (pMemoryProperties != nullptr) && !pMemoryProperties->IsNull() &&
@@ -3089,8 +3095,8 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties2(
 VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR(
     PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR           func,
     VkResult                                                original_result,
-    PhysicalDeviceInfo*                                     physical_device_info,
-    SurfaceKHRInfo*                                         surface_info,
+    VulkanPhysicalDeviceInfo*                               physical_device_info,
+    VulkanSurfaceKHRInfo*                                   surface_info,
     StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
 {
     assert((physical_device_info != nullptr) && (surface_info != nullptr) && (pSurfaceCapabilities != nullptr) &&
@@ -3111,7 +3117,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilitiesK
 VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilities2KHR(
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR                 func,
     VkResult                                                       original_result,
-    PhysicalDeviceInfo*                                            physical_device_info,
+    VulkanPhysicalDeviceInfo*                                      physical_device_info,
     StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>*       pSurfaceCapabilities)
 {
@@ -3127,7 +3133,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilities2
     if (result == VK_SUCCESS)
     {
         auto surface_id                                     = pSurfaceInfo->GetMetaStructPointer()->surface;
-        auto surface_info                                   = GetObjectInfoTable().GetSurfaceKHRInfo(surface_id);
+        auto surface_info                                   = GetObjectInfoTable().GetVkSurfaceKHRInfo(surface_id);
         surface_info->surface_capabilities[physical_device] = replay_surface_capabilities->surfaceCapabilities;
     }
     return result;
@@ -3135,7 +3141,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilities2
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                                          VkResult                             original_result,
-                                                         const DeviceInfo*                    device_info,
+                                                         const VulkanDeviceInfo*              device_info,
                                                          uint32_t                             fenceCount,
                                                          const HandlePointerDecoder<VkFence>* pFences,
                                                          VkBool32                             waitAll,
@@ -3176,7 +3182,7 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
         const format::HandleId* fence_handles = pFences->GetPointer();
         for (size_t i = 0; i < pFences->GetLength(); ++i)
         {
-            FenceInfo* fence_info = object_info_table_.GetFenceInfo(fence_handles[i]);
+            VulkanFenceInfo* fence_info = object_info_table_.GetVkFenceInfo(fence_handles[i]);
             if (fence_info != nullptr)
             {
                 VkFence fence_handle = fence_info->handle;
@@ -3227,10 +3233,10 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus func,
-                                                          VkResult             original_result,
-                                                          const DeviceInfo*    device_info,
-                                                          const FenceInfo*     fence_info)
+VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus    func,
+                                                          VkResult                original_result,
+                                                          const VulkanDeviceInfo* device_info,
+                                                          const VulkanFenceInfo*  fence_info)
 {
     assert((device_info != nullptr) && (fence_info != nullptr));
 
@@ -3272,10 +3278,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus f
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus func,
-                                                          VkResult             original_result,
-                                                          const DeviceInfo*    device_info,
-                                                          const EventInfo*     event_info)
+VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus    func,
+                                                          VkResult                original_result,
+                                                          const VulkanDeviceInfo* device_info,
+                                                          const VulkanEventInfo*  event_info)
 {
     assert((device_info != nullptr) && (event_info != nullptr));
 
@@ -3294,16 +3300,16 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
-                                                               VkResult                  original_result,
-                                                               const DeviceInfo*         device_info,
-                                                               const QueryPoolInfo*      query_pool_info,
-                                                               uint32_t                  firstQuery,
-                                                               uint32_t                  queryCount,
-                                                               size_t                    dataSize,
-                                                               PointerDecoder<uint8_t>*  pData,
-                                                               VkDeviceSize              stride,
-                                                               VkQueryResultFlags        flags)
+VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
+                                                               VkResult                   original_result,
+                                                               const VulkanDeviceInfo*    device_info,
+                                                               const VulkanQueryPoolInfo* query_pool_info,
+                                                               uint32_t                   firstQuery,
+                                                               uint32_t                   queryCount,
+                                                               size_t                     dataSize,
+                                                               PointerDecoder<uint8_t>*   pData,
+                                                               VkDeviceSize               stride,
+                                                               VkQueryResultFlags         flags)
 {
     assert((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
@@ -3323,13 +3329,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
-                                                       uint64_t          index,
-                                                       VkResult          original_result,
-                                                       const QueueInfo*  queue_info,
-                                                       uint32_t          submitCount,
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      func,
+                                                       uint64_t               index,
+                                                       VkResult               original_result,
+                                                       const VulkanQueueInfo* queue_info,
+                                                       uint32_t               submitCount,
                                                        const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                                       const FenceInfo*                                  fence_info)
+                                                       const VulkanFenceInfo*                            fence_info)
 {
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
@@ -3355,8 +3361,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     {
         // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
         // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
-        std::vector<const SemaphoreInfo*>                               removed_semaphores;
+        std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
+        std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
 
         if (submit_info_data != nullptr)
         {
@@ -3459,12 +3465,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     if (screenshot_handler_ != nullptr)
     {
-        CommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
+        VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
             {
-                if (CheckPNextChainForFrameBoundary(object_info_table_.GetDeviceInfo(queue_info->parent_id),
+                if (CheckPNextChainForFrameBoundary(object_info_table_.GetVkDeviceInfo(queue_info->parent_id),
                                                     submit_info_data->pNext))
                 {
                     break;
@@ -3474,12 +3480,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 const auto command_buffer_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
                 for (uint32_t j = 0; j < command_buffer_count; ++j)
                 {
-                    auto command_buffer_info = GetObjectInfoTable().GetCommandBufferInfo(command_buffer_ids[j]);
+                    auto command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]);
 
                     // Apply any layouts from submitted command lists.
                     for (auto image_layout : command_buffer_info->image_layout_barriers)
                     {
-                        auto image_info = GetObjectInfoTable().GetImageInfo(image_layout.first);
+                        auto image_info = GetObjectInfoTable().GetVkImageInfo(image_layout.first);
                         if (image_info != nullptr)
                         {
                             image_info->current_layout = image_layout.second;
@@ -3499,12 +3505,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
-                                                        VkResult           original_result,
-                                                        const QueueInfo*   queue_info,
-                                                        uint32_t           submitCount,
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     func,
+                                                        VkResult               original_result,
+                                                        const VulkanQueueInfo* queue_info,
+                                                        uint32_t               submitCount,
                                                         const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                                        const FenceInfo*                                   fence_info)
+                                                        const VulkanFenceInfo*                             fence_info)
 {
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
@@ -3530,8 +3536,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
     {
         // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
         // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
-        std::vector<const SemaphoreInfo*>                               removed_semaphores;
+        std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
+        std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
 
         if (submit_info_data != nullptr)
         {
@@ -3639,7 +3645,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
         {
             if (submit_info_data != nullptr)
             {
-                if (CheckPNextChainForFrameBoundary(object_info_table_.GetDeviceInfo(queue_info->parent_id),
+                if (CheckPNextChainForFrameBoundary(object_info_table_.GetVkDeviceInfo(queue_info->parent_id),
                                                     submit_info_data->pNext))
                 {
                     break;
@@ -3650,7 +3656,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
                 for (uint32_t j = 0; j < command_buffer_count; ++j)
                 {
                     auto command_buffer_info =
-                        GetObjectInfoTable().GetCommandBufferInfo(command_buffer_infos[j].commandBuffer);
+                        GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer);
                     if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
                     {
                         break;
@@ -3666,10 +3672,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
 VkResult
 VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                                   VkResult                                              original_result,
-                                                  const QueueInfo*                                      queue_info,
+                                                  const VulkanQueueInfo*                                queue_info,
                                                   uint32_t                                              bindInfoCount,
                                                   const StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
-                                                  const FenceInfo*                                      fence_info)
+                                                  const VulkanFenceInfo*                                fence_info)
 {
     assert((queue_info != nullptr) && (pBindInfo != nullptr) && !pBindInfo->IsNull());
 
@@ -3693,8 +3699,8 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     {
         // Check for imported semaphores in the current bind info list, mapping the pBindInfo array index to a vector of
         // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
-        std::vector<const SemaphoreInfo*>                               removed_semaphores;
+        std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
+        std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
 
         auto bind_info_data = pBindInfo->GetMetaStructPointer();
         if (bind_info_data != nullptr)
@@ -3788,7 +3794,7 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
     PFN_vkCreateDescriptorSetLayout                                func,
     VkResult                                                       original_result,
-    const DeviceInfo*                                              device_info,
+    const VulkanDeviceInfo*                                        device_info,
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
     HandlePointerDecoder<VkDescriptorSetLayout>*                   pSetLayout)
@@ -3803,7 +3809,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
     // The information gathered here is only relevant to the dump resources feature
     if (result >= 0 && options_.dumping_resources)
     {
-        auto layout_info = reinterpret_cast<DescriptorSetLayoutInfo*>(pSetLayout->GetConsumerData(0));
+        auto layout_info = reinterpret_cast<VulkanDescriptorSetLayoutInfo*>(pSetLayout->GetConsumerData(0));
         assert(layout_info != nullptr);
 
         const auto create_info_meta = pCreateInfo->GetMetaStructPointer();
@@ -3830,7 +3836,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorPool(
     PFN_vkCreateDescriptorPool                                      func,
     VkResult                                                        original_result,
-    const DeviceInfo*                                               device_info,
+    const VulkanDeviceInfo*                                         device_info,
     const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
     HandlePointerDecoder<VkDescriptorPool>*                         pDescriptorPool)
@@ -3848,7 +3854,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorPool(
         // Due to capture and replay differences, it is possible for descriptor set allocation to fail with the
         // descriptor pool running out of memory.  To handle this case, replay will store the pool creation info so that
         // it can attempt to recover from an out of pool memory event by creating a new pool with the same properties.
-        auto pool_info = reinterpret_cast<DescriptorPoolInfo*>(pDescriptorPool->GetConsumerData(0));
+        auto pool_info = reinterpret_cast<VulkanDescriptorPoolInfo*>(pDescriptorPool->GetConsumerData(0));
         assert(pool_info != nullptr);
 
         pool_info->flags    = create_info->flags;
@@ -3884,8 +3890,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorPool(
 
 void VulkanReplayConsumerBase::OverrideDestroyDescriptorPool(
     PFN_vkDestroyDescriptorPool                                func,
-    const DeviceInfo*                                          device_info,
-    DescriptorPoolInfo*                                        descriptor_pool_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanDescriptorPoolInfo*                                  descriptor_pool_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     assert(device_info != nullptr);
@@ -3911,7 +3917,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDescriptorPool(
 VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
     PFN_vkAllocateDescriptorSets                                     func,
     VkResult                                                         original_result,
-    const DeviceInfo*                                                device_info,
+    const VulkanDeviceInfo*                                          device_info,
     const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets)
 {
@@ -3930,7 +3936,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
             // descriptor pool and attempting the allocation a second time.
             VkDescriptorPool new_pool  = VK_NULL_HANDLE;
             auto             meta_info = pAllocateInfo->GetMetaStructPointer();
-            auto             pool_info = object_info_table_.GetDescriptorPoolInfo(meta_info->descriptorPool);
+            auto             pool_info = object_info_table_.GetVkDescriptorPoolInfo(meta_info->descriptorPool);
 
             VkDescriptorPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
             create_info.pNext                      = nullptr;
@@ -3988,12 +3994,12 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
             for (uint32_t i = 0; i < desc_set_count; ++i)
             {
-                DescriptorSetInfo* desc_info =
-                    reinterpret_cast<DescriptorSetInfo*>(pDescriptorSets->GetConsumerData(i));
+                VulkanDescriptorSetInfo* desc_info =
+                    reinterpret_cast<VulkanDescriptorSetInfo*>(pDescriptorSets->GetConsumerData(i));
                 assert(desc_info != nullptr);
 
-                DescriptorSetLayoutInfo* set_layout_info =
-                    object_info_table_.GetDescriptorSetLayoutInfo(set_layout_ids[i]);
+                VulkanDescriptorSetLayoutInfo* set_layout_info =
+                    object_info_table_.GetVkDescriptorSetLayoutInfo(set_layout_ids[i]);
                 assert(set_layout_info != nullptr);
 
                 for (const auto& layout_binding : set_layout_info->bindings_layout)
@@ -4066,7 +4072,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     PFN_vkAllocateCommandBuffers                                     func,
     VkResult                                                         original_result,
-    const DeviceInfo*                                                device_info,
+    const VulkanDeviceInfo*                                          device_info,
     const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkCommandBuffer>*                           pCommandBuffers)
 {
@@ -4089,8 +4095,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
 }
 
 void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffers               func,
-                                                          const DeviceInfo*                      device_info,
-                                                          CommandPoolInfo*                       command_pool_info,
+                                                          const VulkanDeviceInfo*                device_info,
+                                                          VulkanCommandPoolInfo*                 command_pool_info,
                                                           uint32_t                               command_buffer_count,
                                                           HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
 {
@@ -4107,7 +4113,7 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
             {
                 if (options_.dumping_resources)
                 {
-                    CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(*it);
+                    VulkanCommandBufferInfo* cb_info = object_info_table_.GetVkCommandBufferInfo(*it);
                     assert(cb_info != nullptr);
                     resource_dumper.ResetCommandBuffer(cb_info->handle);
                 }
@@ -4122,7 +4128,7 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
 VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     PFN_vkAllocateMemory                                       func,
     VkResult                                                   original_result,
-    const DeviceInfo*                                          device_info,
+    const VulkanDeviceInfo*                                    device_info,
     const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  pAllocateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*                      pMemory)
@@ -4248,7 +4254,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
-            auto memory_info = reinterpret_cast<DeviceMemoryInfo*>(pMemory->GetConsumerData(0));
+            auto memory_info = reinterpret_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
 
             memory_info->allocator      = allocator;
@@ -4276,14 +4282,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
-                                                     VkResult          original_result,
-                                                     const DeviceInfo* device_info,
-                                                     DeviceMemoryInfo* memory_info,
-                                                     VkDeviceSize      offset,
-                                                     VkDeviceSize      size,
-                                                     VkMemoryMapFlags  flags,
-                                                     void**            ppData)
+VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory         func,
+                                                     VkResult                original_result,
+                                                     const VulkanDeviceInfo* device_info,
+                                                     VulkanDeviceMemoryInfo* memory_info,
+                                                     VkDeviceSize            offset,
+                                                     VkDeviceSize            size,
+                                                     VkMemoryMapFlags        flags,
+                                                     void**                  ppData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -4296,9 +4302,9 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
     return allocator->MapMemory(memory_info->handle, offset, size, flags, ppData, memory_info->allocator_data);
 }
 
-void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory func,
-                                                   const DeviceInfo* device_info,
-                                                   DeviceMemoryInfo* memory_info)
+void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory       func,
+                                                   const VulkanDeviceInfo* device_info,
+                                                   VulkanDeviceMemoryInfo* memory_info)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
 
@@ -4313,7 +4319,7 @@ void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory func,
 VkResult VulkanReplayConsumerBase::OverrideFlushMappedMemoryRanges(
     PFN_vkFlushMappedMemoryRanges                            func,
     VkResult                                                 original_result,
-    const DeviceInfo*                                        device_info,
+    const VulkanDeviceInfo*                                  device_info,
     uint32_t                                                 memoryRangeCount,
     const StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
@@ -4328,7 +4334,7 @@ VkResult VulkanReplayConsumerBase::OverrideFlushMappedMemoryRanges(
 
     for (uint32_t i = 0; i < memoryRangeCount; ++i)
     {
-        auto memory_info = object_info_table_.GetDeviceMemoryInfo(replay_range_meta_datas[i].memory);
+        auto memory_info = object_info_table_.GetVkDeviceMemoryInfo(replay_range_meta_datas[i].memory);
 
         if (memory_info != nullptr)
         {
@@ -4345,7 +4351,7 @@ VkResult VulkanReplayConsumerBase::OverrideFlushMappedMemoryRanges(
 VkResult VulkanReplayConsumerBase::OverrideInvalidateMappedMemoryRanges(
     PFN_vkInvalidateMappedMemoryRanges                       func,
     VkResult                                                 original_result,
-    const DeviceInfo*                                        device_info,
+    const VulkanDeviceInfo*                                  device_info,
     uint32_t                                                 memoryRangeCount,
     const StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
@@ -4360,7 +4366,7 @@ VkResult VulkanReplayConsumerBase::OverrideInvalidateMappedMemoryRanges(
 
     for (uint32_t i = 0; i < memoryRangeCount; ++i)
     {
-        auto memory_info = object_info_table_.GetDeviceMemoryInfo(replay_range_meta_datas[i].memory);
+        auto memory_info = object_info_table_.GetVkDeviceMemoryInfo(replay_range_meta_datas[i].memory);
 
         if (memory_info != nullptr)
         {
@@ -4375,9 +4381,9 @@ VkResult VulkanReplayConsumerBase::OverrideInvalidateMappedMemoryRanges(
         memoryRangeCount, pMemoryRanges->GetPointer(), allocator_datas.data());
 }
 
-void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
-                                                  const DeviceInfo* device_info,
-                                                  DeviceMemoryInfo* memory_info,
+void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory        func,
+                                                  const VulkanDeviceInfo* device_info,
+                                                  VulkanDeviceMemoryInfo* memory_info,
                                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
@@ -4408,12 +4414,12 @@ void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
     allocator->FreeMemory(memory, GetAllocationCallbacks(pAllocator), allocator_data);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
-                                                            VkResult               original_result,
-                                                            const DeviceInfo*      device_info,
-                                                            BufferInfo*            buffer_info,
-                                                            DeviceMemoryInfo*      memory_info,
-                                                            VkDeviceSize           memoryOffset)
+VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemory  func,
+                                                            VkResult                original_result,
+                                                            const VulkanDeviceInfo* device_info,
+                                                            VulkanBufferInfo*       buffer_info,
+                                                            VulkanDeviceMemoryInfo* memory_info,
+                                                            VkDeviceSize            memoryOffset)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -4467,7 +4473,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
 VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     PFN_vkBindBufferMemory2                                     func,
     VkResult                                                    original_result,
-    const DeviceInfo*                                           device_info,
+    const VulkanDeviceInfo*                                     device_info,
     uint32_t                                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
@@ -4480,8 +4486,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     auto replay_bind_meta_infos = pBindInfos->GetMetaStructPointer();
     assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
-    std::vector<BufferInfo*>                           buffer_infos;
-    std::vector<const DeviceMemoryInfo*>               memory_infos;
+    std::vector<VulkanBufferInfo*>                     buffer_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_buffer_datas(bindInfoCount, 0);
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindInfoCount, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindInfoCount, 0);
@@ -4490,8 +4496,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     {
         const Decoded_VkBindBufferMemoryInfo* bind_meta_info = &replay_bind_meta_infos[i];
 
-        auto buffer_info = object_info_table_.GetBufferInfo(bind_meta_info->buffer);
-        auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+        auto buffer_info = object_info_table_.GetVkBufferInfo(bind_meta_info->buffer);
+        auto memory_info = object_info_table_.GetVkDeviceMemoryInfo(bind_meta_info->memory);
 
         buffer_infos.push_back(buffer_info);
         memory_infos.push_back(memory_info);
@@ -4539,12 +4545,12 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory func,
-                                                           VkResult              original_result,
-                                                           const DeviceInfo*     device_info,
-                                                           ImageInfo*            image_info,
-                                                           DeviceMemoryInfo*     memory_info,
-                                                           VkDeviceSize          memoryOffset)
+VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory   func,
+                                                           VkResult                original_result,
+                                                           const VulkanDeviceInfo* device_info,
+                                                           VulkanImageInfo*        image_info,
+                                                           VulkanDeviceMemoryInfo* memory_info,
+                                                           VkDeviceSize            memoryOffset)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -4575,7 +4581,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     PFN_vkBindImageMemory2                                     func,
     VkResult                                                   original_result,
-    const DeviceInfo*                                          device_info,
+    const VulkanDeviceInfo*                                    device_info,
     uint32_t                                                   bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
@@ -4588,8 +4594,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     auto replay_bind_meta_infos = pBindInfos->GetMetaStructPointer();
     assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
-    std::vector<ImageInfo*>                            image_infos;
-    std::vector<const DeviceMemoryInfo*>               memory_infos;
+    std::vector<VulkanImageInfo*>                      image_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_image_datas(bindInfoCount, 0);
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindInfoCount, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindInfoCount, 0);
@@ -4598,8 +4604,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     {
         const Decoded_VkBindImageMemoryInfo* bind_meta_info = &replay_bind_meta_infos[i];
 
-        auto image_info  = object_info_table_.GetImageInfo(bind_meta_info->image);
-        auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+        auto image_info  = object_info_table_.GetVkImageInfo(bind_meta_info->image);
+        auto memory_info = object_info_table_.GetVkDeviceMemoryInfo(bind_meta_info->memory);
 
         image_infos.push_back(image_info);
         memory_infos.push_back(memory_info);
@@ -4651,8 +4657,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
     PFN_vkBindVideoSessionMemoryKHR                                func,
     VkResult                                                       original_result,
-    const DeviceInfo*                                              device_info,
-    VideoSessionKHRInfo*                                           video_session_info,
+    const VulkanDeviceInfo*                                        device_info,
+    VulkanVideoSessionKHRInfo*                                     video_session_info,
     uint32_t                                                       bindSessionMemoryInfoCount,
     StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
 {
@@ -4676,7 +4682,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
     GFXRECON_ASSERT((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
     uint32_t                                           session_mem_count = video_session_info->allocator_datas.size();
-    std::vector<const DeviceMemoryInfo*>               memory_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_session_datas(session_mem_count, 0);
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(session_mem_count, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(session_mem_count, 0);
@@ -4690,7 +4696,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
             const auto* bind_meta_info = &replay_bind_meta_infos[i];
             if (mem_index == bind_meta_info->decoded_value->memoryBindIndex)
             {
-                auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+                auto memory_info = object_info_table_.GetVkDeviceMemoryInfo(bind_meta_info->memory);
                 memory_infos.push_back(memory_info);
 
                 if (memory_info != nullptr)
@@ -4732,7 +4738,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
 VkResult
 VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer                                      func,
                                                VkResult                                                original_result,
-                                               const DeviceInfo*                                       device_info,
+                                               const VulkanDeviceInfo*                                 device_info,
                                                const StructPointerDecoder<Decoded_VkBufferCreateInfo>* pCreateInfo,
                                                const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                                HandlePointerDecoder<VkBuffer>*                            pBuffer)
@@ -4822,7 +4828,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
-        auto buffer_info = reinterpret_cast<BufferInfo*>(pBuffer->GetConsumerData(0));
+        auto buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
         assert(buffer_info != nullptr);
 
         buffer_info->allocator_data = allocator_data;
@@ -4845,8 +4851,8 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
 void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     PFN_vkDestroyBuffer                                        func,
-    const DeviceInfo*                                          device_info,
-    BufferInfo*                                                buffer_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanBufferInfo*                                          buffer_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
@@ -4876,7 +4882,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
 VkResult
 VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                                      func,
                                               VkResult                                               original_result,
-                                              const DeviceInfo*                                      device_info,
+                                              const VulkanDeviceInfo*                                device_info,
                                               const StructPointerDecoder<Decoded_VkImageCreateInfo>* pCreateInfo,
                                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                               HandlePointerDecoder<VkImage>*                             pImage)
@@ -4912,7 +4918,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
     {
-        auto image_info = reinterpret_cast<ImageInfo*>(pImage->GetConsumerData(0));
+        auto image_info = reinterpret_cast<VulkanImageInfo*>(pImage->GetConsumerData(0));
         assert(image_info != nullptr);
 
         image_info->allocator_data = allocator_data;
@@ -4944,8 +4950,8 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
 void VulkanReplayConsumerBase::OverrideDestroyImage(
     PFN_vkDestroyImage                                         func,
-    const DeviceInfo*                                          device_info,
-    ImageInfo*                                                 image_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanImageInfo*                                           image_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
@@ -4972,7 +4978,7 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
 VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
     PFN_vkCreateVideoSessionKHR                                      func,
     VkResult                                                         original_result,
-    const DeviceInfo*                                                device_info,
+    const VulkanDeviceInfo*                                          device_info,
     const StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkVideoSessionKHR>*                         pVideoSession)
@@ -4996,7 +5002,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_session) != VK_NULL_HANDLE))
     {
-        auto session_info = reinterpret_cast<VideoSessionKHRInfo*>(pVideoSession->GetConsumerData(0));
+        auto session_info = reinterpret_cast<VulkanVideoSessionKHRInfo*>(pVideoSession->GetConsumerData(0));
         GFXRECON_ASSERT(session_info != nullptr);
 
         session_info->allocator_datas    = allocator_datas;
@@ -5008,8 +5014,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
 
 void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
     PFN_vkDestroyVideoSessionKHR                               func,
-    const DeviceInfo*                                          device_info,
-    VideoSessionKHRInfo*                                       video_session_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanVideoSessionKHRInfo*                                 video_session_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
@@ -5035,8 +5041,8 @@ void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
 
 void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
     PFN_vkGetImageSubresourceLayout                         func,
-    const DeviceInfo*                                       device_info,
-    const ImageInfo*                                        image_info,
+    const VulkanDeviceInfo*                                 device_info,
+    const VulkanImageInfo*                                  image_info,
     const StructPointerDecoder<Decoded_VkImageSubresource>* pSubresource,
     StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout)
 {
@@ -5065,7 +5071,7 @@ void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerD
     {
         GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer()->pAttachments != nullptr);
         const auto* attachment_descs = pCreateInfo->GetMetaStructPointer()->pAttachments->GetPointer();
-        auto        render_pass_info = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
+        auto        render_pass_info = reinterpret_cast<VulkanRenderPassInfo*>(pRenderPass->GetConsumerData(0));
         GFXRECON_ASSERT(render_pass_info != nullptr)
 
         // Save attachment descriptions to RenderPassInfo.
@@ -5080,7 +5086,7 @@ void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerD
 VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     PFN_vkCreateRenderPass                                      func,
     VkResult                                                    original_result,
-    const DeviceInfo*                                           device_info,
+    const VulkanDeviceInfo*                                     device_info,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
     HandlePointerDecoder<VkRenderPass>*                         pRenderPass)
@@ -5101,7 +5107,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     }
 
     const VkRenderPassCreateInfo* create_info      = pCreateInfo->GetPointer();
-    auto                          render_pass_info = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
+    auto render_pass_info = reinterpret_cast<VulkanRenderPassInfo*>(pRenderPass->GetConsumerData(0));
     assert(render_pass_info);
 
     // Copy attachments
@@ -5115,7 +5121,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct RenderPassInfo::SubpassReferences sp_ref;
+        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
 
         // Copy input attachment refs
         for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
@@ -5220,7 +5226,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
 VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     PFN_vkCreateRenderPass2                                      func,
     VkResult                                                     original_result,
-    const DeviceInfo*                                            device_info,
+    const VulkanDeviceInfo*                                      device_info,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
     HandlePointerDecoder<VkRenderPass>*                          pRenderPass)
@@ -5240,7 +5246,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     }
 
     const VkRenderPassCreateInfo2* create_info = pCreateInfo->GetPointer();
-    auto render_pass_info                      = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
+    auto render_pass_info = reinterpret_cast<VulkanRenderPassInfo*>(pRenderPass->GetConsumerData(0));
     assert(render_pass_info);
 
     render_pass_info->attachment_descs.resize(create_info->attachmentCount);
@@ -5260,7 +5266,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct RenderPassInfo::SubpassReferences sp_ref;
+        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
         sp_ref.color_att_refs.resize(create_info->pSubpasses[i].colorAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
         {
@@ -5294,7 +5300,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     PFN_vkCmdPipelineBarrier                                   func,
-    CommandBufferInfo*                                         command_buffer_info,
+    VulkanCommandBufferInfo*                                   command_buffer_info,
     VkPipelineStageFlags                                       srcStageMask,
     VkPipelineStageFlags                                       dstStageMask,
     VkDependencyFlags                                          dependencyFlags,
@@ -5321,7 +5327,7 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     {
         auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
         command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
-        ImageInfo* img_info                                  = object_info_table_.GetImageInfo(image_id);
+        VulkanImageInfo* img_info                            = object_info_table_.GetVkImageInfo(image_id);
         assert(img_info != nullptr);
         img_info->intermediate_layout = pImageMemoryBarriers->GetPointer()[i].newLayout;
     }
@@ -5329,7 +5335,7 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
     PFN_vkCmdPipelineBarrier2                       func,
-    CommandBufferInfo*                              command_buffer_info,
+    VulkanCommandBufferInfo*                        command_buffer_info,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     swapchain_->CmdPipelineBarrier2(func, command_buffer_info, pDependencyInfo->GetPointer());
@@ -5346,7 +5352,7 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
                 command_buffer_info->image_layout_barriers[image_id] =
                     dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
 
-                ImageInfo* img_info           = object_info_table_.GetImageInfo(image_id);
+                VulkanImageInfo* img_info     = object_info_table_.GetVkImageInfo(image_id);
                 img_info->intermediate_layout = dependency_info_meta->pImageMemoryBarriers->GetPointer()[i].newLayout;
             }
         }
@@ -5355,7 +5361,7 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2(
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2KHR(
     PFN_vkCmdPipelineBarrier2                       func,
-    CommandBufferInfo*                              command_buffer_info,
+    VulkanCommandBufferInfo*                        command_buffer_info,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     OverrideCmdPipelineBarrier2(func, command_buffer_info, pDependencyInfo);
@@ -5364,7 +5370,7 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier2KHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     PFN_vkCreateDescriptorUpdateTemplate                                      func,
     VkResult                                                                  original_result,
-    const DeviceInfo*                                                         device_info,
+    const VulkanDeviceInfo*                                                   device_info,
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>*                         pDescriptorUpdateTemplate)
@@ -5498,7 +5504,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         if ((result == VK_SUCCESS) && ((*replay_template) != VK_NULL_HANDLE))
         {
             auto update_template_info =
-                reinterpret_cast<DescriptorUpdateTemplateInfo*>(pDescriptorUpdateTemplate->GetConsumerData(0));
+                reinterpret_cast<VulkanDescriptorUpdateTemplateInfo*>(pDescriptorUpdateTemplate->GetConsumerData(0));
             assert(update_template_info != nullptr);
 
             update_template_info->descriptor_image_types = std::move(image_types);
@@ -5518,8 +5524,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
 
 void VulkanReplayConsumerBase::OverrideDestroyDescriptorUpdateTemplate(
     PFN_vkDestroyDescriptorUpdateTemplate                      func,
-    const DeviceInfo*                                          device_info,
-    const DescriptorUpdateTemplateInfo*                        descriptor_update_template_info,
+    const VulkanDeviceInfo*                                    device_info,
+    const VulkanDescriptorUpdateTemplateInfo*                  descriptor_update_template_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     assert(device_info != nullptr);
@@ -5582,7 +5588,7 @@ static VkDescriptorType SpvReflectToVkDescriptorType(SpvReflectDescriptorType ty
     }
 }
 
-static bool SPIRVReflectPerformReflectionOnShaderModule(ShaderModuleInfo*             shader_info,
+static bool SPIRVReflectPerformReflectionOnShaderModule(VulkanShaderModuleInfo*       shader_info,
                                                         size_t                        spirv_size,
                                                         const uint32_t*               spirv_code,
                                                         const VkPhysicalDeviceLimits& phys_dev_limits)
@@ -5630,7 +5636,7 @@ static bool SPIRVReflectPerformReflectionOnShaderModule(ShaderModuleInfo*       
 
             shader_info->used_descriptors_info[binding->set].emplace(
                 binding->binding,
-                ShaderModuleInfo::ShaderDescriptorInfo(type, readonly, binding->accessed, count, is_array));
+                VulkanShaderModuleInfo::ShaderDescriptorInfo(type, readonly, binding->accessed, count, is_array));
         }
     }
 
@@ -5640,7 +5646,7 @@ static bool SPIRVReflectPerformReflectionOnShaderModule(ShaderModuleInfo*       
 VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     PFN_vkCreateShaderModule                                      func,
     VkResult                                                      original_result,
-    const DeviceInfo*                                             device_info,
+    const VulkanDeviceInfo*                                       device_info,
     const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
     HandlePointerDecoder<VkShaderModule>*                         pShaderModule)
@@ -5663,10 +5669,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
             if (options_.dumping_resources)
             {
-                ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+                VulkanShaderModuleInfo* shader_info =
+                    reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
                 assert(shader_info);
 
-                const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+                const VulkanPhysicalDeviceInfo* phys_dev =
+                    object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
                 assert(phys_dev);
                 assert(phys_dev->replay_device_info);
 
@@ -5714,10 +5722,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
         if (vk_res == VK_SUCCESS && options_.dumping_resources)
         {
-            ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+            VulkanShaderModuleInfo* shader_info =
+                reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
             assert(shader_info);
 
-            const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+            const VulkanPhysicalDeviceInfo* phys_dev =
+                object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
             assert(phys_dev);
             assert(phys_dev->replay_device_info);
 
@@ -5731,12 +5741,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     return vk_res;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData func,
-                                                                VkResult                   original_result,
-                                                                const DeviceInfo*          device_info,
-                                                                const PipelineCacheInfo*   pipeline_cache_info,
-                                                                PointerDecoder<size_t>*    pDataSize,
-                                                                PointerDecoder<uint8_t>*   pData)
+VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData     func,
+                                                                VkResult                       original_result,
+                                                                const VulkanDeviceInfo*        device_info,
+                                                                const VulkanPipelineCacheInfo* pipeline_cache_info,
+                                                                PointerDecoder<size_t>*        pDataSize,
+                                                                PointerDecoder<uint8_t>*       pData)
 {
     if ((options_.omit_pipeline_cache_data) || (original_result != VK_SUCCESS) || pData->GetPointer() == nullptr)
     {
@@ -5784,7 +5794,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
                 // We found some existing pipeline cache data has same hash, so we continue to check if it's same with
                 // current pipeline cache data
 
-                const std::vector<PipelineCacheData>& cache_data = iterator->second;
+                const std::vector<VulkanPipelineCacheData>& cache_data = iterator->second;
 
                 for (auto& existing_cache_data : cache_data)
                 {
@@ -5806,10 +5816,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 
             if (new_cache_data)
             {
-                std::vector<PipelineCacheData>& item = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
-                                                           ->pipeline_cache_data[capture_pipeline_cache_data_hash];
+                std::vector<VulkanPipelineCacheData>& item =
+                    const_cast<VulkanPipelineCacheInfo*>(pipeline_cache_info)
+                        ->pipeline_cache_data[capture_pipeline_cache_data_hash];
                 auto              output_cache_data_size = *pDataSize->GetOutputPointer();
-                PipelineCacheData pipeline_cache_data;
+                VulkanPipelineCacheData pipeline_cache_data;
                 pipeline_cache_data.capture_cache_data.resize(cache_data_size);
                 memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), cache_data_size);
                 pipeline_cache_data.replay_cache_data.resize(output_cache_data_size);
@@ -5824,7 +5835,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     PFN_vkCreatePipelineCache                                      func,
     VkResult                                                       original_result,
-    const DeviceInfo*                                              device_info,
+    const VulkanDeviceInfo*                                        device_info,
     const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
     HandlePointerDecoder<VkPipelineCache>*                         pPipelineCache)
@@ -5861,7 +5872,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         if ((create_info.pInitialData != nullptr) && (create_info.initialDataSize != 0))
         {
             // keep track if external synchronization is required
-            auto handle_info = reinterpret_cast<PipelineCacheInfo*>(pPipelineCache->GetConsumerData(0));
+            auto handle_info = reinterpret_cast<VulkanPipelineCacheInfo*>(pPipelineCache->GetConsumerData(0));
             handle_info->requires_external_synchronization =
                 create_info.flags & VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
 
@@ -5874,7 +5885,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             capture_pipeline_cache_data_      = const_cast<void*>(create_info.pInitialData);
             capture_pipeline_cache_data_size_ = create_info.initialDataSize;
 
-            object_info_table_.VisitPipelineCacheInfo([this](const PipelineCacheInfo* pipeline_cache_info) {
+            object_info_table_.VisitVkPipelineCacheInfo([this](const VulkanPipelineCacheInfo* pipeline_cache_info) {
                 GFXRECON_ASSERT(pipeline_cache_info != nullptr);
 
                 auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash_);
@@ -5938,8 +5949,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
 
 VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescriptorPool  func,
                                                                VkResult                   original_result,
-                                                               const DeviceInfo*          device_info,
-                                                               DescriptorPoolInfo*        pool_info,
+                                                               const VulkanDeviceInfo*    device_info,
+                                                               VulkanDescriptorPoolInfo*  pool_info,
                                                                VkDescriptorPoolResetFlags flags)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -5949,7 +5960,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescri
     // Descriptor sets allocated from the pool are implicitly freed and must be removed from the object info table.
     for (auto child_id : pool_info->child_ids)
     {
-        object_info_table_.RemoveDescriptorSetInfo(child_id);
+        object_info_table_.RemoveVkDescriptorSetInfo(child_id);
     }
 
     pool_info->child_ids.clear();
@@ -5960,7 +5971,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescri
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
     PFN_vkCreateDebugReportCallbackEXT                                      func,
     VkResult                                                                original_result,
-    const InstanceInfo*                                                     instance_info,
+    const VulkanInstanceInfo*                                               instance_info,
     const StructPointerDecoder<Decoded_VkDebugReportCallbackCreateInfoEXT>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
     HandlePointerDecoder<VkDebugReportCallbackEXT>*                         pCallback)
@@ -5991,7 +6002,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
     PFN_vkCreateDebugUtilsMessengerEXT                                      func,
     VkResult                                                                original_result,
-    const InstanceInfo*                                                     instance_info,
+    const VulkanInstanceInfo*                                               instance_info,
     const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCreateInfoEXT>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>*                         pMessenger)
@@ -6021,7 +6032,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     PFN_vkCreateSwapchainKHR                                      func,
     VkResult                                                      original_result,
-    DeviceInfo*                                                   device_info,
+    VulkanDeviceInfo*                                             device_info,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*                         pSwapchain)
@@ -6035,7 +6046,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     auto     replay_create_info = pCreateInfo->GetPointer();
     GFXRECON_ASSERT(replay_create_info != nullptr);
     auto replay_swapchain = pSwapchain->GetHandlePointer();
-    auto swapchain_info   = reinterpret_cast<SwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
+    auto swapchain_info   = reinterpret_cast<VulkanSwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
     assert(swapchain_info != nullptr);
 
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
@@ -6063,8 +6074,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         }
 
         bool                colorspace_extension_used_unsupported = false;
-        PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
-        InstanceInfo*       instance_info        = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+        VulkanPhysicalDeviceInfo* physical_device_info =
+            object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
+        VulkanInstanceInfo* instance_info = object_info_table_.GetVkInstanceInfo(physical_device_info->parent_id);
 
         auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
         if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
@@ -6187,7 +6199,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateSharedSwapchainsKHR(
     PFN_vkCreateSharedSwapchainsKHR                               func,
     VkResult                                                      original_result,
-    DeviceInfo*                                                   device_info,
+    VulkanDeviceInfo*                                             device_info,
     uint32_t                                                      swapchainCount,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
@@ -6204,8 +6216,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSharedSwapchainsKHR(
 
 void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     PFN_vkDestroySwapchainKHR                                  func,
-    DeviceInfo*                                                device_info,
-    SwapchainKHRInfo*                                          swapchain_info,
+    VulkanDeviceInfo*                                          device_info,
+    VulkanSwapchainKHRInfo*                                    swapchain_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     // Delete backed images of dummy swapchain.
@@ -6214,7 +6226,7 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
 
-        for (const ImageInfo& image_info : swapchain_info->image_infos)
+        for (const VulkanImageInfo& image_info : swapchain_info->image_infos)
         {
             allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
             allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
@@ -6228,8 +6240,8 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
                                                                  VkResult                       original_result,
-                                                                 const DeviceInfo*              device_info,
-                                                                 SwapchainKHRInfo*              swapchain_info,
+                                                                 const VulkanDeviceInfo*        device_info,
+                                                                 VulkanSwapchainKHRInfo*        swapchain_info,
                                                                  PointerDecoder<uint32_t>*      pSwapchainImageCount,
                                                                  HandlePointerDecoder<VkImage>* pSwapchainImages)
 {
@@ -6286,7 +6298,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
             for (uint32_t i = 0; i < capture_image_count; ++i)
             {
                 VkImage*   replay_image = &(replay_images[i]);
-                ImageInfo* image_info   = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                VulkanImageInfo* image_info = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 assert(image_info != nullptr);
 
                 result = CreateSwapchainImage(device_info, &image_create_info, replay_image, image_info);
@@ -6334,7 +6346,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
             for (uint32_t i = 0; i < count; ++i)
             {
-                auto image_info = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                auto image_info = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 assert(image_info != nullptr);
 
                 image_info->format             = swapchain_info->format;
@@ -6372,11 +6384,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
 VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                                                VkResult                  original_result,
-                                                               const DeviceInfo*         device_info,
-                                                               SwapchainKHRInfo*         swapchain_info,
+                                                               const VulkanDeviceInfo*   device_info,
+                                                               VulkanSwapchainKHRInfo*   swapchain_info,
                                                                uint64_t                  timeout,
-                                                               SemaphoreInfo*            semaphore_info,
-                                                               FenceInfo*                fence_info,
+                                                               VulkanSemaphoreInfo*      semaphore_info,
+                                                               VulkanFenceInfo*          fence_info,
                                                                PointerDecoder<uint32_t>* pImageIndex)
 {
     assert(swapchain_info != nullptr);
@@ -6497,7 +6509,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     PFN_vkAcquireNextImage2KHR                                     func,
     VkResult                                                       original_result,
-    const DeviceInfo*                                              device_info,
+    const VulkanDeviceInfo*                                        device_info,
     const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
     PointerDecoder<uint32_t>*                                      pImageIndex)
 {
@@ -6505,7 +6517,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
     VkResult          result            = VK_SUCCESS;
     auto              acquire_meta_info = pAcquireInfo->GetMetaStructPointer();
-    SwapchainKHRInfo* swapchain_info    = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
+    VulkanSwapchainKHRInfo* swapchain_info    = object_info_table_.GetVkSwapchainKHRInfo(acquire_meta_info->swapchain);
     assert(swapchain_info != nullptr);
 
     // If image acquire failed at capture, there is nothing worth replaying as the fence and semaphore aren't processed
@@ -6569,7 +6581,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             assert(replay_index != nullptr);
 
-            auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
+            auto swapchain_info = object_info_table_.GetVkSwapchainKHRInfo(acquire_meta_info->swapchain);
 
             // If expected result is VK_SUCCESS, ensure that vkAcquireNextImageKHR2 waits until the image is
             // available by using a timeout of UINT64_MAX.
@@ -6605,8 +6617,8 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     {
         // Track semphore and fence objects as shadow objects so that they can be ignored when they would have been
         // unsignaled (waited on).
-        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(acquire_meta_info->semaphore);
-        FenceInfo*     fence_info     = object_info_table_.GetFenceInfo(acquire_meta_info->fence);
+        VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(acquire_meta_info->semaphore);
+        VulkanFenceInfo*     fence_info     = object_info_table_.GetVkFenceInfo(acquire_meta_info->fence);
 
         if (semaphore_info != nullptr)
         {
@@ -6627,7 +6639,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 VkResult
 VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR                                 func,
                                                   VkResult                                              original_result,
-                                                  const QueueInfo*                                      queue_info,
+                                                  const VulkanQueueInfo*                                queue_info,
                                                   const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     assert((queue_info != nullptr) && (pPresentInfo != nullptr) && !pPresentInfo->IsNull());
@@ -6670,7 +6682,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         {
             assert(swapchain_ids != nullptr);
 
-            const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            const auto swapchain_info = object_info_table_.GetVkSwapchainKHRInfo(swapchain_ids[i]);
             if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
             {
                 valid_swapchains_.emplace_back(swapchain_info->handle);
@@ -6839,7 +6851,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         {
             assert(swapchain_ids != nullptr);
 
-            const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            const auto swapchain_info = object_info_table_.GetVkSwapchainKHRInfo(swapchain_ids[i]);
             if (swapchain_info != nullptr)
             {
                 swapchain_infos_[i] = swapchain_info;
@@ -6898,7 +6910,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
     if (options_.wait_before_present)
     {
-        VkDevice device = MapHandle<DeviceInfo>(queue_info->parent_id, &VulkanObjectInfoTable::GetDeviceInfo);
+        VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &VulkanObjectInfoTable::GetVkDeviceInfo);
         GetDeviceTable(device)->DeviceWaitIdle(device);
     }
 
@@ -6975,7 +6987,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 size_t count = present_info_data->pWaitSemaphores.GetLength();
                 for (uint32_t i = 0; i < count; ++i)
                 {
-                    SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+                    VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_ids[i]);
                     if (semaphore_info)
                     {
                         semaphore_info->forward_progress = false;
@@ -6990,7 +7002,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             for (uint32_t i = 0; i < pPresentInfo->GetPointer()->swapchainCount; ++i)
             {
                 format::HandleId fence      = present_fence_info->pFences.GetPointer()[i];
-                FenceInfo*       fence_info = object_info_table_.GetFenceInfo(fence);
+                VulkanFenceInfo* fence_info = object_info_table_.GetVkFenceInfo(fence);
                 if (fence_info)
                 {
                     fence_info->shadow_signaled = true;
@@ -7011,7 +7023,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreFdKHR(
     PFN_vkImportSemaphoreFdKHR                                      func,
     VkResult                                                        original_result,
-    const DeviceInfo*                                               device_info,
+    const VulkanDeviceInfo*                                         device_info,
     const StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
 {
     // Skip external semaphore import.  There is no actual file descriptor backing it in replay.
@@ -7026,7 +7038,7 @@ VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreFdKHR(
         auto info = pImportSemaphoreFdInfo->GetMetaStructPointer();
         assert(info != nullptr);
 
-        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(info->semaphore);
+        VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(info->semaphore);
 
         if (semaphore_info != nullptr)
         {
@@ -7041,7 +7053,7 @@ VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreFdKHR(
 VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreFdKHR(
     PFN_vkGetSemaphoreFdKHR                                      func,
     VkResult                                                     original_result,
-    const DeviceInfo*                                            device_info,
+    const VulkanDeviceInfo*                                      device_info,
     const StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
     const PointerDecoder<int>*                                   pFd)
 {
@@ -7060,7 +7072,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreFdKHR(
 VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreWin32HandleKHR(
     PFN_vkImportSemaphoreWin32HandleKHR                                      func,
     VkResult                                                                 original_result,
-    const DeviceInfo*                                                        device_info,
+    const VulkanDeviceInfo*                                                  device_info,
     const StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
 {
     // Skip external semaphore import.  There is no actual OS resource backing it in replay.
@@ -7075,7 +7087,7 @@ VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreWin32HandleKHR(
         auto info = pImportSemaphoreWin32HandleInfo->GetMetaStructPointer();
         assert(info != nullptr);
 
-        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(info->semaphore);
+        VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(info->semaphore);
 
         if (semaphore_info != nullptr)
         {
@@ -7090,7 +7102,7 @@ VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreWin32HandleKHR(
 VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreWin32HandleKHR(
     PFN_vkGetSemaphoreWin32HandleKHR                                      func,
     VkResult                                                              original_result,
-    const DeviceInfo*                                                     device_info,
+    const VulkanDeviceInfo*                                               device_info,
     const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
     const PointerDecoder<uint64_t, void*>*                                pHandle)
 {
@@ -7107,7 +7119,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreWin32HandleKHR(
 
 VkResult VulkanReplayConsumerBase::OverrideGetRandROutputDisplayEXT(PFN_vkGetRandROutputDisplayEXT      func,
                                                                     VkResult                            original_result,
-                                                                    const PhysicalDeviceInfo*           physicalDevice,
+                                                                    const VulkanPhysicalDeviceInfo*     physicalDevice,
                                                                     Display*                            dpy,
                                                                     RROutput                            rrOutput,
                                                                     HandlePointerDecoder<VkDisplayKHR>* pDisplay)
@@ -7123,7 +7135,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetRandROutputDisplayEXT(PFN_vkGetRan
 VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
     PFN_vkCreateAndroidSurfaceKHR                                      func,
     VkResult                                                           original_result,
-    InstanceInfo*                                                      instance_info,
+    VulkanInstanceInfo*                                                instance_info,
     const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface)
@@ -7155,7 +7167,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
     PFN_vkCreateWin32SurfaceKHR                                      func,
     VkResult                                                         original_result,
-    InstanceInfo*                                                    instance_info,
+    VulkanInstanceInfo*                                              instance_info,
     const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                              pSurface)
@@ -7186,7 +7198,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
     PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
-    const PhysicalDeviceInfo*                          physical_device_info,
+    const VulkanPhysicalDeviceInfo*                    physical_device_info,
     uint32_t                                           queueFamilyIndex)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
@@ -7205,7 +7217,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
 VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
     PFN_vkCreateXcbSurfaceKHR                                      func,
     VkResult                                                       original_result,
-    InstanceInfo*                                                  instance_info,
+    VulkanInstanceInfo*                                            instance_info,
     const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                            pSurface)
@@ -7236,7 +7248,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(
     PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
-    const PhysicalDeviceInfo*                        physical_device_info,
+    const VulkanPhysicalDeviceInfo*                  physical_device_info,
     uint32_t                                         queueFamilyIndex,
     xcb_connection_t*                                connection,
     xcb_visualid_t                                   visual_id)
@@ -7259,7 +7271,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
 VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
     PFN_vkCreateXlibSurfaceKHR                                      func,
     VkResult                                                        original_result,
-    InstanceInfo*                                                   instance_info,
+    VulkanInstanceInfo*                                             instance_info,
     const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                             pSurface)
@@ -7290,7 +7302,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(
     PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
-    const PhysicalDeviceInfo*                         physical_device_info,
+    const VulkanPhysicalDeviceInfo*                   physical_device_info,
     uint32_t                                          queueFamilyIndex,
     Display*                                          dpy,
     VisualID                                          visualID)
@@ -7313,7 +7325,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
     PFN_vkCreateWaylandSurfaceKHR                                      func,
     VkResult                                                           original_result,
-    InstanceInfo*                                                      instance_info,
+    VulkanInstanceInfo*                                                instance_info,
     const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface)
@@ -7345,7 +7357,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
     PFN_vkCreateDisplayPlaneSurfaceKHR                                 func,
     VkResult                                                           original_result,
-    InstanceInfo*                                                      instance_info,
+    VulkanInstanceInfo*                                                instance_info,
     const StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface)
@@ -7377,7 +7389,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
     PFN_vkCreateHeadlessSurfaceEXT                                      func,
     VkResult                                                            original_result,
-    InstanceInfo*                                                       instance_info,
+    VulkanInstanceInfo*                                                 instance_info,
     const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                                 pSurface)
@@ -7408,7 +7420,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
     PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
-    const PhysicalDeviceInfo*                            physical_device_info,
+    const VulkanPhysicalDeviceInfo*                      physical_device_info,
     uint32_t                                             queueFamilyIndex,
     struct wl_display*                                   display)
 {
@@ -7429,7 +7441,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationS
 VkResult VulkanReplayConsumerBase::OverrideCreateMetalSurfaceEXT(
     PFN_vkCreateMetalSurfaceEXT                                      func,
     VkResult                                                         original_result,
-    InstanceInfo*                                                    instance_info,
+    VulkanInstanceInfo*                                              instance_info,
     const StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                              pSurface)
@@ -7460,8 +7472,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateMetalSurfaceEXT(
 
 void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
     PFN_vkDestroySurfaceKHR                                    func,
-    InstanceInfo*                                              instance_info,
-    const SurfaceKHRInfo*                                      surface_info,
+    VulkanInstanceInfo*                                        instance_info,
+    const VulkanSurfaceKHRInfo*                                surface_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     swapchain_->DestroySurface(func, instance_info, surface_info, GetAllocationCallbacks(pAllocator));
@@ -7470,7 +7482,7 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     PFN_vkCreateAccelerationStructureKHR                                      func,
     VkResult                                                                  original_result,
-    const DeviceInfo*                                                         device_info,
+    const VulkanDeviceInfo*                                                   device_info,
     const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
     HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR)
@@ -7519,8 +7531,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
 
 void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
     PFN_vkDestroyAccelerationStructureKHR                func,
-    const DeviceInfo*                                    device_info,
-    const AccelerationStructureKHRInfo*                  acceleration_structure_info,
+    const VulkanDeviceInfo*                              device_info,
+    const VulkanAccelerationStructureKHRInfo*            acceleration_structure_info,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_ASSERT(device_info != nullptr);
@@ -7543,12 +7555,12 @@ void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
 
 void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
-    CommandBufferInfo*                                                         command_buffer_info,
+    VulkanCommandBufferInfo*                                                   command_buffer_info,
     uint32_t                                                                   infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
 {
-    DeviceInfo*     device_info    = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    VulkanDeviceInfo* device_info    = object_info_table_.GetVkDeviceInfo(command_buffer_info->parent_id);
     VkCommandBuffer command_buffer = command_buffer_info->handle;
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
@@ -7613,10 +7625,10 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
 
 void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
     PFN_vkCmdCopyAccelerationStructureKHR                             func,
-    CommandBufferInfo*                                                command_buffer_info,
+    VulkanCommandBufferInfo*                                          command_buffer_info,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(command_buffer_info->parent_id);
     if (device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -7631,14 +7643,14 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
 
 void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
     PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
-    CommandBufferInfo*                                command_buffer_info,
+    VulkanCommandBufferInfo*                          command_buffer_info,
     uint32_t                                          count,
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
     VkQueryType                                       queryType,
-    gfxrecon::decode::QueryPoolInfo*                  query_pool_info,
+    gfxrecon::decode::VulkanQueryPoolInfo*            query_pool_info,
     uint32_t                                          firstQuery)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(command_buffer_info->parent_id);
     if (device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         VkCommandBuffer                   command_buffer       = command_buffer_info->handle;
@@ -7655,9 +7667,9 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
 VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     PFN_vkCreateRayTracingPipelinesKHR                                     func,
     VkResult                                                               original_result,
-    const DeviceInfo*                                                      device_info,
-    DeferredOperationKHRInfo*                                              deferred_operation_info,
-    const PipelineCacheInfo*                                               pipeline_cache_info,
+    const VulkanDeviceInfo*                                                device_info,
+    VulkanDeferredOperationKHRInfo*                                        deferred_operation_info,
+    const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
     uint32_t                                                               createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
@@ -7852,7 +7864,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
+            VulkanPipelineInfo* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
 
             const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
                 create_info_meta[i].pStages->GetMetaStructPointer();
@@ -7860,7 +7872,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
             for (size_t s = 0; s < stages_count; ++s)
             {
-                ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(stages_info_meta[s].module);
+                VulkanShaderModuleInfo* module_info =
+                    object_info_table_.GetVkShaderModuleInfo(stages_info_meta[s].module);
                 assert(module_info);
                 assert(pipeline_info);
 
@@ -7872,10 +7885,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
-                                                                    VkResult                       original_result,
-                                                                    const DeviceInfo*              device_info,
-                                                                    DeferredOperationKHRInfo* deferred_operation_info)
+VkResult
+VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR  func,
+                                                           VkResult                        original_result,
+                                                           const VulkanDeviceInfo*         device_info,
+                                                           VulkanDeferredOperationKHRInfo* deferred_operation_info)
 {
     if (deferred_operation_info->pending_state == false)
     {
@@ -7917,12 +7931,12 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
         j.get();
     }
 
-    AddHandles<PipelineInfo>(device_info->capture_id,
-                             deferred_operation_info->capturePipelines.data(),
-                             deferred_operation_info->capturePipelines.size(),
-                             deferred_operation_info->replayPipelines.data(),
-                             deferred_operation_info->replayPipelines.size(),
-                             &VulkanObjectInfoTable::AddPipelineInfo);
+    AddHandles<VulkanPipelineInfo>(device_info->capture_id,
+                                   deferred_operation_info->capturePipelines.data(),
+                                   deferred_operation_info->capturePipelines.size(),
+                                   deferred_operation_info->replayPipelines.data(),
+                                   deferred_operation_info->replayPipelines.size(),
+                                   &VulkanObjectInfoTable::AddVkPipelineInfo);
 
     deferred_operation_info->pending_state = false;
     deferred_operation_info->record_modified_create_infos.clear();
@@ -7936,7 +7950,7 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
 VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     PFN_vkGetBufferDeviceAddress                                   func,
     VkDeviceAddress                                                original_result,
-    const DeviceInfo*                                              device_info,
+    const VulkanDeviceInfo*                                        device_info,
     const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
@@ -7969,7 +7983,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 
     // keep track of old/new addresses in any case
     format::HandleId buffer      = pInfo->GetMetaStructPointer()->buffer;
-    BufferInfo*      buffer_info = GetObjectInfoTable().GetBufferInfo(buffer);
+    VulkanBufferInfo* buffer_info = GetObjectInfoTable().GetVkBufferInfo(buffer);
     GFXRECON_ASSERT(buffer_info != nullptr);
     buffer_info->capture_address = original_result;
     buffer_info->replay_address  = replay_device_address;
@@ -7982,7 +7996,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
     VkDeviceAddress                                                                  original_result,
-    const DeviceInfo*                                                                device_info,
+    const VulkanDeviceInfo*                                                          device_info,
     const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {
     assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
@@ -7999,8 +8013,8 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
 
     VkDeviceAddress replay_address = func(device, address_info);
 
-    AccelerationStructureKHRInfo* acceleration_structure_info =
-        GetObjectInfoTable().GetAccelerationStructureKHRInfo(pInfo->GetMetaStructPointer()->accelerationStructure);
+    VulkanAccelerationStructureKHRInfo* acceleration_structure_info =
+        GetObjectInfoTable().GetVkAccelerationStructureKHRInfo(pInfo->GetMetaStructPointer()->accelerationStructure);
     GFXRECON_ASSERT(acceleration_structure_info != nullptr);
     acceleration_structure_info->capture_address = original_result;
     acceleration_structure_info->replay_address  = replay_address;
@@ -8023,13 +8037,13 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
 
 VkResult
 VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRayTracingShaderGroupHandlesKHR func,
-                                                                     VkResult                 original_result,
-                                                                     const DeviceInfo*        device_info,
-                                                                     const PipelineInfo*      pipeline_info,
-                                                                     uint32_t                 firstGroup,
-                                                                     uint32_t                 groupCount,
-                                                                     size_t                   dataSize,
-                                                                     PointerDecoder<uint8_t>* pData)
+                                                                     VkResult                  original_result,
+                                                                     const VulkanDeviceInfo*   device_info,
+                                                                     const VulkanPipelineInfo* pipeline_info,
+                                                                     uint32_t                  firstGroup,
+                                                                     uint32_t                  groupCount,
+                                                                     size_t                    dataSize,
+                                                                     PointerDecoder<uint8_t>*  pData)
 {
     assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
@@ -8050,7 +8064,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
 
     if (result == VK_SUCCESS)
     {
-        auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+        auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
         // in practice: always 32 bytes
         uint32_t capture_handle_size = physical_device_info->shaderGroupHandleSize;
@@ -8067,7 +8081,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
             graphics::shader_group_handle_t replay_handle       = { replay_handle_begin, replay_handle_size };
 
             auto& shader_group_handle_map =
-                GetObjectInfoTable().GetPipelineInfo(pipeline_info->capture_id)->shader_group_handle_map;
+                GetObjectInfoTable().GetVkPipelineInfo(pipeline_info->capture_id)->shader_group_handle_map;
             shader_group_handle_map[capture_handle] = replay_handle;
         }
     }
@@ -8077,7 +8091,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
 VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
     PFN_vkGetAndroidHardwareBufferPropertiesANDROID                         func,
     VkResult                                                                original_result,
-    const DeviceInfo*                                                       device_info,
+    const VulkanDeviceInfo*                                                 device_info,
     const struct AHardwareBuffer*                                           hardware_buffer,
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
@@ -8108,7 +8122,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
     }
 }
 
-void VulkanReplayConsumerBase::ClearCommandBufferInfo(CommandBufferInfo* command_buffer_info)
+void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info)
 {
     command_buffer_info->is_frame_boundary = false;
     command_buffer_info->frame_buffer_ids.clear();
@@ -8118,7 +8132,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     PFN_vkBeginCommandBuffer                                func,
     uint64_t                                                index,
     VkResult                                                original_result,
-    CommandBufferInfo*                                      command_buffer_info,
+    VulkanCommandBufferInfo*                                command_buffer_info,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder)
 {
     ClearCommandBufferInfo(command_buffer_info);
@@ -8129,7 +8143,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     VkResult res = VK_SUCCESS;
     if (options_.dumping_resources && resource_dumper.DumpingBeginCommandBufferIndex(index))
     {
-        const DeviceInfo* device = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
+        const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
         res = resource_dumper.CloneCommandBuffer(
             index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent));
@@ -8145,7 +8159,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
 
 VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommandBuffer  func,
                                                               VkResult                  original_result,
-                                                              CommandBufferInfo*        command_buffer_info,
+                                                              VulkanCommandBufferInfo*  command_buffer_info,
                                                               VkCommandBufferResetFlags flags)
 {
     ClearCommandBufferInfo(command_buffer_info);
@@ -8162,8 +8176,8 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
 
 VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPool  func,
                                                             VkResult                original_result,
-                                                            const DeviceInfo*       device_info,
-                                                            CommandPoolInfo*        pool_info,
+                                                            const VulkanDeviceInfo* device_info,
+                                                            VulkanCommandPoolInfo*  pool_info,
                                                             VkCommandPoolResetFlags flags)
 {
     assert(device_info != nullptr && pool_info != nullptr);
@@ -8172,7 +8186,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
     {
         for (auto& cb_id : pool_info->child_ids)
         {
-            CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(cb_id);
+            VulkanCommandBufferInfo* cb_info = object_info_table_.GetVkCommandBufferInfo(cb_id);
             assert(cb_info != nullptr);
 
             resource_dumper.ResetCommandBuffer(cb_info->handle);
@@ -8185,8 +8199,8 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
 
 void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     PFN_vkDestroyCommandPool                             func,
-    const DeviceInfo*                                    device_info,
-    CommandPoolInfo*                                     pool_info,
+    const VulkanDeviceInfo*                              device_info,
+    VulkanCommandPoolInfo*                               pool_info,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     assert(device_info != nullptr);
@@ -8196,7 +8210,7 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     {
         for (auto& cb_id : pool_info->child_ids)
         {
-            CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(cb_id);
+            VulkanCommandBufferInfo* cb_info = object_info_table_.GetVkCommandBufferInfo(cb_id);
             assert(cb_info != nullptr);
 
             resource_dumper.ResetCommandBuffer(cb_info->handle);
@@ -8209,7 +8223,7 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
 
 void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
     PFN_vkCmdDebugMarkerInsertEXT                             func,
-    CommandBufferInfo*                                        command_buffer_info,
+    VulkanCommandBufferInfo*                                  command_buffer_info,
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder)
 {
     const VkDebugMarkerMarkerInfoEXT* marker_info = marker_info_decoder->GetPointer();
@@ -8224,7 +8238,7 @@ void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
 
 void VulkanReplayConsumerBase::OverrideCmdInsertDebugUtilsLabelEXT(
     PFN_vkCmdInsertDebugUtilsLabelEXT                   func,
-    CommandBufferInfo*                                  command_buffer_info,
+    VulkanCommandBufferInfo*                            command_buffer_info,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* label_info_decoder)
 {
     const VkDebugUtilsLabelEXT* label_info = label_info_decoder->GetPointer();
@@ -8239,7 +8253,7 @@ void VulkanReplayConsumerBase::OverrideCmdInsertDebugUtilsLabelEXT(
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
-    CommandBufferInfo*                                   command_buffer_info,
+    VulkanCommandBufferInfo*                             command_buffer_info,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     VkSubpassContents                                    contents)
 {
@@ -8248,8 +8262,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
 
-    auto framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
-    auto render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+    auto framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
+    auto render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
         const format::HandleId* attachment_image_view_ids = nullptr;
@@ -8275,13 +8289,13 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
         for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
         {
             auto image_view_id   = attachment_image_view_ids[i];
-            auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+            auto image_view_info = object_info_table_.GetVkImageViewInfo(image_view_id);
             command_buffer_info->image_layout_barriers[image_view_info->image_id] =
                 render_pass_info->attachment_description_final_layouts[i];
 
-            const ImageViewInfo* img_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+            const VulkanImageViewInfo* img_view_info = object_info_table_.GetVkImageViewInfo(image_view_id);
             assert(image_view_info != nullptr);
-            ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+            VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
             assert(img_info);
             img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
         }
@@ -8294,7 +8308,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     PFN_vkCmdBeginRenderPass2                            func,
-    CommandBufferInfo*                                   command_buffer_info,
+    VulkanCommandBufferInfo*                             command_buffer_info,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    subpass_begin_info_decode)
 {
@@ -8303,8 +8317,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
 
-    auto framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
-    auto render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+    auto framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
+    auto render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
         GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
@@ -8313,13 +8327,13 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
         for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
         {
             auto image_view_id   = framebuffer_info->attachment_image_view_ids[i];
-            auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+            auto image_view_info = object_info_table_.GetVkImageViewInfo(image_view_id);
             command_buffer_info->image_layout_barriers[image_view_info->image_id] =
                 render_pass_info->attachment_description_final_layouts[i];
 
-            const ImageViewInfo* img_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+            const VulkanImageViewInfo* img_view_info = object_info_table_.GetVkImageViewInfo(image_view_id);
             assert(image_view_info != nullptr);
-            ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+            VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
             assert(img_info);
             img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
         }
@@ -8332,7 +8346,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
     PFN_vkCmdTraceRaysKHR                                          func,
-    CommandBufferInfo*                                             command_buffer_info,
+    VulkanCommandBufferInfo*                                       command_buffer_info,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
@@ -8350,7 +8364,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
         VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
 
         // identify buffer(s) by their device-address
-        const DeviceInfo* device_info     = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
+        const VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
         const auto&       address_tracker = GetDeviceAddressTracker(device_info->handle);
 
         auto address_remap = [&address_tracker](VkStridedDeviceAddressRegionKHR* address_region) {
@@ -8379,8 +8393,8 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
         address_remap(in_pHitShaderBindingTable);
         address_remap(in_pCallableShaderBindingTable);
 
-        const PhysicalDeviceInfo* physical_device_info =
-            GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+        const VulkanPhysicalDeviceInfo* physical_device_info =
+            GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
         if (physical_device_info && physical_device_info->replay_device_info->raytracing_properties)
         {
@@ -8410,7 +8424,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     PFN_vkCreateImageView                                func,
     VkResult                                             original_result,
-    const DeviceInfo*                                    device_info,
+    const VulkanDeviceInfo*                              device_info,
     StructPointerDecoder<Decoded_VkImageViewCreateInfo>* create_info_decoder,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
     HandlePointerDecoder<VkImageView>*                   view_decoder)
@@ -8424,7 +8438,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
 
     if ((result == VK_SUCCESS) && ((*out_view) != VK_NULL_HANDLE))
     {
-        auto image_view_info = reinterpret_cast<ImageViewInfo*>(view_decoder->GetConsumerData(0));
+        auto image_view_info = reinterpret_cast<VulkanImageViewInfo*>(view_decoder->GetConsumerData(0));
         GFXRECON_ASSERT(image_view_info != nullptr);
 
         image_view_info->image_id = create_info_decoder->GetMetaStructPointer()->image;
@@ -8436,7 +8450,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
 VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
     PFN_vkCreateFramebuffer                                func,
     VkResult                                               original_result,
-    const DeviceInfo*                                      device_info,
+    const VulkanDeviceInfo*                                device_info,
     StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* create_info_decoder,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
     HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder)
@@ -8450,7 +8464,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
 
     if ((result == VK_SUCCESS) && ((*out_framebuffer) != VK_NULL_HANDLE))
     {
-        auto framebuffer_info = reinterpret_cast<FramebufferInfo*>(frame_buffer_decoder->GetConsumerData(0));
+        auto framebuffer_info = reinterpret_cast<VulkanFramebufferInfo*>(frame_buffer_decoder->GetConsumerData(0));
         GFXRECON_ASSERT(framebuffer_info != nullptr);
 
         framebuffer_info->framebuffer_flags = create_info->flags;
@@ -8470,9 +8484,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
 }
 
 void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID func,
-                                                            const DeviceInfo*          device_info,
-                                                            const SemaphoreInfo*       semaphore_info,
-                                                            const ImageInfo*           image_info)
+                                                            const VulkanDeviceInfo*    device_info,
+                                                            const VulkanSemaphoreInfo* semaphore_info,
+                                                            const VulkanImageInfo*     image_info)
 {
     GFXRECON_ASSERT((device_info != nullptr));
 
@@ -8530,7 +8544,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
     PFN_vkGetPhysicalDeviceToolProperties                         func,
     VkResult                                                      original_result,
-    const PhysicalDeviceInfo*                                     physical_device_info,
+    const VulkanPhysicalDeviceInfo*                               physical_device_info,
     PointerDecoder<uint32_t>*                                     pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
@@ -8551,9 +8565,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
 }
 
 VkResult
-VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores func,
-                                                 VkResult             original_result,
-                                                 const DeviceInfo*    device_info,
+VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores    func,
+                                                 VkResult                original_result,
+                                                 const VulkanDeviceInfo* device_info,
                                                  const StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pInfo,
                                                  uint64_t                                                 timeout)
 {
@@ -8581,7 +8595,7 @@ VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores func,
 VkResult VulkanReplayConsumerBase::OverrideAcquireProfilingLockKHR(
     PFN_vkAcquireProfilingLockKHR                                      func,
     VkResult                                                           original_result,
-    const DeviceInfo*                                                  device_info,
+    const VulkanDeviceInfo*                                            device_info,
     const StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
 {
     assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
@@ -8608,8 +8622,8 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireProfilingLockKHR(
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForPresentKHR(PFN_vkWaitForPresentKHR func,
                                                              VkResult                original_result,
-                                                             const DeviceInfo*       device_info,
-                                                             SwapchainKHRInfo*       swapchain_info,
+                                                             const VulkanDeviceInfo* device_info,
+                                                             VulkanSwapchainKHRInfo* swapchain_info,
                                                              uint64_t                presentid,
                                                              uint64_t                timeout)
 {
@@ -8635,7 +8649,7 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForPresentKHR(PFN_vkWaitForPresen
 }
 
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
-    const DescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
+    const VulkanDescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
 {
     assert(decoder != nullptr);
 
@@ -8681,7 +8695,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
 
         for (size_t i = 0; i < texel_buffer_view_count; ++i)
         {
-            auto texel_buffer_view_info = object_info_table_.GetBufferViewInfo(texel_buffer_view_ids[i]);
+            auto texel_buffer_view_info = object_info_table_.GetVkBufferViewInfo(texel_buffer_view_ids[i]);
 
             if (texel_buffer_view_info != nullptr)
             {
@@ -8701,7 +8715,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
 
         for (size_t i = 0; i < accel_struct_count; ++i)
         {
-            auto accel_struct_info = object_info_table_.GetAccelerationStructureKHRInfo(accel_struct_ids[i]);
+            auto accel_struct_info = object_info_table_.GetVkAccelerationStructureKHRInfo(accel_struct_ids[i]);
 
             if (accel_struct_info != nullptr)
             {
@@ -8716,7 +8730,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
 }
 
 void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                                                     std::vector<const SemaphoreInfo*>*       imported_semaphores)
+                                                     std::vector<const VulkanSemaphoreInfo*>* imported_semaphores)
 {
     assert(imported_semaphores != nullptr);
 
@@ -8727,7 +8741,7 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            const VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_ids[i]);
             if ((semaphore_info != nullptr) && semaphore_info->is_external)
             {
                 imported_semaphores->push_back(semaphore_info);
@@ -8738,7 +8752,7 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<
 
 void VulkanReplayConsumerBase::GetImportedSemaphores(
     const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-    std::vector<const SemaphoreInfo*>*                         imported_semaphores)
+    std::vector<const VulkanSemaphoreInfo*>*                   imported_semaphores)
 {
     assert(imported_semaphores != nullptr);
 
@@ -8749,7 +8763,8 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            const VulkanSemaphoreInfo* semaphore_info =
+                object_info_table_.GetVkSemaphoreInfo(semaphore_infos[i].semaphore);
             if ((semaphore_info != nullptr) && semaphore_info->is_external)
             {
                 imported_semaphores->push_back(semaphore_info);
@@ -8758,8 +8773,8 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(
     }
 }
 
-void VulkanReplayConsumerBase::SignalShadowSemaphore(SemaphoreInfo*                     semaphore_info,
-                                                     std::vector<const SemaphoreInfo*>* shadow_semaphores)
+void VulkanReplayConsumerBase::SignalShadowSemaphore(VulkanSemaphoreInfo*                     semaphore_info,
+                                                     std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores)
 {
     if (semaphore_info->shadow_signaled == true)
     {
@@ -8777,7 +8792,7 @@ void VulkanReplayConsumerBase::SignalShadowSemaphore(SemaphoreInfo*             
 }
 
 void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                                                   std::vector<const SemaphoreInfo*>*       shadow_semaphores)
+                                                   std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores)
 {
     assert(shadow_semaphores != nullptr);
 
@@ -8788,7 +8803,7 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<Vk
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_ids[i]);
             if (semaphore_info != nullptr)
             {
                 SignalShadowSemaphore(semaphore_info, shadow_semaphores);
@@ -8799,7 +8814,7 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<Vk
 
 void VulkanReplayConsumerBase::GetShadowSemaphores(
     const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-    std::vector<const SemaphoreInfo*>*                         shadow_semaphores)
+    std::vector<const VulkanSemaphoreInfo*>*                   shadow_semaphores)
 {
     assert(shadow_semaphores != nullptr);
 
@@ -8810,7 +8825,7 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_infos[i].semaphore);
             if (semaphore_info != nullptr)
             {
                 SignalShadowSemaphore(semaphore_info, shadow_semaphores);
@@ -8819,8 +8834,9 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(
     }
 }
 
-void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                                                             std::vector<const SemaphoreInfo*>* removed_semaphores)
+void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
+    const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+    std::vector<const VulkanSemaphoreInfo*>* removed_semaphores)
 {
     assert(removed_semaphores != nullptr);
 
@@ -8831,13 +8847,13 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(const HandlePointer
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_ids[i]);
             if (semaphore_info != nullptr)
             {
                 VkSemaphore semaphore = semaphore_info->handle;
                 // Need to ignore if removed.
                 bool removed = false;
-                for (const SemaphoreInfo* remove_semaphore : *removed_semaphores)
+                for (const VulkanSemaphoreInfo* remove_semaphore : *removed_semaphores)
                 {
                     if (semaphore == remove_semaphore->handle)
                     {
@@ -8859,7 +8875,7 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(const HandlePointer
 
 void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
     const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-    std::vector<const SemaphoreInfo*>*                         removed_semaphores)
+    std::vector<const VulkanSemaphoreInfo*>*                   removed_semaphores)
 {
     assert(removed_semaphores != nullptr);
 
@@ -8870,13 +8886,13 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_infos[i].semaphore);
             if (semaphore_info != nullptr)
             {
                 VkSemaphore semaphore = semaphore_info->handle;
                 // Need to ignore if removed.
                 bool removed = false;
-                for (const SemaphoreInfo* remove_semaphore : *removed_semaphores)
+                for (const VulkanSemaphoreInfo* remove_semaphore : *removed_semaphores)
                 {
                     if (semaphore == remove_semaphore->handle)
                     {
@@ -8896,8 +8912,9 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
     }
 }
 
-void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
-                                                     std::vector<const SemaphoreInfo*>* non_forward_progress_semaphores)
+void VulkanReplayConsumerBase::GetNonForwardProgress(
+    const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+    std::vector<const VulkanSemaphoreInfo*>* non_forward_progress_semaphores)
 {
     assert(non_forward_progress_semaphores != nullptr);
 
@@ -8908,7 +8925,7 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_ids[i]);
             if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
             {
                 if (semaphore_info->signaled == false)
@@ -8926,7 +8943,7 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<
 
 void VulkanReplayConsumerBase::GetNonForwardProgress(
     const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
-    std::vector<const SemaphoreInfo*>*                         non_forward_progress_semaphores)
+    std::vector<const VulkanSemaphoreInfo*>*                   non_forward_progress_semaphores)
 {
     assert(non_forward_progress_semaphores != nullptr);
 
@@ -8937,7 +8954,7 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            VulkanSemaphoreInfo* semaphore_info = object_info_table_.GetVkSemaphoreInfo(semaphore_infos[i].semaphore);
             if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
             {
                 if (semaphore_info->signaled == false)
@@ -8953,10 +8970,10 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(
     }
 }
 
-VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*        device_info,
+VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const VulkanDeviceInfo*  device_info,
                                                         const VkImageCreateInfo* image_create_info,
                                                         VkImage*                 image,
-                                                        ImageInfo*               image_info)
+                                                        VulkanImageInfo*         image_info)
 {
     // TODO - Rename/repurpose CreateStagingImage to be more allow single place to create image resources.
     VulkanResourceAllocator* allocator = device_info->allocator.get();
@@ -9027,9 +9044,10 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*       
     return result;
 }
 
-void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSetInfo*                     desc_set_info,
-                                                                   const DescriptorUpdateTemplateInfo*    template_info,
-                                                                   const DescriptorUpdateTemplateDecoder* decoder) const
+void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(
+    VulkanDescriptorSetInfo*                  desc_set_info,
+    const VulkanDescriptorUpdateTemplateInfo* template_info,
+    const DescriptorUpdateTemplateDecoder*    decoder) const
 {
     if (desc_set_info != nullptr)
     {
@@ -9064,8 +9082,8 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
 
                     for (uint32_t i = 0; i < count; ++i)
                     {
-                        const ImageViewInfo* img_view_info =
-                            object_info_table_.GetImageViewInfo(img_desc_info[image_info_count].imageView);
+                        const VulkanImageViewInfo* img_view_info =
+                            object_info_table_.GetVkImageViewInfo(img_desc_info[image_info_count].imageView);
                         desc_set_info->descriptors[binding_index].image_info[i] = {
                             img_view_info, img_desc_info[image_info_count].decoded_value->imageLayout
                         };
@@ -9102,8 +9120,8 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
 
                     for (uint32_t i = 0; i < count; ++i)
                     {
-                        const BufferInfo* buf_info =
-                            object_info_table_.GetBufferInfo(buf_desc_info[buffer_info_count].buffer);
+                        const VulkanBufferInfo* buf_info =
+                            object_info_table_.GetVkBufferInfo(buf_desc_info[buffer_info_count].buffer);
                         assert(buf_info != nullptr);
 
                         desc_set_info->descriptors[binding_index].buffer_info[i] = {
@@ -9131,8 +9149,8 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
 
                     for (uint32_t i = 0; i < count; ++i)
                     {
-                        const BufferViewInfo* buf_view_info =
-                            object_info_table_.GetBufferViewInfo(buffer_view_ids[texel_buffer_view_count]);
+                        const VulkanBufferViewInfo* buf_view_info =
+                            object_info_table_.GetVkBufferViewInfo(buffer_view_ids[texel_buffer_view_count]);
                         assert(buf_view_info != nullptr);
 
                         desc_set_info->descriptors[binding_index].texel_buffer_view_info[i] = buf_view_info;
@@ -9185,11 +9203,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const A
 {
     assert(pData != nullptr);
 
-    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkDevice        in_device = MapHandle<VulkanDeviceInfo>(device, &VulkanObjectInfoTable::GetVkDeviceInfo);
     VkDescriptorSet in_descriptorSet =
-        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetDescriptorSetInfo);
+        MapHandle<VulkanDescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = VK_NULL_HANDLE;
-    auto update_template_info = object_info_table_.GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
+    auto update_template_info = object_info_table_.GetVkDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
 
     MapDescriptorUpdateTemplateHandles(update_template_info, pData);
 
@@ -9200,7 +9218,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const A
 
     if (options_.dumping_resources)
     {
-        DescriptorSetInfo* desc_set_info = object_info_table_.GetDescriptorSetInfo(descriptorSet);
+        VulkanDescriptorSetInfo* desc_set_info = object_info_table_.GetVkDescriptorSetInfo(descriptorSet);
         UpdateDescriptorSetInfoWithTemplate(desc_set_info, update_template_info, pData);
     }
 
@@ -9218,10 +9236,11 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(con
     assert(pData != nullptr);
 
     VkCommandBuffer in_commandBuffer =
-        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+        MapHandle<VulkanCommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetVkCommandBufferInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = VK_NULL_HANDLE;
-    VkPipelineLayout in_layout = MapHandle<PipelineLayoutInfo>(layout, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
-    auto update_template_info  = object_info_table_.GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
+    VkPipelineLayout           in_layout =
+        MapHandle<VulkanPipelineLayoutInfo>(layout, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
+    auto update_template_info = object_info_table_.GetVkDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
 
     MapDescriptorUpdateTemplateHandles(update_template_info, pData);
 
@@ -9255,12 +9274,13 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     Decoded_VkPushDescriptorSetWithTemplateInfoKHR* in_info =
         pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
     VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
-    DescriptorUpdateTemplateInfo*           update_template_info =
-        object_info_table_.GetDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
+    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
+        object_info_table_.GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =
-        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
-    value->layout = MapHandle<PipelineLayoutInfo>(in_info->layout, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        MapHandle<VulkanCommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetVkCommandBufferInfo);
+    value->layout =
+        MapHandle<VulkanPipelineLayoutInfo>(in_info->layout, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
     MapDescriptorUpdateTemplateHandles(update_template_info, &in_info->pData);
     value->pData = in_info->pData.GetPointer();
@@ -9287,11 +9307,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(cons
 {
     assert(pData != nullptr);
 
-    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkDevice        in_device = MapHandle<VulkanDeviceInfo>(device, &VulkanObjectInfoTable::GetVkDeviceInfo);
     VkDescriptorSet in_descriptorSet =
-        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetDescriptorSetInfo);
+        MapHandle<VulkanDescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = VK_NULL_HANDLE;
-    auto update_template_info = object_info_table_.GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
+    auto update_template_info = object_info_table_.GetVkDescriptorUpdateTemplateInfo(descriptorUpdateTemplate);
 
     MapDescriptorUpdateTemplateHandles(update_template_info, pData);
 
@@ -9302,7 +9322,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(cons
 
     if (options_.dumping_resources)
     {
-        DescriptorSetInfo* desc_set_info = object_info_table_.GetDescriptorSetInfo(descriptorSet);
+        VulkanDescriptorSetInfo* desc_set_info = object_info_table_.GetVkDescriptorSetInfo(descriptorSet);
         UpdateDescriptorSetInfoWithTemplate(desc_set_info, update_template_info, pData);
     }
 
@@ -9321,9 +9341,9 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
-    auto in_device            = GetObjectInfoTable().GetDeviceInfo(device);
-    auto in_deferredOperation = GetObjectInfoTable().GetDeferredOperationKHRInfo(deferredOperation);
-    auto in_pipelineCache     = GetObjectInfoTable().GetPipelineCacheInfo(pipelineCache);
+    auto in_device            = GetObjectInfoTable().GetVkDeviceInfo(device);
+    auto in_deferredOperation = GetObjectInfoTable().GetVkDeferredOperationKHRInfo(deferredOperation);
+    auto in_pipelineCache     = GetObjectInfoTable().GetVkPipelineCacheInfo(pipelineCache);
     MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
 
     if (!pPipelines->IsNull())
@@ -9331,7 +9351,7 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
         pPipelines->SetHandleLength(createInfoCount);
     }
 
-    std::vector<PipelineInfo> handle_info(createInfoCount);
+    std::vector<VulkanPipelineInfo> handle_info(createInfoCount);
 
     for (size_t i = 0; i < createInfoCount; ++i)
     {
@@ -9353,19 +9373,19 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     if ((replay_result == VK_SUCCESS) || (replay_result == VK_OPERATION_NOT_DEFERRED_KHR) ||
         (replay_result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
     {
-        AddHandles<PipelineInfo>(device,
-                                 pPipelines->GetPointer(),
-                                 pPipelines->GetLength(),
-                                 pPipelines->GetHandlePointer(),
-                                 createInfoCount,
-                                 std::move(handle_info),
-                                 &VulkanObjectInfoTable::AddPipelineInfo);
+        AddHandles<VulkanPipelineInfo>(device,
+                                       pPipelines->GetPointer(),
+                                       pPipelines->GetLength(),
+                                       pPipelines->GetHandlePointer(),
+                                       createInfoCount,
+                                       std::move(handle_info),
+                                       &VulkanObjectInfoTable::AddVkPipelineInfo);
     }
 }
 
 void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     PFN_vkUpdateDescriptorSets                          func,
-    const DeviceInfo*                                   device_info,
+    const VulkanDeviceInfo*                             device_info,
     uint32_t                                            descriptor_write_count,
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes,
     uint32_t                                            descriptor_copy_count,
@@ -9383,7 +9403,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
         const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
         for (uint32_t s = 0; s < descriptor_write_count; ++s)
         {
-            DescriptorSetInfo* desc_set_info = GetObjectInfoTable().GetDescriptorSetInfo(writes_meta[s].dstSet);
+            VulkanDescriptorSetInfo* desc_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(writes_meta[s].dstSet);
 
             assert(desc_set_info != nullptr);
 
@@ -9413,7 +9433,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                             desc_set_info->descriptors[binding].image_info[arr_idx].image_layout =
                                 in_pDescriptorWrites[s].pImageInfo[b].imageLayout;
                             desc_set_info->descriptors[binding].image_info[arr_idx].image_view_info =
-                                object_info_table_.GetImageViewInfo(
+                                object_info_table_.GetVkImageViewInfo(
                                     writes_meta[s].pImageInfo->GetMetaStructPointer()[b].imageView);
                         }
                     }
@@ -9431,7 +9451,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         {
                             const uint32_t arr_idx = write->dstArrayElement + i;
                             desc_set_info->descriptors[binding].buffer_info[arr_idx].buffer_info =
-                                object_info_table_.GetBufferInfo(
+                                object_info_table_.GetVkBufferInfo(
                                     writes_meta[s].pBufferInfo->GetMetaStructPointer()[b].buffer);
                             desc_set_info->descriptors[binding].buffer_info[arr_idx].offset =
                                 in_pDescriptorWrites[s].pBufferInfo[b].offset;
@@ -9451,7 +9471,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         {
                             const uint32_t arr_idx = write->dstArrayElement + i;
                             desc_set_info->descriptors[binding].texel_buffer_view_info[arr_idx] =
-                                object_info_table_.GetBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[b]);
+                                object_info_table_.GetVkBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[b]);
                         }
                     }
                     break;
@@ -9546,8 +9566,8 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
 VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     PFN_vkCreateGraphicsPipelines                                     func,
     VkResult                                                          original_result,
-    const DeviceInfo*                                                 device_info,
-    const PipelineCacheInfo*                                          pipeline_cache_info,
+    const VulkanDeviceInfo*                                           device_info,
+    const VulkanPipelineCacheInfo*                                    pipeline_cache_info,
     uint32_t                                                          create_info_count,
     const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
@@ -9602,8 +9622,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
 VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     PFN_vkCreateComputePipelines                                     func,
     VkResult                                                         original_result,
-    const DeviceInfo*                                                device_info,
-    const PipelineCacheInfo*                                         pipeline_cache_info,
+    const VulkanDeviceInfo*                                          device_info,
+    const VulkanPipelineCacheInfo*                                   pipeline_cache_info,
     uint32_t                                                         create_info_count,
     const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
@@ -9631,10 +9651,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
         for (uint32_t i = 0; i < create_info_count; ++i)
         {
             assert(create_info_meta[i].stage);
-            ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(create_info_meta[i].stage->module);
+            VulkanShaderModuleInfo* module_info =
+                object_info_table_.GetVkShaderModuleInfo(create_info_meta[i].stage->module);
             assert(module_info);
 
-            PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
+            VulkanPipelineInfo* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
             assert(pipeline_info);
 
             pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
@@ -9680,7 +9701,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
 VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     PFN_vkCreateShadersEXT                                     func,
     VkResult                                                   original_result,
-    const DeviceInfo*                                          device_info,
+    const VulkanDeviceInfo*                                    device_info,
     uint32_t                                                   create_info_count,
     const StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
@@ -9730,8 +9751,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
 
 void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PFN_vkDestroyPipeline                                      func,
-    const DeviceInfo*                                          device_info,
-    PipelineInfo*                                              pipeline_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanPipelineInfo*                                        pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_ASSERT(device_info != nullptr);
@@ -9741,7 +9762,8 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
 
     if (pipeline_info != nullptr)
     {
-        in_pipeline = MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
+        in_pipeline =
+            MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
 
         if (IsUsedByAsyncTask(pipeline_info->capture_id))
         {
@@ -9757,8 +9779,8 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
 
 void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
     PFN_vkDestroyRenderPass                                    func,
-    const DeviceInfo*                                          device_info,
-    RenderPassInfo*                                            renderpass_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanRenderPassInfo*                                      renderpass_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     VkDevice                     in_device     = device_info->handle;
@@ -9783,8 +9805,8 @@ void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
 
 void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
     PFN_vkDestroyShaderModule                                  func,
-    const DeviceInfo*                                          device_info,
-    ShaderModuleInfo*                                          shader_module_info,
+    const VulkanDeviceInfo*                                    device_info,
+    VulkanShaderModuleInfo*                                    shader_module_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     VkDevice                     in_device        = device_info->handle;
@@ -9810,8 +9832,8 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(
     const ApiCallInfo&                                          call_info,
     VkResult                                                    returnValue,
-    const DeviceInfo*                                           device_info,
-    const PipelineCacheInfo*                                    pipeline_cache_info,
+    const VulkanDeviceInfo*                                     device_info,
+    const VulkanPipelineCacheInfo*                              pipeline_cache_info,
     uint32_t                                                    createInfoCount,
     StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
@@ -9848,7 +9870,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
         std::copy_n(pPipelines->GetPointer(), createInfoCount, pipelines.begin());
 
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
-            MapHandle<PipelineInfo>(parent_id, &VulkanObjectInfoTable::GetPipelineInfo);
+            MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
     TrackAsyncHandles(handle_deps, sync_fn);
@@ -9893,8 +9915,8 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
 std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateComputePipelines(
     const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
-    const DeviceInfo*                                          device_info,
-    const PipelineCacheInfo*                                   pipeline_cache_info,
+    const VulkanDeviceInfo*                                    device_info,
+    const VulkanPipelineCacheInfo*                             pipeline_cache_info,
     uint32_t                                                   createInfoCount,
     StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
@@ -9923,7 +9945,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     if (pPipelines != nullptr && createInfoCount > 0)
     {
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
-            MapHandle<PipelineInfo>(parent_id, &VulkanObjectInfoTable::GetPipelineInfo);
+            MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
     }
     TrackAsyncHandles(handle_deps, sync_fn);
@@ -9960,7 +9982,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
 std::function<handle_create_result_t<VkShaderEXT>()>
 VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&                                   call_info,
                                                 VkResult                                             returnValue,
-                                                const DeviceInfo*                                    device_info,
+                                                const VulkanDeviceInfo*                              device_info,
                                                 uint32_t                                             createInfoCount,
                                                 StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
                                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
@@ -9984,7 +10006,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
         std::copy_n(pShaders->GetPointer(), createInfoCount, shaders.begin());
 
         sync_fn = [this, parent_id = pShaders->GetPointer()[0]]() {
-            MapHandle<ShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetShaderEXTInfo);
+            MapHandle<VulkanShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
         };
     }
     TrackAsyncHandles(handle_deps, sync_fn);
