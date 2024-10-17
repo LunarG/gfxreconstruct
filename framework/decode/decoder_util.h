@@ -50,7 +50,7 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
 }
 
 static VkQueue GetDeviceQueue(const encode::VulkanDeviceTable* device_table,
-                              const DeviceInfo*                device_info,
+                              const VulkanDeviceInfo*          device_info,
                               uint32_t                         queue_family_index,
                               uint32_t                         queue_index)
 {

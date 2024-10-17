@@ -36,9 +36,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct DeviceMemoryInfo;
-struct BufferInfo;
-struct ImageInfo;
+struct VulkanDeviceMemoryInfo;
+struct VulkanBufferInfo;
+struct VulkanImageInfo;
 
 class VulkanResourceAllocator
 {
