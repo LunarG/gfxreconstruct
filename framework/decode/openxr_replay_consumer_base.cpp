@@ -711,8 +711,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     HandlePointerDecoder<XrSession>*                   session,
     XrResult                                           replay_result)
 {
-    Decoded_XrSessionCreateInfo* decoded_info   = createInfo->GetMetaStructPointer();
-    SessionData&                 session_data   = AddSessionData(*session->GetPointer());
+    Decoded_XrSessionCreateInfo* decoded_info = createInfo->GetMetaStructPointer();
+    SessionData&                 session_data = AddSessionData(*session->GetPointer());
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
@@ -909,8 +909,8 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                 }
                 else if (replay_result == XR_EVENT_UNAVAILABLE)
                 {
-                    // If the event that is expected is not known to  us, and we didn't encounter it , then this is a bad situtation and
-                    // needs to be reported.
+                    // If the event that is expected is not known to  us, and we didn't encounter it , then this is a
+                    // bad situtation and needs to be reported.
                     if (IsHandledEventType(capture_event->type))
                     {
                         // Yield and retry
@@ -962,9 +962,9 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         if (capture_event->type != out_eventData->type)
         {
             GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
-                                GetEventTypeString(capture_event->type),
-                                capture_event->type,
-                                capture_event->type);
+                               GetEventTypeString(capture_event->type),
+                               capture_event->type,
+                               capture_event->type);
 
             // Runtime never gave us the event we were looking for
             replay_result = XR_ERROR_RUNTIME_FAILURE;
@@ -1085,11 +1085,11 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                                  index,
     XrResult                                                   replay_result)
 {
-    uint32_t    capture_index = *index->GetPointer();
-    uint32_t    out_index     = *index->GetOutputPointer();
+    uint32_t capture_index = *index->GetPointer();
+    uint32_t out_index     = *index->GetOutputPointer();
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
-    replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+    replay_result                 = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
 }
 
 void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
