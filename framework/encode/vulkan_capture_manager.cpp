@@ -195,7 +195,9 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
     }
 }
 
-void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId                                    device_id,
+                                                        format::HandleId                                    queue_id,
+                                                        format::HandleId                                    memory_id,
                                                         AHardwareBuffer*                                    buffer,
                                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
@@ -214,6 +216,8 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
         create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
             format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
         create_buffer_cmd.thread_id = thread_data->thread_id_;
+        create_buffer_cmd.device_id = device_id;
+        create_buffer_cmd.queue_id  = queue_id;
         create_buffer_cmd.memory_id = memory_id;
         create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
 
@@ -775,12 +779,14 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
             wrapper->physical_device = physical_device_wrapper;
         }
 
+        wrapper->queue_family_indices.resize(pCreateInfo_unwrapped->queueCreateInfoCount);
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
             assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
                    wrapper->queue_family_creation_flags.end());
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+            wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
 
@@ -1753,7 +1759,7 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
             ahb_info.reference_count     = 0;
 
             // Write CreateHardwareBufferCmd with or without the AHB payload
-            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+            WriteCreateHardwareBufferCmd(0, 0, memory_id, hardware_buffer, plane_info);
 
             // Query the AHB size
             VkAndroidHardwareBufferPropertiesANDROID properties = {
@@ -1834,18 +1840,583 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
         }
         else
         {
-            // The AHB is not CPU-readable, so store only the creation command.
-            // Only store buffer IDs and reference count if a creation command is written to the capture file.
+            // The AHB is not CPU-readable, so create a VkBuffer and copy the data to it from AHB with vkCmdCopyBuffer
             format::HandleId memory_id = GetUniqueId();
 
             HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
             ahb_info.memory_id           = memory_id;
             ahb_info.reference_count     = 0;
 
-            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+            auto                       physical_device_wrapper = device_wrapper->physical_device;
+            auto                       physical_device         = physical_device_wrapper->handle;
+            const VulkanInstanceTable* instance_table          = vulkan_wrappers::GetInstanceTable(physical_device);
+            auto                       memory_properties       = &physical_device_wrapper->memory_properties;
 
-            GFXRECON_LOG_WARNING("AHardwareBuffer cannot be read: hardware buffer data will be omitted "
-                                 "from the capture file");
+            uint32_t deviceQueueIndex = -1;
+            uint32_t queueFamilyIndex = -1;
+
+            uint32_t queueFamilyCount;
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &queueFamilyCount, nullptr);
+            std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &queueFamilyCount, queueFamilyProperties.data());
+
+            for (size_t i = 0; i < device_wrapper->queue_family_indices.size(); ++i)
+            {
+                uint32_t qfi = device_wrapper->queue_family_indices[i];
+                if ((queueFamilyProperties[qfi].queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
+                {
+                    deviceQueueIndex = i;
+                    queueFamilyIndex = qfi;
+                    break;
+                }
+            }
+
+            if (deviceQueueIndex == -1 || queueFamilyIndex == -1)
+                return;
+
+            auto queue_wrapper = device_wrapper->child_queues[deviceQueueIndex];
+
+            WriteCreateHardwareBufferCmd(
+                device_wrapper->handle_id, queue_wrapper->handle_id, memory_id, hardware_buffer, plane_info);
+
+            VkResult vk_result = VK_SUCCESS;
+
+            // Query the AHB size
+            VkAndroidHardwareBufferFormatPropertiesANDROID formatProperties;
+            formatProperties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
+            formatProperties.pNext = nullptr;
+
+            VkAndroidHardwareBufferPropertiesANDROID properties;
+            properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+            properties.pNext = &formatProperties;
+
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->GetAndroidHardwareBufferPropertiesANDROID(
+                    device_unwrapped, hardware_buffer, &properties);
+
+            const size_t ahb_size = properties.allocationSize;
+            assert(ahb_size);
+
+            VkExternalFormatANDROID externalFormat;
+            externalFormat.sType          = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
+            externalFormat.pNext          = nullptr;
+            externalFormat.externalFormat = formatProperties.externalFormat;
+
+            VkExternalMemoryImageCreateInfo externalMemoryImageCreateInfo;
+            externalMemoryImageCreateInfo.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
+            externalMemoryImageCreateInfo.pNext = &externalFormat;
+            externalMemoryImageCreateInfo.handleTypes =
+                VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID;
+
+            const uint32_t imageHeight = 1024;
+            const uint32_t imageWidth  = ahb_size / imageHeight / sizeof(uint32_t);
+
+            VkImageCreateInfo imageCreateInfo;
+            imageCreateInfo.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+            imageCreateInfo.pNext                 = &externalMemoryImageCreateInfo;
+            imageCreateInfo.flags                 = 0u;
+            imageCreateInfo.imageType             = VK_IMAGE_TYPE_2D;
+            imageCreateInfo.format                = VK_FORMAT_UNDEFINED;
+            imageCreateInfo.extent                = { imageWidth, imageHeight, 1u };
+            imageCreateInfo.mipLevels             = 1u;
+            imageCreateInfo.arrayLayers           = 1u;
+            imageCreateInfo.samples               = VK_SAMPLE_COUNT_1_BIT;
+            imageCreateInfo.tiling                = VK_IMAGE_TILING_OPTIMAL;
+            imageCreateInfo.usage                 = VK_IMAGE_USAGE_STORAGE_BIT;
+            imageCreateInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+            imageCreateInfo.queueFamilyIndexCount = 0u;
+            imageCreateInfo.pQueueFamilyIndices   = nullptr;
+            imageCreateInfo.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            VkImage ahbImage = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateImage(device_unwrapped, &imageCreateInfo, nullptr, &ahbImage);
+
+            VkMemoryRequirements imageMemoryRequirements;
+            if (vk_result == VK_SUCCESS)
+                device_table->GetImageMemoryRequirements(device, ahbImage, &imageMemoryRequirements);
+
+            VkMemoryDedicatedAllocateInfo memoryDedicatedAllocateInfo;
+            memoryDedicatedAllocateInfo.sType  = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+            memoryDedicatedAllocateInfo.pNext  = nullptr;
+            memoryDedicatedAllocateInfo.image  = ahbImage;
+            memoryDedicatedAllocateInfo.buffer = VK_NULL_HANDLE;
+
+            VkImportAndroidHardwareBufferInfoANDROID importAHBInfo;
+            importAHBInfo.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
+            importAHBInfo.pNext  = &memoryDedicatedAllocateInfo;
+            importAHBInfo.buffer = hardware_buffer;
+
+            VkMemoryAllocateInfo imageMemoryAllocateInfo;
+            imageMemoryAllocateInfo.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            imageMemoryAllocateInfo.pNext          = &importAHBInfo;
+            imageMemoryAllocateInfo.allocationSize = imageMemoryRequirements.size;
+
+            uint32_t imageMemoryIndex = -1;
+            for (uint32_t i = 0; i < memory_properties->memoryTypeCount; ++i)
+            {
+                if ((imageMemoryRequirements.memoryTypeBits & (1 << i)) &&
+                    (memory_properties->memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) > 0)
+                {
+                    imageMemoryIndex = i;
+                    break;
+                }
+            }
+            if (imageMemoryIndex == -1)
+                return;
+            imageMemoryAllocateInfo.memoryTypeIndex = imageMemoryIndex;
+
+            VkDeviceMemory imageMemory = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result =
+                    device_table->AllocateMemory(device_unwrapped, &imageMemoryAllocateInfo, nullptr, &imageMemory);
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->BindImageMemory(device_unwrapped, ahbImage, imageMemory, 0u);
+
+            VkImageViewCreateInfo imageViewCreateInfo;
+            imageViewCreateInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewCreateInfo.pNext                           = nullptr;
+            imageViewCreateInfo.flags                           = 0u;
+            imageViewCreateInfo.image                           = ahbImage;
+            imageViewCreateInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewCreateInfo.format                          = VK_FORMAT_R32_UINT;
+            imageViewCreateInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewCreateInfo.subresourceRange.baseMipLevel   = 0u;
+            imageViewCreateInfo.subresourceRange.levelCount     = 1u;
+            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0u;
+            imageViewCreateInfo.subresourceRange.layerCount     = 1u;
+
+            VkImageView imageView = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateImageView(device_unwrapped, &imageViewCreateInfo, nullptr, &imageView);
+
+            VkBufferCreateInfo bufferCreateInfo;
+            bufferCreateInfo.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            bufferCreateInfo.pNext                 = nullptr;
+            bufferCreateInfo.flags                 = 0u;
+            bufferCreateInfo.size                  = ahb_size;
+            bufferCreateInfo.usage                 = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            bufferCreateInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+            bufferCreateInfo.queueFamilyIndexCount = 0u;
+            bufferCreateInfo.pQueueFamilyIndices   = nullptr;
+
+            VkBuffer buffer = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateBuffer(device_unwrapped, &bufferCreateInfo, nullptr, &buffer);
+
+            VkMemoryRequirements bufferMemeryRequirements;
+            if (vk_result == VK_SUCCESS)
+                device_table->GetBufferMemoryRequirements(device_unwrapped, buffer, &bufferMemeryRequirements);
+
+            VkMemoryAllocateInfo bufferMemoryAllocateInfo;
+            bufferMemoryAllocateInfo.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            bufferMemoryAllocateInfo.pNext          = nullptr;
+            bufferMemoryAllocateInfo.allocationSize = bufferMemeryRequirements.size;
+
+            uint32_t bufferMemoryIndex = -1;
+            for (uint32_t i = 0; i < memory_properties->memoryTypeCount; ++i)
+            {
+                if ((bufferMemeryRequirements.memoryTypeBits & (1 << i)) &&
+                    (memory_properties->memoryTypes[i].propertyFlags &
+                     (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) ==
+                        (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+                {
+                    bufferMemoryIndex = i;
+                    break;
+                }
+            }
+            if (bufferMemoryIndex == -1)
+                return;
+            bufferMemoryAllocateInfo.memoryTypeIndex = bufferMemoryIndex;
+
+            VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result =
+                    device_table->AllocateMemory(device_unwrapped, &bufferMemoryAllocateInfo, nullptr, &bufferMemory);
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->BindBufferMemory(device_unwrapped, buffer, bufferMemory, 0);
+
+            // #version 450
+            // layout(local_size_x = 16, local_size_y = 16) in;
+            //
+            // layout(binding = 0, r32ui) readonly uniform uimage2D image;
+            // layout(binding = 1, std430) buffer OutputBuffer {
+            //     uint data[];
+            // };
+            //
+            // void main() {
+            //     uvec2 gid = gl_GlobalInvocationID.xy;
+            //     ivec2 size = imageSize(image);
+            //     if (gid.x >= uint(size.x) || gid.y >= uint(size.y)) return;
+            //
+            //     uvec4 pixel = imageLoad(image, ivec2(gid));
+            //     uint index = gid.y * uint(size.x) + gid.x;
+            //     data[index] = pixel.x;
+            // }
+
+            std::vector<uint32_t> shader = {
+                0x07230203, 0x00010000, 0x0008000b, 0x0000004d, 0x00000000, 0x00020011, 0x00000001, 0x00020011,
+                0x00000032, 0x0006000b, 0x00000001, 0x4c534c47, 0x6474732e, 0x3035342e, 0x00000000, 0x0003000e,
+                0x00000000, 0x00000001, 0x0006000f, 0x00000005, 0x00000004, 0x6e69616d, 0x00000000, 0x0000000c,
+                0x00060010, 0x00000004, 0x00000011, 0x00000010, 0x00000010, 0x00000001, 0x00030003, 0x00000002,
+                0x000001c2, 0x00040005, 0x00000004, 0x6e69616d, 0x00000000, 0x00030005, 0x00000009, 0x00646967,
+                0x00080005, 0x0000000c, 0x475f6c67, 0x61626f6c, 0x766e496c, 0x7461636f, 0x496e6f69, 0x00000044,
+                0x00040005, 0x00000012, 0x657a6973, 0x00000000, 0x00040005, 0x00000015, 0x67616d69, 0x00000065,
+                0x00040005, 0x00000032, 0x65786970, 0x0000006c, 0x00040005, 0x00000037, 0x65646e69, 0x00000078,
+                0x00060005, 0x00000042, 0x7074754f, 0x75427475, 0x72656666, 0x00000000, 0x00050006, 0x00000042,
+                0x00000000, 0x61746164, 0x00000000, 0x00030005, 0x00000044, 0x00000000, 0x00040047, 0x0000000c,
+                0x0000000b, 0x0000001c, 0x00040047, 0x00000015, 0x00000022, 0x00000000, 0x00040047, 0x00000015,
+                0x00000021, 0x00000000, 0x00030047, 0x00000015, 0x00000018, 0x00040047, 0x00000041, 0x00000006,
+                0x00000004, 0x00050048, 0x00000042, 0x00000000, 0x00000023, 0x00000000, 0x00030047, 0x00000042,
+                0x00000003, 0x00040047, 0x00000044, 0x00000022, 0x00000000, 0x00040047, 0x00000044, 0x00000021,
+                0x00000001, 0x00040047, 0x0000004c, 0x0000000b, 0x00000019, 0x00020013, 0x00000002, 0x00030021,
+                0x00000003, 0x00000002, 0x00040015, 0x00000006, 0x00000020, 0x00000000, 0x00040017, 0x00000007,
+                0x00000006, 0x00000002, 0x00040020, 0x00000008, 0x00000007, 0x00000007, 0x00040017, 0x0000000a,
+                0x00000006, 0x00000003, 0x00040020, 0x0000000b, 0x00000001, 0x0000000a, 0x0004003b, 0x0000000b,
+                0x0000000c, 0x00000001, 0x00040015, 0x0000000f, 0x00000020, 0x00000001, 0x00040017, 0x00000010,
+                0x0000000f, 0x00000002, 0x00040020, 0x00000011, 0x00000007, 0x00000010, 0x00090019, 0x00000013,
+                0x00000006, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0x00000021, 0x00040020,
+                0x00000014, 0x00000000, 0x00000013, 0x0004003b, 0x00000014, 0x00000015, 0x00000000, 0x00020014,
+                0x00000018, 0x0004002b, 0x00000006, 0x00000019, 0x00000000, 0x00040020, 0x0000001a, 0x00000007,
+                0x00000006, 0x00040020, 0x0000001d, 0x00000007, 0x0000000f, 0x0004002b, 0x00000006, 0x00000025,
+                0x00000001, 0x00040017, 0x00000030, 0x00000006, 0x00000004, 0x00040020, 0x00000031, 0x00000007,
+                0x00000030, 0x0003001d, 0x00000041, 0x00000006, 0x0003001e, 0x00000042, 0x00000041, 0x00040020,
+                0x00000043, 0x00000002, 0x00000042, 0x0004003b, 0x00000043, 0x00000044, 0x00000002, 0x0004002b,
+                0x0000000f, 0x00000045, 0x00000000, 0x00040020, 0x00000049, 0x00000002, 0x00000006, 0x0004002b,
+                0x00000006, 0x0000004b, 0x00000010, 0x0006002c, 0x0000000a, 0x0000004c, 0x0000004b, 0x0000004b,
+                0x00000025, 0x00050036, 0x00000002, 0x00000004, 0x00000000, 0x00000003, 0x000200f8, 0x00000005,
+                0x0004003b, 0x00000008, 0x00000009, 0x00000007, 0x0004003b, 0x00000011, 0x00000012, 0x00000007,
+                0x0004003b, 0x00000031, 0x00000032, 0x00000007, 0x0004003b, 0x0000001a, 0x00000037, 0x00000007,
+                0x0004003d, 0x0000000a, 0x0000000d, 0x0000000c, 0x0007004f, 0x00000007, 0x0000000e, 0x0000000d,
+                0x0000000d, 0x00000000, 0x00000001, 0x0003003e, 0x00000009, 0x0000000e, 0x0004003d, 0x00000013,
+                0x00000016, 0x00000015, 0x00040068, 0x00000010, 0x00000017, 0x00000016, 0x0003003e, 0x00000012,
+                0x00000017, 0x00050041, 0x0000001a, 0x0000001b, 0x00000009, 0x00000019, 0x0004003d, 0x00000006,
+                0x0000001c, 0x0000001b, 0x00050041, 0x0000001d, 0x0000001e, 0x00000012, 0x00000019, 0x0004003d,
+                0x0000000f, 0x0000001f, 0x0000001e, 0x0004007c, 0x00000006, 0x00000020, 0x0000001f, 0x000500ae,
+                0x00000018, 0x00000021, 0x0000001c, 0x00000020, 0x000400a8, 0x00000018, 0x00000022, 0x00000021,
+                0x000300f7, 0x00000024, 0x00000000, 0x000400fa, 0x00000022, 0x00000023, 0x00000024, 0x000200f8,
+                0x00000023, 0x00050041, 0x0000001a, 0x00000026, 0x00000009, 0x00000025, 0x0004003d, 0x00000006,
+                0x00000027, 0x00000026, 0x00050041, 0x0000001d, 0x00000028, 0x00000012, 0x00000025, 0x0004003d,
+                0x0000000f, 0x00000029, 0x00000028, 0x0004007c, 0x00000006, 0x0000002a, 0x00000029, 0x000500ae,
+                0x00000018, 0x0000002b, 0x00000027, 0x0000002a, 0x000200f9, 0x00000024, 0x000200f8, 0x00000024,
+                0x000700f5, 0x00000018, 0x0000002c, 0x00000021, 0x00000005, 0x0000002b, 0x00000023, 0x000300f7,
+                0x0000002e, 0x00000000, 0x000400fa, 0x0000002c, 0x0000002d, 0x0000002e, 0x000200f8, 0x0000002d,
+                0x000100fd, 0x000200f8, 0x0000002e, 0x0004003d, 0x00000013, 0x00000033, 0x00000015, 0x0004003d,
+                0x00000007, 0x00000034, 0x00000009, 0x0004007c, 0x00000010, 0x00000035, 0x00000034, 0x00050062,
+                0x00000030, 0x00000036, 0x00000033, 0x00000035, 0x0003003e, 0x00000032, 0x00000036, 0x00050041,
+                0x0000001a, 0x00000038, 0x00000009, 0x00000025, 0x0004003d, 0x00000006, 0x00000039, 0x00000038,
+                0x00050041, 0x0000001d, 0x0000003a, 0x00000012, 0x00000019, 0x0004003d, 0x0000000f, 0x0000003b,
+                0x0000003a, 0x0004007c, 0x00000006, 0x0000003c, 0x0000003b, 0x00050084, 0x00000006, 0x0000003d,
+                0x00000039, 0x0000003c, 0x00050041, 0x0000001a, 0x0000003e, 0x00000009, 0x00000019, 0x0004003d,
+                0x00000006, 0x0000003f, 0x0000003e, 0x00050080, 0x00000006, 0x00000040, 0x0000003d, 0x0000003f,
+                0x0003003e, 0x00000037, 0x00000040, 0x0004003d, 0x00000006, 0x00000046, 0x00000037, 0x00050041,
+                0x0000001a, 0x00000047, 0x00000032, 0x00000019, 0x0004003d, 0x00000006, 0x00000048, 0x00000047,
+                0x00060041, 0x00000049, 0x0000004a, 0x00000044, 0x00000045, 0x00000046, 0x0003003e, 0x0000004a,
+                0x00000048, 0x000100fd, 0x00010038,
+            };
+
+            VkShaderModuleCreateInfo shaderModuleCreateInfo;
+            shaderModuleCreateInfo.sType       = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            shaderModuleCreateInfo.pNext       = nullptr;
+            shaderModuleCreateInfo.flags       = 0u;
+            shaderModuleCreateInfo.codeSize    = shader.size() * sizeof(uint32_t);
+            shaderModuleCreateInfo.pCode       = shader.data();
+            VkShaderModule computeShaderModule = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateShaderModule(
+                    device_unwrapped, &shaderModuleCreateInfo, nullptr, &computeShaderModule);
+
+            VkPipelineShaderStageCreateInfo shaderStageCreateInfo;
+            shaderStageCreateInfo.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStageCreateInfo.pNext               = nullptr;
+            shaderStageCreateInfo.flags               = 0u;
+            shaderStageCreateInfo.stage               = VK_SHADER_STAGE_COMPUTE_BIT;
+            shaderStageCreateInfo.module              = computeShaderModule;
+            shaderStageCreateInfo.pName               = "main";
+            shaderStageCreateInfo.pSpecializationInfo = nullptr;
+
+            VkDescriptorSetLayoutBinding bindings[2];
+            bindings[0].binding            = 0u;
+            bindings[0].descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+            bindings[0].descriptorCount    = 1u;
+            bindings[0].stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT;
+            bindings[0].pImmutableSamplers = nullptr;
+            bindings[1].binding            = 1u;
+            bindings[1].descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            bindings[1].descriptorCount    = 1u;
+            bindings[1].stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT;
+            bindings[1].pImmutableSamplers = nullptr;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
+            descriptorSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptorSetLayoutCreateInfo.pNext        = nullptr;
+            descriptorSetLayoutCreateInfo.flags        = 0u;
+            descriptorSetLayoutCreateInfo.bindingCount = 2u;
+            descriptorSetLayoutCreateInfo.pBindings    = bindings;
+
+            VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateDescriptorSetLayout(
+                    device_unwrapped, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout);
+
+            VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+            pipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipelineLayoutCreateInfo.pNext                  = nullptr;
+            pipelineLayoutCreateInfo.flags                  = 0u;
+            pipelineLayoutCreateInfo.setLayoutCount         = 1u;
+            pipelineLayoutCreateInfo.pSetLayouts            = &descriptorSetLayout;
+            pipelineLayoutCreateInfo.pushConstantRangeCount = 0u;
+            pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
+
+            VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreatePipelineLayout(
+                    device_unwrapped, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
+
+            VkComputePipelineCreateInfo computePipelineCreateInfo;
+            computePipelineCreateInfo.sType              = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+            computePipelineCreateInfo.pNext              = nullptr;
+            computePipelineCreateInfo.flags              = 0u;
+            computePipelineCreateInfo.stage              = shaderStageCreateInfo;
+            computePipelineCreateInfo.layout             = pipelineLayout;
+            computePipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+            computePipelineCreateInfo.basePipelineIndex  = -1;
+
+            VkPipeline computePipeline = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateComputePipelines(
+                    device_unwrapped, VK_NULL_HANDLE, 1u, &computePipelineCreateInfo, nullptr, &computePipeline);
+
+            VkDescriptorPoolSize poolSizes[2];
+            poolSizes[0].type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+            poolSizes[0].descriptorCount = 1u;
+            poolSizes[1].type            = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            poolSizes[1].descriptorCount = 1u;
+
+            VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
+            descriptorPoolCreateInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            descriptorPoolCreateInfo.pNext         = nullptr;
+            descriptorPoolCreateInfo.flags         = 0u;
+            descriptorPoolCreateInfo.maxSets       = 1u;
+            descriptorPoolCreateInfo.poolSizeCount = 2u;
+            descriptorPoolCreateInfo.pPoolSizes    = poolSizes;
+
+            VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateDescriptorPool(
+                    device_unwrapped, &descriptorPoolCreateInfo, nullptr, &descriptorPool);
+
+            VkDescriptorSetAllocateInfo descriptorSetAllocateInfo;
+            descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            descriptorSetAllocateInfo.pNext              = nullptr;
+            descriptorSetAllocateInfo.descriptorPool     = descriptorPool;
+            descriptorSetAllocateInfo.descriptorSetCount = 1u;
+            descriptorSetAllocateInfo.pSetLayouts        = &descriptorSetLayout;
+
+            VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result =
+                    device_table->AllocateDescriptorSets(device_unwrapped, &descriptorSetAllocateInfo, &descriptorSet);
+
+            VkDescriptorImageInfo imageInfo = {};
+            imageInfo.sampler               = VK_NULL_HANDLE;
+            imageInfo.imageView             = imageView;
+            imageInfo.imageLayout           = VK_IMAGE_LAYOUT_GENERAL;
+
+            VkDescriptorBufferInfo bufferInfo;
+            bufferInfo.buffer = buffer;
+            bufferInfo.offset = 0u;
+            bufferInfo.range  = VK_WHOLE_SIZE;
+
+            VkWriteDescriptorSet descriptorWrites[2];
+            descriptorWrites[0].sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[0].pNext            = nullptr;
+            descriptorWrites[0].dstSet           = descriptorSet;
+            descriptorWrites[0].dstBinding       = 0u;
+            descriptorWrites[0].dstArrayElement  = 0u;
+            descriptorWrites[0].descriptorCount  = 1u;
+            descriptorWrites[0].descriptorType   = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+            descriptorWrites[0].pImageInfo       = &imageInfo;
+            descriptorWrites[0].pBufferInfo      = nullptr;
+            descriptorWrites[0].pTexelBufferView = nullptr;
+            descriptorWrites[1].sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[1].pNext            = nullptr;
+            descriptorWrites[1].dstSet           = descriptorSet;
+            descriptorWrites[1].dstBinding       = 1u;
+            descriptorWrites[1].dstArrayElement  = 0u;
+            descriptorWrites[1].descriptorCount  = 1u;
+            descriptorWrites[1].descriptorType   = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            descriptorWrites[1].pImageInfo       = nullptr;
+            descriptorWrites[1].pBufferInfo      = &bufferInfo;
+            descriptorWrites[1].pTexelBufferView = nullptr;
+
+            if (vk_result == VK_SUCCESS)
+                device_table->UpdateDescriptorSets(device, 2u, descriptorWrites, 0u, nullptr);
+
+            VkCommandPoolCreateInfo commandPoolCreateInfo;
+            commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            commandPoolCreateInfo.pNext            = nullptr;
+            commandPoolCreateInfo.flags            = 0u;
+            commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
+
+            VkCommandPool commandPool = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result =
+                    device_table->CreateCommandPool(device_unwrapped, &commandPoolCreateInfo, nullptr, &commandPool);
+
+            VkCommandBufferAllocateInfo commandBufferAllocateInfo;
+            commandBufferAllocateInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            commandBufferAllocateInfo.pNext              = nullptr;
+            commandBufferAllocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            commandBufferAllocateInfo.commandPool        = commandPool;
+            commandBufferAllocateInfo.commandBufferCount = 1;
+
+            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result =
+                    device_table->AllocateCommandBuffers(device_unwrapped, &commandBufferAllocateInfo, &commandBuffer);
+
+            VkCommandBufferBeginInfo commandBufferBeginInfo;
+            commandBufferBeginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext            = nullptr;
+            commandBufferBeginInfo.flags            = 0u;
+            commandBufferBeginInfo.pInheritanceInfo = nullptr;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+
+            if (vk_result == VK_SUCCESS)
+            {
+                VkImageMemoryBarrier barrier            = {};
+                barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.pNext                           = nullptr;
+                barrier.srcAccessMask                   = 0u;
+                barrier.dstAccessMask                   = VK_ACCESS_SHADER_READ_BIT;
+                barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+                barrier.newLayout                       = VK_IMAGE_LAYOUT_GENERAL;
+                barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                barrier.image                           = ahbImage;
+                barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                barrier.subresourceRange.baseMipLevel   = 0u;
+                barrier.subresourceRange.levelCount     = 1u;
+                barrier.subresourceRange.baseArrayLayer = 0u;
+                barrier.subresourceRange.layerCount     = 1u;
+
+                device_table->CmdPipelineBarrier(commandBuffer,
+                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &barrier);
+
+                device_table->CmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline);
+                device_table->CmdBindDescriptorSets(
+                    commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+                device_table->CmdDispatch(commandBuffer, (imageWidth + 15) / 16, (imageHeight + 15) / 16, 1u);
+
+                VkBufferMemoryBarrier bufferBarrier;
+                bufferBarrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+                bufferBarrier.pNext               = nullptr;
+                bufferBarrier.srcAccessMask       = VK_ACCESS_SHADER_WRITE_BIT;
+                bufferBarrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
+                bufferBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                bufferBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                bufferBarrier.buffer              = buffer;
+                bufferBarrier.offset              = 0;
+                bufferBarrier.size                = VK_WHOLE_SIZE;
+
+                device_table->CmdPipelineBarrier(commandBuffer,
+                                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                 VK_PIPELINE_STAGE_HOST_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &bufferBarrier,
+                                                 0,
+                                                 nullptr);
+
+                device_table->EndCommandBuffer(commandBuffer);
+            }
+
+            VkSubmitInfo submitInfo;
+            submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext                = nullptr;
+            submitInfo.waitSemaphoreCount   = 0u;
+            submitInfo.pWaitSemaphores      = nullptr;
+            submitInfo.pWaitDstStageMask    = nullptr;
+            submitInfo.commandBufferCount   = 1u;
+            submitInfo.pCommandBuffers      = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 0u;
+            submitInfo.pSignalSemaphores    = nullptr;
+
+            VkFenceCreateInfo fenceCreateInfo;
+            fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+            fenceCreateInfo.pNext = nullptr;
+            fenceCreateInfo.flags = 0u;
+
+            VkFence fence = VK_NULL_HANDLE;
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->CreateFence(device_unwrapped, &fenceCreateInfo, nullptr, &fence);
+
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->QueueSubmit(queue_wrapper->handle, 1, &submitInfo, fence);
+            if (vk_result == VK_SUCCESS)
+                vk_result = device_table->WaitForFences(device_unwrapped, 1u, &fence, VK_TRUE, UINT64_MAX);
+
+            void* data;
+            if (vk_result == VK_SUCCESS)
+            {
+                vk_result = device_table->MapMemory(device, bufferMemory, 0u, ahb_size, 0u, &data);
+                WriteFillMemoryCmd(memory_id, 0, ahb_size, data);
+            }
+
+            // Track the memory with the PageGuardManager
+            if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+                 GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
+                GetPageGuardTrackAhbMemory())
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, ahb_size);
+
+                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                assert(manager != nullptr);
+
+                manager->AddTrackedMemory(memory_id,
+                                          data,
+                                          0,
+                                          static_cast<size_t>(ahb_size),
+                                          util::PageGuardManager::kNullShadowHandle,
+                                          false,  // No shadow memory for the imported AHB memory.
+                                          false); // Write watch is not supported for this case.
+            }
+
+            device_table->DestroyFence(device_unwrapped, fence, nullptr);
+            device_table->DestroyCommandPool(device_unwrapped, commandPool, nullptr);
+            device_table->DestroyDescriptorPool(device_unwrapped, descriptorPool, nullptr);
+            device_table->DestroyPipeline(device_unwrapped, computePipeline, nullptr);
+            device_table->DestroyPipelineLayout(device_unwrapped, pipelineLayout, nullptr);
+            device_table->DestroyDescriptorSetLayout(device_unwrapped, descriptorSetLayout, nullptr);
+            device_table->DestroyShaderModule(device_unwrapped, computeShaderModule, nullptr);
+            device_table->FreeMemory(device_unwrapped, bufferMemory, nullptr);
+            device_table->DestroyBuffer(device_unwrapped, buffer, nullptr);
+            device_table->DestroyImageView(device_unwrapped, imageView, nullptr);
+            device_table->FreeMemory(device_unwrapped, imageMemory, nullptr);
+            device_table->DestroyImage(device_unwrapped, ahbImage, nullptr);
+
+            if (vk_result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to capture data for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                                   memory_id);
+            }
         }
     }
 #else

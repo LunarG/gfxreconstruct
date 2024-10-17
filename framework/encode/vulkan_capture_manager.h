@@ -1332,7 +1332,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                uint32_t                      width,
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
-    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+    void WriteCreateHardwareBufferCmd(format::HandleId                                    device_id,
+                                      format::HandleId                                    queue_id,
+                                      format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
     void WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer);
