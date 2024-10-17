@@ -734,8 +734,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     HandlePointerDecoder<XrSession>*                   session,
     XrResult                                           replay_result)
 {
-    Decoded_XrSessionCreateInfo* decoded_info   = createInfo->GetMetaStructPointer();
-    SessionData&                 session_data   = AddSessionData(*session->GetPointer());
+    Decoded_XrSessionCreateInfo* decoded_info = createInfo->GetMetaStructPointer();
+    SessionData&                 session_data = AddSessionData(*session->GetPointer());
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
@@ -932,19 +932,45 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                 }
                 else if (replay_result == XR_EVENT_UNAVAILABLE)
                 {
-                    // Yield and retry
-                    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
+                    // If the event that is expected is not known to  us, and we didn't encounter it , then this is a
+                    // bad situtation and needs to be reported.
+                    if (IsHandledEventType(capture_event->type))
+                    {
+                        // Yield and retry
+                        std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
 
-                    if (sleep_time < kMaxSleepLimitNs)
-                    {
-                        // Next time, sleep for double what we initially slept for.  This way if we're just
-                        // spinning, we spin less and less each time.
-                        sleep_time *= 2;
+                        if (sleep_time < kMaxSleepLimitNs)
+                        {
+                            // Next time, sleep for double what we initially slept for.  This way if we're just
+                            // spinning, we spin less and less each time.
+                            sleep_time *= 2;
+                        }
+                        // Clamp it to the max (should stay here from this point forward)
+                        if (sleep_time > kMaxSleepLimitNs)
+                        {
+                            sleep_time = kMaxSleepLimitNs;
+                        }
                     }
-                    // Clamp it to the max (should stay here from this point forward)
-                    if (sleep_time > kMaxSleepLimitNs)
+                    else
                     {
-                        sleep_time = kMaxSleepLimitNs;
+                        // If this is an event we don't know anything about (it is unknown to GFXR), then
+                        // add it to the list of events we check against in the future.
+                        GFXRECON_LOG_WARNING("Unhandled Event %s (0x%x %d) did not occur, proceeding as normal",
+                                             GetEventTypeString(capture_event->type),
+                                             capture_event->type,
+                                             capture_event->type);
+                        unhandled_events_from_capture_.push_back(*capture_event);
+
+                        if (ManageEventDequeSize(unhandled_events_from_capture_))
+                        {
+                            GFXRECON_LOG_WARNING("Unhandled capture events list is size adjusted down to %d",
+                                                 unhandled_events_from_capture_.size());
+                        }
+
+                        // Return the expected replay code just because we don't know how to handle this and
+                        // we never received it (just so we don't assert out).
+                        replay_result = returnValue;
+                        break;
                     }
                 }
                 else
@@ -958,38 +984,13 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         // We timed out and never got the event we expect, so handle it appropriately.
         if (capture_event->type != out_eventData->type)
         {
-            // If the event was one we were supposed to handle, then this is a bad situtation and
-            // needs to be reported.
-            if (IsHandledEventType(capture_event->type))
-            {
-                GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
-                                   GetEventTypeString(capture_event->type),
-                                   capture_event->type,
-                                   capture_event->type);
+            GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
+                               GetEventTypeString(capture_event->type),
+                               capture_event->type,
+                               capture_event->type);
 
-                // Runtime never gave us the event we were looking for
-                replay_result = XR_ERROR_RUNTIME_FAILURE;
-            }
-            else
-            {
-                // If this is an event we don't know anything about (it is unknown to GFXR), then
-                // add it to the list of events we check against in the future.
-                GFXRECON_LOG_WARNING("Unhandled Event %s (0x%x %d) never occurred, pretending everything is still fine",
-                                     GetEventTypeString(capture_event->type),
-                                     capture_event->type,
-                                     capture_event->type);
-                unhandled_events_from_capture_.push_back(*capture_event);
-
-                if (ManageEventDequeSize(unhandled_events_from_capture_))
-                {
-                    GFXRECON_LOG_WARNING("Unhandled capture events list is size adjusted down to %d",
-                                         unhandled_events_from_capture_.size());
-                }
-
-                // Return the expected replay code just because we don't know how to handle this and
-                // we never received it (just so we don't assert out).
-                replay_result = returnValue;
-            }
+            // Runtime never gave us the event we were looking for
+            replay_result = XR_ERROR_RUNTIME_FAILURE;
         }
     }
     else
@@ -1107,11 +1108,11 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                                  index,
     XrResult                                                   replay_result)
 {
-    uint32_t    capture_index = *index->GetPointer();
-    uint32_t    out_index     = *index->GetOutputPointer();
+    uint32_t capture_index = *index->GetPointer();
+    uint32_t out_index     = *index->GetOutputPointer();
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
-    replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+    replay_result                 = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
 }
 
 void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
