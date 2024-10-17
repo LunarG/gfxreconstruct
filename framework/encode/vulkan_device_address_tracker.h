@@ -97,8 +97,8 @@ class VulkanDeviceAddressTracker
   private:
     struct buffer_item_t
     {
-        VkBuffer handle = VK_NULL_HANDLE;
-        size_t   size   = 0;
+        VkBuffer     handle = VK_NULL_HANDLE;
+        VkDeviceSize size   = 0;
     };
     //! use a sorted (BST-based) map to look-up ranges
     std::map<VkDeviceAddress, buffer_item_t> buffer_addresses_;

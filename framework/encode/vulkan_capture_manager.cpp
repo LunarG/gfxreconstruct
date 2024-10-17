@@ -962,8 +962,8 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
             device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
 
         accel_struct_wrapper->device_id = device_wrapper->handle_id;
-        accel_struct_wrapper->address = address;
-        accel_struct_wrapper->type    = modified_create_info->type;
+        accel_struct_wrapper->address   = address;
+        accel_struct_wrapper->type      = modified_create_info->type;
 
         if (IsCaptureModeTrack())
         {

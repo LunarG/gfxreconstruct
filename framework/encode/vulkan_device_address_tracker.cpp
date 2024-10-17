@@ -99,7 +99,7 @@ VkBuffer VulkanDeviceAddressTracker::GetBufferByDeviceAddress(VkDeviceAddress de
             // not found
             if (address_it == buffer_addresses_.begin())
             {
-                return nullptr;
+                return VK_NULL_HANDLE;
             }
 
             // decrement iterator, now pointing to the first VkDeviceAddress that is lower than device_address
@@ -120,7 +120,7 @@ VkAccelerationStructureKHR
 VulkanDeviceAddressTracker::GetAccelerationStructureByDeviceAddress(VkDeviceAddress device_address) const
 {
     std::shared_lock lock(mutex_);
-    auto address_it = acceleration_structure_addresses_.find(device_address);
+    auto             address_it = acceleration_structure_addresses_.find(device_address);
     if (address_it != acceleration_structure_addresses_.end())
     {
         return address_it->second;

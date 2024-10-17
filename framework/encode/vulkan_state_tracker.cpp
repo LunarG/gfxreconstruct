@@ -1766,8 +1766,8 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                     // VkAccelerationStructureInstanceKHR::accelerationStructureReference referes to
                     const uint64_t as_reference = instances[b].accelerationStructureReference;
 
-                    if(auto as_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                        device_address_tracker_.GetAccelerationStructureByDeviceAddress(as_reference)))
+                    if (auto as_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                            device_address_tracker_.GetAccelerationStructureByDeviceAddress(as_reference)))
                     {
                         tlas_wrapper->blas.push_back(as_wrapper);
                     }

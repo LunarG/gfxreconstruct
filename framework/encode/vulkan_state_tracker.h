@@ -392,10 +392,10 @@ class VulkanStateTracker
                                                     VkDeviceAddress            address);
 
     void
-         TrackAccelerationStructureBuildCommand(VkCommandBuffer                                        command_buffer,
-                                                uint32_t                                               info_count,
-                                                const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
-                                                const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
+    TrackAccelerationStructureBuildCommand(VkCommandBuffer                                        command_buffer,
+                                           uint32_t                                               info_count,
+                                           const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+                                           const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 

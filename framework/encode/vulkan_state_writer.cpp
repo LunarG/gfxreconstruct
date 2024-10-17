@@ -83,7 +83,8 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*           output_st
                                      util::Compressor*                 compressor,
                                      format::ThreadId                  thread_id,
                                      std::function<format::HandleId()> get_unique_id_fn) :
-    output_stream_(output_stream), compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_),
+    output_stream_(output_stream),
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_),
     get_unique_id_(std::move(get_unique_id_fn))
 {
     assert(output_stream != nullptr);
@@ -1414,12 +1415,12 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 {
     struct AccelerationStructureCommands
     {
-        std::vector<AccelerationStructureBuildCommandData*>           blas_build;
-        std::vector<AccelerationStructureBuildCommandData*>           tlas_build;
+        std::vector<AccelerationStructureBuildCommandData*>          blas_build;
+        std::vector<AccelerationStructureBuildCommandData*>          tlas_build;
         std::vector<AccelerationStructureWritePropertiesCommandData> write_properties;
         AccelerationStructureCopyCommandData                         copies;
-        std::vector<AccelerationStructureBuildCommandData*>           blas_update;
-        std::vector<AccelerationStructureBuildCommandData*>           tlas_update;
+        std::vector<AccelerationStructureBuildCommandData*>          blas_update;
+        std::vector<AccelerationStructureBuildCommandData*>          tlas_update;
     };
 
     std::unordered_map<format::HandleId, AccelerationStructureCommands> commands;
@@ -1428,7 +1429,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     state_table.VisitWrappers([&](vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        auto&                                                      per_device_container = commands[wrapper->device_id];
+        auto&                                                per_device_container = commands[wrapper->device_id];
         std::vector<AccelerationStructureBuildCommandData*>* build_container      = nullptr;
         std::vector<AccelerationStructureBuildCommandData*>* update_container     = nullptr;
 
