@@ -775,6 +775,7 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
 
 uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage                image,
                                                            VkFormat               format,
+                                                           uint64_t               external_format,
                                                            VkImageType            type,
                                                            const VkExtent3D&      extent,
                                                            uint32_t               mip_levels,
@@ -799,8 +800,12 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
 
     uint64_t resource_size = 0;
 
+    VkExternalFormatANDROID external_format_android = { VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID };
+    external_format_android.pNext                   = nullptr;
+    external_format_android.externalFormat          = external_format;
+
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-    create_info.pNext                 = nullptr;
+    create_info.pNext                 = (external_format != 0) ? &external_format_android : nullptr;
     create_info.flags                 = 0;
     create_info.imageType             = type;
     create_info.format                = GetImageAspectFormat(format, aspect);
@@ -1625,6 +1630,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 
 VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage                image,
                                                            VkFormat               format,
+                                                           uint64_t               external_format,
                                                            VkImageType            type,
                                                            const VkExtent3D&      extent,
                                                            uint32_t               mip_levels,
@@ -1667,6 +1673,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     resource_size = GetImageResourceSizesOptimal(image,
                                                  format,
+                                                 external_format,
                                                  type,
                                                  scaling_supported ? scaled_extent : extent,
                                                  mip_levels,
