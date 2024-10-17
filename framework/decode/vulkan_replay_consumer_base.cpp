@@ -5696,7 +5696,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
            (pShaderModule != nullptr) && !pShaderModule->IsNull());
 
     auto original_info = pCreateInfo->GetPointer();
-    if (original_result < 0 || options_.replace_dir.empty())
+    if (original_result < 0 || options_.replace_shader_dir.empty())
     {
         VkResult vk_res = func(
             device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
@@ -5747,7 +5747,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     const size_t            orig_size = original_info->codeSize;
     uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
-    std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
+    std::string             file_path = util::filepath::Join(options_.replace_shader_dir, file_name);
 
     FILE*   fp     = nullptr;
     int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");

@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2020-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,44 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#ifndef GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
+#define GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
 
-#include "decode/replay_options.h"
+#ifdef ENABLE_OPENXR_SUPPORT
 
 #include "util/defines.h"
-#include "util/options.h"
-#include "util/logging.h"
+
+#include "openxr/openxr.h"
 
 #include <vector>
-#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(feature_util)
 
-static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
+XrResult GetApiLayers(PFN_xrEnumerateApiLayerProperties instance_layer_proc, std::vector<XrApiLayerProperties>* layers);
 
-struct DumpResourcesTarget
-{
-    uint32_t submit_index{ 0 };
-    uint32_t command_index{ 0 };
-    uint32_t drawcall_index{ 0 };
-};
+bool IsSupportedApiLayer(const std::vector<XrApiLayerProperties>& properties, const char* layer);
 
-struct DxReplayOptions : public ReplayOptions
-{
-    bool                 enable_d3d12{ true };
-    bool                 enable_d3d12_two_pass_replay{ false };
-    bool                 use_cached_psos{ false };
-    std::vector<int32_t> AllowedDebugMessages;
-    std::vector<int32_t> DeniedDebugMessages;
-    bool                 override_object_names{ false };
-    bool                 enable_dump_resources{ false };
-    DumpResourcesTarget  dump_resources_target{};
-    int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
-};
+XrResult GetInstanceExtensions(PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc,
+                               std::vector<XrExtensionProperties>*        properties);
 
+bool IsSupportedExtension(const std::vector<XrExtensionProperties>& properties, const char* extension);
+
+void RemoveUnsupportedExtensions(const std::vector<XrExtensionProperties>& properties,
+                                 std::vector<const char*>*                 extensions);
+
+GFXRECON_END_NAMESPACE(feature_util)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#endif // ENABLE_OPENXR_SUPPORT
+
+#endif // GFXRECON_DECODE_OPENXR_FEATURE_FILTER_UTIL_H
