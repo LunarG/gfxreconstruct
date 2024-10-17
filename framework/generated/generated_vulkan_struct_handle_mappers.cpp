@@ -46,7 +46,7 @@ void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const VulkanObject
     {
         VkBufferMemoryBarrier* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -56,7 +56,7 @@ void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const VulkanObjectI
     {
         VkImageMemoryBarrier* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -82,11 +82,11 @@ void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const VulkanObjectInfoTable
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->pWaitSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
 
-        value->pCommandBuffers = handle_mapping::MapHandleArray<CommandBufferInfo>(&wrapper->pCommandBuffers, object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
+        value->pCommandBuffers = handle_mapping::MapHandleArray<VulkanCommandBufferInfo>(&wrapper->pCommandBuffers, object_info_table, &VulkanObjectInfoTable::GetVkCommandBufferInfo);
 
-        value->pSignalSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSignalSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -96,7 +96,7 @@ void MapStructHandles(Decoded_VkMappedMemoryRange* wrapper, const VulkanObjectIn
     {
         VkMappedMemoryRange* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -117,7 +117,7 @@ void MapStructHandles(Decoded_VkSparseMemoryBind* wrapper, const VulkanObjectInf
     {
         VkSparseMemoryBind* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -127,7 +127,7 @@ void MapStructHandles(Decoded_VkSparseBufferMemoryBindInfo* wrapper, const Vulka
     {
         VkSparseBufferMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
         MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
@@ -139,7 +139,7 @@ void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const 
     {
         VkSparseImageOpaqueMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
         MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
@@ -151,7 +151,7 @@ void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const VulkanObje
     {
         VkSparseImageMemoryBind* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -161,7 +161,7 @@ void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const Vulkan
     {
         VkSparseImageMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
         MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
@@ -178,7 +178,7 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->pWaitSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
 
         MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds->GetMetaStructPointer(), wrapper->pBufferBinds->GetLength(), object_info_table);
 
@@ -186,7 +186,7 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
 
         MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds->GetMetaStructPointer(), wrapper->pImageBinds->GetLength(), object_info_table);
 
-        value->pSignalSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSignalSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -196,7 +196,7 @@ void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjec
     {
         VkBufferViewCreateInfo* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -222,7 +222,7 @@ void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const VulkanObject
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -248,7 +248,7 @@ void MapStructHandles(Decoded_VkPipelineShaderStageCreateInfo* wrapper, const Vu
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->module = handle_mapping::MapHandle<ShaderModuleInfo>(wrapper->module, object_info_table, &VulkanObjectInfoTable::GetShaderModuleInfo);
+        value->module = handle_mapping::MapHandle<VulkanShaderModuleInfo>(wrapper->module, object_info_table, &VulkanObjectInfoTable::GetVkShaderModuleInfo);
     }
 }
 
@@ -265,9 +265,9 @@ void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const Vulkan
 
         MapStructHandles(wrapper->stage, object_info_table);
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
-        value->basePipelineHandle = handle_mapping::MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->basePipelineHandle = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -284,11 +284,11 @@ void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const Vulka
 
         MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
-        value->renderPass = handle_mapping::MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
+        value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetVkRenderPassInfo);
 
-        value->basePipelineHandle = handle_mapping::MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->basePipelineHandle = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -298,7 +298,7 @@ void MapStructHandles(Decoded_VkPipelineLayoutCreateInfo* wrapper, const VulkanO
     {
         VkPipelineLayoutCreateInfo* value = wrapper->decoded_value;
 
-        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = handle_mapping::MapHandleArray<VulkanDescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
     }
 }
 
@@ -319,9 +319,9 @@ void MapStructHandles(Decoded_VkCopyDescriptorSet* wrapper, const VulkanObjectIn
     {
         VkCopyDescriptorSet* value = wrapper->decoded_value;
 
-        value->srcSet = handle_mapping::MapHandle<DescriptorSetInfo>(wrapper->srcSet, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
+        value->srcSet = handle_mapping::MapHandle<VulkanDescriptorSetInfo>(wrapper->srcSet, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
 
-        value->dstSet = handle_mapping::MapHandle<DescriptorSetInfo>(wrapper->dstSet, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
+        value->dstSet = handle_mapping::MapHandle<VulkanDescriptorSetInfo>(wrapper->dstSet, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
     }
 }
 
@@ -331,7 +331,7 @@ void MapStructHandles(Decoded_VkDescriptorBufferInfo* wrapper, const VulkanObjec
     {
         VkDescriptorBufferInfo* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -341,9 +341,9 @@ void MapStructHandles(Decoded_VkDescriptorSetAllocateInfo* wrapper, const Vulkan
     {
         VkDescriptorSetAllocateInfo* value = wrapper->decoded_value;
 
-        value->descriptorPool = handle_mapping::MapHandle<DescriptorPoolInfo>(wrapper->descriptorPool, object_info_table, &VulkanObjectInfoTable::GetDescriptorPoolInfo);
+        value->descriptorPool = handle_mapping::MapHandle<VulkanDescriptorPoolInfo>(wrapper->descriptorPool, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorPoolInfo);
 
-        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = handle_mapping::MapHandleArray<VulkanDescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
     }
 }
 
@@ -353,7 +353,7 @@ void MapStructHandles(Decoded_VkDescriptorSetLayoutBinding* wrapper, const Vulka
     {
         VkDescriptorSetLayoutBinding* value = wrapper->decoded_value;
 
-        value->pImmutableSamplers = handle_mapping::MapHandleArray<SamplerInfo>(&wrapper->pImmutableSamplers, object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
+        value->pImmutableSamplers = handle_mapping::MapHandleArray<VulkanSamplerInfo>(&wrapper->pImmutableSamplers, object_info_table, &VulkanObjectInfoTable::GetVkSamplerInfo);
     }
 }
 
@@ -371,9 +371,9 @@ void MapStructHandles(Decoded_VkFramebufferCreateInfo* wrapper, const VulkanObje
     {
         VkFramebufferCreateInfo* value = wrapper->decoded_value;
 
-        value->renderPass = handle_mapping::MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
+        value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetVkRenderPassInfo);
 
-        value->pAttachments = handle_mapping::MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->pAttachments = handle_mapping::MapHandleArray<VulkanImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -383,7 +383,7 @@ void MapStructHandles(Decoded_VkCommandBufferAllocateInfo* wrapper, const Vulkan
     {
         VkCommandBufferAllocateInfo* value = wrapper->decoded_value;
 
-        value->commandPool = handle_mapping::MapHandle<CommandPoolInfo>(wrapper->commandPool, object_info_table, &VulkanObjectInfoTable::GetCommandPoolInfo);
+        value->commandPool = handle_mapping::MapHandle<VulkanCommandPoolInfo>(wrapper->commandPool, object_info_table, &VulkanObjectInfoTable::GetVkCommandPoolInfo);
     }
 }
 
@@ -393,9 +393,9 @@ void MapStructHandles(Decoded_VkCommandBufferInheritanceInfo* wrapper, const Vul
     {
         VkCommandBufferInheritanceInfo* value = wrapper->decoded_value;
 
-        value->renderPass = handle_mapping::MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
+        value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetVkRenderPassInfo);
 
-        value->framebuffer = handle_mapping::MapHandle<FramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetFramebufferInfo);
+        value->framebuffer = handle_mapping::MapHandle<VulkanFramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetVkFramebufferInfo);
     }
 }
 
@@ -418,9 +418,9 @@ void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const VulkanObject
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->renderPass = handle_mapping::MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
+        value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetVkRenderPassInfo);
 
-        value->framebuffer = handle_mapping::MapHandle<FramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetFramebufferInfo);
+        value->framebuffer = handle_mapping::MapHandle<VulkanFramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetVkFramebufferInfo);
     }
 }
 
@@ -430,9 +430,9 @@ void MapStructHandles(Decoded_VkBindBufferMemoryInfo* wrapper, const VulkanObjec
     {
         VkBindBufferMemoryInfo* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -447,9 +447,9 @@ void MapStructHandles(Decoded_VkBindImageMemoryInfo* wrapper, const VulkanObject
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -459,9 +459,9 @@ void MapStructHandles(Decoded_VkMemoryDedicatedAllocateInfo* wrapper, const Vulk
     {
         VkMemoryDedicatedAllocateInfo* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -469,7 +469,7 @@ void MapStructHandles(Decoded_VkPhysicalDeviceGroupProperties* wrapper, const Vu
 {
     if (wrapper != nullptr)
     {
-        handle_mapping::MapHandleArray<PhysicalDeviceInfo>(&wrapper->physicalDevices, object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+        handle_mapping::MapHandleArray<VulkanPhysicalDeviceInfo>(&wrapper->physicalDevices, object_info_table, &VulkanObjectInfoTable::GetVkPhysicalDeviceInfo);
     }
 }
 
@@ -479,7 +479,7 @@ void MapStructHandles(Decoded_VkDeviceGroupDeviceCreateInfo* wrapper, const Vulk
     {
         VkDeviceGroupDeviceCreateInfo* value = wrapper->decoded_value;
 
-        value->pPhysicalDevices = handle_mapping::MapHandleArray<PhysicalDeviceInfo>(&wrapper->pPhysicalDevices, object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+        value->pPhysicalDevices = handle_mapping::MapHandleArray<VulkanPhysicalDeviceInfo>(&wrapper->pPhysicalDevices, object_info_table, &VulkanObjectInfoTable::GetVkPhysicalDeviceInfo);
     }
 }
 
@@ -489,7 +489,7 @@ void MapStructHandles(Decoded_VkBufferMemoryRequirementsInfo2* wrapper, const Vu
     {
         VkBufferMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -499,7 +499,7 @@ void MapStructHandles(Decoded_VkImageMemoryRequirementsInfo2* wrapper, const Vul
     {
         VkImageMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -509,7 +509,7 @@ void MapStructHandles(Decoded_VkImageSparseMemoryRequirementsInfo2* wrapper, con
     {
         VkImageSparseMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -519,7 +519,7 @@ void MapStructHandles(Decoded_VkSamplerYcbcrConversionInfo* wrapper, const Vulka
     {
         VkSamplerYcbcrConversionInfo* value = wrapper->decoded_value;
 
-        value->conversion = handle_mapping::MapHandle<SamplerYcbcrConversionInfo>(wrapper->conversion, object_info_table, &VulkanObjectInfoTable::GetSamplerYcbcrConversionInfo);
+        value->conversion = handle_mapping::MapHandle<VulkanSamplerYcbcrConversionInfo>(wrapper->conversion, object_info_table, &VulkanObjectInfoTable::GetVkSamplerYcbcrConversionInfo);
     }
 }
 
@@ -529,9 +529,9 @@ void MapStructHandles(Decoded_VkDescriptorUpdateTemplateCreateInfo* wrapper, con
     {
         VkDescriptorUpdateTemplateCreateInfo* value = wrapper->decoded_value;
 
-        value->descriptorSetLayout = handle_mapping::MapHandle<DescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->descriptorSetLayout = handle_mapping::MapHandle<VulkanDescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
 
-        value->pipelineLayout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->pipelineLayout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -541,7 +541,7 @@ void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfo* wrapper, const Vu
     {
         VkRenderPassAttachmentBeginInfo* value = wrapper->decoded_value;
 
-        value->pAttachments = handle_mapping::MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->pAttachments = handle_mapping::MapHandleArray<VulkanImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -551,7 +551,7 @@ void MapStructHandles(Decoded_VkSemaphoreWaitInfo* wrapper, const VulkanObjectIn
     {
         VkSemaphoreWaitInfo* value = wrapper->decoded_value;
 
-        value->pSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -561,7 +561,7 @@ void MapStructHandles(Decoded_VkSemaphoreSignalInfo* wrapper, const VulkanObject
     {
         VkSemaphoreSignalInfo* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -571,7 +571,7 @@ void MapStructHandles(Decoded_VkBufferDeviceAddressInfo* wrapper, const VulkanOb
     {
         VkBufferDeviceAddressInfo* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -581,7 +581,7 @@ void MapStructHandles(Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo* wrapper, c
     {
         VkDeviceMemoryOpaqueCaptureAddressInfo* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -591,7 +591,7 @@ void MapStructHandles(Decoded_VkBufferMemoryBarrier2* wrapper, const VulkanObjec
     {
         VkBufferMemoryBarrier2* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -601,7 +601,7 @@ void MapStructHandles(Decoded_VkImageMemoryBarrier2* wrapper, const VulkanObject
     {
         VkImageMemoryBarrier2* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -621,7 +621,7 @@ void MapStructHandles(Decoded_VkSemaphoreSubmitInfo* wrapper, const VulkanObject
     {
         VkSemaphoreSubmitInfo* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -631,7 +631,7 @@ void MapStructHandles(Decoded_VkCommandBufferSubmitInfo* wrapper, const VulkanOb
     {
         VkCommandBufferSubmitInfo* value = wrapper->decoded_value;
 
-        value->commandBuffer = handle_mapping::MapHandle<CommandBufferInfo>(wrapper->commandBuffer, object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
+        value->commandBuffer = handle_mapping::MapHandle<VulkanCommandBufferInfo>(wrapper->commandBuffer, object_info_table, &VulkanObjectInfoTable::GetVkCommandBufferInfo);
     }
 }
 
@@ -658,9 +658,9 @@ void MapStructHandles(Decoded_VkCopyBufferInfo2* wrapper, const VulkanObjectInfo
     {
         VkCopyBufferInfo2* value = wrapper->decoded_value;
 
-        value->srcBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->srcBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->dstBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->dstBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -670,9 +670,9 @@ void MapStructHandles(Decoded_VkCopyImageInfo2* wrapper, const VulkanObjectInfoT
     {
         VkCopyImageInfo2* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -682,9 +682,9 @@ void MapStructHandles(Decoded_VkCopyBufferToImageInfo2* wrapper, const VulkanObj
     {
         VkCopyBufferToImageInfo2* value = wrapper->decoded_value;
 
-        value->srcBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->srcBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -694,9 +694,9 @@ void MapStructHandles(Decoded_VkCopyImageToBufferInfo2* wrapper, const VulkanObj
     {
         VkCopyImageToBufferInfo2* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->dstBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->dstBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -706,9 +706,9 @@ void MapStructHandles(Decoded_VkBlitImageInfo2* wrapper, const VulkanObjectInfoT
     {
         VkBlitImageInfo2* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -718,9 +718,9 @@ void MapStructHandles(Decoded_VkResolveImageInfo2* wrapper, const VulkanObjectIn
     {
         VkResolveImageInfo2* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -730,9 +730,9 @@ void MapStructHandles(Decoded_VkRenderingAttachmentInfo* wrapper, const VulkanOb
     {
         VkRenderingAttachmentInfo* value = wrapper->decoded_value;
 
-        value->imageView = handle_mapping::MapHandle<ImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
 
-        value->resolveImageView = handle_mapping::MapHandle<ImageViewInfo>(wrapper->resolveImageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->resolveImageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->resolveImageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -767,9 +767,9 @@ void MapStructHandles(Decoded_VkSwapchainCreateInfoKHR* wrapper, const VulkanObj
     {
         VkSwapchainCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->surface = handle_mapping::MapHandle<SurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetSurfaceKHRInfo);
+        value->surface = handle_mapping::MapHandle<VulkanSurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetVkSurfaceKHRInfo);
 
-        value->oldSwapchain = handle_mapping::MapHandle<SwapchainKHRInfo>(wrapper->oldSwapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->oldSwapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->oldSwapchain, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -784,9 +784,9 @@ void MapStructHandles(Decoded_VkPresentInfoKHR* wrapper, const VulkanObjectInfoT
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->pWaitSemaphores = handle_mapping::MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
 
-        value->pSwapchains = handle_mapping::MapHandleArray<SwapchainKHRInfo>(&wrapper->pSwapchains, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->pSwapchains = handle_mapping::MapHandleArray<VulkanSwapchainKHRInfo>(&wrapper->pSwapchains, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -796,7 +796,7 @@ void MapStructHandles(Decoded_VkImageSwapchainCreateInfoKHR* wrapper, const Vulk
     {
         VkImageSwapchainCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = handle_mapping::MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -806,7 +806,7 @@ void MapStructHandles(Decoded_VkBindImageMemorySwapchainInfoKHR* wrapper, const 
     {
         VkBindImageMemorySwapchainInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = handle_mapping::MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -816,11 +816,11 @@ void MapStructHandles(Decoded_VkAcquireNextImageInfoKHR* wrapper, const VulkanOb
     {
         VkAcquireNextImageInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = handle_mapping::MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
 
-        value->fence = handle_mapping::MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->fence = handle_mapping::MapHandle<VulkanFenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -830,7 +830,7 @@ void MapStructHandles(Decoded_VkDisplayModePropertiesKHR* wrapper, const VulkanO
     {
         VkDisplayModePropertiesKHR* value = wrapper->decoded_value;
 
-        value->displayMode = handle_mapping::MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
+        value->displayMode = handle_mapping::MapHandle<VulkanDisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetVkDisplayModeKHRInfo);
     }
 }
 
@@ -840,7 +840,7 @@ void MapStructHandles(Decoded_VkDisplayPlanePropertiesKHR* wrapper, const Vulkan
     {
         VkDisplayPlanePropertiesKHR* value = wrapper->decoded_value;
 
-        value->currentDisplay = handle_mapping::MapHandle<DisplayKHRInfo>(wrapper->currentDisplay, object_info_table, &VulkanObjectInfoTable::GetDisplayKHRInfo);
+        value->currentDisplay = handle_mapping::MapHandle<VulkanDisplayKHRInfo>(wrapper->currentDisplay, object_info_table, &VulkanObjectInfoTable::GetVkDisplayKHRInfo);
     }
 }
 
@@ -850,7 +850,7 @@ void MapStructHandles(Decoded_VkDisplayPropertiesKHR* wrapper, const VulkanObjec
     {
         VkDisplayPropertiesKHR* value = wrapper->decoded_value;
 
-        value->display = handle_mapping::MapHandle<DisplayKHRInfo>(wrapper->display, object_info_table, &VulkanObjectInfoTable::GetDisplayKHRInfo);
+        value->display = handle_mapping::MapHandle<VulkanDisplayKHRInfo>(wrapper->display, object_info_table, &VulkanObjectInfoTable::GetVkDisplayKHRInfo);
     }
 }
 
@@ -860,7 +860,7 @@ void MapStructHandles(Decoded_VkDisplaySurfaceCreateInfoKHR* wrapper, const Vulk
     {
         VkDisplaySurfaceCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->displayMode = handle_mapping::MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
+        value->displayMode = handle_mapping::MapHandle<VulkanDisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetVkDisplayModeKHRInfo);
     }
 }
 
@@ -870,7 +870,7 @@ void MapStructHandles(Decoded_VkVideoPictureResourceInfoKHR* wrapper, const Vulk
     {
         VkVideoPictureResourceInfoKHR* value = wrapper->decoded_value;
 
-        value->imageViewBinding = handle_mapping::MapHandle<ImageViewInfo>(wrapper->imageViewBinding, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->imageViewBinding = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageViewBinding, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -888,7 +888,7 @@ void MapStructHandles(Decoded_VkBindVideoSessionMemoryInfoKHR* wrapper, const Vu
     {
         VkBindVideoSessionMemoryInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -898,9 +898,9 @@ void MapStructHandles(Decoded_VkVideoSessionParametersCreateInfoKHR* wrapper, co
     {
         VkVideoSessionParametersCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->videoSessionParametersTemplate = handle_mapping::MapHandle<VideoSessionParametersKHRInfo>(wrapper->videoSessionParametersTemplate, object_info_table, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+        value->videoSessionParametersTemplate = handle_mapping::MapHandle<VulkanVideoSessionParametersKHRInfo>(wrapper->videoSessionParametersTemplate, object_info_table, &VulkanObjectInfoTable::GetVkVideoSessionParametersKHRInfo);
 
-        value->videoSession = handle_mapping::MapHandle<VideoSessionKHRInfo>(wrapper->videoSession, object_info_table, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
+        value->videoSession = handle_mapping::MapHandle<VulkanVideoSessionKHRInfo>(wrapper->videoSession, object_info_table, &VulkanObjectInfoTable::GetVkVideoSessionKHRInfo);
     }
 }
 
@@ -910,9 +910,9 @@ void MapStructHandles(Decoded_VkVideoBeginCodingInfoKHR* wrapper, const VulkanOb
     {
         VkVideoBeginCodingInfoKHR* value = wrapper->decoded_value;
 
-        value->videoSession = handle_mapping::MapHandle<VideoSessionKHRInfo>(wrapper->videoSession, object_info_table, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
+        value->videoSession = handle_mapping::MapHandle<VulkanVideoSessionKHRInfo>(wrapper->videoSession, object_info_table, &VulkanObjectInfoTable::GetVkVideoSessionKHRInfo);
 
-        value->videoSessionParameters = handle_mapping::MapHandle<VideoSessionParametersKHRInfo>(wrapper->videoSessionParameters, object_info_table, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+        value->videoSessionParameters = handle_mapping::MapHandle<VulkanVideoSessionParametersKHRInfo>(wrapper->videoSessionParameters, object_info_table, &VulkanObjectInfoTable::GetVkVideoSessionParametersKHRInfo);
 
         MapStructArrayHandles<Decoded_VkVideoReferenceSlotInfoKHR>(wrapper->pReferenceSlots->GetMetaStructPointer(), wrapper->pReferenceSlots->GetLength(), object_info_table);
     }
@@ -929,7 +929,7 @@ void MapStructHandles(Decoded_VkVideoDecodeInfoKHR* wrapper, const VulkanObjectI
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->srcBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->srcBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->srcBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
         MapStructHandles(wrapper->dstPictureResource, object_info_table);
 
@@ -945,7 +945,7 @@ void MapStructHandles(Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR* w
     {
         VkRenderingFragmentShadingRateAttachmentInfoKHR* value = wrapper->decoded_value;
 
-        value->imageView = handle_mapping::MapHandle<ImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -955,7 +955,7 @@ void MapStructHandles(Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT* wr
     {
         VkRenderingFragmentDensityMapAttachmentInfoEXT* value = wrapper->decoded_value;
 
-        value->imageView = handle_mapping::MapHandle<ImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
     }
 }
 
@@ -965,7 +965,7 @@ void MapStructHandles(Decoded_VkMemoryGetWin32HandleInfoKHR* wrapper, const Vulk
     {
         VkMemoryGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -975,7 +975,7 @@ void MapStructHandles(Decoded_VkMemoryGetFdInfoKHR* wrapper, const VulkanObjectI
     {
         VkMemoryGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -985,9 +985,9 @@ void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper, c
     {
         VkWin32KeyedMutexAcquireReleaseInfoKHR* value = wrapper->decoded_value;
 
-        value->pAcquireSyncs = handle_mapping::MapHandleArray<DeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pAcquireSyncs = handle_mapping::MapHandleArray<VulkanDeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
 
-        value->pReleaseSyncs = handle_mapping::MapHandleArray<DeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pReleaseSyncs = handle_mapping::MapHandleArray<VulkanDeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -997,7 +997,7 @@ void MapStructHandles(Decoded_VkImportSemaphoreWin32HandleInfoKHR* wrapper, cons
     {
         VkImportSemaphoreWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1007,7 +1007,7 @@ void MapStructHandles(Decoded_VkSemaphoreGetWin32HandleInfoKHR* wrapper, const V
     {
         VkSemaphoreGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1017,7 +1017,7 @@ void MapStructHandles(Decoded_VkImportSemaphoreFdInfoKHR* wrapper, const VulkanO
     {
         VkImportSemaphoreFdInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1027,7 +1027,7 @@ void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObje
     {
         VkSemaphoreGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1037,7 +1037,7 @@ void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const Vu
     {
         VkImportFenceWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = handle_mapping::MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->fence = handle_mapping::MapHandle<VulkanFenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -1047,7 +1047,7 @@ void MapStructHandles(Decoded_VkFenceGetWin32HandleInfoKHR* wrapper, const Vulka
     {
         VkFenceGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = handle_mapping::MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->fence = handle_mapping::MapHandle<VulkanFenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -1057,7 +1057,7 @@ void MapStructHandles(Decoded_VkImportFenceFdInfoKHR* wrapper, const VulkanObjec
     {
         VkImportFenceFdInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = handle_mapping::MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->fence = handle_mapping::MapHandle<VulkanFenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -1067,7 +1067,7 @@ void MapStructHandles(Decoded_VkFenceGetFdInfoKHR* wrapper, const VulkanObjectIn
     {
         VkFenceGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = handle_mapping::MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->fence = handle_mapping::MapHandle<VulkanFenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -1077,7 +1077,7 @@ void MapStructHandles(Decoded_VkPhysicalDeviceSurfaceInfo2KHR* wrapper, const Vu
     {
         VkPhysicalDeviceSurfaceInfo2KHR* value = wrapper->decoded_value;
 
-        value->surface = handle_mapping::MapHandle<SurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetSurfaceKHRInfo);
+        value->surface = handle_mapping::MapHandle<VulkanSurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetVkSurfaceKHRInfo);
     }
 }
 
@@ -1111,7 +1111,7 @@ void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjec
     {
         VkDisplayPlaneInfo2KHR* value = wrapper->decoded_value;
 
-        value->mode = handle_mapping::MapHandle<DisplayModeKHRInfo>(wrapper->mode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
+        value->mode = handle_mapping::MapHandle<VulkanDisplayModeKHRInfo>(wrapper->mode, object_info_table, &VulkanObjectInfoTable::GetVkDisplayModeKHRInfo);
     }
 }
 
@@ -1121,7 +1121,7 @@ void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectInfo
     {
         VkPipelineInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1131,7 +1131,7 @@ void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const Vulkan
     {
         VkPipelineExecutableInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1141,7 +1141,7 @@ void MapStructHandles(Decoded_VkMemoryMapInfoKHR* wrapper, const VulkanObjectInf
     {
         VkMemoryMapInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1151,7 +1151,7 @@ void MapStructHandles(Decoded_VkMemoryUnmapInfoKHR* wrapper, const VulkanObjectI
     {
         VkMemoryUnmapInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1161,7 +1161,7 @@ void MapStructHandles(Decoded_VkPipelineLibraryCreateInfoKHR* wrapper, const Vul
     {
         VkPipelineLibraryCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->pLibraries = handle_mapping::MapHandleArray<PipelineInfo>(&wrapper->pLibraries, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pLibraries = handle_mapping::MapHandleArray<VulkanPipelineInfo>(&wrapper->pLibraries, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1176,7 +1176,7 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const VulkanObjectI
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->dstBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->dstBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
         MapStructHandles(wrapper->srcPictureResource, object_info_table);
 
@@ -1192,7 +1192,7 @@ void MapStructHandles(Decoded_VkVideoEncodeSessionParametersGetInfoKHR* wrapper,
     {
         VkVideoEncodeSessionParametersGetInfoKHR* value = wrapper->decoded_value;
 
-        value->videoSessionParameters = handle_mapping::MapHandle<VideoSessionParametersKHRInfo>(wrapper->videoSessionParameters, object_info_table, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+        value->videoSessionParameters = handle_mapping::MapHandle<VulkanVideoSessionParametersKHRInfo>(wrapper->videoSessionParameters, object_info_table, &VulkanObjectInfoTable::GetVkVideoSessionParametersKHRInfo);
     }
 }
 
@@ -1210,7 +1210,7 @@ void MapStructHandles(Decoded_VkPipelineBinaryCreateInfoKHR* wrapper, const Vulk
     {
         VkPipelineBinaryCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1220,7 +1220,7 @@ void MapStructHandles(Decoded_VkPipelineBinaryInfoKHR* wrapper, const VulkanObje
     {
         VkPipelineBinaryInfoKHR* value = wrapper->decoded_value;
 
-        value->pPipelineBinaries = handle_mapping::MapHandleArray<PipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+        value->pPipelineBinaries = handle_mapping::MapHandleArray<VulkanPipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetVkPipelineBinaryKHRInfo);
     }
 }
 
@@ -1230,7 +1230,7 @@ void MapStructHandles(Decoded_VkReleaseCapturedPipelineDataInfoKHR* wrapper, con
     {
         VkReleaseCapturedPipelineDataInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1240,7 +1240,7 @@ void MapStructHandles(Decoded_VkPipelineBinaryDataInfoKHR* wrapper, const Vulkan
     {
         VkPipelineBinaryDataInfoKHR* value = wrapper->decoded_value;
 
-        value->pipelineBinary = handle_mapping::MapHandle<PipelineBinaryKHRInfo>(wrapper->pipelineBinary, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+        value->pipelineBinary = handle_mapping::MapHandle<VulkanPipelineBinaryKHRInfo>(wrapper->pipelineBinary, object_info_table, &VulkanObjectInfoTable::GetVkPipelineBinaryKHRInfo);
     }
 }
 
@@ -1250,7 +1250,7 @@ void MapStructHandles(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper, const Vul
     {
         VkPipelineBinaryHandlesInfoKHR* value = wrapper->decoded_value;
 
-        value->pPipelineBinaries = handle_mapping::MapHandleArray<PipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+        value->pPipelineBinaries = handle_mapping::MapHandleArray<VulkanPipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetVkPipelineBinaryKHRInfo);
     }
 }
 
@@ -1260,7 +1260,7 @@ void MapStructHandles(Decoded_VkVideoInlineQueryInfoKHR* wrapper, const VulkanOb
     {
         VkVideoInlineQueryInfoKHR* value = wrapper->decoded_value;
 
-        value->queryPool = handle_mapping::MapHandle<QueryPoolInfo>(wrapper->queryPool, object_info_table, &VulkanObjectInfoTable::GetQueryPoolInfo);
+        value->queryPool = handle_mapping::MapHandle<VulkanQueryPoolInfo>(wrapper->queryPool, object_info_table, &VulkanObjectInfoTable::GetVkQueryPoolInfo);
     }
 }
 
@@ -1275,9 +1275,9 @@ void MapStructHandles(Decoded_VkBindDescriptorSetsInfoKHR* wrapper, const Vulkan
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
-        value->pDescriptorSets = handle_mapping::MapHandleArray<DescriptorSetInfo>(&wrapper->pDescriptorSets, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
+        value->pDescriptorSets = handle_mapping::MapHandleArray<VulkanDescriptorSetInfo>(&wrapper->pDescriptorSets, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
     }
 }
 
@@ -1292,7 +1292,7 @@ void MapStructHandles(Decoded_VkPushConstantsInfoKHR* wrapper, const VulkanObjec
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -1307,7 +1307,7 @@ void MapStructHandles(Decoded_VkPushDescriptorSetInfoKHR* wrapper, const VulkanO
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
         MapStructArrayHandles<Decoded_VkWriteDescriptorSet>(wrapper->pDescriptorWrites->GetMetaStructPointer(), wrapper->pDescriptorWrites->GetLength(), object_info_table);
     }
@@ -1324,7 +1324,7 @@ void MapStructHandles(Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper, cons
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -1339,7 +1339,7 @@ void MapStructHandles(Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wra
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -1369,9 +1369,9 @@ void MapStructHandles(Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* wrapper
     {
         VkDedicatedAllocationMemoryAllocateInfoNV* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1381,9 +1381,9 @@ void MapStructHandles(Decoded_VkImageViewHandleInfoNVX* wrapper, const VulkanObj
     {
         VkImageViewHandleInfoNVX* value = wrapper->decoded_value;
 
-        value->imageView = handle_mapping::MapHandle<ImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
 
-        value->sampler = handle_mapping::MapHandle<SamplerInfo>(wrapper->sampler, object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
+        value->sampler = handle_mapping::MapHandle<VulkanSamplerInfo>(wrapper->sampler, object_info_table, &VulkanObjectInfoTable::GetVkSamplerInfo);
     }
 }
 
@@ -1393,9 +1393,9 @@ void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper, co
     {
         VkWin32KeyedMutexAcquireReleaseInfoNV* value = wrapper->decoded_value;
 
-        value->pAcquireSyncs = handle_mapping::MapHandleArray<DeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pAcquireSyncs = handle_mapping::MapHandleArray<VulkanDeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
 
-        value->pReleaseSyncs = handle_mapping::MapHandleArray<DeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pReleaseSyncs = handle_mapping::MapHandleArray<VulkanDeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1405,7 +1405,7 @@ void MapStructHandles(Decoded_VkConditionalRenderingBeginInfoEXT* wrapper, const
     {
         VkConditionalRenderingBeginInfoEXT* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1435,7 +1435,7 @@ void MapStructHandles(Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* wrapp
     {
         VkMemoryGetAndroidHardwareBufferInfoANDROID* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1445,7 +1445,7 @@ void MapStructHandles(Decoded_VkShaderModuleValidationCacheCreateInfoEXT* wrappe
     {
         VkShaderModuleValidationCacheCreateInfoEXT* value = wrapper->decoded_value;
 
-        value->validationCache = handle_mapping::MapHandle<ValidationCacheEXTInfo>(wrapper->validationCache, object_info_table, &VulkanObjectInfoTable::GetValidationCacheEXTInfo);
+        value->validationCache = handle_mapping::MapHandle<VulkanValidationCacheEXTInfo>(wrapper->validationCache, object_info_table, &VulkanObjectInfoTable::GetVkValidationCacheEXTInfo);
     }
 }
 
@@ -1457,9 +1457,9 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoNV* wrapper, const V
 
         MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
-        value->basePipelineHandle = handle_mapping::MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->basePipelineHandle = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1469,11 +1469,11 @@ void MapStructHandles(Decoded_VkGeometryTrianglesNV* wrapper, const VulkanObject
     {
         VkGeometryTrianglesNV* value = wrapper->decoded_value;
 
-        value->vertexData = handle_mapping::MapHandle<BufferInfo>(wrapper->vertexData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->vertexData = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->vertexData, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->indexData = handle_mapping::MapHandle<BufferInfo>(wrapper->indexData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->indexData = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->indexData, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->transformData = handle_mapping::MapHandle<BufferInfo>(wrapper->transformData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->transformData = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->transformData, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1483,7 +1483,7 @@ void MapStructHandles(Decoded_VkGeometryAABBNV* wrapper, const VulkanObjectInfoT
     {
         VkGeometryAABBNV* value = wrapper->decoded_value;
 
-        value->aabbData = handle_mapping::MapHandle<BufferInfo>(wrapper->aabbData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->aabbData = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->aabbData, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1527,9 +1527,9 @@ void MapStructHandles(Decoded_VkBindAccelerationStructureMemoryInfoNV* wrapper, 
     {
         VkBindAccelerationStructureMemoryInfoNV* value = wrapper->decoded_value;
 
-        value->accelerationStructure = handle_mapping::MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
+        value->accelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureNVInfo);
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1539,7 +1539,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureNV* wrapp
     {
         VkWriteDescriptorSetAccelerationStructureNV* value = wrapper->decoded_value;
 
-        value->pAccelerationStructures = handle_mapping::MapHandleArray<AccelerationStructureNVInfo>(&wrapper->pAccelerationStructures, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
+        value->pAccelerationStructures = handle_mapping::MapHandleArray<VulkanAccelerationStructureNVInfo>(&wrapper->pAccelerationStructures, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureNVInfo);
     }
 }
 
@@ -1549,7 +1549,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* w
     {
         VkAccelerationStructureMemoryRequirementsInfoNV* value = wrapper->decoded_value;
 
-        value->accelerationStructure = handle_mapping::MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
+        value->accelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureNVInfo);
     }
 }
 
@@ -1559,7 +1559,7 @@ void MapStructHandles(Decoded_VkCopyMemoryToImageInfoEXT* wrapper, const VulkanO
     {
         VkCopyMemoryToImageInfoEXT* value = wrapper->decoded_value;
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -1569,7 +1569,7 @@ void MapStructHandles(Decoded_VkCopyImageToMemoryInfoEXT* wrapper, const VulkanO
     {
         VkCopyImageToMemoryInfoEXT* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -1579,9 +1579,9 @@ void MapStructHandles(Decoded_VkCopyImageToImageInfoEXT* wrapper, const VulkanOb
     {
         VkCopyImageToImageInfoEXT* value = wrapper->decoded_value;
 
-        value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->srcImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -1591,7 +1591,7 @@ void MapStructHandles(Decoded_VkHostImageLayoutTransitionInfoEXT* wrapper, const
     {
         VkHostImageLayoutTransitionInfoEXT* value = wrapper->decoded_value;
 
-        value->image = handle_mapping::MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
     }
 }
 
@@ -1601,7 +1601,7 @@ void MapStructHandles(Decoded_VkSwapchainPresentFenceInfoEXT* wrapper, const Vul
     {
         VkSwapchainPresentFenceInfoEXT* value = wrapper->decoded_value;
 
-        value->pFences = handle_mapping::MapHandleArray<FenceInfo>(&wrapper->pFences, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
+        value->pFences = handle_mapping::MapHandleArray<VulkanFenceInfo>(&wrapper->pFences, object_info_table, &VulkanObjectInfoTable::GetVkFenceInfo);
     }
 }
 
@@ -1611,7 +1611,7 @@ void MapStructHandles(Decoded_VkReleaseSwapchainImagesInfoEXT* wrapper, const Vu
     {
         VkReleaseSwapchainImagesInfoEXT* value = wrapper->decoded_value;
 
-        value->swapchain = handle_mapping::MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -1631,7 +1631,7 @@ void MapStructHandles(Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV* wrappe
 
         MapStructArrayHandles<Decoded_VkGraphicsShaderGroupCreateInfoNV>(wrapper->pGroups->GetMetaStructPointer(), wrapper->pGroups->GetLength(), object_info_table);
 
-        value->pPipelines = handle_mapping::MapHandleArray<PipelineInfo>(&wrapper->pPipelines, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pPipelines = handle_mapping::MapHandleArray<VulkanPipelineInfo>(&wrapper->pPipelines, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1641,7 +1641,7 @@ void MapStructHandles(Decoded_VkIndirectCommandsStreamNV* wrapper, const VulkanO
     {
         VkIndirectCommandsStreamNV* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1651,7 +1651,7 @@ void MapStructHandles(Decoded_VkIndirectCommandsLayoutTokenNV* wrapper, const Vu
     {
         VkIndirectCommandsLayoutTokenNV* value = wrapper->decoded_value;
 
-        value->pushconstantPipelineLayout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->pushconstantPipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->pushconstantPipelineLayout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->pushconstantPipelineLayout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -1669,17 +1669,17 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoNV* wrapper, const VulkanOb
     {
         VkGeneratedCommandsInfoNV* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
 
-        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutNVInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVInfo);
+        value->indirectCommandsLayout = handle_mapping::MapHandle<VulkanIndirectCommandsLayoutNVInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetVkIndirectCommandsLayoutNVInfo);
 
         MapStructArrayHandles<Decoded_VkIndirectCommandsStreamNV>(wrapper->pStreams->GetMetaStructPointer(), wrapper->pStreams->GetLength(), object_info_table);
 
-        value->preprocessBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->preprocessBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->preprocessBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->preprocessBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->sequencesCountBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->sequencesCountBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->sequencesCountBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->sequencesCountBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
 
-        value->sequencesIndexBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->sequencesIndexBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->sequencesIndexBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->sequencesIndexBuffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1689,9 +1689,9 @@ void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* wrapp
     {
         VkGeneratedCommandsMemoryRequirementsInfoNV* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
 
-        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutNVInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVInfo);
+        value->indirectCommandsLayout = handle_mapping::MapHandle<VulkanIndirectCommandsLayoutNVInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetVkIndirectCommandsLayoutNVInfo);
     }
 }
 
@@ -1701,7 +1701,7 @@ void MapStructHandles(Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* wrapper, const
     {
         VkMemoryGetZirconHandleInfoFUCHSIA* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1711,7 +1711,7 @@ void MapStructHandles(Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA* wrapper,
     {
         VkImportSemaphoreZirconHandleInfoFUCHSIA* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1721,7 +1721,7 @@ void MapStructHandles(Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA* wrapper, co
     {
         VkSemaphoreGetZirconHandleInfoFUCHSIA* value = wrapper->decoded_value;
 
-        value->semaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->semaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1731,7 +1731,7 @@ void MapStructHandles(Decoded_VkMemoryGetRemoteAddressInfoNV* wrapper, const Vul
     {
         VkMemoryGetRemoteAddressInfoNV* value = wrapper->decoded_value;
 
-        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetVkDeviceMemoryInfo);
     }
 }
 
@@ -1741,9 +1741,9 @@ void MapStructHandles(Decoded_VkFrameBoundaryEXT* wrapper, const VulkanObjectInf
     {
         VkFrameBoundaryEXT* value = wrapper->decoded_value;
 
-        value->pImages = handle_mapping::MapHandleArray<ImageInfo>(&wrapper->pImages, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+        value->pImages = handle_mapping::MapHandleArray<VulkanImageInfo>(&wrapper->pImages, object_info_table, &VulkanObjectInfoTable::GetVkImageInfo);
 
-        value->pBuffers = handle_mapping::MapHandleArray<BufferInfo>(&wrapper->pBuffers, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->pBuffers = handle_mapping::MapHandleArray<VulkanBufferInfo>(&wrapper->pBuffers, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1753,7 +1753,7 @@ void MapStructHandles(Decoded_VkMicromapBuildInfoEXT* wrapper, const VulkanObjec
     {
         VkMicromapBuildInfoEXT* value = wrapper->decoded_value;
 
-        value->dstMicromap = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->dstMicromap, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->dstMicromap = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->dstMicromap, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1763,7 +1763,7 @@ void MapStructHandles(Decoded_VkMicromapCreateInfoEXT* wrapper, const VulkanObje
     {
         VkMicromapCreateInfoEXT* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -1773,7 +1773,7 @@ void MapStructHandles(Decoded_VkCopyMicromapToMemoryInfoEXT* wrapper, const Vulk
     {
         VkCopyMicromapToMemoryInfoEXT* value = wrapper->decoded_value;
 
-        value->src = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->src = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1783,7 +1783,7 @@ void MapStructHandles(Decoded_VkCopyMemoryToMicromapInfoEXT* wrapper, const Vulk
     {
         VkCopyMemoryToMicromapInfoEXT* value = wrapper->decoded_value;
 
-        value->dst = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->dst = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1793,9 +1793,9 @@ void MapStructHandles(Decoded_VkCopyMicromapInfoEXT* wrapper, const VulkanObject
     {
         VkCopyMicromapInfoEXT* value = wrapper->decoded_value;
 
-        value->src = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->src = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
 
-        value->dst = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->dst = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1805,7 +1805,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT
     {
         VkAccelerationStructureTrianglesOpacityMicromapEXT* value = wrapper->decoded_value;
 
-        value->micromap = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->micromap, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->micromap = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->micromap, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1815,7 +1815,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureTrianglesDisplacementMicrom
     {
         VkAccelerationStructureTrianglesDisplacementMicromapNV* value = wrapper->decoded_value;
 
-        value->micromap = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->micromap, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+        value->micromap = handle_mapping::MapHandle<VulkanMicromapEXTInfo>(wrapper->micromap, object_info_table, &VulkanObjectInfoTable::GetVkMicromapEXTInfo);
     }
 }
 
@@ -1825,7 +1825,7 @@ void MapStructHandles(Decoded_VkDescriptorSetBindingReferenceVALVE* wrapper, con
     {
         VkDescriptorSetBindingReferenceVALVE* value = wrapper->decoded_value;
 
-        value->descriptorSetLayout = handle_mapping::MapHandle<DescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->descriptorSetLayout = handle_mapping::MapHandle<VulkanDescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
     }
 }
 
@@ -1843,7 +1843,7 @@ void MapStructHandles(Decoded_VkPipelineIndirectDeviceAddressInfoNV* wrapper, co
     {
         VkPipelineIndirectDeviceAddressInfoNV* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1853,7 +1853,7 @@ void MapStructHandles(Decoded_VkShaderCreateInfoEXT* wrapper, const VulkanObject
     {
         VkShaderCreateInfoEXT* value = wrapper->decoded_value;
 
-        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = handle_mapping::MapHandleArray<VulkanDescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
     }
 }
 
@@ -1863,7 +1863,7 @@ void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const VulkanObjectI
     {
         VkLatencySleepInfoNV* value = wrapper->decoded_value;
 
-        value->signalSemaphore = handle_mapping::MapHandle<SemaphoreInfo>(wrapper->signalSemaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->signalSemaphore = handle_mapping::MapHandle<VulkanSemaphoreInfo>(wrapper->signalSemaphore, object_info_table, &VulkanObjectInfoTable::GetVkSemaphoreInfo);
     }
 }
 
@@ -1878,9 +1878,9 @@ void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* wrap
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->indirectExecutionSet = handle_mapping::MapHandle<IndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetIndirectExecutionSetEXTInfo);
+        value->indirectExecutionSet = handle_mapping::MapHandle<VulkanIndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetVkIndirectExecutionSetEXTInfo);
 
-        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutEXTInfo);
+        value->indirectCommandsLayout = handle_mapping::MapHandle<VulkanIndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetVkIndirectCommandsLayoutEXTInfo);
     }
 }
 
@@ -1890,7 +1890,7 @@ void MapStructHandles(Decoded_VkIndirectExecutionSetPipelineInfoEXT* wrapper, co
     {
         VkIndirectExecutionSetPipelineInfoEXT* value = wrapper->decoded_value;
 
-        value->initialPipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->initialPipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->initialPipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->initialPipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1900,7 +1900,7 @@ void MapStructHandles(Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* wrapper
     {
         VkIndirectExecutionSetShaderLayoutInfoEXT* value = wrapper->decoded_value;
 
-        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = handle_mapping::MapHandleArray<VulkanDescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetVkDescriptorSetLayoutInfo);
     }
 }
 
@@ -1910,7 +1910,7 @@ void MapStructHandles(Decoded_VkIndirectExecutionSetShaderInfoEXT* wrapper, cons
     {
         VkIndirectExecutionSetShaderInfoEXT* value = wrapper->decoded_value;
 
-        value->pInitialShaders = handle_mapping::MapHandleArray<ShaderEXTInfo>(&wrapper->pInitialShaders, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+        value->pInitialShaders = handle_mapping::MapHandleArray<VulkanShaderEXTInfo>(&wrapper->pInitialShaders, object_info_table, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
 
         MapStructArrayHandles<Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT>(wrapper->pSetLayoutInfos->GetMetaStructPointer(), wrapper->pSetLayoutInfos->GetLength(), object_info_table);
     }
@@ -1927,9 +1927,9 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoEXT* wrapper, const VulkanO
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->indirectExecutionSet = handle_mapping::MapHandle<IndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetIndirectExecutionSetEXTInfo);
+        value->indirectExecutionSet = handle_mapping::MapHandle<VulkanIndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetVkIndirectExecutionSetEXTInfo);
 
-        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutEXTInfo);
+        value->indirectCommandsLayout = handle_mapping::MapHandle<VulkanIndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetVkIndirectCommandsLayoutEXTInfo);
     }
 }
 
@@ -1939,7 +1939,7 @@ void MapStructHandles(Decoded_VkWriteIndirectExecutionSetPipelineEXT* wrapper, c
     {
         VkWriteIndirectExecutionSetPipelineEXT* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1954,7 +1954,7 @@ void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, co
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->pipelineLayout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->pipelineLayout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
     }
 }
 
@@ -1964,7 +1964,7 @@ void MapStructHandles(Decoded_VkGeneratedCommandsPipelineInfoEXT* wrapper, const
     {
         VkGeneratedCommandsPipelineInfoEXT* value = wrapper->decoded_value;
 
-        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -1974,7 +1974,7 @@ void MapStructHandles(Decoded_VkGeneratedCommandsShaderInfoEXT* wrapper, const V
     {
         VkGeneratedCommandsShaderInfoEXT* value = wrapper->decoded_value;
 
-        value->pShaders = handle_mapping::MapHandleArray<ShaderEXTInfo>(&wrapper->pShaders, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+        value->pShaders = handle_mapping::MapHandleArray<VulkanShaderEXTInfo>(&wrapper->pShaders, object_info_table, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
     }
 }
 
@@ -1984,7 +1984,7 @@ void MapStructHandles(Decoded_VkWriteIndirectExecutionSetShaderEXT* wrapper, con
     {
         VkWriteIndirectExecutionSetShaderEXT* value = wrapper->decoded_value;
 
-        value->shader = handle_mapping::MapHandle<ShaderEXTInfo>(wrapper->shader, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+        value->shader = handle_mapping::MapHandle<VulkanShaderEXTInfo>(wrapper->shader, object_info_table, &VulkanObjectInfoTable::GetVkShaderEXTInfo);
     }
 }
 
@@ -2005,7 +2005,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoKHR* wrapper, con
     {
         VkAccelerationStructureCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetVkBufferInfo);
     }
 }
 
@@ -2015,7 +2015,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureKHR* wrap
     {
         VkWriteDescriptorSetAccelerationStructureKHR* value = wrapper->decoded_value;
 
-        value->pAccelerationStructures = handle_mapping::MapHandleArray<AccelerationStructureKHRInfo>(&wrapper->pAccelerationStructures, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->pAccelerationStructures = handle_mapping::MapHandleArray<VulkanAccelerationStructureKHRInfo>(&wrapper->pAccelerationStructures, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
     }
 }
 
@@ -2025,7 +2025,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureDeviceAddressInfoKHR* wrapp
     {
         VkAccelerationStructureDeviceAddressInfoKHR* value = wrapper->decoded_value;
 
-        value->accelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->accelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
     }
 }
 
@@ -2035,7 +2035,7 @@ void MapStructHandles(Decoded_VkCopyAccelerationStructureToMemoryInfoKHR* wrappe
     {
         VkCopyAccelerationStructureToMemoryInfoKHR* value = wrapper->decoded_value;
 
-        value->src = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->src = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
     }
 }
 
@@ -2045,7 +2045,7 @@ void MapStructHandles(Decoded_VkCopyMemoryToAccelerationStructureInfoKHR* wrappe
     {
         VkCopyMemoryToAccelerationStructureInfoKHR* value = wrapper->decoded_value;
 
-        value->dst = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->dst = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
     }
 }
 
@@ -2055,9 +2055,9 @@ void MapStructHandles(Decoded_VkCopyAccelerationStructureInfoKHR* wrapper, const
     {
         VkCopyAccelerationStructureInfoKHR* value = wrapper->decoded_value;
 
-        value->src = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->src = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->src, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
 
-        value->dst = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+        value->dst = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->dst, object_info_table, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
     }
 }
 
@@ -2076,9 +2076,9 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoKHR* wrapper, const 
 
         MapStructArrayHandles<Decoded_VkPipelineLibraryCreateInfoKHR>(wrapper->pLibraryInfo->GetMetaStructPointer(), 1, object_info_table);
 
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetVkPipelineLayoutInfo);
 
-        value->basePipelineHandle = handle_mapping::MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+        value->basePipelineHandle = handle_mapping::MapHandle<VulkanPipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetVkPipelineInfo);
     }
 }
 
@@ -2182,7 +2182,7 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkPhysicalDevice
 {
     if (id_wrapper != nullptr)
     {
-        handle_mapping::AddHandleArray<PhysicalDeviceInfo>(parent_id, id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength(), handle_struct->physicalDevices, handle_struct->physicalDeviceCount, object_info_table, &VulkanObjectInfoTable::AddPhysicalDeviceInfo);
+        handle_mapping::AddHandleArray<VulkanPhysicalDeviceInfo>(parent_id, id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength(), handle_struct->physicalDevices, handle_struct->physicalDeviceCount, object_info_table, &VulkanObjectInfoTable::AddVkPhysicalDeviceInfo);
     }
 }
 
@@ -2190,7 +2190,7 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayPropert
 {
     if (id_wrapper != nullptr)
     {
-        handle_mapping::AddHandle<DisplayKHRInfo>(parent_id, id_wrapper->display, handle_struct->display, object_info_table, &VulkanObjectInfoTable::AddDisplayKHRInfo);
+        handle_mapping::AddHandle<VulkanDisplayKHRInfo>(parent_id, id_wrapper->display, handle_struct->display, object_info_table, &VulkanObjectInfoTable::AddVkDisplayKHRInfo);
     }
 }
 
@@ -2198,7 +2198,7 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayPlanePr
 {
     if (id_wrapper != nullptr)
     {
-        handle_mapping::AddHandle<DisplayKHRInfo>(parent_id, id_wrapper->currentDisplay, handle_struct->currentDisplay, object_info_table, &VulkanObjectInfoTable::AddDisplayKHRInfo);
+        handle_mapping::AddHandle<VulkanDisplayKHRInfo>(parent_id, id_wrapper->currentDisplay, handle_struct->currentDisplay, object_info_table, &VulkanObjectInfoTable::AddVkDisplayKHRInfo);
     }
 }
 
@@ -2206,7 +2206,7 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayModePro
 {
     if (id_wrapper != nullptr)
     {
-        handle_mapping::AddHandle<DisplayModeKHRInfo>(parent_id, id_wrapper->displayMode, handle_struct->displayMode, object_info_table, &VulkanObjectInfoTable::AddDisplayModeKHRInfo);
+        handle_mapping::AddHandle<VulkanDisplayModeKHRInfo>(parent_id, id_wrapper->displayMode, handle_struct->displayMode, object_info_table, &VulkanObjectInfoTable::AddVkDisplayModeKHRInfo);
     }
 }
 
@@ -2238,7 +2238,7 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkPipelineBinary
 {
     if (id_wrapper != nullptr)
     {
-        handle_mapping::AddHandleArray<PipelineBinaryKHRInfo>(parent_id, id_wrapper->pPipelineBinaries.GetPointer(), id_wrapper->pPipelineBinaries.GetLength(), handle_struct->pPipelineBinaries, handle_struct->pipelineBinaryCount, object_info_table, &VulkanObjectInfoTable::AddPipelineBinaryKHRInfo);
+        handle_mapping::AddHandleArray<VulkanPipelineBinaryKHRInfo>(parent_id, id_wrapper->pPipelineBinaries.GetPointer(), id_wrapper->pPipelineBinaries.GetLength(), handle_struct->pPipelineBinaries, handle_struct->pipelineBinaryCount, object_info_table, &VulkanObjectInfoTable::AddVkPipelineBinaryKHRInfo);
     }
 }
 
