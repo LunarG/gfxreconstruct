@@ -388,7 +388,8 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
                                                std::vector<uint8_t>&                       data,
                                                std::vector<uint64_t>&                      subresource_offsets,
                                                std::vector<uint64_t>&                      subresource_sizes,
-                                               ID3D12Resource*                             staging_buffer_for_batching)
+                                               ID3D12Resource*                             staging_buffer_for_batching,
+                                               ID3D12CommandQueue*                         queue)
 {
     HRESULT result = E_FAIL;
 
@@ -441,7 +442,8 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
                                     before_states,
                                     after_states,
                                     staging_resource,
-                                    batching);
+                                    batching,
+                                    queue);
 
     // After the command list has completed, map the copy resource and read its data.
     if (!batching && SUCCEEDED(result))
@@ -611,12 +613,18 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*              tar
     return SUCCEEDED(result);
 }
 
-HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList()
+HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue)
 {
     // Execute the command list and wait for completion.
     ID3D12CommandList* cmd_lists[] = { command_list_ };
-    command_queue_->ExecuteCommandLists(1, cmd_lists);
-    return dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
+
+    ID3D12CommandQueue* command_queue = queue;
+    if (command_queue == nullptr)
+    {
+        command_queue = command_queue_;
+    }
+    command_queue->ExecuteCommandLists(1, cmd_lists);
+    return dx12::WaitForQueue(command_queue, command_fence_, ++fence_value_);
 
     // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident.
     for (auto resource : resident_resources)
@@ -665,7 +673,7 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
 {
     const dx12::ResourceStateInfo common_state = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_BARRIER_FLAG_NONE };
     const dx12::ResourceStateInfo copy_state   = { copy_type == kCopyTypeRead ? D3D12_RESOURCE_STATE_COPY_SOURCE
-                                                                            : D3D12_RESOURCE_STATE_COPY_DEST,
+                                                                              : D3D12_RESOURCE_STATE_COPY_DEST,
                                                  D3D12_RESOURCE_BARRIER_FLAG_NONE };
 
     uint64_t subresource_count = subresource_layouts.size();
@@ -772,7 +780,8 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                                              const std::vector<dx12::ResourceStateInfo>&            before_states,
                                              const std::vector<dx12::ResourceStateInfo>&            after_states,
                                              ID3D12Resource*                                        staging_buffer,
-                                             bool                                                   batching)
+                                             bool                                                   batching,
+                                             ID3D12CommandQueue*                                    queue)
 {
     // Make sure the target resource is resident.
     ID3D12Pageable* const pageable = target_resource;
@@ -816,7 +825,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                 result = command_list_->Close();
                 if (SUCCEEDED(result))
                 {
-                    result = ExecuteAndWaitForCommandList();
+                    result = ExecuteAndWaitForCommandList(queue);
                 }
             }
         }
@@ -833,7 +842,8 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
 HRESULT
 Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*                             target_resource,
                                                    const std::vector<dx12::ResourceStateInfo>& before_states,
-                                                   const std::vector<dx12::ResourceStateInfo>& after_states)
+                                                   const std::vector<dx12::ResourceStateInfo>& after_states,
+                                                   ID3D12CommandQueue*                         queue)
 {
     GFXRECON_ASSERT(before_states.size() == after_states.size());
     uint64_t subresource_count = before_states.size();
@@ -859,7 +869,7 @@ Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*              
             result = command_list_->Close();
             if (SUCCEEDED(result) && !cmd_list_empty)
             {
-                result = ExecuteAndWaitForCommandList();
+                result = ExecuteAndWaitForCommandList(queue);
             }
         }
     }

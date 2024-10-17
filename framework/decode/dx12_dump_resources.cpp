@@ -76,40 +76,18 @@ static const char* Dx12ResourceTypeToString(Dx12DumpResourceType type)
     }
 }
 
-static const char* Dx12DumpResourcePosToString(Dx12DumpResourcePos pos)
+static const char* Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourcePos pos)
 {
     switch (pos)
     {
-        case Dx12DumpResourcePos::kBeforeDrawCall:
+        case graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall:
             return "before";
-        case Dx12DumpResourcePos::kDrawCall:
-            return "drawcall";
-        case Dx12DumpResourcePos::kAfterDrawCall:
+        case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
+            return "draw_call";
+        case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
             return "after";
-        case Dx12DumpResourcePos::kUnknown:
         default:
             return "";
-    }
-}
-
-const static uint32_t kBeforeDrawCallArrayIndex = 0;
-const static uint32_t kDrawCallArrayIndex       = 1;
-const static uint32_t kAfterDrawCallArrayIndex  = 2;
-
-uint32_t Dx12DumpResourcePosToArrayIndex(Dx12DumpResourcePos pos)
-{
-    switch (pos)
-    {
-        case Dx12DumpResourcePos::kBeforeDrawCall:
-            return kBeforeDrawCallArrayIndex;
-        case Dx12DumpResourcePos::kDrawCall:
-            return kDrawCallArrayIndex;
-        case Dx12DumpResourcePos::kAfterDrawCall:
-            return kAfterDrawCallArrayIndex;
-        case Dx12DumpResourcePos::kUnknown:
-        default:
-            GFXRECON_ASSERT(false && "Invalid use of Dx12DumpResourcePosToArrayIndex.");
-            return 0;
     }
 }
 
@@ -217,14 +195,16 @@ bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                       
                     // processes, for exmaples: finding resource by GPU VA, getting the resource infomation, and
                     // write resource id, offset, size. But those duplicated processes shouldn't hurt the
                     // performance.
-                    CopyDrawcallResources(
-                        replay_object_info, front_command_list_ids, Dx12DumpResourcePos::kBeforeDrawCall);
+                    CopyDrawCallResources(replay_object_info,
+                                          front_command_list_ids,
+                                          graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall);
 
                     ID3D12CommandList* ppCommandLists[] = { track_dump_resources_.split_command_sets[1].list };
                     replay_object->ExecuteCommandLists(1, ppCommandLists);
 
-                    CopyDrawcallResources(
-                        replay_object_info, front_command_list_ids, Dx12DumpResourcePos::kAfterDrawCall);
+                    CopyDrawCallResources(replay_object_info,
+                                          front_command_list_ids,
+                                          graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall);
 
                     FinishDump(replay_object_info);
 
@@ -253,9 +233,9 @@ void Dx12DumpResources::ExecuteBundle(DxObjectInfo* replay_object_info,
     auto dump_command_sets = GetCommandListsForDumpResources(
         replay_object_info, block_index, format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle);
 
-    // size = 1: this replay_object is the target command list, but this ExecuteBundle isn't the target drawcall.
+    // size = 1: this replay_object is the target command list, but this ExecuteBundle isn't the target draw call.
     // size = 0: this replay_object isn't the target command list.
-    // size = 3: this replay_object is the target command list, also this ExecuteBundle is the target drawcall.
+    // size = 3: this replay_object is the target command list, also this ExecuteBundle is the target draw call.
     if (dump_command_sets.size() == 1)
     {
         dump_command_sets[0].list->ExecuteBundle(command_list);
@@ -328,10 +308,19 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                                     range_size * sizeof(D3D12_DESCRIPTOR_RANGE1));
                         for (uint32_t j = 0; j < range_size; ++j)
                         {
-                            if (ranges[i][j].Flags == D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
+                            // DATA_STATIC could cause error for splitted commandlists.
+                            // Error log is like: Resource is bound as DATA_STATIC on Command List. Its state was
+                            // changed by a previous command list execution which indicates a change to its data (or
+                            // possibly resource metadata), but it is invalid to change it until this command list has
+                            // finished executing for the last time. 
+                            if (ranges[i][j].Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
                             {
-                                ranges[i][j].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-                                is_modified        = true;
+                                ranges[i][j].Flags &= ~D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+                                ranges[i][j].Flags |= D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
+                                is_modified = true;
+                                GFXRECON_LOG_WARNING(
+                                    "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC could cause error for dump resources. "
+                                    "Modify to D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE.");
                             }
                         }
                         params[i].DescriptorTable.pDescriptorRanges = ranges[i].data();
@@ -467,7 +456,8 @@ void Dx12DumpResources::BeginRenderPass(
 
             // before
             ID3D12GraphicsCommandList4* command_list4_before;
-            dump_command_sets[kBeforeDrawCallArrayIndex].list->QueryInterface(IID_PPV_ARGS(&command_list4_before));
+            dump_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_before));
 
             std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> before_rt_descs;
             for (uint32_t i = 0; i < NumRenderTargets; ++i)
@@ -488,9 +478,10 @@ void Dx12DumpResources::BeginRenderPass(
             }
             command_list4_before->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
 
-            // drawcall
+            // draw call
             ID3D12GraphicsCommandList4* command_list4_draw_call;
-            dump_command_sets[kDrawCallArrayIndex].list->QueryInterface(IID_PPV_ARGS(&command_list4_draw_call));
+            dump_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_draw_call));
 
             std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> draw_call_rt_descs;
             for (uint32_t i = 0; i < NumRenderTargets; ++i)
@@ -517,7 +508,8 @@ void Dx12DumpResources::BeginRenderPass(
 
             // after
             ID3D12GraphicsCommandList4* command_list4_after;
-            dump_command_sets[kAfterDrawCallArrayIndex].list->QueryInterface(IID_PPV_ARGS(&command_list4_after));
+            dump_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_after));
 
             std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> after_rt_descs;
             for (uint32_t i = 0; i < NumRenderTargets; ++i)
@@ -564,12 +556,12 @@ bool MatchDescriptorCPUGPUHandle(size_t                                      rep
     return false;
 }
 
-void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
+void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                        queue_object_info,
                                               const std::vector<format::HandleId>& front_command_list_ids,
-                                              Dx12DumpResourcePos                  pos)
+                                              graphics::dx12::Dx12DumpResourcePos  pos)
 {
     // If Bundle have the bindings, using the bindings, or using the command's bindings.
-    auto bundle_target_drawcall = track_dump_resources_.target.bundle_target_drawcall.get();
+    auto bundle_target_draw_call = track_dump_resources_.target.bundle_target_draw_call.get();
 
     // pair first: path name, second: resource index. If index is kNoneIndex, it means not a array.
     std::vector<std::pair<std::string, int32_t>> json_path;
@@ -578,9 +570,9 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
 
     // vertex
     const std::vector<D3D12_VERTEX_BUFFER_VIEW>* vertex_buffer_views = nullptr;
-    if (bundle_target_drawcall && !bundle_target_drawcall->captured_vertex_buffer_views.empty())
+    if (bundle_target_draw_call && !bundle_target_draw_call->captured_vertex_buffer_views.empty())
     {
-        vertex_buffer_views = &bundle_target_drawcall->captured_vertex_buffer_views;
+        vertex_buffer_views = &bundle_target_draw_call->captured_vertex_buffer_views;
     }
     else
     {
@@ -593,7 +585,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
         {
             json_path.clear();
             json_path.emplace_back("vertex", resource_index);
-            CopyDrawcallResourceByGPUVA(queue_object_info,
+            CopyDrawCallResourceByGPUVA(queue_object_info,
                                         front_command_list_ids,
                                         view.BufferLocation,
                                         view.SizeInBytes,
@@ -608,9 +600,9 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
 
     // index
     const D3D12_INDEX_BUFFER_VIEW* index_buffer_view = nullptr;
-    if (bundle_target_drawcall && bundle_target_drawcall->captured_index_buffer_view.BufferLocation != kNullGpuAddress)
+    if (bundle_target_draw_call && bundle_target_draw_call->captured_index_buffer_view.BufferLocation != kNullGpuAddress)
     {
-        index_buffer_view = &bundle_target_drawcall->captured_index_buffer_view;
+        index_buffer_view = &bundle_target_draw_call->captured_index_buffer_view;
     }
     else
     {
@@ -620,7 +612,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
     {
         json_path.clear();
         json_path.emplace_back("index", format::kNoneIndex);
-        CopyDrawcallResourceByGPUVA(queue_object_info,
+        CopyDrawCallResourceByGPUVA(queue_object_info,
                                     front_command_list_ids,
                                     index_buffer_view->BufferLocation,
                                     index_buffer_view->SizeInBytes,
@@ -635,17 +627,17 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
     std::vector<std::pair<std::string, int32_t>>       json_path_sub;
     const std::vector<format::HandleId>*               descriptor_heap_ids    = nullptr;
     const std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE>* descriptor_gpu_handles = nullptr;
-    if (bundle_target_drawcall && !bundle_target_drawcall->descriptor_heap_ids.empty())
+    if (bundle_target_draw_call && !bundle_target_draw_call->descriptor_heap_ids.empty())
     {
-        descriptor_heap_ids = &bundle_target_drawcall->descriptor_heap_ids;
+        descriptor_heap_ids = &bundle_target_draw_call->descriptor_heap_ids;
     }
     else
     {
         descriptor_heap_ids = &track_dump_resources_.target.descriptor_heap_ids;
     }
-    if (bundle_target_drawcall && !bundle_target_drawcall->captured_descriptor_gpu_handles.empty())
+    if (bundle_target_draw_call && !bundle_target_draw_call->captured_descriptor_gpu_handles.empty())
     {
-        descriptor_gpu_handles = &bundle_target_drawcall->captured_descriptor_gpu_handles;
+        descriptor_gpu_handles = &bundle_target_draw_call->captured_descriptor_gpu_handles;
     }
     else
     {
@@ -679,7 +671,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                 {
                     json_path_sub = json_path;
                     json_path_sub.emplace_back("constant_buffer_views", resource_index);
-                    CopyDrawcallResourceByGPUVA(queue_object_info,
+                    CopyDrawCallResourceByGPUVA(queue_object_info,
                                                 front_command_list_ids,
                                                 info.captured_view.BufferLocation,
                                                 info.captured_view.SizeInBytes,
@@ -725,7 +717,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                         }
                         json_path_sub = json_path;
                         json_path_sub.emplace_back("shader_resource_views", resource_index);
-                        CopyDrawcallResourceBySubresource(queue_object_info,
+                        CopyDrawCallResourceBySubresource(queue_object_info,
                                                           front_command_list_ids,
                                                           info.resource_id,
                                                           offset,
@@ -772,7 +764,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                         json_path_sub = json_path;
                         json_path_sub.emplace_back("unordered_access_views", resource_index);
                         json_path_sub.emplace_back("resource", format::kNoneIndex);
-                        CopyDrawcallResourceBySubresource(queue_object_info,
+                        CopyDrawCallResourceBySubresource(queue_object_info,
                                                           front_command_list_ids,
                                                           info.resource_id,
                                                           offset,
@@ -789,7 +781,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                             json_path_sub = json_path;
                             json_path_sub.emplace_back("unordered_access_views", resource_index);
                             json_path_sub.emplace_back("counter_resource", format::kNoneIndex);
-                            CopyDrawcallResourceBySubresource(queue_object_info,
+                            CopyDrawCallResourceBySubresource(queue_object_info,
                                                               front_command_list_ids,
                                                               info.counter_resource_id,
                                                               info.view.Buffer.CounterOffsetInBytes,
@@ -840,7 +832,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                 }
                 json_path.clear();
                 json_path.emplace_back("render_target_views", resource_index);
-                CopyDrawcallResourceBySubresource(queue_object_info,
+                CopyDrawCallResourceBySubresource(queue_object_info,
                                                   front_command_list_ids,
                                                   info.resource_id,
                                                   0,
@@ -873,7 +865,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
             {
                 json_path.clear();
                 json_path.emplace_back("depth_stencil_views", format::kNoneIndex);
-                CopyDrawcallResourceBySubresource(queue_object_info,
+                CopyDrawCallResourceBySubresource(queue_object_info,
                                                   front_command_list_ids,
                                                   info.resource_id,
                                                   0,
@@ -891,9 +883,9 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
 
     // ExecuteIndirect
     const ExecuteIndirectInfo* exe_indirect_info = nullptr;
-    if (bundle_target_drawcall && bundle_target_drawcall->execute_indirect_info.argument_id != format::kNullHandleId)
+    if (bundle_target_draw_call && bundle_target_draw_call->execute_indirect_info.argument_id != format::kNullHandleId)
     {
-        exe_indirect_info = &bundle_target_drawcall->execute_indirect_info;
+        exe_indirect_info = &bundle_target_draw_call->execute_indirect_info;
     }
     else
     {
@@ -903,7 +895,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
     {
         json_path.clear();
         json_path.emplace_back("execute_indirect_arguments", format::kNoneIndex);
-        CopyDrawcallResourceBySubresource(queue_object_info,
+        CopyDrawCallResourceBySubresource(queue_object_info,
                                           front_command_list_ids,
                                           exe_indirect_info->argument_id,
                                           exe_indirect_info->argument_offset,
@@ -916,7 +908,7 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                                           0);
         json_path.clear();
         json_path.emplace_back("execute_indirect_counts", format::kNoneIndex);
-        CopyDrawcallResourceBySubresource(queue_object_info,
+        CopyDrawCallResourceBySubresource(queue_object_info,
                                           front_command_list_ids,
                                           exe_indirect_info->count_id,
                                           exe_indirect_info->count_offset,
@@ -930,13 +922,13 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
     }
 }
 
-void Dx12DumpResources::CopyDrawcallResourceByGPUVA(DxObjectInfo*                        queue_object_info,
+void Dx12DumpResources::CopyDrawCallResourceByGPUVA(DxObjectInfo*                        queue_object_info,
                                                     const std::vector<format::HandleId>& front_command_list_ids,
                                                     D3D12_GPU_VIRTUAL_ADDRESS            captured_source_gpu_va,
                                                     uint64_t                             source_size,
                                                     const std::vector<std::pair<std::string, int32_t>>& json_path,
                                                     Dx12DumpResourceType                                resource_type,
-                                                    Dx12DumpResourcePos                                 pos,
+                                                    graphics::dx12::Dx12DumpResourcePos                 pos,
                                                     format::HandleId descriptor_heap_id,
                                                     uint32_t         descriptor_heap_index)
 {
@@ -948,7 +940,7 @@ void Dx12DumpResources::CopyDrawcallResourceByGPUVA(DxObjectInfo*               
     auto source_resource_object_info = get_object_info_func_(source_resource_id);
     auto source_resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(source_resource_object_info);
 
-    CopyDrawcallResourceBySubresource(queue_object_info,
+    CopyDrawCallResourceBySubresource(queue_object_info,
                                       front_command_list_ids,
                                       source_resource_id,
                                       (captured_source_gpu_va - source_resource_extra_info->capture_address_),
@@ -961,17 +953,17 @@ void Dx12DumpResources::CopyDrawcallResourceByGPUVA(DxObjectInfo*               
                                       descriptor_heap_index);
 }
 
-void Dx12DumpResources::CopyDrawcallResourceBySubresource(DxObjectInfo*                        queue_object_info,
+void Dx12DumpResources::CopyDrawCallResourceBySubresource(DxObjectInfo*                        queue_object_info,
                                                           const std::vector<format::HandleId>& front_command_list_ids,
                                                           format::HandleId                     source_resource_id,
                                                           uint64_t                             source_offset,
                                                           uint64_t                             source_size,
                                                           const std::vector<uint32_t>&         subresource_indices,
                                                           const std::vector<std::pair<std::string, int32_t>>& json_path,
-                                                          Dx12DumpResourceType resource_type,
-                                                          Dx12DumpResourcePos  pos,
-                                                          format::HandleId     descriptor_heap_id,
-                                                          uint32_t             descriptor_heap_index)
+                                                          Dx12DumpResourceType                resource_type,
+                                                          graphics::dx12::Dx12DumpResourcePos pos,
+                                                          format::HandleId                    descriptor_heap_id,
+                                                          uint32_t                            descriptor_heap_index)
 {
     CopyResourceDataPtr copy_resource_data(new CopyResourceData());
     copy_resource_data->subresource_indices   = subresource_indices;
@@ -981,12 +973,12 @@ void Dx12DumpResources::CopyDrawcallResourceBySubresource(DxObjectInfo*         
     copy_resource_data->descriptor_heap_id    = descriptor_heap_id;
     copy_resource_data->descriptor_heap_index = descriptor_heap_index;
 
-    CopyDrawcallResource(
+    CopyDrawCallResource(
         queue_object_info, front_command_list_ids, source_resource_id, source_offset, source_size, copy_resource_data);
 }
 
 // If source_size = 0, the meaning is the whole after offset.
-void Dx12DumpResources::CopyDrawcallResource(DxObjectInfo*                        queue_object_info,
+void Dx12DumpResources::CopyDrawCallResource(DxObjectInfo*                        queue_object_info,
                                              const std::vector<format::HandleId>& front_command_list_ids,
                                              format::HandleId                     source_resource_id,
                                              uint64_t                             source_offset,
@@ -1128,7 +1120,7 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
                     bool is_update = true;
                     if (i == (size - 1))
                     {
-                        if (state.block_index > track_dump_resources_.target.drawcall_block_index)
+                        if (state.block_index > track_dump_resources_.target.draw_call_block_index)
                         {
                             is_update = false;
                         }
@@ -1294,33 +1286,32 @@ QueueSyncEventInfo Dx12DumpResources::CreateCopyResourceAsyncReadQueueSyncEvent(
                               } };
 }
 
-std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
-                                                                           uint64_t          block_index,
-                                                                           format::ApiCallId api_call_id)
+std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(
+    DxObjectInfo* command_list_object_info, uint64_t block_index, format::ApiCallId api_call_id)
 {
-    std::vector<CommandSet> cmd_sets;
-    auto                    cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
-    auto                    cmd_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
-    auto                    device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+    std::vector<graphics::dx12::CommandSet> cmd_sets;
+    auto cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    auto cmd_list            = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    auto device              = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
 
-    std::array<CommandSet, 3>* command_sets  = nullptr;
-    TrackDumpDrawcall*         drawcall_info = nullptr;
-    bool                       is_bundle     = false;
+    std::array<graphics::dx12::CommandSet, 3>* command_sets   = nullptr;
+    TrackDumpDrawCall*                         draw_call_info = nullptr;
+    bool                                       is_bundle      = false;
     if ((command_list_object_info->capture_id == track_dump_resources_.target.bundle_commandlist_id) &&
-        (track_dump_resources_.target.bundle_target_drawcall != nullptr) &&
-        (track_dump_resources_.target.bundle_target_drawcall->begin_block_index <= block_index) &&
-        (track_dump_resources_.target.bundle_target_drawcall->close_block_index >= block_index))
+        (track_dump_resources_.target.bundle_target_draw_call != nullptr) &&
+        (track_dump_resources_.target.bundle_target_draw_call->begin_block_index <= block_index) &&
+        (track_dump_resources_.target.bundle_target_draw_call->close_block_index >= block_index))
     {
-        is_bundle     = true;
-        command_sets  = &track_dump_resources_.split_bundle_command_sets;
-        drawcall_info = track_dump_resources_.target.bundle_target_drawcall.get();
+        is_bundle      = true;
+        command_sets   = &track_dump_resources_.split_bundle_command_sets;
+        draw_call_info = track_dump_resources_.target.bundle_target_draw_call.get();
     }
     else if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
              (track_dump_resources_.target.begin_block_index <= block_index) &&
              (track_dump_resources_.target.close_block_index >= block_index))
     {
         command_sets  = &track_dump_resources_.split_command_sets;
-        drawcall_info = &track_dump_resources_.target;
+        draw_call_info = &track_dump_resources_.target;
     }
     else
     {
@@ -1343,18 +1334,18 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         }
     }
 
-    Dx12DumpResourcePos split_type = Dx12DumpResourcePos::kBeforeDrawCall;
+    graphics::dx12::Dx12DumpResourcePos split_type = graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall;
 
-    if (block_index == drawcall_info->drawcall_block_index)
+    if (block_index == draw_call_info->draw_call_block_index)
     {
-        split_type = Dx12DumpResourcePos::kDrawCall;
+        split_type = graphics::dx12::Dx12DumpResourcePos::kDrawCall;
     }
-    else if (block_index >= drawcall_info->drawcall_block_index)
+    else if (block_index > draw_call_info->draw_call_block_index)
     {
-        split_type = Dx12DumpResourcePos::kAfterDrawCall;
+        split_type = graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall;
     }
 
-    auto split_type_array_index = Dx12DumpResourcePosToArrayIndex(split_type);
+    auto split_type_array_index = graphics::dx12::Dx12DumpResourcePosToArrayIndex(split_type);
 
     // Here is to split command lists.
     switch (api_call_id)
@@ -1369,9 +1360,11 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
             }
             break;
         }
-        // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
+        // It has to ensure that the splited command list has a pair of Queries and Events.
         case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
         case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
+        case format::ApiCall_ID3D12GraphicsCommandList_BeginEvent:
+        case format::ApiCall_ID3D12GraphicsCommandList_EndEvent:
         case format::ApiCall_ID3D12GraphicsCommandList_Close:
         {
             cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
@@ -1415,12 +1408,12 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         {
             switch (split_type)
             {
-                case Dx12DumpResourcePos::kBeforeDrawCall:
+                case graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall:
                     cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
                     break;
                 // But if the command is after DrawCall, it's just added at the third CommandList.
-                case Dx12DumpResourcePos::kAfterDrawCall:
-                    cmd_sets.emplace_back((*command_sets)[kAfterDrawCallArrayIndex]);
+                case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
+                    cmd_sets.emplace_back((*command_sets)[graphics::dx12::kAfterDrawCallArrayIndex]);
                     break;
                 default:
                     break;
@@ -1429,7 +1422,7 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         }
         case format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass:
         {
-            if (block_index == drawcall_info->begin_renderpass_block_index)
+            if (block_index == draw_call_info->begin_renderpass_block_index)
             {
                 cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
             }
@@ -1441,7 +1434,7 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         }
         case format::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass:
         {
-            if (block_index == drawcall_info->end_renderpass_block_index)
+            if (block_index == draw_call_info->end_renderpass_block_index)
             {
                 cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
             }
@@ -1453,7 +1446,7 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         }
         case format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle:
         {
-            if (block_index == drawcall_info->drawcall_block_index)
+            if (block_index == draw_call_info->draw_call_block_index)
             {
                 cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
             }
@@ -1465,7 +1458,7 @@ std::vector<CommandSet> Dx12DumpResources::GetCommandListsForDumpResources(DxObj
         }
         default:
         {
-            // command type could be changed data, drawcalls.
+            // command type could be changed data, draw calls.
             cmd_sets.emplace_back((*command_sets)[split_type_array_index]);
             break;
         }
@@ -1496,10 +1489,10 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     header_["gfxreconversion"] = GFXRECON_PROJECT_VERSION_STRING;
     header_["captureFile"]     = capture_file_name;
 
-    auto& dr_options       = header_["dumpResourcesOptions"];
-    dr_options["submit"]   = std::to_string(track_dump_resources.target.dump_resources_target.submit_index);
-    dr_options["command"]  = std::to_string(track_dump_resources.target.dump_resources_target.command_index);
-    dr_options["drawcall"] = std::to_string(track_dump_resources.target.dump_resources_target.drawcall_index);
+    auto& dr_options        = header_["dumpResourcesOptions"];
+    dr_options["submit"]    = std::to_string(track_dump_resources.target.dump_resources_target.submit_index);
+    dr_options["command"]   = std::to_string(track_dump_resources.target.dump_resources_target.command_index);
+    dr_options["draw_call"] = std::to_string(track_dump_resources.target.dump_resources_target.draw_call_index);
 
     StartFile();
 
@@ -1510,8 +1503,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
 
     WriteBlockStart();
 
-    util::FieldToJson(drawcall_["block_index"], track_dump_resources.target.drawcall_block_index, json_options_);
-    util::FieldToJson(drawcall_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
+    util::FieldToJson(draw_call_["block_index"], track_dump_resources.target.draw_call_block_index, json_options_);
+    util::FieldToJson(draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
 }
 
 void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr resource_data)
@@ -1521,7 +1514,7 @@ void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr resource
 
 void DefaultDx12DumpResourcesDelegate::EndDumpResources()
 {
-    json_data_[NameDrawCall()] = drawcall_;
+    json_data_[NameDrawCall()] = draw_call_;
     WriteBlockEnd();
     EndFile();
 }
@@ -1533,7 +1526,7 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(const CopyResourceDataPtr r
         return;
     }
 
-    auto* jdata_sub = &drawcall_;
+    auto* jdata_sub = &draw_call_;
     for (const auto& path : resource_data->json_path)
     {
         if (path.second == format::kNoneIndex)
@@ -1664,10 +1657,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         {
             GFXRECON_LOG_WARNING("Dump images could not be created for before and after resource of "
                                  "'%s_before\\after.bmp'. Only formats "
-                                 "with 4 bytes per pixel are supported. Current format %" PRIu32
-                                 " is %.2f bytes per pixel.",
+                                 "with 4 bytes per pixel are supported. Current format %s "
+                                 "is %.2f bytes per pixel.",
                                  file_name_sub.c_str(),
-                                 resource_data->footprints[sub_index].Footprint.Format,
+                                 util::ToString(resource_data->footprints[sub_index].Footprint.Format).c_str(),
                                  bytes_per_pixel);
             continue;
         }

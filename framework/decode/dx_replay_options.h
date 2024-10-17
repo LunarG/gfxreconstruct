@@ -43,7 +43,7 @@ struct DumpResourcesTarget
 {
     uint32_t submit_index{ 0 };
     uint32_t command_index{ 0 };
-    uint32_t drawcall_index{ 0 };
+    uint32_t draw_call_index{ 0 };
 };
 
 struct DxReplayOptions : public ReplayOptions

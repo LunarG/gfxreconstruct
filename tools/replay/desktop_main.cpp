@@ -91,9 +91,9 @@ const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 #if defined(D3D12_SUPPORT)
 bool BrowseFile(const std::string&                           input_filename,
                 const gfxrecon::decode::DumpResourcesTarget& dump_resources_target,
-                gfxrecon::decode::TrackDumpDrawcall&         out_track_dump_target)
+                gfxrecon::decode::TrackDumpDrawCall&         out_track_dump_target)
 {
-    gfxrecon::decode::TrackDumpDrawcall* track_dump_target = nullptr;
+    gfxrecon::decode::TrackDumpDrawCall* track_dump_target = nullptr;
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
@@ -239,7 +239,7 @@ int main(int argc, const char** argv)
 
             if (dx_replay_options.enable_dump_resources)
             {
-                gfxrecon::decode::TrackDumpDrawcall track_dump_target;
+                gfxrecon::decode::TrackDumpDrawCall track_dump_target;
                 BrowseFile(filename, dx_replay_options.dump_resources_target, track_dump_target);
                 dx12_replay_consumer.SetDumpTarget(track_dump_target);
             }

@@ -1,6 +1,7 @@
 {
   "functions": {
-    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
+    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2",
+    "D3D12SerializeVersionedRootSignature": "D3D12CaptureManager::Get()->OverrideD3D12SerializeVersionedRootSignature"
   },
   "classmethods": {
     "ID3D12DescriptorHeap": {
@@ -39,6 +40,16 @@
       "CreateSwapChainForHwnd": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd",
       "CreateSwapChainForCoreWindow": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow",
       "CreateSwapChainForComposition": "D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition"
+    },
+    "ID3D12GraphicsCommandList": {
+      "Reset": "D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList_Reset",
+      "ExecuteBundle": "D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList_ExecuteBundle"
+    },
+    "ID3D12GraphicsCommandList4": {
+      "BeginRenderPass": "D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList4_BeginRenderPass"
+    },
+    "ID3D12CommandQueue": {
+      "ExecuteCommandLists": "D3D12CaptureManager::Get()->OverrideID3D12CommandQueue_ExecuteCommandLists"
     }
   }
 }

@@ -621,7 +621,11 @@ void Dx12StateWriter::WriteResourceCreationState(
             GFXRECON_LOG_DEBUG_ONCE(
                 "Skipping resource data capture for ray tracing acceleration structure resource(s).");
         }
-        else if (!resource_info->is_swapchain_buffer) // swapchain buffer state is handled separately.
+        // Writting swapchain buffer could cause extra Present during replay. It might cause different frame count.
+        // So only write swapchain buffer in TrimBoundary::kDrawCalls case.
+        // TrimBoundary::kDrawCalls needs initial render targets,
+        else if (!resource_info->is_swapchain_buffer ||
+                 D3D12CaptureManager::Get()->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
             // Store resource wrappers and max resource sizes.
             ResourceSnapshotInfo snapshot_info;
@@ -787,6 +791,13 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
 
     bool try_map_and_copy = !is_reserved_resouce && !is_texture_with_unknown_layout;
 
+    graphics::dx12::ID3D12CommandQueueComPtr queue = nullptr;
+    if (resource_info->swapchain_wrapper)
+    {
+        // Needs swapchain's queue to write its buffer.
+        auto swapchain_info = resource_info->swapchain_wrapper->GetObjectInfo();
+        queue = swapchain_info->command_queue;
+    }
     // Read the data from the resource.
     HRESULT result = resource_data_util->ReadFromResource(resource,
                                                           try_map_and_copy,
@@ -794,7 +805,9 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
                                                           resource_info->subresource_transitions,
                                                           temp_subresource_data_,
                                                           temp_subresource_offsets_,
-                                                          temp_subresource_sizes_);
+                                                          temp_subresource_sizes_,
+                                                          nullptr,
+                                                          queue);
 
     if (SUCCEEDED(result))
     {
