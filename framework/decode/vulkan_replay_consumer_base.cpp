@@ -9397,7 +9397,6 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    // TODO: really questioning "SupportsOpaqueDeviceAddresses" condition
     if (allocator->SupportsOpaqueDeviceAddresses() || !loading_trim_state_)
     {
         return;
