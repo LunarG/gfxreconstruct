@@ -1416,7 +1416,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
-    bool ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
+    void
+    ProcessImportAndroidHardwareBufferInfo(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>* pAllocateInfo);
 
     void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 

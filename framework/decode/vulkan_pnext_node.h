@@ -55,14 +55,15 @@ class PNextNode
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
+struct MetaStructHeader
+{
+    VkStructureType* sType;
+    PNextNode*       pNext;
+};
+
 template <typename T>
 const T* GetPNextMetaStruct(const PNextNode* pnext)
 {
-    struct MetaStructHeader
-    {
-        VkStructureType* sType;
-        PNextNode*       pNext;
-    };
     while (pnext != nullptr)
     {
         const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());
