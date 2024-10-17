@@ -26,6 +26,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_device_address_tracker.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_device_address_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.cpp

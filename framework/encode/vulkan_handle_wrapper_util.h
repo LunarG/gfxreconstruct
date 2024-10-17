@@ -103,7 +103,7 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
-        return 0;
+        return nullptr;
     }
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
