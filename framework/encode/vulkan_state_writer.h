@@ -47,7 +47,10 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateWriter
 {
   public:
-    VulkanStateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
+    VulkanStateWriter(util::FileOutputStream*           output_stream,
+                      util::Compressor*                 compressor,
+                      format::ThreadId                  thread_id,
+                      std::function<format::HandleId()> get_unique_id_fn);
 
     // Returns number of blocks written to the output_stream.
     uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
@@ -348,6 +351,47 @@ class VulkanStateWriter
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
+    void WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table);
+
+    using AccelerationStructureBuildCommandData =
+        vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData;
+
+    void WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&      device,
+                                              AccelerationStructureBuildCommandData& command);
+
+    void EncodeAccelerationStructureBuildMetaCommand(format::HandleId                             device_id,
+                                                     const AccelerationStructureBuildCommandData& command);
+
+    struct AccelerationStructureCopyCommandData
+    {
+        std::vector<VkCopyAccelerationStructureInfoKHR> infos;
+    };
+    void EncodeAccelerationStructureCopyMetaCommand(format::HandleId                            device_id,
+                                                    const AccelerationStructureCopyCommandData& command);
+
+    struct AccelerationStructureWritePropertiesCommandData
+    {
+        VkQueryType      query_type;
+        format::HandleId acceleration_structure;
+    };
+    void
+    EncodeAccelerationStructureWritePropertiesCommand(format::HandleId                                       device_id,
+                                                      const AccelerationStructureWritePropertiesCommandData& command);
+
+    void
+    WriteGetAccelerationStructureDeviceAddressKHRCall(const VulkanStateTable& state_table,
+                                                      const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
+
+    static void UpdateAddresses(AccelerationStructureBuildCommandData& command);
+
+    using ASInputBuffer = vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer;
+    void BeginAccelerationStructuresSection(format::HandleId device_id, uint64_t max_resource_size);
+    void WriteASInputBufferState(ASInputBuffer& buffer);
+    void WriteASInputMemoryState(ASInputBuffer& buffer);
+    void InitializeASInputBuffer(ASInputBuffer& buffer);
+    void WriteDestroyASInputBuffer(ASInputBuffer& buffer);
+    void EndAccelerationStructureSection(format::HandleId device_id);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
@@ -356,6 +400,9 @@ class VulkanStateWriter
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
     uint64_t                 blocks_written_{ 0 };
+
+    // helper to retrieve a unique id, e.g. from a CaptureManager
+    std::function<format::HandleId()> get_unique_id_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
