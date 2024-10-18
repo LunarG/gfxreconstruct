@@ -1427,7 +1427,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateBufferDescriptorFilename(ui
 {
     std::stringstream filename;
 
-    filename << "Buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
+    filename << capture_filename << "_buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
