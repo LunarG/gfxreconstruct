@@ -1480,6 +1480,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 
             VkResult result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
                                                                          image_wrapper->format,
+                                                                         image_wrapper->external_format,
                                                                          image_wrapper->image_type,
                                                                          image_wrapper->extent,
                                                                          image_wrapper->mip_levels,
@@ -1796,6 +1797,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
 
                     snapshot_info.resource_size = resource_util.GetImageResourceSizesOptimal(wrapper->handle,
                                                                                              wrapper->format,
+                                                                                             wrapper->external_format,
                                                                                              wrapper->image_type,
                                                                                              wrapper->extent,
                                                                                              wrapper->mip_levels,

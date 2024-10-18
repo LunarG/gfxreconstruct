@@ -490,6 +490,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
         VkResult res = resource_util.ReadFromImageResourceStaging(
             image_info->handle,
             image_info->format,
+            image_info->external_format,
             image_info->type,
             extent,
             image_info->level_count,
