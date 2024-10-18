@@ -53,7 +53,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
     {}
 
     void WriteImage(const std::string&                      filename_prefix,
-                    const DeviceInfo*                       device_info,
+                    const VulkanDeviceInfo*                 device_info,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties& memory_properties,
                     VulkanResourceAllocator*                allocator,

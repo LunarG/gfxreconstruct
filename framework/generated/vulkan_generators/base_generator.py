@@ -1392,6 +1392,8 @@ class BaseGenerator(OutputGenerator):
             type_name = value.base_type
 
             if is_override:
+                prefix_from_type = self.get_prefix_from_type(value.base_type)
+                info_type = prefix_from_type + value.base_type[2:] + 'Info'
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count
                     if self.is_struct(type_name):
@@ -1400,7 +1402,7 @@ class BaseGenerator(OutputGenerator):
                         )
                     elif self.is_class(value):
                         if count == 1:
-                            param_type = type_name[2:] + 'Info*'
+                            param_type = info_type + '*'
                         else:
                             param_type = 'HandlePointerDecoder<{}*>'.format(type_name)
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
@@ -1409,7 +1411,7 @@ class BaseGenerator(OutputGenerator):
                         param_type = 'const ' + type_name + '*'
                 else:
                     if self.is_handle(type_name) and type_name != 'VkCommandBuffer':
-                        param_type = "const " + type_name[2:] + "Info*"
+                        param_type = 'const ' + info_type + '*'
                     else:
                         param_type = type_name
             else:
@@ -1501,7 +1503,7 @@ class BaseGenerator(OutputGenerator):
     def get_api_prefix(self):
         return 'Vulkan'
 
-    def get_prefix_from_type(self):
+    def get_prefix_from_type(self, type):
         return 'Vulkan'
 
     def get_wrapper_prefix_from_type(self):

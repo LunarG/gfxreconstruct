@@ -49,14 +49,14 @@ class VulkanDeviceAddressTracker
      *
      * @param   buffer_info a provided buffer_info containing a buffer-handle and associated device-addresses.
      */
-    void TrackBuffer(const BufferInfo* buffer_info);
+    void TrackBuffer(const VulkanBufferInfo* buffer_info);
 
     /**
      * @brief   RemoveBuffer will stop tracking of a currently tracked buffer.
      *
      * @param   buffer_info a provided buffer_info.
      */
-    void RemoveBuffer(const BufferInfo* buffer_info);
+    void RemoveBuffer(const VulkanBufferInfo* buffer_info);
 
     /**
      * @brief   Track an existing acceleration-structure by its capture-time VkDeviceAddress.
@@ -64,14 +64,14 @@ class VulkanDeviceAddressTracker
      * @param   acceleration_structure_info a provided acceleration-structure containing a handle and associated
      *                                      device-addresses.
      */
-    void TrackAccelerationStructure(const AccelerationStructureKHRInfo* acceleration_structure_info);
+    void TrackAccelerationStructure(const VulkanAccelerationStructureKHRInfo* acceleration_structure_info);
 
     /**
      * @brief   RemoveAccelerationStructure will stop tracking of a currently tracked acceleration-structure.
      *
      * @param   acceleration_structure_info a provided acceleration-structure-info.
      */
-    void RemoveAccelerationStructure(const AccelerationStructureKHRInfo* acceleration_structure_info);
+    void RemoveAccelerationStructure(const VulkanAccelerationStructureKHRInfo* acceleration_structure_info);
 
     /**
      * @brief   Retrieve a buffer by providing a capture-time VkDeviceAddress within its range.
@@ -79,7 +79,7 @@ class VulkanDeviceAddressTracker
      * @param   capture_address  a capture-time VkDeviceAddress pointing inside a buffer.
      * @return  a const-pointer to a found BufferInfo or nullptr.
      */
-    [[nodiscard]] const BufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
+    [[nodiscard]] const VulkanBufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
     /**
      * @brief   Retrieve an acceleration-structure by providing a capture-time VkDeviceAddress.
@@ -87,15 +87,15 @@ class VulkanDeviceAddressTracker
      * @param   capture_address  a capture-time VkDeviceAddress for an acceleration-structure.
      * @return  a const-pointer to a found AccelerationStructureKHRInfo or nullptr.
      */
-    [[nodiscard]] const AccelerationStructureKHRInfo*
+    [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
     GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
   private:
     //! use a sorted (BST-based) map
     using buffer_address_map_t = std::map<VkDeviceAddress, format::HandleId>;
 
-    [[nodiscard]] const BufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
-                                                  const buffer_address_map_t& address_map) const;
+    [[nodiscard]] const VulkanBufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
+                                                        const buffer_address_map_t& address_map) const;
 
     const VulkanObjectInfoTable&                          _object_info_table;
     buffer_address_map_t                                  _buffer_capture_addresses;
