@@ -145,20 +145,6 @@ class PageGuardManager
 
     void UffdUnblockRtSignal();
 
-  protected:
-    PageGuardManager();
-
-    PageGuardManager(bool                 enable_copy_on_map,
-                     bool                 enable_separate_read,
-                     bool                 expect_read_write_same_page,
-                     bool                 unblock_SIGSEGV,
-                     bool                 enable_signal_handler_watcher,
-                     int                  signal_handler_watcher_max_restores,
-                     MemoryProtectionMode protection_mode);
-
-    ~PageGuardManager();
-
-  private:
     struct MemoryInfo
     {
         MemoryInfo(void*       mm,
@@ -210,6 +196,23 @@ class PageGuardManager
 #endif
     };
 
+    void GetDirtyMemoryRegions(uint64_t                                         memory_id,
+                               std::unordered_map<uint64_t, const MemoryInfo&>& memories_page_status);
+
+  protected:
+    PageGuardManager();
+
+    PageGuardManager(bool                 enable_copy_on_map,
+                     bool                 enable_separate_read,
+                     bool                 expect_read_write_same_page,
+                     bool                 unblock_SIGSEGV,
+                     bool                 enable_signal_handler_watcher,
+                     int                  signal_handler_watcher_max_restores,
+                     MemoryProtectionMode protection_mode);
+
+    ~PageGuardManager();
+
+  private:
     struct ShadowMemoryInfo
     {
         ShadowMemoryInfo(void* sm, size_t ss, size_t tp, size_t lss) :
