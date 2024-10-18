@@ -793,10 +793,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             if (image_view_wrapper != nullptr)
                             {
                                 image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
-                                if (image_view_wrapper->image != nullptr)
-                                {
-                                    image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
-                                }
                             }
 
                             vulkan_wrappers::SamplerWrapper* sampler_wrapper =
@@ -826,10 +822,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             if (image_view_wrapper != nullptr)
                             {
                                 image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
-                                if (image_view_wrapper->image != nullptr)
-                                {
-                                    image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
-                                }
                             }
                         }
                         break;
@@ -848,9 +840,9 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
 
                             vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
                                 vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
-                            if (image_view_wrapper != nullptr && image_view_wrapper->image != nullptr)
+                            if (image_view_wrapper != nullptr)
                             {
-                                image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
                             }
                         }
                         break;
@@ -900,35 +892,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         break;
                     }
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    {
-                        format::HandleId*   dst_view_ids = &binding.handle_ids[current_dst_array_element];
-                        VkBufferView*       dst_info = &binding.uniform_texel_buffer_views[current_dst_array_element];
-                        const VkBufferView* src_info = &write->pTexelBufferView[current_src_array_element];
-
-                        for (uint32_t i = 0; i < current_writes; ++i)
-                        {
-                            dst_view_ids[i] =
-                                vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
-                            dst_info[i] = src_info[i];
-
-                            vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
-                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
-                            if (buffer_view_wrapper != nullptr)
-                            {
-                                buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
-                                if (buffer_view_wrapper->buffer != nullptr)
-                                {
-                                    buffer_view_wrapper->buffer->descriptor_sets_bound_to.insert(wrapper);
-                                }
-                            }
-                        }
-                        break;
-                    }
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                     {
+                        const bool is_storage = binding.type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
                         format::HandleId*   dst_view_ids = &binding.handle_ids[current_dst_array_element];
-                        VkBufferView*       dst_info = &binding.storage_texel_buffer_views[current_dst_array_element];
-                        const VkBufferView* src_info = &write->pTexelBufferView[current_src_array_element];
+                        VkBufferView*       dst_info     = is_storage
+                                                               ? &binding.storage_texel_buffer_views[current_dst_array_element]
+                                                               : &binding.uniform_texel_buffer_views[current_dst_array_element];
+                        const VkBufferView* src_info     = &write->pTexelBufferView[current_src_array_element];
 
                         for (uint32_t i = 0; i < current_writes; ++i)
                         {
@@ -941,10 +913,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             if (buffer_view_wrapper != nullptr)
                             {
                                 buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
-                                if (buffer_view_wrapper->buffer != nullptr)
-                                {
-                                    buffer_view_wrapper->buffer->descriptor_sets_bound_to.insert(wrapper);
-                                }
                             }
                         }
                         break;
@@ -1845,8 +1813,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWr
     {
         entry->dirty = true;
     }
-
-    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
@@ -1872,8 +1838,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
     {
         entry->dirty = true;
     }
-
-    wrapper->descriptor_sets_bound_to.clear();
 
     for (vulkan_wrappers::ImageViewWrapper* view_wrapper : wrapper->image_views)
     {
@@ -1921,8 +1885,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
         entry->dirty = true;
     }
 
-    wrapper->descriptor_sets_bound_to.clear();
-
     for (vulkan_wrappers::BufferViewWrapper* view_wrapper : wrapper->buffer_views)
     {
         view_wrapper->buffer    = nullptr;
@@ -1953,8 +1915,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
     {
         entry->dirty = true;
     }
-
-    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper)
@@ -1987,15 +1947,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                             if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
                             {
                                 image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
-                            }
-
-                            if (image_view_wrapper->image != nullptr)
-                            {
-                                auto img_desc_entry = image_view_wrapper->image->descriptor_sets_bound_to.find(wrapper);
-                                if (img_desc_entry != image_view_wrapper->image->descriptor_sets_bound_to.end())
-                                {
-                                    image_view_wrapper->image->descriptor_sets_bound_to.erase(img_desc_entry);
-                                }
                             }
                         }
                     }
@@ -2038,15 +1989,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                         if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
                         {
                             image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
-                        }
-
-                        if (image_view_wrapper->image != nullptr)
-                        {
-                            auto img_desc_entry = image_view_wrapper->image->descriptor_sets_bound_to.find(wrapper);
-                            if (img_desc_entry != image_view_wrapper->image->descriptor_sets_bound_to.end())
-                            {
-                                image_view_wrapper->image->descriptor_sets_bound_to.erase(img_desc_entry);
-                            }
                         }
                     }
                 }
