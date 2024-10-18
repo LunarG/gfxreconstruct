@@ -116,9 +116,8 @@ class AgsReplayConsumer : public AgsConsumerBase
                            AGSDriverVersionResult capture_result,
                            AGSDriverVersionResult replay_result);
 
-    AGSContext*             captured_context_{ nullptr };
-    AGSContext*             current_context_{ nullptr };
-    Dx12ReplayConsumerBase* dx12_replay_consumer_{ nullptr };
+    std::map<AGSContext*, AGSContext*> context_map_; // Map of captured context to current context
+    Dx12ReplayConsumerBase*            dx12_replay_consumer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

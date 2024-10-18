@@ -33,12 +33,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 inline bool AgsReplayConsumer::ValidateContext(AGSContext* current)
 {
-    if (current != captured_context_)
+    if (context_map_.find(current) == context_map_.end())
     {
-        GFXRECON_LOG_WARNING("Processing function in AgsReplayConsumer: input context value %p doesn't match "
-                             "initialization value %p.",
-                             current,
-                             captured_context_);
+        GFXRECON_LOG_WARNING("Processing function in AgsReplayConsumer: not found input context %p.", current);
         return false;
     }
 
@@ -141,7 +138,6 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
-    captured_context_ = context;
     AGSGPUInfo gpu_info_replay{};
 
     if (config != nullptr && (config->allocCallback != nullptr || config->freeCallback != nullptr))
@@ -162,7 +158,12 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
             "The replay will be processed with the latest AGS version.");
     }
 
-    AGSReturnCode result = agsInitialize(current_version, forced_config, &current_context_, &gpu_info_replay);
+    AGSContext*   replay_context = nullptr;
+    AGSReturnCode result         = agsInitialize(current_version, forced_config, &replay_context, &gpu_info_replay);
+    if (result == AGS_SUCCESS)
+    {
+        context_map_[context] = replay_context;
+    }
 
     CheckReplayResult("Process_agsInitialize", return_value, result);
 }
@@ -192,8 +193,10 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
         creationParams->pAdapter = current_adapter;
 
         AGSDX12ReturnedParams returned_parameters{};
-        AGSReturnCode         result = agsDriverExtensionsDX12_CreateDevice(
-            current_context_, creationParams, extensionParams, &returned_parameters);
+        AGSContext*           replay_context = context_map_[context];
+
+        AGSReturnCode result =
+            agsDriverExtensionsDX12_CreateDevice(replay_context, creationParams, extensionParams, &returned_parameters);
 
         // mapping created objects.
         // also need to check if the supported feature flags are still the same.
@@ -234,11 +237,12 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_DestroyDevice(const ApiC
         ID3D12Device*              current_device            = nullptr;
         unsigned int               current_device_references = 0;
         gfxrecon::format::HandleId captured_device           = reinterpret_cast<gfxrecon::format::HandleId>(device);
+        AGSContext*                replay_context            = context_map_[context];
 
         current_device = dx12_replay_consumer_->MapObject<ID3D12Device>(captured_device);
 
         AGSReturnCode result =
-            agsDriverExtensionsDX12_DestroyDevice(current_context_, current_device, &current_device_references);
+            agsDriverExtensionsDX12_DestroyDevice(replay_context, current_device, &current_device_references);
 
         DxObjectInfo object_info{};
         object_info.capture_id = captured_device;
@@ -257,7 +261,13 @@ void AgsReplayConsumer::Process_agsDeInitialize(const ApiCallInfo& call_info,
 
     if (ValidateContext(context))
     {
-        AGSReturnCode result = agsDeInitialize(current_context_);
+        AGSContext*   replay_context = context_map_[context];
+        AGSReturnCode result         = agsDeInitialize(replay_context);
+
+        if (result == AGS_SUCCESS)
+        {
+            context_map_.erase(context);
+        }
 
         CheckReplayResult("Process_agsDeInitialize", return_value, result);
     }
@@ -301,7 +311,8 @@ void AgsReplayConsumer::Process_agsSetDisplayMode(const ApiCallInfo&        call
 
     if (ValidateContext(context))
     {
-        AGSReturnCode result = agsSetDisplayMode(current_context_, deviceIndex, displayIndex, settings);
+        AGSContext*   replay_context = context_map_[context];
+        AGSReturnCode result         = agsSetDisplayMode(replay_context, deviceIndex, displayIndex, settings);
 
         CheckReplayResult("Process_agsSetDisplayMode", return_value, result);
     }
@@ -317,10 +328,11 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_PushMarker(const ApiCall
 
     if (ValidateContext(context))
     {
-        ID3D12GraphicsCommandList* command_list = nullptr;
+        ID3D12GraphicsCommandList* command_list   = nullptr;
+        AGSContext*                replay_context = context_map_[context];
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result = agsDriverExtensionsDX12_PushMarker(current_context_, command_list, data);
+        AGSReturnCode result = agsDriverExtensionsDX12_PushMarker(replay_context, command_list, data);
 
         CheckReplayResult("agsDriverExtensionsDX12_PushMarker", return_value, result);
     }
@@ -335,10 +347,11 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_PopMarker(const ApiCallI
 
     if (ValidateContext(context))
     {
-        ID3D12GraphicsCommandList* command_list = nullptr;
+        ID3D12GraphicsCommandList* command_list   = nullptr;
+        AGSContext*                replay_context = context_map_[context];
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result = agsDriverExtensionsDX12_PopMarker(current_context_, command_list);
+        AGSReturnCode result = agsDriverExtensionsDX12_PopMarker(replay_context, command_list);
 
         CheckReplayResult("agsDriverExtensionsDX12_PopMarker", return_value, result);
     }
@@ -354,10 +367,11 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_SetMarker(const ApiCallI
 
     if (ValidateContext(context))
     {
-        ID3D12GraphicsCommandList* command_list = nullptr;
+        ID3D12GraphicsCommandList* command_list   = nullptr;
+        AGSContext*                replay_context = context_map_[context];
         command_list = dx12_replay_consumer_->MapObject<ID3D12GraphicsCommandList>(object_id);
 
-        AGSReturnCode result = agsDriverExtensionsDX12_SetMarker(current_context_, command_list, data);
+        AGSReturnCode result = agsDriverExtensionsDX12_SetMarker(replay_context, command_list, data);
 
         CheckReplayResult("agsDriverExtensionsDX12_SetMarker", return_value, result);
     }
