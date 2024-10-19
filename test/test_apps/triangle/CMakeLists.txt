@@ -68,3 +68,5 @@ add_custom_command(
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)
