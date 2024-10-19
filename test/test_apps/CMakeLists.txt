@@ -26,4 +26,6 @@
 # Description: CMake script for test apps
 ###############################################################################
 
+add_custom_target(gfxrecon-testapps)
+
 add_subdirectory(triangle)
