@@ -37,6 +37,9 @@
 #include "test_app_dispatch.h"
 #include "util/defines.h"
 
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
+
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
 #elif defined(VK_MAKE_VERSION)
@@ -226,6 +229,9 @@ enum class InstanceError {
     requested_extensions_not_present,
     windowing_extensions_not_present,
 };
+enum class SDLError {
+    general,
+};
 enum class PhysicalDeviceError {
     no_surface_provided,
     failed_enumerate_physical_devices,
@@ -256,6 +262,7 @@ enum class SwapchainError {
 
 std::error_code make_error_code(InstanceError instance_error);
 std::error_code make_error_code(PhysicalDeviceError physical_device_error);
+std::error_code make_error_code(SDLError sdl_error);
 std::error_code make_error_code(QueueError queue_error);
 std::error_code make_error_code(DeviceError device_error);
 std::error_code make_error_code(SwapchainError swapchain_error);
@@ -265,6 +272,7 @@ const char* to_string_message_type(VkDebugUtilsMessageTypeFlagsEXT s);
 
 const char* to_string(InstanceError err);
 const char* to_string(PhysicalDeviceError err);
+const char* to_string(SDLError err);
 const char* to_string(QueueError err);
 const char* to_string(DeviceError err);
 const char* to_string(SwapchainError err);
@@ -1009,6 +1017,14 @@ class SwapchainBuilder {
     } info;
 };
 
+
+struct Void {};
+typedef Result<Void> VoidResult;
+const Void TEST_SUCCESS = Void{};
+
+Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height);
+void destroy_window_sdl(SDL_Window * window);
+Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
@@ -1017,6 +1033,7 @@ namespace std {
 
 template <> struct is_error_code_enum<gfxrecon::test::InstanceError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::PhysicalDeviceError> : true_type {};
+template <> struct is_error_code_enum<gfxrecon::test::SDLError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::QueueError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::DeviceError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::SwapchainError> : true_type {};
