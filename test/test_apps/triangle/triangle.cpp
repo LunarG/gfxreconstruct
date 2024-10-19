@@ -30,11 +30,9 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3/SDL_vulkan.h>
-
 #include <test_app_base.h>
+
+#include <SDL3/SDL_main.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -76,75 +74,35 @@ struct RenderData {
     size_t current_frame = 0;
 };
 
-SDL_Window* create_window_sdl(const char* window_name = "", bool resize = true) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::cout << SDL_GetError() << std::endl;
-        return nullptr;
-    }
-
-    SDL_WindowFlags flags = 0;
-    flags |= SDL_WINDOW_VULKAN;
-    if (resize) flags |= SDL_WINDOW_RESIZABLE;
-
-    auto window = SDL_CreateWindow(window_name, 1024, 1024, flags);
-    if (window == nullptr) {
-        std::cout << SDL_GetError() << std::endl;
-        return nullptr;
-    }
-    return window;
-}
-
-void destroy_window_sdl(SDL_Window * window) {
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr) {
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-    if (!SDL_Vulkan_CreateSurface(window, instance, allocator, &surface)) {
-        auto error = SDL_GetError();
-        std::cout << error << std::endl;
-        surface = VK_NULL_HANDLE;
-    }
-    return surface;
-}
-
-int device_initialization(Init& init) {
-    init.window = create_window_sdl("Vulkan Triangle", true);
-    if (init.window == nullptr) return -1;
+gfxrecon::test::VoidResult device_initialization(Init& init) {
+    auto window_ret = gfxrecon::test::create_window_sdl("Vulkan Triangle", true, 1024, 1024);
+    if (!window_ret) return window_ret.error();
+    init.window = window_ret.value();
 
     gfxrecon::test::InstanceBuilder instance_builder;
     auto instance_ret = instance_builder.use_default_debug_messenger().request_validation_layers().build();
-    if (!instance_ret) {
-        std::cout << instance_ret.error().message() << "\n";
-        return -1;
-    }
+    if (!instance_ret) return instance_ret.error();
     init.instance = instance_ret.value();
 
     init.inst_disp = init.instance.make_table();
 
-    init.surface = create_surface_sdl(init.instance, init.window);
-    if (init.surface == nullptr) return -1;
+    auto surface_ret = gfxrecon::test::create_surface_sdl(init.instance, init.window);
+    if (!surface_ret) return surface_ret.error();
+    init.surface = surface_ret.value();
 
     gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
     auto phys_device_ret = phys_device_selector.set_surface(init.surface).select();
-    if (!phys_device_ret) {
-        std::cout << phys_device_ret.error().message() << "\n";
-        return -1;
-    }
+    if (!phys_device_ret) return phys_device_ret.error();
     gfxrecon::test::PhysicalDevice physical_device = phys_device_ret.value();
 
     gfxrecon::test::DeviceBuilder device_builder{ physical_device };
     auto device_ret = device_builder.build();
-    if (!device_ret) {
-        std::cout << device_ret.error().message() << "\n";
-        return -1;
-    }
+    if (!device_ret) return device_ret.error();
     init.device = device_ret.value();
 
     init.disp = init.device.make_table();
 
-    return 0;
+    return gfxrecon::test::TEST_SUCCESS;
 }
 
 int create_swapchain(Init& init) {
@@ -611,7 +569,7 @@ void cleanup(Init& init, RenderData& data) {
     gfxrecon::test::destroy_device(init.device);
     gfxrecon::test::destroy_surface(init.instance, init.surface);
     gfxrecon::test::destroy_instance(init.instance);
-    destroy_window_sdl(init.window);
+    gfxrecon::test::destroy_window_sdl(init.window);
 }
 
 GFXRECON_END_NAMESPACE(triangle)
@@ -626,7 +584,11 @@ int main(int argc, char *argv[]) {
     Init init;
     RenderData render_data;
 
-    if (0 != device_initialization(init)) return -1;
+    if (auto init_ret = device_initialization((init)); !init_ret)
+    {
+        std::cout << init_ret.error().message() << "\n";
+        return -1;
+    }
     if (0 != create_swapchain(init)) return -1;
     if (0 != get_queues(init, render_data)) return -1;
     if (0 != create_render_pass(init, render_data)) return -1;
