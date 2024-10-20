@@ -102,7 +102,7 @@ gfxrecon::test::VoidResult device_initialization(Init& init) {
 
     init.disp = init.device.make_table();
 
-    return gfxrecon::test::TEST_SUCCESS;
+    return gfxrecon::test::SUCCESS;
 }
 
 int get_queues(Init& init, RenderData& data) {
@@ -326,29 +326,32 @@ int create_graphics_pipeline(Init& init, RenderData& data) {
     return 0;
 }
 
-int create_framebuffers(Init& init, RenderData& data) {
-    data.swapchain_images = init.swapchain.get_images().value();
-    data.swapchain_image_views = init.swapchain.get_image_views().value();
+gfxrecon::test::VoidResult create_framebuffers(
+    gfxrecon::test::Swapchain const& swapchain,
+    gfxrecon::test::DispatchTable const& disp,
+    std::vector<VkFramebuffer>& framebuffers,
+    std::vector<VkImageView>& swapchain_image_views,
+    VkRenderPass render_pass
+) {
+    framebuffers.resize(swapchain_image_views.size());
 
-    data.framebuffers.resize(data.swapchain_image_views.size());
-
-    for (size_t i = 0; i < data.swapchain_image_views.size(); i++) {
-        VkImageView attachments[] = { data.swapchain_image_views[i] };
+    for (size_t i = 0; i < swapchain_image_views.size(); i++) {
+        VkImageView attachments[] = { swapchain_image_views[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass = data.render_pass;
+        framebuffer_info.renderPass = render_pass;
         framebuffer_info.attachmentCount = 1;
         framebuffer_info.pAttachments = attachments;
-        framebuffer_info.width = init.swapchain.extent.width;
-        framebuffer_info.height = init.swapchain.extent.height;
+        framebuffer_info.width = swapchain.extent.width;
+        framebuffer_info.height = swapchain.extent.height;
         framebuffer_info.layers = 1;
 
-        if (init.disp.createFramebuffer(&framebuffer_info, nullptr, &data.framebuffers[i]) != VK_SUCCESS) {
-            return -1; // failed to create framebuffer
-        }
+        auto result = disp.createFramebuffer(&framebuffer_info, nullptr, &framebuffers[i]);
+        if (result != VK_SUCCESS) return gfxrecon::test::VoidResult{gfxrecon::test::GeneralError::unexpected, result};
     }
-    return 0;
+
+    return gfxrecon::test::SUCCESS;
 }
 
 int create_command_pool(Init& init, RenderData& data) {
@@ -467,7 +470,21 @@ int recreate_swapchain(Init& init, RenderData& data) {
         return -1;
     }
 
-    if (0 != create_framebuffers(init, data)) return -1;
+    data.swapchain_images = init.swapchain.get_images().value();
+    data.swapchain_image_views = init.swapchain.get_image_views().value();
+
+    auto framebuffer_ret = create_framebuffers(
+        init.swapchain,
+        init.disp,
+        data.framebuffers,
+        data.swapchain_image_views,
+        data.render_pass
+    );
+    if (!framebuffer_ret) {
+        std::cout << framebuffer_ret.error().message() << "\n";
+        return -1;
+    }
+
     if (0 != create_command_pool(init, data)) return -1;
     if (0 != create_command_buffers(init, data)) return -1;
     return 0;
@@ -596,7 +613,23 @@ int main(int argc, char *argv[]) {
     if (0 != get_queues(init, render_data)) return -1;
     if (0 != create_render_pass(init, render_data)) return -1;
     if (0 != create_graphics_pipeline(init, render_data)) return -1;
-    if (0 != create_framebuffers(init, render_data)) return -1;
+
+    render_data.swapchain_images = init.swapchain.get_images().value();
+    render_data.swapchain_image_views = init.swapchain.get_image_views().value();
+
+    auto framebuffer_ret = create_framebuffers(
+        init.swapchain,
+        init.disp,
+        render_data.framebuffers,
+        render_data.swapchain_image_views,
+        render_data.render_pass
+    );
+    if (!framebuffer_ret)
+    {
+        std::cout << framebuffer_ret.error().message() << "\n";
+        return -1;
+    }
+
     if (0 != create_command_pool(init, render_data)) return -1;
     if (0 != create_command_buffers(init, render_data)) return -1;
     if (0 != create_sync_objects(init, render_data)) return -1;
