@@ -105,19 +105,6 @@ gfxrecon::test::VoidResult device_initialization(Init& init) {
     return gfxrecon::test::TEST_SUCCESS;
 }
 
-int create_swapchain(Init& init) {
-
-    gfxrecon::test::SwapchainBuilder swapchain_builder{ init.device };
-    auto swap_ret = swapchain_builder.set_old_swapchain(init.swapchain).build();
-    if (!swap_ret) {
-        std::cout << swap_ret.error().message() << " " << swap_ret.vk_result() << "\n";
-        return -1;
-    }
-    gfxrecon::test::destroy_swapchain(init.swapchain);
-    init.swapchain = swap_ret.value();
-    return 0;
-}
-
 int get_queues(Init& init, RenderData& data) {
     auto gq = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!gq.has_value()) {
@@ -473,7 +460,13 @@ int recreate_swapchain(Init& init, RenderData& data) {
 
     init.swapchain.destroy_image_views(data.swapchain_image_views);
 
-    if (0 != create_swapchain(init)) return -1;
+    auto swapchain_ret = gfxrecon::test::create_swapchain(init.device, init.swapchain);
+    if (!swapchain_ret)
+    {
+        std::cout << swapchain_ret.error().message() << "\n";
+        return -1;
+    }
+
     if (0 != create_framebuffers(init, data)) return -1;
     if (0 != create_command_pool(init, data)) return -1;
     if (0 != create_command_buffers(init, data)) return -1;
@@ -578,18 +571,28 @@ GFXRECON_END_NAMESPACE(test_app)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
+const int NUM_FRAMES = 10;
+
 int main(int argc, char *argv[]) {
     using namespace gfxrecon::test_app::triangle;
 
     Init init;
     RenderData render_data;
 
-    if (auto init_ret = device_initialization((init)); !init_ret)
+    auto init_ret = device_initialization((init));
+    if (!init_ret)
     {
         std::cout << init_ret.error().message() << "\n";
         return -1;
     }
-    if (0 != create_swapchain(init)) return -1;
+
+    auto swapchain_ret = gfxrecon::test::create_swapchain(init.device, init.swapchain);
+    if (!swapchain_ret)
+    {
+        std::cout << swapchain_ret.error().message() << "\n";
+        return -1;
+    }
+
     if (0 != get_queues(init, render_data)) return -1;
     if (0 != create_render_pass(init, render_data)) return -1;
     if (0 != create_graphics_pipeline(init, render_data)) return -1;
@@ -598,12 +601,10 @@ int main(int argc, char *argv[]) {
     if (0 != create_command_buffers(init, render_data)) return -1;
     if (0 != create_sync_objects(init, render_data)) return -1;
 
-    bool running = true;
-    while (running) {
+    for (int frame = 0; frame < NUM_FRAMES; frame++) {
         SDL_Event windowEvent;
         while (SDL_PollEvent(&windowEvent)) {
             if (windowEvent.type == SDL_EVENT_QUIT) {
-                running = false;
                 break;
             }
         }
