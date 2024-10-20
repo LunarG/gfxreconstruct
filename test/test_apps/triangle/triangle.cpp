@@ -354,18 +354,6 @@ gfxrecon::test::VoidResult create_framebuffers(
     return gfxrecon::test::SUCCESS;
 }
 
-int create_command_pool(Init& init, RenderData& data) {
-    VkCommandPoolCreateInfo pool_info = {};
-    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    pool_info.queueFamilyIndex = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
-
-    if (init.disp.createCommandPool(&pool_info, nullptr, &data.command_pool) != VK_SUCCESS) {
-        std::cout << "failed to create command pool\n";
-        return -1; // failed to create command pool
-    }
-    return 0;
-}
-
 int create_command_buffers(Init& init, RenderData& data) {
     data.command_buffers.resize(data.framebuffers.size());
 
@@ -485,7 +473,15 @@ int recreate_swapchain(Init& init, RenderData& data) {
         return -1;
     }
 
-    if (0 != create_command_pool(init, data)) return -1;
+    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
+    auto command_pool_ret = create_command_pool(init.disp, queue_family_index);
+    if (!command_pool_ret)
+    {
+        std::cout << command_pool_ret.error().message() << "\n";
+        return -1;
+    }
+    data.command_pool = command_pool_ret.value();
+
     if (0 != create_command_buffers(init, data)) return -1;
     return 0;
 }
@@ -630,7 +626,15 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    if (0 != create_command_pool(init, render_data)) return -1;
+    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
+    auto command_pool_ret = create_command_pool(init.disp, queue_family_index);
+    if (!command_pool_ret)
+    {
+        std::cout << command_pool_ret.error().message() << "\n";
+        return -1;
+    }
+    render_data.command_pool = command_pool_ret.value();
+
     if (0 != create_command_buffers(init, render_data)) return -1;
     if (0 != create_sync_objects(init, render_data)) return -1;
 

@@ -2262,6 +2262,22 @@ VoidResult create_swapchain(Device const& device, Swapchain& swapchain) {
     return SUCCESS;
 }
 
+Result<VkCommandPool> create_command_pool(
+    DispatchTable const& disp,
+    uint32_t queue_family_index
+) {
+    VkCommandPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_info.queueFamilyIndex = queue_family_index;
+
+    VkCommandPool command_pool;
+    auto result = disp.createCommandPool(&pool_info, nullptr, &command_pool);
+    if (result != VK_SUCCESS) {
+        return Result<VkCommandPool>{GeneralError::unexpected, result};
+    }
+    return command_pool;
+}
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)

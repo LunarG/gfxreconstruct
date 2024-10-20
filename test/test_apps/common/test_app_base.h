@@ -1028,6 +1028,8 @@ void destroy_window_sdl(SDL_Window * window);
 Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
 VoidResult create_swapchain(Device const&, Swapchain& swapchain);
 
+Result<VkCommandPool> create_command_pool(DispatchTable const& disp, uint32_t queue_family_index);
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
