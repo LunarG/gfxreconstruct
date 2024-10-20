@@ -1025,6 +1025,8 @@ const Void TEST_SUCCESS = Void{};
 Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void destroy_window_sdl(SDL_Window * window);
 Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
+VoidResult create_swapchain(Device const&, Swapchain& swapchain);
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
