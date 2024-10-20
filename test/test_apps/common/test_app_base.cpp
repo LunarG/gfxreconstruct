@@ -406,11 +406,11 @@ struct PhysicalDeviceErrorCategory : std::error_category {
 };
 const PhysicalDeviceErrorCategory physical_device_error_category;
 
-struct SDLErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_sdl"; }
-    std::string message(int err) const override { return to_string(static_cast<SDLError>(err)); }
+struct GeneralErrorCategory : std::error_category {
+    const char* name() const noexcept override { return "gfxrecon_test_general"; }
+    std::string message(int err) const override { return to_string(static_cast<GeneralError>(err)); }
 };
-const SDLErrorCategory sdl_error_category;
+const GeneralErrorCategory general_error_category;
 
 struct QueueErrorCategory : std::error_category {
     const char* name() const noexcept override { return "gfxrecon_test_queue"; }
@@ -438,8 +438,8 @@ std::error_code make_error_code(InstanceError instance_error) {
 std::error_code make_error_code(PhysicalDeviceError physical_device_error) {
     return { static_cast<int>(physical_device_error), detail::physical_device_error_category };
 }
-std::error_code make_error_code(SDLError sdl_error) {
-    return { static_cast<int>(sdl_error), detail::sdl_error_category };
+std::error_code make_error_code(GeneralError general_error) {
+    return { static_cast<int>(general_error), detail::general_error_category };
 }
 std::error_code make_error_code(QueueError queue_error) {
     return { static_cast<int>(queue_error), detail::queue_error_category };
@@ -479,8 +479,15 @@ const char* to_string(PhysicalDeviceError err) {
             return "";
     }
 }
-const char* to_string(SDLError err) {
-    return SDL_GetError();
+const char* to_string(GeneralError err) {
+    switch (err) {
+        case GeneralError::sdl:
+            return SDL_GetError();
+        case GeneralError::unexpected:
+            return "unexpected error";
+        default:
+            return "";
+    }
 }
 const char* to_string(QueueError err) {
     switch (err) {
@@ -2218,14 +2225,14 @@ void SwapchainBuilder::add_desired_present_modes(std::vector<VkPresentModeKHR>& 
 }
 
 Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) return Result<SDL_Window*>{SDLError::general};
+    if (!SDL_Init(SDL_INIT_VIDEO)) return Result<SDL_Window*>{GeneralError::sdl};
 
     SDL_WindowFlags flags = 0;
     flags |= SDL_WINDOW_VULKAN;
     if (resizable) flags |= SDL_WINDOW_RESIZABLE;
 
     auto window = SDL_CreateWindow(window_name, width, height, flags);
-    if (window == nullptr) return Result<SDL_Window*>{SDLError::general};
+    if (window == nullptr) return Result<SDL_Window*>{GeneralError::sdl};
 
     return window;
 }
@@ -2239,7 +2246,7 @@ Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     if (!SDL_Vulkan_CreateSurface(window, instance, allocator, &surface)) {
         surface = VK_NULL_HANDLE;
-        return Result<VkSurfaceKHR>{SDLError::general};
+        return Result<VkSurfaceKHR>{GeneralError::sdl};
     }
     return surface;
 }
@@ -2252,7 +2259,7 @@ VoidResult create_swapchain(Device const& device, Swapchain& swapchain) {
     destroy_swapchain(swapchain);
     swapchain = swap_ret.value();
 
-    return TEST_SUCCESS;
+    return SUCCESS;
 }
 
 GFXRECON_END_NAMESPACE(test)

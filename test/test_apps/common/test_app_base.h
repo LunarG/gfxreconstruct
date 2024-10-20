@@ -229,8 +229,9 @@ enum class InstanceError {
     requested_extensions_not_present,
     windowing_extensions_not_present,
 };
-enum class SDLError {
-    general,
+enum class GeneralError {
+    sdl,
+    unexpected,
 };
 enum class PhysicalDeviceError {
     no_surface_provided,
@@ -262,7 +263,7 @@ enum class SwapchainError {
 
 std::error_code make_error_code(InstanceError instance_error);
 std::error_code make_error_code(PhysicalDeviceError physical_device_error);
-std::error_code make_error_code(SDLError sdl_error);
+std::error_code make_error_code(GeneralError general_error);
 std::error_code make_error_code(QueueError queue_error);
 std::error_code make_error_code(DeviceError device_error);
 std::error_code make_error_code(SwapchainError swapchain_error);
@@ -272,7 +273,7 @@ const char* to_string_message_type(VkDebugUtilsMessageTypeFlagsEXT s);
 
 const char* to_string(InstanceError err);
 const char* to_string(PhysicalDeviceError err);
-const char* to_string(SDLError err);
+const char* to_string(GeneralError err);
 const char* to_string(QueueError err);
 const char* to_string(DeviceError err);
 const char* to_string(SwapchainError err);
@@ -1020,7 +1021,7 @@ class SwapchainBuilder {
 
 struct Void {};
 typedef Result<Void> VoidResult;
-const Void TEST_SUCCESS = Void{};
+const Void SUCCESS = Void{};
 
 Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void destroy_window_sdl(SDL_Window * window);
@@ -1035,7 +1036,7 @@ namespace std {
 
 template <> struct is_error_code_enum<gfxrecon::test::InstanceError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::PhysicalDeviceError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::SDLError> : true_type {};
+template <> struct is_error_code_enum<gfxrecon::test::GeneralError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::QueueError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::DeviceError> : true_type {};
 template <> struct is_error_code_enum<gfxrecon::test::SwapchainError> : true_type {};
