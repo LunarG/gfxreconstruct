@@ -2244,6 +2244,17 @@ Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window
     return surface;
 }
 
+VoidResult create_swapchain(Device const& device, Swapchain& swapchain) {
+    SwapchainBuilder swapchain_builder{ device };
+    auto swap_ret = swapchain_builder.set_old_swapchain(swapchain).build();
+    if (!swap_ret) return swap_ret.error();
+
+    destroy_swapchain(swapchain);
+    swapchain = swap_ret.value();
+
+    return TEST_SUCCESS;
+}
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
