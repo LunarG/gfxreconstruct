@@ -957,9 +957,22 @@ struct Init {
 
 Init device_initialization(const std::string& window_name);
 
-void cleanup(Init& init);
+void cleanup_init(Init& init);
 
 void recreate_swapchain(Init& init, bool wait_for_idle = true);
+
+class TestAppBase {
+  public:
+    void run(const std::string& window_name);
+  protected:
+    TestAppBase();
+
+    virtual void setup();
+    virtual bool frame(const int frame_num) = 0;
+    virtual void cleanup();
+
+    Init init;
+};
 
 GFXRECON_END_NAMESPACE(test)
 
