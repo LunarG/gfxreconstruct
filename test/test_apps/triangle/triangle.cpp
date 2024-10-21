@@ -323,7 +323,11 @@ void Triangle::recreate_swapchain() {
     create_command_buffers();
 }
 
-void Triangle::draw_frame() {
+const int NUM_FRAMES = 10;
+#define IS_DONE(frame_num) frame_num >= NUM_FRAMES;
+
+bool Triangle::frame(const int frame_num)
+{
     init.disp.waitForFences(1, &this->sync.in_flight_fences[this->current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
@@ -331,7 +335,8 @@ void Triangle::draw_frame() {
         init.swapchain, UINT64_MAX, this->sync.available_semaphores[this->current_frame], VK_NULL_HANDLE, &image_index);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        return recreate_swapchain();
+        recreate_swapchain();
+        return IS_DONE(frame_num);
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
@@ -376,11 +381,14 @@ void Triangle::draw_frame() {
 
     result = init.disp.queuePresentKHR(this->present_queue, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        return recreate_swapchain();
+        recreate_swapchain();
+        return frame_num >= NUM_FRAMES;
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
     this->current_frame = (this->current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return IS_DONE(frame_num);
 }
 
 void Triangle::cleanup() {
@@ -400,8 +408,6 @@ void Triangle::cleanup() {
     init.disp.destroyPipelineLayout(this->pipeline_layout, nullptr);
     init.disp.destroyRenderPass(this->render_pass, nullptr);
 }
-
-const int NUM_FRAMES = 10;
 
 void Triangle::setup()
 {
@@ -428,12 +434,6 @@ void Triangle::setup()
     create_command_buffers();
 
     this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
-}
-
-bool Triangle::frame(const int frame_num)
-{
-    draw_frame();
-    return frame_num >= NUM_FRAMES;
 }
 
 GFXRECON_END_NAMESPACE(triangle)
