@@ -299,12 +299,7 @@ void recreate_swapchain(gfxrecon::test::Init& init, RenderData& data) {
         init.disp.destroyFramebuffer(framebuffer, nullptr);
     }
 
-    init.swapchain.destroy_image_views(init.swapchain_image_views);
-
-    gfxrecon::test::create_swapchain(init.device, init.swapchain);
-
-    init.swapchain_images = init.swapchain.get_images();
-    init.swapchain_image_views = init.swapchain.get_image_views();
+    gfxrecon::test::recreate_swapchain(init, false);
 
     create_framebuffers(init, data);
 
@@ -375,30 +370,22 @@ void draw_frame(gfxrecon::test::Init& init, RenderData& data) {
     data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void cleanup(gfxrecon::test::Init& init, RenderData& data) {
+void cleanup(gfxrecon::test::DispatchTable const& disp, RenderData& data) {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        init.disp.destroySemaphore(data.sync.finished_semaphore[i], nullptr);
-        init.disp.destroySemaphore(data.sync.available_semaphores[i], nullptr);
-        init.disp.destroyFence(data.sync.in_flight_fences[i], nullptr);
+        disp.destroySemaphore(data.sync.finished_semaphore[i], nullptr);
+        disp.destroySemaphore(data.sync.available_semaphores[i], nullptr);
+        disp.destroyFence(data.sync.in_flight_fences[i], nullptr);
     }
 
-    init.disp.destroyCommandPool(data.command_pool, nullptr);
+    disp.destroyCommandPool(data.command_pool, nullptr);
 
     for (auto framebuffer : data.framebuffers) {
-        init.disp.destroyFramebuffer(framebuffer, nullptr);
+        disp.destroyFramebuffer(framebuffer, nullptr);
     }
 
-    init.disp.destroyPipeline(data.graphics_pipeline, nullptr);
-    init.disp.destroyPipelineLayout(data.pipeline_layout, nullptr);
-    init.disp.destroyRenderPass(data.render_pass, nullptr);
-
-    init.swapchain.destroy_image_views(init.swapchain_image_views);
-
-    gfxrecon::test::destroy_swapchain(init.swapchain);
-    gfxrecon::test::destroy_device(init.device);
-    gfxrecon::test::destroy_surface(init.instance, init.surface);
-    gfxrecon::test::destroy_instance(init.instance);
-    gfxrecon::test::destroy_window_sdl(init.window);
+    disp.destroyPipeline(data.graphics_pipeline, nullptr);
+    disp.destroyPipelineLayout(data.pipeline_layout, nullptr);
+    disp.destroyRenderPass(data.render_pass, nullptr);
 }
 
 const int NUM_FRAMES = 10;
@@ -442,7 +429,9 @@ void run() {
 
     init.disp.deviceWaitIdle();
 
-    cleanup(init, render_data);
+    cleanup(init.disp, render_data);
+
+    gfxrecon::test::cleanup(init);
 }
 
 GFXRECON_END_NAMESPACE(triangle)
