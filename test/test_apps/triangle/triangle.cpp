@@ -38,7 +38,10 @@ GFXRECON_BEGIN_NAMESPACE(triangle)
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-struct RenderData {
+class Triangle : public gfxrecon::test::TestAppBase {
+  public:
+    Triangle() : gfxrecon::test::TestAppBase() {}
+  private:
     VkQueue graphics_queue;
     VkQueue present_queue;
 
@@ -54,9 +57,19 @@ struct RenderData {
     size_t current_frame = 0;
 
     gfxrecon::test::Sync sync;
+
+    void create_render_pass();
+    void create_graphics_pipeline();
+    void create_framebuffers();
+    void create_command_buffers();
+    void recreate_swapchain();
+    void draw_frame();
+    void cleanup() override;
+    bool frame(const int frame_num) override;
+    void setup() override;
 };
 
-void create_render_pass(gfxrecon::test::Init& init, RenderData& data) {
+void Triangle::create_render_pass() {
     VkAttachmentDescription color_attachment = {};
     color_attachment.format = init.swapchain.image_format;
     color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -93,11 +106,11 @@ void create_render_pass(gfxrecon::test::Init& init, RenderData& data) {
     render_pass_info.dependencyCount = 1;
     render_pass_info.pDependencies = &dependency;
 
-    auto result = init.disp.createRenderPass(&render_pass_info, nullptr, &data.render_pass);
+    auto result = init.disp.createRenderPass(&render_pass_info, nullptr, &this->render_pass);
     VERIFY_VK_RESULT("failed to create render pass", result);
 }
 
-void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
+void Triangle::create_graphics_pipeline() {
     auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
     auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
 
@@ -180,7 +193,7 @@ void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
     pipeline_layout_info.setLayoutCount = 0;
     pipeline_layout_info.pushConstantRangeCount = 0;
 
-    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &data.pipeline_layout);
+    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &this->pipeline_layout);
     VERIFY_VK_RESULT("failed to create pipeline layout", result);
 
     std::vector<VkDynamicState> dynamic_states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
@@ -201,61 +214,61 @@ void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
     pipeline_info.pMultisampleState = &multisampling;
     pipeline_info.pColorBlendState = &color_blending;
     pipeline_info.pDynamicState = &dynamic_info;
-    pipeline_info.layout = data.pipeline_layout;
-    pipeline_info.renderPass = data.render_pass;
+    pipeline_info.layout = this->pipeline_layout;
+    pipeline_info.renderPass = this->render_pass;
     pipeline_info.subpass = 0;
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &data.graphics_pipeline);
+    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &this->graphics_pipeline);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
     init.disp.destroyShaderModule(frag_module, nullptr);
     init.disp.destroyShaderModule(vert_module, nullptr);
 }
 
-void create_framebuffers(gfxrecon::test::Init const& init, RenderData& data) {
-    data.framebuffers.resize(init.swapchain_image_views.size());
+void Triangle::create_framebuffers() {
+    this->framebuffers.resize(init.swapchain_image_views.size());
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++) {
         VkImageView attachments[] = { init.swapchain_image_views[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass = data.render_pass;
+        framebuffer_info.renderPass = this->render_pass;
         framebuffer_info.attachmentCount = 1;
         framebuffer_info.pAttachments = attachments;
         framebuffer_info.width = init.swapchain.extent.width;
         framebuffer_info.height = init.swapchain.extent.height;
         framebuffer_info.layers = 1;
 
-        auto result = init.disp.createFramebuffer(&framebuffer_info, nullptr, &data.framebuffers[i]);
+        auto result = init.disp.createFramebuffer(&framebuffer_info, nullptr, &this->framebuffers[i]);
         VERIFY_VK_RESULT("failed to create framebuffer", result);
     }
 }
 
-void create_command_buffers(gfxrecon::test::Init& init, RenderData& data) {
-    data.command_buffers.resize(data.framebuffers.size());
+void Triangle::create_command_buffers() {
+    this->command_buffers.resize(this->framebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = data.command_pool;
+    allocInfo.commandPool = this->command_pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)data.command_buffers.size();
+    allocInfo.commandBufferCount = (uint32_t)this->command_buffers.size();
 
-    auto result = init.disp.allocateCommandBuffers(&allocInfo, data.command_buffers.data());
+    auto result = init.disp.allocateCommandBuffers(&allocInfo, this->command_buffers.data());
     VERIFY_VK_RESULT("failed to allocate command buffers", result);
 
-    for (size_t i = 0; i < data.command_buffers.size(); i++) {
+    for (size_t i = 0; i < this->command_buffers.size(); i++) {
         VkCommandBufferBeginInfo begin_info = {};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        result = init.disp.beginCommandBuffer(data.command_buffers[i], &begin_info);
+        result = init.disp.beginCommandBuffer(this->command_buffers[i], &begin_info);
         VERIFY_VK_RESULT("failed to create command buffer", result);
 
         VkRenderPassBeginInfo render_pass_info = {};
         render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        render_pass_info.renderPass = data.render_pass;
-        render_pass_info.framebuffer = data.framebuffers[i];
+        render_pass_info.renderPass = this->render_pass;
+        render_pass_info.framebuffer = this->framebuffers[i];
         render_pass_info.renderArea.offset = { 0, 0 };
         render_pass_info.renderArea.extent = init.swapchain.extent;
         VkClearValue clearColor{ { { 0.0f, 0.0f, 0.0f, 1.0f } } };
@@ -274,79 +287,79 @@ void create_command_buffers(gfxrecon::test::Init& init, RenderData& data) {
         scissor.offset = { 0, 0 };
         scissor.extent = init.swapchain.extent;
 
-        init.disp.cmdSetViewport(data.command_buffers[i], 0, 1, &viewport);
-        init.disp.cmdSetScissor(data.command_buffers[i], 0, 1, &scissor);
+        init.disp.cmdSetViewport(this->command_buffers[i], 0, 1, &viewport);
+        init.disp.cmdSetScissor(this->command_buffers[i], 0, 1, &scissor);
 
-        init.disp.cmdBeginRenderPass(data.command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+        init.disp.cmdBeginRenderPass(this->command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-        init.disp.cmdBindPipeline(data.command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, data.graphics_pipeline);
+        init.disp.cmdBindPipeline(this->command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphics_pipeline);
 
-        init.disp.cmdDraw(data.command_buffers[i], 3, 1, 0, 0);
+        init.disp.cmdDraw(this->command_buffers[i], 3, 1, 0, 0);
 
-        init.disp.cmdEndRenderPass(data.command_buffers[i]);
+        init.disp.cmdEndRenderPass(this->command_buffers[i]);
 
-        result = init.disp.endCommandBuffer(data.command_buffers[i]);
+        result = init.disp.endCommandBuffer(this->command_buffers[i]);
         VERIFY_VK_RESULT("failed to end command buffer", result);
     }
 }
 
-void recreate_swapchain(gfxrecon::test::Init& init, RenderData& data) {
+void Triangle::recreate_swapchain() {
     init.disp.deviceWaitIdle();
 
-    init.disp.destroyCommandPool(data.command_pool, nullptr);
+    init.disp.destroyCommandPool(this->command_pool, nullptr);
 
-    for (auto framebuffer : data.framebuffers) {
+    for (auto framebuffer : this->framebuffers) {
         init.disp.destroyFramebuffer(framebuffer, nullptr);
     }
 
     gfxrecon::test::recreate_swapchain(init, false);
 
-    create_framebuffers(init, data);
+    create_framebuffers();
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
-    data.command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
+    this->command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
 
-    create_command_buffers(init, data);
+    create_command_buffers();
 }
 
-void draw_frame(gfxrecon::test::Init& init, RenderData& data) {
-    init.disp.waitForFences(1, &data.sync.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
+void Triangle::draw_frame() {
+    init.disp.waitForFences(1, &this->sync.in_flight_fences[this->current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
     VkResult result = init.disp.acquireNextImageKHR(
-        init.swapchain, UINT64_MAX, data.sync.available_semaphores[data.current_frame], VK_NULL_HANDLE, &image_index);
+        init.swapchain, UINT64_MAX, this->sync.available_semaphores[this->current_frame], VK_NULL_HANDLE, &image_index);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        return recreate_swapchain(init, data);
+        return recreate_swapchain();
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (data.sync.image_in_flight[image_index] != VK_NULL_HANDLE) {
-        init.disp.waitForFences(1, &data.sync.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+    if (this->sync.image_in_flight[image_index] != VK_NULL_HANDLE) {
+        init.disp.waitForFences(1, &this->sync.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    data.sync.image_in_flight[image_index] = data.sync.in_flight_fences[data.current_frame];
+    this->sync.image_in_flight[image_index] = this->sync.in_flight_fences[this->current_frame];
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore wait_semaphores[] = { data.sync.available_semaphores[data.current_frame] };
+    VkSemaphore wait_semaphores[] = { this->sync.available_semaphores[this->current_frame] };
     VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = wait_semaphores;
     submitInfo.pWaitDstStageMask = wait_stages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &data.command_buffers[image_index];
+    submitInfo.pCommandBuffers = &this->command_buffers[image_index];
 
-    VkSemaphore signal_semaphores[] = { data.sync.finished_semaphore[data.current_frame] };
+    VkSemaphore signal_semaphores[] = { this->sync.finished_semaphore[this->current_frame] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signal_semaphores;
 
-    init.disp.resetFences(1, &data.sync.in_flight_fences[data.current_frame]);
+    init.disp.resetFences(1, &this->sync.in_flight_fences[this->current_frame]);
 
-    result = init.disp.queueSubmit(data.graphics_queue, 1, &submitInfo, data.sync.in_flight_fences[data.current_frame]);
+    result = init.disp.queueSubmit(this->graphics_queue, 1, &submitInfo, this->sync.in_flight_fences[this->current_frame]);
     VERIFY_VK_RESULT("failed to submit queue", result);
 
     VkPresentInfoKHR present_info = {};
@@ -361,77 +374,66 @@ void draw_frame(gfxrecon::test::Init& init, RenderData& data) {
 
     present_info.pImageIndices = &image_index;
 
-    result = init.disp.queuePresentKHR(data.present_queue, &present_info);
+    result = init.disp.queuePresentKHR(this->present_queue, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        return recreate_swapchain(init, data);
+        return recreate_swapchain();
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
-    data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    this->current_frame = (this->current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void cleanup(gfxrecon::test::DispatchTable const& disp, RenderData& data) {
+void Triangle::cleanup() {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        disp.destroySemaphore(data.sync.finished_semaphore[i], nullptr);
-        disp.destroySemaphore(data.sync.available_semaphores[i], nullptr);
-        disp.destroyFence(data.sync.in_flight_fences[i], nullptr);
+        init.disp.destroySemaphore(this->sync.finished_semaphore[i], nullptr);
+        init.disp.destroySemaphore(this->sync.available_semaphores[i], nullptr);
+        init.disp.destroyFence(this->sync.in_flight_fences[i], nullptr);
     }
 
-    disp.destroyCommandPool(data.command_pool, nullptr);
+    init.disp.destroyCommandPool(this->command_pool, nullptr);
 
-    for (auto framebuffer : data.framebuffers) {
-        disp.destroyFramebuffer(framebuffer, nullptr);
+    for (auto framebuffer : this->framebuffers) {
+        init.disp.destroyFramebuffer(framebuffer, nullptr);
     }
 
-    disp.destroyPipeline(data.graphics_pipeline, nullptr);
-    disp.destroyPipelineLayout(data.pipeline_layout, nullptr);
-    disp.destroyRenderPass(data.render_pass, nullptr);
+    init.disp.destroyPipeline(this->graphics_pipeline, nullptr);
+    init.disp.destroyPipelineLayout(this->pipeline_layout, nullptr);
+    init.disp.destroyRenderPass(this->render_pass, nullptr);
 }
 
 const int NUM_FRAMES = 10;
 
-void run() {
-    auto init = gfxrecon::test::device_initialization("triangle");
-
-    RenderData render_data;
-
+void Triangle::setup()
+{
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
-    if (!graphics_queue.has_value()) throw std::runtime_error("could not get graphics queue");
-    render_data.graphics_queue = *graphics_queue;
+    if (!graphics_queue.has_value())
+        throw std::runtime_error("could not get graphics queue");
+    this->graphics_queue = *graphics_queue;
 
     auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
-    if (!present_queue.has_value()) throw std::runtime_error("could not get present queue");
-    render_data.present_queue = *present_queue;
+    if (!present_queue.has_value())
+        throw std::runtime_error("could not get present queue");
+    this->present_queue = *present_queue;
 
-    create_render_pass(init, render_data);
-    create_graphics_pipeline(init, render_data);
+    create_render_pass();
+    create_graphics_pipeline();
 
-    create_framebuffers(init, render_data);
+    create_framebuffers();
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
-    if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
-    render_data.command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
+    if (!queue_family_index)
+        throw std::runtime_error("could not find graphics queue");
+    this->command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
 
-    create_command_buffers(init, render_data);
+    create_command_buffers();
 
-    render_data.sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
+    this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
+}
 
-    for (int frame = 0; frame < NUM_FRAMES; frame++) {
-        SDL_Event windowEvent;
-        while (SDL_PollEvent(&windowEvent)) {
-            if (windowEvent.type == SDL_EVENT_QUIT) {
-                break;
-            }
-        }
-
-        draw_frame(init, render_data);
-    }
-
-    init.disp.deviceWaitIdle();
-
-    cleanup(init.disp, render_data);
-
-    gfxrecon::test::cleanup(init);
+bool Triangle::frame(const int frame_num)
+{
+    draw_frame();
+    return frame_num >= NUM_FRAMES;
 }
 
 GFXRECON_END_NAMESPACE(triangle)
@@ -442,7 +444,8 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 int main(int argc, char *argv[]) {
     try {
-        gfxrecon::test_app::triangle::run();
+        gfxrecon::test_app::triangle::Triangle triangle{};
+        triangle.run("triangle");
         return 0;
     } catch (std::exception e) {
         std::cout << e.what() << std::endl;
