@@ -448,7 +448,7 @@ int recreate_swapchain(Init& init, RenderData& data) {
     }
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
-    auto command_pool_ret = create_command_pool(init.disp, queue_family_index);
+    auto command_pool_ret = gfxrecon::test::create_command_pool(init.disp, queue_family_index);
     if (!command_pool_ret)
     {
         std::cout << command_pool_ret.error().message() << "\n";
@@ -552,17 +552,9 @@ void cleanup(Init& init, RenderData& data) {
     gfxrecon::test::destroy_window_sdl(init.window);
 }
 
-GFXRECON_END_NAMESPACE(triangle)
-
-GFXRECON_END_NAMESPACE(test_app)
-
-GFXRECON_END_NAMESPACE(gfxrecon)
-
 const int NUM_FRAMES = 10;
 
-int main(int argc, char *argv[]) {
-    using namespace gfxrecon::test_app::triangle;
-
+int run() {
     Init init;
     RenderData render_data;
 
@@ -601,7 +593,7 @@ int main(int argc, char *argv[]) {
     }
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
-    auto command_pool_ret = create_command_pool(init.disp, queue_family_index);
+    auto command_pool_ret = gfxrecon::test::create_command_pool(init.disp, queue_family_index);
     if (!command_pool_ret)
     {
         std::cout << command_pool_ret.error().message() << "\n";
@@ -638,4 +630,14 @@ int main(int argc, char *argv[]) {
 
     cleanup(init, render_data);
     return 0;
+}
+
+GFXRECON_END_NAMESPACE(triangle)
+
+GFXRECON_END_NAMESPACE(test_app)
+
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+int main(int argc, char *argv[]) {
+    return gfxrecon::test_app::triangle::run();
 }
