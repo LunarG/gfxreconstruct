@@ -39,6 +39,7 @@
 
 #include <mutex>
 #include <algorithm>
+#include <fstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -2301,6 +2302,44 @@ Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const
         }
     }
     return sync;
+}
+
+std::vector<char> readFile(const std::string& filename) {
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("failed to open file!");
+    }
+
+    size_t file_size = (size_t)file.tellg();
+    std::vector<char> buffer(file_size);
+
+    file.seekg(0);
+    file.read(buffer.data(), static_cast<std::streamsize>(file_size));
+
+    file.close();
+
+    return buffer;
+}
+
+Result<VkShaderModule> createShaderModule(DispatchTable const& disp, const std::vector<char>& code) {
+    VkShaderModuleCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    create_info.codeSize = code.size();
+    create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    VkShaderModule shaderModule;
+    auto result = disp.createShaderModule(&create_info, nullptr, &shaderModule);
+    if (result != VK_SUCCESS) {
+        return Result<VkShaderModule>{GeneralError::unexpected, result};
+    }
+
+    return shaderModule;
+}
+
+Result<VkShaderModule> readShaderFromFile(DispatchTable const& disp, const std::string& filename) {
+    std::vector<char> code = readFile(filename);
+    return createShaderModule(disp, code);
 }
 
 GFXRECON_END_NAMESPACE(test)
