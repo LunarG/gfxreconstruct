@@ -3,17 +3,26 @@
 #
 # Find the AGS includes and library.
 #
-# This module is derived from the CMake FindZLIB.cmake module.
-#
-# Result Variables
-# ^^^^^^^^^^^^^^^^
-#
 # This module defines the following variables:
 #
 #  AGS_FOUND           : True if AGS was found.
 #  AGS_INCLUDE_DIR     : The location of the AGS header file.
 #  AGS_LIBRARY_RELEASE : Location of the AGS library for release builds.
 #  AGS_LIBRARY_DEBUG   : Location of the AGS library for debug builds.
+
+function(FindAgsLibrary AGS_SEARCH_PATH AGS_LIBRARY_NAME AGS_LIBRARY_VAR)
+    if(${AGS_LIBRARY_VAR})
+        if(NOT EXISTS "${${AGS_LIBRARY_VAR}}")
+            message("Current ${AGS_LIBRARY_VAR} '${${AGS_LIBRARY_VAR}}' does not exist. Resetting ${AGS_LIBRARY_VAR}.")
+            unset(${AGS_LIBRARY_VAR} CACHE)
+        elseif(NOT ${${AGS_LIBRARY_VAR}} MATCHES "${AGS_LIBRARY_NAME}")
+            message("Current ${AGS_LIBRARY_VAR} '${${AGS_LIBRARY_VAR}}' does not match required library name "
+                    "'${AGS_LIBRARY_NAME}'. Resetting ${AGS_LIBRARY_VAR}.")
+            unset(${AGS_LIBRARY_VAR} CACHE)
+        endif()
+    endif()
+    find_library(${AGS_LIBRARY_VAR} NAMES ${AGS_LIBRARY_NAME} PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
+endfunction()
 
 # Find the build architecture.
 set(AGS_ARCH "")
@@ -60,26 +69,20 @@ if(AGS_ARCH AND AGS_MSVC_TOOLSET AND AGS_MSVC_RUNTIME)
     FetchContent_MakeAvailable(AGS_SDK)
 
     set(AGS_SEARCH_PATH "${AGS_SDK_DIR}/ags_lib")
+    
+    if(AGS_INCLUDE_DIR AND NOT EXISTS "${AGS_INCLUDE_DIR}/amd_ags.h")
+        message("Current AGS_INCLUDE_DIR '${AGS_INCLUDE_DIR}' does not contain 'amd_ags.h'. Resetting AGS_INCLUDE_DIR.")
+        unset(AGS_INCLUDE_DIR CACHE)
+    endif()
 
     find_path(AGS_INCLUDE_DIR NAMES amd_ags.h PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES inc)
     mark_as_advanced(AGS_INCLUDE_DIR)
 
-    set(AGS_LIBRARY_NAME "amd_ags_${AGS_ARCH}_${AGS_MSVC_TOOLSET}_${AGS_MSVC_RUNTIME}")
+    set(AGS_LIBRARY_NAME_RELEASE "amd_ags_${AGS_ARCH}_${AGS_MSVC_TOOLSET}_${AGS_MSVC_RUNTIME}")
+    set(AGS_LIBRARY_NAME_DEBUG "${AGS_LIBRARY_NAME_RELEASE}d")
     
-    # If cached library strings don't match, unset variables.
-    if(AGS_LIBRARY_RELEASE AND NOT ${AGS_LIBRARY_RELEASE} MATCHES "${AGS_LIBRARY_NAME}")
-        message("Current AGS_LIBRARY_RELEASE '${AGS_LIBRARY_RELEASE}' does not match required library name "
-                "'${AGS_LIBRARY_NAME}'. Resetting AGS_LIBRARY_RELEASE.")
-        unset(AGS_LIBRARY_RELEASE CACHE)
-    endif()
-    if(AGS_LIBRARY_DEBUG AND NOT ${AGS_LIBRARY_DEBUG} MATCHES "${AGS_LIBRARY_NAME}d")
-        message("Current AGS_LIBRARY_DEBUG '${AGS_LIBRARY_DEBUG}' does not match required library name "
-                "'${AGS_LIBRARY_NAME}d'. Resetting AGS_LIBRARY_DEBUG.")
-        unset(AGS_LIBRARY_DEBUG CACHE)
-    endif()
-    
-    find_library(AGS_LIBRARY_RELEASE NAMES ${AGS_LIBRARY_NAME} PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
-    find_library(AGS_LIBRARY_DEBUG NAMES "${AGS_LIBRARY_NAME}d" PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
+    FindAgsLibrary(${AGS_SEARCH_PATH} ${AGS_LIBRARY_NAME_RELEASE} AGS_LIBRARY_RELEASE)
+    FindAgsLibrary(${AGS_SEARCH_PATH} ${AGS_LIBRARY_NAME_DEBUG} AGS_LIBRARY_DEBUG)
     
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(AGS REQUIRED_VARS AGS_LIBRARY_RELEASE AGS_LIBRARY_DEBUG AGS_INCLUDE_DIR)
