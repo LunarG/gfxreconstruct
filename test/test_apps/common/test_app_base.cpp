@@ -2351,6 +2351,29 @@ std::exception sdl_exception() {
     return std::runtime_error(SDL_GetError());
 }
 
+Init device_initialization(const std::string& window_name) {
+    Init init;
+
+    init.window = gfxrecon::test::create_window_sdl(window_name.data(), true, 1024, 1024);
+
+    gfxrecon::test::InstanceBuilder instance_builder;
+    init.instance = instance_builder.use_default_debug_messenger().request_validation_layers().build();
+
+    init.inst_disp = init.instance.make_table();
+
+    init.surface = gfxrecon::test::create_surface_sdl(init.instance, init.window);
+
+    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
+    auto physical_device = phys_device_selector.set_surface(init.surface).select();
+
+    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
+    init.device = device_builder.build();
+
+    init.disp = init.device.make_table();
+
+    return init;
+}
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
