@@ -957,6 +957,10 @@ struct Init {
 
 Init device_initialization(const std::string& window_name);
 
+void cleanup(Init& init);
+
+void recreate_swapchain(Init& init, bool wait_for_idle = true);
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
