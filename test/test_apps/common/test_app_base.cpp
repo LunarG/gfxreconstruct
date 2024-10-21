@@ -40,6 +40,7 @@
 #include <mutex>
 #include <algorithm>
 #include <fstream>
+#include <Vulkan-Utility-Libraries/vk_enum_string_helper.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -407,12 +408,6 @@ struct PhysicalDeviceErrorCategory : std::error_category {
 };
 const PhysicalDeviceErrorCategory physical_device_error_category;
 
-struct GeneralErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_general"; }
-    std::string message(int err) const override { return to_string(static_cast<GeneralError>(err)); }
-};
-const GeneralErrorCategory general_error_category;
-
 struct QueueErrorCategory : std::error_category {
     const char* name() const noexcept override { return "gfxrecon_test_queue"; }
     std::string message(int err) const override { return to_string(static_cast<QueueError>(err)); }
@@ -426,31 +421,13 @@ struct DeviceErrorCategory : std::error_category {
 const DeviceErrorCategory device_error_category;
 
 struct SwapchainErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "vbk_swapchain"; }
+    const char* name() const noexcept override { return "gfxrecon_test_swapchain"; }
     std::string message(int err) const override { return to_string(static_cast<SwapchainError>(err)); }
 };
 const SwapchainErrorCategory swapchain_error_category;
 
 GFXRECON_END_NAMESPACE(detail)
 
-std::error_code make_error_code(InstanceError instance_error) {
-    return { static_cast<int>(instance_error), detail::instance_error_category };
-}
-std::error_code make_error_code(PhysicalDeviceError physical_device_error) {
-    return { static_cast<int>(physical_device_error), detail::physical_device_error_category };
-}
-std::error_code make_error_code(GeneralError general_error) {
-    return { static_cast<int>(general_error), detail::general_error_category };
-}
-std::error_code make_error_code(QueueError queue_error) {
-    return { static_cast<int>(queue_error), detail::queue_error_category };
-}
-std::error_code make_error_code(DeviceError device_error) {
-    return { static_cast<int>(device_error), detail::device_error_category };
-}
-std::error_code make_error_code(SwapchainError swapchain_error) {
-    return { static_cast<int>(swapchain_error), detail::swapchain_error_category };
-}
 #define CASE_TO_STRING(CATEGORY, TYPE)                                                                                 \
     case CATEGORY::TYPE:                                                                                               \
         return #TYPE;
@@ -476,16 +453,6 @@ const char* to_string(PhysicalDeviceError err) {
         CASE_TO_STRING(PhysicalDeviceError, failed_enumerate_physical_devices)
         CASE_TO_STRING(PhysicalDeviceError, no_physical_devices_found)
         CASE_TO_STRING(PhysicalDeviceError, no_suitable_device)
-        default:
-            return "";
-    }
-}
-const char* to_string(GeneralError err) {
-    switch (err) {
-        case GeneralError::sdl:
-            return SDL_GetError();
-        case GeneralError::unexpected:
-            return "unexpected error";
         default:
             return "";
     }
@@ -523,17 +490,72 @@ const char* to_string(SwapchainError err) {
     }
 }
 
-Result<SystemInfo> SystemInfo::get_system_info() {
+std::exception to_exception(InstanceError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(InstanceError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+std::exception to_exception(PhysicalDeviceError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(PhysicalDeviceError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+std::exception to_exception(QueueError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(QueueError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+std::exception to_exception(DeviceError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(DeviceError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+std::exception to_exception(SwapchainError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(SwapchainError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+SystemInfo SystemInfo::get_system_info() {
     if (!detail::vulkan_functions().init_vulkan_funcs(nullptr)) {
-        return make_error_code(InstanceError::vulkan_unavailable);
+        throw to_exception(InstanceError::vulkan_unavailable);
     }
     return SystemInfo();
 }
 
-Result<SystemInfo> SystemInfo::get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr) {
+SystemInfo SystemInfo::get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr) {
     // Using externally provided function pointers, assume the loader is available
     if (!detail::vulkan_functions().init_vulkan_funcs(fp_vkGetInstanceProcAddr)) {
-        return make_error_code(InstanceError::vulkan_unavailable);
+        throw to_exception(InstanceError::vulkan_unavailable);
     }
     return SystemInfo();
 }
@@ -610,11 +632,9 @@ InstanceBuilder::InstanceBuilder(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcA
 }
 InstanceBuilder::InstanceBuilder() {}
 
-Result<Instance> InstanceBuilder::build() const {
+Instance InstanceBuilder::build() const {
 
-    auto sys_info_ret = SystemInfo::get_system_info(info.fp_vkGetInstanceProcAddr);
-    if (!sys_info_ret) return sys_info_ret.error();
-    auto system = sys_info_ret.value();
+    auto system = SystemInfo::get_system_info(info.fp_vkGetInstanceProcAddr);
 
     uint32_t instance_version = VKB_VK_API_VERSION_1_0;
 
@@ -626,16 +646,16 @@ Result<Instance> InstanceBuilder::build() const {
             VkResult res = pfn_vkEnumerateInstanceVersion(&instance_version);
             // Should always return VK_SUCCESS
             if (res != VK_SUCCESS && info.required_api_version > 0)
-                return make_error_code(InstanceError::vulkan_version_unavailable);
+                throw to_exception(InstanceError::vulkan_version_unavailable);
         }
         if (pfn_vkEnumerateInstanceVersion == nullptr || instance_version < info.minimum_instance_version ||
             (info.minimum_instance_version == 0 && instance_version < info.required_api_version)) {
             if (VK_VERSION_MINOR(info.required_api_version) == 2)
-                return make_error_code(InstanceError::vulkan_version_1_2_unavailable);
+                throw to_exception(InstanceError::vulkan_version_1_2_unavailable);
             else if (VK_VERSION_MINOR(info.required_api_version))
-                return make_error_code(InstanceError::vulkan_version_1_1_unavailable);
+                throw to_exception(InstanceError::vulkan_version_1_1_unavailable);
             else
-                return make_error_code(InstanceError::vulkan_version_unavailable);
+                throw to_exception(InstanceError::vulkan_version_unavailable);
         }
     }
 
@@ -701,11 +721,11 @@ Result<Instance> InstanceBuilder::build() const {
         bool added_window_exts = check_add_window_ext("VK_EXT_metal_surface");
 #endif
         if (!khr_surface_added || !added_window_exts)
-            return make_error_code(InstanceError::windowing_extensions_not_present);
+            throw to_exception(InstanceError::windowing_extensions_not_present);
     }
     bool all_extensions_supported = detail::check_extensions_supported(system.available_extensions, extensions);
     if (!all_extensions_supported) {
-        return make_error_code(InstanceError::requested_extensions_not_present);
+        throw to_exception(InstanceError::requested_extensions_not_present);
     }
 
     for (auto& layer : info.layers)
@@ -716,7 +736,7 @@ Result<Instance> InstanceBuilder::build() const {
     }
     bool all_layers_supported = detail::check_layers_supported(system.available_layers, layers);
     if (!all_layers_supported) {
-        return make_error_code(InstanceError::requested_layers_not_present);
+        throw to_exception(InstanceError::requested_layers_not_present);
     }
 
     std::vector<VkBaseOutStructure*> pNext_chain;
@@ -775,7 +795,7 @@ Result<Instance> InstanceBuilder::build() const {
     Instance instance;
     VkResult res =
         detail::vulkan_functions().fp_vkCreateInstance(&instance_create_info, info.allocation_callbacks, &instance.instance);
-    if (res != VK_SUCCESS) return Result<Instance>(InstanceError::failed_create_instance, res);
+    if (res != VK_SUCCESS) throw to_exception(InstanceError::failed_create_instance, res);
 
     detail::vulkan_functions().init_instance_funcs(instance.instance);
 
@@ -787,9 +807,7 @@ Result<Instance> InstanceBuilder::build() const {
                                            info.debug_user_data_pointer,
                                            &instance.debug_messenger,
                                            info.allocation_callbacks);
-        if (res != VK_SUCCESS) {
-            return Result<Instance>(InstanceError::failed_create_debug_messenger, res);
-        }
+        if (res != VK_SUCCESS) throw to_exception(InstanceError::failed_create_debug_messenger, res);
     }
 
     instance.headless = info.headless_context;
@@ -1079,19 +1097,18 @@ bool supports_features(const VkPhysicalDeviceFeatures& supported,
 	return extension_supported.match_all(extension_requested);
 }
 // clang-format on
-// Finds the first queue which supports the desired operations. Returns QUEUE_INDEX_MAX_VALUE if none is found
-uint32_t get_first_queue_index(std::vector<VkQueueFamilyProperties> const& families, VkQueueFlags desired_flags) {
+// Finds the first queue which supports the desired operations.
+std::optional<uint32_t> get_first_queue_index(std::vector<VkQueueFamilyProperties> const& families, VkQueueFlags desired_flags) {
     for (uint32_t i = 0; i < static_cast<uint32_t>(families.size()); i++) {
         if ((families[i].queueFlags & desired_flags) == desired_flags) return i;
     }
-    return QUEUE_INDEX_MAX_VALUE;
+    return {};
 }
 // Finds the queue which is separate from the graphics queue and has the desired flag and not the
-// undesired flag, but will select it if no better options are available compute support. Returns
-// QUEUE_INDEX_MAX_VALUE if none is found.
-uint32_t get_separate_queue_index(
+// undesired flag, but will select it if no better options are available compute support.
+std::optional<uint32_t> get_separate_queue_index(
     std::vector<VkQueueFamilyProperties> const& families, VkQueueFlags desired_flags, VkQueueFlags undesired_flags) {
-    uint32_t index = QUEUE_INDEX_MAX_VALUE;
+    std::optional<uint32_t> index = {};
     for (uint32_t i = 0; i < static_cast<uint32_t>(families.size()); i++) {
         if ((families[i].queueFlags & desired_flags) == desired_flags && ((families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
             if ((families[i].queueFlags & undesired_flags) == 0) {
@@ -1104,29 +1121,29 @@ uint32_t get_separate_queue_index(
     return index;
 }
 
-// finds the first queue which supports only the desired flag (not graphics or transfer). Returns QUEUE_INDEX_MAX_VALUE if none is found.
-uint32_t get_dedicated_queue_index(
+// finds the first queue which supports only the desired flag (not graphics or transfer).
+std::optional<uint32_t> get_dedicated_queue_index(
     std::vector<VkQueueFamilyProperties> const& families, VkQueueFlags desired_flags, VkQueueFlags undesired_flags) {
     for (uint32_t i = 0; i < static_cast<uint32_t>(families.size()); i++) {
         if ((families[i].queueFlags & desired_flags) == desired_flags &&
             (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0 && (families[i].queueFlags & undesired_flags) == 0)
             return i;
     }
-    return QUEUE_INDEX_MAX_VALUE;
+    return {};
 }
 
-// finds the first queue which supports presenting. returns QUEUE_INDEX_MAX_VALUE if none is found
-uint32_t get_present_queue_index(
+// finds the first queue which supports presenting.
+std::optional<uint32_t> get_present_queue_index(
     VkPhysicalDevice const phys_device, VkSurfaceKHR const surface, std::vector<VkQueueFamilyProperties> const& families) {
     for (uint32_t i = 0; i < static_cast<uint32_t>(families.size()); i++) {
         VkBool32 presentSupport = false;
         if (surface != VK_NULL_HANDLE) {
             VkResult res = detail::vulkan_functions().fp_vkGetPhysicalDeviceSurfaceSupportKHR(phys_device, i, surface, &presentSupport);
-            if (res != VK_SUCCESS) return QUEUE_INDEX_MAX_VALUE; // TODO: determine if this should fail another way
+            if (res != VK_SUCCESS) return {}; // TODO: determine if this should fail another way
         }
         if (presentSupport == VK_TRUE) return i;
     }
-    return QUEUE_INDEX_MAX_VALUE;
+    return {};
 }
 
 GFXRECON_END_NAMESPACE(detail)
@@ -1184,24 +1201,32 @@ PhysicalDevice::Suitable PhysicalDeviceSelector::is_device_suitable(PhysicalDevi
     if (criteria.required_version > pd.properties.apiVersion) return PhysicalDevice::Suitable::no;
     if (criteria.desired_version > pd.properties.apiVersion) suitable = PhysicalDevice::Suitable::partial;
 
-    bool dedicated_compute = detail::get_dedicated_queue_index(pd.queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) !=
-                             detail::QUEUE_INDEX_MAX_VALUE;
-    bool dedicated_transfer = detail::get_dedicated_queue_index(pd.queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) !=
-                              detail::QUEUE_INDEX_MAX_VALUE;
-    bool separate_compute = detail::get_separate_queue_index(pd.queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) !=
-                            detail::QUEUE_INDEX_MAX_VALUE;
-    bool separate_transfer = detail::get_separate_queue_index(pd.queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) !=
-                             detail::QUEUE_INDEX_MAX_VALUE;
+    bool dedicated_compute = detail::get_dedicated_queue_index(pd.queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT).has_value();
+    bool dedicated_transfer = detail::get_dedicated_queue_index(pd.queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT).has_value();
+    bool separate_compute = detail::get_separate_queue_index(pd.queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT).has_value();
+    bool separate_transfer = detail::get_separate_queue_index(pd.queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT).has_value();
 
-    bool present_queue = detail::get_present_queue_index(pd.physical_device, instance_info.surface, pd.queue_families) !=
-                         detail::QUEUE_INDEX_MAX_VALUE;
+    bool present_queue = detail::get_present_queue_index(pd.physical_device, instance_info.surface, pd.queue_families).has_value();
 
-    if (criteria.require_dedicated_compute_queue && !dedicated_compute) return PhysicalDevice::Suitable::no;
-    if (criteria.require_dedicated_transfer_queue && !dedicated_transfer) return PhysicalDevice::Suitable::no;
-    if (criteria.require_separate_compute_queue && !separate_compute) return PhysicalDevice::Suitable::no;
-    if (criteria.require_separate_transfer_queue && !separate_transfer) return PhysicalDevice::Suitable::no;
-    if (criteria.require_present && !present_queue && !criteria.defer_surface_initialization)
+    if (criteria.require_dedicated_compute_queue && !dedicated_compute)
+    {
         return PhysicalDevice::Suitable::no;
+    }
+    if (criteria.require_dedicated_transfer_queue && !dedicated_transfer)
+    {
+        return PhysicalDevice::Suitable::no;
+    }
+    if (criteria.require_separate_compute_queue && !separate_compute)
+    {
+        return PhysicalDevice::Suitable::no;
+    }
+    if (criteria.require_separate_transfer_queue && !separate_transfer) {
+        return PhysicalDevice::Suitable::no;
+    }
+    if (criteria.require_present && !present_queue && !criteria.defer_surface_initialization)
+    {
+        return PhysicalDevice::Suitable::no;
+    }
 
     auto required_extensions_supported =
         detail::check_device_extension_support(pd.available_extensions, criteria.required_extensions);
@@ -1264,7 +1289,7 @@ PhysicalDeviceSelector::PhysicalDeviceSelector(Instance const& instance, VkSurfa
     criteria.desired_version = instance.api_version;
 }
 
-Result<std::vector<PhysicalDevice>> PhysicalDeviceSelector::select_impl(DeviceSelectionMode selection) const {
+std::vector<PhysicalDevice> PhysicalDeviceSelector::select_impl(DeviceSelectionMode selection) const {
 #if !defined(NDEBUG)
     // Validation
     for (const auto& node : criteria.extended_features_chain.nodes) {
@@ -1279,7 +1304,7 @@ Result<std::vector<PhysicalDevice>> PhysicalDeviceSelector::select_impl(DeviceSe
 
     if (criteria.require_present && !criteria.defer_surface_initialization) {
         if (instance_info.surface == VK_NULL_HANDLE)
-            return Result<std::vector<PhysicalDevice>>{ PhysicalDeviceError::no_surface_provided };
+            throw to_exception( PhysicalDeviceError::no_surface_provided);
     }
 
     // Get the VkPhysicalDevice handles on the system
@@ -1288,10 +1313,10 @@ Result<std::vector<PhysicalDevice>> PhysicalDeviceSelector::select_impl(DeviceSe
     auto vk_physical_devices_ret = detail::get_vector<VkPhysicalDevice>(
         vk_physical_devices, detail::vulkan_functions().fp_vkEnumeratePhysicalDevices, instance_info.instance);
     if (vk_physical_devices_ret != VK_SUCCESS) {
-        return Result<std::vector<PhysicalDevice>>{ PhysicalDeviceError::failed_enumerate_physical_devices, vk_physical_devices_ret };
+        throw to_exception(PhysicalDeviceError::failed_enumerate_physical_devices, vk_physical_devices_ret);
     }
     if (vk_physical_devices.size() == 0) {
-        return Result<std::vector<PhysicalDevice>>{ PhysicalDeviceError::no_physical_devices_found };
+        throw to_exception(PhysicalDeviceError::no_physical_devices_found);
     }
 
     auto fill_out_phys_dev_with_criteria = [&](PhysicalDevice& phys_dev) {
@@ -1350,35 +1375,32 @@ Result<std::vector<PhysicalDevice>> PhysicalDeviceSelector::select_impl(DeviceSe
     return physical_devices;
 }
 
-Result<PhysicalDevice> PhysicalDeviceSelector::select(DeviceSelectionMode selection) const {
+PhysicalDevice PhysicalDeviceSelector::select(DeviceSelectionMode selection) const {
     auto const selected_devices = select_impl(selection);
 
-    if (!selected_devices) return Result<PhysicalDevice>{ selected_devices.error() };
-    if (selected_devices.value().size() == 0) {
-        return Result<PhysicalDevice>{ PhysicalDeviceError::no_suitable_device };
+    if (selected_devices.size() == 0) {
+        throw to_exception(PhysicalDeviceError::no_suitable_device);
     }
 
-    return selected_devices.value().at(0);
+    return selected_devices.at(0);
 }
 
 // Return all devices which are considered suitable - intended for applications which want to let the user pick the physical device
-Result<std::vector<PhysicalDevice>> PhysicalDeviceSelector::select_devices(DeviceSelectionMode selection) const {
+std::vector<PhysicalDevice> PhysicalDeviceSelector::select_devices(DeviceSelectionMode selection) const {
     auto const selected_devices = select_impl(selection);
-    if (!selected_devices) return Result<std::vector<PhysicalDevice>>{ selected_devices.error() };
-    if (selected_devices.value().size() == 0) {
-        return Result<std::vector<PhysicalDevice>>{ PhysicalDeviceError::no_suitable_device };
+    if (selected_devices.size() == 0) {
+        throw to_exception(PhysicalDeviceError::no_suitable_device);
     }
-    return selected_devices.value();
+    return selected_devices;
 }
 
-Result<std::vector<std::string>> PhysicalDeviceSelector::select_device_names(DeviceSelectionMode selection) const {
+std::vector<std::string> PhysicalDeviceSelector::select_device_names(DeviceSelectionMode selection) const {
     auto const selected_devices = select_impl(selection);
-    if (!selected_devices) return Result<std::vector<std::string>>{ selected_devices.error() };
-    if (selected_devices.value().size() == 0) {
-        return Result<std::vector<std::string>>{ PhysicalDeviceError::no_suitable_device };
+    if (selected_devices.size() == 0) {
+        throw to_exception(PhysicalDeviceError::no_suitable_device);
     }
     std::vector<std::string> names;
-    for (const auto& pd : selected_devices.value()) {
+    for (const auto& pd : selected_devices) {
         names.push_back(pd.name);
     }
     return names;
@@ -1507,16 +1529,16 @@ PhysicalDeviceSelector& PhysicalDeviceSelector::select_first_device_unconditiona
 
 // PhysicalDevice
 bool PhysicalDevice::has_dedicated_compute_queue() const {
-    return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != detail::QUEUE_INDEX_MAX_VALUE;
+    return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT).has_value();
 }
 bool PhysicalDevice::has_separate_compute_queue() const {
-    return detail::get_separate_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != detail::QUEUE_INDEX_MAX_VALUE;
+    return detail::get_separate_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT).has_value();
 }
 bool PhysicalDevice::has_dedicated_transfer_queue() const {
-    return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != detail::QUEUE_INDEX_MAX_VALUE;
+    return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT).has_value();
 }
 bool PhysicalDevice::has_separate_transfer_queue() const {
-    return detail::get_separate_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != detail::QUEUE_INDEX_MAX_VALUE;
+    return detail::get_separate_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT).has_value();
 }
 std::vector<VkQueueFamilyProperties> PhysicalDevice::get_queue_families() const { return queue_families; }
 std::vector<std::string> PhysicalDevice::get_extensions() const { return extensions_to_enable; }
@@ -1600,59 +1622,46 @@ PhysicalDevice::operator VkPhysicalDevice() const { return this->physical_device
 
 // ---- Queues ---- //
 
-Result<uint32_t> Device::get_queue_index(QueueType type) const {
-    uint32_t index = detail::QUEUE_INDEX_MAX_VALUE;
+std::optional<uint32_t> Device::get_queue_index(QueueType type) const {
     switch (type) {
         case QueueType::present:
-            index = detail::get_present_queue_index(physical_device.physical_device, surface, queue_families);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::present_unavailable };
+            return detail::get_present_queue_index(physical_device.physical_device, surface, queue_families);
             break;
         case QueueType::graphics:
-            index = detail::get_first_queue_index(queue_families, VK_QUEUE_GRAPHICS_BIT);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::graphics_unavailable };
-            break;
+            return detail::get_first_queue_index(queue_families, VK_QUEUE_GRAPHICS_BIT);
         case QueueType::compute:
-            index = detail::get_separate_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::compute_unavailable };
-            break;
+            return detail::get_separate_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT);
         case QueueType::transfer:
-            index = detail::get_separate_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::transfer_unavailable };
-            break;
+            return detail::get_separate_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT);
         default:
-            return Result<uint32_t>{ QueueError::invalid_queue_family_index };
+            return {};
     }
-    return index;
-}
-Result<uint32_t> Device::get_dedicated_queue_index(QueueType type) const {
-    uint32_t index = detail::QUEUE_INDEX_MAX_VALUE;
-    switch (type) {
-        case QueueType::compute:
-            index = detail::get_dedicated_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::compute_unavailable };
-            break;
-        case QueueType::transfer:
-            index = detail::get_dedicated_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT);
-            if (index == detail::QUEUE_INDEX_MAX_VALUE) return Result<uint32_t>{ QueueError::transfer_unavailable };
-            break;
-        default:
-            return Result<uint32_t>{ QueueError::invalid_queue_family_index };
-    }
-    return index;
 }
 
-Result<VkQueue> Device::get_queue(QueueType type) const {
+std::optional<uint32_t> Device::get_dedicated_queue_index(QueueType type) const {
+    switch (type) {
+        case QueueType::compute:
+            return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT);
+        case QueueType::transfer:
+            return detail::get_dedicated_queue_index(queue_families, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT);
+        default:
+            return {};
+    }
+}
+
+std::optional<VkQueue> Device::get_queue(QueueType type) const {
     auto index = get_queue_index(type);
-    if (!index.has_value()) return { index.error() };
+    if (!index.has_value()) return {};
     VkQueue out_queue;
-    internal_table.fp_vkGetDeviceQueue(device, index.value(), 0, &out_queue);
+    internal_table.fp_vkGetDeviceQueue(device, *index, 0, &out_queue);
     return out_queue;
 }
-Result<VkQueue> Device::get_dedicated_queue(QueueType type) const {
+
+std::optional<VkQueue> Device::get_dedicated_queue(QueueType type) const {
     auto index = get_dedicated_queue_index(type);
-    if (!index.has_value()) return { index.error() };
+    if (!index.has_value()) return {};
     VkQueue out_queue;
-    internal_table.fp_vkGetDeviceQueue(device, index.value(), 0, &out_queue);
+    internal_table.fp_vkGetDeviceQueue(device, *index, 0, &out_queue);
     return out_queue;
 }
 
@@ -1673,8 +1682,7 @@ void destroy_device(Device const& device) {
 
 DeviceBuilder::DeviceBuilder(PhysicalDevice phys_device) { physical_device = std::move(phys_device); }
 
-Result<Device> DeviceBuilder::build() const {
-
+Device DeviceBuilder::build() const {
     std::vector<CustomQueueDescription> queue_descriptions;
     queue_descriptions.insert(queue_descriptions.end(), info.queue_descriptions.begin(), info.queue_descriptions.end());
 
@@ -1713,7 +1721,7 @@ Result<Device> DeviceBuilder::build() const {
     }
 
     if (user_defined_phys_dev_features_2 && !physical_device.extended_features_chain.nodes.empty()) {
-        return { DeviceError::VkPhysicalDeviceFeatures2_in_pNext_chain_while_using_add_required_extension_features };
+        throw to_exception(DeviceError::VkPhysicalDeviceFeatures2_in_pNext_chain_while_using_add_required_extension_features);
     }
 
     // These objects must be alive during the call to vkCreateDevice
@@ -1756,7 +1764,7 @@ Result<Device> DeviceBuilder::build() const {
     VkResult res = detail::vulkan_functions().fp_vkCreateDevice(
         physical_device.physical_device, &device_create_info, info.allocation_callbacks, &device.device);
     if (res != VK_SUCCESS) {
-        return { DeviceError::failed_create_device, res };
+        throw to_exception(DeviceError::failed_create_device, res);
     }
 
     device.physical_device = physical_device;
@@ -1769,10 +1777,12 @@ Result<Device> DeviceBuilder::build() const {
     device.instance_version = physical_device.instance_version;
     return device;
 }
+
 DeviceBuilder& DeviceBuilder::custom_queue_setup(std::vector<CustomQueueDescription> queue_descriptions) {
     info.queue_descriptions = std::move(queue_descriptions);
     return *this;
 }
+
 DeviceBuilder& DeviceBuilder::set_allocation_callbacks(VkAllocationCallbacks* callbacks) {
     info.allocation_callbacks = callbacks;
     return *this;
@@ -1796,33 +1806,38 @@ enum class SurfaceSupportError {
     no_suitable_desired_format
 };
 
-struct SurfaceSupportErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "vbk_surface_support"; }
-    std::string message(int err) const override {
-        switch (static_cast<SurfaceSupportError>(err)) {
-            CASE_TO_STRING(SurfaceSupportError, surface_handle_null)
-            CASE_TO_STRING(SurfaceSupportError, failed_get_surface_capabilities)
-            CASE_TO_STRING(SurfaceSupportError, failed_enumerate_surface_formats)
-            CASE_TO_STRING(SurfaceSupportError, failed_enumerate_present_modes)
-            CASE_TO_STRING(SurfaceSupportError, no_suitable_desired_format)
-            default:
-                return "";
-        }
+const char* to_string(SurfaceSupportError err)
+{
+    switch (err)
+    {
+        CASE_TO_STRING(SurfaceSupportError, surface_handle_null)
+        CASE_TO_STRING(SurfaceSupportError, failed_get_surface_capabilities)
+        CASE_TO_STRING(SurfaceSupportError, failed_enumerate_surface_formats)
+        CASE_TO_STRING(SurfaceSupportError, failed_enumerate_present_modes)
+        CASE_TO_STRING(SurfaceSupportError, no_suitable_desired_format)
+        default:
+            return "";
     }
-};
-const SurfaceSupportErrorCategory surface_support_error_category;
-
-std::error_code make_error_code(SurfaceSupportError surface_support_error) {
-    return { static_cast<int>(surface_support_error), detail::surface_support_error_category };
 }
 
-Result<SurfaceSupportDetails> query_surface_support_details(VkPhysicalDevice phys_device, VkSurfaceKHR surface) {
-    if (surface == VK_NULL_HANDLE) return make_error_code(SurfaceSupportError::surface_handle_null);
+std::exception to_exception(SurfaceSupportError error) {
+    return std::runtime_error(to_string(error));
+}
+std::exception to_exception(SurfaceSupportError error, VkResult result) {
+    std::string message{};
+    message.append(to_string(error));
+    message.append(": ");
+    message.append(string_VkResult(result));
+    return std::runtime_error(message);
+}
+
+SurfaceSupportDetails query_surface_support_details(VkPhysicalDevice phys_device, VkSurfaceKHR surface) {
+    if (surface == VK_NULL_HANDLE) throw to_exception(SurfaceSupportError::surface_handle_null);
 
     VkSurfaceCapabilitiesKHR capabilities;
     VkResult res = detail::vulkan_functions().fp_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(phys_device, surface, &capabilities);
     if (res != VK_SUCCESS) {
-        return { make_error_code(SurfaceSupportError::failed_get_surface_capabilities), res };
+        throw to_exception(SurfaceSupportError::failed_get_surface_capabilities, res);
     }
 
     std::vector<VkSurfaceFormatKHR> formats;
@@ -1831,16 +1846,16 @@ Result<SurfaceSupportDetails> query_surface_support_details(VkPhysicalDevice phy
     auto formats_ret = detail::get_vector<VkSurfaceFormatKHR>(
         formats, detail::vulkan_functions().fp_vkGetPhysicalDeviceSurfaceFormatsKHR, phys_device, surface);
     if (formats_ret != VK_SUCCESS)
-        return { make_error_code(SurfaceSupportError::failed_enumerate_surface_formats), formats_ret };
+        throw to_exception(SurfaceSupportError::failed_enumerate_surface_formats, formats_ret);
     auto present_modes_ret = detail::get_vector<VkPresentModeKHR>(
         present_modes, detail::vulkan_functions().fp_vkGetPhysicalDeviceSurfacePresentModesKHR, phys_device, surface);
     if (present_modes_ret != VK_SUCCESS)
-        return { make_error_code(SurfaceSupportError::failed_enumerate_present_modes), present_modes_ret };
+        throw to_exception(SurfaceSupportError::failed_enumerate_present_modes, present_modes_ret);
 
     return SurfaceSupportDetails{ capabilities, formats, present_modes };
 }
 
-Result<VkSurfaceFormatKHR> find_desired_surface_format(
+std::optional<VkSurfaceFormatKHR> find_desired_surface_format(
     std::vector<VkSurfaceFormatKHR> const& available_formats, std::vector<VkSurfaceFormatKHR> const& desired_formats) {
     for (auto const& desired_format : desired_formats) {
         for (auto const& available_format : available_formats) {
@@ -1851,17 +1866,13 @@ Result<VkSurfaceFormatKHR> find_desired_surface_format(
         }
     }
 
-    // if no desired format is available, we report that no format is suitable to the user request
-    return { make_error_code(SurfaceSupportError::no_suitable_desired_format) };
+    return {};
 }
 
 VkSurfaceFormatKHR find_best_surface_format(
     std::vector<VkSurfaceFormatKHR> const& available_formats, std::vector<VkSurfaceFormatKHR> const& desired_formats) {
     auto surface_format_ret = detail::find_desired_surface_format(available_formats, desired_formats);
-    if (surface_format_ret.has_value()) return surface_format_ret.value();
-
-    // use the first available format as a fallback if any desired formats aren't found
-    return available_formats[0];
+    return surface_format_ret.value_or(available_formats[0]);
 }
 
 VkPresentModeKHR find_present_mode(std::vector<VkPresentModeKHR> const& available_resent_modes,
@@ -1910,10 +1921,11 @@ SwapchainBuilder::SwapchainBuilder(Device const& device) {
     auto present = device.get_queue_index(QueueType::present);
     auto graphics = device.get_queue_index(QueueType::graphics);
     assert(graphics.has_value() && present.has_value() && "Graphics and Present queue indexes must be valid");
-    info.graphics_queue_index = present.value();
-    info.present_queue_index = graphics.value();
+    info.graphics_queue_index = *present;
+    info.present_queue_index = *graphics;
     info.allocation_callbacks = device.allocation_callbacks;
 }
+
 SwapchainBuilder::SwapchainBuilder(Device const& device, VkSurfaceKHR const surface) {
     info.physical_device = device.physical_device.physical_device;
     info.device = device.device;
@@ -1924,32 +1936,32 @@ SwapchainBuilder::SwapchainBuilder(Device const& device, VkSurfaceKHR const surf
     auto present = temp_device.get_queue_index(QueueType::present);
     auto graphics = temp_device.get_queue_index(QueueType::graphics);
     assert(graphics.has_value() && present.has_value() && "Graphics and Present queue indexes must be valid");
-    info.graphics_queue_index = graphics.value();
-    info.present_queue_index = present.value();
+    info.graphics_queue_index = *graphics;
+    info.present_queue_index = *present;
     info.allocation_callbacks = device.allocation_callbacks;
 }
 SwapchainBuilder::SwapchainBuilder(VkPhysicalDevice const physical_device,
                                    VkDevice const device,
                                    VkSurfaceKHR const surface,
-                                   uint32_t graphics_queue_index,
-                                   uint32_t present_queue_index) {
+                                   std::optional<uint32_t> graphics_queue_index,
+                                   std::optional<uint32_t> present_queue_index) {
     info.physical_device = physical_device;
     info.device = device;
     info.surface = surface;
     info.graphics_queue_index = graphics_queue_index;
     info.present_queue_index = present_queue_index;
-    if (graphics_queue_index == detail::QUEUE_INDEX_MAX_VALUE || present_queue_index == detail::QUEUE_INDEX_MAX_VALUE) {
+    if (!graphics_queue_index.has_value() || !present_queue_index.has_value()) {
         auto queue_families = detail::get_vector_noerror<VkQueueFamilyProperties>(
             detail::vulkan_functions().fp_vkGetPhysicalDeviceQueueFamilyProperties, physical_device);
-        if (graphics_queue_index == detail::QUEUE_INDEX_MAX_VALUE)
+        if (!graphics_queue_index.has_value())
             info.graphics_queue_index = detail::get_first_queue_index(queue_families, VK_QUEUE_GRAPHICS_BIT);
-        if (present_queue_index == detail::QUEUE_INDEX_MAX_VALUE)
+        if (!present_queue_index.has_value())
             info.present_queue_index = detail::get_present_queue_index(physical_device, surface, queue_families);
     }
 }
-Result<Swapchain> SwapchainBuilder::build() const {
+Swapchain SwapchainBuilder::build() const {
     if (info.surface == VK_NULL_HANDLE) {
-        return Error{ SwapchainError::surface_handle_not_provided };
+        throw to_exception(SwapchainError::surface_handle_not_provided);
     }
 
     auto desired_formats = info.desired_formats;
@@ -1957,15 +1969,12 @@ Result<Swapchain> SwapchainBuilder::build() const {
     auto desired_present_modes = info.desired_present_modes;
     if (desired_present_modes.size() == 0) add_desired_present_modes(desired_present_modes);
 
-    auto surface_support_ret = detail::query_surface_support_details(info.physical_device, info.surface);
-    if (!surface_support_ret.has_value())
-        return Error{ SwapchainError::failed_query_surface_support_details, surface_support_ret.vk_result() };
-    auto surface_support = surface_support_ret.value();
+    auto surface_support = detail::query_surface_support_details(info.physical_device, info.surface);
 
     uint32_t image_count = info.min_image_count;
     if (info.required_min_image_count >= 1) {
         if (info.required_min_image_count < surface_support.capabilities.minImageCount)
-            return make_error_code(SwapchainError::required_min_image_count_too_low);
+            throw to_exception(SwapchainError::required_min_image_count_too_low);
 
         image_count = info.required_min_image_count;
     } else if (info.min_image_count == 0) {
@@ -1989,8 +1998,7 @@ Result<Swapchain> SwapchainBuilder::build() const {
         image_array_layers = surface_support.capabilities.maxImageArrayLayers;
     if (info.array_layer_count == 0) image_array_layers = 1;
 
-    uint32_t queue_family_indices[] = { info.graphics_queue_index, info.present_queue_index };
-
+    uint32_t queue_family_indices[] = { *info.graphics_queue_index, *info.present_queue_index };
 
     VkPresentModeKHR present_mode = detail::find_present_mode(surface_support.present_modes, desired_present_modes);
 
@@ -2002,7 +2010,7 @@ Result<Swapchain> SwapchainBuilder::build() const {
 
     if (is_unextended_present_mode(present_mode) &&
         (info.image_usage_flags & surface_support.capabilities.supportedUsageFlags) != info.image_usage_flags) {
-        return Error{ SwapchainError::required_usage_not_supported };
+        throw to_exception(SwapchainError::required_usage_not_supported);
     }
 
     VkSurfaceTransformFlagBitsKHR pre_transform = info.pre_transform;
@@ -2045,7 +2053,7 @@ Result<Swapchain> SwapchainBuilder::build() const {
     auto res = swapchain_create_proc(info.device, &swapchain_create_info, info.allocation_callbacks, &swapchain.swapchain);
 
     if (res != VK_SUCCESS) {
-        return Error{ SwapchainError::failed_create_swapchain, res };
+        throw to_exception(SwapchainError::failed_create_swapchain, res);
     }
     swapchain.device = info.device;
     swapchain.image_format = surface_format.format;
@@ -2059,31 +2067,26 @@ Result<Swapchain> SwapchainBuilder::build() const {
     detail::vulkan_functions().get_device_proc_addr(
         info.device, swapchain.internal_table.fp_vkDestroySwapchainKHR, "vkDestroySwapchainKHR");
     auto images = swapchain.get_images();
-    if (!images) {
-        return Error{ SwapchainError::failed_get_swapchain_images };
-    }
     swapchain.requested_min_image_count = image_count;
     swapchain.present_mode = present_mode;
-    swapchain.image_count = static_cast<uint32_t>(images.value().size());
+    swapchain.image_count = static_cast<uint32_t>(images.size());
     swapchain.instance_version = info.instance_version;
     swapchain.allocation_callbacks = info.allocation_callbacks;
     return swapchain;
 }
-Result<std::vector<VkImage>> Swapchain::get_images() {
+std::vector<VkImage> Swapchain::get_images() {
     std::vector<VkImage> swapchain_images;
 
     auto swapchain_images_ret =
         detail::get_vector<VkImage>(swapchain_images, internal_table.fp_vkGetSwapchainImagesKHR, device, swapchain);
     if (swapchain_images_ret != VK_SUCCESS) {
-        return Error{ SwapchainError::failed_get_swapchain_images, swapchain_images_ret };
+        throw to_exception(SwapchainError::failed_get_swapchain_images, swapchain_images_ret);
     }
     return swapchain_images;
 }
-Result<std::vector<VkImageView>> Swapchain::get_image_views() { return get_image_views(nullptr); }
-Result<std::vector<VkImageView>> Swapchain::get_image_views(const void* pNext) {
-    const auto swapchain_images_ret = get_images();
-    if (!swapchain_images_ret) return swapchain_images_ret.error();
-    const auto& swapchain_images = swapchain_images_ret.value();
+std::vector<VkImageView> Swapchain::get_image_views() { return get_image_views(nullptr); }
+std::vector<VkImageView> Swapchain::get_image_views(const void* pNext) {
+    const auto swapchain_images = get_images();
 
     bool already_contains_image_view_usage = false;
     while (pNext) {
@@ -2121,7 +2124,7 @@ Result<std::vector<VkImageView>> Swapchain::get_image_views(const void* pNext) {
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
         VkResult res = internal_table.fp_vkCreateImageView(device, &createInfo, allocation_callbacks, &views[i]);
-        if (res != VK_SUCCESS) return Error{ SwapchainError::failed_create_swapchain_image_views, res };
+        if (res != VK_SUCCESS) throw to_exception(SwapchainError::failed_create_swapchain_image_views, res);
     }
     return views;
 }
@@ -2225,15 +2228,15 @@ void SwapchainBuilder::add_desired_present_modes(std::vector<VkPresentModeKHR>& 
     modes.push_back(VK_PRESENT_MODE_FIFO_KHR);
 }
 
-Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) return Result<SDL_Window*>{GeneralError::sdl};
+SDL_Window* create_window_sdl(const char* window_name, bool resizable, int width, int height) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) throw sdl_exception();
 
     SDL_WindowFlags flags = 0;
     flags |= SDL_WINDOW_VULKAN;
     if (resizable) flags |= SDL_WINDOW_RESIZABLE;
 
     auto window = SDL_CreateWindow(window_name, width, height, flags);
-    if (window == nullptr) return Result<SDL_Window*>{GeneralError::sdl};
+    if (window == nullptr) throw sdl_exception();
 
     return window;
 }
@@ -2243,27 +2246,23 @@ void destroy_window_sdl(SDL_Window* window) {
     SDL_Quit();
 }
 
-Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator) {
+VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator) {
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     if (!SDL_Vulkan_CreateSurface(window, instance, allocator, &surface)) {
         surface = VK_NULL_HANDLE;
-        return Result<VkSurfaceKHR>{GeneralError::sdl};
+        throw sdl_exception();
     }
     return surface;
 }
 
-VoidResult create_swapchain(Device const& device, Swapchain& swapchain) {
+void create_swapchain(Device const& device, Swapchain& swapchain) {
     SwapchainBuilder swapchain_builder{ device };
-    auto swap_ret = swapchain_builder.set_old_swapchain(swapchain).build();
-    if (!swap_ret) return swap_ret.error();
-
+    auto new_swapchain = swapchain_builder.set_old_swapchain(swapchain).build();
     destroy_swapchain(swapchain);
-    swapchain = swap_ret.value();
-
-    return SUCCESS;
+    swapchain = new_swapchain;
 }
 
-Result<VkCommandPool> create_command_pool(
+VkCommandPool create_command_pool(
     DispatchTable const& disp,
     uint32_t queue_family_index
 ) {
@@ -2273,13 +2272,11 @@ Result<VkCommandPool> create_command_pool(
 
     VkCommandPool command_pool;
     auto result = disp.createCommandPool(&pool_info, nullptr, &command_pool);
-    if (result != VK_SUCCESS) {
-        return Result<VkCommandPool>{GeneralError::unexpected, result};
-    }
+    VERIFY_VK_RESULT("failed to create command pool", result);
     return command_pool;
 }
 
-Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight) {
+Sync create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight) {
     Sync sync;
 
     sync.available_semaphores.resize(max_frames_in_flight);
@@ -2295,11 +2292,13 @@ Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < max_frames_in_flight; i++) {
-        if (disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]) != VK_SUCCESS ||
-            disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]) != VK_SUCCESS ||
-            disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]) != VK_SUCCESS) {
-            return gfxrecon::test::Result<Sync>{gfxrecon::test::GeneralError::unexpected};
-        }
+        VkResult result;
+        result = disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]);
+        VERIFY_VK_RESULT("failed to create available semaphore", result);
+        result = disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]);
+        VERIFY_VK_RESULT("failed to create finished semaphore", result);
+        result = disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]);
+        VERIFY_VK_RESULT("failed to create in flight fence", result);
     }
     return sync;
 }
@@ -2322,7 +2321,7 @@ std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
-Result<VkShaderModule> createShaderModule(DispatchTable const& disp, const std::vector<char>& code) {
+VkShaderModule createShaderModule(DispatchTable const& disp, const std::vector<char>& code) {
     VkShaderModuleCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     create_info.codeSize = code.size();
@@ -2330,16 +2329,26 @@ Result<VkShaderModule> createShaderModule(DispatchTable const& disp, const std::
 
     VkShaderModule shaderModule;
     auto result = disp.createShaderModule(&create_info, nullptr, &shaderModule);
-    if (result != VK_SUCCESS) {
-        return Result<VkShaderModule>{GeneralError::unexpected, result};
-    }
+    VERIFY_VK_RESULT("failed to create shader module", result);
 
     return shaderModule;
 }
 
-Result<VkShaderModule> readShaderFromFile(DispatchTable const& disp, const std::string& filename) {
+VkShaderModule readShaderFromFile(DispatchTable const& disp, const std::string& filename) {
     std::vector<char> code = readFile(filename);
     return createShaderModule(disp, code);
+}
+
+std::exception vulkan_exception(const char* message, VkResult result) {
+    std::string error_message;
+    error_message.append(message);
+    error_message.append(": ");
+    error_message.append(string_VkResult(result));
+    return std::runtime_error(error_message);
+}
+
+std::exception sdl_exception() {
+    return std::runtime_error(SDL_GetError());
 }
 
 GFXRECON_END_NAMESPACE(test)

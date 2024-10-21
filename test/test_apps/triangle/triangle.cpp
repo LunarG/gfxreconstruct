@@ -21,12 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdio.h>
-
 #include <memory>
 #include <iostream>
-#include <fstream>
-#include <string>
 
 #include <vulkan/vulkan_core.h>
 
@@ -72,55 +68,36 @@ struct RenderData {
     gfxrecon::test::Sync sync;
 };
 
-gfxrecon::test::VoidResult device_initialization(Init& init) {
-    auto window_ret = gfxrecon::test::create_window_sdl("Vulkan Triangle", true, 1024, 1024);
-    if (!window_ret) return window_ret.error();
-    init.window = window_ret.value();
+void device_initialization(Init& init) {
+    init.window = gfxrecon::test::create_window_sdl("Vulkan Triangle", true, 1024, 1024);
 
     gfxrecon::test::InstanceBuilder instance_builder;
-    auto instance_ret = instance_builder.use_default_debug_messenger().request_validation_layers().build();
-    if (!instance_ret) return instance_ret.error();
-    init.instance = instance_ret.value();
+    init.instance = instance_builder.use_default_debug_messenger().request_validation_layers().build();
 
     init.inst_disp = init.instance.make_table();
 
-    auto surface_ret = gfxrecon::test::create_surface_sdl(init.instance, init.window);
-    if (!surface_ret) return surface_ret.error();
-    init.surface = surface_ret.value();
+    init.surface = gfxrecon::test::create_surface_sdl(init.instance, init.window);
 
     gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
-    auto phys_device_ret = phys_device_selector.set_surface(init.surface).select();
-    if (!phys_device_ret) return phys_device_ret.error();
-    gfxrecon::test::PhysicalDevice physical_device = phys_device_ret.value();
+    auto physical_device = phys_device_selector.set_surface(init.surface).select();
 
     gfxrecon::test::DeviceBuilder device_builder{ physical_device };
-    auto device_ret = device_builder.build();
-    if (!device_ret) return device_ret.error();
-    init.device = device_ret.value();
+    init.device = device_builder.build();
 
     init.disp = init.device.make_table();
-
-    return gfxrecon::test::SUCCESS;
 }
 
-int get_queues(Init& init, RenderData& data) {
-    auto gq = init.device.get_queue(gfxrecon::test::QueueType::graphics);
-    if (!gq.has_value()) {
-        std::cout << "failed to get graphics queue: " << gq.error().message() << "\n";
-        return -1;
-    }
-    data.graphics_queue = gq.value();
+void get_queues(Init& init, RenderData& data) {
+    auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
+    if (!graphics_queue.has_value()) throw std::runtime_error("could not get graphics queue");
+    data.graphics_queue = *graphics_queue;
 
-    auto pq = init.device.get_queue(gfxrecon::test::QueueType::present);
-    if (!pq.has_value()) {
-        std::cout << "failed to get present queue: " << pq.error().message() << "\n";
-        return -1;
-    }
-    data.present_queue = pq.value();
-    return 0;
+    auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
+    if (!present_queue.has_value()) throw std::runtime_error("could not get present queue");
+    data.present_queue = *present_queue;
 }
 
-int create_render_pass(Init& init, RenderData& data) {
+void create_render_pass(Init& init, RenderData& data) {
     VkAttachmentDescription color_attachment = {};
     color_attachment.format = init.swapchain.image_format;
     color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -157,27 +134,13 @@ int create_render_pass(Init& init, RenderData& data) {
     render_pass_info.dependencyCount = 1;
     render_pass_info.pDependencies = &dependency;
 
-    if (init.disp.createRenderPass(&render_pass_info, nullptr, &data.render_pass) != VK_SUCCESS) {
-        std::cout << "failed to create render pass\n";
-        return -1; // failed to create render pass!
-    }
-    return 0;
+    auto result = init.disp.createRenderPass(&render_pass_info, nullptr, &data.render_pass);
+    VERIFY_VK_RESULT("failed to create render pass", result);
 }
 
-int create_graphics_pipeline(Init& init, RenderData& data) {
-    auto vert_module_ret = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
-    if (!vert_module_ret) {
-        std::cout << vert_module_ret.error().message() << "\n";
-        return -1;
-    }
-    auto vert_module = vert_module_ret.value();
-
-    auto frag_module_ret = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
-    if (!frag_module_ret) {
-        std::cout << frag_module_ret.error().message() << "\n";
-        return -1;
-    }
-    auto frag_module = frag_module_ret.value();
+void create_graphics_pipeline(Init& init, RenderData& data) {
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -258,10 +221,8 @@ int create_graphics_pipeline(Init& init, RenderData& data) {
     pipeline_layout_info.setLayoutCount = 0;
     pipeline_layout_info.pushConstantRangeCount = 0;
 
-    if (init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &data.pipeline_layout) != VK_SUCCESS) {
-        std::cout << "failed to create pipeline layout\n";
-        return -1; // failed to create pipeline layout
-    }
+    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &data.pipeline_layout);
+    VERIFY_VK_RESULT("failed to create pipeline layout", result);
 
     std::vector<VkDynamicState> dynamic_states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 
@@ -286,17 +247,14 @@ int create_graphics_pipeline(Init& init, RenderData& data) {
     pipeline_info.subpass = 0;
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &data.graphics_pipeline) != VK_SUCCESS) {
-        std::cout << "failed to create pipline\n";
-        return -1; // failed to create graphics pipeline
-    }
+    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &data.graphics_pipeline);
+    VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
     init.disp.destroyShaderModule(frag_module, nullptr);
     init.disp.destroyShaderModule(vert_module, nullptr);
-    return 0;
 }
 
-gfxrecon::test::VoidResult create_framebuffers(
+void create_framebuffers(
     gfxrecon::test::Swapchain const& swapchain,
     gfxrecon::test::DispatchTable const& disp,
     std::vector<VkFramebuffer>& framebuffers,
@@ -318,13 +276,11 @@ gfxrecon::test::VoidResult create_framebuffers(
         framebuffer_info.layers = 1;
 
         auto result = disp.createFramebuffer(&framebuffer_info, nullptr, &framebuffers[i]);
-        if (result != VK_SUCCESS) return gfxrecon::test::VoidResult{gfxrecon::test::GeneralError::unexpected, result};
+        VERIFY_VK_RESULT("failed to create framebuffer", result);
     }
-
-    return gfxrecon::test::SUCCESS;
 }
 
-int create_command_buffers(Init& init, RenderData& data) {
+void create_command_buffers(Init& init, RenderData& data) {
     data.command_buffers.resize(data.framebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo = {};
@@ -333,17 +289,15 @@ int create_command_buffers(Init& init, RenderData& data) {
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)data.command_buffers.size();
 
-    if (init.disp.allocateCommandBuffers(&allocInfo, data.command_buffers.data()) != VK_SUCCESS) {
-        return -1; // failed to allocate command buffers;
-    }
+    auto result = init.disp.allocateCommandBuffers(&allocInfo, data.command_buffers.data());
+    VERIFY_VK_RESULT("failed to allocate command buffers", result);
 
     for (size_t i = 0; i < data.command_buffers.size(); i++) {
         VkCommandBufferBeginInfo begin_info = {};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        if (init.disp.beginCommandBuffer(data.command_buffers[i], &begin_info) != VK_SUCCESS) {
-            return -1; // failed to begin recording command buffer
-        }
+        result = init.disp.beginCommandBuffer(data.command_buffers[i], &begin_info);
+        VERIFY_VK_RESULT("failed to create command buffer", result);
 
         VkRenderPassBeginInfo render_pass_info = {};
         render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -378,15 +332,12 @@ int create_command_buffers(Init& init, RenderData& data) {
 
         init.disp.cmdEndRenderPass(data.command_buffers[i]);
 
-        if (init.disp.endCommandBuffer(data.command_buffers[i]) != VK_SUCCESS) {
-            std::cout << "failed to record command buffer\n";
-            return -1; // failed to record command buffer!
-        }
+        result = init.disp.endCommandBuffer(data.command_buffers[i]);
+        VERIFY_VK_RESULT("failed to end command buffer", result);
     }
-    return 0;
 }
 
-int recreate_swapchain(Init& init, RenderData& data) {
+void recreate_swapchain(Init& init, RenderData& data) {
     init.disp.deviceWaitIdle();
 
     init.disp.destroyCommandPool(data.command_pool, nullptr);
@@ -397,42 +348,27 @@ int recreate_swapchain(Init& init, RenderData& data) {
 
     init.swapchain.destroy_image_views(data.swapchain_image_views);
 
-    auto swapchain_ret = gfxrecon::test::create_swapchain(init.device, init.swapchain);
-    if (!swapchain_ret)
-    {
-        std::cout << swapchain_ret.error().message() << "\n";
-        return -1;
-    }
+    gfxrecon::test::create_swapchain(init.device, init.swapchain);
 
-    data.swapchain_images = init.swapchain.get_images().value();
-    data.swapchain_image_views = init.swapchain.get_image_views().value();
+    data.swapchain_images = init.swapchain.get_images();
+    data.swapchain_image_views = init.swapchain.get_image_views();
 
-    auto framebuffer_ret = create_framebuffers(
+    create_framebuffers(
         init.swapchain,
         init.disp,
         data.framebuffers,
         data.swapchain_image_views,
         data.render_pass
     );
-    if (!framebuffer_ret) {
-        std::cout << framebuffer_ret.error().message() << "\n";
-        return -1;
-    }
 
-    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
-    auto command_pool_ret = gfxrecon::test::create_command_pool(init.disp, queue_family_index);
-    if (!command_pool_ret)
-    {
-        std::cout << command_pool_ret.error().message() << "\n";
-        return -1;
-    }
-    data.command_pool = command_pool_ret.value();
+    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
+    if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
+    data.command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
 
-    if (0 != create_command_buffers(init, data)) return -1;
-    return 0;
+    create_command_buffers(init, data);
 }
 
-int draw_frame(Init& init, RenderData& data) {
+void draw_frame(Init& init, RenderData& data) {
     init.disp.waitForFences(1, &data.sync.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
@@ -442,8 +378,7 @@ int draw_frame(Init& init, RenderData& data) {
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         return recreate_swapchain(init, data);
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        std::cout << "failed to acquire swapchain image. Error " << result << "\n";
-        return -1;
+        throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
     if (data.sync.image_in_flight[image_index] != VK_NULL_HANDLE) {
@@ -469,10 +404,8 @@ int draw_frame(Init& init, RenderData& data) {
 
     init.disp.resetFences(1, &data.sync.in_flight_fences[data.current_frame]);
 
-    if (init.disp.queueSubmit(data.graphics_queue, 1, &submitInfo, data.sync.in_flight_fences[data.current_frame]) != VK_SUCCESS) {
-        std::cout << "failed to submit draw command buffer\n";
-        return -1; //"failed to submit draw command buffer
-    }
+    result = init.disp.queueSubmit(data.graphics_queue, 1, &submitInfo, data.sync.in_flight_fences[data.current_frame]);
+    VERIFY_VK_RESULT("failed to submit queue", result);
 
     VkPresentInfoKHR present_info = {};
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -489,13 +422,10 @@ int draw_frame(Init& init, RenderData& data) {
     result = init.disp.queuePresentKHR(data.present_queue, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         return recreate_swapchain(init, data);
-    } else if (result != VK_SUCCESS) {
-        std::cout << "failed to present swapchain image\n";
-        return -1;
     }
+    VERIFY_VK_RESULT("failed to present queue", result);
 
     data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
-    return 0;
 }
 
 void cleanup(Init& init, RenderData& data) {
@@ -526,62 +456,36 @@ void cleanup(Init& init, RenderData& data) {
 
 const int NUM_FRAMES = 10;
 
-int run() {
+void run() {
     Init init;
     RenderData render_data;
 
-    auto init_ret = device_initialization((init));
-    if (!init_ret)
-    {
-        std::cout << init_ret.error().message() << "\n";
-        return -1;
-    }
+    device_initialization((init));
 
-    auto swapchain_ret = gfxrecon::test::create_swapchain(init.device, init.swapchain);
-    if (!swapchain_ret)
-    {
-        std::cout << swapchain_ret.error().message() << "\n";
-        return -1;
-    }
+    gfxrecon::test::create_swapchain(init.device, init.swapchain);
 
-    if (0 != get_queues(init, render_data)) return -1;
-    if (0 != create_render_pass(init, render_data)) return -1;
-    if (0 != create_graphics_pipeline(init, render_data)) return -1;
+    get_queues(init, render_data);
+    create_render_pass(init, render_data);
+    create_graphics_pipeline(init, render_data);
 
-    render_data.swapchain_images = init.swapchain.get_images().value();
-    render_data.swapchain_image_views = init.swapchain.get_image_views().value();
+    render_data.swapchain_images = init.swapchain.get_images();
+    render_data.swapchain_image_views = init.swapchain.get_image_views();
 
-    auto framebuffer_ret = create_framebuffers(
+    create_framebuffers(
         init.swapchain,
         init.disp,
         render_data.framebuffers,
         render_data.swapchain_image_views,
         render_data.render_pass
     );
-    if (!framebuffer_ret)
-    {
-        std::cout << framebuffer_ret.error().message() << "\n";
-        return -1;
-    }
 
-    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics).value();
-    auto command_pool_ret = gfxrecon::test::create_command_pool(init.disp, queue_family_index);
-    if (!command_pool_ret)
-    {
-        std::cout << command_pool_ret.error().message() << "\n";
-        return -1;
-    }
-    render_data.command_pool = command_pool_ret.value();
+    auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
+    if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
+    render_data.command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
 
-    if (0 != create_command_buffers(init, render_data)) return -1;
+    create_command_buffers(init, render_data);
 
-    auto sync_ret = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
-    if (!sync_ret)
-    {
-        std::cout << command_pool_ret.error().message() << "\n";
-        return -1;
-    }
-    render_data.sync = std::move(sync_ret.value());
+    render_data.sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 
     for (int frame = 0; frame < NUM_FRAMES; frame++) {
         SDL_Event windowEvent;
@@ -591,17 +495,12 @@ int run() {
             }
         }
 
-        int res = draw_frame(init, render_data);
-        if (res != 0) {
-            std::cout << "failed to draw frame \n";
-            return -1;
-        }
+        draw_frame(init, render_data);
     }
 
     init.disp.deviceWaitIdle();
 
     cleanup(init, render_data);
-    return 0;
 }
 
 GFXRECON_END_NAMESPACE(triangle)
@@ -611,5 +510,11 @@ GFXRECON_END_NAMESPACE(test_app)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 int main(int argc, char *argv[]) {
-    return gfxrecon::test_app::triangle::run();
+    try {
+        gfxrecon::test_app::triangle::run();
+        return 0;
+    } catch (std::exception e) {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
 }
