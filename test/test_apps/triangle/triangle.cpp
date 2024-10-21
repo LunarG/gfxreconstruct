@@ -58,16 +58,6 @@ struct RenderData {
     gfxrecon::test::Sync sync;
 };
 
-void get_queues(gfxrecon::test::Init& init, RenderData& data) {
-    auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
-    if (!graphics_queue.has_value()) throw std::runtime_error("could not get graphics queue");
-    data.graphics_queue = *graphics_queue;
-
-    auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
-    if (!present_queue.has_value()) throw std::runtime_error("could not get present queue");
-    data.present_queue = *present_queue;
-}
-
 void create_render_pass(gfxrecon::test::Init& init, RenderData& data) {
     VkAttachmentDescription color_attachment = {};
     color_attachment.format = init.swapchain.image_format;
@@ -225,28 +215,22 @@ void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
     init.disp.destroyShaderModule(vert_module, nullptr);
 }
 
-void create_framebuffers(
-    gfxrecon::test::Swapchain const& swapchain,
-    gfxrecon::test::DispatchTable const& disp,
-    std::vector<VkFramebuffer>& framebuffers,
-    std::vector<VkImageView>& swapchain_image_views,
-    VkRenderPass render_pass
-) {
-    framebuffers.resize(swapchain_image_views.size());
+void create_framebuffers(gfxrecon::test::Init const& init, RenderData& data) {
+    data.framebuffers.resize(data.swapchain_image_views.size());
 
-    for (size_t i = 0; i < swapchain_image_views.size(); i++) {
-        VkImageView attachments[] = { swapchain_image_views[i] };
+    for (size_t i = 0; i < data.swapchain_image_views.size(); i++) {
+        VkImageView attachments[] = { data.swapchain_image_views[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass = render_pass;
+        framebuffer_info.renderPass = data.render_pass;
         framebuffer_info.attachmentCount = 1;
         framebuffer_info.pAttachments = attachments;
-        framebuffer_info.width = swapchain.extent.width;
-        framebuffer_info.height = swapchain.extent.height;
+        framebuffer_info.width = init.swapchain.extent.width;
+        framebuffer_info.height = init.swapchain.extent.height;
         framebuffer_info.layers = 1;
 
-        auto result = disp.createFramebuffer(&framebuffer_info, nullptr, &framebuffers[i]);
+        auto result = init.disp.createFramebuffer(&framebuffer_info, nullptr, &data.framebuffers[i]);
         VERIFY_VK_RESULT("failed to create framebuffer", result);
     }
 }
@@ -324,13 +308,7 @@ void recreate_swapchain(gfxrecon::test::Init& init, RenderData& data) {
     data.swapchain_images = init.swapchain.get_images();
     data.swapchain_image_views = init.swapchain.get_image_views();
 
-    create_framebuffers(
-        init.swapchain,
-        init.disp,
-        data.framebuffers,
-        data.swapchain_image_views,
-        data.render_pass
-    );
+    create_framebuffers(init, data);
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
@@ -433,20 +411,22 @@ void run() {
     gfxrecon::test::create_swapchain(init.device, init.swapchain);
 
     RenderData render_data;
-    get_queues(init, render_data);
+
+    auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
+    if (!graphics_queue.has_value()) throw std::runtime_error("could not get graphics queue");
+    render_data.graphics_queue = *graphics_queue;
+
+    auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
+    if (!present_queue.has_value()) throw std::runtime_error("could not get present queue");
+    render_data.present_queue = *present_queue;
+
     create_render_pass(init, render_data);
     create_graphics_pipeline(init, render_data);
 
     render_data.swapchain_images = init.swapchain.get_images();
     render_data.swapchain_image_views = init.swapchain.get_image_views();
 
-    create_framebuffers(
-        init.swapchain,
-        init.disp,
-        render_data.framebuffers,
-        render_data.swapchain_image_views,
-        render_data.render_pass
-    );
+    create_framebuffers(init, render_data);
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index) throw std::runtime_error("could not find graphics queue");
