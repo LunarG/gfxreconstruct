@@ -23,8 +23,6 @@
 
 #include "test_app_base.h"
 
-#include <cstring>
-
 #if defined(_WIN32)
 #include <fcntl.h>
 #ifndef NOMINMAX
@@ -395,36 +393,6 @@ template <typename T> void setup_pNext_chain(T& structure, std::vector<VkBaseOut
     structure.pNext = structs.at(0);
 }
 const char* validation_layer_name = "VK_LAYER_KHRONOS_validation";
-
-struct InstanceErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_instance"; }
-    std::string message(int err) const override { return to_string(static_cast<InstanceError>(err)); }
-};
-const InstanceErrorCategory instance_error_category;
-
-struct PhysicalDeviceErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_physical_device"; }
-    std::string message(int err) const override { return to_string(static_cast<PhysicalDeviceError>(err)); }
-};
-const PhysicalDeviceErrorCategory physical_device_error_category;
-
-struct QueueErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_queue"; }
-    std::string message(int err) const override { return to_string(static_cast<QueueError>(err)); }
-};
-const QueueErrorCategory queue_error_category;
-
-struct DeviceErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_device"; }
-    std::string message(int err) const override { return to_string(static_cast<DeviceError>(err)); }
-};
-const DeviceErrorCategory device_error_category;
-
-struct SwapchainErrorCategory : std::error_category {
-    const char* name() const noexcept override { return "gfxrecon_test_swapchain"; }
-    std::string message(int err) const override { return to_string(static_cast<SwapchainError>(err)); }
-};
-const SwapchainErrorCategory swapchain_error_category;
 
 GFXRECON_END_NAMESPACE(detail)
 
