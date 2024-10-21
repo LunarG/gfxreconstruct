@@ -965,11 +965,19 @@ class TestAppBase {
   public:
     void run(const std::string& window_name);
   protected:
-    TestAppBase();
+    TestAppBase() = default;
+    ~TestAppBase() = default;
+    TestAppBase(const TestAppBase&) = delete;
+    TestAppBase& operator=(const TestAppBase&) = delete;
+    TestAppBase(TestAppBase&&) = delete;
+    TestAppBase& operator=(TestAppBase&&) = delete;
 
     virtual void setup();
     virtual bool frame(const int frame_num) = 0;
     virtual void cleanup();
+    virtual void configure_instance_builder(InstanceBuilder& instance_builder);
+    virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector);
+    virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device);
 
     Init init;
 };
