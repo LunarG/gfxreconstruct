@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileTransformer::FileTransformer() :
-    file_header_{}, input_file_(nullptr), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
+    input_file_(nullptr), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
     error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
 {}
 
@@ -161,17 +161,18 @@ bool FileTransformer::Process()
 
 bool FileTransformer::ProcessFileHeader()
 {
-    bool success = false;
+    bool               success = false;
+    format::FileHeader file_header{};
 
-    if (ReadBytes(&file_header_, sizeof(file_header_)))
+    if (ReadBytes(&file_header, sizeof(file_header)))
     {
-        success = format::ValidateFileHeader(file_header_);
+        success = format::ValidateFileHeader(file_header);
 
         if (success)
         {
-            file_options_.resize(file_header_.num_options);
+            file_options_.resize(file_header.num_options);
 
-            size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
+            size_t option_data_size = file_header.num_options * sizeof(format::FileOptionPair);
 
             success = ReadBytes(file_options_.data(), option_data_size);
 
@@ -196,7 +197,7 @@ bool FileTransformer::ProcessFileHeader()
             if (success)
             {
                 // Write header to output file.
-                success = WriteFileHeader(file_header_, file_options_);
+                success = WriteFileHeader(file_header, file_options_);
             }
         }
         else
