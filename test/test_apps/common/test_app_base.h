@@ -1047,6 +1047,12 @@ struct Sync {
 
 Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight);
 
+std::vector<char> readFile(const std::string& filename);
+
+Result<VkShaderModule> createShaderModule(DispatchTable const& disp, const std::vector<char>& code);
+
+Result<VkShaderModule> readShaderFromFile(DispatchTable const& disp, const std::string& filename);
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)

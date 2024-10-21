@@ -164,48 +164,20 @@ int create_render_pass(Init& init, RenderData& data) {
     return 0;
 }
 
-std::vector<char> readFile(const std::string& filename) {
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open()) {
-        throw std::runtime_error("failed to open file!");
-    }
-
-    size_t file_size = (size_t)file.tellg();
-    std::vector<char> buffer(file_size);
-
-    file.seekg(0);
-    file.read(buffer.data(), static_cast<std::streamsize>(file_size));
-
-    file.close();
-
-    return buffer;
-}
-
-VkShaderModule createShaderModule(Init& init, const std::vector<char>& code) {
-    VkShaderModuleCreateInfo create_info = {};
-    create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    create_info.codeSize = code.size();
-    create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-    VkShaderModule shaderModule;
-    if (init.disp.createShaderModule(&create_info, nullptr, &shaderModule) != VK_SUCCESS) {
-        return VK_NULL_HANDLE; // failed to create shader module
-    }
-
-    return shaderModule;
-}
-
 int create_graphics_pipeline(Init& init, RenderData& data) {
-    auto vert_code = readFile("vert.spv");
-    auto frag_code = readFile("frag.spv");
-
-    VkShaderModule vert_module = createShaderModule(init, vert_code);
-    VkShaderModule frag_module = createShaderModule(init, frag_code);
-    if (vert_module == VK_NULL_HANDLE || frag_module == VK_NULL_HANDLE) {
-        std::cout << "failed to create shader module\n";
-        return -1; // failed to create shader modules
+    auto vert_module_ret = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
+    if (!vert_module_ret) {
+        std::cout << vert_module_ret.error().message() << "\n";
+        return -1;
     }
+    auto vert_module = vert_module_ret.value();
+
+    auto frag_module_ret = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
+    if (!frag_module_ret) {
+        std::cout << frag_module_ret.error().message() << "\n";
+        return -1;
+    }
+    auto frag_module = frag_module_ret.value();
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
