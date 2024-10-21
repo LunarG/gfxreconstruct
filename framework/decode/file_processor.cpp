@@ -180,8 +180,8 @@ bool FileProcessor::ContinueDecoding()
 
 bool FileProcessor::ProcessFileHeader()
 {
-    bool                                success = false;
-    format::FileHeader                  file_header{};
+    bool               success = false;
+    format::FileHeader file_header{};
 
     if (ReadBytes(&file_header, sizeof(file_header)))
     {
