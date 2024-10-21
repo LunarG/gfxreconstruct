@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
+    file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
     api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
 {}
@@ -180,17 +180,18 @@ bool FileProcessor::ContinueDecoding()
 
 bool FileProcessor::ProcessFileHeader()
 {
-    bool success = false;
+    bool               success = false;
+    format::FileHeader file_header{};
 
-    if (ReadBytes(&file_header_, sizeof(file_header_)))
+    if (ReadBytes(&file_header, sizeof(file_header)))
     {
-        success = format::ValidateFileHeader(file_header_);
+        success = format::ValidateFileHeader(file_header);
 
         if (success)
         {
-            file_options_.resize(file_header_.num_options);
+            file_options_.resize(file_header.num_options);
 
-            size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
+            size_t option_data_size = file_header.num_options * sizeof(format::FileOptionPair);
 
             success = ReadBytes(file_options_.data(), option_data_size);
 

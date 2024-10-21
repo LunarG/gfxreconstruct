@@ -92,8 +92,6 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    const format::FileHeader& GetFileHeader() const { return file_header_; }
-
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
     uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
@@ -165,13 +163,10 @@ class FileProcessor
                                        size_t  expected_uncompressed_size,
                                        size_t* uncompressed_buffer_size);
 
-    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
-
     bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
 
   private:
     std::string                         filename_;
-    format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                parameter_buffer_;
