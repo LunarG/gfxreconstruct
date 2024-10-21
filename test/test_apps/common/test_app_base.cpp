@@ -2371,6 +2371,11 @@ Init device_initialization(const std::string& window_name) {
 
     init.disp = init.device.make_table();
 
+    gfxrecon::test::create_swapchain(init.device, init.swapchain);
+
+    init.swapchain_images = init.swapchain.get_images();
+    init.swapchain_image_views = init.swapchain.get_image_views();
+
     return init;
 }
 

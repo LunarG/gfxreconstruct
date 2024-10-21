@@ -951,6 +951,8 @@ struct Init {
     Device device;
     DispatchTable disp;
     Swapchain swapchain;
+    std::vector<VkImage> swapchain_images;
+    std::vector<VkImageView> swapchain_image_views;
 };
 
 Init device_initialization(const std::string& window_name);
