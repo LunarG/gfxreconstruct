@@ -2278,6 +2278,31 @@ Result<VkCommandPool> create_command_pool(
     return command_pool;
 }
 
+Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight) {
+    Sync sync;
+
+    sync.available_semaphores.resize(max_frames_in_flight);
+    sync.finished_semaphore.resize(max_frames_in_flight);
+    sync.in_flight_fences.resize(max_frames_in_flight);
+    sync.image_in_flight.resize(swapchain.image_count, VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphore_info = {};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fence_info = {};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < max_frames_in_flight; i++) {
+        if (disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]) != VK_SUCCESS ||
+            disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]) != VK_SUCCESS ||
+            disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]) != VK_SUCCESS) {
+            return gfxrecon::test::Result<Sync>{gfxrecon::test::GeneralError::unexpected};
+        }
+    }
+    return sync;
+}
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)

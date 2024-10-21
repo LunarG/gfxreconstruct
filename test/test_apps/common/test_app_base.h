@@ -1018,7 +1018,6 @@ class SwapchainBuilder {
     } info;
 };
 
-
 struct Void {};
 typedef Result<Void> VoidResult;
 const Void SUCCESS = Void{};
@@ -1029,6 +1028,24 @@ Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window
 VoidResult create_swapchain(Device const&, Swapchain& swapchain);
 
 Result<VkCommandPool> create_command_pool(DispatchTable const& disp, uint32_t queue_family_index);
+
+struct Sync {
+    std::vector<VkSemaphore> available_semaphores;
+    std::vector<VkSemaphore> finished_semaphore;
+    std::vector<VkFence> in_flight_fences;
+    std::vector<VkFence> image_in_flight;
+
+    Sync() = default;
+    ~Sync() = default;
+
+    Sync(const Sync&) = delete;
+    Sync& operator =(const Sync&) = delete;
+
+    Sync(Sync&&) = default;
+    Sync& operator =(Sync&&) = default;
+};
+
+Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight);
 
 GFXRECON_END_NAMESPACE(test)
 

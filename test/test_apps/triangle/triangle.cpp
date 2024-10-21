@@ -52,13 +52,6 @@ struct Init {
     gfxrecon::test::Swapchain swapchain;
 };
 
-struct Sync {
-    std::vector<VkSemaphore> available_semaphores;
-    std::vector<VkSemaphore> finished_semaphore;
-    std::vector<VkFence> in_flight_fences;
-    std::vector<VkFence> image_in_flight;
-};
-
 struct RenderData {
     VkQueue graphics_queue;
     VkQueue present_queue;
@@ -76,7 +69,7 @@ struct RenderData {
 
     size_t current_frame = 0;
 
-    Sync sync;
+    gfxrecon::test::Sync sync;
 };
 
 gfxrecon::test::VoidResult device_initialization(Init& init) {
@@ -421,30 +414,6 @@ int create_command_buffers(Init& init, RenderData& data) {
     return 0;
 }
 
-int create_sync_objects(Init& init, Sync& sync) {
-    sync.available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    sync.finished_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
-    sync.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
-    sync.image_in_flight.resize(init.swapchain.image_count, VK_NULL_HANDLE);
-
-    VkSemaphoreCreateInfo semaphore_info = {};
-    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fence_info = {};
-    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (init.disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]) != VK_SUCCESS ||
-            init.disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]) != VK_SUCCESS ||
-            init.disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]) != VK_SUCCESS) {
-            std::cout << "failed to create sync objects\n";
-            return -1; // failed to create synchronization objects for a frame
-        }
-    }
-    return 0;
-}
-
 int recreate_swapchain(Init& init, RenderData& data) {
     init.disp.deviceWaitIdle();
 
@@ -641,7 +610,14 @@ int main(int argc, char *argv[]) {
     render_data.command_pool = command_pool_ret.value();
 
     if (0 != create_command_buffers(init, render_data)) return -1;
-    if (0 != create_sync_objects(init, render_data.sync)) return -1;
+
+    auto sync_ret = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
+    if (!sync_ret)
+    {
+        std::cout << command_pool_ret.error().message() << "\n";
+        return -1;
+    }
+    render_data.sync = std::move(sync_ret.value());
 
     for (int frame = 0; frame < NUM_FRAMES; frame++) {
         SDL_Event windowEvent;
