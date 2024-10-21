@@ -52,6 +52,13 @@ struct Init {
     gfxrecon::test::Swapchain swapchain;
 };
 
+struct Sync {
+    std::vector<VkSemaphore> available_semaphores;
+    std::vector<VkSemaphore> finished_semaphore;
+    std::vector<VkFence> in_flight_fences;
+    std::vector<VkFence> image_in_flight;
+};
+
 struct RenderData {
     VkQueue graphics_queue;
     VkQueue present_queue;
@@ -67,11 +74,9 @@ struct RenderData {
     VkCommandPool command_pool;
     std::vector<VkCommandBuffer> command_buffers;
 
-    std::vector<VkSemaphore> available_semaphores;
-    std::vector<VkSemaphore> finished_semaphore;
-    std::vector<VkFence> in_flight_fences;
-    std::vector<VkFence> image_in_flight;
     size_t current_frame = 0;
+
+    Sync sync;
 };
 
 gfxrecon::test::VoidResult device_initialization(Init& init) {
@@ -416,11 +421,11 @@ int create_command_buffers(Init& init, RenderData& data) {
     return 0;
 }
 
-int create_sync_objects(Init& init, RenderData& data) {
-    data.available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    data.finished_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
-    data.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
-    data.image_in_flight.resize(init.swapchain.image_count, VK_NULL_HANDLE);
+int create_sync_objects(Init& init, Sync& sync) {
+    sync.available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    sync.finished_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
+    sync.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
+    sync.image_in_flight.resize(init.swapchain.image_count, VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphore_info = {};
     semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -430,9 +435,9 @@ int create_sync_objects(Init& init, RenderData& data) {
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (init.disp.createSemaphore(&semaphore_info, nullptr, &data.available_semaphores[i]) != VK_SUCCESS ||
-            init.disp.createSemaphore(&semaphore_info, nullptr, &data.finished_semaphore[i]) != VK_SUCCESS ||
-            init.disp.createFence(&fence_info, nullptr, &data.in_flight_fences[i]) != VK_SUCCESS) {
+        if (init.disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]) != VK_SUCCESS ||
+            init.disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]) != VK_SUCCESS ||
+            init.disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]) != VK_SUCCESS) {
             std::cout << "failed to create sync objects\n";
             return -1; // failed to create synchronization objects for a frame
         }
@@ -487,11 +492,11 @@ int recreate_swapchain(Init& init, RenderData& data) {
 }
 
 int draw_frame(Init& init, RenderData& data) {
-    init.disp.waitForFences(1, &data.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
+    init.disp.waitForFences(1, &data.sync.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
     VkResult result = init.disp.acquireNextImageKHR(
-        init.swapchain, UINT64_MAX, data.available_semaphores[data.current_frame], VK_NULL_HANDLE, &image_index);
+        init.swapchain, UINT64_MAX, data.sync.available_semaphores[data.current_frame], VK_NULL_HANDLE, &image_index);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         return recreate_swapchain(init, data);
@@ -500,15 +505,15 @@ int draw_frame(Init& init, RenderData& data) {
         return -1;
     }
 
-    if (data.image_in_flight[image_index] != VK_NULL_HANDLE) {
-        init.disp.waitForFences(1, &data.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+    if (data.sync.image_in_flight[image_index] != VK_NULL_HANDLE) {
+        init.disp.waitForFences(1, &data.sync.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    data.image_in_flight[image_index] = data.in_flight_fences[data.current_frame];
+    data.sync.image_in_flight[image_index] = data.sync.in_flight_fences[data.current_frame];
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore wait_semaphores[] = { data.available_semaphores[data.current_frame] };
+    VkSemaphore wait_semaphores[] = { data.sync.available_semaphores[data.current_frame] };
     VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = wait_semaphores;
@@ -517,13 +522,13 @@ int draw_frame(Init& init, RenderData& data) {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &data.command_buffers[image_index];
 
-    VkSemaphore signal_semaphores[] = { data.finished_semaphore[data.current_frame] };
+    VkSemaphore signal_semaphores[] = { data.sync.finished_semaphore[data.current_frame] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signal_semaphores;
 
-    init.disp.resetFences(1, &data.in_flight_fences[data.current_frame]);
+    init.disp.resetFences(1, &data.sync.in_flight_fences[data.current_frame]);
 
-    if (init.disp.queueSubmit(data.graphics_queue, 1, &submitInfo, data.in_flight_fences[data.current_frame]) != VK_SUCCESS) {
+    if (init.disp.queueSubmit(data.graphics_queue, 1, &submitInfo, data.sync.in_flight_fences[data.current_frame]) != VK_SUCCESS) {
         std::cout << "failed to submit draw command buffer\n";
         return -1; //"failed to submit draw command buffer
     }
@@ -554,9 +559,9 @@ int draw_frame(Init& init, RenderData& data) {
 
 void cleanup(Init& init, RenderData& data) {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        init.disp.destroySemaphore(data.finished_semaphore[i], nullptr);
-        init.disp.destroySemaphore(data.available_semaphores[i], nullptr);
-        init.disp.destroyFence(data.in_flight_fences[i], nullptr);
+        init.disp.destroySemaphore(data.sync.finished_semaphore[i], nullptr);
+        init.disp.destroySemaphore(data.sync.available_semaphores[i], nullptr);
+        init.disp.destroyFence(data.sync.in_flight_fences[i], nullptr);
     }
 
     init.disp.destroyCommandPool(data.command_pool, nullptr);
@@ -636,7 +641,7 @@ int main(int argc, char *argv[]) {
     render_data.command_pool = command_pool_ret.value();
 
     if (0 != create_command_buffers(init, render_data)) return -1;
-    if (0 != create_sync_objects(init, render_data)) return -1;
+    if (0 != create_sync_objects(init, render_data.sync)) return -1;
 
     for (int frame = 0; frame < NUM_FRAMES; frame++) {
         SDL_Event windowEvent;
