@@ -24,23 +24,22 @@
 #ifndef GFXRECON_TEST_APP_BASE_H
 #define GFXRECON_TEST_APP_BASE_H
 
-#include <optional>
-#include <exception>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 
+#include <optional>
+#include <exception>
 #include <vector>
 #include <string>
-#include <system_error>
 
 #include <vulkan/vulkan_core.h>
 
-#include "test_app_dispatch.h"
-#include "util/defines.h"
-
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
+
+#include "test_app_dispatch.h"
+#include "util/defines.h"
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
