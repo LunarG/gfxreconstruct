@@ -42,8 +42,6 @@ struct RenderData {
     VkQueue graphics_queue;
     VkQueue present_queue;
 
-    std::vector<VkImage> swapchain_images;
-    std::vector<VkImageView> swapchain_image_views;
     std::vector<VkFramebuffer> framebuffers;
 
     VkRenderPass render_pass;
@@ -216,10 +214,10 @@ void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
 }
 
 void create_framebuffers(gfxrecon::test::Init const& init, RenderData& data) {
-    data.framebuffers.resize(data.swapchain_image_views.size());
+    data.framebuffers.resize(init.swapchain_image_views.size());
 
-    for (size_t i = 0; i < data.swapchain_image_views.size(); i++) {
-        VkImageView attachments[] = { data.swapchain_image_views[i] };
+    for (size_t i = 0; i < init.swapchain_image_views.size(); i++) {
+        VkImageView attachments[] = { init.swapchain_image_views[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -301,12 +299,12 @@ void recreate_swapchain(gfxrecon::test::Init& init, RenderData& data) {
         init.disp.destroyFramebuffer(framebuffer, nullptr);
     }
 
-    init.swapchain.destroy_image_views(data.swapchain_image_views);
+    init.swapchain.destroy_image_views(init.swapchain_image_views);
 
     gfxrecon::test::create_swapchain(init.device, init.swapchain);
 
-    data.swapchain_images = init.swapchain.get_images();
-    data.swapchain_image_views = init.swapchain.get_image_views();
+    init.swapchain_images = init.swapchain.get_images();
+    init.swapchain_image_views = init.swapchain.get_image_views();
 
     create_framebuffers(init, data);
 
@@ -394,7 +392,7 @@ void cleanup(gfxrecon::test::Init& init, RenderData& data) {
     init.disp.destroyPipelineLayout(data.pipeline_layout, nullptr);
     init.disp.destroyRenderPass(data.render_pass, nullptr);
 
-    init.swapchain.destroy_image_views(data.swapchain_image_views);
+    init.swapchain.destroy_image_views(init.swapchain_image_views);
 
     gfxrecon::test::destroy_swapchain(init.swapchain);
     gfxrecon::test::destroy_device(init.device);
@@ -408,8 +406,6 @@ const int NUM_FRAMES = 10;
 void run() {
     auto init = gfxrecon::test::device_initialization("triangle");
 
-    gfxrecon::test::create_swapchain(init.device, init.swapchain);
-
     RenderData render_data;
 
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
@@ -422,9 +418,6 @@ void run() {
 
     create_render_pass(init, render_data);
     create_graphics_pipeline(init, render_data);
-
-    render_data.swapchain_images = init.swapchain.get_images();
-    render_data.swapchain_image_views = init.swapchain.get_image_views();
 
     create_framebuffers(init, render_data);
 
