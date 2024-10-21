@@ -2351,22 +2351,27 @@ std::exception sdl_exception() {
     return std::runtime_error(SDL_GetError());
 }
 
-Init device_initialization(const std::string& window_name) {
-    Init init;
-
+void device_initialization_phase_1(const std::string& window_name, Init& init)
+{
     init.window = gfxrecon::test::create_window_sdl(window_name.data(), true, 1024, 1024);
+}
 
-    gfxrecon::test::InstanceBuilder instance_builder;
-    init.instance = instance_builder.use_default_debug_messenger().request_validation_layers().build();
+void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init& init)
+{
+    init.instance = instance_builder.build();
 
     init.inst_disp = init.instance.make_table();
 
     init.surface = gfxrecon::test::create_surface_sdl(init.instance, init.window);
+}
 
-    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
-    auto physical_device = phys_device_selector.set_surface(init.surface).select();
+PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, Init& init)
+{
+    return phys_device_selector.set_surface(init.surface).select();
+}
 
-    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
+void device_initialization_phase_4(DeviceBuilder const& device_builder, Init& init)
+{
     init.device = device_builder.build();
 
     init.disp = init.device.make_table();
@@ -2375,6 +2380,21 @@ Init device_initialization(const std::string& window_name) {
 
     init.swapchain_images = init.swapchain.get_images();
     init.swapchain_image_views = init.swapchain.get_image_views();
+}
+
+Init device_initialization(const std::string& window_name) {
+    Init init;
+
+    device_initialization_phase_1(window_name, init);
+
+    gfxrecon::test::InstanceBuilder instance_builder;
+    device_initialization_phase_2(instance_builder, init);
+
+    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
+    auto physical_device = device_initialization_phase_3(phys_device_selector, init);
+
+    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
+    device_initialization_phase_4(device_builder, init);
 
     return init;
 }
@@ -2402,7 +2422,19 @@ void recreate_swapchain(gfxrecon::test::Init& init, bool wait_for_idle) {
 
 void TestAppBase::run(const std::string& window_name)
 {
-    init = device_initialization(window_name);
+    device_initialization_phase_1(window_name, this->init);
+
+    gfxrecon::test::InstanceBuilder instance_builder;
+    this->configure_instance_builder(instance_builder);
+    device_initialization_phase_2(instance_builder, this->init);
+
+    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(this->init.instance);
+    this->configure_physical_device_selector(phys_device_selector);
+    auto physical_device = device_initialization_phase_3(phys_device_selector, this->init);
+
+    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
+    this->configure_device_builder(device_builder, physical_device);
+    device_initialization_phase_4(device_builder, this->init);
 
     this->setup();
 
@@ -2424,13 +2456,16 @@ void TestAppBase::run(const std::string& window_name)
 
     this->cleanup();
 
-    cleanup_init(init);
+    cleanup_init(this->init);
 }
 
 void TestAppBase::setup() {}
 void TestAppBase::cleanup() {}
-
-TestAppBase::TestAppBase() {}
+void TestAppBase::configure_instance_builder(InstanceBuilder& instance_builder) {
+    instance_builder.use_default_debug_messenger().request_validation_layers();
+}
+void TestAppBase::configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector) {}
+void TestAppBase::configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device) {}
 
 GFXRECON_END_NAMESPACE(test)
 
