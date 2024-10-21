@@ -24,6 +24,8 @@
 #ifndef GFXRECON_TEST_APP_BASE_H
 #define GFXRECON_TEST_APP_BASE_H
 
+#include <optional>
+#include <exception>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -66,111 +68,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 GFXRECON_BEGIN_NAMESPACE(test)
 
-struct Error {
-    std::error_code type;
-    VkResult vk_result = VK_SUCCESS; // optional error value if a vulkan call failed
-};
-
-template <typename T> class Result {
-  public:
-    Result(const T& value) noexcept : m_value{ value }, m_init{ true } {}
-    Result(T&& value) noexcept : m_value{ std::move(value) }, m_init{ true } {}
-
-    Result(Error error) noexcept : m_error{ error }, m_init{ false } {}
-
-    Result(std::error_code error_code, VkResult result = VK_SUCCESS) noexcept
-        : m_error{ error_code, result }, m_init{ false } {}
-
-    ~Result() noexcept { destroy(); }
-    Result(Result const& expected) noexcept : m_init(expected.m_init) {
-        if (m_init)
-            new (&m_value) T{ expected.m_value };
-        else
-            m_error = expected.m_error;
-    }
-    Result& operator=(Result const& result) noexcept {
-        m_init = result.m_init;
-        if (m_init)
-            new (&m_value) T{ result.m_value };
-        else
-            m_error = result.m_error;
-        return *this;
-    }
-    Result(Result&& expected) noexcept : m_init(expected.m_init) {
-        if (m_init)
-            new (&m_value) T{ std::move(expected.m_value) };
-        else
-            m_error = std::move(expected.m_error);
-        expected.destroy();
-    }
-    Result& operator=(Result&& result) noexcept {
-        m_init = result.m_init;
-        if (m_init)
-            new (&m_value) T{ std::move(result.m_value) };
-        else
-            m_error = std::move(result.m_error);
-        return *this;
-    }
-    Result& operator=(const T& expect) noexcept {
-        destroy();
-        m_init = true;
-        new (&m_value) T{ expect };
-        return *this;
-    }
-    Result& operator=(T&& expect) noexcept {
-        destroy();
-        m_init = true;
-        new (&m_value) T{ std::move(expect) };
-        return *this;
-    }
-    Result& operator=(const Error& error) noexcept {
-        destroy();
-        m_init = false;
-        m_error = error;
-        return *this;
-    }
-    Result& operator=(Error&& error) noexcept {
-        destroy();
-        m_init = false;
-        m_error = error;
-        return *this;
-    }
-    // clang-format off
-	const T* operator-> () const noexcept { assert (m_init); return &m_value; }
-	T*       operator-> ()       noexcept { assert (m_init); return &m_value; }
-	const T& operator* () const& noexcept { assert (m_init);	return m_value; }
-	T&       operator* () &      noexcept { assert (m_init); return m_value; }
-	T        operator* () &&	 noexcept { assert (m_init); return std::move (m_value); }
-	const T&  value () const&    noexcept { assert (m_init); return m_value; }
-	T&        value () &         noexcept { assert (m_init); return m_value; }
-	T         value () &&        noexcept { assert (m_init); return std::move (m_value); }
-
-    // std::error_code associated with the error
-    std::error_code error() const { assert (!m_init); return m_error.type; }
-    // optional VkResult that could of been produced due to the error
-    VkResult vk_result() const { assert (!m_init); return m_error.vk_result; }
-    // Returns the struct that holds the std::error_code and VkResult
-    Error full_error() const { assert (!m_init); return m_error; }
-    // clang-format on
-
-    // check if the result has an error that matches a specific error case
-    template <typename E> bool matches_error(E error_enum_value) const {
-        return !m_init && static_cast<E>(m_error.type.value()) == error_enum_value;
-    }
-
-    bool has_value() const { return m_init; }
-    explicit operator bool() const { return m_init; }
-
-  private:
-    void destroy() {
-        if (m_init) m_value.~T();
-    }
-    union {
-        T m_value;
-        Error m_error;
-    };
-    bool m_init;
-};
+std::exception vulkan_exception(const char* message, VkResult result);
+std::exception sdl_exception();
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 struct GenericFeaturesPNextNode {
@@ -229,10 +128,6 @@ enum class InstanceError {
     requested_extensions_not_present,
     windowing_extensions_not_present,
 };
-enum class GeneralError {
-    sdl,
-    unexpected,
-};
 enum class PhysicalDeviceError {
     no_surface_provided,
     failed_enumerate_physical_devices,
@@ -261,22 +156,26 @@ enum class SwapchainError {
     required_usage_not_supported
 };
 
-std::error_code make_error_code(InstanceError instance_error);
-std::error_code make_error_code(PhysicalDeviceError physical_device_error);
-std::error_code make_error_code(GeneralError general_error);
-std::error_code make_error_code(QueueError queue_error);
-std::error_code make_error_code(DeviceError device_error);
-std::error_code make_error_code(SwapchainError swapchain_error);
-
 const char* to_string_message_severity(VkDebugUtilsMessageSeverityFlagBitsEXT s);
 const char* to_string_message_type(VkDebugUtilsMessageTypeFlagsEXT s);
 
 const char* to_string(InstanceError err);
 const char* to_string(PhysicalDeviceError err);
-const char* to_string(GeneralError err);
 const char* to_string(QueueError err);
 const char* to_string(DeviceError err);
 const char* to_string(SwapchainError err);
+
+std::exception to_exception(InstanceError err);
+std::exception to_exception(PhysicalDeviceError err);
+std::exception to_exception(QueueError err);
+std::exception to_exception(DeviceError err);
+std::exception to_exception(SwapchainError err);
+
+std::exception to_exception(InstanceError err, VkResult result);
+std::exception to_exception(PhysicalDeviceError err, VkResult result);
+std::exception to_exception(QueueError err, VkResult result);
+std::exception to_exception(DeviceError err, VkResult result);
+std::exception to_exception(SwapchainError err, VkResult result);
 
 // Gathers useful information about the available vulkan capabilities, like layers and instance
 // extensions. Use this for enabling features conditionally, ie if you would like an extension but
@@ -287,8 +186,8 @@ struct SystemInfo {
 
   public:
     // Use get_system_info to create a SystemInfo struct. This is because loading vulkan could fail.
-    static Result<SystemInfo> get_system_info();
-    static Result<SystemInfo> get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr);
+    static SystemInfo get_system_info();
+    static SystemInfo get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr);
 
     // Returns true if a layer is available
     bool is_layer_available(const char* layer_name) const;
@@ -377,7 +276,7 @@ class InstanceBuilder {
     explicit InstanceBuilder(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr);
 
     // Create a VkInstance. Return an error if it failed.
-    Result<Instance> build() const;
+    Instance build() const;
 
     // Sets the name of the application. Defaults to "" if none is provided.
     InstanceBuilder& set_app_name(const char* app_name);
@@ -615,14 +514,14 @@ class PhysicalDeviceSelector {
 
     // Return the first device which is suitable
     // use the `selection` parameter to configure if partially
-    Result<PhysicalDevice> select(DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
+    PhysicalDevice select(DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
     // Return all devices which are considered suitable - intended for applications which want to let the user pick the physical device
-    Result<std::vector<PhysicalDevice>> select_devices(
+    std::vector<PhysicalDevice> select_devices(
         DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
     // Return the names of all devices which are considered suitable - intended for applications which want to let the user pick the physical device
-    Result<std::vector<std::string>> select_device_names(
+    std::vector<std::string> select_device_names(
         DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
     // Set the surface in which the physical device should render to.
@@ -754,18 +653,11 @@ class PhysicalDeviceSelector {
 
     PhysicalDevice::Suitable is_device_suitable(PhysicalDevice const& phys_device) const;
 
-    Result<std::vector<PhysicalDevice>> select_impl(DeviceSelectionMode selection) const;
+    std::vector<PhysicalDevice> select_impl(DeviceSelectionMode selection) const;
 };
 
 // ---- Queue ---- //
 enum class QueueType { present, graphics, compute, transfer };
-
-GFXRECON_BEGIN_NAMESPACE(detail)
-
-// Sentinel value, used in implementation only
-inline const uint32_t QUEUE_INDEX_MAX_VALUE = 65536;
-
-GFXRECON_END_NAMESPACE(detail)
 
 // ---- Device ---- //
 
@@ -778,13 +670,13 @@ struct Device {
     PFN_vkGetDeviceProcAddr fp_vkGetDeviceProcAddr = nullptr;
     uint32_t instance_version = VKB_VK_API_VERSION_1_0;
 
-    Result<uint32_t> get_queue_index(QueueType type) const;
+    std::optional<uint32_t> get_queue_index(QueueType type) const;
     // Only a compute or transfer queue type is valid. All other queue types do not support a 'dedicated' queue index
-    Result<uint32_t> get_dedicated_queue_index(QueueType type) const;
+    std::optional<uint32_t> get_dedicated_queue_index(QueueType type) const;
 
-    Result<VkQueue> get_queue(QueueType type) const;
+    std::optional<VkQueue> get_queue(QueueType type) const;
     // Only a compute or transfer queue type is valid. All other queue types do not support a 'dedicated' queue
-    Result<VkQueue> get_dedicated_queue(QueueType type) const;
+    std::optional<VkQueue> get_dedicated_queue(QueueType type) const;
 
     // Return a loaded dispatch table
     DispatchTable make_table() const;
@@ -817,7 +709,7 @@ class DeviceBuilder {
     // Any features and extensions that are requested/required in PhysicalDeviceSelector are automatically enabled.
     explicit DeviceBuilder(PhysicalDevice physical_device);
 
-    Result<Device> build() const;
+    Device build() const;
 
     // For Advanced Users: specify the exact list of VkDeviceQueueCreateInfo's needed for the application.
     // If a custom queue setup is provided, getting the queues and queue indexes is up to the application.
@@ -859,13 +751,13 @@ struct Swapchain {
     VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
 
     // Returns a vector of VkImage handles to the swapchain.
-    Result<std::vector<VkImage>> get_images();
+    std::vector<VkImage> get_images();
 
     // Returns a vector of VkImageView's to the VkImage's of the swapchain.
     // VkImageViews must be destroyed.  The pNext chain must be a nullptr or a valid
     // structure.
-    Result<std::vector<VkImageView>> get_image_views();
-    Result<std::vector<VkImageView>> get_image_views(const void* pNext);
+    std::vector<VkImageView> get_image_views();
+    std::vector<VkImageView> get_image_views(const void* pNext);
     void destroy_image_views(std::vector<VkImageView> const& image_views);
 
     // A conversion function which allows this Swapchain to be used
@@ -897,10 +789,10 @@ class SwapchainBuilder {
     explicit SwapchainBuilder(VkPhysicalDevice const physical_device,
                               VkDevice const device,
                               VkSurfaceKHR const surface,
-                              uint32_t graphics_queue_index = detail::QUEUE_INDEX_MAX_VALUE,
-                              uint32_t present_queue_index = detail::QUEUE_INDEX_MAX_VALUE);
+                              std::optional<uint32_t> graphics_queue_index = {},
+                              std::optional<uint32_t> present_queue_index = {});
 
-    Result<Swapchain> build() const;
+    Swapchain build() const;
 
     // Set the oldSwapchain member of VkSwapchainCreateInfoKHR.
     // For use in rebuilding a swapchain.
@@ -1003,8 +895,8 @@ class SwapchainBuilder {
         uint32_t min_image_count = 0;
         uint32_t required_min_image_count = 0;
         VkImageUsageFlags image_usage_flags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        uint32_t graphics_queue_index = 0;
-        uint32_t present_queue_index = 0;
+        std::optional<uint32_t> graphics_queue_index = {};
+        std::optional<uint32_t> present_queue_index = {};
         VkSurfaceTransformFlagBitsKHR pre_transform = static_cast<VkSurfaceTransformFlagBitsKHR>(0);
 #if defined(__ANDROID__)
         VkCompositeAlphaFlagBitsKHR composite_alpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
@@ -1018,16 +910,12 @@ class SwapchainBuilder {
     } info;
 };
 
-struct Void {};
-typedef Result<Void> VoidResult;
-const Void SUCCESS = Void{};
-
-Result<SDL_Window*> create_window_sdl(const char* window_name, bool resizable, int width, int height);
+SDL_Window* create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void destroy_window_sdl(SDL_Window * window);
-Result<VkSurfaceKHR> create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
-VoidResult create_swapchain(Device const&, Swapchain& swapchain);
+VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
+void create_swapchain(Device const&, Swapchain& swapchain);
 
-Result<VkCommandPool> create_command_pool(DispatchTable const& disp, uint32_t queue_family_index);
+VkCommandPool create_command_pool(DispatchTable const& disp, uint32_t queue_family_index);
 
 struct Sync {
     std::vector<VkSemaphore> available_semaphores;
@@ -1045,27 +933,18 @@ struct Sync {
     Sync& operator =(Sync&&) = default;
 };
 
-Result<Sync> create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight);
+Sync create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight);
 
 std::vector<char> readFile(const std::string& filename);
 
-Result<VkShaderModule> createShaderModule(DispatchTable const& disp, const std::vector<char>& code);
+VkShaderModule createShaderModule(DispatchTable const& disp, const std::vector<char>& code);
 
-Result<VkShaderModule> readShaderFromFile(DispatchTable const& disp, const std::string& filename);
+VkShaderModule readShaderFromFile(DispatchTable const& disp, const std::string& filename);
+
+#define VERIFY_VK_RESULT(message, result) { if (result != VK_SUCCESS) throw gfxrecon::test::vulkan_exception(message, result); }
 
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-namespace std {
-
-template <> struct is_error_code_enum<gfxrecon::test::InstanceError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::PhysicalDeviceError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::GeneralError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::QueueError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::DeviceError> : true_type {};
-template <> struct is_error_code_enum<gfxrecon::test::SwapchainError> : true_type {};
-
-} // namespace std
 
 #endif // GFXRECON_TEST_APP_BASE_H
