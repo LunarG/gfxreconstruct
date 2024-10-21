@@ -21,7 +21,6 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <memory>
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
