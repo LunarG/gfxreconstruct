@@ -38,16 +38,6 @@ GFXRECON_BEGIN_NAMESPACE(triangle)
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-struct Init {
-    SDL_Window* window;
-    gfxrecon::test::Instance instance;
-    gfxrecon::test::InstanceDispatchTable inst_disp;
-    VkSurfaceKHR surface;
-    gfxrecon::test::Device device;
-    gfxrecon::test::DispatchTable disp;
-    gfxrecon::test::Swapchain swapchain;
-};
-
 struct RenderData {
     VkQueue graphics_queue;
     VkQueue present_queue;
@@ -68,26 +58,7 @@ struct RenderData {
     gfxrecon::test::Sync sync;
 };
 
-void device_initialization(Init& init) {
-    init.window = gfxrecon::test::create_window_sdl("Vulkan Triangle", true, 1024, 1024);
-
-    gfxrecon::test::InstanceBuilder instance_builder;
-    init.instance = instance_builder.use_default_debug_messenger().request_validation_layers().build();
-
-    init.inst_disp = init.instance.make_table();
-
-    init.surface = gfxrecon::test::create_surface_sdl(init.instance, init.window);
-
-    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
-    auto physical_device = phys_device_selector.set_surface(init.surface).select();
-
-    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
-    init.device = device_builder.build();
-
-    init.disp = init.device.make_table();
-}
-
-void get_queues(Init& init, RenderData& data) {
+void get_queues(gfxrecon::test::Init& init, RenderData& data) {
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value()) throw std::runtime_error("could not get graphics queue");
     data.graphics_queue = *graphics_queue;
@@ -97,7 +68,7 @@ void get_queues(Init& init, RenderData& data) {
     data.present_queue = *present_queue;
 }
 
-void create_render_pass(Init& init, RenderData& data) {
+void create_render_pass(gfxrecon::test::Init& init, RenderData& data) {
     VkAttachmentDescription color_attachment = {};
     color_attachment.format = init.swapchain.image_format;
     color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -138,7 +109,7 @@ void create_render_pass(Init& init, RenderData& data) {
     VERIFY_VK_RESULT("failed to create render pass", result);
 }
 
-void create_graphics_pipeline(Init& init, RenderData& data) {
+void create_graphics_pipeline(gfxrecon::test::Init& init, RenderData& data) {
     auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
     auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
 
@@ -280,7 +251,7 @@ void create_framebuffers(
     }
 }
 
-void create_command_buffers(Init& init, RenderData& data) {
+void create_command_buffers(gfxrecon::test::Init& init, RenderData& data) {
     data.command_buffers.resize(data.framebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo = {};
@@ -337,7 +308,7 @@ void create_command_buffers(Init& init, RenderData& data) {
     }
 }
 
-void recreate_swapchain(Init& init, RenderData& data) {
+void recreate_swapchain(gfxrecon::test::Init& init, RenderData& data) {
     init.disp.deviceWaitIdle();
 
     init.disp.destroyCommandPool(data.command_pool, nullptr);
@@ -368,7 +339,7 @@ void recreate_swapchain(Init& init, RenderData& data) {
     create_command_buffers(init, data);
 }
 
-void draw_frame(Init& init, RenderData& data) {
+void draw_frame(gfxrecon::test::Init& init, RenderData& data) {
     init.disp.waitForFences(1, &data.sync.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
@@ -428,7 +399,7 @@ void draw_frame(Init& init, RenderData& data) {
     data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void cleanup(Init& init, RenderData& data) {
+void cleanup(gfxrecon::test::Init& init, RenderData& data) {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         init.disp.destroySemaphore(data.sync.finished_semaphore[i], nullptr);
         init.disp.destroySemaphore(data.sync.available_semaphores[i], nullptr);
@@ -457,13 +428,11 @@ void cleanup(Init& init, RenderData& data) {
 const int NUM_FRAMES = 10;
 
 void run() {
-    Init init;
-    RenderData render_data;
-
-    device_initialization((init));
+    auto init = gfxrecon::test::device_initialization("triangle");
 
     gfxrecon::test::create_swapchain(init.device, init.swapchain);
 
+    RenderData render_data;
     get_queues(init, render_data);
     create_render_pass(init, render_data);
     create_graphics_pipeline(init, render_data);
