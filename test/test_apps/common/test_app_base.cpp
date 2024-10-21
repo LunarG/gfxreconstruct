@@ -2379,7 +2379,7 @@ Init device_initialization(const std::string& window_name) {
     return init;
 }
 
-void cleanup(gfxrecon::test::Init& init) {
+void cleanup_init(gfxrecon::test::Init& init) {
     init.swapchain.destroy_image_views(init.swapchain_image_views);
 
     gfxrecon::test::destroy_swapchain(init.swapchain);
@@ -2399,6 +2399,38 @@ void recreate_swapchain(gfxrecon::test::Init& init, bool wait_for_idle) {
     init.swapchain_images = init.swapchain.get_images();
     init.swapchain_image_views = init.swapchain.get_image_views();
 }
+
+void TestAppBase::run(const std::string& window_name)
+{
+    init = device_initialization(window_name);
+
+    this->setup();
+
+    bool running = true;
+    int frame_num = 0;
+    while (running) {
+        SDL_Event windowEvent;
+        while (SDL_PollEvent(&windowEvent)) {
+            if (windowEvent.type == SDL_EVENT_QUIT) {
+                break;
+            }
+        }
+
+        running = frame(frame_num);
+        ++frame_num;
+    }
+
+    this->init.disp.deviceWaitIdle();
+
+    this->cleanup();
+
+    cleanup_init(init);
+}
+
+void TestAppBase::setup() {}
+void TestAppBase::cleanup() {}
+
+TestAppBase::TestAppBase() {}
 
 GFXRECON_END_NAMESPACE(test)
 
