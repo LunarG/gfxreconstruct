@@ -943,6 +943,18 @@ VkShaderModule readShaderFromFile(DispatchTable const& disp, const std::string& 
 
 #define VERIFY_VK_RESULT(message, result) { if (result != VK_SUCCESS) throw gfxrecon::test::vulkan_exception(message, result); }
 
+struct Init {
+    SDL_Window* window;
+    Instance instance;
+    InstanceDispatchTable inst_disp;
+    VkSurfaceKHR surface;
+    Device device;
+    DispatchTable disp;
+    Swapchain swapchain;
+};
+
+Init device_initialization(const std::string& window_name);
+
 GFXRECON_END_NAMESPACE(test)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
