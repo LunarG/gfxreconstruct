@@ -46,6 +46,27 @@
 #include <vector>
 #include "util/file_path.h"
 
+// Profiler markers to measure time taken in various parts of GFXR
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+// Markers for Android's Perfetto
+#include <perfetto.h>
+
+static const int PERFETTO_TRACK_ID = 1234561;
+
+PERFETTO_DEFINE_CATEGORIES(perfetto::Category("GFXR").SetDescription("Events from the graphics subsystem"));
+
+#define PEVENT_STATIC_STORAGE PERFETTO_TRACK_EVENT_STATIC_STORAGE()
+#define PEVENT_BEGIN(string) TRACE_EVENT_BEGIN("GFXR", string, perfetto::Track(PERFETTO_TRACK_ID))
+#define PEVENT_END           TRACE_EVENT_END("GFXR", perfetto::Track(PERFETTO_TRACK_ID))
+
+#else  // defined(VK_USE_PLATFORM_ANDROID_KHR)
+
+#define PEVENT_STATIC_STORAGE
+#define PEVENT_BEGIN(string)
+#define PEVENT_END
+
+#endif // defined(VK_USE_PLATFORM_ANDROID_KHR)
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -304,6 +325,7 @@ class CommonCaptureManager
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
     {
+        PEVENT_BEGIN("CombineAndWriteToFile");
         static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
 
         // Combine buffers for a single write.
@@ -317,12 +339,15 @@ class CommonCaptureManager
         }
 
         WriteToFile(scratch_buffer.data(), scratch_buffer.size());
+        PEVENT_END;
     }
 
     void IncrementBlockIndex(uint64_t blocks)
     {
+        PEVENT_BEGIN("IncrementBlockIndex");
         block_index_ += blocks;
         GetThreadData()->block_index_ = block_index_;
+        PEVENT_END;
     }
 
   protected:

@@ -27,6 +27,7 @@
 
 #include "encode/api_capture_manager.h"
 
+#include "encode/capture_manager.h"
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_buffer.h"
@@ -521,6 +522,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                        VkQueue                                                queue,
                                        const VkPresentInfoKHR*                                pPresentInfo)
     {
+        PEVENT_BEGIN("CommonCaptureManager::PostProcess_vkQueuePresentKHR");
         if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
@@ -531,6 +533,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
 
         EndFrame(current_lock);
+        PEVENT_END;
     }
 
     void PostProcess_vkQueueBindSparse(

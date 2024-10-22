@@ -241,6 +241,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             capture_manager = 'VulkanCaptureManager::Get()'
         body = ''
         if name != "vkCreateInstance":
+            body += indent + 'PEVENT_BEGIN(__FUNCTION__);\n'
             body += indent + 'VulkanCaptureManager* manager = VulkanCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
         if name == "vkCreateInstance":
@@ -384,7 +385,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         if return_type and return_type != 'void':
             body += '\n'
+            if name != "vkCreateInstance":
+                body += '    PEVENT_END;\n'
             body += '    return result;\n'
+        else:
+            body += '    PEVENT_END;\n'
 
         return body
 

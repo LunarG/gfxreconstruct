@@ -23,6 +23,7 @@
 
 #include "encode/vulkan_state_writer.h"
 
+#include "encode/capture_manager.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_state_info.h"
 #include "format/format_util.h"
@@ -89,66 +90,88 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
 
 uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
+    PEVENT_BEGIN("VulkanStateWriter::WriteState");
     // clang-format off
     blocks_written_ = 0;
 
+    PEVENT_BEGIN("write format::Marker");
     format::Marker marker;
     marker.header.size = sizeof(marker.marker_type) + sizeof(marker.frame_number);
     marker.header.type = format::kStateMarkerBlock;
     marker.marker_type = format::kBeginMarker;
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
+    PEVENT_END;
 
     // For the Begin Marker meta command
     ++blocks_written_;
 
+    PEVENT_BEGIN("Instance, device, and queue creation");
     // Instance, device, and queue creation.
     StandardCreateWrite<vulkan_wrappers::InstanceWrapper>(state_table);
     WritePhysicalDeviceState(state_table);
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
+    PEVENT_END;
 
     // physical-device / raytracing properties
     WriteRayTracingPipelinePropertiesState(state_table);
 
+    PEVENT_BEGIN("Utility object creation");
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::ValidationCacheEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DeferredOperationKHRWrapper>(state_table);
     WritePrivateDataSlotState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Synchronization primitive creation");
     // Synchronization primitive creation.
     WriteFenceState(state_table);
     WriteEventState(state_table);
     WriteSemaphoreState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("WSI object creation");
     // WSI object creation.
     StandardCreateWrite<vulkan_wrappers::DisplayKHRWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DisplayModeKHRWrapper>(state_table);
     WriteSurfaceKhrState(state_table);
     WriteSwapchainKhrState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Resource creation");
     // Resource creation.
     WriteBufferState(state_table);
     StandardCreateWrite<vulkan_wrappers::ImageWrapper>(state_table);
     WriteDeviceMemoryState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("WriteResourceMemoryState");
     // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
     // allocation for extensions like dedicated allocation that require a valid buffer/image handle at memory allocation.
     WriteResourceMemoryState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("WriteMappedMemoryState");
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Sampler");
     WriteBufferViewState(state_table);
     WriteImageViewState(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Buffer device addresses");
     // Retrieve buffer-device-addresses
     WriteBufferDeviceAddressState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Render object creation");
     // Render object creation.
     StandardCreateWrite<vulkan_wrappers::RenderPassWrapper>(state_table);
     WriteFramebufferState(state_table);
@@ -161,29 +184,40 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteTlasToBlasDependenciesMetadata(state_table);
     StandardCreateWrite<vulkan_wrappers::AccelerationStructureNVWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::ShaderEXTWrapper>(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Descriptor creation");
     // Descriptor creation.
     StandardCreateWrite<vulkan_wrappers::DescriptorPoolWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(state_table);
     WriteDescriptorSetState(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Query object creation");
     // Query object creation.
     WriteQueryPoolState(state_table);
     StandardCreateWrite<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Misc Writes");
     StandardCreateWrite<vulkan_wrappers::MicromapEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::OpticalFlowSessionNVWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::VideoSessionKHRWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::VideoSessionParametersKHRWrapper>(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Command creation");
     // Command creation.
     StandardCreateWrite<vulkan_wrappers::CommandPoolWrapper>(state_table);
     WriteCommandBufferState(state_table);
     StandardCreateWrite<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
     WriteTrimCommandPool(state_table);
+    PEVENT_END;
 
+    PEVENT_BEGIN("Process swapchain image acquire");
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
+    PEVENT_END;
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
@@ -191,6 +225,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // For the EndMarker meta command
     ++blocks_written_;
 
+    PEVENT_END;
     return blocks_written_;
     // clang-format on
 }
@@ -1350,6 +1385,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                                             graphics::VulkanResourcesUtil&         resource_util)
 {
+    PEVENT_BEGIN("VulkanStateWriter::ProcessBufferMemory");
     assert(device_wrapper != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
@@ -1423,6 +1459,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
 
             if (compressor_ != nullptr)
             {
+                PEVENT_BEGIN("Calling Compress");
                 size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
@@ -1432,14 +1469,17 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                     bytes     = compressed_parameter_buffer_.data();
                     data_size = compressed_size;
                 }
+                PEVENT_END;
             }
 
             // Calculate size of packet with compressed or uncompressed data size.
             upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + data_size;
 
+            PEVENT_BEGIN("Calling Write");
             output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
             output_stream_->Write(bytes, data_size);
             ++blocks_written_;
+            PEVENT_END;
 
             if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
             {
@@ -1452,12 +1492,14 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                                buffer_wrapper->handle_id);
         }
     }
+    PEVENT_END;
 }
 
 void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                                            const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                                            graphics::VulkanResourcesUtil&        resource_util)
 {
+    PEVENT_BEGIN("VulkanStateWriter::ProcessImageMemory");
     assert(device_wrapper != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
@@ -1561,6 +1603,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 
                 if (compressor_ != nullptr)
                 {
+                    PEVENT_BEGIN("Calling Compress");
                     size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                     if ((compressed_size > 0) && (compressed_size < data_size))
@@ -1570,6 +1613,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                         bytes     = compressed_parameter_buffer_.data();
                         data_size = compressed_size;
                     }
+                    PEVENT_END;
                 }
 
                 // Calculate size of packet with compressed or uncompressed data size.
@@ -1579,9 +1623,11 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 
                 upload_cmd.meta_header.block_header.size += levels_size + data_size;
 
+                PEVENT_BEGIN("Calling Write");
                 output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
                 output_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
                 output_stream_->Write(bytes, data_size);
+                PEVENT_END;
 
                 if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
                 {
@@ -1601,6 +1647,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             ++blocks_written_;
         }
     }
+    PEVENT_END;
 }
 
 void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_table,
@@ -2722,6 +2769,7 @@ void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId          
 // utility.
 void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer)
 {
+    PEVENT_BEGIN("VulkanStateWriter::WriteFunctionCall");
     assert(parameter_buffer != nullptr);
 
     bool                                 not_compressed      = true;
@@ -2735,6 +2783,7 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
 
     if (compressor_ != nullptr)
     {
+        PEVENT_BEGIN("Calling Compress");
         size_t packet_size = 0;
         size_t compressed_size =
             compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
@@ -2757,6 +2806,7 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
         }
+        PEVENT_END;
     }
 
     if (not_compressed)
@@ -2777,12 +2827,15 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
     }
 
     // Write appropriate function call block header.
+    PEVENT_BEGIN("Calling Write");
     output_stream_->Write(header_pointer, header_size);
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+    PEVENT_END;
 
     ++blocks_written_;
+    PEVENT_END;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -2792,6 +2845,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
                                            VkDeviceSize     size,
                                            const void*      data)
 {
+    PEVENT_BEGIN("VulkanStateWriter::WriteFillMemoryCmd");
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
     format::FillMemoryCommandHeader fill_cmd;
@@ -2808,6 +2862,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
 
     if (compressor_ != nullptr)
     {
+        PEVENT_BEGIN("Calling Compress");
         size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_, 0);
 
         if ((compressed_size > 0) && (compressed_size < write_size))
@@ -2819,15 +2874,19 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
             write_address = compressed_parameter_buffer_.data();
             write_size    = compressed_size;
         }
+    PEVENT_END;
     }
 
     // Calculate size of packet with compressed or uncompressed data size.
     fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + write_size;
 
+            PEVENT_BEGIN("Calling Write");
     output_stream_->Write(&fill_cmd, sizeof(fill_cmd));
     output_stream_->Write(write_address, write_size);
+    PEVENT_END;
 
     ++blocks_written_;
+    PEVENT_END;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
