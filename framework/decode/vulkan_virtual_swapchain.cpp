@@ -713,7 +713,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         return func(queue_info->handle, present_info);
     }
 
-    VkDevice device             = queue_info->device;
+    VkDevice device             = queue_info->parent;
     VkQueue  queue              = queue_info->handle;
     uint32_t queue_family_index = queue_info->family_index;
 
