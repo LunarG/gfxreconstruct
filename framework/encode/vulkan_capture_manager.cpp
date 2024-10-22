@@ -1834,7 +1834,7 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
         }
         else
         {
-            // The AHB is not CPU-readable, so store only the creation command.
+            // The AHB is not CPU-readable
             // Only store buffer IDs and reference count if a creation command is written to the capture file.
             format::HandleId memory_id = GetUniqueId();
 
@@ -1846,6 +1846,23 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
 
             GFXRECON_LOG_WARNING("AHardwareBuffer cannot be read: hardware buffer data will be omitted "
                                  "from the capture file");
+
+            VkAndroidHardwareBufferPropertiesANDROID properties = {
+                VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+            };
+            properties.pNext = nullptr;
+
+            VkResult vk_result =
+                device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
+
+            if (vk_result == VK_SUCCESS)
+            {
+                const size_t ahb_size = properties.allocationSize;
+
+                // Dump zeros for AHB payload.
+                std::vector<uint8_t> zeros(ahb_size, 0);
+                WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
+            }
         }
     }
 #else
