@@ -1108,7 +1108,8 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     for (auto hardware_buffer : hardware_buffers)
     {
         const vulkan_wrappers::DeviceMemoryWrapper* wrapper = hardware_buffer.second;
-        ProcessHardwareBuffer(wrapper->hardware_buffer_memory_id, wrapper->hardware_buffer, wrapper->allocation_size);
+        ProcessHardwareBuffer(
+            wrapper->device_id, wrapper->hardware_buffer_memory_id, wrapper->hardware_buffer, wrapper->allocation_size);
     }
 #endif
 
@@ -1245,7 +1246,8 @@ void VulkanStateWriter::WriteDeferredOperationJoinCommand(format::HandleId devic
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
+void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId device_id,
+                                              format::HandleId memory_id,
                                               AHardwareBuffer* hardware_buffer,
                                               VkDeviceSize     allocation_size)
 {
@@ -1288,7 +1290,7 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 #endif
 
         // Write CreateHardwareBufferCmd with or without the AHB payload
-        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+        WriteCreateHardwareBufferCmd(0u, 0u, memory_id, hardware_buffer, plane_info);
 
         // If AHardwareBuffer_lockPlanes failed (or is not available) try AHardwareBuffer_lock
         if (result != 0)
@@ -2897,7 +2899,9 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
-void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
+void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId device_id,
+                                                     format::HandleId queue_id,
+                                                     format::HandleId memory_id,
                                                      AHardwareBuffer* hardware_buffer,
                                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
@@ -2911,6 +2915,8 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
     create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
         format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
     create_buffer_cmd.thread_id = thread_id_;
+    create_buffer_cmd.device_id = device_id;
+    create_buffer_cmd.queue_id  = queue_id;
     create_buffer_cmd.memory_id = memory_id;
     create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(hardware_buffer);
 

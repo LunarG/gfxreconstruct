@@ -144,8 +144,10 @@ class VulkanStateWriter
 
     void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
 
-    void
-    ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
+    void ProcessHardwareBuffer(format::HandleId device_id,
+                               format::HandleId memory_id,
+                               AHardwareBuffer* hardware_buffer,
+                               VkDeviceSize     allocation_size);
 
     void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
@@ -280,7 +282,9 @@ class VulkanStateWriter
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
 
-    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+    void WriteCreateHardwareBufferCmd(format::HandleId                                    device_id,
+                                      format::HandleId                                    queue_id,
+                                      format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    hardware_buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
 
