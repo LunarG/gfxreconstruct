@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
+#include <vk_mem_alloc.h>
 
 #include <test_app_base.h>
 
@@ -33,16 +34,24 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 GFXRECON_BEGIN_NAMESPACE(test_app)
 
-GFXRECON_BEGIN_NAMESPACE(triangle)
+GFXRECON_BEGIN_NAMESPACE(multisample_depth)
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-class Triangle : public gfxrecon::test::TestAppBase {
+class App : public gfxrecon::test::TestAppBase {
   public:
-    Triangle() : gfxrecon::test::TestAppBase() {}
+    App() = default;
   private:
     VkQueue graphics_queue;
     VkQueue present_queue;
+
+    std::vector<VkImage> depth_images;
+    std::vector<VmaAllocation> depth_image_allocations;
+    std::vector<VkImageView> depth_image_views;
+
+    std::vector<VkImage> render_targets;
+    std::vector<VmaAllocation> render_target_allocations;
+    std::vector<VkImageView> render_target_views;
 
     std::vector<VkFramebuffer> framebuffers;
 
@@ -56,50 +65,172 @@ class Triangle : public gfxrecon::test::TestAppBase {
     size_t current_frame = 0;
 
     gfxrecon::test::Sync sync;
+    VmaAllocator allocator;
 
+    void create_allocator();
+    void create_render_targets();
+    void create_depth_buffers();
     void create_render_pass();
     void create_graphics_pipeline();
     void create_framebuffers();
     void create_command_buffers();
     void recreate_swapchain();
-    void draw_frame();
     void cleanup() override;
     bool frame(const int frame_num) override;
     void setup() override;
+    void configure_swapchain_builder(gfxrecon::test::SwapchainBuilder &swapchain_builder) override;
 };
 
-void Triangle::create_render_pass() {
-    VkAttachmentDescription color_attachment = {};
-    color_attachment.format = init.swapchain.image_format;
-    color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+void App::configure_swapchain_builder(gfxrecon::test::SwapchainBuilder &swapchain_builder) {
+    swapchain_builder.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+}
+
+void App::create_allocator()
+{
+    VmaVulkanFunctions vulkan_functions = {};
+    vulkan_functions.vkGetInstanceProcAddr = init.inst_disp.fp_vkGetInstanceProcAddr;
+    vulkan_functions.vkGetDeviceProcAddr = init.disp.fp_vkGetDeviceProcAddr;
+
+    VmaAllocatorCreateInfo allocator_create_info = {};
+    allocator_create_info.physicalDevice = init.physical_device;
+    allocator_create_info.device = init.device;
+    allocator_create_info.instance = init.instance;
+    allocator_create_info.pVulkanFunctions = &vulkan_functions;
+    vmaCreateAllocator(&allocator_create_info, &this->allocator);
+}
+
+void App::create_render_targets()
+{
+    render_targets.resize(init.swapchain_image_views.size());
+    render_target_allocations.resize(init.swapchain_image_views.size());
+    render_target_views.resize(init.swapchain_image_views.size());
+
+    for (size_t i = 0; i < init.swapchain_image_views.size(); i++) {
+        VkExtent3D extent = {};
+        VkResult result;
+
+        VkImageCreateInfo image_create_info = {};
+        image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_create_info.imageType = VK_IMAGE_TYPE_2D;
+        image_create_info.format = init.swapchain.image_format;
+        image_create_info.extent.height = init.swapchain.extent.height;
+        image_create_info.extent.width = init.swapchain.extent.width;
+        image_create_info.extent.depth = 1;
+        image_create_info.mipLevels = 1;
+        image_create_info.arrayLayers = 1;
+        image_create_info.samples = VK_SAMPLE_COUNT_2_BIT;
+        image_create_info.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+        VmaAllocationCreateInfo allocation_info = {};
+        allocation_info.usage = VMA_MEMORY_USAGE_AUTO;
+
+        result = vmaCreateImage(allocator, &image_create_info, &allocation_info, &render_targets[i], &render_target_allocations[i], nullptr);
+        VERIFY_VK_RESULT("failed to create render target", result);
+
+        VkImageViewCreateInfo image_view_create_info = {};
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.image = this->render_targets[i];
+        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        image_view_create_info.format = image_create_info.format;
+        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_view_create_info.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        image_view_create_info.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        result = init.disp.createImageView(&image_view_create_info, nullptr, &this->render_target_views[i]);
+        VERIFY_VK_RESULT("failed to create render target view", result);
+    }
+}
+
+void App::create_depth_buffers()
+{
+    depth_images.resize(init.swapchain_image_views.size());
+    depth_image_allocations.resize(init.swapchain_image_views.size());
+    depth_image_views.resize(init.swapchain_image_views.size());
+
+    for (size_t i = 0; i < init.swapchain_image_views.size(); i++) {
+        VkExtent3D extent = {};
+        VkResult result;
+
+        VkImageCreateInfo image_create_info = {};
+        image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_create_info.imageType = VK_IMAGE_TYPE_2D;
+        image_create_info.format = VK_FORMAT_D16_UNORM;
+        image_create_info.extent.height = init.swapchain.extent.height;
+        image_create_info.extent.width = init.swapchain.extent.width;
+        image_create_info.extent.depth = 1;
+        image_create_info.mipLevels = 1;
+        image_create_info.arrayLayers = 1;
+        image_create_info.samples = VK_SAMPLE_COUNT_2_BIT;
+        image_create_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+        VmaAllocationCreateInfo allocation_info = {};
+        allocation_info.usage = VMA_MEMORY_USAGE_AUTO;
+
+        result = vmaCreateImage(allocator, &image_create_info, &allocation_info, &depth_images[i], &depth_image_allocations[i], nullptr);
+        VERIFY_VK_RESULT("failed to create depth buffer image", result);
+
+        VkImageViewCreateInfo image_view_create_info = {};
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.image = this->depth_images[i];
+        image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        image_view_create_info.format = image_create_info.format;
+        image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        image_view_create_info.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        image_view_create_info.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        result = init.disp.createImageView(&image_view_create_info, nullptr, &this->depth_image_views[i]);
+        VERIFY_VK_RESULT("failed to create depth buffer image view", result);
+    }
+}
+
+void App::create_render_pass() {
+    VkAttachmentDescription attachments[2];
+    attachments[0] = {};
+    attachments[0].format = init.swapchain.image_format;
+    attachments[0].samples = VK_SAMPLE_COUNT_2_BIT;
+    attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachments[0].finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    attachments[1] = {};
+    attachments[1].format = VK_FORMAT_D16_UNORM;
+    attachments[1].samples = VK_SAMPLE_COUNT_2_BIT;
+    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference color_attachment_ref = {};
     color_attachment_ref.attachment = 0;
     color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentReference depth_attachment_ref = {};
+    depth_attachment_ref.attachment = 1;
+    depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &color_attachment_ref;
+    subpass.pDepthStencilAttachment = &depth_attachment_ref;
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
     dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                               VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                               VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                               VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
     VkRenderPassCreateInfo render_pass_info = {};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    render_pass_info.attachmentCount = 1;
-    render_pass_info.pAttachments = &color_attachment;
+    render_pass_info.attachmentCount = 2;
+    render_pass_info.pAttachments = attachments;
     render_pass_info.subpassCount = 1;
     render_pass_info.pSubpasses = &subpass;
     render_pass_info.dependencyCount = 1;
@@ -109,7 +240,7 @@ void Triangle::create_render_pass() {
     VERIFY_VK_RESULT("failed to create render pass", result);
 }
 
-void Triangle::create_graphics_pipeline() {
+void App::create_graphics_pipeline() {
     auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
     auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
 
@@ -169,7 +300,7 @@ void Triangle::create_graphics_pipeline() {
     VkPipelineMultisampleStateCreateInfo multisampling = {};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_2_BIT;
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
     colorBlendAttachment.colorWriteMask =
@@ -202,6 +333,12 @@ void Triangle::create_graphics_pipeline() {
     dynamic_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
     dynamic_info.pDynamicStates = dynamic_states.data();
 
+    VkPipelineDepthStencilStateCreateInfo depth_stencil = {};
+    depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depth_stencil.depthTestEnable = true;
+    depth_stencil.depthWriteEnable = true;
+    depth_stencil.depthCompareOp = VK_COMPARE_OP_LESS;
+
     VkGraphicsPipelineCreateInfo pipeline_info = {};
     pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipeline_info.stageCount = 2;
@@ -215,8 +352,7 @@ void Triangle::create_graphics_pipeline() {
     pipeline_info.pDynamicState = &dynamic_info;
     pipeline_info.layout = this->pipeline_layout;
     pipeline_info.renderPass = this->render_pass;
-    pipeline_info.subpass = 0;
-    pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+    pipeline_info.pDepthStencilState = &depth_stencil;
 
     result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &this->graphics_pipeline);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
@@ -225,16 +361,16 @@ void Triangle::create_graphics_pipeline() {
     init.disp.destroyShaderModule(vert_module, nullptr);
 }
 
-void Triangle::create_framebuffers() {
+void App::create_framebuffers() {
     this->framebuffers.resize(init.swapchain_image_views.size());
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++) {
-        VkImageView attachments[] = { init.swapchain_image_views[i] };
+        VkImageView attachments[] = { render_target_views[i], depth_image_views[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebuffer_info.renderPass = this->render_pass;
-        framebuffer_info.attachmentCount = 1;
+        framebuffer_info.attachmentCount = 2;
         framebuffer_info.pAttachments = attachments;
         framebuffer_info.width = init.swapchain.extent.width;
         framebuffer_info.height = init.swapchain.extent.height;
@@ -245,8 +381,8 @@ void Triangle::create_framebuffers() {
     }
 }
 
-void Triangle::create_command_buffers() {
-    this->command_buffers.resize(this->framebuffers.size());
+void App::create_command_buffers() {
+    this->command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -264,16 +400,6 @@ void Triangle::create_command_buffers() {
         result = init.disp.beginCommandBuffer(this->command_buffers[i], &begin_info);
         VERIFY_VK_RESULT("failed to create command buffer", result);
 
-        VkRenderPassBeginInfo render_pass_info = {};
-        render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        render_pass_info.renderPass = this->render_pass;
-        render_pass_info.framebuffer = this->framebuffers[i];
-        render_pass_info.renderArea.offset = { 0, 0 };
-        render_pass_info.renderArea.extent = init.swapchain.extent;
-        VkClearValue clearColor{ { { 0.0f, 0.0f, 0.0f, 1.0f } } };
-        render_pass_info.clearValueCount = 1;
-        render_pass_info.pClearValues = &clearColor;
-
         VkViewport viewport = {};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -289,6 +415,18 @@ void Triangle::create_command_buffers() {
         init.disp.cmdSetViewport(this->command_buffers[i], 0, 1, &viewport);
         init.disp.cmdSetScissor(this->command_buffers[i], 0, 1, &scissor);
 
+        VkRenderPassBeginInfo render_pass_info = {};
+        render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        render_pass_info.renderPass = this->render_pass;
+        render_pass_info.framebuffer = this->framebuffers[i];
+        render_pass_info.renderArea.offset = { 0, 0 };
+        render_pass_info.renderArea.extent = init.swapchain.extent;
+        VkClearValue clearColor[2];
+        clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        clearColor[1] = { 1.0f, 1 };
+        render_pass_info.clearValueCount = 2;
+        render_pass_info.pClearValues = clearColor;
+
         init.disp.cmdBeginRenderPass(this->command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
         init.disp.cmdBindPipeline(this->command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphics_pipeline);
@@ -297,22 +435,82 @@ void Triangle::create_command_buffers() {
 
         init.disp.cmdEndRenderPass(this->command_buffers[i]);
 
+        VkImageMemoryBarrier image_barrier = {};
+        image_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        image_barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        image_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        image_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        image_barrier.image = init.swapchain_images[i];
+        init.disp.cmdPipelineBarrier(
+            command_buffers[i],
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            1,
+            &image_barrier
+        );
+
+        VkImageResolve region = {};
+        region.extent.width = init.swapchain.extent.width;
+        region.extent.height = init.swapchain.extent.height;
+        region.extent.depth = 1;
+        region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.srcSubresource.layerCount = 1;
+        region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.dstSubresource.layerCount = 1;
+        init.disp.cmdResolveImage(command_buffers[i], render_targets[i], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, init.swapchain_images[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+        image_barrier = {};
+        image_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        image_barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        image_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        image_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        image_barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        image_barrier.image = init.swapchain_images[i];
+        init.disp.cmdPipelineBarrier(
+            command_buffers[i],
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+            0,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            1,
+            &image_barrier
+        );
+
         result = init.disp.endCommandBuffer(this->command_buffers[i]);
         VERIFY_VK_RESULT("failed to end command buffer", result);
     }
 }
 
-void Triangle::recreate_swapchain() {
+void App::recreate_swapchain() {
     init.disp.deviceWaitIdle();
 
     init.disp.destroyCommandPool(this->command_pool, nullptr);
 
-    for (auto framebuffer : this->framebuffers) {
-        init.disp.destroyFramebuffer(framebuffer, nullptr);
+    for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
+    {
+        init.disp.destroyFramebuffer(framebuffers[i], nullptr);
+        init.disp.destroyImageView(depth_image_views[i], nullptr);
+        vmaDestroyImage(allocator, depth_images[i], depth_image_allocations[i]);
+        init.disp.destroyImageView(render_target_views[i], nullptr);
+        vmaDestroyImage(allocator, render_targets[i], render_target_allocations[i]);
     }
 
-    gfxrecon::test::recreate_swapchain(init, false);
+    TestAppBase::recreate_swapchain(false);
 
+    create_render_targets();
+    create_depth_buffers();
     create_framebuffers();
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
@@ -325,7 +523,7 @@ void Triangle::recreate_swapchain() {
 const int NUM_FRAMES = 10;
 #define IS_DONE(frame_num) frame_num >= NUM_FRAMES;
 
-bool Triangle::frame(const int frame_num)
+bool App::frame(const int frame_num)
 {
     init.disp.waitForFences(1, &this->sync.in_flight_fences[this->current_frame], VK_TRUE, UINT64_MAX);
 
@@ -390,8 +588,10 @@ bool Triangle::frame(const int frame_num)
     return IS_DONE(frame_num);
 }
 
-void Triangle::cleanup() {
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+void App::cleanup()
+{
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
         init.disp.destroySemaphore(this->sync.finished_semaphore[i], nullptr);
         init.disp.destroySemaphore(this->sync.available_semaphores[i], nullptr);
         init.disp.destroyFence(this->sync.in_flight_fences[i], nullptr);
@@ -399,17 +599,26 @@ void Triangle::cleanup() {
 
     init.disp.destroyCommandPool(this->command_pool, nullptr);
 
-    for (auto framebuffer : this->framebuffers) {
-        init.disp.destroyFramebuffer(framebuffer, nullptr);
+    for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
+    {
+        init.disp.destroyFramebuffer(framebuffers[i], nullptr);
+        init.disp.destroyImageView(depth_image_views[i], nullptr);
+        vmaDestroyImage(allocator, depth_images[i], depth_image_allocations[i]);
+        init.disp.destroyImageView(render_target_views[i], nullptr);
+        vmaDestroyImage(allocator, render_targets[i], render_target_allocations[i]);
     }
 
     init.disp.destroyPipeline(this->graphics_pipeline, nullptr);
     init.disp.destroyPipelineLayout(this->pipeline_layout, nullptr);
     init.disp.destroyRenderPass(this->render_pass, nullptr);
+
+    vmaDestroyAllocator(this->allocator);
 }
 
-void Triangle::setup()
+void App::setup()
 {
+    create_allocator();
+
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
@@ -419,6 +628,9 @@ void Triangle::setup()
     if (!present_queue.has_value())
         throw std::runtime_error("could not get present queue");
     this->present_queue = *present_queue;
+
+    create_render_targets();
+    create_depth_buffers();
 
     create_render_pass();
     create_graphics_pipeline();
@@ -435,7 +647,7 @@ void Triangle::setup()
     this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 }
 
-GFXRECON_END_NAMESPACE(triangle)
+GFXRECON_END_NAMESPACE(multisample_depth)
 
 GFXRECON_END_NAMESPACE(test_app)
 
@@ -443,8 +655,8 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 int main(int argc, char *argv[]) {
     try {
-        gfxrecon::test_app::triangle::Triangle triangle{};
-        triangle.run("triangle");
+        gfxrecon::test_app::multisample_depth::App app{};
+        app.run("multisample depth");
         return 0;
     } catch (std::exception e) {
         std::cout << e.what() << std::endl;

@@ -1,36 +1,29 @@
 /*
-** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and associated documentation files (the "Software"),
-** to deal in the Software without restriction, including without limitation
-** the rights to use, copy, modify, merge, publish, distribute, sublicense,
-** and/or sell copies of the Software, and to permit persons to whom the
-** Software is furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-** DEALINGS IN THE SOFTWARE.
-*/
+ * Copyright © 2021 Cody Goodson (contact@vibimanx.com)
+ * Copyright © 2022 Charles Giessen (charles@lunarg.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the “Software”), to deal in the Software without restriction, including without
+ * limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+ * LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+// This file is a part of VkBootstrap
+// https://github.com/charles-lunarg/vk-bootstrap
 
-#ifndef GFXRECON_TEST_APP_DISPATCH_H
-#define GFXRECON_TEST_APP_DISPATCH_H
+
+#pragma once
 
 #include <vulkan/vulkan_core.h>
 
-#include "util/defines.h"
-
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-
-GFXRECON_BEGIN_NAMESPACE(test)
+namespace vkb {
 
 struct InstanceDispatchTable {
     InstanceDispatchTable() = default;
@@ -1346,13 +1339,14 @@ struct InstanceDispatchTable {
 #endif
     bool is_populated() const { return populated; }
     VkInstance instance = VK_NULL_HANDLE;
-  private:
-    bool populated = false;
+private:
+     bool populated = false;
 };
 
 struct DispatchTable {
     DispatchTable() = default;
     DispatchTable(VkDevice device, PFN_vkGetDeviceProcAddr procAddr) : device(device), populated(true) {
+        fp_vkGetDeviceProcAddr = procAddr;
         fp_vkGetDeviceQueue = reinterpret_cast<PFN_vkGetDeviceQueue>(procAddr(device, "vkGetDeviceQueue"));
         fp_vkQueueSubmit = reinterpret_cast<PFN_vkQueueSubmit>(procAddr(device, "vkQueueSubmit"));
         fp_vkQueueWaitIdle = reinterpret_cast<PFN_vkQueueWaitIdle>(procAddr(device, "vkQueueWaitIdle"));
@@ -2630,16 +2624,16 @@ struct DispatchTable {
 #if (defined(VK_AMDX_shader_enqueue))
         fp_vkCreateExecutionGraphPipelinesAMDX = reinterpret_cast<PFN_vkCreateExecutionGraphPipelinesAMDX>(procAddr(device, "vkCreateExecutionGraphPipelinesAMDX"));
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
         fp_vkCmdInitializeGraphScratchMemoryAMDX = reinterpret_cast<PFN_vkCmdInitializeGraphScratchMemoryAMDX>(procAddr(device, "vkCmdInitializeGraphScratchMemoryAMDX"));
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
         fp_vkCmdDispatchGraphAMDX = reinterpret_cast<PFN_vkCmdDispatchGraphAMDX>(procAddr(device, "vkCmdDispatchGraphAMDX"));
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
         fp_vkCmdDispatchGraphIndirectAMDX = reinterpret_cast<PFN_vkCmdDispatchGraphIndirectAMDX>(procAddr(device, "vkCmdDispatchGraphIndirectAMDX"));
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
         fp_vkCmdDispatchGraphIndirectCountAMDX = reinterpret_cast<PFN_vkCmdDispatchGraphIndirectCountAMDX>(procAddr(device, "vkCmdDispatchGraphIndirectCountAMDX"));
 #endif
 #if (defined(VK_KHR_maintenance6))
@@ -5176,24 +5170,24 @@ struct DispatchTable {
         return fp_vkCreateExecutionGraphPipelinesAMDX(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     }
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
-    void cmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer commandBuffer, VkPipeline executionGraph, VkDeviceAddress scratch, VkDeviceSize scratchSize) const noexcept {
-        fp_vkCmdInitializeGraphScratchMemoryAMDX(commandBuffer, executionGraph, scratch, scratchSize);
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
+    void cmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch) const noexcept {
+        fp_vkCmdInitializeGraphScratchMemoryAMDX(commandBuffer, scratch);
     }
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
-    void cmdDispatchGraphAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, const VkDispatchGraphCountInfoAMDX* pCountInfo) const noexcept {
-        fp_vkCmdDispatchGraphAMDX(commandBuffer, scratch, scratchSize, pCountInfo);
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
+    void cmdDispatchGraphAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, const VkDispatchGraphCountInfoAMDX* pCountInfo) const noexcept {
+        fp_vkCmdDispatchGraphAMDX(commandBuffer, scratch, pCountInfo);
     }
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
-    void cmdDispatchGraphIndirectAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, const VkDispatchGraphCountInfoAMDX* pCountInfo) const noexcept {
-        fp_vkCmdDispatchGraphIndirectAMDX(commandBuffer, scratch, scratchSize, pCountInfo);
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
+    void cmdDispatchGraphIndirectAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, const VkDispatchGraphCountInfoAMDX* pCountInfo) const noexcept {
+        fp_vkCmdDispatchGraphIndirectAMDX(commandBuffer, scratch, pCountInfo);
     }
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
-    void cmdDispatchGraphIndirectCountAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, VkDeviceAddress countInfo) const noexcept {
-        fp_vkCmdDispatchGraphIndirectCountAMDX(commandBuffer, scratch, scratchSize, countInfo);
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
+    void cmdDispatchGraphIndirectCountAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceAddress countInfo) const noexcept {
+        fp_vkCmdDispatchGraphIndirectCountAMDX(commandBuffer, scratch, countInfo);
     }
 #endif
 #if (defined(VK_KHR_maintenance6))
@@ -7655,22 +7649,22 @@ struct DispatchTable {
 #else
     void * fp_vkCreateExecutionGraphPipelinesAMDX{};
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
     PFN_vkCmdInitializeGraphScratchMemoryAMDX fp_vkCmdInitializeGraphScratchMemoryAMDX = nullptr;
 #else
     void * fp_vkCmdInitializeGraphScratchMemoryAMDX{};
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
     PFN_vkCmdDispatchGraphAMDX fp_vkCmdDispatchGraphAMDX = nullptr;
 #else
     void * fp_vkCmdDispatchGraphAMDX{};
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
     PFN_vkCmdDispatchGraphIndirectAMDX fp_vkCmdDispatchGraphIndirectAMDX = nullptr;
 #else
     void * fp_vkCmdDispatchGraphIndirectAMDX{};
 #endif
-#if (defined(VK_AMDX_shader_enqueue))
+#if ((defined(VK_AMDX_shader_enqueue))) && VK_HEADER_VERSION >= 298
     PFN_vkCmdDispatchGraphIndirectCountAMDX fp_vkCmdDispatchGraphIndirectCountAMDX = nullptr;
 #else
     void * fp_vkCmdDispatchGraphIndirectCountAMDX{};
@@ -8087,12 +8081,9 @@ struct DispatchTable {
 #endif
     bool is_populated() const { return populated; }
     VkDevice device = VK_NULL_HANDLE;
-  private:
-    bool populated = false;
+    PFN_vkGetDeviceProcAddr fp_vkGetDeviceProcAddr;
+private:
+     bool populated = false;
 };
 
-GFXRECON_END_NAMESPACE(gfxrecon)
-
-GFXRECON_END_NAMESPACE(test)
-
-#endif // GFXRECON_TEST_APP_DISPATCH_H
+} // namespace vkb

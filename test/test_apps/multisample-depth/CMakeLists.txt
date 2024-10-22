@@ -23,25 +23,23 @@
 #
 # Author: LunarG Team
 # Author: AMD Developer Tools Team
-# Description: CMake script for triangle test app
+# Description: CMake script for multisample depth test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-triangle "")
+add_executable(gfxrecon-testapp-multisample-depth "")
 
-target_sources(gfxrecon-testapp-triangle
+target_sources(gfxrecon-testapp-multisample-depth
                PRIVATE
                ${CMAKE_CURRENT_LIST_DIR}/app.cpp
                ${CMAKE_CURRENT_LIST_DIR}/../common/test_app_base.cpp)
 
-target_include_directories(gfxrecon-testapp-triangle PUBLIC
+target_include_directories(gfxrecon-testapp-multisample-depth PUBLIC
         ${CMAKE_BINARY_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/../common)
 
-target_link_libraries(gfxrecon-testapp-triangle
+target_link_libraries(gfxrecon-testapp-multisample-depth
+        vulkan_memory_allocator
         gfxrecon_application
-        gfxrecon_decode
-        gfxrecon_graphics
-        gfxrecon_format
         gfxrecon_util
         SDL3::SDL3
         platform_specific)
@@ -56,16 +54,16 @@ if (MSVC)
     endif()
 endif()
 
-common_build_directives(gfxrecon-testapp-triangle)
+common_build_directives(gfxrecon-testapp-multisample-depth)
 
 add_custom_command(
-        TARGET gfxrecon-testapp-triangle
+        TARGET gfxrecon-testapp-multisample-depth
         POST_BUILD
         COMMAND
-            ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_LIST_DIR}/shaders "$<TARGET_FILE_DIR:gfxrecon-testapp-triangle>"
+        ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_LIST_DIR}/shaders "$<TARGET_FILE_DIR:gfxrecon-testapp-multisample-depth>"
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-multisample-depth)

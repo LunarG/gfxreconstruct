@@ -593,7 +593,7 @@ void destroy_instance(Instance const& instance) {
 
 Instance::operator VkInstance() const { return this->instance; }
 
-InstanceDispatchTable Instance::make_table() const { return { instance, fp_vkGetInstanceProcAddr }; }
+vkb::InstanceDispatchTable Instance::make_table() const { return { instance, fp_vkGetInstanceProcAddr }; }
 
 InstanceBuilder::InstanceBuilder(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr) {
     info.fp_vkGetInstanceProcAddr = fp_vkGetInstanceProcAddr;
@@ -1635,7 +1635,7 @@ std::optional<VkQueue> Device::get_dedicated_queue(QueueType type) const {
 
 // ---- Dispatch ---- //
 
-DispatchTable Device::make_table() const { return { device, fp_vkGetDeviceProcAddr }; }
+vkb::DispatchTable Device::make_table() const { return { device, fp_vkGetDeviceProcAddr }; }
 
 // ---- Device ---- //
 
@@ -2223,15 +2223,14 @@ VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllo
     return surface;
 }
 
-void create_swapchain(Device const& device, Swapchain& swapchain) {
-    SwapchainBuilder swapchain_builder{ device };
+void create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain) {
     auto new_swapchain = swapchain_builder.set_old_swapchain(swapchain).build();
     destroy_swapchain(swapchain);
     swapchain = new_swapchain;
 }
 
 VkCommandPool create_command_pool(
-    DispatchTable const& disp,
+    vkb::DispatchTable const& disp,
     uint32_t queue_family_index
 ) {
     VkCommandPoolCreateInfo pool_info = {};
@@ -2244,7 +2243,7 @@ VkCommandPool create_command_pool(
     return command_pool;
 }
 
-Sync create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight) {
+Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& disp, const int max_frames_in_flight) {
     Sync sync;
 
     sync.available_semaphores.resize(max_frames_in_flight);
@@ -2289,7 +2288,7 @@ std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
-VkShaderModule createShaderModule(DispatchTable const& disp, const std::vector<char>& code) {
+VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vector<char>& code) {
     VkShaderModuleCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     create_info.codeSize = code.size();
@@ -2302,7 +2301,7 @@ VkShaderModule createShaderModule(DispatchTable const& disp, const std::vector<c
     return shaderModule;
 }
 
-VkShaderModule readShaderFromFile(DispatchTable const& disp, const std::string& filename) {
+VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename) {
     std::vector<char> code = readFile(filename);
     return createShaderModule(disp, code);
 }
@@ -2321,7 +2320,7 @@ std::exception sdl_exception() {
 
 void device_initialization_phase_1(const std::string& window_name, Init& init)
 {
-    init.window = gfxrecon::test::create_window_sdl(window_name.data(), true, 1024, 1024);
+    init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
 }
 
 void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init& init)
@@ -2330,7 +2329,7 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
 
     init.inst_disp = init.instance.make_table();
 
-    init.surface = gfxrecon::test::create_surface_sdl(init.instance, init.window);
+    init.surface = create_surface_sdl(init.instance, init.window);
 }
 
 PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, Init& init)
@@ -2343,8 +2342,11 @@ void device_initialization_phase_4(DeviceBuilder const& device_builder, Init& in
     init.device = device_builder.build();
 
     init.disp = init.device.make_table();
+}
 
-    gfxrecon::test::create_swapchain(init.device, init.swapchain);
+void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, Init& init)
+{
+    create_swapchain(swapchain_builder, init.swapchain);
 
     init.swapchain_images = init.swapchain.get_images();
     init.swapchain_image_views = init.swapchain.get_image_views();
@@ -2355,34 +2357,37 @@ Init device_initialization(const std::string& window_name) {
 
     device_initialization_phase_1(window_name, init);
 
-    gfxrecon::test::InstanceBuilder instance_builder;
+    InstanceBuilder instance_builder;
     device_initialization_phase_2(instance_builder, init);
 
-    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(init.instance);
-    auto physical_device = device_initialization_phase_3(phys_device_selector, init);
+    PhysicalDeviceSelector phys_device_selector(init.instance);
+    init.physical_device = device_initialization_phase_3(phys_device_selector, init);
 
-    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
+    DeviceBuilder device_builder{ init.physical_device };
     device_initialization_phase_4(device_builder, init);
+
+    SwapchainBuilder swapchain_builder{ init.device };
+    device_initialization_phase_5(swapchain_builder, init);
 
     return init;
 }
 
-void cleanup_init(gfxrecon::test::Init& init) {
+void cleanup_init(Init& init) {
     init.swapchain.destroy_image_views(init.swapchain_image_views);
 
-    gfxrecon::test::destroy_swapchain(init.swapchain);
-    gfxrecon::test::destroy_device(init.device);
-    gfxrecon::test::destroy_surface(init.instance, init.surface);
-    gfxrecon::test::destroy_instance(init.instance);
-    gfxrecon::test::destroy_window_sdl(init.window);
+    destroy_swapchain(init.swapchain);
+    destroy_device(init.device);
+    destroy_surface(init.instance, init.surface);
+    destroy_instance(init.instance);
+    destroy_window_sdl(init.window);
 }
 
-void recreate_swapchain(gfxrecon::test::Init& init, bool wait_for_idle) {
+void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, Init& init, bool wait_for_idle) {
     if (wait_for_idle) init.disp.deviceWaitIdle();
 
     init.swapchain.destroy_image_views(init.swapchain_image_views);
 
-    gfxrecon::test::create_swapchain(init.device, init.swapchain);
+    create_swapchain(swapchain_builder, init.swapchain);
 
     init.swapchain_images = init.swapchain.get_images();
     init.swapchain_image_views = init.swapchain.get_image_views();
@@ -2392,17 +2397,21 @@ void TestAppBase::run(const std::string& window_name)
 {
     device_initialization_phase_1(window_name, this->init);
 
-    gfxrecon::test::InstanceBuilder instance_builder;
+    InstanceBuilder instance_builder;
     this->configure_instance_builder(instance_builder);
     device_initialization_phase_2(instance_builder, this->init);
 
-    gfxrecon::test::PhysicalDeviceSelector phys_device_selector(this->init.instance);
+    PhysicalDeviceSelector phys_device_selector(this->init.instance);
     this->configure_physical_device_selector(phys_device_selector);
-    auto physical_device = device_initialization_phase_3(phys_device_selector, this->init);
+    init.physical_device = device_initialization_phase_3(phys_device_selector, this->init);
 
-    gfxrecon::test::DeviceBuilder device_builder{ physical_device };
-    this->configure_device_builder(device_builder, physical_device);
+    DeviceBuilder device_builder{ init.physical_device };
+    this->configure_device_builder(device_builder, init.physical_device);
     device_initialization_phase_4(device_builder, this->init);
+
+    SwapchainBuilder swapchain_builder{ init.device };
+    this->configure_swapchain_builder(swapchain_builder);
+    device_initialization_phase_5(swapchain_builder, this->init);
 
     this->setup();
 
@@ -2427,6 +2436,13 @@ void TestAppBase::run(const std::string& window_name)
     cleanup_init(this->init);
 }
 
+void TestAppBase::recreate_swapchain(bool wait_for_idle)
+{
+    SwapchainBuilder swapchain_builder{ init.device };
+    this->configure_swapchain_builder(swapchain_builder);
+    recreate_init_swapchain(swapchain_builder, init, wait_for_idle);
+}
+
 void TestAppBase::setup() {}
 void TestAppBase::cleanup() {}
 void TestAppBase::configure_instance_builder(InstanceBuilder& instance_builder) {
@@ -2434,6 +2450,7 @@ void TestAppBase::configure_instance_builder(InstanceBuilder& instance_builder) 
 }
 void TestAppBase::configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector) {}
 void TestAppBase::configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device) {}
+void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder) {}
 
 GFXRECON_END_NAMESPACE(test)
 
