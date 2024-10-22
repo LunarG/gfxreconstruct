@@ -231,7 +231,7 @@ struct Instance {
     operator VkInstance() const;
 
     // Return a loaded instance dispatch table
-    InstanceDispatchTable make_table() const;
+    vkb::InstanceDispatchTable make_table() const;
 
   private:
     bool headless = false;
@@ -678,7 +678,7 @@ struct Device {
     std::optional<VkQueue> get_dedicated_queue(QueueType type) const;
 
     // Return a loaded dispatch table
-    DispatchTable make_table() const;
+    vkb::DispatchTable make_table() const;
 
     // A conversion function which allows this Device to be used
     // in places where VkDevice would have been used.
@@ -912,9 +912,9 @@ class SwapchainBuilder {
 SDL_Window* create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void destroy_window_sdl(SDL_Window * window);
 VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window * window, VkAllocationCallbacks* allocator = nullptr);
-void create_swapchain(Device const&, Swapchain& swapchain);
+void create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain);
 
-VkCommandPool create_command_pool(DispatchTable const& disp, uint32_t queue_family_index);
+VkCommandPool create_command_pool(vkb::DispatchTable const& disp, uint32_t queue_family_index);
 
 struct Sync {
     std::vector<VkSemaphore> available_semaphores;
@@ -932,23 +932,24 @@ struct Sync {
     Sync& operator =(Sync&&) = default;
 };
 
-Sync create_sync_objects(Swapchain const& swapchain, DispatchTable const& disp, const int max_frames_in_flight);
+Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& disp, const int max_frames_in_flight);
 
 std::vector<char> readFile(const std::string& filename);
 
-VkShaderModule createShaderModule(DispatchTable const& disp, const std::vector<char>& code);
+VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vector<char>& code);
 
-VkShaderModule readShaderFromFile(DispatchTable const& disp, const std::string& filename);
+VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename);
 
 #define VERIFY_VK_RESULT(message, result) { if (result != VK_SUCCESS) throw gfxrecon::test::vulkan_exception(message, result); }
 
 struct Init {
     SDL_Window* window;
     Instance instance;
-    InstanceDispatchTable inst_disp;
+    vkb::InstanceDispatchTable inst_disp;
     VkSurfaceKHR surface;
+    PhysicalDevice physical_device;
     Device device;
-    DispatchTable disp;
+    vkb::DispatchTable disp;
     Swapchain swapchain;
     std::vector<VkImage> swapchain_images;
     std::vector<VkImageView> swapchain_image_views;
@@ -958,7 +959,7 @@ Init device_initialization(const std::string& window_name);
 
 void cleanup_init(Init& init);
 
-void recreate_swapchain(Init& init, bool wait_for_idle = true);
+void recreate_init_swapchain(Init& init, bool wait_for_idle = true);
 
 class TestAppBase {
   public:
@@ -971,12 +972,15 @@ class TestAppBase {
     TestAppBase(TestAppBase&&) = delete;
     TestAppBase& operator=(TestAppBase&&) = delete;
 
+    void recreate_swapchain(bool wait_for_idle);
+
     virtual void setup();
     virtual bool frame(const int frame_num) = 0;
     virtual void cleanup();
     virtual void configure_instance_builder(InstanceBuilder& instance_builder);
     virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector);
     virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device);
+    virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder);
 
     Init init;
 };

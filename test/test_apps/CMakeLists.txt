@@ -29,3 +29,4 @@
 add_custom_target(gfxrecon-testapps)
 
 add_subdirectory(triangle)
+add_subdirectory(multisample-depth)
