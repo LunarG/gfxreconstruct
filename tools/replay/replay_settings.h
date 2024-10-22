@@ -356,6 +356,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
     GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
 #endif
+
+#if ENABLE_OPENXR_SUPPORT
+    GFXRECON_WRITE_CONSOLE("")
+    GFXRECON_WRITE_CONSOLE("OpenXR only:")
+    GFXRECON_WRITE_CONSOLE("  --openxr-fail-on-unknown-capture-events");
+    GFXRECON_WRITE_CONSOLE("          \t\tFail on any unhandled unknown events that are recorded in the capture");
+    GFXRECON_WRITE_CONSOLE("          \t\tfile but that do not occur during a replay. ()");
+#endif
 }
 
 #endif // GFXRECON_REPLAY_SETTINGS_H

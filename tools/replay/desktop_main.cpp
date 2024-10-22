@@ -297,7 +297,7 @@ int main(int argc, const char** argv)
 #endif
 
 #if ENABLE_OPENXR_SUPPORT
-            gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
+            gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = GetOpenXrReplayOptions(arg_parser, filename);
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
             gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
             openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);

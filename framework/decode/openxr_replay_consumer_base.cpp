@@ -734,8 +734,8 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     HandlePointerDecoder<XrSession>*                   session,
     XrResult                                           replay_result)
 {
-    Decoded_XrSessionCreateInfo* decoded_info   = createInfo->GetMetaStructPointer();
-    SessionData&                 session_data   = AddSessionData(*session->GetPointer());
+    Decoded_XrSessionCreateInfo* decoded_info = createInfo->GetMetaStructPointer();
+    SessionData&                 session_data = AddSessionData(*session->GetPointer());
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
@@ -764,7 +764,7 @@ struct EventStrings
     char            name[128];
 };
 static EventStrings events_to_string[] = {
-    { XR_TYPE_UNKNOWN, "Unknown Event Type" },
+    { XR_STRUCTURE_TYPE_MAX_ENUM, "Unknown Event Type" },
     { XR_TYPE_EVENT_DATA_BUFFER, "XR_TYPE_EVENT_DATA_BUFFER" },
     { XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING, "XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING" },
     { XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED, "XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED" },
@@ -798,6 +798,19 @@ static EventStrings events_to_string[] = {
     { XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT, "XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT" },
 };
 
+bool IsHandledEventType(XrStructureType type)
+{
+    size_t len = sizeof(events_to_string) / sizeof(EventStrings);
+    for (size_t ii = 0; ii < len; ++ii)
+    {
+        if (type == events_to_string[ii].type)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 const char* GetEventTypeString(XrStructureType type)
 {
     size_t len = sizeof(events_to_string) / sizeof(EventStrings);
@@ -809,6 +822,23 @@ const char* GetEventTypeString(XrStructureType type)
         }
     }
     return events_to_string[0].name;
+}
+
+bool ManageEventDequeSize(std::deque<XrEventDataBuffer>& event_dequeue)
+{
+    const size_t MAX_EVENT_DEQUE_SIZE        = 1000;
+    const size_t MAX_EVENT_DEQUE_DELETE_SIZE = 300;
+    bool         adjusted                    = false;
+
+    // If we grow too large on any of the event deques, it's probably because we have
+    // received a bunch of events we can not handle.  So remove the first block of
+    // events to make room for more without bloating the list size.
+    if (event_dequeue.size() > MAX_EVENT_DEQUE_SIZE)
+    {
+        event_dequeue.erase(event_dequeue.begin(), event_dequeue.begin() + MAX_EVENT_DEQUE_DELETE_SIZE);
+        adjusted = true;
+    }
+    return adjusted;
 }
 
 void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&                               call_info,
@@ -825,16 +855,32 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrInstance         in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     XrEventDataBuffer* capture_event = eventData->GetPointer();
 
-    // We received events that haven't been handled yet already, so see if this one is in the list already
-    for (size_t ii = 0; ii < received_events_.size(); ++ii)
+    // If we have already received some events, check this event against one of the previously
+    // occurring events.  If it has already occurred, remove it from the list and return.
+    for (size_t ii = 0; ii < events_already_triggered_in_replay_.size(); ++ii)
     {
-        if (received_events_[ii].type == capture_event->type)
+        if (events_already_triggered_in_replay_[ii].type == capture_event->type)
         {
-            GFXRECON_LOG_WARNING("Previously received event %s (0x%x, %u)",
-                                 GetEventTypeString(capture_event->type),
-                                 capture_event->type,
-                                 capture_event->type);
-            received_events_.erase(received_events_.begin() + ii);
+            GFXRECON_LOG_INFO("Previously received event %s (0x%x, %u)",
+                              GetEventTypeString(capture_event->type),
+                              capture_event->type,
+                              capture_event->type);
+            events_already_triggered_in_replay_.erase(events_already_triggered_in_replay_.begin() + ii);
+            return;
+        }
+    }
+
+    // If we have events that occurred during capture previously, but were not detected during
+    // replay, see if this incoming event is one of those.  If so, remove it from the list and return.
+    for (size_t ii = 0; ii < unhandled_events_from_capture_.size(); ++ii)
+    {
+        if (unhandled_events_from_capture_[ii].type == capture_event->type)
+        {
+            GFXRECON_LOG_INFO("Previously recorded but skipped event %s (0x%x, %u)",
+                              GetEventTypeString(capture_event->type),
+                              capture_event->type,
+                              capture_event->type);
+            unhandled_events_from_capture_.erase(unhandled_events_from_capture_.begin() + ii);
             return;
         }
     }
@@ -846,9 +892,8 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrResult replay_result;
 
     // WIP: Put this constant somewhere interesting
-    const uint32_t kRetryLimit      = 10;
-    const int64_t  kMaxSleepLimitNs = 500000000; // 500ms
-    uint32_t       retry_count      = 0;
+    const uint32_t kRetryLimit = 24;
+    uint32_t       retry_count = 0;
 
     if (out_eventData && capture_event)
     {
@@ -859,59 +904,84 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
             replay_result  = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
             retry_count++;
 
-            if (capture_event->type != out_eventData->type)
+            GFXRECON_LOG_INFO("Looking for event %s (0x%x, %u)",
+                              GetEventTypeString(capture_event->type),
+                              capture_event->type,
+                              capture_event->type);
+
+            if (replay_result == XR_SUCCESS)
             {
-                if (replay_result == XR_SUCCESS)
+                // If the event returned is not the one we expect, we may still want to keep track of
+                // it or bail.
+                if (capture_event->type != out_eventData->type)
                 {
-                    // Add it to the list of received events
-                    received_events_.push_back(*out_eventData);
-                    GFXRECON_LOG_WARNING("Recording event for later %s (0x%x, %u)",
-                                         GetEventTypeString(capture_event->type),
-                                         capture_event->type,
-                                         capture_event->type);
-
-                    // If we grow too lare on the event vector, it's probably because we have
-                    // received a bunch of events we can not handle.  So remove the first 100
-                    // events to make room for more without bloating the list size.
-                    // TODO: Perhaps do this more elegantly?
-                    if (received_events_.size() > 1000)
+                    // We're not yet expecting this event, but we may expect it in the future,
+                    // so keep track of it in the list of previously received events that we
+                    // can check again in the future.
+                    events_already_triggered_in_replay_.push_back(*out_eventData);
+                    GFXRECON_LOG_INFO("Recording event for later %s (0x%x, %u)",
+                                      GetEventTypeString(out_eventData->type),
+                                      out_eventData->type,
+                                      out_eventData->type);
+                    if (ManageEventDequeSize(events_already_triggered_in_replay_))
                     {
-                        GFXRECON_LOG_WARNING("Event list is now %d in size, stripping the first 100!",
-                                             received_events_.size());
-                        received_events_.erase(received_events_.begin(), received_events_.begin() + 100);
+                        GFXRECON_LOG_INFO("Previously received replay event list is size adjusted down to %d",
+                                          events_already_triggered_in_replay_.size());
                     }
-                }
-                else if (replay_result == XR_EVENT_UNAVAILABLE)
-                {
-                    // Yield and retry
-                    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
-
-                    if (sleep_time < kMaxSleepLimitNs)
-                    {
-                        // Next time, sleep for double what we initially slept for.  This way if we're just
-                        // spinning, we spin less and less each time.
-                        sleep_time *= 2;
-                    }
-                    // Clamp it to the max (should stay here from this point forward)
-                    if (sleep_time > kMaxSleepLimitNs)
-                    {
-                        sleep_time = kMaxSleepLimitNs;
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("xrPollEvent encountered an error of type 0x%x", replay_result);
-                    break;
                 }
             }
+            else if (replay_result == XR_EVENT_UNAVAILABLE)
+            {
+                // Yield and retry
+                std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
+
+                // Next time, sleep for double what we initially slept for.  This way if we're just
+                // spinning, we spin less and less each time.
+                sleep_time *= 2;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("xrPollEvent encountered an error of type 0x%x", replay_result);
+                break;
+            }
         } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
+
+        // We timed out and never got the event we expect, so handle it appropriately.
         if (capture_event->type != out_eventData->type)
         {
-            GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
-                               GetEventTypeString(capture_event->type),
-                               capture_event->type,
-                               capture_event->type);
-            replay_result = XR_ERROR_RUNTIME_FAILURE; // Runtime never gave us the event we were looking for
+            // If the event that is expected is not known to  us, and we didn't encounter it , then this is a
+            // bad situtation and needs to be reported.
+            if (IsHandledEventType(capture_event->type))
+            {
+                GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
+                                   GetEventTypeString(capture_event->type),
+                                   capture_event->type,
+                                   capture_event->type);
+
+                // Runtime never gave us the event we were looking for
+                replay_result = XR_ERROR_RUNTIME_FAILURE;
+            }
+            else if (options_.ignore_unhandled_unknown_capture_events)
+            {
+                // If this is an event we don't know anything about (it is unknown to GFXR), then
+                // add it to the list of events we check against in the future.
+                GFXRECON_LOG_WARNING(
+                    "Expected Capture Event %s (0x%x %d) did not occur, but since it is unknown, it will be skipped",
+                    GetEventTypeString(capture_event->type),
+                    capture_event->type,
+                    capture_event->type);
+                unhandled_events_from_capture_.push_back(*capture_event);
+
+                if (ManageEventDequeSize(unhandled_events_from_capture_))
+                {
+                    GFXRECON_LOG_INFO("Unhandled capture events list is size adjusted down to %d",
+                                      unhandled_events_from_capture_.size());
+                }
+
+                // Return the expected replay code just because we don't know how to handle this and
+                // we never received it (just so we don't assert out).
+                replay_result = returnValue;
+            }
         }
     }
     else
@@ -1029,11 +1099,11 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                                  index,
     XrResult                                                   replay_result)
 {
-    uint32_t    capture_index = *index->GetPointer();
-    uint32_t    out_index     = *index->GetOutputPointer();
+    uint32_t capture_index = *index->GetPointer();
+    uint32_t out_index     = *index->GetOutputPointer();
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
-    replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+    replay_result                 = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
 }
 
 void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
