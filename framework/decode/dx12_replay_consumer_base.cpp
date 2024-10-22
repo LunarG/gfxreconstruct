@@ -3580,6 +3580,39 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineState(
+    DxObjectInfo*                                                   device_object_info,
+    HRESULT                                                         original_result,
+    StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
+    Decoded_GUID                                                    riid,
+    HandlePointerDecoder<void*>*                                    ppPipelineState)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT(device_object_info != nullptr);
+    GFXRECON_ASSERT(device_object_info->object != nullptr);
+
+    auto device = static_cast<ID3D12Device2*>(device_object_info->object);
+
+    auto pDesc2 = pDesc->GetPointer();
+    if (!options_.use_cached_psos)
+    {
+        auto desc = pDesc->GetMetaStructPointer();
+        GFXRECON_ASSERT(desc != nullptr);
+
+        if (desc->cached_pso.decoded_value != nullptr)
+        {
+            desc->cached_pso.decoded_value->pCachedBlob           = nullptr;
+            desc->cached_pso.decoded_value->CachedBlobSizeInBytes = 0;
+        }
+    }
+
+    HRESULT replay_result =
+        device->CreatePipelineState(pDesc2, *riid.decoded_value, ppPipelineState->GetHandlePointer());
+
+    return replay_result;
+}
+
 HRESULT
 Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
                                                    HRESULT       original_result,

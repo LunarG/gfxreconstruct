@@ -10214,14 +10214,16 @@ void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
             ppPipelineState);
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
-        auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
-        auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12Device2*>(replay_object->object)->CreatePipelineState(pDesc->GetPointer(),
-                                                                                                          *riid.decoded_value,
-                                                                                                          out_hp_ppPipelineState);
+        DxObjectInfo object_info_ppPipelineState{};
+        ppPipelineState->SetConsumerData(0, &object_info_ppPipelineState);
+        auto replay_result = OverrideCreatePipelineState(replay_object,
+                                                         return_value,
+                                                         pDesc,
+                                                         riid,
+                                                         ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState, format::ApiCall_ID3D12Device2_CreatePipelineState);
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info_ppPipelineState), format::ApiCall_ID3D12Device2_CreatePipelineState);
         }
         CheckReplayResult("ID3D12Device2_CreatePipelineState", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device2_CreatePipelineState>::Dispatch(
