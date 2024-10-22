@@ -94,8 +94,6 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     VkSwapchainKHR*         replay_swapchain = swapchain->GetHandlePointer();
     VkDevice                device           = device_info->handle;
 
-    device_ = device;
-
     // Give swapchain a fake handle. It's handle id.
     *replay_swapchain = UINT64_TO_VK_HANDLE(VkSwapchainKHR, *id);
     if (!AddSwapchainResourceData(*replay_swapchain))

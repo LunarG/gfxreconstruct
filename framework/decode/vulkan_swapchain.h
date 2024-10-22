@@ -179,8 +179,6 @@ class VulkanSwapchain
     const encode::VulkanInstanceTable* instance_table_{ nullptr };
     const encode::VulkanDeviceTable*   device_table_{ nullptr };
 
-    VkDevice device_{ VK_NULL_HANDLE };
-
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;
     int32_t                   create_surface_count_{ 0 };

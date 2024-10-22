@@ -58,7 +58,6 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
         device = device_info->handle;
     }
     device_table_                    = device_table;
-    device_                          = device;
     VkPhysicalDevice physical_device = device_info->parent;
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
@@ -463,12 +462,12 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             auto command_buffer = swapchain_resources->copy_cmd_data[copy_queue_family_index].command_buffers[0];
             auto copy_fence     = swapchain_resources->copy_cmd_data[copy_queue_family_index].fences[0];
 
-            result = device_table_->WaitForFences(device_, 1, &copy_fence, VK_TRUE, ~0UL);
+            result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
             if (result != VK_SUCCESS)
             {
                 return result;
             }
-            result = device_table_->ResetFences(device_, 1, &copy_fence);
+            result = device_table_->ResetFences(device, 1, &copy_fence);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -714,6 +713,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         return func(queue_info->handle, present_info);
     }
 
+    VkDevice device             = queue_info->device;
     VkQueue  queue              = queue_info->handle;
     uint32_t queue_family_index = queue_info->family_index;
 
@@ -831,12 +831,12 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
             present_wait_semaphores.emplace_back(copy_semaphore);
         }
 
-        result = device_table_->WaitForFences(device_, 1, &copy_fence, VK_TRUE, ~0UL);
+        result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
         if (result != VK_SUCCESS)
         {
             return result;
         }
-        result = device_table_->ResetFences(device_, 1, &copy_fence);
+        result = device_table_->ResetFences(device, 1, &copy_fence);
         if (result != VK_SUCCESS)
         {
             return result;

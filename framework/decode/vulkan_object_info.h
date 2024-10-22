@@ -314,6 +314,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
+    VkDevice                             device;
     std::unordered_map<uint32_t, size_t> array_counts;
     uint32_t                             family_index;
     uint32_t                             queue_index;
