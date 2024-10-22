@@ -951,7 +951,7 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                             sleep_time = kMaxSleepLimitNs;
                         }
                     }
-                    else
+                    else if (options_.ignore_unhandled_unknown_capture_events)
                     {
                         // If this is an event we don't know anything about (it is unknown to GFXR), then
                         // add it to the list of events we check against in the future.

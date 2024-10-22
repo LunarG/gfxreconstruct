@@ -156,7 +156,8 @@ void android_main(struct android_app* app)
                                                      replay_options.preload_measurement_range,
                                                      measurement_file_name);
 
-                vulkan_replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                vulkan_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
                 vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
                 vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
@@ -164,7 +165,8 @@ void android_main(struct android_app* app)
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
 #if ENABLE_OPENXR_SUPPORT
-                gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
+                gfxrecon::decode::OpenXrReplayOptions openxr_replay_options =
+                    GetOpenXrReplayOptions(arg_parser, filename);
                 gfxrecon::decode::OpenXrDecoder        openxr_decoder;
                 gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
                 openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);

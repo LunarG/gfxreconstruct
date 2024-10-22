@@ -24,6 +24,8 @@
 #ifndef GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H
 #define GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H
 
+#if ENABLE_OPENXR_SUPPORT
+
 #include "decode/replay_options.h"
 #include "util/defines.h"
 
@@ -36,10 +38,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct OpenXrReplayOptions : public ReplayOptions
 {
-    // TODO: Add options as needed
+    bool ignore_unhandled_unknown_capture_events{ true };
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_DECODE_OPENXR_REPLAY_OPTIONS_H

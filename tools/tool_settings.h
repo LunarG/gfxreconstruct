@@ -39,6 +39,7 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 
 #ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_replay_options.h"
 #include "generated/generated_openxr_decoder.h"
 #endif
 #include "generated/generated_vulkan_decoder.h"
@@ -137,6 +138,10 @@ const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
+#endif
+
+#if ENABLE_OPENXR_SUPPORT
+const char kOpenXrFailOnUnknownCaptureEvents[] = "--openxr-fail-on-unknown-capture-events";
 #endif
 
 const char kDumpResourcesArgument[]               = "--dump-resources";
@@ -1167,6 +1172,22 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+    return replay_options;
+}
+#endif
+
+#if ENABLE_OPENXR_SUPPORT
+static gfxrecon::decode::OpenXrReplayOptions GetOpenXrReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                                                    const std::string&                    filename)
+{
+    gfxrecon::decode::OpenXrReplayOptions replay_options;
+    GetReplayOptions(replay_options, arg_parser, filename);
+
+    if (arg_parser.IsOptionSet(kOpenXrFailOnUnknownCaptureEvents))
+    {
+        replay_options.ignore_unhandled_unknown_capture_events = false;
+    }
+
     return replay_options;
 }
 #endif
