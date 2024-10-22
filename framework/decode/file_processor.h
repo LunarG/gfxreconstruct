@@ -32,9 +32,11 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
+#include <deque>
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -100,7 +102,18 @@ class FileProcessor
 
     Error GetErrorState() const { return error_state_; }
 
-    bool EntireFileWasProcessed() const { return (feof(file_descriptor_) != 0); }
+    bool EntireFileWasProcessed() const
+    {
+        const auto file_entry = active_files_.find(file_stack_.front().filename);
+        if (file_entry != active_files_.end())
+        {
+            return (feof(file_entry->second.fd) != 0);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
 
@@ -142,7 +155,6 @@ class FileProcessor
     void PrintBlockInfo() const;
 
   protected:
-    FILE*                    file_descriptor_;
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
@@ -151,6 +163,24 @@ class FileProcessor
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
+
+  protected:
+    FILE* GetFileDescriptor()
+    {
+        assert(!file_stack_.empty());
+
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.back().filename);
+            assert(file_entry != active_files_.end());
+
+            return file_entry->second.fd;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
 
   private:
     bool ProcessFileHeader();
@@ -163,10 +193,39 @@ class FileProcessor
                                        size_t  expected_uncompressed_size,
                                        size_t* uncompressed_buffer_size);
 
-    bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
+    bool IsFileValid() const
+    {
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.back().filename);
+            assert(file_entry != active_files_.end());
+
+            return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    bool OpenFile(const std::string& filename);
+
+    bool SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+
+    bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
+
+    bool SetActiveFile(const std::string& filename, bool execute_till_eof);
+
+    bool SetActiveFile(const std::string&             filename,
+                       int64_t                        offset,
+                       util::platform::FileSeekOrigin origin,
+                       bool                           execute_till_eof);
+
+    void DecrementRemainingCommands();
+
+    std::string ApplyAbsolutePath(const std::string& file);
 
   private:
-    std::string                         filename_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                parameter_buffer_;
@@ -179,6 +238,39 @@ class FileProcessor
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
+
+    struct ActiveFiles
+    {
+        ActiveFiles() {}
+
+        ActiveFiles(FILE* fd) : fd(fd) {}
+
+        FILE* fd{ nullptr };
+    };
+
+    std::unordered_map<std::string, ActiveFiles> active_files_;
+
+    struct ActiveFileContext
+    {
+        ActiveFileContext(const std::string& filename) : filename(filename){};
+        ActiveFileContext(const std::string& filename, bool execute_till_eof) :
+            filename(filename), execute_till_eof(execute_till_eof){};
+
+        std::string filename;
+        uint32_t    remaining_commands{ 0 };
+        bool        execute_till_eof{ false };
+    };
+    std::deque<ActiveFileContext> file_stack_;
+
+    std::string absolute_path_;
+
+  private:
+    ActiveFileContext& GetCurrentFile()
+    {
+        assert(file_stack_.size());
+
+        return file_stack_.back();
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)

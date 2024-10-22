@@ -83,6 +83,9 @@ std::string Join(const std::string& lhs, const std::string& rhs);
 
 std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
 
+std::string
+InsertFilenamePostfix(const std::string& filename, const std::string& postfix, const std::string& new_extension);
+
 std::string GetBasedir(const std::string& path);
 
 std::string GetFilename(const std::string& path);

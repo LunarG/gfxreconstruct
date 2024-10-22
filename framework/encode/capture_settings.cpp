@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <limits>
 #include <sstream>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -92,10 +93,14 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_TRIGGER_FRAMES_UPPER                         "CAPTURE_TRIGGER_FRAMES"
 #define CAPTURE_ANDROID_TRIGGER_LOWER                        "capture_android_trigger"
 #define CAPTURE_ANDROID_TRIGGER_UPPER                        "CAPTURE_ANDROID_TRIGGER"
+#define CAPTURE_ANDROID_DUMP_ASSETS_LOWER                    "capture_android_dump_assets"
+#define CAPTURE_ANDROID_DUMP_ASSETS_UPPER                    "CAPTURE_ANDROID_DUMP_ASSETS"
 #define CAPTURE_IUNKNOWN_WRAPPING_LOWER                      "capture_iunknown_wrapping"
 #define CAPTURE_IUNKNOWN_WRAPPING_UPPER                      "CAPTURE_IUNKNOWN_WRAPPING"
 #define CAPTURE_QUEUE_SUBMITS_LOWER                          "capture_queue_submits"
 #define CAPTURE_QUEUE_SUBMITS_UPPER                          "CAPTURE_QUEUE_SUBMITS"
+#define CAPTURE_USE_ASSET_FILE_LOWER                         "capture_use_asset_file"
+#define CAPTURE_USE_ASSET_FILE_UPPER                         "CAPTURE_USE_ASSET_FILE"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER                         "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER                         "PAGE_GUARD_COPY_ON_MAP"
 #define PAGE_GUARD_SEPARATE_READ_LOWER                       "page_guard_separate_read"
@@ -171,6 +176,7 @@ const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
 const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_LOWER;
 const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_QUEUE_SUBMITS_LOWER;
+const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_LOWER;
 const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
 const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
@@ -183,6 +189,7 @@ const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
 const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
+const char kCaptureAndroidDumpAssetsEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_DUMP_ASSETS_LOWER;
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
@@ -204,6 +211,7 @@ const char kCaptureCompressionTypeEnvVar[]                   = GFXRECON_ENV_VAR_
 const char kCaptureFileFlushEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
 const char kCaptureFileNameEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
 const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
+const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_UPPER;
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
@@ -279,6 +287,7 @@ const std::string kOptionKeyCaptureTrigger                           = std::stri
 const std::string kOptionKeyCaptureTriggerFrames                     = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
 const std::string kOptionKeyCaptureIUnknownWrapping                  = std::string(kSettingsFilter) + std::string(CAPTURE_IUNKNOWN_WRAPPING_LOWER);
 const std::string kOptionKeyCaptureQueueSubmits                      = std::string(kSettingsFilter) + std::string(CAPTURE_QUEUE_SUBMITS_LOWER);
+const std::string kOptionKeyCaptureUseAssetFile                      = std::string(kSettingsFilter) + std::string(CAPTURE_USE_ASSET_FILE_LOWER);
 const std::string kOptionKeyPageGuardCopyOnMap                       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead                    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardPersistentMemory                = std::string(kSettingsFilter) + std::string(PAGE_GUARD_PERSISTENT_MEMORY_LOWER);
@@ -355,6 +364,17 @@ void CaptureSettings::LoadRunTimeEnvVarSettings(CaptureSettings* settings)
         {
             settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
         }
+
+        value = util::platform::GetEnv(kCaptureAndroidDumpAssetsEnvVar);
+        if (value.empty())
+        {
+            settings->trace_settings_.runtime_write_assets = false;
+        }
+        else
+        {
+            settings->trace_settings_.runtime_write_assets =
+                ParseBoolString(value, settings->trace_settings_.runtime_write_assets);
+        }
     }
 #endif
 }
@@ -418,6 +438,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
     LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
     LoadSingleOptionEnvVar(options, kCaptureQueueSubmitsEnvVar, kOptionKeyCaptureQueueSubmits);
+    LoadSingleOptionEnvVar(options, kCaptureUseAssetFileEnvVar, kOptionKeyCaptureUseAssetFile);
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
@@ -583,6 +604,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     settings->trace_settings_.quit_after_frame_ranges = ParseBoolString(
         FindOption(options, kOptionKeyQuitAfterCaptureFrames), settings->trace_settings_.quit_after_frame_ranges);
+
+    settings->trace_settings_.use_asset_file =
+        ParseBoolString(FindOption(options, kOptionKeyCaptureUseAssetFile), settings->trace_settings_.use_asset_file);
 
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
