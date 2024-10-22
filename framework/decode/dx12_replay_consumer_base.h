@@ -741,6 +741,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                Decoded_GUID                                                     riid,
                                                HandlePointerDecoder<void*>* pipelineState);
 
+    HRESULT OverrideCreatePipelineState(DxObjectInfo* device_object_info,
+                                        HRESULT       original_result,
+                                        StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
+                                        Decoded_GUID                                                    riid,
+                                        HandlePointerDecoder<void*>* ppPipelineState);
+
     HRESULT OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
                                        HRESULT       original_result,
                                        BOOL          Fullscreen,
