@@ -3015,7 +3015,7 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
     auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
-    queue_info->device = device;
+    queue_info->device       = device;
     queue_info->family_index = queueFamilyIndex;
     queue_info->queue_index  = queueIndex;
 }
@@ -3039,7 +3039,7 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
     auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
-    queue_info->device = device;
+    queue_info->device       = device;
     queue_info->family_index = in_pQueueInfo->queueFamilyIndex;
     queue_info->queue_index  = in_pQueueInfo->queueIndex;
 }
