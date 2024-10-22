@@ -341,7 +341,7 @@ void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buff
     wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
 
-    device_address_tracker_.TrackBuffer(wrapper);
+    device_address_trackers_[device].TrackBuffer(wrapper);
 }
 
 void VulkanStateTracker::TrackOpaqueBufferDeviceAddress(VkDevice        device,
@@ -384,6 +384,8 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     }
 
     auto cmd_buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+    auto device_wrapper  = cmd_buf_wrapper->parent_pool->device;
+
     for (uint32_t i = 0; i < info_count; ++i)
     {
         const VkAccelerationStructureBuildGeometryInfoKHR& build_info = p_infos[i];
@@ -435,7 +437,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                 }
 
                 auto target_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
-                    device_address_tracker_.GetBufferByDeviceAddress(address));
+                    device_address_trackers_[device_wrapper->handle].GetBufferByDeviceAddress(address));
 
                 GFXRECON_ASSERT(target_buffer_wrapper != nullptr);
 
@@ -1453,11 +1455,11 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
 {
     assert((device != VK_NULL_HANDLE) && (accel_struct != VK_NULL_HANDLE));
 
-    auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(accel_struct);
-    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
-    wrapper->address   = address;
+    auto wrapper     = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(accel_struct);
+    wrapper->device  = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->address = address;
 
-    device_address_tracker_.TrackAccelerationStructure(wrapper);
+    device_address_trackers_[device].TrackAccelerationStructure(wrapper);
 }
 
 void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address)
@@ -1629,7 +1631,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
 void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
-    device_address_tracker_.RemoveBuffer(wrapper);
+    device_address_trackers_[wrapper->bind_device->handle].RemoveBuffer(wrapper);
 
     state_table_.VisitWrappers([&wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
         GFXRECON_ASSERT(acc_wrapper);
@@ -1665,7 +1667,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
-    device_address_tracker_.RemoveAccelerationStructure(wrapper);
+    device_address_trackers_[wrapper->device->handle].RemoveAccelerationStructure(wrapper);
 }
 
 void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               command_buffer_count,
@@ -1680,6 +1682,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
     {
         const vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[c]);
+        const auto device_wrapper = cmd_buf_wrapper->parent_pool->device;
 
         for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
         {
@@ -1767,7 +1770,8 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                     const uint64_t as_reference = instances[b].accelerationStructureReference;
 
                     if (auto as_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                            device_address_tracker_.GetAccelerationStructureByDeviceAddress(as_reference)))
+                            device_address_trackers_[device_wrapper->handle].GetAccelerationStructureByDeviceAddress(
+                                as_reference)))
                     {
                         tlas_wrapper->blas.push_back(as_wrapper);
                     }

@@ -494,7 +494,7 @@ class VulkanStateTracker
     std::unordered_map<VkDeviceAddress, const vulkan_wrappers::DeviceMemoryWrapper*> device_memory_addresses_map;
 
     // Keeps track of buffer- and acceleration-structure device addresses
-    encode::VulkanDeviceAddressTracker device_address_tracker_;
+    std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker> device_address_trackers_;
 
     std::map<VkDevice, graphics::VulkanResourcesUtil> resource_utils_;
 };

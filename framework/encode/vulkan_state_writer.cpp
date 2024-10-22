@@ -1429,9 +1429,9 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     state_table.VisitWrappers([&](vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        auto&                                                per_device_container = commands[wrapper->device_id];
-        std::vector<AccelerationStructureBuildCommandData*>* build_container      = nullptr;
-        std::vector<AccelerationStructureBuildCommandData*>* update_container     = nullptr;
+        auto& per_device_container                                            = commands[wrapper->device->handle_id];
+        std::vector<AccelerationStructureBuildCommandData*>* build_container  = nullptr;
+        std::vector<AccelerationStructureBuildCommandData*>* update_container = nullptr;
 
         if (wrapper->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
         {
@@ -1675,7 +1675,7 @@ void VulkanStateWriter::WriteGetAccelerationStructureDeviceAddressKHRCall(
     const VulkanStateTable& state_table, const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper)
 {
     parameter_stream_.Clear();
-    auto device_wrapper = state_table.GetDeviceWrapper(wrapper->device_id);
+    auto device_wrapper = wrapper->device;
     encoder_.EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device_wrapper->handle);
     VkAccelerationStructureDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
                                                       nullptr,
@@ -1712,12 +1712,12 @@ void VulkanStateWriter::WriteAccelerationStructureKHRState(const VulkanStateTabl
     state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        if ((wrapper->device != nullptr) && (wrapper->address != 0))
         {
             // If the acceleration struct has a device address, write the 'set opaque address' command before writing
             // the API call to create the acceleration struct.  The address will need to be passed to
             // vkCreateAccelerationStructKHR through the VkAccelerationStructureCreateInfoKHR::deviceAddress.
-            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+            WriteSetOpaqueAddressCommand(wrapper->device->handle_id, wrapper->handle_id, wrapper->address);
         }
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         WriteGetAccelerationStructureDeviceAddressKHRCall(state_table, wrapper);

@@ -506,8 +506,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
     // State tracking info for buffers with device addresses.
-    format::HandleId device_id{ format::kNullHandleId };
-    VkDeviceAddress  address{ 0 };
+    DeviceWrapper*  device{ nullptr };
+    VkDeviceAddress address{ 0 };
 
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;

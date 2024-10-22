@@ -328,6 +328,17 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
 }
 
 template <>
+inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, CommandPoolWrapper>(VkDevice device,
+                                                                                    NoParentWrapper::HandleType,
+                                                                                    VkCommandPool*  handle,
+                                                                                    PFN_GetHandleId get_id)
+{
+    CreateWrappedNonDispatchHandle<CommandPoolWrapper>(handle, get_id);
+    auto pool_wrapper    = GetWrapper<CommandPoolWrapper>(*handle);
+    pool_wrapper->device = GetWrapper<DeviceWrapper>(device);
+}
+
+template <>
 inline void CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper, CommandBufferWrapper>(VkDevice         parent,
                                                                                          VkCommandPool    co_parent,
                                                                                          VkCommandBuffer* handle,
