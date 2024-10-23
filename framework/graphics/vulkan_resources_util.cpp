@@ -1639,36 +1639,52 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                                                            std::vector<uint64_t>& subresource_sizes,
                                                            bool&                  scaling_supported,
                                                            bool                   all_layers_per_level,
-                                                           float                  scale)
+                                                           float                  scale,
+                                                           VkFormat               dst_format)
 {
     VkResult           result           = VK_SUCCESS;
     VkImage            resolve_image    = VK_NULL_HANDLE;
     VkDeviceMemory     resolve_memory   = VK_NULL_HANDLE;
     VkImage            scaled_image     = VK_NULL_HANDLE;
     VkDeviceMemory     scaled_image_mem = VK_NULL_HANDLE;
-    VkExtent3D         scaled_extent    = extent;
     VkQueue            queue;
     uint64_t           resource_size;
     VkImageAspectFlags transition_aspect;
     VkImage            copy_image;
 
+    // No format conversion
+    if (dst_format == VK_FORMAT_UNDEFINED)
+    {
+        dst_format = format;
+    }
+
     assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
     assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
            (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
 
+    const bool is_blit_supported = IsBlitSupported(format, tiling, dst_format);
+    if (scale > 1.0f)
+    {
+        scaling_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
+    }
+    else
+    {
+        scaling_supported = (scale == 1.0f ? true : is_blit_supported);
+    }
+
+    const bool use_blit = (format != dst_format && is_blit_supported) || (scale != 1.0f && scaling_supported);
+
+    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(extent.width * scale, 1.0f)),
+                                       static_cast<uint32_t>(std::max(extent.height * scale, 1.0f)),
+                                       static_cast<uint32_t>(std::max(extent.depth * scale, 1.0f)) };
+
     subresource_offsets.clear();
     subresource_sizes.clear();
 
-    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
-    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
-
-    scaling_supported =
-        IsBlitSupported(format, tiling, format) && IsScalingSupported(format, tiling, format, type, extent, scale);
-
     resource_size = GetImageResourceSizesOptimal(image,
-                                                 format,
+                                                 use_blit ? dst_format : format,
                                                  type,
-                                                 scaling_supported ? scaled_extent : extent,
+                                                 use_blit ? scaled_extent : extent,
                                                  mip_levels,
                                                  array_layers,
                                                  tiling,
@@ -1738,11 +1754,12 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
             image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect, queue_family_index);
     }
 
-    // Blit image to change dimensions
-    if (scale != 1.0f)
+    // Blit image to change dimensions or convert format
+    if (use_blit)
     {
         result = BlitImage(copy_image,
                            format,
+                           dst_format,
                            type,
                            tiling,
                            extent,
@@ -1759,16 +1776,10 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         {
             return result;
         }
-
-        if (!scaling_supported)
-        {
-            scaled_image = copy_image;
-        }
     }
     else
     {
-        scaled_image      = copy_image;
-        scaling_supported = true;
+        scaled_image = copy_image;
     }
 
     assert(scaled_image != VK_NULL_HANDLE);
@@ -1776,7 +1787,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     // Copy image to staging buffer
     CopyImageBuffer(scaled_image,
                     staging_buffer_.buffer,
-                    scaling_supported ? scaled_extent : extent,
+                    use_blit ? scaled_extent : extent,
                     mip_levels,
                     array_layers,
                     aspect,
@@ -1838,7 +1849,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         device_table_.FreeMemory(device_, resolve_memory, nullptr);
     }
 
-    if (scale != 1.0f && scaling_supported)
+    if (use_blit)
     {
         device_table_.DestroyImage(device_, scaled_image, nullptr);
         device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
@@ -2061,6 +2072,20 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkFormat       dst_format,
                                           VkImageTiling* dst_image_tiling) const
 {
+    // Integer formats must match
+    if ((vkuFormatIsSINT(src_format) != vkuFormatIsSINT(dst_format)) ||
+        (vkuFormatIsUINT(src_format) != vkuFormatIsUINT(dst_format)))
+    {
+        return false;
+    }
+
+    // Depth formats must be the same for src and destination images
+    if ((vkuFormatIsDepthOrStencil(src_format) != vkuFormatIsDepthOrStencil(dst_format)) ||
+        (vkuFormatIsDepthOrStencil(src_format) && src_format != dst_format))
+    {
+        return false;
+    }
+
     VkFormatProperties src_format_props;
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, src_format, &src_format_props);
 
@@ -2130,6 +2155,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
 
 VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkFormat              format,
+                                        VkFormat              dst_format,
                                         VkImageType           type,
                                         VkImageTiling         tiling,
                                         const VkExtent3D&     extent,
@@ -2146,30 +2172,19 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     scaled_image_mem = VK_NULL_HANDLE;
     VkImageTiling dst_img_tiling;
 
-    bool scaling_supported = IsBlitSupported(format, tiling, format, &dst_img_tiling);
-    if (!scaling_supported)
-    {
-        GFXRECON_LOG_WARNING("Image with format %s cannot be scaled. Scaling will be disabled for these images.",
-                             util::ToString<VkFormat>(format).c_str());
-    }
+    bool blit_supported = IsBlitSupported(format, tiling, dst_format, &dst_img_tiling);
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
-    if (scaling_supported && scale > 1.0f)
+    if (blit_supported && scale > 1.0f)
     {
-        scaling_supported = IsScalingSupported(format, tiling, format, type, extent, scale);
-        if (!scaling_supported)
+        blit_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
+        if (!blit_supported)
         {
-            GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
-                                    "implementation's limits for image formats of %s",
-                                    static_cast<uint32_t>(extent.width * scale),
-                                    static_cast<uint32_t>(extent.height * scale),
-                                    util::ToString<VkFormat>(format).c_str());
-
-            scaling_supported = false;
+            blit_supported = false;
         }
     }
 
-    if (!scaling_supported)
+    if (!blit_supported)
     {
         return VK_SUCCESS;
     }
@@ -2179,8 +2194,8 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
     create_info.imageType             = type;
-    create_info.format                = format;
-    create_info.extent                = scaled_extent;
+    create_info.format                = dst_format;
+    create_info.extent                = extent;
     create_info.mipLevels             = mip_levels;
     create_info.arrayLayers           = array_layers;
     create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
@@ -2252,7 +2267,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
 
     device_table_.CmdPipelineBarrier(command_buffer_,
-                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      0,
                                      0,
@@ -2272,17 +2287,18 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     blit_region.dstOffsets[0].z = 0;
 
     assert(mip_levels);
+    // assert(dst_img_mip_levels);
     std::vector<VkImageBlit> blit_regions(mip_levels);
     for (uint32_t i = 0; i < mip_levels; ++i)
     {
-        blit_region.srcOffsets[1].x = (int32_t)extent.width >> i;
-        blit_region.srcOffsets[1].y = (int32_t)extent.height >> i;
-        blit_region.srcOffsets[1].z = (int32_t)extent.depth >> i;
+        blit_region.srcOffsets[1].x = std::max((int32_t)extent.width >> i, 1);
+        blit_region.srcOffsets[1].y = std::max((int32_t)extent.height >> i, 1);
+        blit_region.srcOffsets[1].z = std::max((int32_t)extent.depth >> i, 1);
         blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
 
-        blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width >> i;
-        blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height >> i;
-        blit_region.dstOffsets[1].z = (int32_t)scaled_extent.depth >> i;
+        blit_region.dstOffsets[1].x = std::max((int32_t)scaled_extent.width >> i, 1);
+        blit_region.dstOffsets[1].y = std::max((int32_t)scaled_extent.height >> i, 1);
+        blit_region.dstOffsets[1].z = std::max((int32_t)scaled_extent.depth >> i, 1);
         blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
 
         blit_regions[i] = blit_region;
