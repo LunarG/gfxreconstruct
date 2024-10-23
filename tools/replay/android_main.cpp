@@ -59,6 +59,21 @@ void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
 void        DestroyActivity(struct android_app* app);
 
+static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
+
+extern "C"
+{
+    uint64_t MainGetCurrentBlockIndex()
+    {
+        return file_processor->GetCurrentBlockIndex();
+    }
+
+    bool MainGetLoadingTrimmedState()
+    {
+        return file_processor->GetLoadingTrimmedState();
+    }
+}
+
 void android_main(struct android_app* app)
 {
     gfxrecon::util::Log::Init();
@@ -102,10 +117,9 @@ void android_main(struct android_app* app)
 
         try
         {
-            std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor =
-                arg_parser.IsOptionSet(kPreloadMeasurementRangeOption)
-                    ? std::make_unique<gfxrecon::decode::PreloadFileProcessor>()
-                    : std::make_unique<gfxrecon::decode::FileProcessor>();
+            file_processor = arg_parser.IsOptionSet(kPreloadMeasurementRangeOption)
+                                 ? std::make_unique<gfxrecon::decode::PreloadFileProcessor>()
+                                 : std::make_unique<gfxrecon::decode::FileProcessor>();
 
             if (!file_processor->Initialize(filename))
             {
