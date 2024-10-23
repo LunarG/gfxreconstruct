@@ -1307,7 +1307,6 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         auto swapchain_info = swapchain_wrapper->GetObjectInfo();
 
         // Write swapchain creation call.
-        // Write swapchain creation call.
         StandardCreateWrite(swapchain_wrapper);
 
         // Write swapchain set color space for HDR
