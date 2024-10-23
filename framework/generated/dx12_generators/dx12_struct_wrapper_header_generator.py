@@ -20,8 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 
 
 class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):

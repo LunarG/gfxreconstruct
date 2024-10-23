@@ -1092,7 +1092,7 @@ class BaseGenerator(OutputGenerator):
                     elif union_info.base_type in self.MAP_STRUCT_TYPE:
                         if (structs_with_map_data is not None):
                             map_data.append(value)
-            elif ('pNext' in value.name) and (not self.is_dx12_class()):
+            elif ('pNext' in value.name):
                 # The pNext chain may include a struct with handles.
                 has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
                     typename
@@ -1258,10 +1258,7 @@ class BaseGenerator(OutputGenerator):
             count = value.pointer_count
 
             if self.is_struct(type_name):
-                if (
-                    self.is_dx12_class() and
-                    (value.array_dimension and value.array_dimension == 1)
-                ) or (not self.is_dx12_class() and count > 1):
+                if count > 1:
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name
                     )
@@ -1286,14 +1283,8 @@ class BaseGenerator(OutputGenerator):
                     type_name = 'StringDecoder'
             elif type_name == 'void':
                 if value.is_array:
-                    if (self.is_dx12_class() and count > 1):
-                        # If this was a pointer to memory (void**) allocated internally by the implementation, it was encoded as
-                        # an array of bytes but must be retrieved as a pointer to a memory allocation. For this case, the array
-                        # length value defines the size of the memory referenced by the single retrieved pointer.
-                        type_name = 'PointerDecoder<uint8_t, void*>'
-                    else:
-                        # If this was an array (void*) it was encoded as an array of bytes.
-                        type_name = 'PointerDecoder<uint8_t>'
+                    # If this was an array (void*) it was encoded as an array of bytes.
+                    type_name = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
                     # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.
@@ -1341,23 +1332,10 @@ class BaseGenerator(OutputGenerator):
             param_decls.append(param_decl)
 
         if return_type != 'void':
-            if self.is_dx12_class():
-                method_name = name[name.find('::Process_') + 10:]
-                return_value = self.get_return_value_info(
-                    return_type, method_name
-                )
-                rtn_type1 = self.make_decoded_param_type(return_value)
-                if rtn_type1.find('Decoder') != -1:
-                    rtn_type1 += '*'
-                param_decl = self.make_aligned_param_decl(
-                    rtn_type1, 'return_value', self.INDENT_SIZE,
-                    self.genOpts.align_func_param
-                )
-            else:
-                param_decl = self.make_aligned_param_decl(
-                    return_type, 'returnValue', self.INDENT_SIZE,
-                    self.genOpts.align_func_param
-                )
+            param_decl = self.make_aligned_param_decl(
+                return_type, 'returnValue', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
             param_decls.append(param_decl)
 
         for value in values:
@@ -1542,15 +1520,10 @@ class BaseGenerator(OutputGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            if self.is_dx12_class():
-                arg_name = 'GetDx12WrappedId({}, {})'.format(
-                    arg_name, handle_type_name
-                )
-            else:
-                wrapper = self.get_wrapper_prefix_from_type()
-                arg_name = '{}::GetWrappedId({}, {})'.format(
-                    wrapper, arg_name, handle_type_name
-                )
+            wrapper = self.get_wrapper_prefix_from_type()
+            arg_name = '{}::GetWrappedId({}, {})'.format(
+                wrapper, arg_name, handle_type_name
+            )
 
         args = [arg_name]
 
@@ -1614,9 +1587,6 @@ class BaseGenerator(OutputGenerator):
             args.append(omit_output_param)
 
         return '{}({})'.format(method_call, ', '.join(args))
-
-    def is_dx12_class(self):
-        return True if ('Dx12' in self.__class__.__name__) else False
 
     def is_openxr_class(self):
         return True if ('OpenXr' in self.__class__.__name__) else False

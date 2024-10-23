@@ -52,8 +52,7 @@
 ##
 
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 from dx12_json_common_generator import Dx12JsonCommonGenerator
 from reformat_code import format_cpp_code
 
