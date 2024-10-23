@@ -254,7 +254,10 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
 {
     std::string timestamp = "_";
     timestamp += util::datetime::GetDateTimeString(use_gmt);
-    return InsertFilenamePostfix(filename, timestamp);
+
+    std::string result_filename = InsertFilenamePostfix(filename, timestamp);
+
+    return result_filename;
 }
 
 bool GetWindowsSystemLibrariesPath(std::string& base_path)
