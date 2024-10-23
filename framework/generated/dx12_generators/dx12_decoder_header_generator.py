@@ -21,13 +21,12 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator
-from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
+from dx12_base_struct_decoders_header_generator import Dx12BaseStructDecodersHeaderGenerator
 
 
 class Dx12DecoderHeaderGenerator(
-    Dx12BaseGenerator, BaseStructDecodersHeaderGenerator
+    Dx12BaseGenerator, Dx12BaseStructDecodersHeaderGenerator
 ):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
@@ -37,17 +36,16 @@ class Dx12DecoderHeaderGenerator(
         dx12_prefix_strings,
         err_file=sys.stderr,
         warn_file=sys.stderr,
-        diag_file=sys.stdout,
-        feature_break=True
+        diag_file=sys.stdout
     ):
         Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
-            diag_file, feature_break=feature_break
+            diag_file
         )
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        Dx12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -164,4 +162,4 @@ class Dx12DecoderHeaderGenerator(
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        Dx12BaseGenerator.endFile(self)

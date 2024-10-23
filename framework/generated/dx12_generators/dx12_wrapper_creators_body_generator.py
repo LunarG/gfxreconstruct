@@ -21,8 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 
 
 # Generates functions to create wrappers for DX12 capture based on IID.

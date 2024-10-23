@@ -23,8 +23,7 @@
 
 import sys
 import json
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions, write
 
 
 class Dx12WrapperBodyGeneratorOptions(Dx12GeneratorOptions):

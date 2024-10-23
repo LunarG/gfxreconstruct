@@ -21,29 +21,17 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
-from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
-from base_decoder_body_generator import BaseDecoderBodyGenerator
+from dx12_base_struct_decoders_body_generator import Dx12BaseStructDecodersBodyGenerator
+from dx12_base_decoder_body_generator import Dx12BaseDecoderBodyGenerator
 
 
 class Dx12DecoderBodyGenerator(
-    Dx12DecoderHeaderGenerator, BaseStructDecodersBodyGenerator,
-    BaseDecoderBodyGenerator
+    Dx12DecoderHeaderGenerator, Dx12BaseStructDecodersBodyGenerator,
+    Dx12BaseDecoderBodyGenerator
 ):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
-    def __init__(self, source_dict, dx12_prefix_strings, diag_file):
-        Dx12DecoderHeaderGenerator.__init__(self, source_dict, dx12_prefix_strings,
-            err_file=sys.stderr,
-            warn_file=sys.stderr,
-            diag_file=sys.stdout,
-            feature_break=False
-            )
-        
-        BaseStructDecodersBodyGenerator.__init__(self)
-        BaseDecoderBodyGenerator.__init__(self)
-
 
     def write_include(self):
         """Method override."""
@@ -58,11 +46,11 @@ class Dx12DecoderBodyGenerator(
 
     def generate_feature(self):
         """Method override."""
+        self.cmd_names = []
         self.method_names = []
         Dx12BaseGenerator.generate_feature(self)
         self.write_function_call()
-        BaseDecoderBodyGenerator.generate_feature(self)
-        BaseDecoderBodyGenerator.generate_commands(self) # Dx12 only has one "feature", so no need to push this to endFile
+        Dx12BaseDecoderBodyGenerator.generate_feature(self)
         self.newline()
         self.generate_dx12_method_feature()
 

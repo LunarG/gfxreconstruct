@@ -21,8 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions, write
 
 
 class Dx12ConsumerHeaderGeneratorOptions(Dx12GeneratorOptions):
@@ -65,7 +64,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        Dx12BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.constructor_args:
             self.constructor_args = gen_opts.constructor_args
@@ -256,4 +255,4 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        Dx12BaseGenerator.endFile(self)
