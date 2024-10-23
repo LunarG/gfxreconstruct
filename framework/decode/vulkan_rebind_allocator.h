@@ -351,6 +351,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         uint32_t                                         original_index{ std::numeric_limits<uint32_t>::max() };
         bool                                             is_mapped{ false };
         VkDeviceSize                                     mapped_offset{ 0 };
+        AHardwareBuffer*                                          ahb{ nullptr };
         std::unique_ptr<uint8_t[]>                       original_content;
         std::unordered_map<VkBuffer, ResourceAllocInfo*> original_buffers;
         std::unordered_map<VkImage, ResourceAllocInfo*>  original_images;

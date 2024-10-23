@@ -58,6 +58,7 @@
 #include "format/format_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
@@ -483,6 +484,13 @@ VkResult VulkanRebindAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allo
         (*allocator_data) = reinterpret_cast<uintptr_t>(memory_alloc_info);
 
         result = VK_SUCCESS;
+
+        // Track android hardware buffer
+        if (auto import_ahb_info =
+                graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(allocate_info))
+        {
+            memory_alloc_info->ahb = import_ahb_info->buffer;
+        }
     }
 
     return result;
@@ -710,64 +718,94 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
     if ((image != VK_NULL_HANDLE) && (allocator_image_data != 0) && (allocator_memory_data != 0) &&
         (bind_memory_properties != nullptr))
     {
-        VmaAllocation allocation          = VK_NULL_HANDLE;
-        auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
-        auto          memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+        auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
 
-        VkMemoryRequirements requirements;
-        functions_.get_image_memory_requirements(device_, image, &requirements);
-
-        VmaAllocationCreateInfo create_info;
-        create_info.flags = 0;
-        create_info.usage =
-            GetImageMemoryUsage(resource_alloc_info->usage,
-                                resource_alloc_info->tiling,
-                                device_memory_properties.memoryTypes[memory_alloc_info->original_index].propertyFlags,
-                                requirements);
-        create_info.requiredFlags  = 0;
-        create_info.preferredFlags = 0;
-        create_info.memoryTypeBits = 0;
-        create_info.pool           = VK_NULL_HANDLE;
-        create_info.pUserData      = nullptr;
-
-        VmaAllocationInfo allocation_info;
-        result = vmaAllocateMemoryForImage(allocator_, image, &create_info, &allocation, &allocation_info);
-
-        if (result >= 0)
+        if (memory_alloc_info->ahb)
         {
-            result = vmaBindImageMemory(allocator_, allocation, image);
+            VkImportAndroidHardwareBufferInfoANDROID importAHBInfo;
+            importAHBInfo.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
+            importAHBInfo.pNext  = nullptr;
+            importAHBInfo.buffer = memory_alloc_info->ahb;
+
+            VkMemoryDedicatedAllocateInfo dedicatedAllocateInfo{};
+            dedicatedAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+            dedicatedAllocateInfo.pNext = &importAHBInfo;
+            dedicatedAllocateInfo.image = image;
+
+            VkMemoryAllocateInfo allocate_info{};
+            allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            allocate_info.pNext           = &dedicatedAllocateInfo;
+            allocate_info.allocationSize  = memory_alloc_info->allocation_size;
+            allocate_info.memoryTypeIndex = memory_alloc_info->original_index;
+            result                        = functions_.allocate_memory(device_, &allocate_info, nullptr, &memory);
 
             if (result >= 0)
             {
-                resource_alloc_info->allocation      = allocation;
-                resource_alloc_info->mapped_pointer  = nullptr;
-                resource_alloc_info->memory_info     = memory_alloc_info;
-                resource_alloc_info->original_offset = memory_offset;
-                resource_alloc_info->rebind_offset   = allocation_info.offset;
-                resource_alloc_info->size            = allocation_info.size;
+                assert(allocate_info.memoryTypeIndex < replay_memory_properties_.memoryTypeCount);
 
-                VkMemoryPropertyFlags property_flags =
-                    replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+                result = functions_.bind_image_memory(device_, image, memory, memory_offset);
+            }
+        }
+        else
+        {
+            VmaAllocation allocation          = VK_NULL_HANDLE;
+            auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
 
-                if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+            VkMemoryRequirements requirements;
+            functions_.get_image_memory_requirements(device_, image, &requirements);
+
+            VmaAllocationCreateInfo create_info;
+            create_info.flags = 0;
+            create_info.usage = GetImageMemoryUsage(
+                resource_alloc_info->usage,
+                resource_alloc_info->tiling,
+                device_memory_properties.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+                requirements);
+            create_info.requiredFlags  = 0;
+            create_info.preferredFlags = 0;
+            create_info.memoryTypeBits = 0;
+            create_info.pool           = VK_NULL_HANDLE;
+            create_info.pUserData      = nullptr;
+
+            VmaAllocationInfo allocation_info;
+            result = vmaAllocateMemoryForImage(allocator_, image, &create_info, &allocation, &allocation_info);
+
+            if (result >= 0)
+            {
+                result = vmaBindImageMemory(allocator_, allocation, image);
+
+                if (result >= 0)
                 {
-                    resource_alloc_info->is_host_visible = true;
+                    resource_alloc_info->allocation      = allocation;
+                    resource_alloc_info->mapped_pointer  = nullptr;
+                    resource_alloc_info->memory_info     = memory_alloc_info;
+                    resource_alloc_info->original_offset = memory_offset;
+                    resource_alloc_info->rebind_offset   = allocation_info.offset;
+                    resource_alloc_info->size            = allocation_info.size;
+
+                    VkMemoryPropertyFlags property_flags =
+                        replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+
+                    if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                    {
+                        resource_alloc_info->is_host_visible = true;
+                    }
+
+                    memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
+
+                    if (memory_alloc_info->original_content != nullptr)
+                    {
+                        // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                        // allocation to ensure it contains the correct data.
+                        WriteBoundResource(resource_alloc_info,
+                                           memory_offset,
+                                           0,
+                                           allocation_info.size,
+                                           memory_alloc_info->original_content.get());
+                    }
+
+                    (*bind_memory_properties) = property_flags;
                 }
-
-                memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
-
-                if (memory_alloc_info->original_content != nullptr)
-                {
-                    // Memory has been mapped and written prior to bind.  Copy the original content to the new
-                    // allocation to ensure it contains the correct data.
-                    WriteBoundResource(resource_alloc_info,
-                                       memory_offset,
-                                       0,
-                                       allocation_info.size,
-                                       memory_alloc_info->original_content.get());
-                }
-
-                (*bind_memory_properties) = property_flags;
             }
         }
     }
@@ -794,67 +832,99 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
             if ((image != VK_NULL_HANDLE) && (allocator_image_data != 0) && (allocator_memory_data != 0))
             {
-                VmaAllocation allocation          = VK_NULL_HANDLE;
-                auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
-                auto          memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-
-                VkMemoryRequirements requirements;
-                functions_.get_image_memory_requirements(device_, image, &requirements);
-
-                VmaAllocationCreateInfo create_info;
-                create_info.flags = 0;
-                create_info.usage = GetImageMemoryUsage(
-                    resource_alloc_info->usage,
-                    resource_alloc_info->tiling,
-                    capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
-                    requirements);
-                create_info.requiredFlags  = 0;
-                create_info.preferredFlags = 0;
-                create_info.memoryTypeBits = 0;
-                create_info.pool           = VK_NULL_HANDLE;
-                create_info.pUserData      = nullptr;
-
-                VmaAllocationInfo allocation_info;
-                result = vmaAllocateMemoryForImage(allocator_, image, &create_info, &allocation, &allocation_info);
-
-                if (result >= 0)
+                auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                if (memory_alloc_info->ahb)
                 {
-                    auto bind_info = &bind_infos[i];
+                    VkDeviceMemory memory        = bind_infos[i].memory;
+                    VkDeviceSize   memory_offset = bind_infos[i].memoryOffset;
 
-                    result = vmaBindImageMemory2(allocator_, allocation, 0, image, bind_info->pNext);
+                    VkImportAndroidHardwareBufferInfoANDROID importAHBInfo;
+                    importAHBInfo.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
+                    importAHBInfo.pNext  = nullptr;
+                    importAHBInfo.buffer = memory_alloc_info->ahb;
+
+                    VkMemoryDedicatedAllocateInfo dedicatedAllocateInfo{};
+                    dedicatedAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+                    dedicatedAllocateInfo.pNext = &importAHBInfo;
+                    dedicatedAllocateInfo.image = image;
+
+                    VkMemoryAllocateInfo allocate_info{};
+                    allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                    allocate_info.pNext           = &dedicatedAllocateInfo;
+                    allocate_info.allocationSize  = memory_alloc_info->allocation_size;
+                    allocate_info.memoryTypeIndex = memory_alloc_info->original_index;
+                    result = functions_.allocate_memory(device_, &allocate_info, nullptr, &memory);
 
                     if (result >= 0)
                     {
-                        resource_alloc_info->allocation      = allocation;
-                        resource_alloc_info->mapped_pointer  = nullptr;
-                        resource_alloc_info->memory_info     = memory_alloc_info;
-                        resource_alloc_info->original_offset = bind_info->memoryOffset;
-                        resource_alloc_info->rebind_offset   = allocation_info.offset;
-                        resource_alloc_info->size            = allocation_info.size;
+                        assert(allocate_info.memoryTypeIndex < replay_memory_properties_.memoryTypeCount);
 
-                        VkMemoryPropertyFlags property_flags =
-                            replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+                        result = functions_.bind_image_memory(device_, image, memory, memory_offset);
+                    }
+                }
+                else
+                {
+                    VmaAllocation allocation          = VK_NULL_HANDLE;
+                    auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
 
-                        if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                    VkMemoryRequirements requirements;
+                    functions_.get_image_memory_requirements(device_, image, &requirements);
+
+                    VmaAllocationCreateInfo create_info;
+                    create_info.flags = 0;
+                    create_info.usage = GetImageMemoryUsage(
+                        resource_alloc_info->usage,
+                        resource_alloc_info->tiling,
+                        capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+                        requirements);
+                    create_info.requiredFlags  = 0;
+                    create_info.preferredFlags = 0;
+                    create_info.memoryTypeBits = 0;
+                    create_info.pool           = VK_NULL_HANDLE;
+                    create_info.pUserData      = nullptr;
+
+                    VmaAllocationInfo allocation_info;
+                    result = vmaAllocateMemoryForImage(allocator_, image, &create_info, &allocation, &allocation_info);
+
+                    if (result >= 0)
+                    {
+                        auto bind_info = &bind_infos[i];
+
+                        result = vmaBindImageMemory2(allocator_, allocation, 0, image, bind_info->pNext);
+
+                        if (result >= 0)
                         {
-                            resource_alloc_info->is_host_visible = true;
+                            resource_alloc_info->allocation      = allocation;
+                            resource_alloc_info->mapped_pointer  = nullptr;
+                            resource_alloc_info->memory_info     = memory_alloc_info;
+                            resource_alloc_info->original_offset = bind_info->memoryOffset;
+                            resource_alloc_info->rebind_offset   = allocation_info.offset;
+                            resource_alloc_info->size            = allocation_info.size;
+
+                            VkMemoryPropertyFlags property_flags =
+                                replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+
+                            if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                            {
+                                resource_alloc_info->is_host_visible = true;
+                            }
+
+                            if (memory_alloc_info->original_content != nullptr)
+                            {
+                                // Memory has been mapped and written prior to bind.  Copy the original content to the
+                                // new allocation to ensure it contains the correct data.
+                                WriteBoundResource(resource_alloc_info,
+                                                   bind_info->memoryOffset,
+                                                   0,
+                                                   allocation_info.size,
+                                                   memory_alloc_info->original_content.get());
+                            }
+
+                            memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
+
+                            bind_memory_properties[i] = property_flags;
                         }
-
-                        if (memory_alloc_info->original_content != nullptr)
-                        {
-                            // Memory has been mapped and written prior to bind.  Copy the original content to the new
-                            // allocation to ensure it contains the correct data.
-                            WriteBoundResource(resource_alloc_info,
-                                               bind_info->memoryOffset,
-                                               0,
-                                               allocation_info.size,
-                                               memory_alloc_info->original_content.get());
-                        }
-
-                        memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
-
-                        bind_memory_properties[i] = property_flags;
                     }
                 }
             }
