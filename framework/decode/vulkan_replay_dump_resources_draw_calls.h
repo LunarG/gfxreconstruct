@@ -192,6 +192,8 @@ class DrawCallsDumpingContext
 
     std::string GenerateRenderTargetImageFilename(VkFormat              format,
                                                   VkImageAspectFlagBits aspect,
+                                                  VkImageTiling         tiling,
+                                                  VkImageType           type,
                                                   uint32_t              mip_level,
                                                   uint32_t              layer,
                                                   uint64_t              cmd_buf_index,
@@ -202,6 +204,8 @@ class DrawCallsDumpingContext
 
     std::string GenerateImageDescriptorFilename(VkFormat              format,
                                                 VkImageAspectFlagBits aspect,
+                                                VkImageTiling         tiling,
+                                                VkImageType           type,
                                                 format::HandleId      image_id,
                                                 uint32_t              level,
                                                 uint32_t              layer,
@@ -268,6 +272,7 @@ class DrawCallsDumpingContext
     bool                               output_json_per_command;
     bool                               dump_immutable_resources;
     bool                               dump_all_image_subresources;
+    bool                               dump_images_raw;
 
     enum RenderPassType
     {

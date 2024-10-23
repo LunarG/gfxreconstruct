@@ -60,9 +60,25 @@ PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bi
 
 bool IsFormatAstcCompressed(VkFormat format);
 
-util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format);
+enum DumpedImageFormat
+{
+    kFormatBMP,
+    KFormatPNG,
+    KFormatAstc,
+    KFormatRaw
+};
 
-const char* ImageFileExtension(VkFormat format, util::ScreenshotFormat image_file_format);
+DumpedImageFormat GetDumpedImageFormat(const DeviceInfo*                  device_info,
+                                       const encode::VulkanDeviceTable*   device_table,
+                                       const encode::VulkanInstanceTable* instance_table,
+                                       VulkanObjectInfoTable&             object_info_table,
+                                       VkFormat                           src_format,
+                                       VkImageTiling                      src_image_tiling,
+                                       VkImageType                        type,
+                                       util::ScreenshotFormat             image_file_format,
+                                       bool                               dump_raw = false);
+
+const char* ImageFileExtension(DumpedImageFormat image_format);
 
 uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
                             uint32_t                                type_bits,
@@ -100,6 +116,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                          std::vector<bool>&                 scaling_supported,
                          util::ScreenshotFormat             image_file_format,
                          bool                               dump_all_subresources = false,
+                         bool                               dump_image_raw        = false,
                          VkImageLayout                      layout                = VK_IMAGE_LAYOUT_MAX_ENUM,
                          const VkExtent3D*                  extent_p              = nullptr);
 

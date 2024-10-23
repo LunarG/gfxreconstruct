@@ -136,6 +136,10 @@ class CommonCaptureManager
                                        uint32_t                         current_boundary_count,
                                        std::shared_lock<ApiCallMutexT>& current_lock);
 
+    void ActivateTrimmingDrawCalls(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
+
+    void DeactivateTrimmingDrawCalls(std::shared_lock<ApiCallMutexT>& current_lock);
+
     bool IsTrimHotkeyPressed();
 
     CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
@@ -261,6 +265,9 @@ class CommonCaptureManager
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
     bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
+    auto                                GetTrimBoundary() const { return trim_boundary_; }
+    auto                                GetTrimDrawCalls() const { return trim_draw_calls_; }
+    auto                                GetQueueSubmitCount() const { return queue_submit_count_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
@@ -269,6 +276,8 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
+    std::string CreateTrimDrawCallsFilename(const std::string&                    base_filename,
+                                            const CaptureSettings::TrimDrawCalls& trim_draw_calls);
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
@@ -365,6 +374,7 @@ class CommonCaptureManager
     bool                                    trim_enabled_;
     CaptureSettings::TrimBoundary           trim_boundary_;
     std::vector<util::UintRange>            trim_ranges_;
+    CaptureSettings::TrimDrawCalls          trim_draw_calls_;
     std::string                             trim_key_;
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;

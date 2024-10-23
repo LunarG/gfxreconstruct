@@ -58,14 +58,6 @@ enum class Dx12DumpResourceType : uint32_t
     kExecuteIndirectCount,
 };
 
-enum class Dx12DumpResourcePos : uint32_t
-{
-    kUnknown,
-    kBeforeDrawCall,
-    kDrawCall,
-    kAfterDrawCall,
-};
-
 struct CopyResourceData
 {
     // Allow default constructor, disallow copy constructor.
@@ -83,7 +75,7 @@ struct CopyResourceData
     uint64_t                                        total_size{ 0 };
     bool                                            is_cpu_accessible{ false };
 
-    std::vector<std::vector<uint8_t>> datas; // copy resource drawcall
+    std::vector<std::vector<uint8_t>> datas; // copy resource draw call
 
     graphics::dx12::ID3D12GraphicsCommandListComPtr cmd_list{ nullptr };
     graphics::dx12::ID3D12ResourceComPtr            read_resource{ nullptr };
@@ -91,7 +83,7 @@ struct CopyResourceData
 
     std::vector<std::pair<std::string, int32_t>> json_path;
     Dx12DumpResourceType                         resource_type{ Dx12DumpResourceType::kUnknown };
-    Dx12DumpResourcePos                          dump_position{ Dx12DumpResourcePos::kUnknown };
+    graphics::dx12::Dx12DumpResourcePos          dump_position{ graphics::dx12::Dx12DumpResourcePos::kUnknown };
 
     format::HandleId descriptor_heap_id{ format::kNullHandleId };
     uint32_t         descriptor_heap_index{ 0 };
@@ -113,7 +105,7 @@ struct CopyResourceData
         read_resource                   = nullptr;
         read_resource_is_staging_buffer = false;
         resource_type                   = Dx12DumpResourceType::kUnknown;
-        dump_position                   = Dx12DumpResourcePos::kUnknown;
+        dump_position                   = graphics::dx12::Dx12DumpResourcePos::kUnknown;
         descriptor_heap_id              = format::kUnknown;
         descriptor_heap_index           = 0;
     }
@@ -121,15 +113,9 @@ struct CopyResourceData
 
 typedef std::shared_ptr<CopyResourceData> CopyResourceDataPtr;
 
-struct CommandSet
-{
-    graphics::dx12::ID3D12CommandAllocatorComPtr    allocator;
-    graphics::dx12::ID3D12GraphicsCommandListComPtr list;
-};
-
 struct TrackDumpResources
 {
-    TrackDumpDrawcall target{};
+    TrackDumpDrawCall target{};
 
     // render target
     std::vector<format::HandleId>            render_target_heap_ids;
@@ -141,8 +127,8 @@ struct TrackDumpResources
     graphics::dx12::ID3D12ResourceComPtr         copy_staging_buffer{ nullptr };
     uint64_t                                     copy_staging_buffer_size{ 0 };
 
-    std::array<CommandSet, 3> split_command_sets;
-    std::array<CommandSet, 3> split_bundle_command_sets;
+    std::array<graphics::dx12::CommandSet, 3> split_command_sets;
+    std::array<graphics::dx12::CommandSet, 3> split_bundle_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
     HANDLE                            fence_event;
@@ -189,7 +175,7 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
     void WriteBlockStart();
     void WriteBlockEnd();
 
-    constexpr const char* NameDrawCall() const { return "drawcall"; }
+    constexpr const char* NameDrawCall() const { return "draw_call"; }
 
     bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
 
@@ -204,7 +190,7 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
     FILE*                  json_file_handle_{ nullptr };
     nlohmann::ordered_json json_data_;
     nlohmann::ordered_json header_;
-    nlohmann::ordered_json drawcall_;
+    nlohmann::ordered_json draw_call_;
     uint32_t               num_objects_{ 0 };
     uint32_t               num_files_{ 0 };
 };
@@ -220,11 +206,11 @@ class Dx12DumpResources
 
     void SetDelegate(Dx12DumpResourcesDelegate* delegate) { user_delegate_ = delegate; }
 
-    std::vector<CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
-                                                            uint64_t          block_index,
-                                                            format::ApiCallId api_call_id);
+    std::vector<graphics::dx12::CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
+                                                                            uint64_t          block_index,
+                                                                            format::ApiCallId api_call_id);
 
-    inline void SetDumpTarget(TrackDumpDrawcall& track_dump_target)
+    inline void SetDumpTarget(TrackDumpDrawCall& track_dump_target)
     {
         track_dump_resources_.target = track_dump_target;
     }
@@ -261,21 +247,21 @@ class Dx12DumpResources
     void FinishDump(DxObjectInfo* queue_object_info);
     void CloseDump();
 
-    void CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
+    void CopyDrawCallResources(DxObjectInfo*                        queue_object_info,
                                const std::vector<format::HandleId>& front_command_list_ids,
-                               Dx12DumpResourcePos                  pos);
+                               graphics::dx12::Dx12DumpResourcePos  pos);
 
-    void CopyDrawcallResourceByGPUVA(DxObjectInfo*                                       queue_object_info,
+    void CopyDrawCallResourceByGPUVA(DxObjectInfo*                                       queue_object_info,
                                      const std::vector<format::HandleId>&                front_command_list_ids,
                                      D3D12_GPU_VIRTUAL_ADDRESS                           capture_source_gpu_va,
                                      uint64_t                                            source_size,
                                      const std::vector<std::pair<std::string, int32_t>>& json_path,
                                      Dx12DumpResourceType                                resource_type,
-                                     Dx12DumpResourcePos                                 pos,
+                                     graphics::dx12::Dx12DumpResourcePos                 pos,
                                      format::HandleId                                    descriptor_heap_id,
                                      uint32_t                                            descriptor_heap_index);
 
-    void CopyDrawcallResourceBySubresource(DxObjectInfo*                                       queue_object_info,
+    void CopyDrawCallResourceBySubresource(DxObjectInfo*                                       queue_object_info,
                                            const std::vector<format::HandleId>&                front_command_list_ids,
                                            format::HandleId                                    source_resource_id,
                                            uint64_t                                            source_offset,
@@ -283,11 +269,11 @@ class Dx12DumpResources
                                            const std::vector<uint32_t>&                        subresource_indices,
                                            const std::vector<std::pair<std::string, int32_t>>& json_path,
                                            Dx12DumpResourceType                                resource_type,
-                                           Dx12DumpResourcePos                                 pos,
+                                           graphics::dx12::Dx12DumpResourcePos                 pos,
                                            format::HandleId                                    descriptor_heap_id,
                                            uint32_t                                            descriptor_heap_index);
 
-    void CopyDrawcallResource(DxObjectInfo*                        queue_object_info,
+    void CopyDrawCallResource(DxObjectInfo*                        queue_object_info,
                               const std::vector<format::HandleId>& front_command_list_ids,
                               format::HandleId                     source_resource_id,
                               uint64_t                             source_offset,

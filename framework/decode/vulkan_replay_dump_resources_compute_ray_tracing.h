@@ -125,6 +125,8 @@ class DispatchTraceRaysDumpingContext
                                                        uint32_t              mip,
                                                        uint32_t              layer,
                                                        VkImageAspectFlagBits aspect,
+                                                       VkImageTiling         tiling,
+                                                       VkImageType           type,
                                                        bool                  is_dispatch,
                                                        uint64_t              qs_index,
                                                        uint64_t              bcb_index,
@@ -150,6 +152,8 @@ class DispatchTraceRaysDumpingContext
                                                 uint32_t              layer,
                                                 format::HandleId      image_id,
                                                 VkImageAspectFlagBits aspect,
+                                                VkImageTiling         tiling,
+                                                VkImageType           type,
                                                 uint64_t              bcb_index,
                                                 uint64_t              cmd_index) const;
 
@@ -197,6 +201,7 @@ class DispatchTraceRaysDumpingContext
     bool                           output_json_per_command;
     bool                           dump_immutable_resources;
     bool                           dump_all_image_subresources;
+    bool                           dump_images_raw;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_compute;

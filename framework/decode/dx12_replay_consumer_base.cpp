@@ -365,26 +365,115 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
     GFXRECON_ASSERT(resource_data_util_);
     if (resource_infos.size() > 0)
     {
-        resource_data_util_->ResetCommandList();
-        for (auto resource_info : resource_infos)
+        std::unordered_map<ID3D12Resource*, ResourceInitInfo*> swapchain_resource_infos;
+        std::unordered_map<ID3D12Resource*, ResourceInitInfo*> others_resource_infos;
+
+        for (auto& resource_info : resource_infos)
         {
-            if (resource_info.first != nullptr)
-            {
-                resource_data_util_->WriteToResource(resource_info.second.resource,
-                                                     resource_info.second.try_map_and_copy,
-                                                     resource_info.second.before_states,
-                                                     resource_info.second.after_states,
-                                                     resource_info.second.data,
-                                                     resource_info.second.subresource_offsets,
-                                                     resource_info.second.subresource_sizes,
-                                                     resource_info.second.staging_resource);
-            }
             auto object_info = GetObjectInfo(resource_info.second.resource_id);
             if (object_info->extra_info != nullptr)
             {
-                auto extra_info                  = GetExtraInfo<D3D12ResourceInfo>(object_info);
-                extra_info->resource_state_infos = resource_info.second.after_states;
+                auto extra_info = GetExtraInfo<D3D12ResourceInfo>(object_info);
+                if (extra_info->swap_chain_id != format::kNullHandleId)
+                {
+                    swapchain_resource_infos.insert(std::pair(resource_info.first, &resource_info.second));
+                }
+                else
+                {
+                    others_resource_infos.insert(std::pair(resource_info.first, &resource_info.second));
+                }
             }
+        }
+
+        // For copy swapchain buffers:
+        // 1. The queue has to been swapchain's queue.
+        // 2. One ExecuteCommandLists could work for only one swapchain buffer.
+        // 3. The current back buffer index has to match the swapchain buffer.
+        // 4. After ExecuteCommandLists, the current back buffer index has to back init.
+        // 5. It shouldn't change resource states until all Presnt are done since Present require 
+        //    D3D12_RESOURCE_STATE_PRESENT. The before_states supposes to be PRESENT.
+
+        // Although it has only one swapchain mostly, it probably has a plural in some cases.
+        std::map<IDXGISwapChain3*, DxgiSwapchainInfo*> swapchain_infos;
+        for (const auto& resource_info : swapchain_resource_infos)
+        {
+            auto object_info           = GetObjectInfo(resource_info.second->resource_id);
+            auto extra_info            = GetExtraInfo<D3D12ResourceInfo>(object_info);
+            auto swapchain_info        = GetObjectInfo(extra_info->swap_chain_id);
+            auto swapchain_extra_info  = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
+            auto swapchain             = reinterpret_cast<IDXGISwapChain3*>(swapchain_info->object);
+            swapchain_infos[swapchain] = swapchain_extra_info;
+
+            for (auto &state : resource_info.second->before_states)
+            {
+                if (state.states != D3D12_RESOURCE_STATE_PRESENT)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Initializing Swapchain Buffers. The before state supposed to be COMMON|PRESENT, but it's %s",
+                        util::ToString(state.states));
+                }
+            }
+
+            while (extra_info->buffer_index != swapchain->GetCurrentBackBufferIndex())
+            {
+                swapchain->Present(0, 0);
+            }
+
+            resource_data_util_->ResetCommandList();
+            if (resource_info.first != nullptr)
+            {
+                resource_data_util_->WriteToResource(resource_info.second->resource,
+                                                     resource_info.second->try_map_and_copy,
+                                                     resource_info.second->before_states,
+                                                     resource_info.second->before_states,
+                                                     resource_info.second->data,
+                                                     resource_info.second->subresource_offsets,
+                                                     resource_info.second->subresource_sizes,
+                                                     resource_info.second->staging_resource);
+            }
+            extra_info->resource_state_infos = resource_info.second->after_states;
+            resource_data_util_->CloseCommandList();
+            resource_data_util_->ExecuteAndWaitForCommandList(swapchain_extra_info->command_queue);
+        }
+
+        for (const auto& info : swapchain_infos)
+        {
+            while (info.second->init_buffer_index != info.first->GetCurrentBackBufferIndex())
+            {
+                info.first->Present(0, 0);
+            }
+        }
+
+        for (const auto& resource_info : swapchain_resource_infos)
+        {
+            auto object_info          = GetObjectInfo(resource_info.second->resource_id);
+            auto extra_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
+            auto swapchain_info       = GetObjectInfo(extra_info->swap_chain_id);
+            auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
+
+            resource_data_util_->ExecuteTransitionCommandList(resource_info.second->resource,
+                                                              resource_info.second->before_states,
+                                                              resource_info.second->after_states,
+                                                              swapchain_extra_info->command_queue);
+        }
+
+        resource_data_util_->ResetCommandList();
+        for (const auto& resource_info : others_resource_infos)
+        {
+            if (resource_info.first != nullptr)
+            {
+                resource_data_util_->WriteToResource(resource_info.second->resource,
+                                                     resource_info.second->try_map_and_copy,
+                                                     resource_info.second->before_states,
+                                                     resource_info.second->after_states,
+                                                     resource_info.second->data,
+                                                     resource_info.second->subresource_offsets,
+                                                     resource_info.second->subresource_sizes,
+                                                     resource_info.second->staging_resource);
+            }
+            auto object_info                 = GetObjectInfo(resource_info.second->resource_id);
+            auto extra_info                  = GetExtraInfo<D3D12ResourceInfo>(object_info);
+            extra_info->resource_state_infos = resource_info.second->after_states;
         }
         resource_data_util_->CloseCommandList();
         resource_data_util_->ExecuteAndWaitForCommandList();
@@ -527,7 +616,9 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12Comm
     HRESULT                            ret    = command_queue->GetDevice(IID_PPV_ARGS(&device));
     GFXRECON_ASSERT(SUCCEEDED(ret));
 
-    auto                 swapchain = static_cast<IDXGISwapChain3*>(swapchain_info->object);
+    auto swapchain_extra_info               = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
+    swapchain_extra_info->init_buffer_index = current_buffer_index;
+    auto                 swapchain          = static_cast<IDXGISwapChain3*>(swapchain_info->object);
     DXGI_SWAP_CHAIN_DESC swap_chain_desc;
     swapchain->GetDesc(&swap_chain_desc);
     auto buffer_count = swap_chain_desc.BufferCount;
@@ -633,7 +724,7 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
     }
 }
 
-void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawcall& track_dump_target)
+void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawCall& track_dump_target)
 {
     if (!dump_resources_)
     {
@@ -2419,6 +2510,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
                 // object info table while the swapchain is active.
                 ++object_info->extra_ref;
 
+                auto res_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
+                res_info->swap_chain_id = replay_object_info->capture_id;
+                res_info->buffer_index  = buffer;
                 // Store the surface's HandleId so the reference can be released later.
                 swapchain_info->image_ids[buffer] = *surface->GetPointer();
             }
@@ -4316,8 +4410,8 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
         {
             // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change
             // it. It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
-            // before or after the target drawcall. For dump resources to set the correct state,
-            // it only cares before the target drawcall.
+            // before or after the target draw call. For dump resources to set the correct state,
+            // it only cares before the target draw call.
             ResourceStatesOrder state;
             state.block_index   = call_info.index;
             state.transition    = *barriers[i].Transition->decoded_value;

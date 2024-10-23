@@ -84,7 +84,8 @@ class Dx12ResourceDataUtil
                              std::vector<uint8_t>&                       data,
                              std::vector<uint64_t>&                      subresource_offsets,
                              std::vector<uint64_t>&                      subresource_sizes,
-                             ID3D12Resource*                             staging_buffer_for_batching = nullptr);
+                             ID3D12Resource*                             staging_buffer_for_batching = nullptr,
+                             ID3D12CommandQueue*                         queue                       = nullptr);
 
     HRESULT WriteToResource(ID3D12Resource*                             target_resource,
                             bool                                        try_map_and_copy,
@@ -99,7 +100,7 @@ class Dx12ResourceDataUtil
     dx12::ID3D12ResourceComPtr GetStagingBuffer(CopyType type, uint64_t required_buffer_size);
     dx12::ID3D12ResourceComPtr CreateStagingBuffer(CopyType type, uint64_t required_buffer_size);
 
-    HRESULT ExecuteAndWaitForCommandList();
+    HRESULT ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue = nullptr);
 
     // Build and execute a command list that copies data to or from the target_resource.
     HRESULT ResetCommandList();
@@ -114,14 +115,16 @@ class Dx12ResourceDataUtil
                            const std::vector<dx12::ResourceStateInfo>&            before_states,
                            const std::vector<dx12::ResourceStateInfo>&            after_states,
                            ID3D12Resource*                                        staging_buffer = nullptr,
-                           bool                                                   batching       = false);
+                           bool                                                   batching       = false,
+                           ID3D12CommandQueue*                                    queue          = nullptr);
 
     // Build and execute a command list to transition the target resource's subresources from before_states to
     // after_states.
     HRESULT
     ExecuteTransitionCommandList(ID3D12Resource*                             target_resource,
                                  const std::vector<dx12::ResourceStateInfo>& before_states,
-                                 const std::vector<dx12::ResourceStateInfo>& after_states);
+                                 const std::vector<dx12::ResourceStateInfo>& after_states,
+                                 ID3D12CommandQueue*                         queue = nullptr);
 
   private:
     // Copy data to or from a mappable resource.

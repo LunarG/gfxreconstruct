@@ -709,6 +709,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--dump-resources-dump-vertex-index-buffers]
                           [--dump-resources-json-output-per-command]
                           [--dump-resources-dump-immutable-resources]
+                          [--dump-resources-dump-raw-images]
                           [--dump-resources-dump-all-image-subresources]
                           [--pbi-all] [--pbis <index1,index2>]
                           [file]
@@ -902,6 +903,8 @@ optional arguments:
               Enables dumping of resources that are used as inputs in the commands requested for dumping
   --dump-resources-dump-all-image-subresources
               Enables dumping of all image sub resources (mip map levels and array layers)
+  --dump-resources-dump-raw-images
+              When enabled all image resources will be dumped verbatim as raw bin files.
   --pbi-all
               Print all block information.
   --pbis <index1,index2>

@@ -72,8 +72,6 @@ class FileTransformer
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool Process();
 
-    const format::FileHeader& GetFileHeader() const { return file_header_; }
-
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
@@ -83,8 +81,6 @@ class FileTransformer
     Error GetErrorState() const { return error_state_; }
 
   protected:
-    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
-
     bool IsFileValid(FILE* fd) const { return ((fd != nullptr) && !feof(fd) && !ferror(fd)); }
 
     bool IsLoadingState() const { return loading_state_; }
@@ -151,7 +147,6 @@ class FileTransformer
     std::string                         tool_;
     FILE*                               input_file_;
     FILE*                               output_file_;
-    format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     uint64_t                            bytes_read_;
