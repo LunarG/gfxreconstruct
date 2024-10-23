@@ -3693,5 +3693,24 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
     return cmd_sets;
 }
 
+void D3D12CaptureManager::PostProcess_IDXGISwapChain3_SetColorSpace1(IDXGISwapChain_Wrapper* wrapper,
+                                                                     HRESULT                 result,
+                                                                     DXGI_COLOR_SPACE_TYPE   ColorSpace)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackSetColorSpace1(wrapper, result, ColorSpace);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapChain4_SetHDRMetaData(
+    IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackSetHDRMetaData(wrapper, result, Type, Size, pMetaData);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

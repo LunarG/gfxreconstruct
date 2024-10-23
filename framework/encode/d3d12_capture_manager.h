@@ -820,6 +820,13 @@ class D3D12CaptureManager : public ApiCaptureManager
     std::vector<graphics::dx12::CommandSet> GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* wrapper,
                                                                             format::ApiCallId          api_call_id);
 
+    void PostProcess_IDXGISwapChain3_SetColorSpace1(IDXGISwapChain_Wrapper* wrapper,
+                                                    HRESULT                 result,
+                                                    DXGI_COLOR_SPACE_TYPE   ColorSpace);
+
+    void PostProcess_IDXGISwapChain4_SetHDRMetaData(
+        IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData);
+
   protected:
     D3D12CaptureManager();
 

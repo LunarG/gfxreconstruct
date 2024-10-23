@@ -774,6 +774,27 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain3_SetColorSpace1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain4_SetHDRMetaData(args...);
+    }
+};
+
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

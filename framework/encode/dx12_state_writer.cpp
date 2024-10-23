@@ -1307,7 +1307,32 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         auto swapchain_info = swapchain_wrapper->GetObjectInfo();
 
         // Write swapchain creation call.
+        // Write swapchain creation call.
         StandardCreateWrite(swapchain_wrapper);
+
+        // Write swapchain set color space for HDR
+        if (swapchain_info->set_color_space)
+        {
+            encoder_.EncodeEnumValue(swapchain_info->color_space_type);
+            encoder_.EncodeInt32Value(S_OK);
+            WriteMethodCall(format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1,
+                            swapchain_wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Clear();
+        }
+
+        // Write swapchain set hdr metadata for HDR
+        if (swapchain_info->set_hdr_metadata)
+        {
+            encoder_.EncodeEnumValue(swapchain_info->hdr_metadata_type);
+            encoder_.EncodeUInt32Value(swapchain_info->hdr_metadata_size);
+            encoder_.EncodeVoidArray(swapchain_info->hdr_metadata, swapchain_info->hdr_metadata_size);
+            encoder_.EncodeInt32Value(S_OK);
+            WriteMethodCall(format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData,
+                            swapchain_wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Clear();
+        }
 
         // Write call to resize the swapchain buffers.
         if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)

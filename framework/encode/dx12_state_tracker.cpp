@@ -1194,6 +1194,34 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
     return CommitAccelerationStructureBuildInfo(dest_build_info);
 }
 
+void Dx12StateTracker::TrackSetColorSpace1(IDXGISwapChain_Wrapper* wrapper,
+                                           HRESULT                 result,
+                                           DXGI_COLOR_SPACE_TYPE   ColorSpace)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    wrapper_info->set_color_space  = true;
+    wrapper_info->color_space_type = ColorSpace;
+}
+
+void Dx12StateTracker::TrackSetHDRMetaData(
+    IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    wrapper_info->set_hdr_metadata  = true;
+    wrapper_info->hdr_metadata_type = Type;
+    wrapper_info->hdr_metadata_size = Size;
+
+    if (pMetaData != nullptr)
+    {
+        wrapper_info->hdr_metadata = new char[Size]();
+        memcpy(wrapper_info->hdr_metadata, pMetaData, Size);
+    }
+}
+
 #ifdef GFXRECON_AGS_SUPPORT
 void Dx12StateTracker::TrackAgsCalls(void*                           object_ptr,
                                      format::ApiCallId               call_id,
