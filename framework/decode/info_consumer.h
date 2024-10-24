@@ -35,15 +35,15 @@ class InfoConsumer
   public:
     InfoConsumer() {}
     InfoConsumer(bool short_version) { short_version_ = short_version; }
-    const std::string GetAppExeName() const { return exe_info.AppName; }
-    const uint32_t*   GetAppVersion() const { return exe_info.AppVersion; }
-    const char*       GetCompanyName() const { return exe_info.CompanyName; }
-    const char*       GetFileDescription() const { return exe_info.FileDescription; }
-    const char*       GetFileVersion() const { return exe_info.FileVersion; }
-    const char*       GetInternalName() const { return exe_info.InternalName; }
-    const char*       GetOriginalFileName() const { return exe_info.OriginalFilename; }
-    const char*       GetProductName() const { return exe_info.ProductName; }
-    const char*       GetProductVersion() const { return exe_info.ProductVersion; }
+    const std::string               GetAppExeName() const { return exe_info.AppName; }
+    const uint32_t*                 GetAppVersion() const { return exe_info.AppVersion; }
+    const char*                     GetCompanyName() const { return exe_info.CompanyName; }
+    const char*                     GetFileDescription() const { return exe_info.FileDescription; }
+    const char*                     GetFileVersion() const { return exe_info.FileVersion; }
+    const char*                     GetInternalName() const { return exe_info.InternalName; }
+    const char*                     GetOriginalFileName() const { return exe_info.OriginalFilename; }
+    const char*                     GetProductName() const { return exe_info.ProductName; }
+    const char*                     GetProductVersion() const { return exe_info.ProductVersion; }
     const std::vector<std::string>& GetEnvironmentVariables() const { return env_vars; }
 
     void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)

@@ -449,11 +449,11 @@ void Dx12StateTracker::TrackCommandListCreation(ID3D12CommandList_Wrapper* list_
                                                 D3D12_COMMAND_LIST_TYPE    command_list_type,
                                                 ID3D12CommandAllocator*    pCommandAllocator)
 {
-    auto cmd_alloc_wrapper       = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pCommandAllocator);
+    auto cmd_alloc_wrapper = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pCommandAllocator);
 
-    auto list_info               = list_wrapper->GetObjectInfo();
-    list_info->is_closed         = created_closed;
-    list_info->command_list_type = command_list_type;
+    auto list_info                           = list_wrapper->GetObjectInfo();
+    list_info->is_closed                     = created_closed;
+    list_info->command_list_type             = command_list_type;
     list_info->create_command_allocator_id   = GetDx12WrappedId(pCommandAllocator);
     list_info->create_command_allocator_info = cmd_alloc_wrapper->GetObjectInfo();
 }

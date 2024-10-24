@@ -111,7 +111,6 @@ EXTERN_C bool InitializeAgsCapture(gfxrecon::encode::AgsDispatchTable* table)
         return true;
     }
 
-
     return false;
 }
 #else
@@ -138,7 +137,6 @@ EXTERN_C void WINAPI ReleaseAgsCapture(gfxrecon::encode::AgsDispatchTable*)
 #endif // GFXRECON_AGS_SUPPORT
 }
 
-
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)
@@ -147,8 +145,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             break;
         case DLL_PROCESS_DETACH:
             if (lpvReserved == nullptr)
-            {
-            }
+            {}
             break;
     }
 

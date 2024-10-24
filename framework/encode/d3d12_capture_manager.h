@@ -873,10 +873,10 @@ class D3D12CaptureManager : public ApiCaptureManager
     void                          EnableDRED();
     bool                          RvAnnotationActive();
 
-    void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
-                                                  IDXGISwapChain_Wrapper*                                wrapper,
-                                                  UINT                                                   flags);
+    void PrePresent(IDXGISwapChain_Wrapper* wrapper);
+    void PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                     IDXGISwapChain_Wrapper*                                wrapper,
+                     UINT                                                   flags);
 
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.

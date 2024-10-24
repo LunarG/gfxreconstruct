@@ -275,16 +275,13 @@ class Dx12StatsConsumer : public Dx12Consumer
         ei_workload_ = true;
     }
 
-    void Process_IDXGISwapChain_Present(const ApiCallInfo& call_info,
-                                        format::HandleId   object_id,
-                                        HRESULT            return_value,
-                                        UINT               SyncInterval,
-                                        UINT               Flags)
+    void Process_IDXGISwapChain_Present(
+        const ApiCallInfo& call_info, format::HandleId object_id, HRESULT return_value, UINT SyncInterval, UINT Flags)
     {
         if (Flags & DXGI_PRESENT_TEST)
         {
             dxgi_present_test_++;
-        }        
+        }
     }
 
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
@@ -295,9 +292,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    sizeof(runtime_info_header.runtime_info));
     }
 
-    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
-                                                      format::HandleId                                    swapchain_id,
-                                                      uint32_t                                            current_buffer_index,
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
+                                                      format::HandleId swapchain_id,
+                                                      uint32_t         current_buffer_index,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {
         dummy_trim_frame_count_ = current_buffer_index;
@@ -418,7 +415,7 @@ class Dx12StatsConsumer : public Dx12Consumer
     format::HandleId swapchain_id_;
     bool             swapchain_info_found_;
 
-    UINT             dummy_trim_frame_count_;
+    UINT dummy_trim_frame_count_;
 
     format::Dx12RuntimeInfo runtime_info_;
 

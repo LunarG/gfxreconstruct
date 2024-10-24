@@ -106,24 +106,19 @@ bool GetDxgiDispatchTable(gfxrecon::encode::DxgiDispatchTable& dxgi_table)
         if (hook_info_.dxgi_dll != nullptr)
         {
             dxgi_table.CreateDXGIFactory =
-                reinterpret_cast<PFN_CREATEDXGIFACTORY>(
-                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory"));
+                reinterpret_cast<PFN_CREATEDXGIFACTORY>(GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory"));
 
             dxgi_table.CreateDXGIFactory1 =
-                reinterpret_cast<PFN_CREATEDXGIFACTORY1>(
-                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory1"));
+                reinterpret_cast<PFN_CREATEDXGIFACTORY1>(GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory1"));
 
             dxgi_table.CreateDXGIFactory2 =
-                reinterpret_cast<PFN_CREATEDXGIFACTORY2>(
-                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory2"));
+                reinterpret_cast<PFN_CREATEDXGIFACTORY2>(GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory2"));
 
-            dxgi_table.DXGIDeclareAdapterRemovalSupport =
-                reinterpret_cast<PFN_DXGIDECLAREADAPTERREMOVALSUPPORT>(
-                    GetProcAddress(hook_info_.dxgi_dll, "DXGIDeclareAdapterRemovalSupport"));
+            dxgi_table.DXGIDeclareAdapterRemovalSupport = reinterpret_cast<PFN_DXGIDECLAREADAPTERREMOVALSUPPORT>(
+                GetProcAddress(hook_info_.dxgi_dll, "DXGIDeclareAdapterRemovalSupport"));
 
-            dxgi_table.DXGIGetDebugInterface1 =
-                reinterpret_cast<PFN_DXGIGETDEBUGINTERFACE1>(
-                    GetProcAddress(hook_info_.dxgi_dll, "DXGIGetDebugInterface1"));
+            dxgi_table.DXGIGetDebugInterface1 = reinterpret_cast<PFN_DXGIGETDEBUGINTERFACE1>(
+                GetProcAddress(hook_info_.dxgi_dll, "DXGIGetDebugInterface1"));
 
             success = true;
         }

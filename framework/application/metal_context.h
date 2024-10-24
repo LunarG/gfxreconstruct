@@ -33,10 +33,10 @@ GFXRECON_BEGIN_NAMESPACE(application)
 
 class MetalContext : public WsiContext
 {
-public:
-	MetalContext(Application* application);
+  public:
+    MetalContext(Application* application);
 
-	virtual void ProcessEvents(bool wait_for_input) override;
+    virtual void ProcessEvents(bool wait_for_input) override;
 };
 
 GFXRECON_END_NAMESPACE(application)

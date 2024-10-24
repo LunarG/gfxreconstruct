@@ -3341,11 +3341,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         if (target_info->find_target_draw_call_count !=
             (trim_draw_calls.draw_call_indices.last - trim_draw_calls.draw_call_indices.first + 1))
         {
-            GFXRECON_LOG_WARNING(
-                "CAPTURE_DRAW_CALLS didn't find the enough draw call count(%d). The indices(%d-%d) might be out of range.",
-                target_info->find_target_draw_call_count,
-                trim_draw_calls.draw_call_indices.first,
-                trim_draw_calls.draw_call_indices.last);
+            GFXRECON_LOG_WARNING("CAPTURE_DRAW_CALLS didn't find the enough draw call count(%d). The indices(%d-%d) "
+                                 "might be out of range.",
+                                 target_info->find_target_draw_call_count,
+                                 trim_draw_calls.draw_call_indices.first,
+                                 trim_draw_calls.draw_call_indices.last);
         }
 
         if (target_info->target_bundle_commandlist_info)
@@ -3651,10 +3651,10 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
                 case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
                     if (trim_draw_calls.draw_call_indices.first != trim_draw_calls.draw_call_indices.last)
                     {
-                        GFXRECON_LOG_FATAL(
-                            "The target draw call is a ExecuteBundle. The draw call indices must be not a range(%d-%d).",
-                            trim_draw_calls.draw_call_indices.first,
-                            trim_draw_calls.draw_call_indices.last);
+                        GFXRECON_LOG_FATAL("The target draw call is a ExecuteBundle. The draw call indices must be not "
+                                           "a range(%d-%d).",
+                                           trim_draw_calls.draw_call_indices.first,
+                                           trim_draw_calls.draw_call_indices.last);
                         GFXRECON_ASSERT(trim_draw_calls.draw_call_indices.first ==
                                         trim_draw_calls.draw_call_indices.last);
                     }

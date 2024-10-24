@@ -796,7 +796,7 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     {
         // Needs swapchain's queue to write its buffer.
         auto swapchain_info = resource_info->swapchain_wrapper->GetObjectInfo();
-        queue = swapchain_info->command_queue;
+        queue               = swapchain_info->command_queue;
     }
     // Read the data from the resource.
     HRESULT result = resource_data_util->ReadFromResource(resource,

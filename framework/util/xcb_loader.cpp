@@ -73,16 +73,16 @@ bool XcbLoader::Initialize()
                 reinterpret_cast<decltype(xcb_disconnect)*>(util::platform::GetProcAddress(libxcb_, "xcb_disconnect"));
             function_table_.flush =
                 reinterpret_cast<decltype(xcb_flush)*>(util::platform::GetProcAddress(libxcb_, "xcb_flush"));
-            function_table_.generate_id =
-                reinterpret_cast<decltype(xcb_generate_id)*>(util::platform::GetProcAddress(libxcb_, "xcb_generate_id"));
-            function_table_.get_geometry =
-                reinterpret_cast<decltype(xcb_get_geometry)*>(util::platform::GetProcAddress(libxcb_, "xcb_get_geometry"));
+            function_table_.generate_id = reinterpret_cast<decltype(xcb_generate_id)*>(
+                util::platform::GetProcAddress(libxcb_, "xcb_generate_id"));
+            function_table_.get_geometry = reinterpret_cast<decltype(xcb_get_geometry)*>(
+                util::platform::GetProcAddress(libxcb_, "xcb_get_geometry"));
             function_table_.get_geometry_reply = reinterpret_cast<decltype(xcb_get_geometry_reply)*>(
                 util::platform::GetProcAddress(libxcb_, "xcb_get_geometry_reply"));
             function_table_.get_setup =
                 reinterpret_cast<decltype(xcb_get_setup)*>(util::platform::GetProcAddress(libxcb_, "xcb_get_setup"));
-            function_table_.intern_atom =
-                reinterpret_cast<decltype(xcb_intern_atom)*>(util::platform::GetProcAddress(libxcb_, "xcb_intern_atom"));
+            function_table_.intern_atom = reinterpret_cast<decltype(xcb_intern_atom)*>(
+                util::platform::GetProcAddress(libxcb_, "xcb_intern_atom"));
             function_table_.intern_atom_reply = reinterpret_cast<decltype(xcb_intern_atom_reply)*>(
                 util::platform::GetProcAddress(libxcb_, "xcb_intern_atom_reply"));
             function_table_.map_window =
@@ -91,14 +91,14 @@ bool XcbLoader::Initialize()
                 util::platform::GetProcAddress(libxcb_, "xcb_poll_for_event"));
             function_table_.request_check = reinterpret_cast<decltype(xcb_request_check)*>(
                 util::platform::GetProcAddress(libxcb_, "xcb_request_check"));
-            function_table_.screen_next =
-                reinterpret_cast<decltype(xcb_screen_next)*>(util::platform::GetProcAddress(libxcb_, "xcb_screen_next"));
+            function_table_.screen_next = reinterpret_cast<decltype(xcb_screen_next)*>(
+                util::platform::GetProcAddress(libxcb_, "xcb_screen_next"));
             function_table_.send_event =
                 reinterpret_cast<decltype(xcb_send_event)*>(util::platform::GetProcAddress(libxcb_, "xcb_send_event"));
             function_table_.setup_roots_iterator = reinterpret_cast<decltype(xcb_setup_roots_iterator)*>(
                 util::platform::GetProcAddress(libxcb_, "xcb_setup_roots_iterator"));
-            function_table_.unmap_window =
-                reinterpret_cast<decltype(xcb_unmap_window)*>(util::platform::GetProcAddress(libxcb_, "xcb_unmap_window"));
+            function_table_.unmap_window = reinterpret_cast<decltype(xcb_unmap_window)*>(
+                util::platform::GetProcAddress(libxcb_, "xcb_unmap_window"));
             function_table_.wait_for_event = reinterpret_cast<decltype(xcb_wait_for_event)*>(
                 util::platform::GetProcAddress(libxcb_, "xcb_wait_for_event"));
         }

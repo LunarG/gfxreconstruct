@@ -92,7 +92,7 @@ static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle)
                 // Get the thread exit code:
                 // (This is actually the LoadLibrary return code)
                 DWORD thread_exit_code = 0;
-                BOOL  rc               = GetExitCodeThread(remote_thread_handle, static_cast<LPDWORD>(&thread_exit_code));
+                BOOL  rc = GetExitCodeThread(remote_thread_handle, static_cast<LPDWORD>(&thread_exit_code));
 
                 if (rc)
                 {

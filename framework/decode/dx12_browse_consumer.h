@@ -85,7 +85,7 @@ struct TrackDumpDrawCall
         captured_vertex_buffer_views.clear();
         descriptor_heap_ids.clear();
         captured_descriptor_gpu_handles.clear();
-        bundle_commandlist_id  = format::kNullHandleId;
+        bundle_commandlist_id   = format::kNullHandleId;
         bundle_target_draw_call = nullptr;
     }
 };
@@ -512,8 +512,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                             draw_call->bundle_target_draw_call = bundle_draw_call;
 
                                             draw_call->execute_block_index = call_info.index;
-                                            target_command_list_            = cmd_list;
-                                            target_draw_call_index_         = draw_call_index;
+                                            target_command_list_           = cmd_list;
+                                            target_draw_call_index_        = draw_call_index;
                                             break;
                                         }
                                     }
@@ -541,7 +541,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                 {
                                     // Found the target.
                                     draw_call->execute_block_index = call_info.index;
-                                    target_command_list_          = cmd_list;
+                                    target_command_list_           = cmd_list;
                                     target_draw_call_index_        = draw_call_index;
                                     break;
                                 }

@@ -212,21 +212,21 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                         EventInfo;
-typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
-typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
-typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
-typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
-typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
-typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
-typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
-typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>      IndirectCommandsLayoutNVInfo;
-typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXTInfo;
-typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
-typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
-typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
-typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
+typedef VulkanObjectInfo<VkEvent>                                       EventInfo;
+typedef VulkanObjectInfo<VkQueryPool>                                   QueryPoolInfo;
+typedef VulkanObjectInfo<VkPipelineLayout>                              PipelineLayoutInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlot>                             PrivateDataSlotInfo;
+typedef VulkanObjectInfo<VkSampler>                                     SamplerInfo;
+typedef VulkanPoolInfo<VkCommandPool>                                   CommandPoolInfo;
+typedef VulkanObjectInfo<VkSamplerYcbcrConversion>                      SamplerYcbcrConversionInfo;
+typedef VulkanObjectInfo<VkDisplayModeKHR>                              DisplayModeKHRInfo;
+typedef VulkanObjectInfo<VkDebugReportCallbackEXT>                      DebugReportCallbackEXTInfo;
+typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>                    IndirectCommandsLayoutNVInfo;
+typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>                      DebugUtilsMessengerEXTInfo;
+typedef VulkanObjectInfo<VkAccelerationStructureNV>                     AccelerationStructureNVInfo;
+typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL>               PerformanceConfigurationINTELInfo;
+typedef VulkanObjectInfo<VkMicromapEXT>                                 MicromapEXTInfo;
+typedef VulkanObjectInfo<VkOpticalFlowSessionNV>                        OpticalFlowSessionNVInfo;
 typedef VulkanObjectInfo<VkVideoSessionParametersKHR>                   VideoSessionParametersKHRInfo;
 typedef VulkanObjectInfo<VkPipelineBinaryKHR>                           PipelineBinaryKHRInfo;
 typedef VulkanObjectInfo<VkPipelineBinaryCreateInfoKHR>                 PipelineBinaryCreateInfoKHRInfo;

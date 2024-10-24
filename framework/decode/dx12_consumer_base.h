@@ -83,7 +83,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     {}
 
     virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string) {};
+                                                       const char*                             env_string){};
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 

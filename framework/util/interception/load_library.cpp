@@ -51,22 +51,22 @@ static const wchar_t* dll_steam_overlay_64_W_ = L"C:\\Program Files (x86)\\Steam
 static RefTrackerCounter inside_load_library_;
 
 /// Function pointer typedef for UpdateHooks
-using UpdateHooksFunc = bool(*)(void);
+using UpdateHooksFunc = bool (*)(void);
 
 /// Function pointers and their typedefs to load library
-using FreeLibraryFunc = BOOL(WINAPI*)(HMODULE);
+using FreeLibraryFunc                    = BOOL(WINAPI*)(HMODULE);
 static FreeLibraryFunc real_free_library = FreeLibrary;
 
-using ReadlLoadLibraryAFunc = HMODULE(WINAPI*)(LPCSTR);
+using ReadlLoadLibraryAFunc                      = HMODULE(WINAPI*)(LPCSTR);
 static ReadlLoadLibraryAFunc real_load_library_a = LoadLibraryA;
 
-using RealLoadLibraryExAFunc = HMODULE(WINAPI*)(LPCSTR, HANDLE, DWORD);
+using RealLoadLibraryExAFunc                         = HMODULE(WINAPI*)(LPCSTR, HANDLE, DWORD);
 static RealLoadLibraryExAFunc real_load_library_ex_a = LoadLibraryExA;
 
-using RealLoadLibraryWFunc = HMODULE(WINAPI*)(LPCWSTR);
+using RealLoadLibraryWFunc                      = HMODULE(WINAPI*)(LPCWSTR);
 static RealLoadLibraryWFunc real_load_library_w = LoadLibraryW;
 
-using RealLoadLibraryExWFunc = HMODULE(WINAPI*)(LPCWSTR, HANDLE, DWORD);
+using RealLoadLibraryExWFunc                         = HMODULE(WINAPI*)(LPCWSTR, HANDLE, DWORD);
 static RealLoadLibraryExWFunc real_load_library_ex_w = LoadLibraryExW;
 
 //----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ HMODULE HookInterceptionLibrary(const char* system_lib, const char* gfxr_lib_pat
 void HookInterceptionLibraries()
 {
     static HMODULE gfxr_d3d12_module = NULL;
-    static HMODULE gfxr_dxgi_module = NULL;
+    static HMODULE gfxr_dxgi_module  = NULL;
 
     if (gfxr_d3d12_module == NULL)
     {

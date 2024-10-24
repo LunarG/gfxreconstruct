@@ -91,8 +91,8 @@ struct SECURITY_DESCRIPTOR
 
 struct SECURITY_ATTRIBUTES
 {
-    DWORD  nLength;
-    LPVOID lpSecurityDescriptor;
+    DWORD              nLength;
+    LPVOID             lpSecurityDescriptor;
     int32_t /* BOOL */ bInheritHandle;
 };
 #endif // WIN32

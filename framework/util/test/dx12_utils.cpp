@@ -174,7 +174,7 @@ GenerateDx12BufferList(Dx12DevicePtr::Interface* dx12_device, int list_size, int
                                                               D3D12_HEAP_FLAG_NONE,
                                                               &resource_desc,
                                                               mappable ? D3D12_RESOURCE_STATE_GENERIC_READ
-                                                                       : D3D12_RESOURCE_STATE_COMMON,
+                                                                               : D3D12_RESOURCE_STATE_COMMON,
                                                               /* pOptimizedClearValue */ nullptr,
                                                               __uuidof(Dx12ResourcePtr::Interface),
                                                               reinterpret_cast<void**>(&dx12_resource));

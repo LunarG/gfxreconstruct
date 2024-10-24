@@ -301,8 +301,8 @@ DX12ImageRenderer::RetrieveImageData(
         img_out->data.resize(total_bytes);
         memcpy(&img_out->data[0], uav_data, total_bytes);
 
-        bool is_bgr8 = B8G8R8.find(format) != B8G8R8.end();
-        bool is_rgb8 = R8G8B8A8.find(format) != R8G8B8A8.end();
+        bool is_bgr8        = B8G8R8.find(format) != B8G8R8.end();
+        bool is_rgb8        = R8G8B8A8.find(format) != R8G8B8A8.end();
         bool is_r10g10b10a2 = R10G10B10A2.find(format) != R10G10B10A2.end();
 
         bool swap_red_blue = (convert_to_bgra && is_rgb8) || (!convert_to_bgra && is_bgr8);

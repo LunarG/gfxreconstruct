@@ -312,7 +312,7 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                             // Error log is like: Resource is bound as DATA_STATIC on Command List. Its state was
                             // changed by a previous command list execution which indicates a change to its data (or
                             // possibly resource metadata), but it is invalid to change it until this command list has
-                            // finished executing for the last time. 
+                            // finished executing for the last time.
                             if (ranges[i][j].Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
                             {
                                 ranges[i][j].Flags &= ~D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
@@ -600,7 +600,8 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
 
     // index
     const D3D12_INDEX_BUFFER_VIEW* index_buffer_view = nullptr;
-    if (bundle_target_draw_call && bundle_target_draw_call->captured_index_buffer_view.BufferLocation != kNullGpuAddress)
+    if (bundle_target_draw_call &&
+        bundle_target_draw_call->captured_index_buffer_view.BufferLocation != kNullGpuAddress)
     {
         index_buffer_view = &bundle_target_draw_call->captured_index_buffer_view;
     }
@@ -1310,7 +1311,7 @@ std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDum
              (track_dump_resources_.target.begin_block_index <= block_index) &&
              (track_dump_resources_.target.close_block_index >= block_index))
     {
-        command_sets  = &track_dump_resources_.split_command_sets;
+        command_sets   = &track_dump_resources_.split_command_sets;
         draw_call_info = &track_dump_resources_.target;
     }
     else
@@ -1472,7 +1473,7 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     // prepare for output data
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = util::filepath::GetFilename(capture_file_name);
+    json_filename_ = util::filepath::GetFilename(capture_file_name);
 
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
@@ -1505,7 +1506,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     WriteBlockStart();
 
     util::FieldToJson(draw_call_["block_index"], track_dump_resources.target.draw_call_block_index, json_options_);
-    util::FieldToJson(draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
+    util::FieldToJson(
+        draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
 }
 
 void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr resource_data)

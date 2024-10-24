@@ -141,8 +141,7 @@ bool GetD3d12DispatchTable(gfxrecon::encode::D3D12DispatchTable& d3d12_table)
         if (hook_info_.d3d12_dll != nullptr)
         {
             d3d12_table.D3D12CreateDevice =
-                reinterpret_cast<PFN_D3D12_CREATE_DEVICE>(
-                    GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateDevice"));
+                reinterpret_cast<PFN_D3D12_CREATE_DEVICE>(GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateDevice"));
 
             d3d12_table.D3D12CreateRootSignatureDeserializer =
                 reinterpret_cast<PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER>(
@@ -152,13 +151,11 @@ bool GetD3d12DispatchTable(gfxrecon::encode::D3D12DispatchTable& d3d12_table)
                 reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER>(
                     GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateVersionedRootSignatureDeserializer"));
 
-            d3d12_table.D3D12GetDebugInterface =
-                reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(
-                    GetProcAddress(hook_info_.d3d12_dll, "D3D12GetDebugInterface"));
+            d3d12_table.D3D12GetDebugInterface = reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(
+                GetProcAddress(hook_info_.d3d12_dll, "D3D12GetDebugInterface"));
 
-            d3d12_table.D3D12SerializeRootSignature =
-                reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(
-                    GetProcAddress(hook_info_.d3d12_dll, "D3D12SerializeRootSignature"));
+            d3d12_table.D3D12SerializeRootSignature = reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(
+                GetProcAddress(hook_info_.d3d12_dll, "D3D12SerializeRootSignature"));
 
             d3d12_table.D3D12SerializeVersionedRootSignature =
                 reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
@@ -167,9 +164,8 @@ bool GetD3d12DispatchTable(gfxrecon::encode::D3D12DispatchTable& d3d12_table)
             d3d12_table.D3D12GetInterface =
                 reinterpret_cast<PFN_D3D12_GET_INTERFACE>(GetProcAddress(hook_info_.d3d12_dll, "D3D12GetInterface"));
 
-            d3d12_table.D3D12EnableExperimentalFeatures =
-                reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
-                    GetProcAddress(hook_info_.d3d12_dll, "D3D12EnableExperimentalFeatures"));
+            d3d12_table.D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
+                GetProcAddress(hook_info_.d3d12_dll, "D3D12EnableExperimentalFeatures"));
 
             success = true;
         }

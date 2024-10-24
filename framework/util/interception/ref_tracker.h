@@ -37,7 +37,6 @@ GFXRECON_BEGIN_NAMESPACE(interception)
 class RefTracker
 {
   public:
-
     //----------------------------------------------------------------------------
     /// increments dwVal on creation
     /// \param  val

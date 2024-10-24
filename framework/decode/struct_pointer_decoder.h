@@ -253,7 +253,7 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
   private:
     T**                       decoded_structs_; ///< Memory to hold decoded data.
     std::vector<size_t>       inner_lens_;
-    typename T::struct_type** struct_memory_;   ///< Decoded Vulkan structures.
+    typename T::struct_type** struct_memory_; ///< Decoded Vulkan structures.
 };
 
 GFXRECON_END_NAMESPACE(decode)

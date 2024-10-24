@@ -53,13 +53,12 @@ class Dx12StateWriter
     Dx12StateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
 
     ~Dx12StateWriter();
-    
+
 #ifdef GFXRECON_AGS_SUPPORT
     void WriteState(const Dx12StateTable& state_table, const AgsStateTable& ags_state_table, uint64_t frame_number);
 #else
     void WriteState(const Dx12StateTable& state_table, uint64_t frame_number);
 #endif // GFXRECON_AGS_SUPPORT
-
 
   private:
     struct ResourceSnapshotInfo

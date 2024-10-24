@@ -151,13 +151,14 @@ int main(int argc, const char** argv)
 
             if (success == true)
             {
-                char working_dir[MAX_PATH] = {};
-                DWORD curr_dir_len = GetCurrentDirectory(MAX_PATH, working_dir);
+                char  working_dir[MAX_PATH] = {};
+                DWORD curr_dir_len          = GetCurrentDirectory(MAX_PATH, working_dir);
 
                 if (curr_dir_len != 0)
                 {
                     // Save off GFXR location in an environment variable, which is read later as our libs are loaded in
-                    BOOL set_env_ret = SetEnvironmentVariableA(gfxrecon::util::interception::kGfxrInstallEnv, working_dir);
+                    BOOL set_env_ret =
+                        SetEnvironmentVariableA(gfxrecon::util::interception::kGfxrInstallEnv, working_dir);
 
                     if (set_env_ret != 0)
                     {

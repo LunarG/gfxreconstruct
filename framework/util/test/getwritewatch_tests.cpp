@@ -118,11 +118,11 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource", "[memory_map][pre_submit]")
     const D3D12_HEAP_DESC    heap_desc{
         static_cast<UINT64>(kBufferSize),
         {
-            D3D12_HEAP_TYPE_UPLOAD,
-            D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-            D3D12_MEMORY_POOL_UNKNOWN,
-            0,
-            0,
+               D3D12_HEAP_TYPE_UPLOAD,
+               D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+               D3D12_MEMORY_POOL_UNKNOWN,
+               0,
+               0,
         },
         D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
         D3D12_HEAP_FLAG_NONE | D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH,

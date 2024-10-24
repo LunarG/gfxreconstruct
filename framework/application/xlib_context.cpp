@@ -79,7 +79,7 @@ Display* XlibContext::OpenDisplay()
     {
         auto xlib = xlib_loader_.GetFunctionTable();
         xlib.InitThreads();
-        display_  = xlib.OpenDisplay(nullptr);
+        display_ = xlib.OpenDisplay(nullptr);
     }
     ++display_open_count_;
     return display_;

@@ -37,9 +37,9 @@
 #include <vector>
 
 const VkBuffer                   kBufferHandles[] = { gfxrecon::format::FromHandleId<VkBuffer>(0xabcd),
-                                    gfxrecon::format::FromHandleId<VkBuffer>(0xbcda),
-                                    gfxrecon::format::FromHandleId<VkBuffer>(0xcdab),
-                                    gfxrecon::format::FromHandleId<VkBuffer>(0xdabc) };
+                                                      gfxrecon::format::FromHandleId<VkBuffer>(0xbcda),
+                                                      gfxrecon::format::FromHandleId<VkBuffer>(0xcdab),
+                                                      gfxrecon::format::FromHandleId<VkBuffer>(0xdabc) };
 const gfxrecon::format::HandleId kBufferIds[]     = { 12, 24, 48, 96 };
 const gfxrecon::format::HandleId kDeviceId        = 6;
 

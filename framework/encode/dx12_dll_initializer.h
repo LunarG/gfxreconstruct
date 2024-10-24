@@ -121,7 +121,8 @@ std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
     char roaming_path[MAX_PATH] = {};
     if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, roaming_path)))
     {
-        std::string gfxr_user_target = std::string(roaming_path) + util::filepath::kPathSep + std::string("GFXReconstruct");
+        std::string gfxr_user_target =
+            std::string(roaming_path) + util::filepath::kPathSep + std::string("GFXReconstruct");
         std::string gfxr_runtimes_target = gfxr_user_target + util::filepath::kPathSep + std::string("dx-runtimes");
 
         // If "\AppData\Roaming\GFXReconstruct\dx-runtimes" does not exist, create it

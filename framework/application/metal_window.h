@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class MetalContext;
 class MetalWindow : public decode::Window
 {
-public:
+  public:
     MetalWindow(MetalContext* metal_context);
 
     ~MetalWindow() override;
@@ -75,21 +75,25 @@ public:
 
   private:
     GFXReconWindowDelegate* window_delegate_;
-    MetalContext* metal_context_;
-    NSWindow*     window_;
-    CAMetalLayer* layer_;
-    uint32_t      width_;
-    uint32_t      height_;
+    MetalContext*           metal_context_;
+    NSWindow*               window_;
+    CAMetalLayer*           layer_;
+    uint32_t                width_;
+    uint32_t                height_;
 };
 
 class MetalWindowFactory : public decode::WindowFactory
 {
-public:
+  public:
     MetalWindowFactory(MetalContext* metal_context);
 
     const char* GetSurfaceExtensionName() const override { return VK_EXT_METAL_SURFACE_EXTENSION_NAME; }
 
-    decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed = false) override;
+    decode::Window* Create(const int32_t  x,
+                           const int32_t  y,
+                           const uint32_t width,
+                           const uint32_t height,
+                           bool           force_windowed = false) override;
 
     void Destroy(decode::Window* window) override;
 

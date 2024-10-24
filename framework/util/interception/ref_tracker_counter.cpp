@@ -130,7 +130,7 @@ void RefTrackerCounter::Increment()
     std::lock_guard<std::mutex> guard(*mutex_);
 
     UINT32                          thread_id = ::GetCurrentThreadId();
-    std::map<UINT32, int>::iterator it = map_inside_wrapper_.find(thread_id);
+    std::map<UINT32, int>::iterator it        = map_inside_wrapper_.find(thread_id);
 
     if (it != map_inside_wrapper_.end())
     {
@@ -147,7 +147,7 @@ void RefTrackerCounter::Decrement()
     std::lock_guard<std::mutex> guard(*mutex_);
 
     UINT32                          thread_id = ::GetCurrentThreadId();
-    std::map<UINT32, int>::iterator it = map_inside_wrapper_.find(thread_id);
+    std::map<UINT32, int>::iterator it        = map_inside_wrapper_.find(thread_id);
 
     if (it != map_inside_wrapper_.end())
     {
