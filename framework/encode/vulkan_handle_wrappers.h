@@ -210,10 +210,11 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
-    format::HandleId bind_memory_id{ format::kNullHandleId };
-    VkDeviceSize     bind_offset{ 0 };
-    uint32_t         queue_family_index{ 0 };
-    VkDeviceSize     created_size{ 0 };
+    format::HandleId   bind_memory_id{ format::kNullHandleId };
+    VkDeviceSize       bind_offset{ 0 };
+    uint32_t           queue_family_index{ 0 };
+    VkDeviceSize       created_size{ 0 };
+    VkBufferUsageFlags usage{ 0 };
 
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
@@ -505,11 +506,60 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
     // State tracking info for buffers with device addresses.
-    format::HandleId device_id{ format::kNullHandleId };
-    VkDeviceAddress  address{ 0 };
+    DeviceWrapper*  device{ nullptr };
+    VkDeviceAddress address{ 0 };
 
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;
+
+    VkAccelerationStructureTypeKHR type;
+    // Only used when tracking
+
+    struct ASInputBuffer
+    {
+        // Required data to correctly create a buffer
+        VkBuffer           handle{ VK_NULL_HANDLE };
+        format::HandleId   handle_id{ format::kNullHandleId };
+        DeviceWrapper*     bind_device{ nullptr };
+        uint32_t           queue_family_index{ 0 };
+        VkDeviceSize       created_size{ 0 };
+        VkBufferUsageFlags usage{ 0 };
+
+        bool destroyed{ false };
+
+        VkDeviceAddress capture_address{ 0 };
+        VkDeviceAddress actual_address{ 0 };
+
+        std::vector<uint8_t> bytes;
+
+        VkMemoryRequirements memory_requirements{};
+        format::HandleId     bind_memory{};
+        VkDeviceMemory       bind_memory_handle{ VK_NULL_HANDLE };
+    };
+
+    struct AccelerationStructureKHRBuildCommandData
+    {
+        VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
+        std::unique_ptr<uint8_t[]>                            geometry_info_memory;
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
+        std::vector<ASInputBuffer>                            input_buffers;
+    };
+    std::optional<AccelerationStructureKHRBuildCommandData> latest_update_command_{ std::nullopt };
+    std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };
+
+    struct AccelerationStructureCopyCommandData
+    {
+        format::HandleId                   device;
+        VkCopyAccelerationStructureInfoKHR info;
+    };
+    std::optional<AccelerationStructureCopyCommandData> latest_copy_command_{ std::nullopt };
+
+    struct AccelerationStructureWritePropertiesCommandData
+    {
+        format::HandleId device;
+        VkQueryType      query_type;
+    };
+    std::optional<AccelerationStructureWritePropertiesCommandData> latest_write_properties_command_{ std::nullopt };
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

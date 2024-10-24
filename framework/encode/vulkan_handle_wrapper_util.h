@@ -103,7 +103,7 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
-        return 0;
+        return nullptr;
     }
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
@@ -325,6 +325,17 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
     }
+}
+
+template <>
+inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, CommandPoolWrapper>(VkDevice device,
+                                                                                    NoParentWrapper::HandleType,
+                                                                                    VkCommandPool*  handle,
+                                                                                    PFN_GetHandleId get_id)
+{
+    CreateWrappedNonDispatchHandle<CommandPoolWrapper>(handle, get_id);
+    auto pool_wrapper    = GetWrapper<CommandPoolWrapper>(*handle);
+    pool_wrapper->device = GetWrapper<DeviceWrapper>(device);
 }
 
 template <>

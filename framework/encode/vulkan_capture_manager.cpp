@@ -100,7 +100,7 @@ void VulkanCaptureManager::DestroyInstance()
 
 void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
 {
-    VulkanStateWriter state_writer(file_stream, GetCompressor(), thread_id);
+    VulkanStateWriter state_writer(file_stream, GetCompressor(), thread_id, [] { return GetUniqueId(); });
     uint64_t          n_blocks = state_tracker_->WriteState(&state_writer, GetCurrentFrame());
     common_manager_->IncrementBlockIndex(n_blocks);
 }
@@ -857,12 +857,16 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                              vulkan_wrappers::BufferWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pBuffer, GetUniqueId);
 
+        auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+        GFXRECON_ASSERT(buffer_wrapper)
+        buffer_wrapper->created_size = modified_create_info->size;
+        buffer_wrapper->usage        = pCreateInfo->usage;
+
         if (uses_address)
         {
             // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            auto buffer_wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
             VkBufferDeviceAddressInfo info = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
             info.pNext                     = nullptr;
             info.buffer                    = buffer_wrapper->handle;
@@ -922,27 +926,22 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
                                                              const VkAllocationCallbacks*                pAllocator,
                                                              VkAccelerationStructureKHR* pAccelerationStructureKHR)
 {
-    auto                     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto                     device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice                 device_unwrapped     = device_wrapper->handle;
-    const VulkanDeviceTable* device_table         = vulkan_wrappers::GetDeviceTable(device);
-    const VkAccelerationStructureCreateInfoKHR* pCreateInfo_unwrapped =
-        vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+    auto                     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    VkDevice                 device_unwrapped = device_wrapper->handle;
+    const VulkanDeviceTable* device_table     = vulkan_wrappers::GetDeviceTable(device);
 
-    VkResult result;
+    std::unique_ptr<uint8_t[]>            struct_memory;
+    VkAccelerationStructureCreateInfoKHR* modified_create_info =
+        vulkan_trackers::TrackStructs(pCreateInfo, 1, struct_memory);
+
     if (device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
     {
         // Add flag to allow for opaque address capture
-        VkAccelerationStructureCreateInfoKHR modified_create_info = (*pCreateInfo_unwrapped);
-        modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
-        result = device_table->CreateAccelerationStructureKHR(
-            device_unwrapped, &modified_create_info, pAllocator, pAccelerationStructureKHR);
+        modified_create_info->createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
     }
-    else
-    {
-        result = device_table->CreateAccelerationStructureKHR(
-            device_unwrapped, pCreateInfo_unwrapped, pAllocator, pAccelerationStructureKHR);
-    }
+
+    VkResult result = device_table->CreateAccelerationStructureKHR(
+        device_unwrapped, modified_create_info, pAllocator, pAccelerationStructureKHR);
 
     if ((result == VK_SUCCESS) && (pAccelerationStructureKHR != nullptr))
     {
@@ -951,28 +950,31 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
                                              vulkan_wrappers::AccelerationStructureKHRWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pAccelerationStructureKHR, GetUniqueId);
 
+        auto accel_struct_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(*pAccelerationStructureKHR);
+
+        VkAccelerationStructureDeviceAddressInfoKHR address_info{
+            VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR, nullptr, accel_struct_wrapper->handle
+        };
+
+        // save address to use as pCreateInfo->deviceAddress during replay
+        VkDeviceAddress address =
+            device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
+
+        accel_struct_wrapper->device  = device_wrapper;
+        accel_struct_wrapper->address = address;
+        accel_struct_wrapper->type    = modified_create_info->type;
+
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
+        }
+
         if (device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
         {
-            auto accel_struct_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                *pAccelerationStructureKHR);
-
-            VkAccelerationStructureDeviceAddressInfoKHR address_info{
-                VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR, nullptr, accel_struct_wrapper->handle
-            };
-
-            // save address to use as pCreateInfo->deviceAddress during replay
-            VkDeviceAddress address =
-                device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
-
             WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
-
-            if (IsCaptureModeTrack())
-            {
-                state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
-            }
         }
     }
-
     return result;
 }
 
@@ -984,7 +986,7 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
 {
     if (IsCaptureModeTrack())
     {
-        state_tracker_->TrackTLASBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+        state_tracker_->TrackAccelerationStructureBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
     }
 
     const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);

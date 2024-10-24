@@ -150,9 +150,9 @@ enum class MetaDataType : uint16_t
     kReserved25                             = 25,
     kDx12RuntimeInfoCommand                 = 26,
     kParentToChildDependency                = 27,
-    kReserved28                             = 28,
-    kReserved29                             = 29,
-    kReserved30                             = 30,
+    kVulkanBuildAccelerationStructuresCommand           = 28,
+    kVulkanCopyAccelerationStructuresCommand            = 29,
+    kVulkanWriteAccelerationStructuresPropertiesCommand = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
     kViewRelativeLocation                   = 33,
@@ -661,6 +661,21 @@ struct SetEnvironmentVariablesCommand
 
     // In the capture file, a string will immediately follow this block
     // containing a list of environment variables and their values
+};
+
+struct VulkanMetaBuildAccelerationStructuresHeader
+{
+    format::MetaDataHeader meta_header;
+};
+
+struct VulkanWriteAccelerationStructuresPropertiesCommandHeader
+{
+    format::MetaDataHeader meta_header;
+};
+
+struct VulkanCopyAccelerationStructuresCommandHeader
+{
+    format::MetaDataHeader meta_header;
 };
 
 // Restore size_t to normal behavior.
