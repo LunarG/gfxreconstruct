@@ -20,8 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions, write
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12ConsumerHeaderGeneratorOptions
 
 

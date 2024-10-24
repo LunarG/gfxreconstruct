@@ -22,8 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
 from reformat_code import format_cpp_code
 

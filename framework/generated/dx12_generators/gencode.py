@@ -24,8 +24,7 @@ import os
 import sys
 
 # API Call Encoders
-from base_generator import write
-from dx12_base_generator import Dx12GeneratorOptions
+from dx12_base_generator import Dx12GeneratorOptions, write
 from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGenerator
 from dx12_api_call_encoders_body_generator import Dx12ApiCallEncodersBodyGenerator
 from dx12_struct_decoders_forward_generator import Dx12StructDecodersForwardGenerator

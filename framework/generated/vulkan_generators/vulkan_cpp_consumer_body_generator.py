@@ -648,8 +648,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         platform_type = 'Vulkan'
-        if self.is_dx12_class():
-            platform_type = 'Dx12'
 
         first = True
         cmdnames = self.get_filtered_cmd_names()

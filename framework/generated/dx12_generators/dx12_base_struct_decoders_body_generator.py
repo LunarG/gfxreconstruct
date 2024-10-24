@@ -21,11 +21,11 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
+from dx12_base_generator import write
 
 
-class BaseStructDecodersBodyGenerator():
-    """Base class for generating struct docoder body code."""
+class Dx12BaseStructDecodersBodyGenerator():
+    """Base class for generating dx12 struct docoder body code."""
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
@@ -63,7 +63,7 @@ class BaseStructDecodersBodyGenerator():
                 )
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
-                body += BaseStructDecodersBodyGenerator.make_decode_invocation(
+                body += Dx12BaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value
                 )
 
@@ -119,6 +119,10 @@ class BaseStructDecodersBodyGenerator():
 
                 if is_static_array:
                     array_dimension = ''
+                    # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *. 
+                    # But vk keeps 2d array.
+                    if value.array_dimension and value.array_dimension > 0:
+                        array_dimension = '*'
                     # The pointer decoder will write directly to the struct member's memory.
                     body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(
                         access_op,

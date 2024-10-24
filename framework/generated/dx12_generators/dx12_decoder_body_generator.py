@@ -20,16 +20,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, write
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
-from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
-from base_decoder_body_generator import BaseDecoderBodyGenerator
+from dx12_base_struct_decoders_body_generator import Dx12BaseStructDecodersBodyGenerator
+from dx12_base_decoder_body_generator import Dx12BaseDecoderBodyGenerator
 
 
 class Dx12DecoderBodyGenerator(
-    Dx12DecoderHeaderGenerator, BaseStructDecodersBodyGenerator,
-    BaseDecoderBodyGenerator
+    Dx12DecoderHeaderGenerator, Dx12BaseStructDecodersBodyGenerator,
+    Dx12BaseDecoderBodyGenerator
 ):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
@@ -50,7 +49,7 @@ class Dx12DecoderBodyGenerator(
         self.method_names = []
         Dx12BaseGenerator.generate_feature(self)
         self.write_function_call()
-        BaseDecoderBodyGenerator.generate_feature(self)
+        Dx12BaseDecoderBodyGenerator.generate_feature(self)
         self.newline()
         self.generate_dx12_method_feature()
 

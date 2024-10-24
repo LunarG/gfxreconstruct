@@ -34,21 +34,11 @@ class BaseStructHandleMappersHeaderGenerator():
         map_type = 'Handle'
         map_table = ''
         map_object = ''
-
-        is_dx12_class = self.is_dx12_class()
-        if is_dx12_class:
-            platform_type = 'Dx12'
-            map_types = 'Objects'
-            map_type = 'Object'
-            map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
-            map_object = ', gpu_va_map'
-
-        if not is_dx12_class:
-            self.newline()
-            write(
-                'void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table);',
-                file=self.outFile
-            )
+        self.newline()
+        write(
+            'void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table);',
+            file=self.outFile
+        )
 
         self.newline()
         write('template <typename T>', file=self.outFile)
@@ -148,12 +138,6 @@ class BaseStructHandleMappersHeaderGenerator():
         """Performs C++ code generation for the feature."""
         platform_type = 'Vulkan'
         map_type = 'Handles'
-        map_table = ''
-        if self.is_dx12_class():
-            platform_type = 'Dx12'
-            map_type = 'Objects'
-            map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
-
         for struct in self.get_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles)
@@ -161,7 +145,7 @@ class BaseStructHandleMappersHeaderGenerator():
                 or (struct in self.structs_with_map_data)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
-                body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{});'.format(
-                    map_type, struct, platform_type, map_table
+                body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table);'.format(
+                    map_type, struct, platform_type
                 )
                 write(body, file=self.outFile)

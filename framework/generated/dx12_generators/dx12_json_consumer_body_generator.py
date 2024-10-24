@@ -22,8 +22,7 @@
 # IN THE SOFTWARE.
 
 import json
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions, write
 from dx12_json_consumer_header_generator import Dx12JsonConsumerHeaderGenerator, Dx12JsonConsumerHeaderGeneratorOptions
 from dx12_json_common_generator import Dx12JsonCommonGenerator
 from reformat_code import format_cpp_code, remove_leading_empty_lines
