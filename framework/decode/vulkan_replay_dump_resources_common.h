@@ -68,7 +68,7 @@ enum DumpedImageFormat
     KFormatRaw
 };
 
-DumpedImageFormat GetDumpedImageFormat(const DeviceInfo*                  device_info,
+DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device_info,
                                        const encode::VulkanDeviceTable*   device_table,
                                        const encode::VulkanInstanceTable* instance_table,
                                        VulkanObjectInfoTable&             object_info_table,
@@ -87,14 +87,14 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                    const ImageInfo*                        image_info,
+                    const VulkanImageInfo*                  image_info,
                     VkImage*                                new_image,
                     VkDeviceMemory*                         new_image_memory);
 
 VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
                      const encode::VulkanDeviceTable*        device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                     const BufferInfo*                       buffer_info,
+                     const VulkanBufferInfo*                 buffer_info,
                      VkBuffer*                               new_buffer,
                      VkDeviceMemory*                         new_buffer_memory,
                      VkDeviceSize                            override_size = 0);
@@ -106,8 +106,8 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                                  uint32_t                    first_index,
                                  VkIndexType                 type);
 
-VkResult DumpImageToFile(const ImageInfo*                   image_info,
-                         const DeviceInfo*                  device_info,
+VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
+                         const VulkanDeviceInfo*            device_info,
                          const encode::VulkanDeviceTable*   device_table,
                          const encode::VulkanInstanceTable* instance_table,
                          VulkanObjectInfoTable&             object_info_table,

@@ -35,12 +35,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct DeviceInfo;
+struct VulkanDeviceInfo;
 
 class VulkanResourceInitializer
 {
   public:
-    VulkanResourceInitializer(const DeviceInfo*                       device_info,
+    VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                               VkDeviceSize                            max_copy_size,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
                               bool                                    have_shader_stencil_write,
@@ -203,7 +203,7 @@ class VulkanResourceInitializer
     bool                                  have_shader_stencil_write_;
     VulkanResourceAllocator*              resource_allocator_;
     const encode::VulkanDeviceTable*      device_table_;
-    const DeviceInfo*                     device_info_;
+    const VulkanDeviceInfo*               device_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

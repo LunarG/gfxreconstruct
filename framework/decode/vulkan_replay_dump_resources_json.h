@@ -71,8 +71,9 @@ class VulkanReplayDumpResourcesJson
                          uint32_t                array_layer     = 0,
                          const std::string*      filename_before = nullptr);
 
-    void
-    InsertBufferInfo(nlohmann::ordered_json& json_entry, const BufferInfo* buffer_info, const std::string& filename);
+    void InsertBufferInfo(nlohmann::ordered_json& json_entry,
+                          const VulkanBufferInfo* buffer_info,
+                          const std::string&      filename);
 
   private:
     bool InitializeFile(const std::string& filename);

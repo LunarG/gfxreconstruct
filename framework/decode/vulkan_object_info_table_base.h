@@ -102,13 +102,13 @@ class VulkanObjectInfoTableBase
     // Note: the "dummy" template parameter is here for the sole purpose of working around a gcc issue which does
     // not allow full specialization in non-namespace scope (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85282)
     template <typename dummy>
-    void AddObjectInfo(SurfaceKHRInfo&& info, std::unordered_map<format::HandleId, SurfaceKHRInfo>* map)
+    void AddObjectInfo(VulkanSurfaceKHRInfo&& info, std::unordered_map<format::HandleId, VulkanSurfaceKHRInfo>* map)
     {
         assert(map != nullptr);
 
         if (info.capture_id != 0)
         {
-            auto result = map->emplace(info.capture_id, std::forward<SurfaceKHRInfo>(info));
+            auto result = map->emplace(info.capture_id, std::forward<VulkanSurfaceKHRInfo>(info));
 
             if (!result.second)
             {
@@ -123,7 +123,7 @@ class VulkanObjectInfoTableBase
                 auto iter = result.first;
                 if (iter->second.handle != info.handle)
                 {
-                    iter->second = std::forward<SurfaceKHRInfo>(info);
+                    iter->second = std::forward<VulkanSurfaceKHRInfo>(info);
                 }
             }
         }

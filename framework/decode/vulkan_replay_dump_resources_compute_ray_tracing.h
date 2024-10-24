@@ -55,13 +55,13 @@ class DispatchTraceRaysDumpingContext
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult CloneCommandBuffer(CommandBufferInfo*                 orig_cmd_buf_info,
+    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
                                 const encode::VulkanDeviceTable*   dev_table,
                                 const encode::VulkanInstanceTable* inst_table);
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer; }
 
-    void BindPipeline(VkPipelineBindPoint bind_point, const PipelineInfo* pipeline);
+    void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
     bool IsRecording() const;
 
@@ -69,11 +69,11 @@ class DispatchTraceRaysDumpingContext
 
     bool MustDumpTraceRays(uint64_t index) const;
 
-    void BindDescriptorSets(VkPipelineBindPoint                          pipeline_bind_point,
-                            uint32_t                                     first_set,
-                            const std::vector<const DescriptorSetInfo*>& descriptor_sets_infos,
-                            uint32_t                                     dynamicOffsetCount,
-                            const uint32_t*                              pDynamicOffsets);
+    void BindDescriptorSets(VkPipelineBindPoint                                pipeline_bind_point,
+                            uint32_t                                           first_set,
+                            const std::vector<const VulkanDescriptorSetInfo*>& descriptor_sets_infos,
+                            uint32_t                                           dynamicOffsetCount,
+                            const uint32_t*                                    pDynamicOffsets);
 
     VkResult DumpDispatchTraceRays(
         VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
@@ -84,7 +84,7 @@ class DispatchTraceRaysDumpingContext
 
     void InsertNewDispatchParameters(uint64_t index, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 
-    void InsertNewDispatchParameters(uint64_t index, const BufferInfo* buffer_info, VkDeviceSize offset);
+    void InsertNewDispatchParameters(uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset);
 
     void InsertNewTraceRaysParameters(uint64_t                               index,
                                       const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
@@ -165,10 +165,12 @@ class DispatchTraceRaysDumpingContext
                                                               uint32_t set,
                                                               uint32_t binding) const;
 
-    void CopyImageResource(const ImageInfo* src_image_info, VkImage dst_image);
+    void CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image);
 
-    void
-    CopyBufferResource(const BufferInfo* src_buffer_info, VkDeviceSize offset, VkDeviceSize range, VkBuffer dst_buffer);
+    void CopyBufferResource(const VulkanBufferInfo* src_buffer_info,
+                            VkDeviceSize            offset,
+                            VkDeviceSize            range,
+                            VkBuffer                dst_buffer);
 
     void DestroyMutableResourcesClones();
 
@@ -188,11 +190,11 @@ class DispatchTraceRaysDumpingContext
                                           uint64_t tr_index,
                                           uint64_t cmd_index) const;
 
-    const CommandBufferInfo*       original_command_buffer_info;
+    const VulkanCommandBufferInfo* original_command_buffer_info;
     VkCommandBuffer                DR_command_buffer;
     std::vector<uint64_t>          dispatch_indices;
     std::vector<uint64_t>          trace_rays_indices;
-    const PipelineInfo*            bound_pipelines[kBindPoint_count];
+    const VulkanPipelineInfo*      bound_pipelines[kBindPoint_count];
     bool                           dump_resources_before;
     const std::string&             dump_resource_path;
     util::ScreenshotFormat         image_file_format;
@@ -204,8 +206,8 @@ class DispatchTraceRaysDumpingContext
     bool                           dump_images_raw;
 
     // One entry per descriptor set for each compute and ray tracing binding points
-    std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_compute;
-    std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_ray_tracing;
+    std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_compute;
+    std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_ray_tracing;
 
     // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
     // shaders/pipeline and the content of the original resources are copied into the clones
@@ -215,7 +217,7 @@ class DispatchTraceRaysDumpingContext
 
         struct ImageContext
         {
-            const ImageInfo*      original_image{ nullptr };
+            const VulkanImageInfo* original_image{ nullptr };
             VkImage               image{ VK_NULL_HANDLE };
             VkDeviceMemory        image_memory{ VK_NULL_HANDLE };
             VkShaderStageFlagBits stage;
@@ -229,7 +231,7 @@ class DispatchTraceRaysDumpingContext
 
         struct BufferContext
         {
-            const BufferInfo*     original_buffer{ nullptr };
+            const VulkanBufferInfo* original_buffer{ nullptr };
             VkBuffer              buffer{ VK_NULL_HANDLE };
             VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
             VkShaderStageFlagBits stage;
@@ -292,7 +294,7 @@ class DispatchTraceRaysDumpingContext
 
             struct DispatchIndirect
             {
-                const BufferInfo* params_buffer_info;
+                const VulkanBufferInfo* params_buffer_info;
                 VkDeviceSize      params_buffer_offset;
 
                 VkBuffer       new_params_buffer;
@@ -311,7 +313,7 @@ class DispatchTraceRaysDumpingContext
                 dispatch{ groupCountX, groupCountY, groupCountZ }
             {}
 
-            DispatchParamsUnion(const BufferInfo* params_buffer_info, VkDeviceSize offset) :
+            DispatchParamsUnion(const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
                 dispatch_indirect{ params_buffer_info, offset, VK_NULL_HANDLE, VK_NULL_HANDLE, nullptr }
             {}
 
@@ -331,7 +333,7 @@ class DispatchTraceRaysDumpingContext
             assert(type == kDispatch);
         }
 
-        DispatchParameters(DispatchTypes type, const BufferInfo* params_buffer_info, VkDeviceSize offset) :
+        DispatchParameters(DispatchTypes type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
             dispatch_params_union{ params_buffer_info, offset }, type(type)
         {
             assert(type == kDispatchIndirect);
@@ -352,7 +354,7 @@ class DispatchTraceRaysDumpingContext
 
         DispatchTypes type;
 
-        std::unordered_map<uint32_t, DescriptorSetInfo::DescriptorBindingsInfo> referenced_descriptors;
+        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::DescriptorBindingsInfo> referenced_descriptors;
 
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
@@ -442,7 +444,7 @@ class DispatchTraceRaysDumpingContext
         TraceRaysTypes type;
 
         std::unordered_map<VkShaderStageFlagBits,
-                           std::unordered_map<uint32_t, DescriptorSetInfo::DescriptorBindingsInfo>>
+                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::DescriptorBindingsInfo>>
             referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
@@ -461,8 +463,8 @@ class DispatchTraceRaysDumpingContext
     // multiple times
     struct DumpedDescriptors
     {
-        std::unordered_set<const ImageInfo*>            image_descriptors;
-        std::unordered_set<const BufferInfo*>           buffer_descriptors;
+        std::unordered_set<const VulkanImageInfo*>      image_descriptors;
+        std::unordered_set<const VulkanBufferInfo*>     buffer_descriptors;
         std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
     };
 

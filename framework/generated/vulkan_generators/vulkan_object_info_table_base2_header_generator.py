@@ -99,15 +99,16 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         for handle_name in sorted(self.handle_names):
             if handle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
-            handle_name = handle_name[2:]
-            handle_info = handle_name + 'Info'
-            handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
-            add_code += '    void Add{0}({0}&& info) {{ AddObjectInfo(std::move(info), &{1}); }}\n'.format(handle_info, handle_map)
-            remove_code += '    void Remove{0}(format::HandleId id) {{ {1}.erase(id); }}\n'.format(handle_info, handle_map)
-            const_get_code += '    const {0}* Get{0}(format::HandleId id) const {{ return GetObjectInfo<{0}>(id, &{1}); }}\n'.format(handle_info, handle_map)
-            get_code += '    {0}* Get{0}(format::HandleId id) {{ return GetObjectInfo<{0}>(id, &{1}); }}\n'.format(handle_info, handle_map)
-            visit_code += '    void Visit{0}(std::function<void(const {0}*)> visitor) const {{  for (const auto& entry : {1}) {{ visitor(&entry.second); }}  }}\n'.format(handle_info, handle_map)
-            map_code += '     std::unordered_map<format::HandleId, {0}> {1};\n'.format(handle_info, handle_map)
+            short_handle_name = handle_name[2:]
+            handle_info = short_handle_name + 'Info'
+            function_info = handle_name + 'Info'
+            handle_map = short_handle_name[0].lower() + short_handle_name[1:] + '_map_'
+            add_code += '    void Add{0}(Vulkan{1}&& info) {{ AddObjectInfo(std::move(info), &{2}); }}\n'.format(function_info, handle_info, handle_map)
+            remove_code += '    void Remove{0}(format::HandleId id) {{ {1}.erase(id); }}\n'.format(function_info, handle_map)
+            const_get_code += '    const Vulkan{0}* Get{1}(format::HandleId id) const {{ return GetObjectInfo<Vulkan{0}>(id, &{2}); }}\n'.format(handle_info, function_info, handle_map)
+            get_code += '    Vulkan{0}* Get{1}(format::HandleId id) {{ return GetObjectInfo<Vulkan{0}>(id, &{2}); }}\n'.format(handle_info, function_info, handle_map)
+            visit_code += '    void Visit{0}(std::function<void(const Vulkan{1}*)> visitor) const {{  for (const auto& entry : {2}) {{ visitor(&entry.second); }}  }}\n'.format(function_info, handle_info, handle_map)
+            map_code += '     std::unordered_map<format::HandleId, Vulkan{0}> {1};\n'.format(handle_info, handle_map)
 
         self.newline()
         code = 'class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase\n'
