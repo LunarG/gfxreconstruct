@@ -89,7 +89,7 @@ class VulkanStructHandleMappersHeaderGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         write(
-            '#include "decode/vulkan_object_info_table.h"', file=self.outFile
+            '#include "decode/common_object_info_table.h"', file=self.outFile
         )
         write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)

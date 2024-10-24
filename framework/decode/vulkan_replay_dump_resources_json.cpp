@@ -195,7 +195,7 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
 }
 
 void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                                                     const BufferInfo*       buffer_info,
+                                                     const VulkanBufferInfo* buffer_info,
                                                      const std::string&      filename)
 {
     assert(buffer_info != nullptr);

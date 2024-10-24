@@ -107,7 +107,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
                 continue
             handle_name = vkhandle_name[2:]
             wrapper_prefix = self.get_wrapper_prefix_from_type()
-            handle_prefix = self.get_prefix_from_type()
+            handle_prefix = self.get_api_prefix()
             handle_wrapper_func = handle_name + 'Wrapper'
             handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
             handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'

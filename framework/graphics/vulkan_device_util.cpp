@@ -243,7 +243,7 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
 void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                           instance_api_version,
                                                  const encode::VulkanInstanceTable* instance_table,
                                                  VkPhysicalDevice                   physical_device,
-                                                 decode::ReplayDeviceInfo*          replay_device_info)
+                                                 decode::VulkanReplayDeviceInfo*    replay_device_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(replay_device_info != nullptr);

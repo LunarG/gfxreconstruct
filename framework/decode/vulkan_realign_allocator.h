@@ -102,8 +102,8 @@ class VulkanRealignAllocator : public VulkanDefaultAllocator
 
   private:
     // Util function to find the matching offset with the resources offsets.
-    VkDeviceSize FindMatchingResourceOffset(const TrackedDeviceMemoryInfo* tracked_memory_info,
-                                            VkDeviceSize                   original_offset) const;
+    VkDeviceSize FindMatchingResourceOffset(const TrackedVkDeviceMemoryInfo* tracked_memory_info,
+                                            VkDeviceSize                     original_offset) const;
 
     // Util function to update the resource data (memcpy to mapped memory).
     VkResult UpdateResourceData(
