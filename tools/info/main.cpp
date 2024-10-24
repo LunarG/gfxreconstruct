@@ -694,7 +694,7 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
             gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
             gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
 
-            GFXRECON_WRITE_CONSOLE("GPU index\tGPU name");
+            GFXRECON_WRITE_CONSOLE("GPU index\tGPU name\tSubSys ID");
             for (size_t index = 0; index < adapters.size(); ++index)
             {
                 for (auto adapter : adapters)
@@ -704,7 +704,10 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
                         std::string replay_adapter_str =
                             gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
 
-                        GFXRECON_WRITE_CONSOLE("%-9x\t%s", adapter.second.adapter_idx, replay_adapter_str.c_str());
+                        GFXRECON_WRITE_CONSOLE("%-9x\t%s\t%u",
+                                               adapter.second.adapter_idx,
+                                               replay_adapter_str.c_str(),
+                                               adapter.second.internal_desc.SubSysId);
                         adapter.second.adapter->Release();
                         break;
                     }
