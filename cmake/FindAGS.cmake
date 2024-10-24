@@ -21,7 +21,7 @@ function(FindAgsLibrary AGS_SEARCH_PATH AGS_LIBRARY_NAME AGS_LIBRARY_VAR)
             unset(${AGS_LIBRARY_VAR} CACHE)
         endif()
     endif()
-    find_library(${AGS_LIBRARY_VAR} NAMES ${AGS_LIBRARY_NAME} PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib)
+    find_library(${AGS_LIBRARY_VAR} NAMES ${AGS_LIBRARY_NAME} PATHS ${AGS_SEARCH_PATH} PATH_SUFFIXES lib NO_DEFAULT_PATH)
 endfunction()
 
 # Find the build architecture.

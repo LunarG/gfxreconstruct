@@ -48,7 +48,8 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_util
                           platform_specific
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
-                          $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
+                          $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
+                          $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
 
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
@@ -70,5 +71,6 @@ target_link_libraries(gfxrecon-replay Threads::Threads)
 common_build_directives(gfxrecon-replay)
 
 include(${CMAKE_SOURCE_DIR}/cmake/AgilitySDK.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/InstallDXC.cmake)
 
 install(TARGETS gfxrecon-replay RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

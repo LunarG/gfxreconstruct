@@ -121,7 +121,7 @@ target_sources(gfxrecon_util
 target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
-                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 
@@ -167,7 +167,6 @@ if (WAYLAND_LIBRARY)
 endif()
 
 if (${GFXRECON_AGS_SUPPORT_FINAL})
-    target_include_directories(gfxrecon_util PUBLIC ${AGS_INCLUDE_DIR})    
     target_link_libraries(gfxrecon_util optimized ${AGS_LIBRARY_RELEASE})
     target_link_libraries(gfxrecon_util debug ${AGS_LIBRARY_DEBUG})
 endif()

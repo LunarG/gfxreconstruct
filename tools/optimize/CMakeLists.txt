@@ -65,10 +65,12 @@ target_link_libraries(gfxrecon-optimize
                           gfxrecon_util
                           platform_specific
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
-                          $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
+                          $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
+                          $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
 
 common_build_directives(gfxrecon-optimize)
 
 include(${CMAKE_SOURCE_DIR}/cmake/AgilitySDK.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/InstallDXC.cmake)
 
 install(TARGETS gfxrecon-optimize RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

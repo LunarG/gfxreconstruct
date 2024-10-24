@@ -22,7 +22,6 @@
 
 #include "graphics/dx12_image_renderer.h"
 
-#include <d3dcompiler.h>
 #include <util/logging.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

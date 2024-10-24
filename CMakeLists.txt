@@ -171,6 +171,7 @@ if(MSVC)
     add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if(${D3D12_SUPPORT})
+        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc")
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.
@@ -182,6 +183,12 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
+        
+        find_package(DXC)
+        if (DXC_FOUND)
+            set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${DXC_INCLUDE_DIR})
+            add_definitions(-DGFXRECON_DXC_SUPPORT)
+        endif()        
 
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
@@ -201,6 +208,8 @@ if(MSVC)
                 find_package(AGS)
                 if (AGS_FOUND)
                     add_definitions(-DGFXRECON_AGS_SUPPORT)
+
+                    set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${AGS_INCLUDE_DIR})
 
                     # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
                     # to determine the final result.
