@@ -216,7 +216,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
         if (
             value.is_pointer or value.is_array
-        ) and value.name != 'pnext_value':
+        ) and value.name != 'ext_struct_info':
             if index > 0:
                 body += '\n'
 
@@ -225,6 +225,14 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 # If there is no prefix, this is the pointer parameter received by the function, which should never be null.
                 body += indent + 'assert({} != nullptr);\n'.format(value.name)
                 body += '\n'
+                # Add IsNull and HasData checks for the pointer decoder, before accessing its data.
+                # Note that this does not handle the decoded struct member cases for static arrays, which would need to use '.' instead of '->'.
+                body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(
+                    prefix=value_prefix, name=value.name, op=access_operator
+                )
+                body += indent + '{\n'
+                tail = indent + '}\n' + tail
+                indent += ' ' * self.INDENT_SIZE
             else:
                 # If there is a prefix, this is a struct member.  We need to determine the type of access operator to use
                 # for the member of a 'decoded' struct type, where handle member types will be HandlePointerDecoder, but
@@ -232,14 +240,13 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 if is_handle:
                     access_operator = '.'
 
-            # Add IsNull and HasData checks for the pointer decoder, before accessing its data.
-            # Note that this does not handle the decoded struct member cases for static arrays, which would need to use '.' instead of '->'.
-            body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(
-                prefix=value_prefix, name=value.name, op=access_operator
-            )
-            body += indent + '{\n'
-            tail = indent + '}\n' + tail
-            indent += ' ' * self.INDENT_SIZE
+                body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(
+                    prefix=value_prefix, name=value.name, op=access_operator
+                )
+
+                body += indent + '{\n'
+                tail = indent + '}\n' + tail
+                indent += ' ' * self.INDENT_SIZE
 
             # Get the pointer from the pointer decoder object.
             value_name = '{}_ptr'.format(value.name)
@@ -262,6 +269,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 body += indent + 'for (size_t {i} = 0; {i} < {}; ++{i})\n'.format(
                     count_name, i=index_name
                 )
+
                 body += indent + '{\n'
                 tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
@@ -304,54 +312,31 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                         if ext_struct in self.structs_with_handles
                     ]
                     if ext_structs_with_handles:
-                        body += indent + 'const VkBaseInStructure* pnext_header = nullptr;\n'
-                        body += indent + 'if ({name}->pNext != nullptr)\n'.format(
-                            name=value_name
-                        )
-                        body += indent + '{\n'
-                        indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'pnext_header = reinterpret_cast<const VkBaseInStructure*>({}->pNext->GetPointer());\n'.format(
-                            value_name
-                        )
-                        indent = indent[:-self.INDENT_SIZE]
-                        body += indent + '}\n'
-                        body += indent + 'while (pnext_header)\n'
-                        body += indent + '{\n'
-                        indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'switch (pnext_header->sType)\n'
-                        body += indent + '{\n'
-                        indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'default:\n'
-                        indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'break;\n'
-                        indent = indent[:-self.INDENT_SIZE]
                         for ext_struct in ext_structs_with_handles:
-                            body += indent + 'case {}:\n'.format(
-                                self.pnext_structs[ext_struct]
-                            )
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE
-                            body += indent + 'auto pnext_value = reinterpret_cast<const Decoded_{}*>({}->pNext->GetPointer());\n'.format(
-                                ext_struct, value_name
-                            )
+                            body += indent + 'const auto* ext_struct_info = GetPNextMetaStruct<Decoded_{}>({}->pNext);\n'.format(
+                                 ext_struct, value_name
+                             )
+
+                            body += indent + 'if (ext_struct_info != nullptr)\n'
+                            body += indent + '{\n'
+                            indent += ' ' * self.INDENT_SIZE
                             body += self.track_command_handle(
                                 index,
                                 command_param_name,
                                 ValueInfo(
-                                    'pnext_value', ext_struct,
+                                    'ext_struct_info', ext_struct,
                                     'const {} *'.format(ext_struct), 1
                                 ),
                                 '',
                                 indent=indent
                             )
-                            body += indent + 'break;\n'
                             indent = indent[:-self.INDENT_SIZE]
                             body += indent + '}\n'
-                        indent = indent[:-self.INDENT_SIZE]
-                        body += indent + '}\n'
-                        body += indent + 'pnext_header = pnext_header->pNext;\n'
-                        indent = indent[:-self.INDENT_SIZE]
-                        body += indent + '}\n'
+
+                            indent = indent[:-self.INDENT_SIZE]
+                            body += indent + '}\n'
                 else:
                     body += self.track_command_handle(
                         index, command_param_name, entry,
