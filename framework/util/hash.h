@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 
+#include <cstring>
 #include <cstddef>
 #include <functional>
 
@@ -177,11 +178,11 @@ static inline uint32_t murmur3_32(const K& key, uint32_t seed)
 
     if constexpr (num_hashes)
     {
-        auto ptr = reinterpret_cast<const uint32_t*>(&key);
+        auto ptr = reinterpret_cast<const uint32_t*>(&key), end = ptr + num_hashes;
 
-        for (uint32_t i = num_hashes; i; i--)
+        for (; ptr < end; ++ptr)
         {
-            h ^= murmur_32_scramble(ptr[i - 1]);
+            h ^= murmur_32_scramble(*ptr);
             h = (h << 13) | (h >> 19);
             h = h * 5 + 0xe6546b64;
         }
