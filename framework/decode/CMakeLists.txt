@@ -36,6 +36,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/common_handle_mapping_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_struct_handle_mappers.h
+                    ${CMAKE_CURRENT_LIST_DIR}/common_object_info_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp

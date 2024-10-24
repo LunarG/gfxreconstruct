@@ -205,8 +205,8 @@ template <typename T>
 static void AddHandleArrayAsync(format::HandleId        parent_id,
                                 const format::HandleId* ids,
                                 size_t                  ids_len,
-                                VulkanObjectInfoTable*  object_info_table,
-                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                CommonObjectInfoTable*  object_info_table,
+                                void (CommonObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
     static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
@@ -231,9 +231,9 @@ template <typename T>
 static void AddHandleArrayAsync(format::HandleId        parent_id,
                                 const format::HandleId* ids,
                                 size_t                  ids_len,
-                                VulkanObjectInfoTable*  object_info_table,
+                                CommonObjectInfoTable*  object_info_table,
                                 std::vector<T>&&        initial_infos,
-                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                void (CommonObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
     static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");

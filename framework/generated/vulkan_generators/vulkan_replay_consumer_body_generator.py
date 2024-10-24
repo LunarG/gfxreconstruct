@@ -401,9 +401,9 @@ class VulkanReplayConsumerBodyGenerator(
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
             if return_type == 'VkResult':
-                body += '        resource_dumper_.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+                body += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
             else:
-                body += '        resource_dumper_.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+                body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
 
             body += '    }\n'
 
