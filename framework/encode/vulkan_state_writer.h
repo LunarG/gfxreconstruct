@@ -154,6 +154,8 @@ class VulkanStateWriter
 
     void WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table);
 
+    void WriteRayTracingShaderGroupHandlesState(const VulkanStateTable& state_table);
+
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
 
     void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);

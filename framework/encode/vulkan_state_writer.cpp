@@ -725,6 +725,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                                                             wrapper->handle_id,
                                                             wrapper->shader_group_handle_data.size(),
                                                             wrapper->shader_group_handle_data.data());
+
             }
 
             if (processed_ray_tracing_pipelines_khr.find(wrapper->create_parameters.get()) ==
@@ -860,6 +861,37 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     {
         DestroyTemporaryDeviceObject(format::ApiCall_vkDestroyPipelineLayout, entry.first, entry.second);
     }
+
+    WriteRayTracingShaderGroupHandlesState(state_table);
+}
+
+void VulkanStateWriter::WriteRayTracingShaderGroupHandlesState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesKHR)
+        {
+            auto     device_wrapper = state_table.GetDeviceWrapper(wrapper->device_id);
+            uint32_t data_size      = device_wrapper->property_feature_info.property_shaderGroupHandleSize *
+                                 wrapper->num_shader_group_handles;
+            std::vector<uint8_t> data(data_size);
+
+            VkResult result = device_wrapper->layer_table.GetRayTracingShaderGroupHandlesKHR(
+                device_wrapper->handle, wrapper->handle, 0, wrapper->num_shader_group_handles, data_size, data.data());
+
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->device_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeUInt32Value(0);                                 // firstGroup
+            encoder_.EncodeUInt32Value(wrapper->num_shader_group_handles); // groupCount
+            encoder_.EncodeSizeTValue(data_size);                          // dataSize
+            encoder_.EncodeVoidArray(data.data(), data_size);              // data
+            encoder_.EncodeEnumValue(result);                              // result
+            WriteFunctionCall(format::ApiCall_vkGetRayTracingShaderGroupHandlesKHR, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
+    });
 }
 
 void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_table)

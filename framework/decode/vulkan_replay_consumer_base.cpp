@@ -8294,7 +8294,26 @@ void VulkanReplayConsumerBase::OverrideCmdInsertDebugUtilsLabelEXT(
     {
         command_buffer_info->is_frame_boundary = true;
     }
-};
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    func,
+                                                       VulkanCommandBufferInfo* command_buffer_info,
+                                                       VkPipelineBindPoint      pipelineBindPoint,
+                                                       VulkanPipelineInfo*      pipeline_info)
+{
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    VkPipeline      pipeline       = VK_NULL_HANDLE;
+
+    if (command_buffer_info != nullptr && pipeline_info != nullptr)
+    {
+        command_buffer = command_buffer_info->handle;
+        pipeline       = pipeline_info->handle;
+
+        // keep track of currently bound pipeline
+        command_buffer_info->bound_pipeline_id = pipeline_info->capture_id;
+    }
+    func(command_buffer, pipelineBindPoint, pipeline);
+}
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
@@ -8410,7 +8429,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 
         // identify buffer(s) by their device-address
         const VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        const auto&       address_tracker = GetDeviceAddressTracker(device_info->handle);
+        const auto&             address_tracker = GetDeviceAddressTracker(device_info->handle);
 
         auto address_remap = [&address_tracker](VkStridedDeviceAddressRegionKHR* address_region) {
             if (address_region->size > 0)
@@ -8438,21 +8457,42 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
         address_remap(in_pHitShaderBindingTable);
         address_remap(in_pCallableShaderBindingTable);
 
+        auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
+        GFXRECON_ASSERT(bound_pipeline != nullptr)
+        auto& shader_group_handles = bound_pipeline->shader_group_handle_map;
+
+        // figure out if the captured group-handles are valid for replay
+        bool valid_group_handles = !shader_group_handles.empty();
+        bool valid_sbt_alignment = true;
+
         const VulkanPhysicalDeviceInfo* physical_device_info =
             GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
-        if (physical_device_info && physical_device_info->replay_device_info->raytracing_properties)
+        if (physical_device_info != nullptr && physical_device_info->replay_device_info->raytracing_properties)
         {
             const auto& replay_props = *physical_device_info->replay_device_info->raytracing_properties;
+
             if (physical_device_info->shaderGroupHandleSize != replay_props.shaderGroupHandleSize ||
                 physical_device_info->shaderGroupHandleAlignment != replay_props.shaderGroupHandleAlignment ||
                 physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
             {
-                // TODO: binding-table re-assembly
-                // TODO: remove TODO/warning when issue #1526 is solved
-                GFXRECON_LOG_WARNING_ONCE(
-                    "OverrideCmdTraceRaysKHR: mismatching shader-binding-table size or alignments")
+                valid_sbt_alignment = false;
             }
+        }
+
+        for (const auto& [lhs, rhs] : shader_group_handles)
+        {
+            if (lhs != rhs)
+            {
+                valid_group_handles = false;
+                break;
+            }
+        }
+
+        if (!(valid_group_handles && valid_sbt_alignment))
+        {
+            // TODO: remove TODO/warning when issue #1526 is solved
+            GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (size, alignment, handles")
         }
 
         func(commandBuffer,

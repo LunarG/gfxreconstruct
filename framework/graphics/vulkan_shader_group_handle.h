@@ -49,6 +49,7 @@ struct shader_group_handle_t
     {
         return size == other.size && memcmp(data, other.data, size) == 0;
     }
+    inline bool operator!=(const shader_group_handle_t& other) const { return !(*this == other); }
 };
 
 GFXRECON_END_NAMESPACE(graphics)

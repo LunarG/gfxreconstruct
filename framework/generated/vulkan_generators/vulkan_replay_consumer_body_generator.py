@@ -370,6 +370,8 @@ class VulkanReplayConsumerBodyGenerator(
                     elif self.is_handle(val.base_type):
                         if val.is_pointer:
                             dump_resource_arglist += val.name + '->GetHandlePointer()'
+                        elif val.base_type in ["VkPipeline"]:
+                            dump_resource_arglist += 'in_' + val.name
                         else:
                             dump_resource_arglist += 'in_' + val.name + '->handle'
                     else:
