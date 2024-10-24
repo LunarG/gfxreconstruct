@@ -23,9 +23,9 @@
 #ifndef GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_DRAW_CALLS_H
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_DRAW_CALLS_H
 
+#include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_json.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -46,7 +46,7 @@ class DrawCallsDumpingContext
   public:
     DrawCallsDumpingContext(const std::vector<uint64_t>&              dc_indices,
                             const std::vector<std::vector<uint64_t>>& rp_indices,
-                            VulkanObjectInfoTable&                    object_info_table,
+                            CommonObjectInfoTable&                    object_info_table,
                             const VulkanReplayOptions&                options,
                             VulkanReplayDumpResourcesJson&            dump_json,
                             std::string                               capture_filename);
@@ -342,7 +342,7 @@ class DrawCallsDumpingContext
             {}
 
             const VulkanBufferInfo* buffer_info;
-            VkDeviceSize      offset;
+            VkDeviceSize            offset;
 
             // These are provided only by CmdBindVertexBuffers2
             VkDeviceSize size;
@@ -375,8 +375,8 @@ class DrawCallsDumpingContext
         {}
 
         const VulkanBufferInfo* buffer_info;
-        VkDeviceSize      offset;
-        VkIndexType       index_type;
+        VkDeviceSize            offset;
+        VkIndexType             index_type;
 
         // This is provided only by vkCmdBindIndexBuffer2KHR
         VkDeviceSize size;
@@ -507,9 +507,9 @@ class DrawCallsDumpingContext
             struct DrawIndirectParams
             {
                 const VulkanBufferInfo* params_buffer_info;
-                VkDeviceSize      params_buffer_offset;
-                uint32_t          draw_count;
-                uint32_t          stride;
+                VkDeviceSize            params_buffer_offset;
+                uint32_t                draw_count;
+                uint32_t                stride;
 
                 VkBuffer       new_params_buffer;
                 VkDeviceMemory new_params_memory;
@@ -530,11 +530,11 @@ class DrawCallsDumpingContext
             struct DrawIndirectCountParams
             {
                 const VulkanBufferInfo* params_buffer_info;
-                VkDeviceSize      params_buffer_offset;
+                VkDeviceSize            params_buffer_offset;
                 const VulkanBufferInfo* count_buffer_info;
-                VkDeviceSize      count_buffer_offset;
-                uint32_t          max_draw_count;
-                uint32_t          stride;
+                VkDeviceSize            count_buffer_offset;
+                uint32_t                max_draw_count;
+                uint32_t                stride;
 
                 VkBuffer       new_params_buffer;
                 VkDeviceMemory new_params_memory;
@@ -671,7 +671,7 @@ class DrawCallsDumpingContext
 
         // Keep copies of the descriptor bindings referenced by each draw call
         std::unordered_map<VkShaderStageFlagBits,
-                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::DescriptorBindingsInfo>>
+                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>>
             referenced_descriptors;
     };
 
@@ -681,12 +681,12 @@ class DrawCallsDumpingContext
     struct
     {
         std::vector<const VulkanImageInfo*> original_images;
-        std::vector<VkImage>          images;
-        std::vector<VkDeviceMemory>   image_memories;
+        std::vector<VkImage>                images;
+        std::vector<VkDeviceMemory>         image_memories;
 
         std::vector<const VulkanBufferInfo*> original_buffers;
-        std::vector<VkBuffer>          buffers;
-        std::vector<VkDeviceMemory>    buffer_memories;
+        std::vector<VkBuffer>                buffers;
+        std::vector<VkDeviceMemory>          buffer_memories;
     } mutable_resource_backups;
 
     // Gather here all descriptors referenced by draw calls that have been dumped
@@ -713,7 +713,7 @@ class DrawCallsDumpingContext
 
     const encode::VulkanDeviceTable*        device_table;
     const encode::VulkanInstanceTable*      instance_table;
-    VulkanObjectInfoTable&                  object_info_table;
+    CommonObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     std::string                             capture_filename;
 };

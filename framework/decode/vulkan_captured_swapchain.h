@@ -113,7 +113,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      const CommonObjectInfoTable& object_info_table,
                                                       SwapchainImageTracker&       swapchain_image_tracker) override;
 
   private:
@@ -122,7 +122,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
     void ProcessSetSwapchainImageStatePreAcquire(const VulkanDeviceInfo*                             device_info,
                                                  VulkanSwapchainKHRInfo*                             swapchain_info,
                                                  const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                 const VulkanObjectInfoTable&                        object_info_table,
+                                                 const CommonObjectInfoTable&                        object_info_table,
                                                  SwapchainImageTracker& swapchain_image_tracker);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
@@ -132,7 +132,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                                   VulkanSwapchainKHRInfo* swapchain_info,
                                                   uint32_t                last_presented_image,
                                                   const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                  const VulkanObjectInfoTable& object_info_table);
+                                                  const CommonObjectInfoTable& object_info_table);
 };
 
 GFXRECON_END_NAMESPACE(decode)

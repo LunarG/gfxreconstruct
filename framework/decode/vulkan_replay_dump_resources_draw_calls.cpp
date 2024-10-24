@@ -56,7 +56,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&              dc_indices,
                                                  const std::vector<std::vector<uint64_t>>& rp_indices,
-                                                 VulkanObjectInfoTable&                    object_info_table,
+                                                 CommonObjectInfoTable&                    object_info_table,
                                                  const VulkanReplayOptions&                options,
                                                  VulkanReplayDumpResourcesJson&            dump_json,
                                                  std::string                               capture_filename) :
@@ -2113,9 +2113,9 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     for (const auto& buf : buffer_descriptors)
     {
         const VulkanBufferInfo* buffer_info = buf.first;
-        const VkDeviceSize offset      = buf.second.offset;
-        const VkDeviceSize range       = buf.second.range;
-        const VkDeviceSize size        = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+        const VkDeviceSize      offset      = buf.second.offset;
+        const VkDeviceSize      range       = buf.second.range;
+        const VkDeviceSize      size        = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
 
         std::vector<uint8_t> data;
         VkResult             res = resource_util.ReadFromBufferResource(

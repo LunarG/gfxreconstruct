@@ -42,54 +42,54 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     VulkanObjectInfoTableBase2() {}
     ~VulkanObjectInfoTableBase2() {}
 
-    void AddVkAccelerationStructureKHRInfo(VulkanAccelerationStructureKHRInfo&& info) { AddObjectInfo(std::move(info), &accelerationStructureKHR_map_); }
-    void AddVkAccelerationStructureNVInfo(VulkanAccelerationStructureNVInfo&& info) { AddObjectInfo(std::move(info), &accelerationStructureNV_map_); }
-    void AddVkBufferInfo(VulkanBufferInfo&& info) { AddObjectInfo(std::move(info), &buffer_map_); }
-    void AddVkBufferViewInfo(VulkanBufferViewInfo&& info) { AddObjectInfo(std::move(info), &bufferView_map_); }
-    void AddVkCommandBufferInfo(VulkanCommandBufferInfo&& info) { AddObjectInfo(std::move(info), &commandBuffer_map_); }
-    void AddVkCommandPoolInfo(VulkanCommandPoolInfo&& info) { AddObjectInfo(std::move(info), &commandPool_map_); }
-    void AddVkDebugReportCallbackEXTInfo(VulkanDebugReportCallbackEXTInfo&& info) { AddObjectInfo(std::move(info), &debugReportCallbackEXT_map_); }
-    void AddVkDebugUtilsMessengerEXTInfo(VulkanDebugUtilsMessengerEXTInfo&& info) { AddObjectInfo(std::move(info), &debugUtilsMessengerEXT_map_); }
-    void AddVkDeferredOperationKHRInfo(VulkanDeferredOperationKHRInfo&& info) { AddObjectInfo(std::move(info), &deferredOperationKHR_map_); }
-    void AddVkDescriptorPoolInfo(VulkanDescriptorPoolInfo&& info) { AddObjectInfo(std::move(info), &descriptorPool_map_); }
-    void AddVkDescriptorSetInfo(VulkanDescriptorSetInfo&& info) { AddObjectInfo(std::move(info), &descriptorSet_map_); }
-    void AddVkDescriptorSetLayoutInfo(VulkanDescriptorSetLayoutInfo&& info) { AddObjectInfo(std::move(info), &descriptorSetLayout_map_); }
-    void AddVkDescriptorUpdateTemplateInfo(VulkanDescriptorUpdateTemplateInfo&& info) { AddObjectInfo(std::move(info), &descriptorUpdateTemplate_map_); }
-    void AddVkDeviceInfo(VulkanDeviceInfo&& info) { AddObjectInfo(std::move(info), &device_map_); }
-    void AddVkDeviceMemoryInfo(VulkanDeviceMemoryInfo&& info) { AddObjectInfo(std::move(info), &deviceMemory_map_); }
-    void AddVkDisplayKHRInfo(VulkanDisplayKHRInfo&& info) { AddObjectInfo(std::move(info), &displayKHR_map_); }
-    void AddVkDisplayModeKHRInfo(VulkanDisplayModeKHRInfo&& info) { AddObjectInfo(std::move(info), &displayModeKHR_map_); }
-    void AddVkEventInfo(VulkanEventInfo&& info) { AddObjectInfo(std::move(info), &event_map_); }
-    void AddVkFenceInfo(VulkanFenceInfo&& info) { AddObjectInfo(std::move(info), &fence_map_); }
-    void AddVkFramebufferInfo(VulkanFramebufferInfo&& info) { AddObjectInfo(std::move(info), &framebuffer_map_); }
-    void AddVkImageInfo(VulkanImageInfo&& info) { AddObjectInfo(std::move(info), &image_map_); }
-    void AddVkImageViewInfo(VulkanImageViewInfo&& info) { AddObjectInfo(std::move(info), &imageView_map_); }
-    void AddVkIndirectCommandsLayoutEXTInfo(VulkanIndirectCommandsLayoutEXTInfo&& info) { AddObjectInfo(std::move(info), &indirectCommandsLayoutEXT_map_); }
-    void AddVkIndirectCommandsLayoutNVInfo(VulkanIndirectCommandsLayoutNVInfo&& info) { AddObjectInfo(std::move(info), &indirectCommandsLayoutNV_map_); }
-    void AddVkIndirectExecutionSetEXTInfo(VulkanIndirectExecutionSetEXTInfo&& info) { AddObjectInfo(std::move(info), &indirectExecutionSetEXT_map_); }
-    void AddVkInstanceInfo(VulkanInstanceInfo&& info) { AddObjectInfo(std::move(info), &instance_map_); }
-    void AddVkMicromapEXTInfo(VulkanMicromapEXTInfo&& info) { AddObjectInfo(std::move(info), &micromapEXT_map_); }
-    void AddVkOpticalFlowSessionNVInfo(VulkanOpticalFlowSessionNVInfo&& info) { AddObjectInfo(std::move(info), &opticalFlowSessionNV_map_); }
-    void AddVkPerformanceConfigurationINTELInfo(VulkanPerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performanceConfigurationINTEL_map_); }
-    void AddVkPhysicalDeviceInfo(VulkanPhysicalDeviceInfo&& info) { AddObjectInfo(std::move(info), &physicalDevice_map_); }
-    void AddVkPipelineInfo(VulkanPipelineInfo&& info) { AddObjectInfo(std::move(info), &pipeline_map_); }
-    void AddVkPipelineBinaryKHRInfo(VulkanPipelineBinaryKHRInfo&& info) { AddObjectInfo(std::move(info), &pipelineBinaryKHR_map_); }
-    void AddVkPipelineCacheInfo(VulkanPipelineCacheInfo&& info) { AddObjectInfo(std::move(info), &pipelineCache_map_); }
-    void AddVkPipelineLayoutInfo(VulkanPipelineLayoutInfo&& info) { AddObjectInfo(std::move(info), &pipelineLayout_map_); }
-    void AddVkPrivateDataSlotInfo(VulkanPrivateDataSlotInfo&& info) { AddObjectInfo(std::move(info), &privateDataSlot_map_); }
-    void AddVkQueryPoolInfo(VulkanQueryPoolInfo&& info) { AddObjectInfo(std::move(info), &queryPool_map_); }
-    void AddVkQueueInfo(VulkanQueueInfo&& info) { AddObjectInfo(std::move(info), &queue_map_); }
-    void AddVkRenderPassInfo(VulkanRenderPassInfo&& info) { AddObjectInfo(std::move(info), &renderPass_map_); }
-    void AddVkSamplerInfo(VulkanSamplerInfo&& info) { AddObjectInfo(std::move(info), &sampler_map_); }
-    void AddVkSamplerYcbcrConversionInfo(VulkanSamplerYcbcrConversionInfo&& info) { AddObjectInfo(std::move(info), &samplerYcbcrConversion_map_); }
-    void AddVkSemaphoreInfo(VulkanSemaphoreInfo&& info) { AddObjectInfo(std::move(info), &semaphore_map_); }
-    void AddVkShaderEXTInfo(VulkanShaderEXTInfo&& info) { AddObjectInfo(std::move(info), &shaderEXT_map_); }
-    void AddVkShaderModuleInfo(VulkanShaderModuleInfo&& info) { AddObjectInfo(std::move(info), &shaderModule_map_); }
-    void AddVkSurfaceKHRInfo(VulkanSurfaceKHRInfo&& info) { AddObjectInfo(std::move(info), &surfaceKHR_map_); }
-    void AddVkSwapchainKHRInfo(VulkanSwapchainKHRInfo&& info) { AddObjectInfo(std::move(info), &swapchainKHR_map_); }
-    void AddVkValidationCacheEXTInfo(VulkanValidationCacheEXTInfo&& info) { AddObjectInfo(std::move(info), &validationCacheEXT_map_); }
-    void AddVkVideoSessionKHRInfo(VulkanVideoSessionKHRInfo&& info) { AddObjectInfo(std::move(info), &videoSessionKHR_map_); }
-    void AddVkVideoSessionParametersKHRInfo(VulkanVideoSessionParametersKHRInfo&& info) { AddObjectInfo(std::move(info), &videoSessionParametersKHR_map_); }
+    void AddVkAccelerationStructureKHRInfo(VulkanAccelerationStructureKHRInfo&& info) { AddVkObjectInfo(std::move(info), &accelerationStructureKHR_map_); }
+    void AddVkAccelerationStructureNVInfo(VulkanAccelerationStructureNVInfo&& info) { AddVkObjectInfo(std::move(info), &accelerationStructureNV_map_); }
+    void AddVkBufferInfo(VulkanBufferInfo&& info) { AddVkObjectInfo(std::move(info), &buffer_map_); }
+    void AddVkBufferViewInfo(VulkanBufferViewInfo&& info) { AddVkObjectInfo(std::move(info), &bufferView_map_); }
+    void AddVkCommandBufferInfo(VulkanCommandBufferInfo&& info) { AddVkObjectInfo(std::move(info), &commandBuffer_map_); }
+    void AddVkCommandPoolInfo(VulkanCommandPoolInfo&& info) { AddVkObjectInfo(std::move(info), &commandPool_map_); }
+    void AddVkDebugReportCallbackEXTInfo(VulkanDebugReportCallbackEXTInfo&& info) { AddVkObjectInfo(std::move(info), &debugReportCallbackEXT_map_); }
+    void AddVkDebugUtilsMessengerEXTInfo(VulkanDebugUtilsMessengerEXTInfo&& info) { AddVkObjectInfo(std::move(info), &debugUtilsMessengerEXT_map_); }
+    void AddVkDeferredOperationKHRInfo(VulkanDeferredOperationKHRInfo&& info) { AddVkObjectInfo(std::move(info), &deferredOperationKHR_map_); }
+    void AddVkDescriptorPoolInfo(VulkanDescriptorPoolInfo&& info) { AddVkObjectInfo(std::move(info), &descriptorPool_map_); }
+    void AddVkDescriptorSetInfo(VulkanDescriptorSetInfo&& info) { AddVkObjectInfo(std::move(info), &descriptorSet_map_); }
+    void AddVkDescriptorSetLayoutInfo(VulkanDescriptorSetLayoutInfo&& info) { AddVkObjectInfo(std::move(info), &descriptorSetLayout_map_); }
+    void AddVkDescriptorUpdateTemplateInfo(VulkanDescriptorUpdateTemplateInfo&& info) { AddVkObjectInfo(std::move(info), &descriptorUpdateTemplate_map_); }
+    void AddVkDeviceInfo(VulkanDeviceInfo&& info) { AddVkObjectInfo(std::move(info), &device_map_); }
+    void AddVkDeviceMemoryInfo(VulkanDeviceMemoryInfo&& info) { AddVkObjectInfo(std::move(info), &deviceMemory_map_); }
+    void AddVkDisplayKHRInfo(VulkanDisplayKHRInfo&& info) { AddVkObjectInfo(std::move(info), &displayKHR_map_); }
+    void AddVkDisplayModeKHRInfo(VulkanDisplayModeKHRInfo&& info) { AddVkObjectInfo(std::move(info), &displayModeKHR_map_); }
+    void AddVkEventInfo(VulkanEventInfo&& info) { AddVkObjectInfo(std::move(info), &event_map_); }
+    void AddVkFenceInfo(VulkanFenceInfo&& info) { AddVkObjectInfo(std::move(info), &fence_map_); }
+    void AddVkFramebufferInfo(VulkanFramebufferInfo&& info) { AddVkObjectInfo(std::move(info), &framebuffer_map_); }
+    void AddVkImageInfo(VulkanImageInfo&& info) { AddVkObjectInfo(std::move(info), &image_map_); }
+    void AddVkImageViewInfo(VulkanImageViewInfo&& info) { AddVkObjectInfo(std::move(info), &imageView_map_); }
+    void AddVkIndirectCommandsLayoutEXTInfo(VulkanIndirectCommandsLayoutEXTInfo&& info) { AddVkObjectInfo(std::move(info), &indirectCommandsLayoutEXT_map_); }
+    void AddVkIndirectCommandsLayoutNVInfo(VulkanIndirectCommandsLayoutNVInfo&& info) { AddVkObjectInfo(std::move(info), &indirectCommandsLayoutNV_map_); }
+    void AddVkIndirectExecutionSetEXTInfo(VulkanIndirectExecutionSetEXTInfo&& info) { AddVkObjectInfo(std::move(info), &indirectExecutionSetEXT_map_); }
+    void AddVkInstanceInfo(VulkanInstanceInfo&& info) { AddVkObjectInfo(std::move(info), &instance_map_); }
+    void AddVkMicromapEXTInfo(VulkanMicromapEXTInfo&& info) { AddVkObjectInfo(std::move(info), &micromapEXT_map_); }
+    void AddVkOpticalFlowSessionNVInfo(VulkanOpticalFlowSessionNVInfo&& info) { AddVkObjectInfo(std::move(info), &opticalFlowSessionNV_map_); }
+    void AddVkPerformanceConfigurationINTELInfo(VulkanPerformanceConfigurationINTELInfo&& info) { AddVkObjectInfo(std::move(info), &performanceConfigurationINTEL_map_); }
+    void AddVkPhysicalDeviceInfo(VulkanPhysicalDeviceInfo&& info) { AddVkObjectInfo(std::move(info), &physicalDevice_map_); }
+    void AddVkPipelineInfo(VulkanPipelineInfo&& info) { AddVkObjectInfo(std::move(info), &pipeline_map_); }
+    void AddVkPipelineBinaryKHRInfo(VulkanPipelineBinaryKHRInfo&& info) { AddVkObjectInfo(std::move(info), &pipelineBinaryKHR_map_); }
+    void AddVkPipelineCacheInfo(VulkanPipelineCacheInfo&& info) { AddVkObjectInfo(std::move(info), &pipelineCache_map_); }
+    void AddVkPipelineLayoutInfo(VulkanPipelineLayoutInfo&& info) { AddVkObjectInfo(std::move(info), &pipelineLayout_map_); }
+    void AddVkPrivateDataSlotInfo(VulkanPrivateDataSlotInfo&& info) { AddVkObjectInfo(std::move(info), &privateDataSlot_map_); }
+    void AddVkQueryPoolInfo(VulkanQueryPoolInfo&& info) { AddVkObjectInfo(std::move(info), &queryPool_map_); }
+    void AddVkQueueInfo(VulkanQueueInfo&& info) { AddVkObjectInfo(std::move(info), &queue_map_); }
+    void AddVkRenderPassInfo(VulkanRenderPassInfo&& info) { AddVkObjectInfo(std::move(info), &renderPass_map_); }
+    void AddVkSamplerInfo(VulkanSamplerInfo&& info) { AddVkObjectInfo(std::move(info), &sampler_map_); }
+    void AddVkSamplerYcbcrConversionInfo(VulkanSamplerYcbcrConversionInfo&& info) { AddVkObjectInfo(std::move(info), &samplerYcbcrConversion_map_); }
+    void AddVkSemaphoreInfo(VulkanSemaphoreInfo&& info) { AddVkObjectInfo(std::move(info), &semaphore_map_); }
+    void AddVkShaderEXTInfo(VulkanShaderEXTInfo&& info) { AddVkObjectInfo(std::move(info), &shaderEXT_map_); }
+    void AddVkShaderModuleInfo(VulkanShaderModuleInfo&& info) { AddVkObjectInfo(std::move(info), &shaderModule_map_); }
+    void AddVkSurfaceKHRInfo(VulkanSurfaceKHRInfo&& info) { AddVkObjectInfo(std::move(info), &surfaceKHR_map_); }
+    void AddVkSwapchainKHRInfo(VulkanSwapchainKHRInfo&& info) { AddVkObjectInfo(std::move(info), &swapchainKHR_map_); }
+    void AddVkValidationCacheEXTInfo(VulkanValidationCacheEXTInfo&& info) { AddVkObjectInfo(std::move(info), &validationCacheEXT_map_); }
+    void AddVkVideoSessionKHRInfo(VulkanVideoSessionKHRInfo&& info) { AddVkObjectInfo(std::move(info), &videoSessionKHR_map_); }
+    void AddVkVideoSessionParametersKHRInfo(VulkanVideoSessionParametersKHRInfo&& info) { AddVkObjectInfo(std::move(info), &videoSessionParametersKHR_map_); }
 
     void RemoveVkAccelerationStructureKHRInfo(format::HandleId id) { accelerationStructureKHR_map_.erase(id); }
     void RemoveVkAccelerationStructureNVInfo(format::HandleId id) { accelerationStructureNV_map_.erase(id); }
@@ -140,103 +140,103 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveVkVideoSessionKHRInfo(format::HandleId id) { videoSessionKHR_map_.erase(id); }
     void RemoveVkVideoSessionParametersKHRInfo(format::HandleId id) { videoSessionParametersKHR_map_.erase(id); }
 
-    const VulkanAccelerationStructureKHRInfo* GetVkAccelerationStructureKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanAccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
-    const VulkanAccelerationStructureNVInfo* GetVkAccelerationStructureNVInfo(format::HandleId id) const { return GetObjectInfo<VulkanAccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
-    const VulkanBufferInfo* GetVkBufferInfo(format::HandleId id) const { return GetObjectInfo<VulkanBufferInfo>(id, &buffer_map_); }
-    const VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) const { return GetObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
-    const VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) const { return GetObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
-    const VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) const { return GetObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
-    const VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
-    const VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
-    const VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
-    const VulkanDescriptorPoolInfo* GetVkDescriptorPoolInfo(format::HandleId id) const { return GetObjectInfo<VulkanDescriptorPoolInfo>(id, &descriptorPool_map_); }
-    const VulkanDescriptorSetInfo* GetVkDescriptorSetInfo(format::HandleId id) const { return GetObjectInfo<VulkanDescriptorSetInfo>(id, &descriptorSet_map_); }
-    const VulkanDescriptorSetLayoutInfo* GetVkDescriptorSetLayoutInfo(format::HandleId id) const { return GetObjectInfo<VulkanDescriptorSetLayoutInfo>(id, &descriptorSetLayout_map_); }
-    const VulkanDescriptorUpdateTemplateInfo* GetVkDescriptorUpdateTemplateInfo(format::HandleId id) const { return GetObjectInfo<VulkanDescriptorUpdateTemplateInfo>(id, &descriptorUpdateTemplate_map_); }
-    const VulkanDeviceInfo* GetVkDeviceInfo(format::HandleId id) const { return GetObjectInfo<VulkanDeviceInfo>(id, &device_map_); }
-    const VulkanDeviceMemoryInfo* GetVkDeviceMemoryInfo(format::HandleId id) const { return GetObjectInfo<VulkanDeviceMemoryInfo>(id, &deviceMemory_map_); }
-    const VulkanDisplayKHRInfo* GetVkDisplayKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanDisplayKHRInfo>(id, &displayKHR_map_); }
-    const VulkanDisplayModeKHRInfo* GetVkDisplayModeKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanDisplayModeKHRInfo>(id, &displayModeKHR_map_); }
-    const VulkanEventInfo* GetVkEventInfo(format::HandleId id) const { return GetObjectInfo<VulkanEventInfo>(id, &event_map_); }
-    const VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) const { return GetObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
-    const VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) const { return GetObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
-    const VulkanImageInfo* GetVkImageInfo(format::HandleId id) const { return GetObjectInfo<VulkanImageInfo>(id, &image_map_); }
-    const VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) const { return GetObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
-    const VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
-    const VulkanIndirectCommandsLayoutNVInfo* GetVkIndirectCommandsLayoutNVInfo(format::HandleId id) const { return GetObjectInfo<VulkanIndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
-    const VulkanIndirectExecutionSetEXTInfo* GetVkIndirectExecutionSetEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanIndirectExecutionSetEXTInfo>(id, &indirectExecutionSetEXT_map_); }
-    const VulkanInstanceInfo* GetVkInstanceInfo(format::HandleId id) const { return GetObjectInfo<VulkanInstanceInfo>(id, &instance_map_); }
-    const VulkanMicromapEXTInfo* GetVkMicromapEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanMicromapEXTInfo>(id, &micromapEXT_map_); }
-    const VulkanOpticalFlowSessionNVInfo* GetVkOpticalFlowSessionNVInfo(format::HandleId id) const { return GetObjectInfo<VulkanOpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
-    const VulkanPerformanceConfigurationINTELInfo* GetVkPerformanceConfigurationINTELInfo(format::HandleId id) const { return GetObjectInfo<VulkanPerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
-    const VulkanPhysicalDeviceInfo* GetVkPhysicalDeviceInfo(format::HandleId id) const { return GetObjectInfo<VulkanPhysicalDeviceInfo>(id, &physicalDevice_map_); }
-    const VulkanPipelineInfo* GetVkPipelineInfo(format::HandleId id) const { return GetObjectInfo<VulkanPipelineInfo>(id, &pipeline_map_); }
-    const VulkanPipelineBinaryKHRInfo* GetVkPipelineBinaryKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanPipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
-    const VulkanPipelineCacheInfo* GetVkPipelineCacheInfo(format::HandleId id) const { return GetObjectInfo<VulkanPipelineCacheInfo>(id, &pipelineCache_map_); }
-    const VulkanPipelineLayoutInfo* GetVkPipelineLayoutInfo(format::HandleId id) const { return GetObjectInfo<VulkanPipelineLayoutInfo>(id, &pipelineLayout_map_); }
-    const VulkanPrivateDataSlotInfo* GetVkPrivateDataSlotInfo(format::HandleId id) const { return GetObjectInfo<VulkanPrivateDataSlotInfo>(id, &privateDataSlot_map_); }
-    const VulkanQueryPoolInfo* GetVkQueryPoolInfo(format::HandleId id) const { return GetObjectInfo<VulkanQueryPoolInfo>(id, &queryPool_map_); }
-    const VulkanQueueInfo* GetVkQueueInfo(format::HandleId id) const { return GetObjectInfo<VulkanQueueInfo>(id, &queue_map_); }
-    const VulkanRenderPassInfo* GetVkRenderPassInfo(format::HandleId id) const { return GetObjectInfo<VulkanRenderPassInfo>(id, &renderPass_map_); }
-    const VulkanSamplerInfo* GetVkSamplerInfo(format::HandleId id) const { return GetObjectInfo<VulkanSamplerInfo>(id, &sampler_map_); }
-    const VulkanSamplerYcbcrConversionInfo* GetVkSamplerYcbcrConversionInfo(format::HandleId id) const { return GetObjectInfo<VulkanSamplerYcbcrConversionInfo>(id, &samplerYcbcrConversion_map_); }
-    const VulkanSemaphoreInfo* GetVkSemaphoreInfo(format::HandleId id) const { return GetObjectInfo<VulkanSemaphoreInfo>(id, &semaphore_map_); }
-    const VulkanShaderEXTInfo* GetVkShaderEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanShaderEXTInfo>(id, &shaderEXT_map_); }
-    const VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) const { return GetObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
-    const VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
-    const VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
-    const VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) const { return GetObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
-    const VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
-    const VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) const { return GetObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
+    const VulkanAccelerationStructureKHRInfo* GetVkAccelerationStructureKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanAccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
+    const VulkanAccelerationStructureNVInfo* GetVkAccelerationStructureNVInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanAccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
+    const VulkanBufferInfo* GetVkBufferInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanBufferInfo>(id, &buffer_map_); }
+    const VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
+    const VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
+    const VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
+    const VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
+    const VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
+    const VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
+    const VulkanDescriptorPoolInfo* GetVkDescriptorPoolInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDescriptorPoolInfo>(id, &descriptorPool_map_); }
+    const VulkanDescriptorSetInfo* GetVkDescriptorSetInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDescriptorSetInfo>(id, &descriptorSet_map_); }
+    const VulkanDescriptorSetLayoutInfo* GetVkDescriptorSetLayoutInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDescriptorSetLayoutInfo>(id, &descriptorSetLayout_map_); }
+    const VulkanDescriptorUpdateTemplateInfo* GetVkDescriptorUpdateTemplateInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDescriptorUpdateTemplateInfo>(id, &descriptorUpdateTemplate_map_); }
+    const VulkanDeviceInfo* GetVkDeviceInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDeviceInfo>(id, &device_map_); }
+    const VulkanDeviceMemoryInfo* GetVkDeviceMemoryInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDeviceMemoryInfo>(id, &deviceMemory_map_); }
+    const VulkanDisplayKHRInfo* GetVkDisplayKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDisplayKHRInfo>(id, &displayKHR_map_); }
+    const VulkanDisplayModeKHRInfo* GetVkDisplayModeKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDisplayModeKHRInfo>(id, &displayModeKHR_map_); }
+    const VulkanEventInfo* GetVkEventInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanEventInfo>(id, &event_map_); }
+    const VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
+    const VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
+    const VulkanImageInfo* GetVkImageInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanImageInfo>(id, &image_map_); }
+    const VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
+    const VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
+    const VulkanIndirectCommandsLayoutNVInfo* GetVkIndirectCommandsLayoutNVInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanIndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
+    const VulkanIndirectExecutionSetEXTInfo* GetVkIndirectExecutionSetEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanIndirectExecutionSetEXTInfo>(id, &indirectExecutionSetEXT_map_); }
+    const VulkanInstanceInfo* GetVkInstanceInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanInstanceInfo>(id, &instance_map_); }
+    const VulkanMicromapEXTInfo* GetVkMicromapEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanMicromapEXTInfo>(id, &micromapEXT_map_); }
+    const VulkanOpticalFlowSessionNVInfo* GetVkOpticalFlowSessionNVInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanOpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
+    const VulkanPerformanceConfigurationINTELInfo* GetVkPerformanceConfigurationINTELInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
+    const VulkanPhysicalDeviceInfo* GetVkPhysicalDeviceInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPhysicalDeviceInfo>(id, &physicalDevice_map_); }
+    const VulkanPipelineInfo* GetVkPipelineInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPipelineInfo>(id, &pipeline_map_); }
+    const VulkanPipelineBinaryKHRInfo* GetVkPipelineBinaryKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
+    const VulkanPipelineCacheInfo* GetVkPipelineCacheInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPipelineCacheInfo>(id, &pipelineCache_map_); }
+    const VulkanPipelineLayoutInfo* GetVkPipelineLayoutInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPipelineLayoutInfo>(id, &pipelineLayout_map_); }
+    const VulkanPrivateDataSlotInfo* GetVkPrivateDataSlotInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanPrivateDataSlotInfo>(id, &privateDataSlot_map_); }
+    const VulkanQueryPoolInfo* GetVkQueryPoolInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanQueryPoolInfo>(id, &queryPool_map_); }
+    const VulkanQueueInfo* GetVkQueueInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanQueueInfo>(id, &queue_map_); }
+    const VulkanRenderPassInfo* GetVkRenderPassInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanRenderPassInfo>(id, &renderPass_map_); }
+    const VulkanSamplerInfo* GetVkSamplerInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSamplerInfo>(id, &sampler_map_); }
+    const VulkanSamplerYcbcrConversionInfo* GetVkSamplerYcbcrConversionInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSamplerYcbcrConversionInfo>(id, &samplerYcbcrConversion_map_); }
+    const VulkanSemaphoreInfo* GetVkSemaphoreInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSemaphoreInfo>(id, &semaphore_map_); }
+    const VulkanShaderEXTInfo* GetVkShaderEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanShaderEXTInfo>(id, &shaderEXT_map_); }
+    const VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
+    const VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
+    const VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
+    const VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
+    const VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
+    const VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
 
-    VulkanAccelerationStructureKHRInfo* GetVkAccelerationStructureKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanAccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
-    VulkanAccelerationStructureNVInfo* GetVkAccelerationStructureNVInfo(format::HandleId id) { return GetObjectInfo<VulkanAccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
-    VulkanBufferInfo* GetVkBufferInfo(format::HandleId id) { return GetObjectInfo<VulkanBufferInfo>(id, &buffer_map_); }
-    VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) { return GetObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
-    VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) { return GetObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
-    VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) { return GetObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
-    VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
-    VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
-    VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
-    VulkanDescriptorPoolInfo* GetVkDescriptorPoolInfo(format::HandleId id) { return GetObjectInfo<VulkanDescriptorPoolInfo>(id, &descriptorPool_map_); }
-    VulkanDescriptorSetInfo* GetVkDescriptorSetInfo(format::HandleId id) { return GetObjectInfo<VulkanDescriptorSetInfo>(id, &descriptorSet_map_); }
-    VulkanDescriptorSetLayoutInfo* GetVkDescriptorSetLayoutInfo(format::HandleId id) { return GetObjectInfo<VulkanDescriptorSetLayoutInfo>(id, &descriptorSetLayout_map_); }
-    VulkanDescriptorUpdateTemplateInfo* GetVkDescriptorUpdateTemplateInfo(format::HandleId id) { return GetObjectInfo<VulkanDescriptorUpdateTemplateInfo>(id, &descriptorUpdateTemplate_map_); }
-    VulkanDeviceInfo* GetVkDeviceInfo(format::HandleId id) { return GetObjectInfo<VulkanDeviceInfo>(id, &device_map_); }
-    VulkanDeviceMemoryInfo* GetVkDeviceMemoryInfo(format::HandleId id) { return GetObjectInfo<VulkanDeviceMemoryInfo>(id, &deviceMemory_map_); }
-    VulkanDisplayKHRInfo* GetVkDisplayKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanDisplayKHRInfo>(id, &displayKHR_map_); }
-    VulkanDisplayModeKHRInfo* GetVkDisplayModeKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanDisplayModeKHRInfo>(id, &displayModeKHR_map_); }
-    VulkanEventInfo* GetVkEventInfo(format::HandleId id) { return GetObjectInfo<VulkanEventInfo>(id, &event_map_); }
-    VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) { return GetObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
-    VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) { return GetObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
-    VulkanImageInfo* GetVkImageInfo(format::HandleId id) { return GetObjectInfo<VulkanImageInfo>(id, &image_map_); }
-    VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) { return GetObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
-    VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
-    VulkanIndirectCommandsLayoutNVInfo* GetVkIndirectCommandsLayoutNVInfo(format::HandleId id) { return GetObjectInfo<VulkanIndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
-    VulkanIndirectExecutionSetEXTInfo* GetVkIndirectExecutionSetEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanIndirectExecutionSetEXTInfo>(id, &indirectExecutionSetEXT_map_); }
-    VulkanInstanceInfo* GetVkInstanceInfo(format::HandleId id) { return GetObjectInfo<VulkanInstanceInfo>(id, &instance_map_); }
-    VulkanMicromapEXTInfo* GetVkMicromapEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanMicromapEXTInfo>(id, &micromapEXT_map_); }
-    VulkanOpticalFlowSessionNVInfo* GetVkOpticalFlowSessionNVInfo(format::HandleId id) { return GetObjectInfo<VulkanOpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
-    VulkanPerformanceConfigurationINTELInfo* GetVkPerformanceConfigurationINTELInfo(format::HandleId id) { return GetObjectInfo<VulkanPerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
-    VulkanPhysicalDeviceInfo* GetVkPhysicalDeviceInfo(format::HandleId id) { return GetObjectInfo<VulkanPhysicalDeviceInfo>(id, &physicalDevice_map_); }
-    VulkanPipelineInfo* GetVkPipelineInfo(format::HandleId id) { return GetObjectInfo<VulkanPipelineInfo>(id, &pipeline_map_); }
-    VulkanPipelineBinaryKHRInfo* GetVkPipelineBinaryKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanPipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
-    VulkanPipelineCacheInfo* GetVkPipelineCacheInfo(format::HandleId id) { return GetObjectInfo<VulkanPipelineCacheInfo>(id, &pipelineCache_map_); }
-    VulkanPipelineLayoutInfo* GetVkPipelineLayoutInfo(format::HandleId id) { return GetObjectInfo<VulkanPipelineLayoutInfo>(id, &pipelineLayout_map_); }
-    VulkanPrivateDataSlotInfo* GetVkPrivateDataSlotInfo(format::HandleId id) { return GetObjectInfo<VulkanPrivateDataSlotInfo>(id, &privateDataSlot_map_); }
-    VulkanQueryPoolInfo* GetVkQueryPoolInfo(format::HandleId id) { return GetObjectInfo<VulkanQueryPoolInfo>(id, &queryPool_map_); }
-    VulkanQueueInfo* GetVkQueueInfo(format::HandleId id) { return GetObjectInfo<VulkanQueueInfo>(id, &queue_map_); }
-    VulkanRenderPassInfo* GetVkRenderPassInfo(format::HandleId id) { return GetObjectInfo<VulkanRenderPassInfo>(id, &renderPass_map_); }
-    VulkanSamplerInfo* GetVkSamplerInfo(format::HandleId id) { return GetObjectInfo<VulkanSamplerInfo>(id, &sampler_map_); }
-    VulkanSamplerYcbcrConversionInfo* GetVkSamplerYcbcrConversionInfo(format::HandleId id) { return GetObjectInfo<VulkanSamplerYcbcrConversionInfo>(id, &samplerYcbcrConversion_map_); }
-    VulkanSemaphoreInfo* GetVkSemaphoreInfo(format::HandleId id) { return GetObjectInfo<VulkanSemaphoreInfo>(id, &semaphore_map_); }
-    VulkanShaderEXTInfo* GetVkShaderEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanShaderEXTInfo>(id, &shaderEXT_map_); }
-    VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) { return GetObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
-    VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
-    VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
-    VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) { return GetObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
-    VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
-    VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) { return GetObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
+    VulkanAccelerationStructureKHRInfo* GetVkAccelerationStructureKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanAccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
+    VulkanAccelerationStructureNVInfo* GetVkAccelerationStructureNVInfo(format::HandleId id) { return GetVkObjectInfo<VulkanAccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
+    VulkanBufferInfo* GetVkBufferInfo(format::HandleId id) { return GetVkObjectInfo<VulkanBufferInfo>(id, &buffer_map_); }
+    VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) { return GetVkObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
+    VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) { return GetVkObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
+    VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) { return GetVkObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
+    VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
+    VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
+    VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
+    VulkanDescriptorPoolInfo* GetVkDescriptorPoolInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDescriptorPoolInfo>(id, &descriptorPool_map_); }
+    VulkanDescriptorSetInfo* GetVkDescriptorSetInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDescriptorSetInfo>(id, &descriptorSet_map_); }
+    VulkanDescriptorSetLayoutInfo* GetVkDescriptorSetLayoutInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDescriptorSetLayoutInfo>(id, &descriptorSetLayout_map_); }
+    VulkanDescriptorUpdateTemplateInfo* GetVkDescriptorUpdateTemplateInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDescriptorUpdateTemplateInfo>(id, &descriptorUpdateTemplate_map_); }
+    VulkanDeviceInfo* GetVkDeviceInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDeviceInfo>(id, &device_map_); }
+    VulkanDeviceMemoryInfo* GetVkDeviceMemoryInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDeviceMemoryInfo>(id, &deviceMemory_map_); }
+    VulkanDisplayKHRInfo* GetVkDisplayKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDisplayKHRInfo>(id, &displayKHR_map_); }
+    VulkanDisplayModeKHRInfo* GetVkDisplayModeKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDisplayModeKHRInfo>(id, &displayModeKHR_map_); }
+    VulkanEventInfo* GetVkEventInfo(format::HandleId id) { return GetVkObjectInfo<VulkanEventInfo>(id, &event_map_); }
+    VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) { return GetVkObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
+    VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) { return GetVkObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
+    VulkanImageInfo* GetVkImageInfo(format::HandleId id) { return GetVkObjectInfo<VulkanImageInfo>(id, &image_map_); }
+    VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) { return GetVkObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
+    VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
+    VulkanIndirectCommandsLayoutNVInfo* GetVkIndirectCommandsLayoutNVInfo(format::HandleId id) { return GetVkObjectInfo<VulkanIndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
+    VulkanIndirectExecutionSetEXTInfo* GetVkIndirectExecutionSetEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanIndirectExecutionSetEXTInfo>(id, &indirectExecutionSetEXT_map_); }
+    VulkanInstanceInfo* GetVkInstanceInfo(format::HandleId id) { return GetVkObjectInfo<VulkanInstanceInfo>(id, &instance_map_); }
+    VulkanMicromapEXTInfo* GetVkMicromapEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanMicromapEXTInfo>(id, &micromapEXT_map_); }
+    VulkanOpticalFlowSessionNVInfo* GetVkOpticalFlowSessionNVInfo(format::HandleId id) { return GetVkObjectInfo<VulkanOpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
+    VulkanPerformanceConfigurationINTELInfo* GetVkPerformanceConfigurationINTELInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
+    VulkanPhysicalDeviceInfo* GetVkPhysicalDeviceInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPhysicalDeviceInfo>(id, &physicalDevice_map_); }
+    VulkanPipelineInfo* GetVkPipelineInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPipelineInfo>(id, &pipeline_map_); }
+    VulkanPipelineBinaryKHRInfo* GetVkPipelineBinaryKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
+    VulkanPipelineCacheInfo* GetVkPipelineCacheInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPipelineCacheInfo>(id, &pipelineCache_map_); }
+    VulkanPipelineLayoutInfo* GetVkPipelineLayoutInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPipelineLayoutInfo>(id, &pipelineLayout_map_); }
+    VulkanPrivateDataSlotInfo* GetVkPrivateDataSlotInfo(format::HandleId id) { return GetVkObjectInfo<VulkanPrivateDataSlotInfo>(id, &privateDataSlot_map_); }
+    VulkanQueryPoolInfo* GetVkQueryPoolInfo(format::HandleId id) { return GetVkObjectInfo<VulkanQueryPoolInfo>(id, &queryPool_map_); }
+    VulkanQueueInfo* GetVkQueueInfo(format::HandleId id) { return GetVkObjectInfo<VulkanQueueInfo>(id, &queue_map_); }
+    VulkanRenderPassInfo* GetVkRenderPassInfo(format::HandleId id) { return GetVkObjectInfo<VulkanRenderPassInfo>(id, &renderPass_map_); }
+    VulkanSamplerInfo* GetVkSamplerInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSamplerInfo>(id, &sampler_map_); }
+    VulkanSamplerYcbcrConversionInfo* GetVkSamplerYcbcrConversionInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSamplerYcbcrConversionInfo>(id, &samplerYcbcrConversion_map_); }
+    VulkanSemaphoreInfo* GetVkSemaphoreInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSemaphoreInfo>(id, &semaphore_map_); }
+    VulkanShaderEXTInfo* GetVkShaderEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanShaderEXTInfo>(id, &shaderEXT_map_); }
+    VulkanShaderModuleInfo* GetVkShaderModuleInfo(format::HandleId id) { return GetVkObjectInfo<VulkanShaderModuleInfo>(id, &shaderModule_map_); }
+    VulkanSurfaceKHRInfo* GetVkSurfaceKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSurfaceKHRInfo>(id, &surfaceKHR_map_); }
+    VulkanSwapchainKHRInfo* GetVkSwapchainKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanSwapchainKHRInfo>(id, &swapchainKHR_map_); }
+    VulkanValidationCacheEXTInfo* GetVkValidationCacheEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
+    VulkanVideoSessionKHRInfo* GetVkVideoSessionKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanVideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
+    VulkanVideoSessionParametersKHRInfo* GetVkVideoSessionParametersKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanVideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
 
     void VisitVkAccelerationStructureKHRInfo(std::function<void(const VulkanAccelerationStructureKHRInfo*)> visitor) const {  for (const auto& entry : accelerationStructureKHR_map_) { visitor(&entry.second); }  }
     void VisitVkAccelerationStructureNVInfo(std::function<void(const VulkanAccelerationStructureNVInfo*)> visitor) const {  for (const auto& entry : accelerationStructureNV_map_) { visitor(&entry.second); }  }

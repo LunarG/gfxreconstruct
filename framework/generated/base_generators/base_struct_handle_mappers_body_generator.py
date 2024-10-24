@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2019-2020 Valve Corporation
-# Copyright (c) 2019-2020 LunarG, Inc.
+# Copyright (c) 2019-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -29,43 +29,72 @@ class BaseStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
     def endFile(self):
+        platform_type = self.get_api_prefix()
         if not self.is_dx12_class():
-            # Generate the pNext handle mapping code.
-            self.newline()
-            write(
-                'void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table)',
-                file=self.outFile
-            )
-            write('{', file=self.outFile)
-            write(
-                '    if ((value != nullptr) && (wrapper != nullptr))',
-                file=self.outFile
-            )
-            write('    {', file=self.outFile)
-            write(
-                '        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);',
-                file=self.outFile
-            )
-            write('', file=self.outFile)
-            write('        switch (base->sType)', file=self.outFile)
-            write('        {', file=self.outFile)
-            write('        default:', file=self.outFile)
-            write(
-                '            // TODO: Report or raise fatal error for unrecongized sType?',
-                file=self.outFile
-            )
+            if platform_type == 'Vulkan':
+                # Generate the pNext handle mapping code.
+                self.newline()
+                write(
+                    'void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)',
+                    file=self.outFile
+                )
+                write('{', file=self.outFile)
+                write(
+                    '    if ((value != nullptr) && (wrapper != nullptr))',
+                    file=self.outFile
+                )
+                write('    {', file=self.outFile)
+                write(
+                    '        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);',
+                    file=self.outFile
+                )
+                write('', file=self.outFile)
+                write('        switch (base->sType)', file=self.outFile)
+                write('        {', file=self.outFile)
+                write('        default:', file=self.outFile)
+                write(
+                    '            // TODO: Report or raise fatal error for unrecongized sType?',
+                    file=self.outFile
+                )
+            else:
+                # Generate the next handle mapping code.
+                self.newline()
+                write(
+                    'void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)',
+                    file=self.outFile
+                )
+                write('{', file=self.outFile)
+                write(
+                    '    if ((value != nullptr) && (wrapper != nullptr))',
+                    file=self.outFile
+                )
+                write('    {', file=self.outFile)
+                write(
+                    '        const XrBaseInStructure* base = reinterpret_cast<const XrBaseInStructure*>(value);',
+                    file=self.outFile
+                )
+                write('', file=self.outFile)
+                write('        switch (base->type)', file=self.outFile)
+                write('        {', file=self.outFile)
+                write('        default:', file=self.outFile)
+                write(
+                    '            // TODO: Report or raise fatal error for unrecongized type?',
+                    file=self.outFile
+                )
+
             write('            break;', file=self.outFile)
             for base_type in self.pnext_structs:
-                write(
-                    '        case {}:'.format(self.pnext_structs[base_type]),
-                    file=self.outFile
-                )
-                write(
-                    '            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
-                    .format(base_type),
-                    file=self.outFile
-                )
-                write('            break;', file=self.outFile)
+                if base_type in self.structs_with_handles:
+                    write(
+                        '        case {}:'.format(self.pnext_structs[base_type]),
+                        file=self.outFile
+                    )
+                    write(
+                        '            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
+                        .format(base_type),
+                        file=self.outFile
+                    )
+                    write('            break;', file=self.outFile)
             write('        }', file=self.outFile)
             write('    }', file=self.outFile)
             write('}', file=self.outFile)
@@ -97,11 +126,11 @@ class BaseStructHandleMappersBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        platform_type = 'Vulkan'
+        object_table_prefix = 'Common'
         map_types = 'Handles'
         map_table = ''
         if self.is_dx12_class():
-            platform_type = 'Dx12'
+            object_table_prefix = 'Dx12'
             map_types = 'Objects'
             map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
 
@@ -134,10 +163,7 @@ class BaseStructHandleMappersBodyGenerator():
                 else:
                     for member in handle_members:
                         if (
-                            (
-                                self.is_handle(member.base_type)
-                                or self.is_class(member)
-                            ) and
+                            (self.is_handle(member.base_type) or self.is_atom(member.base_type) or self.is_class(member)) and
                             not (member.is_array and not member.is_dynamic)
                         ) or (member.base_type in self.MAP_STRUCT_TYPE):
                             needs_value_ptr = True
@@ -145,7 +171,7 @@ class BaseStructHandleMappersBodyGenerator():
 
                 body = '\n'
                 body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{})\n'.format(
-                    map_types, struct, platform_type, map_table
+                    map_types, struct, object_table_prefix, map_table
                 )
                 body += '{\n'
 
@@ -171,6 +197,8 @@ class BaseStructHandleMappersBodyGenerator():
         self, name, handle_members, generic_handle_members
     ):
         """Generating expressions for mapping struct handles read from the capture file to handles created at replay."""
+        prefix_from_type = self.get_prefix_from_type(name)
+        object_table_prefix = prefix_from_type
         map_types = 'Objects'
         map_type = 'Object'
         base_type = 'object'
@@ -178,6 +206,7 @@ class BaseStructHandleMappersBodyGenerator():
         given_object = ', gpu_va_map'
         is_dx12_class = self.is_dx12_class()
         if not is_dx12_class:
+            object_table_prefix = 'Common'
             map_types = 'Handles'
             map_type = 'Handle'
             base_type = 'handle'
@@ -188,10 +217,13 @@ class BaseStructHandleMappersBodyGenerator():
             body += '\n'
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
-            if ('pNext' in member.name) and (not is_dx12_class):
-                body += '        if (wrapper->pNext)\n'
+            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+                func_id = 'PNext'
+                if 'next' == member.name:
+                    func_id = 'Next'
+                body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
-                body += '            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);\n'
+                body += f'            Map{func_id}StructHandles(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer(), object_info_table);\n'
                 body += '        }\n'
             elif map_func:
                 if member.is_array:
@@ -233,10 +265,11 @@ class BaseStructHandleMappersBodyGenerator():
             else:
                 type = member.base_type
                 if not is_dx12_class:
-                    type = 'Vulkan' + member.base_type[2:] + 'Info'
+                    prefix_from_type = self.get_prefix_from_type(member.base_type)
                     func_id = member.base_type + 'Info'
-                    object_info_table_get = ', &VulkanObjectInfoTable::Get{}'.format(
-                        func_id
+                    type = prefix_from_type + member.base_type[2:] + 'Info'
+                    object_info_table_get = ', &{}ObjectInfoTable::Get{}'.format(
+                        object_table_prefix, func_id
                     )
 
                 # If it is an array or pointer, map with the utility function.
@@ -285,7 +318,8 @@ class BaseStructHandleMappersBodyGenerator():
     def make_struct_handle_additions(self, name, members):
         """Generating expressions for adding mappings for handles created at replay that are embedded in structs."""
         object_info_table_add = ''
-        platform_type = 'Vulkan'
+        platform_type = self.get_api_prefix()
+        object_table_prefix = 'Common'
         map_types = 'Handles'
         map_type = 'Handle'
         base_type = 'handle'
@@ -293,13 +327,14 @@ class BaseStructHandleMappersBodyGenerator():
         is_dx12_class = self.is_dx12_class()
         if is_dx12_class:
             platform_type = 'Dx12'
+            object_table_prefix = platform_type
             map_types = 'Objects'
             map_type = 'Object'
             base_type = 'object'
             map_table = ', graphics::Dx12GpuVaMap* gpu_va_map'
 
         body = 'void AddStruct{}(format::HandleId parent_id, const Decoded_{name}* id_wrapper, const {name}* handle_struct, {}ObjectInfoTable* object_info_table{})\n'.format(
-            map_types, platform_type, map_table, name=name
+            map_types, object_table_prefix, map_table, name=name
         )
         body += '{\n'
         body += '    if (id_wrapper != nullptr)\n'
@@ -307,10 +342,13 @@ class BaseStructHandleMappersBodyGenerator():
 
         for member in members:
 
-            if ('pNext' in member.name) and (not is_dx12_class):
-                body += '        if (id_wrapper->pNext)\n'
+            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+                func_id = 'PNext'
+                if 'next' == member.name:
+                    func_id = 'Next'
+                body += f'        if (id_wrapper->{member.name})\n'
                 body += '        {\n'
-                body += '            AddPNextStructHandles(parent_id, id_wrapper->pNext->GetPointer(), id_wrapper->pNext->GetMetaStructPointer(), handle_struct->pNext, object_info_table);\n'
+                body += f'            Add{func_id}StructHandles(parent_id, id_wrapper->{member.name}->GetPointer(), id_wrapper->{member.name}->GetMetaStructPointer(), handle_struct->{member.name}, object_info_table);\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
@@ -332,10 +370,10 @@ class BaseStructHandleMappersBodyGenerator():
             else:
                 type = member.base_type
                 if not is_dx12_class:
-                    type = 'Vulkan' + member.base_type[2:] + 'Info'
                     func_id = member.base_type + 'Info'
-                    object_info_table_add = ', &VulkanObjectInfoTable::Add{}'.format(
-                        func_id
+                    type = platform_type + member.base_type[2:] + 'Info'
+                    object_info_table_add = ', &{}ObjectInfoTable::Add{}'.format(
+                        object_table_prefix, func_id
                     )
 
                 # If it is an array or pointer, add with the utility function.
@@ -410,10 +448,13 @@ class BaseStructHandleMappersBodyGenerator():
             body += '\n'
 
         for member in members:
-            if ('pNext' in member.name) and (not is_dx12_class):
-                body += '        if (wrapper->pNext)\n'
+            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+                func_id = 'PNext'
+                if 'next' == member.name:
+                    func_id = 'Next'
+                body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
-                body += '            SetPNextStructHandleLengths(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer());\n'
+                body += f'            Set{func_id}StructHandleLengths(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer());\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.

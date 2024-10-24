@@ -24,7 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_SWAPCHAIN_H
 
 #include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_info_table.h"
+#include "decode/common_object_info_table.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/window.h"
 #include "util/defines.h"
@@ -170,7 +170,7 @@ class VulkanSwapchain
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      const CommonObjectInfoTable& object_info_table,
                                                       SwapchainImageTracker&       swapchain_image_tracker) = 0;
 
   protected:

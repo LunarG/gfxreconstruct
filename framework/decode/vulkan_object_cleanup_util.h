@@ -24,7 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_OBJECT_CLEANUP_UTIL_H
 
 #include "decode/vulkan_swapchain.h"
-#include "decode/vulkan_object_info_table.h"
+#include "decode/common_object_info_table.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
@@ -34,14 +34,14 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(object_cleanup)
 
-void FreeAllLiveObjects(VulkanObjectInfoTable*                                         table,
+void FreeAllLiveObjects(CommonObjectInfoTable*                                         table,
                         bool                                                           remove_entries,
                         bool                                                           report_leaks,
                         std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
                         std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table,
                         VulkanSwapchain*                                               swapchain);
 
-void FreeAllLiveInstances(VulkanObjectInfoTable*                                         table,
+void FreeAllLiveInstances(CommonObjectInfoTable*                                         table,
                           bool                                                           remove_entries,
                           bool                                                           report_leaks,
                           std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,

@@ -45,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
-                                                             VulkanObjectInfoTable&     object_info_table) :
+                                                             CommonObjectInfoTable&     object_info_table) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), dump_json_(options)
@@ -1012,14 +1012,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     assert(IsRecording(original_command_buffer));
     assert(descriptor_sets_ids);
 
-    PipelineBindPoints                    bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
-    std::vector<VkDescriptorSet>          desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
+    PipelineBindPoints           bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
+    std::vector<VkDescriptorSet> desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
     std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(descriptor_sets_count, nullptr);
 
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
     {
-        const VulkanDescriptorSetInfo* desc_set_info;
-        desc_set_info       = object_info_table_.GetVkDescriptorSetInfo(descriptor_sets_ids[i]);
+        const VulkanDescriptorSetInfo* desc_set_info =
+            object_info_table_.GetVkDescriptorSetInfo(descriptor_sets_ids[i]);
         desc_set_infos[i]   = desc_set_info;
         desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : VK_NULL_HANDLE;
     }
@@ -1146,7 +1146,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers(const ApiCallIn
     VkCommandBuffer       dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
 
     std::vector<const VulkanBufferInfo*> buffer_infos(bindingCount, nullptr);
-    std::vector<VkBuffer>          buffer_handles(bindingCount, VK_NULL_HANDLE);
+    std::vector<VkBuffer>                buffer_handles(bindingCount, VK_NULL_HANDLE);
     if (found || dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         for (uint32_t i = 0; i < bindingCount; ++i)
@@ -1243,7 +1243,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
             const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(pBuffers_ids[i]);
-            buffer_handles[i]             = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
+            buffer_handles[i]                   = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
         }
     }
 
@@ -1625,7 +1625,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             const auto   color_attachments_meta = rendering_info_meta->pColorAttachments->GetMetaStructPointer();
 
             std::vector<VulkanImageInfo*> color_attachments(n_color_attachments);
-            std::vector<VkImageLayout> color_attachment_layouts(n_color_attachments);
+            std::vector<VkImageLayout>    color_attachment_layouts(n_color_attachments);
             for (size_t i = 0; i < n_color_attachments; ++i)
             {
                 const VulkanImageViewInfo* img_view_info =

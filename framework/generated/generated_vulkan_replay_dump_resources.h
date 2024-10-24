@@ -49,7 +49,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 {
   public:
-    VulkanReplayDumpResources(const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table) : VulkanReplayDumpResourcesBase(options, object_info_table) { }
+    VulkanReplayDumpResources(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table) : VulkanReplayDumpResourcesBase(options, object_info_table) { }
 
     ~VulkanReplayDumpResources() { }
 

@@ -298,7 +298,7 @@ class VulkanReplayConsumerBodyGenerator(
                 dispatchfunc = 'GetInstanceTable'
                 if values[0].base_type == 'VkDevice':
                     object_name = 'physical_device'
-                    preexpr.append("VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);")
+                    preexpr.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
                     preexpr.append("VkPhysicalDevice  physical_device = device_info->parent;")
             else:
                 dispatchfunc = 'GetDeviceTable'
@@ -401,9 +401,9 @@ class VulkanReplayConsumerBodyGenerator(
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
             if return_type == 'VkResult':
-                body += '        resource_dumper.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+                body += '        resource_dumper_.Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
             else:
-                body += '        resource_dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+                body += '        resource_dumper_.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
 
             body += '    }\n'
 
@@ -430,7 +430,7 @@ class VulkanReplayConsumerBodyGenerator(
 
         index_id = 'k{}Array{}'.format(handle_value.base_type[2:], name[2:])
         handle_type = 'Vulkan{}Info'.format(handle_value.base_type[2:])
-        info_func = '&VulkanObjectInfoTable::Get{}Info'.format(
+        info_func = '&CommonObjectInfoTable::Get{}Info'.format(
             handle_value.base_type
         )
 
@@ -464,7 +464,7 @@ class VulkanReplayConsumerBodyGenerator(
 
         index_id = 'k{}Array{}'.format(handle_value.base_type[2:], name[2:])
         handle_type = 'Vulkan{}Info'.format(handle_value.base_type[2:])
-        info_func = '&VulkanObjectInfoTable::Get{}Info'.format(
+        info_func = '&CommonObjectInfoTable::Get{}Info'.format(
             handle_value.base_type
         )
 
@@ -576,7 +576,7 @@ class VulkanReplayConsumerBodyGenerator(
                             )
                     elif self.is_handle(value.base_type):
                         # We received an array of 64-bit integer IDs from the decoder.
-                        expr += 'MapHandles<Vulkan{type}Info>({}, {}, &VulkanObjectInfoTable::Get{base_type}Info);'.format(
+                        expr += 'MapHandles<Vulkan{type}Info>({}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
                             value.name, length_name, type=value.base_type[2:], base_type=value.base_type
                         )
                     else:
@@ -654,7 +654,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 )
                                 if self.is_pool_allocation(name):
                                     postexpr.append(
-                                        'AddPoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Get{pooltype}Info, &VulkanObjectInfoTable::Add{basetype}Info);'
+                                        'AddPoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             self.get_parent_id(value, values),
                                             values[1].name,
@@ -669,7 +669,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     )
                                 else:
                                     postexpr.append(
-                                        'AddHandles<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Add{basetype}Info);'
+                                        'AddHandles<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             self.get_parent_id(value, values),
                                             arg_name,
@@ -689,7 +689,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 )
                                 if self.is_pool_allocation(name):
                                     postexpr.append(
-                                        'AddPoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Get{poolbasetype}Info, &VulkanObjectInfoTable::Add{basetype}Info);'
+                                        'AddPoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             self.get_parent_id(value, values),
                                             values[1].name,
@@ -698,7 +698,7 @@ class VulkanReplayConsumerBodyGenerator(
                                             type=value.base_type[2:],
                                             basetype=value.base_type,
                                             pooltype=self.POOL_OBJECT_ASSOCIATIONS[value.base_type][2:],
-                                            poolbasetype=self.POOL_OBJECT_ASSOCIATIONS[value.base_type]   
+                                            poolbasetype=self.POOL_OBJECT_ASSOCIATIONS[value.base_type]
                                         )
                                     )
                                 else:
@@ -716,7 +716,7 @@ class VulkanReplayConsumerBodyGenerator(
                                             )
                                         )
                                     postexpr.append(
-                                        'AddHandles<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
+                                        'AddHandles<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             self.get_parent_id(value, values),
                                             length_name,
@@ -839,7 +839,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     value.name
                                 )
                                 postexpr.append(
-                                    'AddHandle<Vulkan{type}Info>({}, {}->GetPointer(), {}, &VulkanObjectInfoTable::Add{basetype}Info);'
+                                    'AddHandle<Vulkan{type}Info>({}, {}->GetPointer(), {}, &CommonObjectInfoTable::Add{basetype}Info);'
                                     .format(
                                         self.get_parent_id(value, values),
                                         value.name,
@@ -858,7 +858,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     value.name
                                 )
                                 postexpr.append(
-                                    'AddHandle<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
+                                    'AddHandle<Vulkan{type}Info>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                     .format(
                                         self.get_parent_id(value, values),
                                         paramname=value.name,
@@ -966,7 +966,7 @@ class VulkanReplayConsumerBodyGenerator(
                         preexpr.append(expr)
                 else:
                     expr = '{} {} = '.format(value.full_type, arg_name)
-                    expr += 'MapHandle<Vulkan{type}Info>({}, &VulkanObjectInfoTable::Get{basetype}Info);'.format(
+                    expr += 'MapHandle<Vulkan{type}Info>({}, &CommonObjectInfoTable::Get{basetype}Info);'.format(
                         value.name, type=value.base_type[2:], basetype=value.base_type
                     )
                     preexpr.append(expr)
@@ -1019,12 +1019,12 @@ class VulkanReplayConsumerBodyGenerator(
                 'vkDestroyInstance', 'vkDestroyDevice'
             ] else values[1]
             if value.base_type not in self.POOL_OBJECT_ASSOCIATIONS:
-                expr = 'RemoveHandle({}, &VulkanObjectInfoTable::Remove{}Info);'.format(
+                expr = 'RemoveHandle({}, &CommonObjectInfoTable::Remove{}Info);'.format(
                     value.name, value.base_type
                 )
             else:
                 # Pools require special case processing to cleanup objects allocated from them.
-                expr = 'RemovePoolHandle<Vulkan{type}Info>({}, &VulkanObjectInfoTable::Get{basetype}Info, &VulkanObjectInfoTable::Remove{basetype}Info, &VulkanObjectInfoTable::Remove{}Info);'.format(
+                expr = 'RemovePoolHandle<Vulkan{type}Info>({}, &CommonObjectInfoTable::Get{basetype}Info, &CommonObjectInfoTable::Remove{basetype}Info, &CommonObjectInfoTable::Remove{}Info);'.format(
                     value.name,
                     self.POOL_OBJECT_ASSOCIATIONS[value.base_type],
                     type=value.base_type[2:],
@@ -1033,7 +1033,7 @@ class VulkanReplayConsumerBodyGenerator(
         elif name.startswith('vkFree'):
             # For pool based vkFreeCommandBuffers and vkFreeDescriptorSets, the pool handle is the second parameter, the array count is the third parameter and the array of handles to free is the fourth parameter.
             value = values[3]
-            expr = 'RemovePoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, {}, {}, &VulkanObjectInfoTable::Get{poolbasetype}Info, &VulkanObjectInfoTable::Remove{basetype}Info);'.format(
+            expr = 'RemovePoolHandles<Vulkan{pooltype}Info, Vulkan{type}Info>({}, {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
                 values[1].name,
                 value.name,
                 values[2].name,

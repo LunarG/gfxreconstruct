@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 void MapStructHandles(VkDescriptorType               type,
                       Decoded_VkDescriptorImageInfo* wrapper,
-                      const VulkanObjectInfoTable&   object_info_table)
+                      const CommonObjectInfoTable&   object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -44,18 +44,18 @@ void MapStructHandles(VkDescriptorType               type,
         {
             // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
             value->sampler = handle_mapping::MapHandle<VulkanSamplerInfo>(
-                wrapper->sampler, object_info_table, &VulkanObjectInfoTable::GetVkSamplerInfo);
+                wrapper->sampler, object_info_table, &CommonObjectInfoTable::GetVkSamplerInfo);
         }
 
         if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
         {
             value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(
-                wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetVkImageViewInfo);
+                wrapper->imageView, object_info_table, &CommonObjectInfoTable::GetVkImageViewInfo);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectInfoTable& object_mapper)
+void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const CommonObjectInfoTable& object_mapper)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -67,7 +67,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
         }
 
         value->dstSet = handle_mapping::MapHandle<VulkanDescriptorSetInfo>(
-            wrapper->dstSet, object_mapper, &VulkanObjectInfoTable::GetVkDescriptorSetInfo);
+            wrapper->dstSet, object_mapper, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
 
         switch (value->descriptorType)
         {
@@ -96,7 +96,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 value->pTexelBufferView = handle_mapping::MapHandleArray<VulkanBufferViewInfo>(
-                    &wrapper->pTexelBufferView, object_mapper, &VulkanObjectInfoTable::GetVkBufferViewInfo);
+                    &wrapper->pTexelBufferView, object_mapper, &CommonObjectInfoTable::GetVkBufferViewInfo);
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
@@ -114,7 +114,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
 }
 
 void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
-                      const VulkanObjectInfoTable&                object_info_table)
+                      const CommonObjectInfoTable&                object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -139,7 +139,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
 }
 
 void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
-                      const VulkanObjectInfoTable&                         object_info_table)
+                      const CommonObjectInfoTable&                         object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -148,12 +148,12 @@ void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapp
         value->srcAccelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(
             wrapper->srcAccelerationStructure,
             object_info_table,
-            &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
+            &CommonObjectInfoTable::GetVkAccelerationStructureKHRInfo);
 
         value->dstAccelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(
             wrapper->dstAccelerationStructure,
             object_info_table,
-            &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
+            &CommonObjectInfoTable::GetVkAccelerationStructureKHRInfo);
 
         MapStructArrayHandles<Decoded_VkAccelerationStructureGeometryKHR>(
             wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_info_table);

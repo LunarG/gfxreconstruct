@@ -157,7 +157,7 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
     return memory_type_index;
 }
 
-VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
+VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                     const VulkanImageInfo*                  image_info,
@@ -182,7 +182,7 @@ VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
     ci.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(image_info->parent_id);
-    VkDevice          device      = device_info->handle;
+    VkDevice                device      = device_info->handle;
 
     assert(device_table);
     assert(new_image);
@@ -228,7 +228,7 @@ VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
     return VK_SUCCESS;
 }
 
-VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
+VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
                      const encode::VulkanDeviceTable*        device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                      const VulkanBufferInfo*                 buffer_info,
@@ -252,7 +252,7 @@ VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
     ci.pQueueFamilyIndices   = nullptr;
 
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(buffer_info->parent_id);
-    VkDevice          device      = device_info->handle;
+    VkDevice                device      = device_info->handle;
 
     VkResult res = device_table->CreateBuffer(device, &ci, nullptr, new_buffer);
     if (res != VK_SUCCESS)
@@ -439,7 +439,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          const VulkanDeviceInfo*            device_info,
                          const encode::VulkanDeviceTable*   device_table,
                          const encode::VulkanInstanceTable* instance_table,
-                         VulkanObjectInfoTable&             object_info_table,
+                         CommonObjectInfoTable&             object_info_table,
                          const std::vector<std::string>&    filenames,
                          float                              scale,
                          std::vector<bool>&                 scaling_supported,

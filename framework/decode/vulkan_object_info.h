@@ -159,7 +159,7 @@ enum ValidationCacheEXTArrayIndices : uint32_t
 // Structures for storing Vulkan object info.
 //
 
-struct ReplayDeviceInfo
+struct VulkanReplayDeviceInfo
 {
     std::optional<VkPhysicalDeviceProperties>       properties;
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties;
@@ -260,7 +260,7 @@ struct VulkanInstanceInfo : public VulkanObjectInfo<VkInstance>
     std::vector<format::HandleId> capture_devices;
     std::vector<VkPhysicalDevice> replay_devices;
 
-    std::unordered_map<VkPhysicalDevice, ReplayDeviceInfo> replay_device_info;
+    std::unordered_map<VkPhysicalDevice, VulkanReplayDeviceInfo> replay_device_info;
 };
 
 struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
@@ -287,7 +287,7 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     uint32_t shaderGroupHandleAlignment = 0;
 
     // Closest matching replay device.
-    ReplayDeviceInfo* replay_device_info{ nullptr };
+    VulkanReplayDeviceInfo* replay_device_info{ nullptr };
 };
 
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
@@ -552,13 +552,13 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
-    uint32_t                  replay_image_count{ 0 };
+    uint32_t                     replay_image_count{ 0 };
     std::vector<VulkanImageInfo> image_infos;
-    VkSwapchainCreateFlagsKHR image_flags{ 0 };
-    VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
-    uint32_t                  image_array_layers{ 0 };
-    VkImageUsageFlags         image_usage{ 0 };
-    VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
+    VkSwapchainCreateFlagsKHR    image_flags{ 0 };
+    VkFormat                     image_format{ VK_FORMAT_UNDEFINED };
+    uint32_t                     image_array_layers{ 0 };
+    VkImageUsageFlags            image_usage{ 0 };
+    VkSharingMode                image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
 };
 
 struct VulkanValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
@@ -663,30 +663,30 @@ struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLa
 struct VulkanDescriptorTypeImageInfo
 {
     const VulkanImageViewInfo* image_view_info;
-    VkImageLayout        image_layout;
+    VkImageLayout              image_layout;
 };
 
 struct VulkanDescriptorTypeBufferInfo
 {
     const VulkanBufferInfo* buffer_info;
-    VkDeviceSize      offset;
-    VkDeviceSize      range;
+    VkDeviceSize            offset;
+    VkDeviceSize            range;
 };
 
 struct VulkanDescriptorSetBindingInfo
 {
-    VkDescriptorType                      desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    VkDescriptorType                            desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
     std::vector<VulkanDescriptorTypeImageInfo>  image_info;
     std::vector<VulkanDescriptorTypeBufferInfo> buffer_info;
     std::vector<const VulkanBufferViewInfo*>    texel_buffer_view_info;
-    std::vector<uint8_t>                  inline_uniform_block;
+    std::vector<uint8_t>                        inline_uniform_block;
 };
 
 struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
 {
     // One entry per binding
-    using DescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
-    DescriptorBindingsInfo descriptors;
+    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
+    VulkanDescriptorBindingsInfo descriptors;
 };
 
 struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>

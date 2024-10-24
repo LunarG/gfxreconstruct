@@ -270,7 +270,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     VulkanSwapchainKHRInfo*                             swapchain_info,
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info,
-    const VulkanObjectInfoTable&                        object_info_table,
+    const CommonObjectInfoTable&                        object_info_table,
     SwapchainImageTracker&                              swapchain_image_tracker)
 {
     VkDevice       device    = device_info->handle;
@@ -345,7 +345,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     const VulkanDeviceInfo*                             device_info,
     VulkanSwapchainKHRInfo*                             swapchain_info,
     const std::vector<format::SwapchainImageStateInfo>& image_info,
-    const VulkanObjectInfoTable&                        object_info_table,
+    const CommonObjectInfoTable&                        object_info_table,
     SwapchainImageTracker&                              swapchain_image_tracker)
 {
     VkDevice device = device_info->handle;
@@ -545,7 +545,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     VulkanSwapchainKHRInfo*                             swapchain_info,
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info,
-    const VulkanObjectInfoTable&                        object_info_table)
+    const CommonObjectInfoTable&                        object_info_table)
 {
     auto device = device_info->handle;
     assert(device_table_ != nullptr);
