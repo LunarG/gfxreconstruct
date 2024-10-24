@@ -45,11 +45,8 @@ void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
         auto pBeginInfo_ptr = pBeginInfo->GetMetaStructPointer();
-        if (!pBeginInfo_ptr->pInheritanceInfo->IsNull() && (pBeginInfo_ptr->pInheritanceInfo->HasData()))
-        {
-            auto pInheritanceInfo_ptr = pBeginInfo_ptr->pInheritanceInfo->GetMetaStructPointer();
-            GetTable().AddResourceToUser(commandBuffer, pInheritanceInfo_ptr->framebuffer);
-        }
+        auto pInheritanceInfo_ptr = pBeginInfo_ptr->pInheritanceInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pInheritanceInfo_ptr->framebuffer);
     }
 }
 
@@ -463,33 +460,17 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
-                    {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
-                    }
-                    break;
+                    GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -567,33 +548,17 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
-                    {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
-                    }
-                    break;
+                    GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -612,24 +577,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2(
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
         auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
-        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
         {
-            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
-            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
-            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
         }
 
-        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
         {
-            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
-            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
-            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
         }
     }
 }
@@ -652,24 +611,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2(
         size_t pDependencyInfos_count = pDependencyInfos->GetLength();
         for (size_t pDependencyInfos_index = 0; pDependencyInfos_index < pDependencyInfos_count; ++pDependencyInfos_index)
         {
-            if (!pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->HasData()))
+            auto pBufferMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetMetaStructPointer();
+            size_t pBufferMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetLength();
+            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
             {
-                auto pBufferMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetMetaStructPointer();
-                size_t pBufferMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetLength();
-                for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
             }
 
-            if (!pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->HasData()))
+            auto pImageMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetMetaStructPointer();
+            size_t pImageMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetLength();
+            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
             {
-                auto pImageMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetMetaStructPointer();
-                size_t pImageMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetLength();
-                for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
             }
         }
     }
@@ -685,24 +638,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2(
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
         auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
-        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
         {
-            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
-            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
-            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
         }
 
-        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
         {
-            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
-            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
-            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
         }
     }
 }
@@ -807,57 +754,36 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRendering(
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
         auto pRenderingInfo_ptr = pRenderingInfo->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderingInfo_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
-            pnext_header = pnext_header->pNext;
         }
-
-        if (!pRenderingInfo_ptr->pColorAttachments->IsNull() && (pRenderingInfo_ptr->pColorAttachments->HasData()))
         {
-            auto pColorAttachments_ptr = pRenderingInfo_ptr->pColorAttachments->GetMetaStructPointer();
-            size_t pColorAttachments_count = pRenderingInfo_ptr->pColorAttachments->GetLength();
-            for (size_t pColorAttachments_index = 0; pColorAttachments_index < pColorAttachments_count; ++pColorAttachments_index)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].imageView);
-                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].resolveImageView);
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
         }
 
-        if (!pRenderingInfo_ptr->pDepthAttachment->IsNull() && (pRenderingInfo_ptr->pDepthAttachment->HasData()))
+        auto pColorAttachments_ptr = pRenderingInfo_ptr->pColorAttachments->GetMetaStructPointer();
+        size_t pColorAttachments_count = pRenderingInfo_ptr->pColorAttachments->GetLength();
+        for (size_t pColorAttachments_index = 0; pColorAttachments_index < pColorAttachments_count; ++pColorAttachments_index)
         {
-            auto pDepthAttachment_ptr = pRenderingInfo_ptr->pDepthAttachment->GetMetaStructPointer();
-            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->imageView);
-            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->resolveImageView);
+            GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].imageView);
+            GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].resolveImageView);
         }
 
-        if (!pRenderingInfo_ptr->pStencilAttachment->IsNull() && (pRenderingInfo_ptr->pStencilAttachment->HasData()))
-        {
-            auto pStencilAttachment_ptr = pRenderingInfo_ptr->pStencilAttachment->GetMetaStructPointer();
-            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->imageView);
-            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->resolveImageView);
-        }
+        auto pDepthAttachment_ptr = pRenderingInfo_ptr->pDepthAttachment->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->imageView);
+        GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->resolveImageView);
+
+        auto pStencilAttachment_ptr = pRenderingInfo_ptr->pStencilAttachment->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->imageView);
+        GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->resolveImageView);
     }
 }
 
@@ -900,18 +826,12 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginVideoCodingKHR(
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
         auto pBeginInfo_ptr = pBeginInfo->GetMetaStructPointer();
-        if (!pBeginInfo_ptr->pReferenceSlots->IsNull() && (pBeginInfo_ptr->pReferenceSlots->HasData()))
+        auto pReferenceSlots_ptr = pBeginInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+        size_t pReferenceSlots_count = pBeginInfo_ptr->pReferenceSlots->GetLength();
+        for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
         {
-            auto pReferenceSlots_ptr = pBeginInfo_ptr->pReferenceSlots->GetMetaStructPointer();
-            size_t pReferenceSlots_count = pBeginInfo_ptr->pReferenceSlots->GetLength();
-            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
-            {
-                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
-                {
-                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
-                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
-                }
-            }
+            auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+            GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
         }
     }
 }
@@ -929,28 +849,16 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDecodeVideoKHR(
         GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->srcBuffer);
         GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->dstPictureResource->imageViewBinding);
 
-        if (!pDecodeInfo_ptr->pSetupReferenceSlot->IsNull() && (pDecodeInfo_ptr->pSetupReferenceSlot->HasData()))
-        {
-            auto pSetupReferenceSlot_ptr = pDecodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
-            if (!pSetupReferenceSlot_ptr->pPictureResource->IsNull() && (pSetupReferenceSlot_ptr->pPictureResource->HasData()))
-            {
-                auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
-                GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
-            }
-        }
+        auto pSetupReferenceSlot_ptr = pDecodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
+        auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
 
-        if (!pDecodeInfo_ptr->pReferenceSlots->IsNull() && (pDecodeInfo_ptr->pReferenceSlots->HasData()))
+        auto pReferenceSlots_ptr = pDecodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+        size_t pReferenceSlots_count = pDecodeInfo_ptr->pReferenceSlots->GetLength();
+        for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
         {
-            auto pReferenceSlots_ptr = pDecodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
-            size_t pReferenceSlots_count = pDecodeInfo_ptr->pReferenceSlots->GetLength();
-            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
-            {
-                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
-                {
-                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
-                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
-                }
-            }
+            auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+            GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
         }
     }
 }
@@ -965,57 +873,36 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
         auto pRenderingInfo_ptr = pRenderingInfo->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderingInfo_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
-            pnext_header = pnext_header->pNext;
         }
-
-        if (!pRenderingInfo_ptr->pColorAttachments->IsNull() && (pRenderingInfo_ptr->pColorAttachments->HasData()))
         {
-            auto pColorAttachments_ptr = pRenderingInfo_ptr->pColorAttachments->GetMetaStructPointer();
-            size_t pColorAttachments_count = pRenderingInfo_ptr->pColorAttachments->GetLength();
-            for (size_t pColorAttachments_index = 0; pColorAttachments_index < pColorAttachments_count; ++pColorAttachments_index)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].imageView);
-                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].resolveImageView);
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
         }
 
-        if (!pRenderingInfo_ptr->pDepthAttachment->IsNull() && (pRenderingInfo_ptr->pDepthAttachment->HasData()))
+        auto pColorAttachments_ptr = pRenderingInfo_ptr->pColorAttachments->GetMetaStructPointer();
+        size_t pColorAttachments_count = pRenderingInfo_ptr->pColorAttachments->GetLength();
+        for (size_t pColorAttachments_index = 0; pColorAttachments_index < pColorAttachments_count; ++pColorAttachments_index)
         {
-            auto pDepthAttachment_ptr = pRenderingInfo_ptr->pDepthAttachment->GetMetaStructPointer();
-            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->imageView);
-            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->resolveImageView);
+            GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].imageView);
+            GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].resolveImageView);
         }
 
-        if (!pRenderingInfo_ptr->pStencilAttachment->IsNull() && (pRenderingInfo_ptr->pStencilAttachment->HasData()))
-        {
-            auto pStencilAttachment_ptr = pRenderingInfo_ptr->pStencilAttachment->GetMetaStructPointer();
-            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->imageView);
-            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->resolveImageView);
-        }
+        auto pDepthAttachment_ptr = pRenderingInfo_ptr->pDepthAttachment->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->imageView);
+        GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->resolveImageView);
+
+        auto pStencilAttachment_ptr = pRenderingInfo_ptr->pStencilAttachment->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->imageView);
+        GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->resolveImageView);
     }
 }
 
@@ -1041,64 +928,39 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
         size_t pDescriptorWrites_count = pDescriptorWrites->GetLength();
         for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
         {
-            const VkBaseInStructure* pnext_header = nullptr;
-            if (pDescriptorWrites_ptr->pNext != nullptr)
             {
-                pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites_ptr->pNext->GetPointer());
-            }
-            while (pnext_header)
-            {
-                switch (pnext_header->sType)
+                const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(pDescriptorWrites_ptr->pNext);
+                if (ext_struct_info != nullptr)
                 {
-                    default:
-                        break;
-                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                    auto pAccelerationStructures_ptr = ext_struct_info->pAccelerationStructures.GetPointer();
+                    size_t pAccelerationStructures_count = ext_struct_info->pAccelerationStructures.GetLength();
+                    for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
                     {
-                        auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                        if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
-                        {
-                            auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
-                            size_t pAccelerationStructures_count = pnext_value->pAccelerationStructures.GetLength();
-                            for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
-                            {
-                                GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
-                            }
-                        }
-                        break;
+                        GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                     }
                 }
-                pnext_header = pnext_header->pNext;
             }
             GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
 
-            if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->HasData()))
+            auto pImageInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetMetaStructPointer();
+            size_t pImageInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetLength();
+            for (size_t pImageInfo_index = 0; pImageInfo_index < pImageInfo_count; ++pImageInfo_index)
             {
-                auto pImageInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetMetaStructPointer();
-                size_t pImageInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetLength();
-                for (size_t pImageInfo_index = 0; pImageInfo_index < pImageInfo_count; ++pImageInfo_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pImageInfo_ptr[pImageInfo_index].imageView);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pImageInfo_ptr[pImageInfo_index].imageView);
             }
 
-            if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->HasData()))
+            auto pBufferInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetMetaStructPointer();
+            size_t pBufferInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetLength();
+            for (size_t pBufferInfo_index = 0; pBufferInfo_index < pBufferInfo_count; ++pBufferInfo_index)
             {
-                auto pBufferInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetMetaStructPointer();
-                size_t pBufferInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetLength();
-                for (size_t pBufferInfo_index = 0; pBufferInfo_index < pBufferInfo_count; ++pBufferInfo_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pBufferInfo_ptr[pBufferInfo_index].buffer);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pBufferInfo_ptr[pBufferInfo_index].buffer);
             }
 
-            if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.HasData()))
+            auto pTexelBufferView_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetPointer();
+            size_t pTexelBufferView_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetLength();
+            for (size_t pTexelBufferView_index = 0; pTexelBufferView_index < pTexelBufferView_count; ++pTexelBufferView_index)
             {
-                auto pTexelBufferView_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetPointer();
-                size_t pTexelBufferView_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetLength();
-                for (size_t pTexelBufferView_index = 0; pTexelBufferView_index < pTexelBufferView_count; ++pTexelBufferView_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pTexelBufferView_ptr[pTexelBufferView_index]);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pTexelBufferView_ptr[pTexelBufferView_index]);
             }
         }
     }
@@ -1117,33 +979,17 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
-                    {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
-                    }
-                    break;
+                    GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -1200,28 +1046,16 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
         GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->dstBuffer);
         GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->srcPictureResource->imageViewBinding);
 
-        if (!pEncodeInfo_ptr->pSetupReferenceSlot->IsNull() && (pEncodeInfo_ptr->pSetupReferenceSlot->HasData()))
-        {
-            auto pSetupReferenceSlot_ptr = pEncodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
-            if (!pSetupReferenceSlot_ptr->pPictureResource->IsNull() && (pSetupReferenceSlot_ptr->pPictureResource->HasData()))
-            {
-                auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
-                GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
-            }
-        }
+        auto pSetupReferenceSlot_ptr = pEncodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
+        auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
 
-        if (!pEncodeInfo_ptr->pReferenceSlots->IsNull() && (pEncodeInfo_ptr->pReferenceSlots->HasData()))
+        auto pReferenceSlots_ptr = pEncodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+        size_t pReferenceSlots_count = pEncodeInfo_ptr->pReferenceSlots->GetLength();
+        for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
         {
-            auto pReferenceSlots_ptr = pEncodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
-            size_t pReferenceSlots_count = pEncodeInfo_ptr->pReferenceSlots->GetLength();
-            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
-            {
-                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
-                {
-                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
-                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
-                }
-            }
+            auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+            GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
         }
     }
 }
@@ -1239,24 +1073,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
         auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
-        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
         {
-            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
-            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
-            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
         }
 
-        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
         {
-            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
-            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
-            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
         }
     }
 }
@@ -1279,24 +1107,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
         size_t pDependencyInfos_count = pDependencyInfos->GetLength();
         for (size_t pDependencyInfos_index = 0; pDependencyInfos_index < pDependencyInfos_count; ++pDependencyInfos_index)
         {
-            if (!pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->HasData()))
+            auto pBufferMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetMetaStructPointer();
+            size_t pBufferMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetLength();
+            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
             {
-                auto pBufferMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetMetaStructPointer();
-                size_t pBufferMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetLength();
-                for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
             }
 
-            if (!pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->HasData()))
+            auto pImageMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetMetaStructPointer();
+            size_t pImageMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetLength();
+            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
             {
-                auto pImageMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetMetaStructPointer();
-                size_t pImageMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetLength();
-                for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-                {
-                    GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-                }
+                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
             }
         }
     }
@@ -1312,24 +1134,18 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
         auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
-        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
         {
-            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
-            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
-            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
         }
 
-        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
         {
-            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
-            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
-            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
         }
     }
 }
@@ -1465,14 +1281,11 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
     {
         auto pBindDescriptorSetsInfo_ptr = pBindDescriptorSetsInfo->GetMetaStructPointer();
 
-        if (!pBindDescriptorSetsInfo_ptr->pDescriptorSets.IsNull() && (pBindDescriptorSetsInfo_ptr->pDescriptorSets.HasData()))
+        auto pDescriptorSets_ptr = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetPointer();
+        size_t pDescriptorSets_count = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetLength();
+        for (size_t pDescriptorSets_index = 0; pDescriptorSets_index < pDescriptorSets_count; ++pDescriptorSets_index)
         {
-            auto pDescriptorSets_ptr = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetPointer();
-            size_t pDescriptorSets_count = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetLength();
-            for (size_t pDescriptorSets_index = 0; pDescriptorSets_index < pDescriptorSets_count; ++pDescriptorSets_index)
-            {
-                GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
-            }
+            GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
         }
     }
 }
@@ -1501,71 +1314,43 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     {
         auto pPushDescriptorSetInfo_ptr = pPushDescriptorSetInfo->GetMetaStructPointer();
 
-        if (!pPushDescriptorSetInfo_ptr->pDescriptorWrites->IsNull() && (pPushDescriptorSetInfo_ptr->pDescriptorWrites->HasData()))
+        auto pDescriptorWrites_ptr = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetMetaStructPointer();
+        size_t pDescriptorWrites_count = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetLength();
+        for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
         {
-            auto pDescriptorWrites_ptr = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetMetaStructPointer();
-            size_t pDescriptorWrites_count = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetLength();
-            for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
             {
-                const VkBaseInStructure* pnext_header = nullptr;
-                if (pDescriptorWrites_ptr->pNext != nullptr)
+                const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(pDescriptorWrites_ptr->pNext);
+                if (ext_struct_info != nullptr)
                 {
-                    pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                }
-                while (pnext_header)
-                {
-                    switch (pnext_header->sType)
+                    auto pAccelerationStructures_ptr = ext_struct_info->pAccelerationStructures.GetPointer();
+                    size_t pAccelerationStructures_count = ext_struct_info->pAccelerationStructures.GetLength();
+                    for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
                     {
-                        default:
-                            break;
-                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-                        {
-                            auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                            if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
-                            {
-                                auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
-                                size_t pAccelerationStructures_count = pnext_value->pAccelerationStructures.GetLength();
-                                for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
-                                {
-                                    GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
-                                }
-                            }
-                            break;
-                        }
+                        GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                     }
-                    pnext_header = pnext_header->pNext;
                 }
-                GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
+            }
+            GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
 
-                if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->HasData()))
-                {
-                    auto pImageInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetMetaStructPointer();
-                    size_t pImageInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetLength();
-                    for (size_t pImageInfo_index = 0; pImageInfo_index < pImageInfo_count; ++pImageInfo_index)
-                    {
-                        GetTable().AddResourceToUser(commandBuffer, pImageInfo_ptr[pImageInfo_index].imageView);
-                    }
-                }
+            auto pImageInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetMetaStructPointer();
+            size_t pImageInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->GetLength();
+            for (size_t pImageInfo_index = 0; pImageInfo_index < pImageInfo_count; ++pImageInfo_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pImageInfo_ptr[pImageInfo_index].imageView);
+            }
 
-                if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->HasData()))
-                {
-                    auto pBufferInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetMetaStructPointer();
-                    size_t pBufferInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetLength();
-                    for (size_t pBufferInfo_index = 0; pBufferInfo_index < pBufferInfo_count; ++pBufferInfo_index)
-                    {
-                        GetTable().AddResourceToUser(commandBuffer, pBufferInfo_ptr[pBufferInfo_index].buffer);
-                    }
-                }
+            auto pBufferInfo_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetMetaStructPointer();
+            size_t pBufferInfo_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pBufferInfo->GetLength();
+            for (size_t pBufferInfo_index = 0; pBufferInfo_index < pBufferInfo_count; ++pBufferInfo_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pBufferInfo_ptr[pBufferInfo_index].buffer);
+            }
 
-                if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.HasData()))
-                {
-                    auto pTexelBufferView_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetPointer();
-                    size_t pTexelBufferView_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetLength();
-                    for (size_t pTexelBufferView_index = 0; pTexelBufferView_index < pTexelBufferView_count; ++pTexelBufferView_index)
-                    {
-                        GetTable().AddResourceToUser(commandBuffer, pTexelBufferView_ptr[pTexelBufferView_index]);
-                    }
-                }
+            auto pTexelBufferView_ptr = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetPointer();
+            size_t pTexelBufferView_count = pDescriptorWrites_ptr[pDescriptorWrites_index].pTexelBufferView.GetLength();
+            for (size_t pTexelBufferView_index = 0; pTexelBufferView_index < pTexelBufferView_count; ++pTexelBufferView_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pTexelBufferView_ptr[pTexelBufferView_index]);
             }
         }
     }
@@ -1779,17 +1564,14 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructureNV
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
         auto pInfo_ptr = pInfo->GetMetaStructPointer();
-        if (!pInfo_ptr->pGeometries->IsNull() && (pInfo_ptr->pGeometries->HasData()))
+        auto pGeometries_ptr = pInfo_ptr->pGeometries->GetMetaStructPointer();
+        size_t pGeometries_count = pInfo_ptr->pGeometries->GetLength();
+        for (size_t pGeometries_index = 0; pGeometries_index < pGeometries_count; ++pGeometries_index)
         {
-            auto pGeometries_ptr = pInfo_ptr->pGeometries->GetMetaStructPointer();
-            size_t pGeometries_count = pInfo_ptr->pGeometries->GetLength();
-            for (size_t pGeometries_index = 0; pGeometries_index < pGeometries_count; ++pGeometries_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->vertexData);
-                GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->indexData);
-                GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->transformData);
-                GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->aabbs->aabbData);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->vertexData);
+            GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->indexData);
+            GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->triangles->transformData);
+            GetTable().AddResourceToUser(commandBuffer, pGeometries_ptr[pGeometries_index].geometry->aabbs->aabbData);
         }
     }
     GetTable().AddResourceToUser(commandBuffer, instanceData);
@@ -1919,14 +1701,11 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsN
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
-        if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
+        auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
+        size_t pStreams_count = pGeneratedCommandsInfo_ptr->pStreams->GetLength();
+        for (size_t pStreams_index = 0; pStreams_index < pStreams_count; ++pStreams_index)
         {
-            auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
-            size_t pStreams_count = pGeneratedCommandsInfo_ptr->pStreams->GetLength();
-            for (size_t pStreams_index = 0; pStreams_index < pStreams_count; ++pStreams_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pStreams_ptr[pStreams_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pStreams_ptr[pStreams_index].buffer);
         }
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->preprocessBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesCountBuffer);
@@ -1947,14 +1726,11 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
-        if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
+        auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
+        size_t pStreams_count = pGeneratedCommandsInfo_ptr->pStreams->GetLength();
+        for (size_t pStreams_index = 0; pStreams_index < pStreams_count; ++pStreams_index)
         {
-            auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
-            size_t pStreams_count = pGeneratedCommandsInfo_ptr->pStreams->GetLength();
-            for (size_t pStreams_index = 0; pStreams_index < pStreams_count; ++pStreams_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pStreams_ptr[pStreams_index].buffer);
-            }
+            GetTable().AddResourceToUser(commandBuffer, pStreams_ptr[pStreams_index].buffer);
         }
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->preprocessBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesCountBuffer);
