@@ -21,6 +21,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/json_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/linear_hashmap.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h

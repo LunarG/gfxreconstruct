@@ -34,22 +34,31 @@ struct shader_group_handle_t
 {
     static constexpr uint32_t MAX_HANDLE_SIZE       = 32;
     uint8_t                   data[MAX_HANDLE_SIZE] = {};
-    uint32_t                  size                  = 0;
 
     shader_group_handle_t() = default;
 
     shader_group_handle_t(const uint8_t* in_data, uint32_t in_size)
     {
         GFXRECON_ASSERT(in_size <= MAX_HANDLE_SIZE);
+        if (in_size > MAX_HANDLE_SIZE)
+        {
+            GFXRECON_LOG_WARNING_ONCE("capture shader-group-handle size-overflow, replay might not work correctly")
+        }
         memcpy(data, in_data, std::min(in_size, MAX_HANDLE_SIZE));
-        size = in_size;
     }
 
-    inline bool operator==(const shader_group_handle_t& other) const
+    inline constexpr bool operator==(const shader_group_handle_t& other) const
     {
-        return size == other.size && memcmp(data, other.data, size) == 0;
+        for (uint32_t i = 0; i < MAX_HANDLE_SIZE; ++i)
+        {
+            if (data[i] != other.data[i])
+            {
+                return false;
+            }
+        }
+        return true;
     }
-    inline bool operator!=(const shader_group_handle_t& other) const { return !(*this == other); }
+    inline constexpr bool operator!=(const shader_group_handle_t& other) const { return !(*this == other); }
 };
 
 GFXRECON_END_NAMESPACE(graphics)
@@ -63,7 +72,8 @@ struct hash<gfxrecon::graphics::shader_group_handle_t>
 {
     inline size_t operator()(const gfxrecon::graphics::shader_group_handle_t& handle) const
     {
-        return gfxrecon::util::hash::hash_range(handle.data, handle.data + handle.size);
+        return gfxrecon::util::hash::hash_range(
+            handle.data, handle.data + gfxrecon::graphics::shader_group_handle_t::MAX_HANDLE_SIZE);
     }
 };
 

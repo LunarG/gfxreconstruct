@@ -51,6 +51,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/linear_hashmap.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h

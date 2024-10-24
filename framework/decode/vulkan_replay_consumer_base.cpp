@@ -48,6 +48,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "util/linear_hashmap.h"
 
 #include "spirv_reflect.h"
 
@@ -8484,6 +8485,11 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
             GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (size, alignment, handles")
 
             // TODO: run Repl8cer! (create linear hashmap, run compute-shader, profit)
+            util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap;
+            for (const auto& [lhs, rhs] : shader_group_handles)
+            {
+                hashmap.put(lhs, rhs);
+            }
         }
 
         func(commandBuffer,
