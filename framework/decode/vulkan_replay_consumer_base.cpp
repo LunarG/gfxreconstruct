@@ -8090,14 +8090,6 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
 
-    if (!device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The captured application used vkGetRayTracingShaderGroupHandlesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The replay "
-            "device does not support this feature, so replay may fail.");
-    }
-
     VkDevice       device        = device_info->handle;
     VkPipeline     pipeline      = pipeline_info->handle;
     uint8_t*       output_data   = pData->GetOutputPointer();
