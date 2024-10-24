@@ -32,6 +32,7 @@
 
 #include <d3d12.h>
 #include <dxgi.h>
+#include <dxgi1_5.h>
 
 #include <array>
 #include <unordered_set>
@@ -243,6 +244,14 @@ struct IDXGISwapChainInfo : public DxgiWrapperInfo
     uint32_t                         last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<DxImageAcquiredInfo> image_acquired_info;
     DxResizeBuffersInfo              resize_info;
+
+    // HDR state
+    bool                   set_color_space{ false };
+    bool                   set_hdr_metadata{ false };
+    DXGI_COLOR_SPACE_TYPE  color_space_type{};
+    DXGI_HDR_METADATA_TYPE hdr_metadata_type{};
+    UINT                   hdr_metadata_size{ 0 };
+    void*                  hdr_metadata{ nullptr };
 };
 
 struct IDXGIDeviceInfo : public DxgiWrapperInfo
