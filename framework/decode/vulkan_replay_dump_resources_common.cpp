@@ -160,7 +160,7 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                    const ImageInfo*                        image_info,
+                    const VulkanImageInfo*                  image_info,
                     VkImage*                                new_image,
                     VkDeviceMemory*                         new_image_memory)
 {
@@ -181,7 +181,7 @@ VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
     ci.pQueueFamilyIndices   = nullptr;
     ci.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(image_info->parent_id);
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(image_info->parent_id);
     VkDevice          device      = device_info->handle;
 
     assert(device_table);
@@ -231,7 +231,7 @@ VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
 VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
                      const encode::VulkanDeviceTable*        device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                     const BufferInfo*                       buffer_info,
+                     const VulkanBufferInfo*                 buffer_info,
                      VkBuffer*                               new_buffer,
                      VkDeviceMemory*                         new_buffer_memory,
                      VkDeviceSize                            override_size)
@@ -251,7 +251,7 @@ VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
     ci.queueFamilyIndexCount = buffer_info->queue_family_index;
     ci.pQueueFamilyIndices   = nullptr;
 
-    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(buffer_info->parent_id);
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(buffer_info->parent_id);
     VkDevice          device      = device_info->handle;
 
     VkResult res = device_table->CreateBuffer(device, &ci, nullptr, new_buffer);
@@ -435,8 +435,8 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
     }
 }
 
-VkResult DumpImageToFile(const ImageInfo*                   image_info,
-                         const DeviceInfo*                  device_info,
+VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
+                         const VulkanDeviceInfo*            device_info,
                          const encode::VulkanDeviceTable*   device_table,
                          const encode::VulkanInstanceTable* instance_table,
                          VulkanObjectInfoTable&             object_info_table,
@@ -462,7 +462,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
     assert(total_files == filenames.size());
     assert(scaling_supported.size() == total_files);
 
-    const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
@@ -866,7 +866,7 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspec
     }
 }
 
-DumpedImageFormat GetDumpedImageFormat(const DeviceInfo*                  device_info,
+DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device_info,
                                        const encode::VulkanDeviceTable*   device_table,
                                        const encode::VulkanInstanceTable* instance_table,
                                        VulkanObjectInfoTable&             object_info_table,
@@ -876,7 +876,7 @@ DumpedImageFormat GetDumpedImageFormat(const DeviceInfo*                  device
                                        util::ScreenshotFormat             image_file_format,
                                        bool                               dump_raw)
 {
-    const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
     // If there's a request for images to be dumped as raw bin files

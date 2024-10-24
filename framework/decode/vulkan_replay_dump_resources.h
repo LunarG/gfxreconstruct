@@ -55,7 +55,7 @@ class VulkanReplayDumpResourcesBase
     ~VulkanReplayDumpResourcesBase();
 
     VkResult CloneCommandBuffer(uint64_t                           bcb_index,
-                                CommandBufferInfo*                 original_command_buffer_info,
+                                VulkanCommandBufferInfo*           original_command_buffer_info,
                                 const encode::VulkanDeviceTable*   device_table,
                                 const encode::VulkanInstanceTable* inst_table);
 
@@ -76,18 +76,18 @@ class VulkanReplayDumpResourcesBase
                                 int32_t              vertex_offset,
                                 uint32_t             first_instance);
 
-    void OverrideCmdDrawIndirect(const ApiCallInfo&    call_info,
-                                 PFN_vkCmdDrawIndirect func,
-                                 VkCommandBuffer       original_command_buffer,
-                                 const BufferInfo*     buffer_info,
-                                 VkDeviceSize          offset,
-                                 uint32_t              draw_count,
-                                 uint32_t              stride);
+    void OverrideCmdDrawIndirect(const ApiCallInfo&      call_info,
+                                 PFN_vkCmdDrawIndirect   func,
+                                 VkCommandBuffer         original_command_buffer,
+                                 const VulkanBufferInfo* buffer_info,
+                                 VkDeviceSize            offset,
+                                 uint32_t                draw_count,
+                                 uint32_t                stride);
 
     void OverrideCmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
                                         PFN_vkCmdDrawIndexedIndirect func,
                                         VkCommandBuffer              original_command_buffer,
-                                        const BufferInfo*            buffer_info,
+                                        const VulkanBufferInfo*      buffer_info,
                                         VkDeviceSize                 offset,
                                         uint32_t                     draw_count,
                                         uint32_t                     stride);
@@ -95,9 +95,9 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdDrawIndirectCount(const ApiCallInfo&         call_info,
                                       PFN_vkCmdDrawIndirectCount func,
                                       VkCommandBuffer            original_command_buffer,
-                                      const BufferInfo*          buffer_info,
+                                      const VulkanBufferInfo*    buffer_info,
                                       VkDeviceSize               offset,
-                                      const BufferInfo*          count_buffer_info,
+                                      const VulkanBufferInfo*    count_buffer_info,
                                       VkDeviceSize               count_buffer_offset,
                                       uint32_t                   max_draw_count,
                                       uint32_t                   stride);
@@ -105,9 +105,9 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdDrawIndexedIndirectCount(const ApiCallInfo&                call_info,
                                              PFN_vkCmdDrawIndexedIndirectCount func,
                                              VkCommandBuffer                   original_command_buffer,
-                                             const BufferInfo*                 buffer_info,
+                                             const VulkanBufferInfo*           buffer_info,
                                              VkDeviceSize                      offset,
-                                             const BufferInfo*                 count_buffer_info,
+                                             const VulkanBufferInfo*           count_buffer_info,
                                              VkDeviceSize                      count_buffer_offset,
                                              uint32_t                          max_draw_count,
                                              uint32_t                          stride);
@@ -115,9 +115,9 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdDrawIndirectCountKHR(const ApiCallInfo&            call_info,
                                          PFN_vkCmdDrawIndirectCountKHR func,
                                          VkCommandBuffer               original_command_buffer,
-                                         const BufferInfo*             buffer_info,
+                                         const VulkanBufferInfo*       buffer_info,
                                          VkDeviceSize                  offset,
-                                         const BufferInfo*             count_buffer_info,
+                                         const VulkanBufferInfo*       count_buffer_info,
                                          VkDeviceSize                  count_buffer_offset,
                                          uint32_t                      max_draw_count,
                                          uint32_t                      stride);
@@ -125,9 +125,9 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&                   call_info,
                                                 PFN_vkCmdDrawIndexedIndirectCountKHR func,
                                                 VkCommandBuffer                      original_command_buffer,
-                                                const BufferInfo*                    buffer_info,
+                                                const VulkanBufferInfo*              buffer_info,
                                                 VkDeviceSize                         offset,
-                                                const BufferInfo*                    count_buffer_info,
+                                                const VulkanBufferInfo*              count_buffer_info,
                                                 VkDeviceSize                         count_buffer_offset,
                                                 uint32_t                             max_draw_count,
                                                 uint32_t                             stride);
@@ -164,11 +164,11 @@ class VulkanReplayDumpResourcesBase
                                  StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
                                  StructPointerDecoder<Decoded_VkSubpassEndInfo>*   pSubpassEndInfo);
 
-    void OverrideCmdBindPipeline(const ApiCallInfo&    call_info,
-                                 PFN_vkCmdBindPipeline func,
-                                 VkCommandBuffer       original_command_buffer,
-                                 VkPipelineBindPoint   pipelineBindPoint,
-                                 const PipelineInfo*   pipeline);
+    void OverrideCmdBindPipeline(const ApiCallInfo&        call_info,
+                                 PFN_vkCmdBindPipeline     func,
+                                 VkCommandBuffer           original_command_buffer,
+                                 VkPipelineBindPoint       pipelineBindPoint,
+                                 const VulkanPipelineInfo* pipeline);
 
     void OverrideCmdDispatch(const ApiCallInfo& call_info,
                              PFN_vkCmdDispatch  func,
@@ -180,7 +180,7 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdDispatchIndirect(const ApiCallInfo&        call_info,
                                      PFN_vkCmdDispatchIndirect func,
                                      VkCommandBuffer           original_command_buffer,
-                                     const BufferInfo*         buffer_info,
+                                     const VulkanBufferInfo*   buffer_info,
                                      VkDeviceSize              offset);
 
     void
@@ -210,21 +210,21 @@ class VulkanReplayDumpResourcesBase
                                           VkCommandBuffer                original_command_buffer,
                                           VkDeviceAddress                indirectDeviceAddress);
 
-    void OverrideCmdBindDescriptorSets(const ApiCallInfo&          call_info,
-                                       PFN_vkCmdBindDescriptorSets func,
-                                       VkCommandBuffer             original_command_buffer,
-                                       VkPipelineBindPoint         pipeline_bind_point,
-                                       const PipelineLayoutInfo*   layout_info,
-                                       uint32_t                    first_set,
-                                       uint32_t                    descriptor_sets_count,
-                                       const format::HandleId*     descriptor_sets_ids,
-                                       uint32_t                    dynamicOffsetCount,
-                                       const uint32_t*             pDynamicOffsets);
+    void OverrideCmdBindDescriptorSets(const ApiCallInfo&              call_info,
+                                       PFN_vkCmdBindDescriptorSets     func,
+                                       VkCommandBuffer                 original_command_buffer,
+                                       VkPipelineBindPoint             pipeline_bind_point,
+                                       const VulkanPipelineLayoutInfo* layout_info,
+                                       uint32_t                        first_set,
+                                       uint32_t                        descriptor_sets_count,
+                                       const format::HandleId*         descriptor_sets_ids,
+                                       uint32_t                        dynamicOffsetCount,
+                                       const uint32_t*                 pDynamicOffsets);
 
     void OverrideCmdBindIndexBuffer(const ApiCallInfo&       call_info,
                                     PFN_vkCmdBindIndexBuffer func,
                                     VkCommandBuffer          original_command_buffer,
-                                    const BufferInfo*        buffer,
+                                    const VulkanBufferInfo*  buffer,
                                     VkDeviceSize             offset,
                                     VkIndexType              indexType);
 
@@ -258,7 +258,7 @@ class VulkanReplayDumpResourcesBase
     void OverrideCmdBindIndexBuffer2KHR(const ApiCallInfo&           call_info,
                                         PFN_vkCmdBindIndexBuffer2KHR func,
                                         VkCommandBuffer              commandBuffer,
-                                        const BufferInfo*            buffer,
+                                        const VulkanBufferInfo*      buffer,
                                         VkDeviceSize                 offset,
                                         VkDeviceSize                 size,
                                         VkIndexType                  indexType);

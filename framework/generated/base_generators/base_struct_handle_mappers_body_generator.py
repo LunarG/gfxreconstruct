@@ -233,9 +233,10 @@ class BaseStructHandleMappersBodyGenerator():
             else:
                 type = member.base_type
                 if not is_dx12_class:
-                    type = member.base_type[2:] + 'Info'
+                    type = 'Vulkan' + member.base_type[2:] + 'Info'
+                    func_id = member.base_type + 'Info'
                     object_info_table_get = ', &VulkanObjectInfoTable::Get{}'.format(
-                        type
+                        func_id
                     )
 
                 # If it is an array or pointer, map with the utility function.
@@ -331,9 +332,10 @@ class BaseStructHandleMappersBodyGenerator():
             else:
                 type = member.base_type
                 if not is_dx12_class:
-                    type = member.base_type[2:] + 'Info'
+                    type = 'Vulkan' + member.base_type[2:] + 'Info'
+                    func_id = member.base_type + 'Info'
                     object_info_table_add = ', &VulkanObjectInfoTable::Add{}'.format(
-                        type
+                        func_id
                     )
 
                 # If it is an array or pointer, add with the utility function.

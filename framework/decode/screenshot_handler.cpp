@@ -67,7 +67,7 @@ inline void WriteImageFile(const std::string&     filename,
 }
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
-                                   const DeviceInfo*                       device_info,
+                                   const VulkanDeviceInfo*                 device_info,
                                    const encode::VulkanDeviceTable*        device_table,
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
