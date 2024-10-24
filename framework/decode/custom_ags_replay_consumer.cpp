@@ -180,14 +180,12 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
 
     if (ValidateAgsInputs(context))
     {
-        IDXGIAdapter* current_adapter = nullptr;
-
-        current_adapter = dx12_replay_consumer_->MapObject<IDXGIAdapter>(
-            reinterpret_cast<gfxrecon::format::HandleId>(creationParams->pAdapter));
+        IDXGIAdapter* current_adapter = dx12_replay_consumer_->GetAdapter();
 
         if (current_adapter == nullptr)
         {
-            current_adapter = dx12_replay_consumer_->GetAdapter();
+            current_adapter = dx12_replay_consumer_->MapObject<IDXGIAdapter>(
+                reinterpret_cast<gfxrecon::format::HandleId>(creationParams->pAdapter));
         }
 
         creationParams->pAdapter = current_adapter;
