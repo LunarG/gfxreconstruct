@@ -98,6 +98,117 @@ std::size_t hash_range(It first, It last)
     return seed;
 }
 
+//! stripped-out finalizer from murmur3_32
+inline uint32_t murmur3_fmix32(uint32_t h)
+{
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
+}
+
+//! stripped-out finalizer from murmur3_64
+inline uint64_t murmur3_fmix64(uint64_t k)
+{
+    k ^= k >> 33;
+    k *= 0xff51afd7ed558ccdLLU;
+    k ^= k >> 33;
+    k *= 0xc4ceb9fe1a85ec53LLU;
+    k ^= k >> 33;
+    return k;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+inline uint32_t murmur_32_scramble(uint32_t k)
+{
+    k *= 0xcc9e2d51;
+    k = (k << 15) | (k >> 17);
+    k *= 0x1b873593;
+    return k;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+static inline uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
+{
+    uint32_t h = seed;
+    uint32_t k;
+    /* Read in groups of 4. */
+    for (size_t i = len >> 2; i; i--)
+    {
+        // Here is a source of differing results across endiannesses.
+        // A swap here has no effects on hash properties though.
+        memcpy(&k, key, sizeof(uint32_t));
+        key += sizeof(uint32_t);
+        h ^= murmur_32_scramble(k);
+        h = (h << 13) | (h >> 19);
+        h = h * 5 + 0xe6546b64;
+    }
+    /* Read the rest. */
+    k = 0;
+    for (size_t i = len & 3; i; i--)
+    {
+        k <<= 8;
+        k |= key[i - 1];
+    }
+    // A swap is *not* necessary here because the preceding loop already
+    // places the low bytes in the low places according to whatever endianness
+    // we use. Swaps only apply when the memory is copied in a chunk.
+    h ^= murmur_32_scramble(k);
+    /* Finalize. */
+    h ^= len;
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+template <typename K>
+static inline uint32_t murmur3_32(const K& key, uint32_t seed)
+{
+    constexpr uint32_t num_hashes       = sizeof(K) / sizeof(uint32_t);
+    constexpr uint32_t num_excess_bytes = sizeof(K) % sizeof(uint32_t);
+
+    uint32_t h = seed;
+
+    if constexpr (num_hashes)
+    {
+        auto ptr = reinterpret_cast<const uint32_t*>(&key);
+
+        for (uint32_t i = num_hashes; i; i--)
+        {
+            h ^= murmur_32_scramble(ptr[i - 1]);
+            h = (h << 13) | (h >> 19);
+            h = h * 5 + 0xe6546b64;
+        }
+    }
+
+    if constexpr (num_excess_bytes)
+    {
+        auto     end_u8 = reinterpret_cast<const uint8_t*>(&key) + sizeof(uint32_t) * num_hashes;
+        uint32_t k      = 0;
+        for (uint32_t i = num_excess_bytes; i; i--)
+        {
+            k <<= 8;
+            k |= end_u8[i - 1];
+        }
+        h ^= murmur_32_scramble(k);
+    }
+
+    // finalize
+    h ^= sizeof(K);
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
+}
+
 GFXRECON_END_NAMESPACE(hash)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
