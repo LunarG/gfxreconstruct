@@ -113,7 +113,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      const CommonObjectInfoTable& object_info_table,
                                                       SwapchainImageTracker&       swapchain_image_tracker) override
     {}
 

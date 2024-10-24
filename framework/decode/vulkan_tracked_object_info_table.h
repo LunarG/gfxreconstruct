@@ -45,49 +45,49 @@ class VulkanTrackedObjectInfoTable
 {
   public:
     // Add tracked instance information into the table map
-    void AddTrackedInstanceInfo(TrackedInstanceInfo&& info);
+    void AddTrackedVkInstanceInfo(TrackedVkInstanceInfo&& info);
 
     // Add tracked physical device information into the table map
-    void AddTrackedPhysicalDeviceInfo(TrackedPhysicalDeviceInfo&& info);
+    void AddTrackedVkPhysicalDeviceInfo(TrackedVkPhysicalDeviceInfo&& info);
 
     // Add tracked device information into the table map
-    void AddTrackedDeviceInfo(TrackedDeviceInfo&& info);
+    void AddTrackedVkDeviceInfo(TrackedVkDeviceInfo&& info);
 
     // Add tracked memory information into the tracked memories information table map
-    void AddTrackedDeviceMemoryInfo(TrackedDeviceMemoryInfo&& info);
+    void AddTrackedVkDeviceMemoryInfo(TrackedVkDeviceMemoryInfo&& info);
 
     // Add tracked resource information into the tracked resource (buffers and images) information table map
-    void AddTrackedResourceInfo(TrackedResourceInfo&& info);
+    void AddTrackedVkResourceInfo(TrackedVkResourceInfo&& info);
 
     // Return specified handle ID's instance information from the tracked instances information table map
-    TrackedInstanceInfo*       GetTrackedInstanceInfo(format::HandleId id);
-    const TrackedInstanceInfo* GetTrackedInstanceInfo(format::HandleId id) const;
+    TrackedVkInstanceInfo*       GetTrackedVkInstanceInfo(format::HandleId id);
+    const TrackedVkInstanceInfo* GetTrackedVkInstanceInfo(format::HandleId id) const;
 
     // Return specified handle ID's physical device information from the tracked physical device information table map
-    TrackedPhysicalDeviceInfo*       GetTrackedPhysicalDeviceInfo(format::HandleId id);
-    const TrackedPhysicalDeviceInfo* GetTrackedPhysicalDeviceInfo(format::HandleId id) const;
+    TrackedVkPhysicalDeviceInfo*       GetTrackedVkPhysicalDeviceInfo(format::HandleId id);
+    const TrackedVkPhysicalDeviceInfo* GetTrackedVkPhysicalDeviceInfo(format::HandleId id) const;
 
     // Return specified handle ID's device information from the tracked device information table map
-    TrackedDeviceInfo*       GetTrackedDeviceInfo(format::HandleId id);
-    const TrackedDeviceInfo* GetTrackedDeviceInfo(format::HandleId id) const;
+    TrackedVkDeviceInfo*       GetTrackedVkDeviceInfo(format::HandleId id);
+    const TrackedVkDeviceInfo* GetTrackedVkDeviceInfo(format::HandleId id) const;
 
     // Return specified handle ID's device memory information from the tracked memories information table map
-    TrackedDeviceMemoryInfo*       GetTrackedDeviceMemoryInfo(format::HandleId id);
-    const TrackedDeviceMemoryInfo* GetTrackedDeviceMemoryInfo(format::HandleId id) const;
+    TrackedVkDeviceMemoryInfo*       GetTrackedVkDeviceMemoryInfo(format::HandleId id);
+    const TrackedVkDeviceMemoryInfo* GetTrackedVkDeviceMemoryInfo(format::HandleId id) const;
 
     // Return specified handle ID's resource information from the tracked resources information table map
-    TrackedResourceInfo*       GetTrackedResourceInfo(format::HandleId id);
-    const TrackedResourceInfo* GetTrackedResourceInfo(format::HandleId id) const;
+    TrackedVkResourceInfo*       GetTrackedVkResourceInfo(format::HandleId id);
+    const TrackedVkResourceInfo* GetTrackedVkResourceInfo(format::HandleId id) const;
 
     // Return tracked device memories information table map
-    std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*       GetTrackedDeviceMemoriesInfoMap();
-    const std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>* GetTrackedDeviceMemoriesInfoMap() const;
+    std::unordered_map<format::HandleId, TrackedVkDeviceMemoryInfo>*       GetTrackedVkDeviceMemoriesInfoMap();
+    const std::unordered_map<format::HandleId, TrackedVkDeviceMemoryInfo>* GetTrackedVkDeviceMemoriesInfoMap() const;
 
   private:
     // Helper template function for updating tracked objects ID with the information
     // into the objects' table map
     template <typename T>
-    void AddTrackedObjectInfo(T&& info, std::unordered_map<format::HandleId, T>* map)
+    void AddTrackedVkObjectInfo(T&& info, std::unordered_map<format::HandleId, T>* map)
     {
         assert(map != nullptr);
 
@@ -106,7 +106,7 @@ class VulkanTrackedObjectInfoTable
     // Helper template function for retrieving tracked objects information
     // with the specified ID from the objects' table map
     template <typename T>
-    T* GetTrackedObjectInfo(format::HandleId id, std::unordered_map<format::HandleId, T>* map)
+    T* GetTrackedVkObjectInfo(format::HandleId id, std::unordered_map<format::HandleId, T>* map)
     {
         assert(map != nullptr);
 
@@ -132,7 +132,7 @@ class VulkanTrackedObjectInfoTable
     // Helper template function for retrieving tracked objects information
     // with the specified ID from the objects' table map
     template <typename T>
-    const T* GetTrackedObjectInfo(format::HandleId id, const std::unordered_map<format::HandleId, T>* map) const
+    const T* GetTrackedVkObjectInfo(format::HandleId id, const std::unordered_map<format::HandleId, T>* map) const
     {
         assert(map != nullptr);
 
@@ -156,11 +156,11 @@ class VulkanTrackedObjectInfoTable
     }
 
   private:
-    std::unordered_map<format::HandleId, TrackedInstanceInfo>       tracked_instance_map_;
-    std::unordered_map<format::HandleId, TrackedPhysicalDeviceInfo> tracked_physical_device_map_;
-    std::unordered_map<format::HandleId, TrackedDeviceInfo>         tracked_device_map_;
-    std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>   tracked_device_memory_map_;
-    std::unordered_map<format::HandleId, TrackedResourceInfo>       tracked_resource_map_;
+    std::unordered_map<format::HandleId, TrackedVkInstanceInfo>       tracked_instance_map_;
+    std::unordered_map<format::HandleId, TrackedVkPhysicalDeviceInfo> tracked_physical_device_map_;
+    std::unordered_map<format::HandleId, TrackedVkDeviceInfo>         tracked_device_map_;
+    std::unordered_map<format::HandleId, TrackedVkDeviceMemoryInfo>   tracked_device_memory_map_;
+    std::unordered_map<format::HandleId, TrackedVkResourceInfo>       tracked_resource_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

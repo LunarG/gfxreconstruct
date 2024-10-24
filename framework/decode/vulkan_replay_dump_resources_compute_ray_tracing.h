@@ -23,9 +23,9 @@
 #ifndef GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMPUTE_RAY_TRACING_H
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMPUTE_RAY_TRACING_H
 
+#include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "decode/vulkan_replay_dump_resources_json.h"
@@ -48,7 +48,7 @@ class DispatchTraceRaysDumpingContext
   public:
     DispatchTraceRaysDumpingContext(const std::vector<uint64_t>&   dispatch_indices,
                                     const std::vector<uint64_t>&   trace_rays_indices,
-                                    VulkanObjectInfoTable&         object_info_table,
+                                    CommonObjectInfoTable&         object_info_table,
                                     const VulkanReplayOptions&     options,
                                     VulkanReplayDumpResourcesJson& dump_json,
                                     std::string                    capture_filename);
@@ -295,7 +295,7 @@ class DispatchTraceRaysDumpingContext
             struct DispatchIndirect
             {
                 const VulkanBufferInfo* params_buffer_info;
-                VkDeviceSize      params_buffer_offset;
+                VkDeviceSize            params_buffer_offset;
 
                 VkBuffer       new_params_buffer;
                 VkDeviceMemory new_params_memory;
@@ -354,7 +354,7 @@ class DispatchTraceRaysDumpingContext
 
         DispatchTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::DescriptorBindingsInfo> referenced_descriptors;
+        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
 
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
@@ -444,7 +444,7 @@ class DispatchTraceRaysDumpingContext
         TraceRaysTypes type;
 
         std::unordered_map<VkShaderStageFlagBits,
-                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::DescriptorBindingsInfo>>
+                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>>
             referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
@@ -486,7 +486,7 @@ class DispatchTraceRaysDumpingContext
     const encode::VulkanDeviceTable*        device_table;
     VkDevice                                parent_device;
     const encode::VulkanInstanceTable*      instance_table;
-    VulkanObjectInfoTable&                  object_info_table;
+    CommonObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     size_t                                  current_dispatch_index;
     size_t                                  current_trace_rays_index;

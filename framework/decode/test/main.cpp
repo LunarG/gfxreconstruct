@@ -28,6 +28,7 @@
 
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/common_object_info_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
 
@@ -46,7 +47,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
 {
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
 
-    gfxrecon::decode::VulkanObjectInfoTable info_table;
+    gfxrecon::decode::CommonObjectInfoTable info_table;
 
     // Basic add.
     gfxrecon::decode::handle_mapping::AddHandle<gfxrecon::decode::VulkanBufferInfo>(
@@ -54,7 +55,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
         kBufferIds[0],
         kBufferHandles[0],
         &info_table,
-        &gfxrecon::decode::VulkanObjectInfoTable::AddVkBufferInfo);
+        &gfxrecon::decode::CommonObjectInfoTable::AddVkBufferInfo);
 
     SECTION("Add a total of four entries to the object table")
     {
@@ -66,7 +67,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
             &kBufferHandles[1],
             1,
             &info_table,
-            &gfxrecon::decode::VulkanObjectInfoTable::AddVkBufferInfo);
+            &gfxrecon::decode::CommonObjectInfoTable::AddVkBufferInfo);
 
         // Array add with info and different ID/handle counts.
         gfxrecon::decode::handle_mapping::AddHandleArray<gfxrecon::decode::VulkanBufferInfo>(
@@ -77,7 +78,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
             2,
             std::vector<gfxrecon::decode::VulkanBufferInfo>(1),
             &info_table,
-            &gfxrecon::decode::VulkanObjectInfoTable::AddVkBufferInfo);
+            &gfxrecon::decode::CommonObjectInfoTable::AddVkBufferInfo);
 
         // Add with info.
         gfxrecon::decode::handle_mapping::AddHandle<gfxrecon::decode::VulkanBufferInfo>(
@@ -86,7 +87,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
             kBufferHandles[3],
             gfxrecon::decode::VulkanBufferInfo{},
             &info_table,
-            &gfxrecon::decode::VulkanObjectInfoTable::AddVkBufferInfo);
+            &gfxrecon::decode::CommonObjectInfoTable::AddVkBufferInfo);
 
         std::vector<const gfxrecon::decode::VulkanBufferInfo*> buffers;
         info_table.VisitVkBufferInfo(
@@ -102,7 +103,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
             kBufferIds[0],
             kBufferHandles[0],
             &info_table,
-            &gfxrecon::decode::VulkanObjectInfoTable::AddVkBufferInfo);
+            &gfxrecon::decode::CommonObjectInfoTable::AddVkBufferInfo);
 
         std::vector<const gfxrecon::decode::VulkanBufferInfo*> buffers;
         info_table.VisitVkBufferInfo(
@@ -114,7 +115,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
     SECTION("Remove an entry from the object table")
     {
         gfxrecon::decode::handle_mapping::RemoveHandle(
-            kBufferIds[0], &info_table, &gfxrecon::decode::VulkanObjectInfoTable::RemoveVkBufferInfo);
+            kBufferIds[0], &info_table, &gfxrecon::decode::CommonObjectInfoTable::RemoveVkBufferInfo);
 
         std::vector<const gfxrecon::decode::VulkanBufferInfo*> buffers;
         info_table.VisitVkBufferInfo(
@@ -126,7 +127,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
     SECTION("Buffer ID 12 maps to a valid buffer handle")
     {
         auto buffer = gfxrecon::decode::handle_mapping::MapHandle<gfxrecon::decode::VulkanBufferInfo>(
-            kBufferIds[0], info_table, &gfxrecon::decode::VulkanObjectInfoTable::GetVkBufferInfo);
+            kBufferIds[0], info_table, &gfxrecon::decode::CommonObjectInfoTable::GetVkBufferInfo);
 
         REQUIRE(buffer == kBufferHandles[0]);
     }
@@ -134,7 +135,7 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
     SECTION("Invalid buffer ID 99 does not map to a valid buffer handle")
     {
         auto buffer = gfxrecon::decode::handle_mapping::MapHandle<gfxrecon::decode::VulkanBufferInfo>(
-            99, info_table, &gfxrecon::decode::VulkanObjectInfoTable::GetVkBufferInfo);
+            99, info_table, &gfxrecon::decode::CommonObjectInfoTable::GetVkBufferInfo);
 
         REQUIRE(buffer == VK_NULL_HANDLE);
     }

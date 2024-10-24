@@ -24,9 +24,9 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_BASE_H
 
 #include "decode/api_decoder.h"
+#include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_object_info_table.h"
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
@@ -50,7 +50,7 @@ class VulkanReplayDumpResourcesBase
   public:
     VulkanReplayDumpResourcesBase() = delete;
 
-    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table);
+    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table);
 
     ~VulkanReplayDumpResourcesBase();
 
@@ -348,7 +348,7 @@ class VulkanReplayDumpResourcesBase
 
     bool                          recording_;
     bool                          dump_resources_before_;
-    VulkanObjectInfoTable&        object_info_table_;
+    CommonObjectInfoTable&        object_info_table_;
     VulkanReplayDumpResourcesJson dump_json_;
     bool                          output_json_per_command;
 
