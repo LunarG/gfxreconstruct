@@ -60,13 +60,15 @@ class VulkanStateTracker
                         std::function<format::HandleId()> get_unique_id_fn,
                         util::Compressor*                 compressor,
                         uint64_t                          frame_number,
-                        util::FileOutputStream*           asset_file_stream = nullptr)
+                        util::FileOutputStream*           asset_file_stream,
+                        const std::string&                asset_file_name)
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
                                        thread_id,
                                        get_unique_id_fn,
                                        asset_file_stream,
+                                       asset_file_name,
                                        asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -74,6 +76,7 @@ class VulkanStateTracker
     }
 
     uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
+                         const std::string&                asset_file_name,
                          format::ThreadId                  thread_id,
                          std::function<format::HandleId()> get_unique_id_fn,
                          util::Compressor*                 compressor)
@@ -81,7 +84,7 @@ class VulkanStateTracker
         assert(asset_file_stream != nullptr);
 
         VulkanStateWriter state_writer(
-            nullptr, compressor, thread_id, get_unique_id_fn, asset_file_stream, &asset_file_offsets_);
+            nullptr, compressor, thread_id, get_unique_id_fn, asset_file_stream, asset_file_name, &asset_file_offsets_);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteAssets(state_table_);

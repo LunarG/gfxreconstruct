@@ -103,18 +103,29 @@ void VulkanCaptureManager::DestroyInstance()
 
 void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
                                              format::ThreadId        thread_id,
-                                             util::FileOutputStream* asset_file_stream)
+                                             util::FileOutputStream* asset_file_stream,
+                                             const std::string&      asset_file_name)
 {
     uint64_t n_blocks = state_tracker_->WriteState(
-        file_stream, thread_id, [] { return GetUniqueId(); }, GetCompressor(), GetCurrentFrame(), asset_file_stream);
+        file_stream,
+        thread_id,
+        [] { return GetUniqueId(); },
+        GetCompressor(),
+        GetCurrentFrame(),
+        asset_file_stream,
+        asset_file_name);
+
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 
-void VulkanCaptureManager::WriteAssets(util::FileOutputStream* asset_file_stream, format::ThreadId thread_id)
+void VulkanCaptureManager::WriteAssets(util::FileOutputStream* asset_file_stream,
+                                       const std::string&      asset_file_name,
+                                       format::ThreadId        thread_id)
 {
     assert(state_tracker_ != nullptr);
     uint64_t n_blocks = state_tracker_->WriteAssets(
-        asset_file_stream, thread_id, [] { return GetUniqueId(); }, GetCompressor());
+        asset_file_stream, asset_file_name, thread_id, [] { return GetUniqueId(); }, GetCompressor());
+
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 

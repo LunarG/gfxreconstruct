@@ -278,7 +278,7 @@ class CommonCaptureManager
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateTrimDrawCallsFilename(const std::string&                    base_filename,
                                             const CaptureSettings::TrimDrawCalls& trim_draw_calls);
-    std::string CreateAssetFile();
+    void        CreateAssetFile();
     std::string CreateAssetFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
@@ -377,6 +377,7 @@ class CommonCaptureManager
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
     std::string                             capture_filename_;
+    std::string                             asset_file_name_;
     bool                                    timestamp_filename_;
     bool                                    force_file_flush_;
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;

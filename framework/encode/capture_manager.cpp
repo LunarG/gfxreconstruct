@@ -850,7 +850,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
 
         for (auto& manager : api_capture_managers_)
         {
-            manager.first->WriteAssets(asset_file_stream_.get(), thread_data->thread_id_);
+            manager.first->WriteAssets(asset_file_stream_.get(), asset_file_name_, thread_data->thread_id_);
         }
 
         capture_mode_ = kModeTrack;
@@ -1047,16 +1047,16 @@ std::string CommonCaptureManager::CreateTrimDrawCallsFilename(const std::string&
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-std::string CommonCaptureManager::CreateAssetFile()
+void CommonCaptureManager::CreateAssetFile()
 {
-    std::string asset_file_name = CreateAssetFilename(base_filename_);
+    asset_file_name_ = CreateAssetFilename(base_filename_);
 
     if (timestamp_filename_)
     {
-        asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
+        asset_file_name_ = util::filepath::GenerateTimestampedFilename(asset_file_name_);
     }
 
-    asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+    asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name_, kFileStreamBufferSize);
     if (asset_file_stream_->IsValid())
     {
         WriteFileHeader(asset_file_stream_.get());
@@ -1065,8 +1065,6 @@ std::string CommonCaptureManager::CreateAssetFile()
     {
         asset_file_stream_ = nullptr;
     }
-
-    return asset_file_name;
 }
 
 std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const
@@ -1238,8 +1236,10 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
 
         for (auto& manager : api_capture_managers_)
         {
-            manager.first->WriteTrackedState(
-                file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
+            manager.first->WriteTrackedState(file_stream_.get(),
+                                             thread_data->thread_id_,
+                                             use_asset_file_ ? asset_file_stream_.get() : nullptr,
+                                             use_asset_file_ ? asset_file_name_ : "");
         }
     }
 

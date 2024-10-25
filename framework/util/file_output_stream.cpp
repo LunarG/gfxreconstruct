@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_size, bool append) :
-    file_(nullptr), own_file_(true), filename(filename)
+    file_(nullptr), own_file_(true)
 {
     const char* mode   = append ? "ab" : "wb";
     int32_t     result = platform::FileOpen(&file_, filename.c_str(), mode);

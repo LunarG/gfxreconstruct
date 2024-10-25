@@ -61,8 +61,6 @@ class FileOutputStream : public OutputStream
 
     virtual int64_t GetOffset() const { return platform::FileTell(file_); }
 
-    virtual const std::string& GetFilename() const { return filename; }
-
   protected:
     FileOutputStream(const FileOutputStream&)            = delete;
     FileOutputStream& operator=(const FileOutputStream&) = delete;

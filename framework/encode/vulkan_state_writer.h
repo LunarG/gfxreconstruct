@@ -56,6 +56,7 @@ class VulkanStateWriter
                       format::ThreadId                         thread_id,
                       std::function<format::HandleId()>        get_unique_id_fn,
                       util::FileOutputStream*                  asset_file_stream  = nullptr,
+                      const std::string&                       asset_file_name    = "",
                       VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets = nullptr);
 
     // Returns number of blocks written to the output_stream.
@@ -430,6 +431,7 @@ class VulkanStateWriter
     std::function<format::HandleId()> get_unique_id_;
 
     util::FileOutputStream* asset_file_stream_;
+    std::string             asset_file_name_;
     AssetFileOffsetsInfo*   asset_file_offsets_;
 };
 
