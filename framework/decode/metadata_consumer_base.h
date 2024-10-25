@@ -105,6 +105,10 @@ class MetadataConsumerBase
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data)
     {}
+    virtual void ProcessExecuteBlocksFromFile(uint32_t           n_blocks,
+                                              int64_t            offset,
+                                              const std::string& filename)
+    {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 

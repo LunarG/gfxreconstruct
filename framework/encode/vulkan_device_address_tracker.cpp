@@ -49,10 +49,10 @@ void swap(VulkanDeviceAddressTracker& lhs, VulkanDeviceAddressTracker& rhs) noex
 
 void encode::VulkanDeviceAddressTracker::TrackBuffer(const vulkan_wrappers::BufferWrapper* wrapper)
 {
-    if (wrapper != nullptr && wrapper->handle != VK_NULL_HANDLE && wrapper->address != 0 && wrapper->created_size != 0)
+    if (wrapper != nullptr && wrapper->handle != VK_NULL_HANDLE && wrapper->address != 0 && wrapper->size != 0)
     {
         std::unique_lock lock(mutex_);
-        buffer_addresses_[wrapper->address] = { wrapper->handle, wrapper->created_size };
+        buffer_addresses_[wrapper->address] = { wrapper->handle, wrapper->size };
     }
 }
 
