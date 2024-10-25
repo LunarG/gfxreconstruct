@@ -556,7 +556,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(buffer);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -578,7 +579,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -601,7 +603,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -623,7 +626,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(image);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -645,7 +649,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -668,7 +673,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -692,7 +698,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(image);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -716,7 +723,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -742,7 +750,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         GFXRECON_UNREFERENCED_PARAMETER(device);
         GFXRECON_UNREFERENCED_PARAMETER(pInfo);
 
-        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
             GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
