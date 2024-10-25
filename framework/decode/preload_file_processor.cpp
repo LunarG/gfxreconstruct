@@ -327,7 +327,6 @@ bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     if (status_ == PreloadStatus::kReplay)
     {
         bytes_read = preload_buffer_.Read(buffer, buffer_size);
-        // bytes_read_ += bytes_read;
         if (preload_buffer_.ReplayFinished())
         {
             status_ = PreloadStatus::kInactive;
@@ -336,8 +335,9 @@ bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     else
     {
         bytes_read = util::platform::FileRead(buffer, buffer_size, GetFileDescriptor());
-        // bytes_read_ += bytes_read;
     }
+
+    bytes_read_ += bytes_read;
     return bytes_read == buffer_size;
 }
 
