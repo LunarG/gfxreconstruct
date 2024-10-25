@@ -2195,7 +2195,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     create_info.flags                 = 0;
     create_info.imageType             = type;
     create_info.format                = dst_format;
-    create_info.extent                = extent;
+    create_info.extent                = (scale > 1.0f) ? scaled_extent : extent;
     create_info.mipLevels             = mip_levels;
     create_info.arrayLayers           = array_layers;
     create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
