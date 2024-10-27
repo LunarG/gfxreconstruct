@@ -52,7 +52,7 @@ class App : public gfxrecon::test::TestAppBase
     VkPipelineLayout pipeline_layout;
     VkPipeline       graphics_pipeline;
 
-    VkCommandPool   command_pools[MAX_FRAMES_IN_FLIGHT];
+    VkCommandPool command_pools[MAX_FRAMES_IN_FLIGHT];
 
     size_t current_frame = 0;
 
@@ -282,9 +282,9 @@ bool App::frame(const int frame_num)
 
     init.disp.resetCommandPool(this->command_pools[current_frame], 0);
     VkCommandBufferAllocateInfo allocate_info = {};
-    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocate_info.commandBufferCount = 1;
-    allocate_info.commandPool = this->command_pools[current_frame];
+    allocate_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocate_info.commandBufferCount          = 1;
+    allocate_info.commandPool                 = this->command_pools[current_frame];
     VkCommandBuffer command_buffer;
     result = init.disp.allocateCommandBuffers(&allocate_info, &command_buffer);
     VERIFY_VK_RESULT("failed to allocate command buffer", result);
@@ -292,12 +292,12 @@ bool App::frame(const int frame_num)
     {
         VkCommandBufferBeginInfo begin_info = {};
         begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        result              = init.disp.beginCommandBuffer(command_buffer, &begin_info);
+        result                              = init.disp.beginCommandBuffer(command_buffer, &begin_info);
         VERIFY_VK_RESULT("failed to create command buffer", result);
 
         {
             VkImageMemoryBarrier image_barrier        = {};
-            image_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             image_barrier.image                       = init.swapchain_images[image_index];
             image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
             image_barrier.newLayout                   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -353,7 +353,7 @@ bool App::frame(const int frame_num)
 
         {
             VkImageMemoryBarrier image_barrier        = {};
-            image_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             image_barrier.image                       = init.swapchain_images[image_index];
             image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             image_barrier.newLayout                   = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -469,7 +469,8 @@ void App::setup()
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index)
         throw std::runtime_error("could not find graphics queue");
-    for (auto& command_pool : command_pools) {
+    for (auto& command_pool : command_pools)
+    {
         command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
     }
 
