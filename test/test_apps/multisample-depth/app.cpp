@@ -445,7 +445,7 @@ bool App::frame(const int frame_num)
 
         {
             VkImageMemoryBarrier image_barriers[2];
-            image_barriers[0] = {};
+            image_barriers[0]                             = {};
             image_barriers[0].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             image_barriers[0].image                       = render_targets[image_index];
             image_barriers[0].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -455,7 +455,7 @@ bool App::frame(const int frame_num)
             image_barriers[0].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
             image_barriers[0].srcAccessMask               = VK_ACCESS_NONE;
             image_barriers[0].dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            image_barriers[1] = {};
+            image_barriers[1]                             = {};
             image_barriers[1].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             image_barriers[1].image                       = depth_images[image_index];
             image_barriers[1].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -464,10 +464,13 @@ bool App::frame(const int frame_num)
             image_barriers[1].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
             image_barriers[1].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
             image_barriers[1].srcAccessMask               = VK_ACCESS_NONE;
-            image_barriers[1].dstAccessMask               = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT|VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            image_barriers[1].dstAccessMask =
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
             init.disp.cmdPipelineBarrier(command_buffer,
                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                                             VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                                             VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
                                          0,
                                          0,
                                          nullptr,
@@ -483,12 +486,9 @@ bool App::frame(const int frame_num)
         render_pass_info.framebuffer           = this->framebuffers[image_index];
         render_pass_info.renderArea.offset     = { 0, 0 };
         render_pass_info.renderArea.extent     = init.swapchain.extent;
-        VkClearValue clearColors[] = {
-            { { { 0.0f, 0.0f, 0.0f, 1.0f } } },
-            { { 1.0f } }
-        };
-        render_pass_info.clearValueCount = 2;
-        render_pass_info.pClearValues    = clearColors;
+        VkClearValue clearColors[]             = { { { { 0.0f, 0.0f, 0.0f, 1.0f } } }, { { 1.0f } } };
+        render_pass_info.clearValueCount       = 2;
+        render_pass_info.pClearValues          = clearColors;
 
         VkViewport viewport = {};
         viewport.x          = 0.0f;
@@ -515,9 +515,11 @@ bool App::frame(const int frame_num)
 
         {
             VkMemoryBarrier memory_barrier = {};
-            memory_barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-            memory_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            memory_barrier.dstAccessMask = VK_ACCESS_NONE;
+            memory_barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+            memory_barrier.srcAccessMask   = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                           VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                           VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            memory_barrier.dstAccessMask              = VK_ACCESS_NONE;
             VkImageMemoryBarrier image_barrier        = {};
             image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             image_barrier.image                       = init.swapchain_images[image_index];
@@ -529,7 +531,9 @@ bool App::frame(const int frame_num)
             image_barrier.srcAccessMask               = VK_ACCESS_NONE;
             image_barrier.dstAccessMask               = VK_ACCESS_NONE;
             init.disp.cmdPipelineBarrier(command_buffer,
-                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                                             VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+                                             VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                          0,
                                          1,
@@ -646,7 +650,8 @@ void App::setup()
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index)
         throw std::runtime_error("could not find graphics queue");
-    for (auto& command_pool : command_pools) {
+    for (auto& command_pool : command_pools)
+    {
         command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
     }
 
