@@ -1278,7 +1278,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
     }
 }
 
-void CommonCaptureManager::WriteFileHeader()
+void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
 {
     std::vector<format::FileOptionPair> option_list;
 
@@ -1291,7 +1291,8 @@ void CommonCaptureManager::WriteFileHeader()
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
     CombineAndWriteToFile({ { &file_header, sizeof(file_header) },
-                            { option_list.data(), option_list.size() * sizeof(format::FileOptionPair) } });
+                            { option_list.data(), option_list.size() * sizeof(format::FileOptionPair) } },
+                          file_stream);
 
     // File header does not count as a block
     assert(block_index_ > 0);
@@ -1299,24 +1300,6 @@ void CommonCaptureManager::WriteFileHeader()
 
     auto thread_data          = GetThreadData();
     thread_data->block_index_ = block_index_.load();
-}
-
-void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
-{
-    assert(file_stream != nullptr);
-
-    std::vector<format::FileOptionPair> option_list;
-
-    BuildOptionList(file_options_, &option_list);
-
-    format::FileHeader file_header;
-    file_header.fourcc        = GFXRECON_FOURCC;
-    file_header.major_version = 0;
-    file_header.minor_version = 0;
-    file_header.num_options   = static_cast<uint32_t>(option_list.size());
-
-    WriteToFile(&file_header, sizeof(file_header), file_stream);
-    WriteToFile(option_list.data(), option_list.size() * sizeof(format::FileOptionPair), file_stream);
 }
 
 void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
