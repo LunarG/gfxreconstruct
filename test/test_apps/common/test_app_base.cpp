@@ -174,7 +174,7 @@ class VulkanFunctions
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library = LoadLibrary(TEXT("vulkan-1.dll"));
+        library                = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
