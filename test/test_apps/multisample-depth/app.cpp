@@ -521,7 +521,7 @@ void App::recreate_swapchain() {
 }
 
 const int NUM_FRAMES = 10;
-#define IS_DONE(frame_num) frame_num >= NUM_FRAMES;
+#define IS_RUNNING(frame_num) frame_num < NUM_FRAMES;
 
 bool App::frame(const int frame_num)
 {
@@ -533,7 +533,7 @@ bool App::frame(const int frame_num)
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreate_swapchain();
-        return IS_DONE(frame_num);
+        return IS_RUNNING(frame_num);
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
@@ -553,7 +553,7 @@ bool App::frame(const int frame_num)
     submitInfo.pWaitDstStageMask = wait_stages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &this->command_buffers[image_index];
+    submitInfo.pCommandBuffers = &this->command_buffers[this->current_frame];
 
     VkSemaphore signal_semaphores[] = { this->sync.finished_semaphore[this->current_frame] };
     submitInfo.signalSemaphoreCount = 1;
@@ -585,7 +585,7 @@ bool App::frame(const int frame_num)
 
     this->current_frame = (this->current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    return IS_DONE(frame_num);
+    return IS_RUNNING(frame_num);
 }
 
 void App::cleanup()
