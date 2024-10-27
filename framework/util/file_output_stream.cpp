@@ -25,6 +25,7 @@
 
 #include "util/logging.h"
 #include "util/platform.h"
+#include <cstring>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -45,7 +46,7 @@ FileOutputStream::FileOutputStream(const std::string& filename, size_t buffer_si
     }
     else
     {
-        GFXRECON_LOG_ERROR("fopen(%s, %s) failed (errno = %d)", filename.c_str(), mode, result);
+        GFXRECON_LOG_ERROR("fopen(%s, %s) failed (errno = %d: %s)", filename.c_str(), mode, result, strerror(result));
     }
 }
 

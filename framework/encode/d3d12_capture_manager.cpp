@@ -172,8 +172,14 @@ void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrap
     EndMethodCallCapture();
 }
 
-void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
+void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
+                                            format::ThreadId        thread_id,
+                                            util::FileOutputStream* asset_file_stream,
+                                            const std::string&      asset_file_name)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(asset_file_stream);
+    GFXRECON_UNREFERENCED_PARAMETER(asset_file_name);
+
     Dx12StateWriter state_writer(file_stream, GetCompressor(), thread_id);
     state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }

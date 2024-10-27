@@ -156,6 +156,7 @@ enum class MetaDataType : uint16_t
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
     kViewRelativeLocation                   = 33,
+    kExecuteBlocksFromFile                  = 34
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -676,6 +677,22 @@ struct VulkanWriteAccelerationStructuresPropertiesCommandHeader
 struct VulkanCopyAccelerationStructuresCommandHeader
 {
     format::MetaDataHeader meta_header;
+};
+
+struct ExecuteBlocksFromFile
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    // Number of commands to execute from file.
+    // 0 means execute till the end of file.
+    uint32_t n_blocks;
+
+    // The offset from the start of the file to start executing
+    int64_t offset;
+
+    // Number of characters in file name
+    uint32_t filename_length;
 };
 
 // Restore size_t to normal behavior.
