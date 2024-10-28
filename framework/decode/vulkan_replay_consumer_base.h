@@ -240,6 +240,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
     const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+    void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
+    {
+        AddHandle<VulkanImageInfo>(
+            parent_id, &id, &handle, std::move(initial_info), &VulkanObjectInfoTable::AddVkImageInfo);
+    }
 
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
