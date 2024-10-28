@@ -985,6 +985,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     };
 
+    struct EventInfo
+    {
+        HANDLE   handle;
+        uint64_t refcount;
+    };
+
     IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info);
 
     void InitializeD3D12Device(HandlePointerDecoder<void*>* device);
@@ -1037,6 +1043,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     HANDLE GetEventObject(uint64_t event_id, bool reset);
 
+    uint64_t IncreaseEventObjectRefcount(uint64_t event_id);
+
+    uint64_t DecreaseEventObjectRefcount(HANDLE handle);
+
     void ReadDebugMessages();
 
     void InitializeScreenshotHandler();
@@ -1081,7 +1091,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, HWND>                    window_handles_;
     std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
     std::unordered_map<uint64_t, void*>                   heap_allocations_;
-    std::unordered_map<uint64_t, HANDLE>                  event_objects_;
+    std::unordered_map<uint64_t, EventInfo>               event_objects_;
     std::function<void(const char*)>                      fatal_error_handler_;
     Dx12DescriptorMap                                     descriptor_map_;
     graphics::Dx12GpuVaMap                                gpu_va_map_;

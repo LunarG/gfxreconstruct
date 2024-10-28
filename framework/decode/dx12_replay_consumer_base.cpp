@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -390,7 +390,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         // 2. One ExecuteCommandLists could work for only one swapchain buffer.
         // 3. The current back buffer index has to match the swapchain buffer.
         // 4. After ExecuteCommandLists, the current back buffer index has to back init.
-        // 5. It shouldn't change resource states until all Presnt are done since Present require 
+        // 5. It shouldn't change resource states until all Present are done since Present require
         //    D3D12_RESOURCE_STATE_PRESENT. The before_states supposes to be PRESENT.
 
         // Although it has only one swapchain mostly, it probably has a plural in some cases.
@@ -404,7 +404,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
             auto swapchain             = reinterpret_cast<IDXGISwapChain3*>(swapchain_info->object);
             swapchain_infos[swapchain] = swapchain_extra_info;
 
-            for (auto &state : resource_info.second->before_states)
+            for (auto& state : resource_info.second->before_states)
             {
                 if (state.states != D3D12_RESOURCE_STATE_PRESENT)
                 {
@@ -2425,6 +2425,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
 
     auto   replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
     HANDLE event_object  = GetEventObject(event_id, true);
+    IncreaseEventObjectRefcount(event_id);
 
     auto replay_result = replay_object->SetEventOnCompletion(value, event_object);
 
@@ -3038,7 +3039,7 @@ void Dx12ReplayConsumerBase::DestroyActiveEvents()
 {
     for (const auto& entry : event_objects_)
     {
-        CloseHandle(entry.second);
+        CloseHandle(entry.second.handle);
     }
 
     event_objects_.clear();
@@ -3177,8 +3178,8 @@ HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
     auto event_entry = event_objects_.find(event_id);
     if (event_entry != event_objects_.end())
     {
-        event_object = event_entry->second;
-        if (reset)
+        event_object = event_entry->second.handle;
+        if ((reset == true) && (event_entry->second.refcount == 0))
         {
             ResetEvent(event_object);
         }
@@ -3188,7 +3189,8 @@ HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
         event_object = CreateEventA(nullptr, TRUE, FALSE, nullptr);
         if (event_object != nullptr)
         {
-            event_objects_[event_id] = event_object;
+            event_objects_[event_id].handle   = event_object;
+            event_objects_[event_id].refcount = 0;
         }
         else
         {
@@ -3199,11 +3201,42 @@ HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
     return event_object;
 }
 
+uint64_t Dx12ReplayConsumerBase::IncreaseEventObjectRefcount(uint64_t event_id)
+{
+    auto event_entry = event_objects_.find(event_id);
+    if (event_entry != event_objects_.end())
+    {
+        ++event_entry->second.refcount;
+        return event_entry->second.refcount;
+    }
+    return 0;
+}
+
+uint64_t Dx12ReplayConsumerBase::DecreaseEventObjectRefcount(HANDLE handle)
+{
+    for each (auto& event in event_objects_)
+    {
+        if (event.second.handle == handle)
+        {
+            if (event.second.refcount > 0)
+            {
+                --const_cast<uint64_t&>(event.second.refcount);
+            }
+            return event.second.refcount;
+        }
+    }
+    return 0;
+}
+
 void Dx12ReplayConsumerBase::WaitForFenceEvent(format::HandleId fence_id, HANDLE event_object)
 {
     auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
 
-    if (wait_result == WAIT_TIMEOUT)
+    if (wait_result == WAIT_OBJECT_0)
+    {
+        DecreaseEventObjectRefcount(event_object);
+    }
+    else if (wait_result == WAIT_TIMEOUT)
     {
         GFXRECON_LOG_WARNING("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization", fence_id);
     }
