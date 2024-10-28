@@ -39,9 +39,34 @@
 
 #include <cassert>
 #include <memory>
+#include <type_traits>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+template <typename T, typename = void>
+struct DecoderHasOutputAllocator : std::false_type
+{};
+
+template <typename T>
+struct DecoderHasOutputAllocator<T, std::void_t<decltype(std::declval<T>().AllocateOutputData(size_t(1)))>>
+    : std::true_type
+{};
+
+template <typename T>
+std::enable_if_t<!DecoderHasOutputAllocator<T>::value, typename T::struct_type*>
+StructPointerOutputDataAllocator(T*, size_t len)
+{
+    return DecodeAllocator::Allocate<typename T::struct_type>(len);
+}
+
+template <typename T>
+std::enable_if_t<DecoderHasOutputAllocator<T>::value, typename T::struct_type*>
+StructPointerOutputDataAllocator(T* decoded_value, size_t len)
+{
+    return decoded_value->AllocateOutputData(len);
+}
 
 template <typename T>
 class StructPointerDecoder : public PointerDecoderBase
@@ -68,12 +93,13 @@ class StructPointerDecoder : public PointerDecoderBase
     typename T::struct_type* AllocateOutputData(size_t len)
     {
         output_len_  = len;
-        output_data_ = DecodeAllocator::Allocate<typename T::struct_type>(len);
+        output_data_ = StructPointerOutputDataAllocator(decoded_structs_, len);
         return output_data_;
     }
 
     typename T::struct_type* AllocateOutputData(size_t len, const typename T::struct_type& init)
     {
+        assert(!DecoderHasOutputAllocator<T>::value);
         output_len_  = len;
         output_data_ = DecodeAllocator::Allocate<typename T::struct_type>(len);
 
