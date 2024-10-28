@@ -1625,9 +1625,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                uint32_t                      width,
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
-    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
-                                      AHardwareBuffer*                                    buffer,
-                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
     void WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer);
     void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
                                          const VkPhysicalDeviceProperties& properties);
@@ -1653,7 +1650,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     VkMemoryPropertyFlags GetMemoryProperties(vulkan_wrappers::DeviceWrapper* device_wrapper,
                                               uint32_t                        memory_type_index);
 
-    void ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
+    void ProcessHardwareBuffer(format::ThreadId thread_id, AHardwareBuffer* hardware_buffer, VkDevice device);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
     bool CheckBindAlignment(VkDeviceSize memoryOffset);

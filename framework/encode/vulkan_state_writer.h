@@ -64,6 +64,11 @@ class VulkanStateWriter
 
     uint64_t WriteAssets(const VulkanStateTable& state_table);
 
+    bool OutputStreamWrite(const void* data, size_t len);
+    void IncrementBlocksWritten();
+
+    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
+
   private:
     // Data structures for processing resource memory snapshots.
     struct BufferSnapshotInfo
@@ -157,9 +162,6 @@ class VulkanStateWriter
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
 
     void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
-
-    void
-    ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 
     void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
@@ -298,18 +300,12 @@ class VulkanStateWriter
                            util::MemoryOutputStream* parameter_buffer,
                            util::FileOutputStream*   output_stream = nullptr);
 
-    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
-
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 
     void WriteResizeWindowCmd2(format::HandleId              surface_id,
                                uint32_t                      width,
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
-
-    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
-                                      AHardwareBuffer*                                    hardware_buffer,
-                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
 
     void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
                                          const VkPhysicalDeviceProperties& properties);
