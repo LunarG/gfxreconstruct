@@ -1068,3 +1068,11 @@ class KhronosBaseGenerator(OutputGenerator):
                     break
 
         return values
+
+    def getBaseInputStructureName(self):
+        """Intended to be overridden."""
+        return ''
+
+    def getBaseOutputStructureName(self):
+        """Intended to be overridden."""
+        return ''
