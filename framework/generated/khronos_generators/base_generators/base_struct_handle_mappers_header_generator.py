@@ -29,20 +29,13 @@ class BaseStructHandleMappersHeaderGenerator():
     """Base class for generating struct handle mappers header code."""
 
     def endFile(self):
-        platform_type = self.get_api_prefix()
+        extended_struct_func_name = self.getExtendedStructFuncPrefix()
 
         self.newline()
-        if platform_type == 'Vulkan':
-            write(
-                f'void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);',
-                file=self.outFile
-            )
-        else:
-            write(
-                f'void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);',
-                file=self.outFile
-            )
-
+        write(
+            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);'.format(extended_struct_func_name),
+            file=self.outFile
+        )
         self.newline()
 
         for struct in self.output_structs_with_handles:

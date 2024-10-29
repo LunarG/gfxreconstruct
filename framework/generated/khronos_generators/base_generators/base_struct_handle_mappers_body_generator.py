@@ -29,60 +29,33 @@ class BaseStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
     def endFile(self):
-        platform_type = self.get_api_prefix()
-
-        if platform_type == 'Vulkan':
-            # Generate the pNext handle mapping code.
-            self.newline()
-            write(
-                'void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)',
-                file=self.outFile
-            )
-            write('{', file=self.outFile)
-            write(
-                '    if ((value != nullptr) && (wrapper != nullptr))',
-                file=self.outFile
-            )
-            write('    {', file=self.outFile)
-            write(
-                '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.getBaseInputStructureName()),
-                file=self.outFile
-            )
-            write('', file=self.outFile)
-            write('        switch (base->sType)', file=self.outFile)
-            write('        {', file=self.outFile)
-            write('        default:', file=self.outFile)
-            write(
-                '            // TODO: Report or raise fatal error for unrecongized sType?',
-                file=self.outFile
-            )
-        else:
-            # Generate the next handle mapping code.
-            self.newline()
-            write(
-                'void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)',
-                file=self.outFile
-            )
-            write('{', file=self.outFile)
-            write(
-                '    if ((value != nullptr) && (wrapper != nullptr))',
-                file=self.outFile
-            )
-            write('    {', file=self.outFile)
-            write(
-                '        const XrBaseInStructure* base = reinterpret_cast<const XrBaseInStructure*>(value);',
-                file=self.outFile
-            )
-            write('', file=self.outFile)
-            write('        switch (base->type)', file=self.outFile)
-            write('        {', file=self.outFile)
-            write('        default:', file=self.outFile)
-            write(
-                '            // TODO: Report or raise fatal error for unrecongized type?',
-                file=self.outFile
-            )
-
+        # Print out a function to handle mapping the extended struct types
+        extended_struct_func_name = self.getExtendedStructFuncPrefix()
+        self.newline()
+        write(
+            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write(
+            '    if ((value != nullptr) && (wrapper != nullptr))',
+            file=self.outFile
+        )
+        write('    {', file=self.outFile)
+        write(
+            '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.getBaseInputStructureName()),
+            file=self.outFile
+        )
+        write('', file=self.outFile)
+        write('        switch (base->{})'.format(self.getStructTypeVarName()), file=self.outFile)
+        write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write(
+            '            // TODO: Report or raise fatal error for unrecognized {}?'.format(self.getStructTypeVarName()),
+            file=self.outFile
+        )
         write('            break;', file=self.outFile)
+
         for base_type in self.pnext_structs:
             if base_type in self.structs_with_handles:
                 write(
@@ -95,6 +68,7 @@ class BaseStructHandleMappersBodyGenerator():
                     file=self.outFile
                 )
                 write('            break;', file=self.outFile)
+
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)

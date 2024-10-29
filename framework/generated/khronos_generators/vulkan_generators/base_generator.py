@@ -860,3 +860,19 @@ class BaseGenerator(KhronosBaseGenerator):
     def getBaseOutputStructureName(self):
         """Method override"""
         return 'VkBaseOutStructure'
+
+    def getStructTypeVarName(self):
+        """Method override"""
+        return 'sType'
+
+    def getStructTypeFuncPrefix(self):
+        """Method override"""
+        return 'SType'
+
+    def getExtendedStructVarName(self):
+        """Method override"""
+        return 'pNext'
+
+    def getExtendedStructFuncPrefix(self):
+        """Method override"""
+        return 'PNext'
