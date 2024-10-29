@@ -300,6 +300,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.struct_names = set()  # Set of current API's struct typenames
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
+        self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict(
         )  # Map of flags types
         self.enum_names = set()  # Set of current API's  enumeration typenames
@@ -518,7 +519,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
-        if base_type in self.DISPATCHABLE_HANDLE_TYPES:
+        if base_type in self.dispatchable_handle_names:
             return True
         return False
 
@@ -858,6 +859,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 self.genUnion(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handle_names.add(name)
+            if (
+                type_elem is not None and type_elem.find('type') is not None
+                and '_DEFINE_HANDLE' == type_elem.find('type').text[2:]
+            ):
+                self.dispatchable_handle_names.add(name)
         elif (category == 'bitmask'):
             # Flags can have either VkFlags or VkFlags64 base type
             alias = type_elem.get('alias')

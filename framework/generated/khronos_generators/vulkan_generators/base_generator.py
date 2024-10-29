@@ -251,12 +251,6 @@ class BaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
-        # Dispatchable handle types.
-        self.DISPATCHABLE_HANDLE_TYPES = [
-            'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',
-            'VkCommandBuffer'
-        ]
-
         self.DUPLICATE_HANDLE_TYPES = [
             'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
         ]
