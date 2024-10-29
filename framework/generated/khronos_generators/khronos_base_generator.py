@@ -1073,3 +1073,19 @@ class KhronosBaseGenerator(OutputGenerator):
     def get_base_output_structure_name(self):
         """Intended to be overridden."""
         return ''
+
+    def get_struct_type_var_name(self):
+        """Intended to be overridden."""
+        return ''
+
+    def get_struct_type_func_prefix(self):
+        """Intended to be overridden."""
+        return ''
+
+    def get_extended_struct_var_name(self):
+        """Intended to be overridden."""
+        return ''
+
+    def get_extended_struct_func_prefix(self):
+        """Intended to be overridden."""
+        return ''
