@@ -63,7 +63,7 @@ class BaseStructDecodersHeaderGenerator():
             first = False
 
     def needs_member_declaration(self, name, value):
-        """Determines if a Vulkan struct member needs an associated member
+        """Determines if a struct member needs an associated member
         delcaration in the decoded struct wrapper.
         """
         if value.is_pointer or value.is_array:
@@ -83,10 +83,10 @@ class BaseStructDecodersHeaderGenerator():
         determines the value to use.
         """
         if type == 'format::HandleId':
-            # These types represent values recorded for Vulkan handles.
+            # These types represent values recorded for handles.
             return 'format::kNullHandleId'
         elif type == 'uint64_t':
-            # These types represent values recorded for function pointers and void pointers to non-Vulkan objects.
+            # These types represent values recorded for function pointers and void pointers to non-khronos objects.
             return '0'
         return None
 

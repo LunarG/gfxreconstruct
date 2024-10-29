@@ -120,7 +120,6 @@ class BaseDecoderBodyGenerator():
             else:
                 arg_names.append(value.name)
 
-        # Vulkan return is very simple.
         if return_type and return_type != 'void':
             main_body += '    {} return_value;\n'.format(return_type)
 
