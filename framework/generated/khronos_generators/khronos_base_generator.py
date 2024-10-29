@@ -1092,3 +1092,10 @@ class KhronosBaseGenerator(OutputGenerator):
     def getExtendedStructFuncPrefix(self):
         """Intended to be overridden."""
         return ''
+
+    def isExtendedStructDefinition(self, value):
+        if (value.name == self.getExtendedStructVarName() and
+            value.base_type == 'void' and
+            value.is_pointer):
+            return True
+        return False

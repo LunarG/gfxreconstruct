@@ -61,17 +61,14 @@ class BaseStructDecodersBodyGenerator():
         epilogue = ''
 
         for value in values:
-            # pNext fields require special treatment and are not processed by type name
-            if 'pNext' in value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
-                    value.name
+            # If it is an extended struct name, it requires special treatment
+            if self.isExtendedStructDefinition(value):
+                extended_struct_name = self.getExtendedStructVarName()
+                extended_struct_func_prefix = self.getExtendedStructFuncPrefix()
+                main_body += '    bytes_read += Decode{}Struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+                    extended_struct_func_prefix, value.name
                 )
-                main_body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
-            elif 'next' == value.name and value.base_type == 'void':
-                main_body += '    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
-                    value.name
-                )
-                main_body += '    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;\n'
+                main_body += '    value->{var} = wrapper->{var} ? wrapper->{var}->GetPointer() : nullptr;\n'.format(var=extended_struct_name)
             else:
                 preamble, main_body, epilogue = BaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value, preamble, main_body, epilogue

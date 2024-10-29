@@ -170,10 +170,8 @@ class BaseStructHandleMappersBodyGenerator():
             body += '\n'
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
-            if ('pNext' == member.name or 'next' == member.name):
-                func_id = 'PNext'
-                if 'next' == member.name:
-                    func_id = 'Next'
+            if self.isExtendedStructDefinition(member):
+                func_id = self.getExtendedStructFuncPrefix()
                 body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
                 body += f'            Map{func_id}StructHandles(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer(), object_info_table);\n'
@@ -264,11 +262,8 @@ class BaseStructHandleMappersBodyGenerator():
         body += '    {\n'
 
         for member in members:
-
-            if ('pNext' == member.name or 'next' == member.name):
-                func_id = 'PNext'
-                if 'next' == member.name:
-                    func_id = 'Next'
+            if self.isExtendedStructDefinition(member):
+                func_id = self.getExtendedStructFuncPrefix()
                 body += f'        if (id_wrapper->{member.name})\n'
                 body += '        {\n'
                 body += f'            Add{func_id}StructHandles(parent_id, id_wrapper->{member.name}->GetPointer(), id_wrapper->{member.name}->GetMetaStructPointer(), handle_struct->{member.name}, object_info_table);\n'
@@ -353,10 +348,8 @@ class BaseStructHandleMappersBodyGenerator():
             body += '\n'
 
         for member in members:
-            if ('pNext' == member.name or 'next' == member.name):
-                func_id = 'PNext'
-                if 'next' == member.name:
-                    func_id = 'Next'
+            if self.isExtendedStructDefinition(member):
+                func_id = self.getExtendedStructFuncPrefix()
                 body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
                 body += f'            Set{func_id}StructHandleLengths(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer());\n'
