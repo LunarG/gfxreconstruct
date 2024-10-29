@@ -385,6 +385,8 @@ class VulkanStateTracker
 
     void TrackEndRenderPass(VkCommandBuffer command_buffer);
 
+    void TrackImageDstLayout(VkCommandBuffer command_buffer, VkImage dst_image, VkImageLayout dst_image_layout);
+
     void TrackExecuteCommands(VkCommandBuffer        command_buffer,
                               uint32_t               command_buffer_count,
                               const VkCommandBuffer* command_buffers);

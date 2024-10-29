@@ -636,6 +636,21 @@ void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
     wrapper->render_pass_framebuffer = nullptr;
 }
 
+void VulkanStateTracker::TrackImageDstLayout(VkCommandBuffer command_buffer,
+                                             VkImage         dst_image,
+                                             VkImageLayout   dst_image_layout)
+{
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    auto command_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+
+    assert(command_wrapper != nullptr);
+
+    auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dst_image);
+
+    command_wrapper->pending_layouts[image_wrapper] = dst_image_layout;
+}
+
 void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buffer,
                                               uint32_t               command_buffer_count,
                                               const VkCommandBuffer* command_buffers)
@@ -2528,6 +2543,7 @@ void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
                                            const VkImageCopy* pRegions)
 {
     InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
+    TrackImageDstLayout(commandBuffer, dstImage, dstImageLayout);
 }
 
 void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
@@ -2538,6 +2554,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          comm
                                                    const VkBufferImageCopy* pRegions)
 {
     InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
+    TrackImageDstLayout(commandBuffer, dstImage, dstImageLayout);
 }
 
 void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
@@ -2563,6 +2580,7 @@ void VulkanStateTracker::TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const
     if (pCopyImageInfo != nullptr)
     {
         InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
+        TrackImageDstLayout(commandBuffer, pCopyImageInfo->dstImage, pCopyImageInfo->dstImageLayout);
     }
 }
 
@@ -2572,6 +2590,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage2(VkCommandBuffer             
     if (pCopyBufferToImageInfo != nullptr)
     {
         InsertImageAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
+        TrackImageDstLayout(commandBuffer, pCopyBufferToImageInfo->dstImage, pCopyBufferToImageInfo->dstImageLayout);
     }
 }
 
@@ -2628,6 +2647,7 @@ void VulkanStateTracker::TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
                                            VkFilter           filter)
 {
     InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
+    TrackImageDstLayout(commandBuffer, dstImage, dstImageLayout);
 }
 
 void VulkanStateTracker::TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)
@@ -2635,6 +2655,7 @@ void VulkanStateTracker::TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const
     if (pBlitImageInfo != nullptr)
     {
         InsertImageAssetInCommandBuffer(commandBuffer, pBlitImageInfo->dstImage);
+        TrackImageDstLayout(commandBuffer, pBlitImageInfo->dstImage, pBlitImageInfo->dstImageLayout);
     }
 }
 
@@ -2684,6 +2705,7 @@ void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffe
                                               const VkImageResolve* pRegions)
 {
     InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
+    TrackImageDstLayout(commandBuffer, dstImage, dstImageLayout);
 }
 
 void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            commandBuffer,
@@ -2692,6 +2714,7 @@ void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            comman
     if (pResolveImageInfo != nullptr)
     {
         InsertImageAssetInCommandBuffer(commandBuffer, pResolveImageInfo->dstImage);
+        TrackImageDstLayout(commandBuffer, pResolveImageInfo->dstImage, pResolveImageInfo->dstImageLayout);
     }
 }
 
