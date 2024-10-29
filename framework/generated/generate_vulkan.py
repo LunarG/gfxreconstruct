@@ -34,7 +34,7 @@ KHRONOS_REGISTRY_DIR = os.path.normpath(
         SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers', 'registry'
     )
 )
-BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'base_generators')
+BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'base_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'vulkan_generators')
 VK_HEADERS_DIR = os.path.join(
     SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers'
