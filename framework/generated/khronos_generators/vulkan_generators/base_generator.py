@@ -852,3 +852,11 @@ class BaseGenerator(KhronosBaseGenerator):
         if platform and platform in platform_dict:
             return platform_dict[platform]
         return None
+
+    def get_base_input_structure_name(self):
+        """Method override"""
+        return 'VkBaseInStructure'
+
+    def get_base_output_structure_name(self):
+        """Method override"""
+        return 'VkBaseOutStructure'

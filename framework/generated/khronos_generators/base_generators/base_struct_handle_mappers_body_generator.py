@@ -45,7 +45,7 @@ class BaseStructHandleMappersBodyGenerator():
             )
             write('    {', file=self.outFile)
             write(
-                '        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);',
+                '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.get_base_input_structure_name()),
                 file=self.outFile
             )
             write('', file=self.outFile)
