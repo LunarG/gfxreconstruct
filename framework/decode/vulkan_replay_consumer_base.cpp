@@ -8431,7 +8431,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 {
                     uint64_t offset = address_region->deviceAddress - buffer_info->capture_address;
 
-                    // in-place address-remap via const-cast
+                    // in-place address-remap
                     address_region->deviceAddress = buffer_info->replay_address + offset;
                 }
                 else
@@ -8441,14 +8441,11 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 }
             }
         };
-        // in-place remap: capture-addresses -> replay-addresses
-        address_remap(in_pRaygenShaderBindingTable);
-        address_remap(in_pMissShaderBindingTable);
-        address_remap(in_pHitShaderBindingTable);
-        address_remap(in_pCallableShaderBindingTable);
 
         auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
         GFXRECON_ASSERT(bound_pipeline != nullptr)
+
+        // NOTE: expect this map to be populated here, but not for older captures using trimming.
         auto& shader_group_handles = bound_pipeline->shader_group_handle_map;
 
         // figure out if the captured group-handles are valid for replay
@@ -8481,25 +8478,42 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 
         if (!(valid_group_handles && valid_sbt_alignment))
         {
-            // TODO: remove TODO/warning when issue #1526 is solved
-            GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (size, alignment, handles")
+            if (!valid_sbt_alignment)
+            {
+                // TODO: remove TODO/warning when issue #1526 is solved
+                GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (handle-size and/or "
+                                          "alignments mismatch) -> TODO: run SBT re-assembly");
 
-            // TODO: run Repl8cer! (create linear hashmap, run compute-shader, profit)
+                // TODO: create shadow-SBT-buffer, remap addresses to that
+            }
+            else
+            {
+                // in-place remap: capture-addresses -> replay-addresses
+                address_remap(in_pRaygenShaderBindingTable);
+                address_remap(in_pMissShaderBindingTable);
+                address_remap(in_pHitShaderBindingTable);
+                address_remap(in_pCallableShaderBindingTable);
+            }
+
+            // TODO: run Repl8cer! (create linear hashmap (x), run compute-shader (), profit ())
             util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap;
             for (const auto& [lhs, rhs] : shader_group_handles)
             {
                 hashmap.put(lhs, rhs);
             }
         }
-
-        func(commandBuffer,
-             in_pRaygenShaderBindingTable,
-             in_pMissShaderBindingTable,
-             in_pHitShaderBindingTable,
-             in_pCallableShaderBindingTable,
-             width,
-             height,
-             depth);
+        else
+        {
+            // tmp: guard execution, this would crash otherwise
+            func(commandBuffer,
+                 in_pRaygenShaderBindingTable,
+                 in_pMissShaderBindingTable,
+                 in_pHitShaderBindingTable,
+                 in_pCallableShaderBindingTable,
+                 width,
+                 height,
+                 depth);
+        }
     }
 }
 
