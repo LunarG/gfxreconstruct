@@ -380,6 +380,7 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // Ray tracing pipeline's shader group handle data
     format::HandleId                        device_id{ format::kNullHandleId };
     std::vector<uint8_t>                    shader_group_handle_data;
+    uint32_t                                num_shader_group_handles{ 0 };
     vulkan_state_info::CreateDependencyInfo deferred_operation;
 
     // TODO: Base pipeline
@@ -444,9 +445,6 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     std::unordered_set<AssetWrapperBase*> modified_assets;
     std::vector<CommandBufferWrapper*>    secondaries;
-
-    std::vector<uint8_t>                    shader_group_handle_data;
-    uint32_t                                num_shader_group_handles{ 0 };
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>

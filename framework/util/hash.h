@@ -116,7 +116,7 @@ static inline uint32_t murmur3_32(const K& key, uint32_t seed)
 
     uint32_t h = seed;
 
-    if constexpr (num_hashes)
+    if constexpr (num_hashes > 0u)
     {
         auto ptr = reinterpret_cast<const uint32_t*>(&key), end = ptr + num_hashes;
 
@@ -128,7 +128,7 @@ static inline uint32_t murmur3_32(const K& key, uint32_t seed)
         }
     }
 
-    if constexpr (num_excess_bytes)
+    if constexpr (num_excess_bytes > 0u)
     {
         auto     end_u8 = reinterpret_cast<const uint8_t*>(&key) + sizeof(uint32_t) * num_hashes;
         uint32_t k      = 0;

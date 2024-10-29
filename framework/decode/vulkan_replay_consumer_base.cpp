@@ -8159,8 +8159,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
 
 void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
     command_buffer_info->frame_buffer_ids.clear();
+    command_buffer_info->bound_pipeline_id = format::kNullHandleId;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
@@ -8495,7 +8497,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 address_remap(in_pCallableShaderBindingTable);
             }
 
-            // TODO: run Repl8cer! (create linear hashmap (x), run compute-shader (), profit ())
+            // TODO: run sbt-handle replacer. (create linear hashmap (x), [create shadow-buffer], run compute-shader)
             util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap;
             for (const auto& [lhs, rhs] : shader_group_handles)
             {

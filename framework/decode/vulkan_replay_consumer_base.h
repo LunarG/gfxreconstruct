@@ -1210,10 +1210,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        uint64_t                presentid,
                                        uint64_t                timeout);
 
-    void OverrideCmdBindPipeline(PFN_vkCmdBindPipeline func,
-                                 CommandBufferInfo*    command_buffer_info,
-                                 VkPipelineBindPoint   pipelineBindPoint,
-                                 PipelineInfo*         pipeline_info);
+    void OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    func,
+                                 VulkanCommandBufferInfo* command_buffer_info,
+                                 VkPipelineBindPoint      pipelineBindPoint,
+                                 VulkanPipelineInfo*      pipeline_info);
 
     void OverrideCmdBeginRenderPass(PFN_vkCmdBeginRenderPass                             func,
                                     VulkanCommandBufferInfo*                             command_buffer_info,
