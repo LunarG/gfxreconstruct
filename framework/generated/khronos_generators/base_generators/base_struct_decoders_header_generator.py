@@ -28,7 +28,7 @@ class BaseStructDecodersHeaderGenerator():
     """Base class for generating struct decoder header code."""
 
     # @note decoded_value must always be the first member of a decode struct so that
-    # generated code following pNext chains can use it to get to the sType in the raw
+    # generated code following extended struct chains can use it to get to the sType in the raw
     # struct despite the type erasure.
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
@@ -95,9 +95,11 @@ class BaseStructDecodersHeaderGenerator():
         body = ''
 
         for value in values:
-            if value.name == 'pNext' and value.base_type == 'void':
-                # We have a special type to store the pNext chain
-                body += '    PNextNode* pNext{ nullptr };\n'
+            # If it is an extended struct name, it requires special treatment
+            if self.is_extended_struct_definition(value):
+                extended_struct_name = self.get_extended_struct_var_name()
+                extended_struct_func_prefix = self.get_extended_struct_func_prefix()
+                body += '    {}Node* {}{{ nullptr }};\n'.format(extended_struct_func_prefix, extended_struct_name)
             elif self.needs_member_declaration(name, value):
                 type_name = self.make_decoded_param_type(value)
                 if self.is_struct(value.base_type):
