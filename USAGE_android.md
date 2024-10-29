@@ -869,8 +869,9 @@ optional arguments:
                         before calling Present. This is needed for accurate acquisition
                         of instrumentation data on some platforms.
    --dump-resources <arg>
-                        <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
-                        NextSubpass=<p>,Dispatch=<q>,TraceRays=<r>,QueueSubmit=<s>
+                        <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
+                        NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
+                        QueueSubmit=<u>
                         GPU resources are dumped after the given vkCmdDraw*,
                         vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
                         Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or

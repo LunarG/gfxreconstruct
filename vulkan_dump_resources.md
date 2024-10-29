@@ -229,7 +229,7 @@ In this example two command buffers are submitted for dumping, one with object I
 Dump resources feature can be control in several ways. To do so, a number of parameters can be provided to either to the `gfxrecon-replay` tool or to the Android application through the `gfxrecon.py` script:
 
 ```text
---dump-resources BeginCommandBuffer=<n>,Draw=<n>,BeginRenderPass=<n>,NextSubPass=<n>,EndRenderPass=<n>,Dispatch=<n>,TraceRays=<n>,QueueSubmit=<n>
+--dump-resources BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,NextSubPass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,QueueSubmit=<u>
               Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence
               of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
