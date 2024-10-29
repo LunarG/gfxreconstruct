@@ -1141,9 +1141,6 @@ class Dx12BaseGenerator():
             return True
         return False
 
-    def is_class(self, value):
-        return False
-
     def is_handle(self, base_type):
         return False
 
