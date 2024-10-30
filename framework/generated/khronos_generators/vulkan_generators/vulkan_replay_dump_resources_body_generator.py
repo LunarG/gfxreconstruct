@@ -24,7 +24,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
+from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
 
 
 class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
@@ -57,7 +57,7 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayDumpResourcesBodyGenerator(
-    BaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
     """
@@ -138,7 +138,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self)
+        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanReplayConsumer class member function definition."""
