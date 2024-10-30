@@ -123,7 +123,3 @@ class VulkanDecoderBodyGenerator(KhronosBaseDecoderBodyGenerator, BaseGenerator)
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseDecoderBodyGenerator.generate_feature(self)
