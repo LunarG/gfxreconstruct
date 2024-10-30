@@ -153,7 +153,6 @@ class KhronosBaseDecoderBodyGenerator():
         buffer_args = '(parameter_buffer + bytes_read), (buffer_size - bytes_read)'
 
         is_struct = False
-        is_class = False
         is_string = False
         is_funcp = False
         is_handle = False
@@ -163,8 +162,6 @@ class KhronosBaseDecoderBodyGenerator():
 
         if self.is_struct(type_name):
             is_struct = True
-        elif self.is_class(value):
-            is_class = True
         elif type_name in ['String', 'WString']:
             is_string = True
         elif type_name == 'FunctionPtr':
@@ -176,7 +173,7 @@ class KhronosBaseDecoderBodyGenerator():
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
-            if not is_class and type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
+            if type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
                 if value.pointer_count > 1:
                     # Pointer to a pointer to an unknown object type (void**), encoded as a pointer to a 64-bit integer ID.
                     main_body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(
@@ -188,9 +185,7 @@ class KhronosBaseDecoderBodyGenerator():
                         buffer_args, value.name
                     )
             else:
-                if is_struct or is_string or is_handle or is_atom or (
-                    is_class and value.pointer_count > 1
-                ):
+                if is_struct or is_string or is_handle or is_atom:
                     if type_name in self.base_header_structs.keys():
                         base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
@@ -238,10 +233,6 @@ class KhronosBaseDecoderBodyGenerator():
                         main_body += '    bytes_read += {}.Decode({});\n'.format(
                             value.name, buffer_args
                         )
-                elif is_class and value.pointer_count == 1:
-                    main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
-                        buffer_args, value.name
-                    )
                 elif self.has_basetype(value.base_type):
                     base_type = self.get_basetype(value.base_type)
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
