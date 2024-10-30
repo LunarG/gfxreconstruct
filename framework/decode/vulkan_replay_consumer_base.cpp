@@ -2334,29 +2334,21 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
     return true;
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
-                                                 const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                                 HandlePointerDecoder<VkInstance>*                          pInstance)
+void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
+    const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo, CreateInstanceInfoState& create_state)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
-    assert((pInstance != nullptr) && !pInstance->IsNull() && (pInstance->GetHandlePointer() != nullptr) &&
-           (pCreateInfo != nullptr) && (pCreateInfo->GetPointer() != nullptr) &&
-           (pInstance->GetHandlePointer() != nullptr));
 
     const VkInstanceCreateInfo* replay_create_info = pCreateInfo->GetPointer();
-    VkInstance*                 replay_instance    = pInstance->GetHandlePointer();
 
     if (loader_handle_ == nullptr)
     {
         InitializeLoader();
     }
 
-    std::vector<const char*> modified_layers;
-    std::vector<const char*> modified_extensions;
-    VkInstanceCreateInfo     modified_create_info = (*replay_create_info);
+    std::vector<const char*>& modified_layers      = create_state.modified_layers;
+    std::vector<const char*>& modified_extensions  = create_state.modified_extensions;
+    VkInstanceCreateInfo&     modified_create_info = create_state.modified_create_info;
+    modified_create_info                           = *replay_create_info;
 
     // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update the
     // callback pointers.
@@ -2534,63 +2526,77 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         modified_create_info.enabledLayerCount   = static_cast<uint32_t>(modified_layers.size());
         modified_create_info.ppEnabledLayerNames = modified_layers.data();
     }
+}
 
-    VkResult result = create_instance_proc_(&modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance            replay_instance,
+                                                             const VkInstanceCreateInfo& modified_create_info,
+                                                             VulkanInstanceInfo&         instance_info)
+{
+    AddInstanceTable(replay_instance);
 
-    if ((replay_instance != nullptr) && (result == VK_SUCCESS))
+    if (modified_create_info.pApplicationInfo != nullptr)
     {
-        AddInstanceTable(*replay_instance);
+        instance_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
+        instance_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
+                                                modified_create_info.ppEnabledExtensionNames +
+                                                    modified_create_info.enabledExtensionCount);
+    }
+}
 
-        if (modified_create_info.pApplicationInfo != nullptr)
-        {
-            auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
-            assert(instance_info != nullptr);
+VkResult
+VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
+                                                 const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                                 HandlePointerDecoder<VkInstance>*                          pInstance)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-            instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
-            instance_info->enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                     modified_create_info.ppEnabledExtensionNames +
-                                                         modified_create_info.enabledExtensionCount);
-        }
+    assert((pInstance != nullptr) && !pInstance->IsNull() && (pInstance->GetHandlePointer() != nullptr) &&
+           (pCreateInfo != nullptr) && (pCreateInfo->GetPointer() != nullptr) &&
+           (pInstance->GetHandlePointer() != nullptr));
+
+    // Update the create info to reflect the expectations/limitations of the replaying system (and of GFXR)
+    // Note: create_state is passed into the Modify call to allow the modified_create_info to reference
+    //       addresses of create_state members which a return value doesn't appear to preserve
+    CreateInstanceInfoState create_state;
+    ModifyCreateInstanceInfo(pCreateInfo, create_state);
+
+    VkInstance* replay_instance = pInstance->GetHandlePointer();
+    assert(replay_instance);
+    *replay_instance = VK_NULL_HANDLE;
+
+    VkResult result =
+        create_instance_proc_(&create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+
+    if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
+    {
+        auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
+        assert(instance_info);
+        PostCreateInstanceUpdateState(*replay_instance, create_state.modified_create_info, *instance_info);
     }
 
     return result;
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  original_result,
-                                               VulkanPhysicalDeviceInfo* physical_device_info,
-                                               const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
-                                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                               HandlePointerDecoder<VkDevice>*                            pDevice)
+void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
+    VulkanPhysicalDeviceInfo*                               physical_device_info,
+    const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo,
+    CreateDeviceInfoState&                                  create_state)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    const VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    assert((physical_device_info != nullptr) && (pDevice != nullptr) && !pDevice->IsNull() &&
-           (pDevice->GetHandlePointer() != nullptr) && (pCreateInfo != nullptr));
-
-    SelectPhysicalDevice(physical_device_info);
-
-    VkPhysicalDevice        physical_device      = physical_device_info->handle;
-    PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physical_device);
-    PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physical_device);
-
-    if ((get_device_proc_addr == nullptr) || (create_device_proc == nullptr))
-    {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    VkResult result         = VK_ERROR_INITIALIZATION_FAILED;
     auto     instance_table = GetInstanceTable(physical_device);
     assert(instance_table != nullptr);
 
     auto replay_create_info = pCreateInfo->GetPointer();
-    auto replay_device      = pDevice->GetHandlePointer();
     assert(replay_create_info != nullptr);
 
-    VkDeviceCreateInfo       modified_create_info = (*replay_create_info);
-    std::vector<const char*> modified_extensions;
+    VkDeviceCreateInfo&            modified_create_info              = create_state.modified_create_info;
+    std::vector<const char*>&      modified_extensions               = create_state.modified_extensions;
+    std::vector<VkPhysicalDevice>& replay_device_group               = create_state.replay_device_group;
+    VkDeviceGroupDeviceCreateInfo& modified_device_group_create_info = create_state.modified_device_group_create_info;
 
-    // Attempt to recreate capture device group with replay device group
+    modified_create_info = (*replay_create_info); // Attempt to recreate capture device group with replay device group
 
     const auto                    decoded_capture_create_info = pCreateInfo->GetMetaStructPointer();
     std::vector<format::HandleId> capture_device_group;
@@ -2605,8 +2611,6 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
         std::copy(handle_ids, handle_ids + len, std::back_inserter(capture_device_group));
     }
 
-    VkDeviceGroupDeviceCreateInfo modified_device_group_create_info = {};
-    std::vector<VkPhysicalDevice> replay_device_group;
     const VkBaseInStructure* replay_previous_next = reinterpret_cast<const VkBaseInStructure*>(&modified_create_info);
     const VkBaseInStructure* replay_next = reinterpret_cast<const VkBaseInStructure*>(modified_create_info.pNext);
 
@@ -2643,7 +2647,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     }
 
     // Enable extensions used for loading resources during initial state setup for trimmed files.
-    std::vector<std::string> trim_extensions;
+    std::vector<std::string>& trim_extensions = create_state.trim_extensions;
     if (loading_trim_state_ && CheckTrimDeviceExtensions(physical_device, &trim_extensions))
     {
         for (const auto& extension : trim_extensions)
@@ -2705,8 +2709,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
 
     // Enable necessary features
-    graphics::VulkanDeviceUtil                device_util;
-    graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
+    create_state.property_feature_info = create_state.device_util.EnableRequiredPhysicalDeviceFeatures(
         physical_device_info->parent_api_version, instance_table, physical_device, &modified_create_info);
 
     // Abort on/Remove unsupported features
@@ -2716,23 +2719,24 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
                                            modified_create_info.pNext,
                                            modified_create_info.pEnabledFeatures,
                                            options_.remove_unsupported_features);
+}
 
-    // Forward device creation to next layer/driver
-    result =
-        create_device_proc(physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
-
-    if ((replay_device == nullptr) || (result != VK_SUCCESS))
+VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
+                                                               const VkDevice            replay_device,
+                                                               CreateDeviceInfoState&    create_state,
+                                                               VulkanDeviceInfo*         device_info)
+{
+    VkPhysicalDevice        physical_device      = physical_device_info->handle;
+    PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physical_device);
+    if (get_device_proc_addr == nullptr)
     {
-        return result;
+        return VK_ERROR_INITIALIZATION_FAILED;
     }
+    AddDeviceTable(replay_device, get_device_proc_addr);
 
-    AddDeviceTable(*replay_device, get_device_proc_addr);
-
-    auto device_info = reinterpret_cast<VulkanDeviceInfo*>(pDevice->GetConsumerData(0));
     assert(device_info != nullptr);
-
-    device_info->replay_device_group = std::move(replay_device_group);
-    device_info->extensions          = std::move(trim_extensions);
+    device_info->replay_device_group = std::move(create_state.replay_device_group);
+    device_info->extensions          = std::move(create_state.trim_extensions);
     device_info->parent              = physical_device;
 
     // Create the memory allocator for the selected physical device.
@@ -2751,32 +2755,32 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
 
     auto allocator = options_.create_resource_allocator();
 
-    std::vector<std::string> enabled_extensions(modified_create_info.ppEnabledExtensionNames,
-                                                modified_create_info.ppEnabledExtensionNames +
-                                                    modified_create_info.enabledExtensionCount);
-    InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
+    std::vector<std::string> enabled_extensions(create_state.modified_create_info.ppEnabledExtensionNames,
+                                                create_state.modified_create_info.ppEnabledExtensionNames +
+                                                    create_state.modified_create_info.enabledExtensionCount);
+    InitializeResourceAllocator(physical_device_info, replay_device, enabled_extensions, allocator);
 
     device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
 
     // Track state of physical device properties and features at device creation
-    device_info->property_feature_info = property_feature_info;
+    device_info->property_feature_info = create_state.property_feature_info;
 
     // Keep track of what queue families this device is planning on using.  This information is
     // very important if we end up using the VulkanVirtualSwapchain path.
     auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
         return std::max(current_max, dqci.queueFamilyIndex);
     };
-    uint32_t max_queue_family =
-        std::accumulate(modified_create_info.pQueueCreateInfos,
-                        modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
-                        0,
-                        max);
+    uint32_t max_queue_family = std::accumulate(create_state.modified_create_info.pQueueCreateInfos,
+                                                create_state.modified_create_info.pQueueCreateInfos +
+                                                    create_state.modified_create_info.queueCreateInfoCount,
+                                                0,
+                                                max);
     device_info->queue_family_index_enabled.clear();
     device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
 
-    for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
+    for (uint32_t q = 0; q < create_state.modified_create_info.queueCreateInfoCount; ++q)
     {
-        const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
+        const VkDeviceQueueCreateInfo* queue_create_info = &create_state.modified_create_info.pQueueCreateInfos[q];
         assert(device_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
                device_info->queue_family_creation_flags.end());
         device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
@@ -2784,8 +2788,57 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     }
 
     // Restore modified property/feature create info values to the original application values
-    device_util.RestoreModifiedPhysicalDeviceFeatures();
+    create_state.device_util.RestoreModifiedPhysicalDeviceFeatures();
 
+    return VK_SUCCESS;
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  original_result,
+                                               VulkanPhysicalDeviceInfo* physical_device_info,
+                                               const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                               HandlePointerDecoder<VkDevice>*                            pDevice)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((physical_device_info != nullptr) && (pDevice != nullptr) && !pDevice->IsNull() &&
+           (pDevice->GetHandlePointer() != nullptr) && (pCreateInfo != nullptr));
+
+    // NOTE: This must be first as it *sets* the physical_device_info->handle to point to the replay physical device
+    SelectPhysicalDevice(physical_device_info);
+
+    VkPhysicalDevice physical_device = physical_device_info->handle;
+
+    PFN_vkCreateDevice create_device_proc = GetCreateDeviceProc(physical_device);
+
+    if (create_device_proc == nullptr)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Update the create info to reflect the expectations/limitations of the replaying system (and of GFXR)
+    // Note: create_state is passed into the Modify call to allow the modified_create_info to reference
+    //       addresses of create_state members which a return value doesn't appear to preserve
+    CreateDeviceInfoState create_state;
+    ModifyCreateDeviceInfo(physical_device_info, pCreateInfo, create_state);
+
+    VkResult result        = VK_ERROR_INITIALIZATION_FAILED;
+    auto     replay_device = pDevice->GetHandlePointer();
+    assert(replay_device);
+
+    // Forward device creation to next layer/driver
+    result = create_device_proc(
+        physical_device, &create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
+
+    if ((replay_device == nullptr) || (result != VK_SUCCESS))
+    {
+        return result;
+    }
+
+    VulkanDeviceInfo* device_info = reinterpret_cast<VulkanDeviceInfo*>(pDevice->GetConsumerData(0));
+    assert(device_info);
+    result = PostCreateDeviceUpdateState(physical_device_info, *replay_device, create_state, device_info);
     return result;
 }
 

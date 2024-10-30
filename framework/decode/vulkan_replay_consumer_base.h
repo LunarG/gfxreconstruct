@@ -246,6 +246,57 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             parent_id, &id, &handle, std::move(initial_info), &VulkanObjectInfoTable::AddVkImageInfo);
     }
 
+    // Utilities for correctly setting up a vulkan create instance/device calls.  Shared with OpenXR
+    // Store for the "modified for replay" instance create info, and all referenced memory
+    struct CreateInstanceInfoState
+    {
+        std::vector<const char*> modified_layers;
+        std::vector<const char*> modified_extensions;
+        VkInstanceCreateInfo     modified_create_info;
+    };
+    // create_state passed in by reference to conserve pointers to member variable
+    // Not initialized in a CreateDeviceInfoState constructor as *many* VulkanReplayConsumerBase
+    // member functions and variables are referenced
+    void ModifyCreateInstanceInfo(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
+                                  CreateInstanceInfoState&                                  create_state);
+
+    void PostCreateInstanceUpdateState(VkInstance                  replay_instance,
+                                       const VkInstanceCreateInfo& modified_create_info,
+                                       VulkanInstanceInfo&         instance_info);
+
+    // Store for the "modified for replay" device create info, and all referenced memory
+    struct CreateDeviceInfoState
+    {
+        VkDeviceCreateInfo                        modified_create_info;
+        std::vector<const char*>                  modified_extensions;
+        std::vector<std::string>                  trim_extensions;
+        VkDeviceGroupDeviceCreateInfo             modified_device_group_create_info;
+        std::vector<VkPhysicalDevice>             replay_device_group;
+        graphics::VulkanDeviceUtil                device_util;
+        graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+    };
+
+    // create_state passed in by reference to conserve pointers to member variable
+    // Not initialized in a CreateDeviceInfoState constructor as *many* VulkanReplayConsumerBase
+    // member functions and variables are referenced
+    void ModifyCreateDeviceInfo(VulkanPhysicalDeviceInfo*                               physical_device_info,
+                                const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo,
+                                CreateDeviceInfoState&                                  create_state);
+
+    VkResult PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
+                                         VkDevice                  replay_device,
+                                         CreateDeviceInfoState&    create_state,
+                                         VulkanDeviceInfo*         device_info);
+
+    void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
+
+    PFN_vkGetInstanceProcAddr GetGetInstanceProcAddr()
+    {
+        if (loader_handle_ == nullptr)
+            InitializeLoader(); // Ensures GIPA is set
+        return get_instance_proc_addr_;
+    }
+
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
@@ -258,8 +309,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>* original_callbacks);
-
-    void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
