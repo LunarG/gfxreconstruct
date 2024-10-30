@@ -57,9 +57,7 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
-    bool                         skip_failed_allocations{ false };
     bool                         omit_pipeline_cache_data{ false };
-    bool                         remove_unsupported_features{ false };
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
@@ -67,13 +65,9 @@ struct VulkanReplayOptions : public ReplayOptions
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
-    util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
-    std::vector<ScreenshotRange> screenshot_ranges;
-    std::string                  screenshot_dir;
-    std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     uint32_t                     screenshot_width, screenshot_height;
     float                        screenshot_scale;
-    std::string                  replace_dir;
+    std::string                  replace_shader_dir;
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
