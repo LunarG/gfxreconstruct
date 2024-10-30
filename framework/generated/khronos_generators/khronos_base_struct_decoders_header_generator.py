@@ -24,7 +24,7 @@
 from base_generator import write
 
 
-class BaseStructDecodersHeaderGenerator():
+class KhronosBaseStructDecodersHeaderGenerator():
     """Base class for generating struct decoder header code."""
 
     # @note decoded_value must always be the first member of a decode struct so that
