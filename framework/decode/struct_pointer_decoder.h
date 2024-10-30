@@ -248,7 +248,10 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
 
                     typename T::struct_type* inner_struct_memory =
                         DecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
-                    T* inner_decoded_structs = DecodeAllocator::Allocate<T>(inner_lens_[i]);
+                    // TODO: We initialize == true because the nexe field isn't always cleared on kIsNull in the lower
+                    //       level decoders.  If this is a performance bottleneck, can clean up the lower decoders to
+                    //       initialize all fields.
+                    T* inner_decoded_structs = DecodeAllocator::Allocate<T>(inner_lens_[i], true);
 
                     for (size_t j = 0; j < inner_lens_[i]; ++j)
                     {
