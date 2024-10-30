@@ -341,6 +341,11 @@ class KhronosBaseGenerator(OutputGenerator):
 
         self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
 
+        # Lower case prefix and structure type prefix for every supported Khronos API
+        self.valid_khronos_supported_api_prefixes = [
+            { 'vk', 'VK_STRUCTURE_TYPE_' },
+            { 'xr', 'XR_TYPE_' },
+        ]
 
     def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
@@ -1104,3 +1109,34 @@ class KhronosBaseGenerator(OutputGenerator):
             value.is_pointer):
             return True
         return False
+
+    def generateStructureType(self, type_name):
+        # Make the type all upper case
+        upper_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).upper()
+        type_with_prefix = upper_type
+
+        # Apply any structure type prefix first
+        for api_prefix, struct_prefix in self.valid_khronos_supported_api_prefixes:
+            upper_prefix = api_prefix.upper()
+            if upper_type.startswith(upper_prefix):
+                type_with_prefix = struct_prefix + upper_type
+
+        type_with_prefix = type_with_prefix.replace('_OPEN_GLES', '_OPENGL_ES_')
+        type_with_prefix = type_with_prefix.replace('_OPEN_GL', '_OPENGL_')
+        type_with_prefix = type_with_prefix.replace('_D3_D11', '_D3D11')
+        type_with_prefix = type_with_prefix.replace('_D3_D12', '_D3D12')
+        type_with_prefix = type_with_prefix.replace('_EGL', '_EGL_')
+        type_with_prefix = type_with_prefix.replace('Device_IDProp', 'Device_ID_Prop')
+        return type_with_prefix
+
+    def makeSimpleVarName(self, type_name):
+        lower_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).lower()
+
+        for api_prefix, struct_prefix in self.valid_khronos_supported_api_prefixes:
+            lower_prefix = api_prefix.lower()
+            if lower_type.startswith(lower_prefix):
+                lower_prefix_len = len(lower_prefix)
+                new_lower_type = lower_type[:lower_prefix_len - 1] + '_' + lower_type[lower_prefix_len - 1:]
+                lower_type = new_lower_type
+
+        return lower_type
