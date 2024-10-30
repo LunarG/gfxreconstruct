@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -133,8 +133,8 @@ void android_main(struct android_app* app)
                     return;
                 }
 
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
-                gfxrecon::decode::VulkanDecoder        decoder;
+                gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
+                gfxrecon::decode::VulkanDecoder        vulkan_decoder;
                 uint32_t                               start_frame, end_frame;
                 bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
                 std::string measurement_file_name;
@@ -153,12 +153,13 @@ void android_main(struct android_app* app)
                                                      replay_options.preload_measurement_range,
                                                      measurement_file_name);
 
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-                replay_consumer.SetFpsInfo(&fps_info);
+                vulkan_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
+                vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
-                decoder.AddConsumer(&replay_consumer);
+                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
 
-                file_processor->AddDecoder(&decoder);
+                file_processor->AddDecoder(&vulkan_decoder);
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
