@@ -69,12 +69,6 @@ class KhronosBaseDecoderBodyGenerator():
             self.cmd_names.append(cmd)
             self.cmd_info[cmd] = self.feature_cmd_params[cmd]
 
-    def gen_child_var_name(self, base_type):
-        child_base_type = base_type
-        new_type_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child_base_type)
-        new_type_name = new_type_name.lower()
-        return re.sub('xr_', '', new_type_name)
-
     def make_cmd_body(self, return_type, name, values):
         """Generate C++ code for the decoder method body."""
         preamble = ''
@@ -93,12 +87,12 @@ class KhronosBaseDecoderBodyGenerator():
                 is_base_header_value    = True
                 decode_type = self.make_decoded_param_type(value)
                 main_body += '    {}* {};\n'.format(decode_type, value.name)
-                main_body += '    {} {};\n'.format(decode_type, self.gen_child_var_name(value.base_type))
+                main_body += '    {} {};\n'.format(decode_type, self.make_simple_var_name(value.base_type))
                 for child in self.base_header_structs[value.base_type]:
                     new_value = deepcopy(value)
                     new_value.base_type = child
                     decode_type = self.make_decoded_param_type(new_value)
-                    main_body += '    {} {};\n'.format(decode_type, self.gen_child_var_name(child))
+                    main_body += '    {} {};\n'.format(decode_type, self.make_simple_var_name(child))
             else:
                 decode_type = self.make_decoded_param_type(value)
                 main_body += '    {} {};\n'.format(decode_type, value.name)
@@ -212,7 +206,7 @@ class KhronosBaseDecoderBodyGenerator():
                     is_class and value.pointer_count > 1
                 ):
                     if type_name in self.base_header_structs.keys():
-                        base_type_name = self.gen_child_var_name(value.base_type)
+                        base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
                         main_body += '                                                   (buffer_size - bytes_read),\n'
                         main_body += '                                                   peak_is_null,\n'
@@ -227,7 +221,7 @@ class KhronosBaseDecoderBodyGenerator():
                         for child in self.base_header_structs[value.base_type]:
                             switch_type = self.generate_structure_type(child)
                             main_body += f'             case {switch_type}:\n'
-                            child_var = self.gen_child_var_name(child)
+                            child_var = self.make_simple_var_name(child)
                             main_body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
                             main_body += f'                 {value.name} = reinterpret_cast<StructPointerDecoder<Decoded_{value.base_type}>*>(&{child_var});\n'
                             main_body += '                 break;\n'
