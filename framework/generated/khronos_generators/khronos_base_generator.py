@@ -329,10 +329,14 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.feature_struct_members = OrderedDict()            # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = OrderedDict()            # Map of struct names to aliases
-            self.feature_union_members = OrderedDict()             # Map of union names to lists of per-member ValueInfo
-            self.feature_union_aliases = OrderedDict()             # Map of union names to aliases
+            self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
+            self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
+            self.all_struct_aliases = OrderedDict()                # Map of struct names to aliases
+            self.feature_struct_aliases = OrderedDict()            # Map of per-feature struct names to aliases
+            self.all_union_members = OrderedDict()                 # Map of union names to lists of per-member ValueInfo
+            self.feature_union_members = OrderedDict()             # Map of per-feature union names to lists of per-member ValueInfo
+            self.all_union_aliases = OrderedDict()                 # Map of union names to aliases
+            self.feature_union_aliases = OrderedDict()             # Map of per-feature union names to aliases
             self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
             self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
@@ -905,11 +909,19 @@ class KhronosBaseGenerator(OutputGenerator):
         # would produce multiple definition errors for functions with struct parameters.
         if self.process_structs:
             if not alias:
-                self.feature_struct_members[typename] = self.make_value_info(
+                self.add_struct_members(typename, self.make_value_info(
                     typeinfo.elem.findall('.//member')
-                )
+                ))
             else:
-                self.feature_struct_aliases[typename] = alias
+                self.add_struct_alias(typename, alias)
+
+    def add_struct_alias(self, name, alias):
+        self.all_struct_aliases[name] = alias
+        self.feature_struct_aliases[name] = alias
+
+    def add_struct_members(self, name, value_info):
+        self.all_struct_members[name] = value_info
+        self.feature_struct_members[name] = value_info
 
     def genUnion(self, typeinfo, typename, alias):
         """Method override.
@@ -924,12 +936,20 @@ class KhronosBaseGenerator(OutputGenerator):
         if self.process_structs:
             if not alias:
                 if typename not in self.feature_union_members:
-                    self.feature_union_members[typename] = self.make_value_info(
+                    self.add_union_members(typename, self.make_value_info(
                         typeinfo.elem.findall('.//member')
-                    )
+                    ))
             else:
-                if typename not in self.feature_union_aliases:
-                    self.feature_union_aliases[typename] = alias
+                if typename not in self.all_union_aliases:
+                    self.add_union_alias(typename, alias)
+
+    def add_union_alias(self, name, alias):
+        self.all_union_aliases[name] = alias
+        self.feature_union_aliases[name] = alias
+
+    def add_union_members(self, name, value_info):
+        self.all_union_members[name] = value_info
+        self.feature_union_members[name] = value_info
 
     def genGroup(self, groupinfo, group_name, alias):
         """Method override.
