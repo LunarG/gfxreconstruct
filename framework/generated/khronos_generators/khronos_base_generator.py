@@ -306,8 +306,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
-        self.flags_types = dict(
-        )  # Map of flags types
+        self.flags_types = dict()  # Map of flags types
         self.enum_names = set()  # Set of current API's  enumeration typenames
         self.enumAliases = dict()  # Map of enum names to aliases
         self.enumEnumerants = dict()  # Map of enum names to enumerants
@@ -501,10 +500,6 @@ class KhronosBaseGenerator(OutputGenerator):
             or (base_type in self.PLATFORM_STRUCTS)
         ):
             return True
-        return False
-
-    def is_class(self, value):
-        """Check for class type.  The subclass may override this method."""
         return False
 
     def is_handle(self, base_type):
