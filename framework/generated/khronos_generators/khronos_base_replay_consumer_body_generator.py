@@ -24,7 +24,7 @@
 from base_generator import write
 
 
-class BaseReplayConsumerBodyGenerator():
+class KhronosBaseReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
     def generate_feature(self):

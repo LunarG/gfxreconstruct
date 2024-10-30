@@ -25,7 +25,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
+from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
 
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
@@ -62,7 +62,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayConsumerBodyGenerator(
-    BaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
@@ -222,7 +222,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self)
+        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
