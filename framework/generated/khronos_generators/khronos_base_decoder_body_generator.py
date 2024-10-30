@@ -28,23 +28,15 @@ from copy import deepcopy
 
 class KhronosBaseDecoderBodyGenerator():
     """Base class for generating decoder body code."""
-    def __init__(self) :
-        # Generation is deferred until endFile
-        self.cmd_names = []
-        self.cmd_info = dict()
-        # Names of any commands whose decoders are manually generated
-        self.MANUALLY_GENERATED_COMMANDS = [
-        ]
-
     def generate_commands(self):
         platform_type = self.get_api_prefix()
 
         first = True
-        for cmd in self.cmd_names:
+        for cmd in self.get_all_filtered_cmd_names():
             if self.is_manually_generated_cmd_name(cmd):
                 continue
 
-            info = self.cmd_info[cmd]
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -62,12 +54,6 @@ class KhronosBaseDecoderBodyGenerator():
 
             write(cmddef, file=self.outFile)
             first = False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.cmd_names.append(cmd)
-            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
 
     def make_cmd_body(self, return_type, name, values):
         """Generate C++ code for the decoder method body."""
@@ -307,7 +293,7 @@ class KhronosBaseDecoderBodyGenerator():
         body += '        break;\n'
         write(body, file=self.outFile)
 
-        for cmd in self.cmd_names:
+        for cmd in self.get_all_filtered_cmd_names():
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
             cmddef += '        Decode_{}(call_info, parameter_buffer, buffer_size);\n'.format(
                 cmd

@@ -337,6 +337,7 @@ class KhronosBaseGenerator(OutputGenerator):
             self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
             self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
+            self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
             self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
         self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
@@ -715,6 +716,13 @@ class KhronosBaseGenerator(OutputGenerator):
             if not self.is_struct_black_listed(key)
         ]
 
+    def get_all_filtered_cmd_names(self):
+        """Retrieves a filtered list of keys from self.all_cmd_params with blacklisted items removed."""
+        return [
+            key for key in self.all_cmd_params
+            if not self.is_cmd_black_listed(key)
+        ]
+
     def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
         return [
@@ -985,11 +993,13 @@ class KhronosBaseGenerator(OutputGenerator):
             return_type = noneStr(proto.text
                                   ) + noneStr(proto.find('type').text)
 
-            # TODO: Define a class or namedtuple for the dictionary entry
-            self.feature_cmd_params[name] = (
-                return_type, proto_decl,
-                self.make_value_info(cmdinfo.elem.findall('param'))
-            )
+            self.add_command_params(name, return_type, proto_decl,
+                self.make_value_info(cmdinfo.elem.findall('param')))
+
+    def add_command_params(self, name, return_type, proto_decl, value_info):
+        # TODO: Define a class or namedtuple for the dictionary entry
+        self.all_cmd_params[name] = (return_type, proto_decl, value_info)
+        self.feature_cmd_params[name] = (return_type, proto_decl, value_info)
 
     def make_value_info(self, params):
         """Generate a list of ValueInfo objects from a list of <param> or <member> tags
