@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from base_struct_handle_mappers_body_generator import BaseStructHandleMappersBodyGenerator
+from khronos_base_struct_handle_mappers_body_generator import KhronosBaseStructHandleMappersBodyGenerator
 
 
 class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -54,7 +54,7 @@ class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructHandleMappersBodyGenerator(
-    BaseStructHandleMappersBodyGenerator, BaseGenerator
+    KhronosBaseStructHandleMappersBodyGenerator, BaseGenerator
 ):
     """VulkanStructHandleMappersBodyGenerator - subclass of BaseGenerator.
     Generates C++ functions responsible for mapping struct member handles
@@ -117,7 +117,7 @@ class VulkanStructHandleMappersBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        BaseStructHandleMappersBodyGenerator.endFile(self)
+        KhronosBaseStructHandleMappersBodyGenerator.endFile(self)
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
@@ -162,4 +162,4 @@ class VulkanStructHandleMappersBodyGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseStructHandleMappersBodyGenerator.generate_feature(self)
+        KhronosBaseStructHandleMappersBodyGenerator.generate_feature(self)
