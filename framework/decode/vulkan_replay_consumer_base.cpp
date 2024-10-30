@@ -5794,7 +5794,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
            (pShaderModule != nullptr) && !pShaderModule->IsNull());
 
     auto original_info = pCreateInfo->GetPointer();
-    if (original_result < 0 || options_.replace_dir.empty())
+    if (original_result < 0 || options_.replace_shader_dir.empty())
     {
         VkResult vk_res = func(
             device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
@@ -5833,7 +5833,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     const size_t            orig_size = original_info->codeSize;
     uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
-    std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
+    std::string             file_path = util::filepath::Join(options_.replace_shader_dir, file_name);
 
     FILE*   fp     = nullptr;
     int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
@@ -9746,7 +9746,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     uint64_t    handle_id   = pipelines[i];
                     std::string file_name =
                         "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
-                    std::string file_path = util::filepath::Join(options_.replace_dir, file_name);
+                    std::string file_path = util::filepath::Join(options_.replace_shader_dir, file_name);
 
                     FILE*   fp     = nullptr;
                     int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
@@ -9794,7 +9794,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     std::vector<std::unique_ptr<char[]>> replaced_file_code;
     auto*                                maybe_replaced_create_infos = in_p_create_infos;
 
-    if (original_result >= 0 && !options_.replace_dir.empty())
+    if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
         uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
@@ -9885,7 +9885,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
         size_t      orig_size   = create_info->codeSize;
         uint64_t    handle_id   = shaders[i];
         std::string file_name   = "sh" + std::to_string(handle_id);
-        std::string file_path   = util::filepath::Join(options_.replace_dir, file_name);
+        std::string file_path   = util::filepath::Join(options_.replace_shader_dir, file_name);
 
         FILE*   fp     = nullptr;
         int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
@@ -9927,7 +9927,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     std::vector<std::unique_ptr<char[]>> replaced_file_code;
     auto*                                maybe_replaced_create_infos = in_p_create_infos;
 
-    if (original_result >= 0 && !options_.replace_dir.empty())
+    if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
         uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
@@ -10098,7 +10098,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
         auto                    create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
 
         std::vector<std::unique_ptr<char[]>> replaced_file_code;
-        if (returnValue >= 0 && !options_.replace_dir.empty())
+        if (returnValue >= 0 && !options_.replace_shader_dir.empty())
         {
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, pipelines.data());
         }
@@ -10233,7 +10233,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
         auto                     create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
 
         std::vector<std::unique_ptr<char[]>> replaced_file_code;
-        if (returnValue >= 0 && !options_.replace_dir.empty())
+        if (returnValue >= 0 && !options_.replace_shader_dir.empty())
         {
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, shaders.data());
         }
