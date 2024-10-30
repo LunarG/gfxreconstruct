@@ -25,7 +25,7 @@ import sys
 from base_generator import write
 
 
-class BaseStructHandleMappersHeaderGenerator():
+class KhronosBaseStructHandleMappersHeaderGenerator():
     """Base class for generating struct handle mappers header code."""
 
     def endFile(self):
