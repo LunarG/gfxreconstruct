@@ -225,13 +225,7 @@ class KhronosBaseDecoderBodyGenerator():
                         main_body += '         switch (xr_type)\n'
                         main_body += '         {\n'
                         for child in self.base_header_structs[value.base_type]:
-                            type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                            type = type.upper()
-                            switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                            if 'OPEN_GLESFB' in switch_type:
-                                type = switch_type
-                                switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
-
+                            switch_type = self.generate_structure_type(child)
                             main_body += f'             case {switch_type}:\n'
                             child_var = self.gen_child_var_name(child)
                             main_body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
