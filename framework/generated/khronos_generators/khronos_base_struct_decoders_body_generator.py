@@ -84,7 +84,6 @@ class KhronosBaseStructDecodersBodyGenerator():
         buffer_args = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
         is_struct = False
-        is_class = False
         is_string = False
         is_funcp = False
         is_handle = False
@@ -95,8 +94,6 @@ class KhronosBaseStructDecodersBodyGenerator():
 
         if self.is_struct(type_name):
             is_struct = True
-        elif self.is_class(value):
-            is_class = True
         elif type_name in ['String', 'WString']:
             is_string = True
         elif type_name == 'FunctionPtr':
@@ -184,15 +181,9 @@ class KhronosBaseStructDecodersBodyGenerator():
                             arraylen=value.array_capacity
                         )
 
-                    if is_struct or is_string or is_handle or is_atom or (
-                        is_class and value.pointer_count > 1
-                    ):
+                    if is_struct or is_string or is_handle or is_atom:
                         main_body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
                             value.name, access_op, buffer_args
-                        )
-                    elif is_class and value.pointer_count == 1:
-                        main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
-                            buffer_args, value.name
                         )
                     elif self.has_basetype(value.base_type):
                         base_type = self.get_basetype(value.base_type)
@@ -205,7 +196,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                         )
 
                     if not is_static_array:
-                        if is_handle or is_atom or is_class:
+                        if is_handle or is_atom:
                             # Point the real struct's member pointer to the handle pointer decoder's handle memory.
                             main_body += '    value->{} = nullptr;\n'.format(value.name)
                         else:
