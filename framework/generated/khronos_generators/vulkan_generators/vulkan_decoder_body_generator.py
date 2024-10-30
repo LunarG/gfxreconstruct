@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_decoder_body_generator import BaseDecoderBodyGenerator
+from khronos_base_decoder_body_generator import KhronosBaseDecoderBodyGenerator
 
 
 class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
@@ -53,7 +53,7 @@ class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
+class VulkanDecoderBodyGenerator(KhronosBaseDecoderBodyGenerator, BaseGenerator):
     """VulkanDecoderBodyGenerator - subclass of BaseGenerator.
     Generates C++ member functions for the VulkanDecoder class responsible for decoding
     Vulkan API call parameter data.
@@ -63,7 +63,7 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseDecoderBodyGenerator.__init__(self)
+        KhronosBaseDecoderBodyGenerator.__init__(self)
 
         BaseGenerator.__init__(
             self,
@@ -126,4 +126,4 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseDecoderBodyGenerator.generate_feature(self)
+        KhronosBaseDecoderBodyGenerator.generate_feature(self)

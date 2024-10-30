@@ -26,7 +26,7 @@ from base_generator import ValueInfo, write
 from copy import deepcopy
 
 
-class BaseDecoderBodyGenerator():
+class KhronosBaseDecoderBodyGenerator():
     """Base class for generating decoder body code."""
     def __init__(self) :
         # Generation is deferred until endFile
@@ -136,11 +136,11 @@ class BaseDecoderBodyGenerator():
 
         # Decode() method calls for pointer decoder wrappers.
         for value in values:
-            preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
+            preamble, main_body, epilogue = KhronosBaseDecoderBodyGenerator.make_decode_invocation(
                 self, value, preamble, main_body, epilogue
             )
         if return_type and return_type != 'void':
-            preamble, main_body, epilogue = BaseDecoderBodyGenerator.make_decode_invocation(
+            preamble, main_body, epilogue = KhronosBaseDecoderBodyGenerator.make_decode_invocation(
                 self, ValueInfo('return_value', return_type, return_type), preamble, main_body, epilogue
             )
 
