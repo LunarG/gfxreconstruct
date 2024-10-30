@@ -711,6 +711,13 @@ class KhronosBaseGenerator(OutputGenerator):
             return True
         return False
 
+    def get_all_filtered_struct_names(self):
+        """Retrieves a filtered list of keys from self.all_struct_memebers with blacklisted items removed."""
+        return [
+            key for key in self.all_struct_members
+            if not self.is_struct_black_listed(key)
+        ]
+
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [

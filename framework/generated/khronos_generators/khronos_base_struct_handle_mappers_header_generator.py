@@ -31,6 +31,18 @@ class KhronosBaseStructHandleMappersHeaderGenerator():
     def endFile(self):
         extended_struct_func_name = self.getExtendedStructFuncPrefix()
 
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+                or (struct in self.structs_with_map_data)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                body = '\n'
+                body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table);'.format(
+                    struct
+                )
+                write(body, file=self.outFile)
+
         self.newline()
         write(
             'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);'.format(extended_struct_func_name),
@@ -59,17 +71,3 @@ class KhronosBaseStructHandleMappersHeaderGenerator():
 
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-                or (struct in self.structs_with_map_data)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                body = '\n'
-                body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table);'.format(
-                    struct
-                )
-                write(body, file=self.outFile)
