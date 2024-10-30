@@ -27,7 +27,7 @@ from base_generator import write
 from copy import deepcopy
 
 
-class BaseStructDecodersBodyGenerator():
+class KhronosBaseStructDecodersBodyGenerator():
     """Base class for generating struct docoder body code."""
 
     def generate_feature(self):
@@ -70,7 +70,7 @@ class BaseStructDecodersBodyGenerator():
                 )
                 main_body += '    value->{var} = wrapper->{var} ? wrapper->{var}->GetPointer() : nullptr;\n'.format(var=extended_struct_name)
             else:
-                preamble, main_body, epilogue = BaseStructDecodersBodyGenerator.make_decode_invocation(
+                preamble, main_body, epilogue = KhronosBaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value, preamble, main_body, epilogue
                 )
 

@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
+from khronos_base_struct_decoders_body_generator import KhronosBaseStructDecodersBodyGenerator
 
 
 class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -54,7 +54,7 @@ class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructDecodersBodyGenerator(
-    BaseStructDecodersBodyGenerator, BaseGenerator
+    KhronosBaseStructDecodersBodyGenerator, BaseGenerator
 ):
     """VulkanStructDecodersBodyGenerator - subclass of BaseGenerator.
     Generates C++ functions for decoding Vulkan API structures.
