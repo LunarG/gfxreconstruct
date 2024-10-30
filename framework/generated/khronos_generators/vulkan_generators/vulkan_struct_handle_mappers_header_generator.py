@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from base_struct_handle_mappers_header_generator import BaseStructHandleMappersHeaderGenerator
+from khronos_base_struct_handle_mappers_header_generator import KhronosBaseStructHandleMappersHeaderGenerator
 
 
 class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -54,7 +54,7 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructHandleMappersHeaderGenerator(
-    BaseStructHandleMappersHeaderGenerator, BaseGenerator
+    KhronosBaseStructHandleMappersHeaderGenerator, BaseGenerator
 ):
     """VulkanStructHandleMappersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ function prototypes for mapping struct member handles
@@ -110,7 +110,7 @@ class VulkanStructHandleMappersHeaderGenerator(
 
     def endFile(self):
         """Method override."""
-        BaseStructHandleMappersHeaderGenerator.endFile(self)
+        KhronosBaseStructHandleMappersHeaderGenerator.endFile(self)
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
@@ -149,4 +149,4 @@ class VulkanStructHandleMappersHeaderGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseStructHandleMappersHeaderGenerator.generate_feature(self)
+        KhronosBaseStructHandleMappersHeaderGenerator.generate_feature(self)
