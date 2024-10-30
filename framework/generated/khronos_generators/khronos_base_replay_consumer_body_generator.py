@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
+from khronos_base_generator import write
 
 
 class KhronosBaseReplayConsumerBodyGenerator():
