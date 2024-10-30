@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from khronos_base_generator import write
 
 
 class KhronosBaseStructHandleMappersBodyGenerator():

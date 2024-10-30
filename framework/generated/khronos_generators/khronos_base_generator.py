@@ -43,8 +43,13 @@ import re
 import sys
 import json
 from collections import OrderedDict
-from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
+from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures
 
+def write(*args, **kwargs):
+    file = kwargs.pop('file', sys.stdout)
+    end = kwargs.pop('end', '\n')
+    file.write(' '.join(str(arg) for arg in args))
+    file.write(end)
 
 def makeReString(list, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings.
