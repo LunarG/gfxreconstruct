@@ -400,7 +400,7 @@ class BaseGenerator(KhronosBaseGenerator):
         has_handle_pointer = False
         map_data = []
         for value in self.feature_struct_members[typename]:
-            if self.is_handle(value.base_type) or self.is_class(value) or (
+            if self.is_handle(value.base_type) or (
                 extra_types and value.base_type in extra_types
             ):
                 # The member is a handle.
@@ -496,11 +496,6 @@ class BaseGenerator(KhronosBaseGenerator):
                     type_name = 'StructPointerDecoder<Decoded_{}>'.format(
                         type_name
                     )
-            elif self.is_class(value):
-                if count == 1:
-                    type_name = 'format::HandleId'
-                else:
-                    type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
             elif type_name == 'wchar_t':
                 if count > 1:
                     type_name = 'WStringArrayDecoder'
@@ -624,11 +619,6 @@ class BaseGenerator(KhronosBaseGenerator):
                         param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
                             type_name
                         )
-                    elif self.is_class(value):
-                        if count == 1:
-                            param_type = info_type + '*'
-                        else:
-                            param_type = 'HandlePointerDecoder<{}*>'.format(type_name)
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
                         param_type = 'HandlePointerDecoder<{}>*'.format(type_name)
                     else:
