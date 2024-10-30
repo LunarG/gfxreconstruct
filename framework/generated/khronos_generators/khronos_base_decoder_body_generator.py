@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import re
-from base_generator import ValueInfo, write
+from khronos_base_generator import ValueInfo, write
 from copy import deepcopy
 
 

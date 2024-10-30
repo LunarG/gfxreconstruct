@@ -23,7 +23,7 @@
 
 import re
 import sys
-from base_generator import write
+from khronos_base_generator import write
 from copy import deepcopy
 
 
