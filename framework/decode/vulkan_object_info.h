@@ -288,6 +288,16 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 
     // Closest matching replay device.
     VulkanReplayDeviceInfo* replay_device_info{ nullptr };
+
+    // Because Vulkan captures unwrapped handles, and layered APIs (like OpenXR)
+    // capture wrapped handles, during replay two HandleId values will reference
+    // the same VkPhysical device.  The vulkan_alias is the handleId as known by
+    // the vulkan_consumers, which will be created/updated, etc, by all Vulkan replay
+    // calls, s.t. the information known by the vulkan_consumer need not be duplicated.
+    // Operations on this, will use the vulkan_alias as the effective HandleId when set.
+
+    // When Non-null, the GetVkObject will recur on the alias Id
+    format::HandleId vulkan_alias{ format::kNullHandleId };
 };
 
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
