@@ -8504,18 +8504,15 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 hashmap.put(lhs, rhs);
             }
         }
-        else
-        {
-            // tmp: guard execution, this would crash otherwise
-            func(commandBuffer,
-                 in_pRaygenShaderBindingTable,
-                 in_pMissShaderBindingTable,
-                 in_pHitShaderBindingTable,
-                 in_pCallableShaderBindingTable,
-                 width,
-                 height,
-                 depth);
-        }
+
+        func(commandBuffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
     }
 }
 
