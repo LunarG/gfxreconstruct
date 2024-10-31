@@ -299,7 +299,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Typenames
         self.base_types = dict()  # Set of OpenXR basetypes
-        self.struct_names = set()  # Set of current API's struct typenames
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
@@ -320,6 +319,9 @@ class KhronosBaseGenerator(OutputGenerator):
         self.encode_types['uint64_t'] = 'UInt64'
 
         # Command parameter and struct member data for the current feature
+        self.struct_names = set()                              # Set of current API's struct typenames
+        self.extended_structs = dict()                         # Map of all extended struct names
+        self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
         self.all_struct_aliases = OrderedDict()                # Map of struct names to aliases
@@ -334,7 +336,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
         self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
-        self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
 
         # Lower case prefix and structure type prefix for every supported Khronos API
         self.valid_khronos_supported_api_prefixes = [
@@ -907,6 +908,20 @@ class KhronosBaseGenerator(OutputGenerator):
             self.addStructMembers(typename, self.make_value_info(
                 typeinfo.elem.findall('.//member')
             ))
+
+            # If this struct has a parent name, keep track of all
+            # the parents and their children
+            parent_name = typeinfo.elem.get('parentstruct')
+            if parent_name:
+                # If it doesn't already appear in the list of parents,
+                # add an entry for it.
+                if parent_name not in self.base_header_structs.keys():
+                    self.base_header_structs[parent_name] = []
+                self.base_header_structs[parent_name].append(typename)
+
+            extended_struct = typeinfo.elem.get('structextends')
+            if extended_struct:
+                self.extended_structs[typename] = extended_struct
         else:
             self.addStructAlias(typename, alias)
 
