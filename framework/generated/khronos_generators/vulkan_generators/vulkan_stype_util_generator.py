@@ -43,20 +43,35 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
         self.newline()
         self.writeIncludesOfCommonApiHeaders(gen_opts)
         self.newline()
+
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
         self.newline()
-        write(format_cpp_code('''
-            // Instantiating the primary template indicates that either the template was
-            // called with an invalid Vulkan struct type or that the code generation is out
-            // of date, both of which are errors
-            template <typename T> VkStructureType GetSType() = delete;'''), file=self.outFile)
+
+        current_api_data = self.getApiData()
+        write('// Instantiating the primary template indicates that either the template was', file=self.outFile)
+        write('// called with an invalid {} struct type or that the code generation is out'.format(
+            current_api_data.api_name
+        ), file=self.outFile)
+        write('// of date, both of which are errors', file=self.outFile)
+        write('template <typename T> {} Get{}() = delete;'.format(
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_func_prefix
+        ), file=self.outFile)
         self.newline()
 
     def endFile(self):
+        current_api_data = self.getApiData()
         for struct in self.all_struct_members.keys():
             if struct in self.struct_type_names:
-                write(f'template <> constexpr VkStructureType GetSType<{struct}>(){{ return {self.struct_type_names[struct]}; }}', file=self.outFile)
+                write('template <> constexpr {} Get{}<{}>(){{ return {}; }}'.format(
+                    current_api_data.struct_type_enum,
+                    current_api_data.struct_type_func_prefix,
+                    struct,
+                    self.struct_type_names[struct]
+                ), file=self.outFile)
+
+        self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
