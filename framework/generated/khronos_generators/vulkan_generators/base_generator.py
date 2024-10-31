@@ -181,18 +181,12 @@ class BaseGenerator(KhronosBaseGenerator):
 
     def __init__(
         self,
-        process_cmds=True,
-        process_structs=True,
-        feature_break=False,
         err_file=sys.stderr,
         warn_file=sys.stderr,
         diag_file=sys.stdout
     ):
         KhronosBaseGenerator.__init__(
             self,
-            process_cmds=process_cmds,
-            process_structs=process_structs,
-            feature_break=feature_break,
             err_file = err_file,
             warn_file = warn_file,
             diag_file = diag_file)
@@ -297,17 +291,16 @@ class BaseGenerator(KhronosBaseGenerator):
         if not self.VIDEO_TREE:
             return
 
-        if self.process_structs:
-            types = self.VIDEO_TREE.find('types')
-            for element in types.iter('type'):
-                name = element.get('name')
-                category = element.get('category')
-                if name and category and (category == 'struct' or category == 'union'):
-                    self.struct_names.add(name)
-                    if category == 'struct':
-                        self.add_struct_members(name, self.make_value_info(
-                            element.findall('member')
-                        ))
+        types = self.VIDEO_TREE.find('types')
+        for element in types.iter('type'):
+            name = element.get('name')
+            category = element.get('category')
+            if name and category and (category == 'struct' or category == 'union'):
+                self.struct_names.add(name)
+                if category == 'struct':
+                    self.add_struct_members(name, self.make_value_info(
+                        element.findall('member')
+                    ))
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
