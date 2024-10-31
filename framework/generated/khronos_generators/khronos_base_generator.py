@@ -253,7 +253,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         add_extensions=None,
         remove_extensions=None,
         emit_extensions=None,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         GeneratorOptions.__init__(
             self,
@@ -282,7 +282,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         self.indent_func_proto = indent_func_proto
         self.align_func_param = align_func_param
         self.code_generator = True
-        self.extraVulkanHeaders = extraVulkanHeaders
+        self.extra_headers = extra_headers
 
 
 class KhronosBaseGenerator(OutputGenerator):
@@ -476,7 +476,7 @@ class KhronosBaseGenerator(OutputGenerator):
     def include_extra_headers(self, gen_opts):
         """Write extra header include statements
         """
-        for extra_header in gen_opts.extraVulkanHeaders:
+        for extra_header in gen_opts.extra_headers:
             header_include_path = re.sub(r'\\', '/', extra_header)
             write(f'#include "{header_include_path}"', file=self.outFile)
 
