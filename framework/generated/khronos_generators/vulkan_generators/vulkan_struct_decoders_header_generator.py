@@ -93,7 +93,7 @@ class VulkanStructDecodersHeaderGenerator(
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <memory>', file=self.outFile)
         self.newline()
