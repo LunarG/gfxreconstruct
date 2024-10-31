@@ -78,7 +78,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -151,7 +151,6 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
@@ -161,7 +160,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
                 return_type, 'Process_' + cmd, values
             )
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             if self.genOpts.is_override:
                 cmddef += self.indent(
                     'virtual ' + decl + ' override;', self.INDENT_SIZE
@@ -172,4 +171,3 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
                 )
 
             write(cmddef, file=self.outFile)
-            first = False

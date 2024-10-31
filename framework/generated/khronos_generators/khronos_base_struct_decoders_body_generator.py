@@ -32,9 +32,8 @@ class KhronosBaseStructDecodersBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for struct in self.get_filtered_struct_names():
-            body = '' if first else '\n'
+            body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
             )
@@ -52,7 +51,6 @@ class KhronosBaseStructDecodersBodyGenerator():
             body += '}'
 
             write(body, file=self.outFile)
-            first = False
 
     def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
