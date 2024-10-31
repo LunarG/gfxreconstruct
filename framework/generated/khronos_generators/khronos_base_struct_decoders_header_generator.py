@@ -32,9 +32,8 @@ class KhronosBaseStructDecodersHeaderGenerator():
     # struct despite the type erasure.
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for struct in self.get_filtered_struct_names():
-            body = '' if first else '\n'
+            body = '\n'
             body += 'struct Decoded_{}\n'.format(struct)
             body += '{\n'
             body += '    using struct_type = {};\n'.format(struct)
@@ -51,16 +50,14 @@ class KhronosBaseStructDecodersHeaderGenerator():
             body += '};'
 
             write(body, file=self.outFile)
-            first = False
 
         # Write typedefs for any aliases
         for struct in self.feature_struct_aliases:
-            body = '' if first else '\n'
+            body = '\n'
             body += 'typedef Decoded_{} Decoded_{};'.format(
                 self.feature_struct_aliases[struct], struct
             )
             write(body, file=self.outFile)
-            first = False
 
     def needs_member_declaration(self, name, value):
         """Determines if a struct member needs an associated member
