@@ -997,8 +997,8 @@ class KhronosBaseGenerator(OutputGenerator):
                     values = member.attrib.get('values')
                     if values:
                         self.struct_type_names[typename] = values
-                    elif (typename != self.getBaseInputStructureName() and
-                        typename != self.getBaseOutputStructureName()):
+                    elif (not self.isBaseInputStructureType(typename) and
+                          not self.isBaseOutputStructureType(typename)):
                         self.struct_type_names[typename] = self.generateStructureType(typename)
                     break
 
@@ -1207,6 +1207,12 @@ class KhronosBaseGenerator(OutputGenerator):
 
         return values
 
+    def getApiData(self):
+        for api_data in self.valid_khronos_supported_api_data:
+            if api_data.api_name.lower() == self.genOpts.apiname.lower():
+                return api_data
+        return None
+
     def isBaseInputStructureType(self, type):
         for api_data in self.valid_khronos_supported_api_data:
             if (type.startswith(api_data.struct_prefix) and
@@ -1221,53 +1227,46 @@ class KhronosBaseGenerator(OutputGenerator):
                 return True
 
     def getBaseInputStructureName(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.base_in_struct
+        return ''
 
     def getBaseOutputStructureName(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.base_out_struct
+        return ''
 
     def getStructTypeEnumName(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.struct_type_enum
+        return ''
 
     def getStructTypeVarName(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.struct_type_variable
+        return ''
 
     def getStructTypeFuncPrefix(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.struct_type_func_prefix
+        return ''
 
     def getExtendedStructVarName(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.extended_struct_variable
+        return ''
 
     def getExtendedStructFuncPrefix(self):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
-        raise NotImplementedError
+        api_data = self.getApiData()
+        if api_data is not None:
+            return api_data.extended_struct_func_prefix
+        return ''
 
     def isExtendedStructDefinition(self, value):
         if (value.name == self.getExtendedStructVarName() and
