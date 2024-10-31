@@ -65,7 +65,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -100,17 +100,15 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
             proto = info[1]
             values = info[2]
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             cmddef += self.make_cmd_decl(proto, values)
 
             write(cmddef, file=self.outFile)
-            first = False
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""

@@ -65,7 +65,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
             self,
             process_cmds=False,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -110,9 +110,8 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for struct in self.get_filtered_struct_names():
-            body = '' if first else '\n'
+            body = '\n'
             body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(
                 struct
             )
@@ -122,8 +121,6 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
             )
             body += '}'
             write(body, file=self.outFile)
-
-            first = False
 
     def make_struct_body(self, name, values, prefix):
         """Command definition."""

@@ -66,7 +66,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -139,7 +139,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
 
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
         # of functions and structures not to generate code for. Once the feature is implemented, the following can be
@@ -153,7 +152,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                 return_type = info[0]
                 values = info[2]
 
-                cmddef = '' if first else '\n'
+                cmddef = '\n'
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanExportJsonConsumer::Process_' + cmd, values
                 ) + '\n'
@@ -172,7 +171,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                     }
                 ''', 1)
                 write(cmddef, file=self.outFile)
-                first = False
 
     def is_command_buffer_cmd(self, command):
         if 'vkCmd' in command:
