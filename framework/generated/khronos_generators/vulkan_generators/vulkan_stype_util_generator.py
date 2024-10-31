@@ -21,11 +21,12 @@
 # IN THE SOFTWARE.
 
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_struct_type_util_generator import KhronosStructTypeUtilGenerator
 from reformat_code import format_cpp_code
 
 VulkanSTypeUtilGeneratorOptions = BaseGeneratorOptions
 
-class VulkanSTypeUtilGenerator(BaseGenerator):
+class VulkanSTypeUtilGenerator(BaseGenerator, KhronosStructTypeUtilGenerator):
     """VulkanSTypeUtilGenerator - subclass of BaseGenerator.
     Generates C++ utility header to do compile-time lookups between Vulkan
     structure types and their corresponding VkStructureType values
@@ -38,27 +39,10 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         BaseGenerator.beginFile(self, gen_opts)
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
-        self.newline()
-        write(format_cpp_code('''
-            // Instantiating the primary template indicates that either the template was
-            // called with an invalid Vulkan struct type or that the code generation is out
-            // of date, both of which are errors
-            template <typename T> VkStructureType GetSType() = delete;'''), file=self.outFile)
-        self.newline()
+        KhronosStructTypeUtilGenerator.write_struct_type_prefix(self, gen_opts)
 
     def endFile(self):
-        for struct in self.all_struct_members.keys():
-            if struct in self.struct_type_names:
-                write(f'template <> constexpr VkStructureType GetSType<{struct}>(){{ return {self.struct_type_names[struct]}; }}', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        KhronosStructTypeUtilGenerator.write_struct_type_data(self)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)

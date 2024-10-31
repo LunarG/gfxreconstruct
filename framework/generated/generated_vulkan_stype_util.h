@@ -955,6 +955,7 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingPipelin
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayQueryFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMeshShaderFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMeshShaderPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT; }
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
