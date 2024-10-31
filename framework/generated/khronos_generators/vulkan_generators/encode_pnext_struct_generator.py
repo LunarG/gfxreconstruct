@@ -69,9 +69,6 @@ class EncodePNextStructGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -162,6 +159,19 @@ class EncodePNextStructGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for struct in self.all_extended_structs:
+            stype = self.struct_type_names[struct]
+            write(
+                '        case {}:'.format(stype),
+                file=self.outFile
+            )
+            write(
+                '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
+                .format(struct),
+                file=self.outFile
+            )
+            write('            break;', file=self.outFile)
+
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('    else', file=self.outFile)
@@ -183,33 +193,8 @@ class EncodePNextStructGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    self.stype_values[typename] = stype
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.stype_values:
+        if self.feature_extended_structs:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.stype_values:
-            write(
-                '        case {}:'.format(self.stype_values[struct]),
-                file=self.outFile
-            )
-            write(
-                '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
-                .format(struct),
-                file=self.outFile
-            )
-            write('            break;', file=self.outFile)
-        self.stype_values = dict()
