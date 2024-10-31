@@ -176,7 +176,7 @@ class VulkanCppStructGenerator(BaseGenerator):
 
         if self.is_header:
             self.writeout('#include "util/defines.h"')
-            self.includeVulkanHeaders(genOpts)
+            self.writeIncludesOfCommonApiHeaders(genOpts)
             self.newline()
 
         if not self.is_header:

@@ -257,8 +257,8 @@ class BaseGenerator(KhronosBaseGenerator):
         """Method override."""
         KhronosBaseGenerator.beginFile(self, gen_opts)
 
-    def includeVulkanHeaders(self, gen_opts):
-        """Write Vulkan header include statements
+    def writeIncludesOfCommonApiHeaders(self, gen_opts):
+        """Method override. Write Vulkan header include statements
         """
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         write('#include "vk_video/vulkan_video_codec_h264std.h"', file=self.outFile)

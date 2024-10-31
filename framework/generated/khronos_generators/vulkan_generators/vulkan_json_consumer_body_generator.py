@@ -108,7 +108,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             #include "decode/custom_vulkan_struct_to_json.h"
         ''')
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(gen_opts)
+        self.writeIncludesOfCommonApiHeaders(gen_opts)
         namespace = remove_trailing_newlines(indent_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)

@@ -615,7 +615,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         self.writeout('#include "generated/generated_vulkan_enum_to_string.h"')
         self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
         self.writeout('#include "util/defines.h"')
-        self.includeVulkanHeaders(gen_opts)
+        self.writeIncludesOfCommonApiHeaders(gen_opts)
         self.newline()
         self.writeout('#include <iostream>')
         self.writeout('#include <sstream>')

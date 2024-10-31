@@ -74,7 +74,7 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.writeIncludesOfCommonApiHeaders(gen_opts)
         self.newline()
         write('#include <cstdint>', file=self.outFile)
         self.newline()

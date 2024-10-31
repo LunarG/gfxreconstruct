@@ -96,7 +96,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.writeIncludesOfCommonApiHeaders(gen_opts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
