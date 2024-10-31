@@ -142,7 +142,7 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         add_extensions=_add_extensions_pat,
         remove_extensions=_remove_extensions_pat,
         emit_extensions=_emit_extensions_pat,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         KhronosBaseGeneratorOptions.__init__(
             self,
@@ -168,7 +168,7 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
             add_extensions=add_extensions,
             remove_extensions=remove_extensions,
             emit_extensions=emit_extensions,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 

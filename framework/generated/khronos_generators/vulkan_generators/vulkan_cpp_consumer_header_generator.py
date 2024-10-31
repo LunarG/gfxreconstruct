@@ -71,7 +71,7 @@ class VulkanCppConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -82,7 +82,7 @@ class VulkanCppConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
             CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
         self.class_name = class_name
         self.base_class_header = base_class_header
