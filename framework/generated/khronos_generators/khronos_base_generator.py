@@ -321,7 +321,7 @@ class KhronosBaseGenerator(OutputGenerator):
         # Command parameter and struct member data for the current feature
         self.struct_names = set()                              # Set of current API's struct typenames
         self.extended_structs = dict()                         # Map of all extended struct names
-        self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
+        self.children_structs = dict()                         # Map of children struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
         self.all_struct_aliases = OrderedDict()                # Map of struct names to aliases
@@ -912,9 +912,9 @@ class KhronosBaseGenerator(OutputGenerator):
             if parent_name:
                 # If it doesn't already appear in the list of parents,
                 # add an entry for it.
-                if parent_name not in self.base_header_structs.keys():
-                    self.base_header_structs[parent_name] = []
-                self.base_header_structs[parent_name].append(typename)
+                if parent_name not in self.children_structs.keys():
+                    self.children_structs[parent_name] = []
+                self.children_structs[parent_name].append(typename)
 
             extended_struct = typeinfo.elem.get('structextends')
             if extended_struct:

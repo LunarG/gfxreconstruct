@@ -68,13 +68,13 @@ class KhronosBaseDecoderBodyGenerator():
             is_base_header_value = False
             # If the value is a base header type, we need to do some work to read the actual
             # structure that is used, and then pass the information down.
-            if value.base_type in self.base_header_structs.keys():
+            if value.base_type in self.children_structs.keys():
                 has_base_header_to_peak = True
                 is_base_header_value    = True
                 decode_type = self.make_decoded_param_type(value)
                 main_body += '    {}* {};\n'.format(decode_type, value.name)
                 main_body += '    {} {};\n'.format(decode_type, self.make_simple_var_name(value.base_type))
-                for child in self.base_header_structs[value.base_type]:
+                for child in self.children_structs[value.base_type]:
                     new_value = deepcopy(value)
                     new_value.base_type = child
                     decode_type = self.make_decoded_param_type(new_value)
@@ -186,7 +186,7 @@ class KhronosBaseDecoderBodyGenerator():
                     )
             else:
                 if is_struct or is_string or is_handle or is_atom:
-                    if type_name in self.base_header_structs.keys():
+                    if type_name in self.children_structs.keys():
                         base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
                         main_body += '                                                   (buffer_size - bytes_read),\n'
@@ -199,7 +199,7 @@ class KhronosBaseDecoderBodyGenerator():
                         main_body += '         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);\n'
                         main_body += '         switch (xr_type)\n'
                         main_body += '         {\n'
-                        for child in self.base_header_structs[value.base_type]:
+                        for child in self.children_structs[value.base_type]:
                             switch_type = self.generate_structure_type(child)
                             main_body += f'             case {switch_type}:\n'
                             child_var = self.make_simple_var_name(child)
