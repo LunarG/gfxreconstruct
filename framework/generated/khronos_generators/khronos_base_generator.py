@@ -92,26 +92,47 @@ def BitsEnumToFlagsTypedef(enum):
         return flags
     return flags
 
-class ApiPrefix():
-    """ApiPrefix - Class to store various Khronos API prefixes.
+class ApiData():
+    """ApiData - Class to store various Khronos API data.
 
     Members:
-        api_name           - The name of the API
-        command_prefix     - The prefix used to identify commands belonging to this Khronos API
-        struct_prefix      - The prefix used to identify structures belonging to this Khronos API
-        struct_type_prefix - The prefix used in the enum to identify the structure type enum value
+        api_name                    - The name of the API
+        command_prefix              - The prefix used to identify commands belonging to this Khronos API
+        struct_prefix               - The prefix used to identify structures belonging to this Khronos API
+        struct_type_enum            - The enum type used to define structure types for this Khronos API
+        struct_type_prefix          - The prefix used in the enum to identify the structure type enum value
+        struct_type_variable        - The variable name used to identify structure types for this Khronos API
+        struct_type_func_prefix     - The function prefix to use for structure type related functoins for this Khronos API
+        base_in_struct              - The base input structure defined in this Khronos API
+        base_out_struct             - The base output structure defined in this Khronos API
+        extended_struct_variable    - The extended struct varible name used in this Khronos API
+        extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.=
     """
     def __init__(
             self,
             api_name,
             command_prefix,
             struct_prefix,
-            struct_type_prefix
+            struct_type_enum,
+            struct_type_prefix,
+            struct_type_variable,
+            struct_type_func_prefix,
+            base_in_struct,
+            base_out_struct,
+            extended_struct_variable,
+            extended_struct_func_prefix,
     ):
         self.api_name = api_name
         self.command_prefix = command_prefix
+        self.struct_type_enum = struct_type_enum
         self.struct_prefix = struct_prefix
         self.struct_type_prefix = struct_type_prefix
+        self.struct_type_variable = struct_type_variable
+        self.struct_type_func_prefix = struct_type_func_prefix
+        self.base_in_struct = base_in_struct
+        self.base_out_struct = base_out_struct
+        self.extended_struct_variable = extended_struct_variable
+        self.extended_struct_func_prefix =extended_struct_func_prefix
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -359,23 +380,37 @@ class KhronosBaseGenerator(OutputGenerator):
         self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
 
-        # Lower case prefix and structure type prefix for every supported Khronos API
+        # Data for every supported Khronos API
         # TODO: Eventually, we should move this info into a data file that we read (JSON?)
-        self.valid_khronos_supported_api_prefixes = []
-        self.valid_khronos_supported_api_prefixes.append(
-            ApiPrefix(
+        self.valid_khronos_supported_api_data = []
+        self.valid_khronos_supported_api_data.append(
+            ApiData(
                 api_name='Vulkan',
                 command_prefix='vk',
+                struct_type_enum='VkStructureType',
                 struct_prefix='Vk',
-                struct_type_prefix='VK_STRUCTURE_TYPE_'
+                struct_type_prefix='VK_STRUCTURE_TYPE_',
+                struct_type_variable='sType',
+                struct_type_func_prefix='SType',
+                base_in_struct='VkBaseInStructure',
+                base_out_struct='VkBaseOutStructure',
+                extended_struct_variable='pNext',
+                extended_struct_func_prefix='PNext'
             )
         )
-        self.valid_khronos_supported_api_prefixes.append(
-            ApiPrefix(
+        self.valid_khronos_supported_api_data.append(
+            ApiData(
                 api_name='OpenXR',
                 command_prefix='xr',
+                struct_type_enum='XrStructureType',
                 struct_prefix='Xr',
-                struct_type_prefix='XR_TYPE_'
+                struct_type_prefix='XR_TYPE_',
+                struct_type_variable='type',
+                struct_type_func_prefix='Type',
+                base_in_struct='XrBaseInStructure',
+                base_out_struct='XrBaseOutStructure',
+                extended_struct_variable='next',
+                extended_struct_func_prefix='Next'
             )
         )
 
@@ -1172,6 +1207,19 @@ class KhronosBaseGenerator(OutputGenerator):
 
         return values
 
+    def isBaseInputStructureType(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (type.startswith(api_data.struct_prefix) and
+                type == api_data.base_in_struct):
+                return True
+        return False
+
+    def isBaseOutputStructureType(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (type.startswith(api_data.struct_prefix) and
+                type == api_data.base_out_struct):
+                return True
+
     def getBaseInputStructureName(self):
         """
         Intended to be overridden.
@@ -1234,10 +1282,10 @@ class KhronosBaseGenerator(OutputGenerator):
         type_with_prefix = upper_type
 
         # Apply any structure type prefix first
-        for api_prefix in self.valid_khronos_supported_api_prefixes:
-            upper_prefix = api_prefix.struct_prefix.upper()
+        for api_data in self.valid_khronos_supported_api_data:
+            upper_prefix = api_data.struct_prefix.upper()
             if upper_type.startswith(upper_prefix):
-                type_with_prefix = api_prefix.struct_type_prefix + upper_type
+                type_with_prefix = api_data.struct_type_prefix + upper_type
 
         type_with_prefix = type_with_prefix.replace('_OPEN_GLES', '_OPENGL_ES_')
         type_with_prefix = type_with_prefix.replace('_OPEN_GL', '_OPENGL_')
@@ -1250,8 +1298,8 @@ class KhronosBaseGenerator(OutputGenerator):
     def makeSimpleVarName(self, type_name):
         lower_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).lower()
 
-        for api_prefix, struct_prefix in self.valid_khronos_supported_api_prefixes:
-            lower_prefix = api_prefix.lower()
+        for api_data in self.valid_khronos_supported_api_data:
+            lower_prefix = api_data.struct_prefix.lower()
             if lower_type.startswith(lower_prefix):
                 lower_prefix_len = len(lower_prefix)
                 new_lower_type = lower_type[:lower_prefix_len - 1] + '_' + lower_type[lower_prefix_len - 1:]
