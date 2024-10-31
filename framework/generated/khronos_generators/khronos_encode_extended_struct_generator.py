@@ -49,7 +49,7 @@ class KhronosEncodeExtendedStructGenerator():
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <cassert>', file=self.outFile)
         write('#include <cstdio>', file=self.outFile)

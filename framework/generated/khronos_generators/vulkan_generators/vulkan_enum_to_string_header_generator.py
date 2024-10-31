@@ -85,7 +85,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
             '''
         )
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         namespace = inspect.cleandoc(
             '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)

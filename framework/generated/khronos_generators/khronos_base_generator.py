@@ -1307,3 +1307,10 @@ class KhronosBaseGenerator(OutputGenerator):
                 lower_type = new_lower_type
 
         return lower_type
+
+    def write_includes_of_common_api_headers(self, gen_opts):
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError

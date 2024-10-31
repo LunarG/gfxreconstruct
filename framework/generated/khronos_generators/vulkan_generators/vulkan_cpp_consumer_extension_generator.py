@@ -111,7 +111,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
             self.writeout('#include "generated/generated_vulkan_cpp_structs.h"')
             self.writeout('#include "decode/vulkan_cpp_structs.h"')
         self.writeout('#include "util/defines.h"')
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         self.newline()
         self.writeout('#include <iostream>')
         self.writeout('#include <sstream>')
