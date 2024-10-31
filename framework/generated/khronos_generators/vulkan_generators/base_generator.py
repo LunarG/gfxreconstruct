@@ -305,9 +305,9 @@ class BaseGenerator(KhronosBaseGenerator):
                 if name and category and (category == 'struct' or category == 'union'):
                     self.struct_names.add(name)
                     if category == 'struct':
-                        self.feature_struct_members[name] = self.make_value_info(
+                        self.addStructMembers(name, self.make_value_info(
                             element.findall('member')
-                        )
+                        ))
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
