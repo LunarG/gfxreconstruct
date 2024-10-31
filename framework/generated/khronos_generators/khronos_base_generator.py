@@ -999,8 +999,8 @@ class KhronosBaseGenerator(OutputGenerator):
                     values = member.attrib.get('values')
                     if values:
                         self.struct_type_names[typename] = values
-                    elif (typename != self.get_base_input_structure_name() and
-                        typename != self.get_base_output_structure_name()):
+                    elif (not self.is_base_input_structure_type(typename) and
+                          not self.is_base_output_structure_type(typename)):
                         self.struct_type_names[typename] = self.generate_structure_type(typename)
                     break
 
