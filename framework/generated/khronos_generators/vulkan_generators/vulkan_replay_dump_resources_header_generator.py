@@ -83,7 +83,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -140,6 +140,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             '    ~{}() {{ }}'.format(gen_opts.class_name),
             file=self.outFile
         )
+        self.newline()
 
     def endFile(self):
         """Method override."""
@@ -159,7 +160,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
@@ -175,7 +175,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             cmddef = decl + ';\n'
 
             write(cmddef, file=self.outFile)
-            first = False
 
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())

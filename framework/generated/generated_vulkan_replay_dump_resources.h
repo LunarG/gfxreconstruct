@@ -442,7 +442,6 @@ void Process_vkCmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers);
 
-
 void Process_vkCmdSetDeviceMask(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDeviceMask                      func,
@@ -459,7 +458,6 @@ void Process_vkCmdDispatchBase(
     uint32_t                                    groupCountX,
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ);
-
 
 void Process_vkCmdDrawIndirectCount(
     const ApiCallInfo&                          call_info,
@@ -502,7 +500,6 @@ void Process_vkCmdEndRenderPass2(
     PFN_vkCmdEndRenderPass2                     func,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
-
 
 void Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
@@ -688,7 +685,6 @@ void Process_vkCmdSetPrimitiveRestartEnable(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable);
 
-
 void Process_vkCmdSetLineStipple(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStipple                     func,
@@ -760,16 +756,6 @@ void Process_vkCmdPushDescriptorSetWithTemplate2(
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
 
-
-
-
-
-
-
-
-
-
-
 void Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginVideoCodingKHR                func,
@@ -788,13 +774,11 @@ void Process_vkCmdControlVideoCodingKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoCodingControlInfoKHR*          pCodingControlInfo);
 
-
 void Process_vkCmdDecodeVideoKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDecodeVideoKHR                     func,
     VkCommandBuffer                             commandBuffer,
     const VkVideoDecodeInfoKHR*                 pDecodeInfo);
-
 
 void Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
@@ -806,8 +790,6 @@ void Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndRenderingKHR                    func,
     VkCommandBuffer                             commandBuffer);
-
-
 
 void Process_vkCmdSetDeviceMaskKHR(
     const ApiCallInfo&                          call_info,
@@ -825,15 +807,6 @@ void Process_vkCmdDispatchBaseKHR(
     uint32_t                                    groupCountX,
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ);
-
-
-
-
-
-
-
-
-
 
 void Process_vkCmdPushDescriptorSetKHR(
     const ApiCallInfo&                          call_info,
@@ -854,8 +827,6 @@ void Process_vkCmdPushDescriptorSetWithTemplateKHR(
     uint32_t                                    set,
     const void*                                 pData);
 
-
-
 void Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRenderPass2KHR                func,
@@ -875,18 +846,6 @@ void Process_vkCmdEndRenderPass2KHR(
     PFN_vkCmdEndRenderPass2KHR                  func,
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
-
-
-
-
-
-
-
-
-
-
-
-
 
 void Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
@@ -910,15 +869,12 @@ void Process_vkCmdDrawIndexedIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);
 
-
-
 void Process_vkCmdSetFragmentShadingRateKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetFragmentShadingRateKHR          func,
     VkCommandBuffer                             commandBuffer,
     const VkExtent2D*                           pFragmentSize,
     const VkFragmentShadingRateCombinerOpKHR*   combinerOps);
-
 
 void Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
@@ -932,18 +888,11 @@ void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     VkCommandBuffer                             commandBuffer,
     const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
-
-
-
-
-
-
 void Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEncodeVideoKHR                     func,
     VkCommandBuffer                             commandBuffer,
     const VkVideoEncodeInfoKHR*                 pEncodeInfo);
-
 
 void Process_vkCmdSetEvent2KHR(
     const ApiCallInfo&                          call_info,
@@ -981,7 +930,6 @@ void Process_vkCmdWriteTimestamp2KHR(
     VkQueryPool                                 queryPool,
     uint32_t                                    query);
 
-
 void Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBuffer2KHR                     func,
@@ -1018,14 +966,11 @@ void Process_vkCmdResolveImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkResolveImageInfo2*                  pResolveImageInfo);
 
-
 void Process_vkCmdTraceRaysIndirect2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdTraceRaysIndirect2KHR              func,
     VkCommandBuffer                             commandBuffer,
     VkDeviceAddress                             indirectDeviceAddress);
-
-
 
 void Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
@@ -1036,17 +981,12 @@ void Process_vkCmdBindIndexBuffer2KHR(
     VkDeviceSize                                size,
     VkIndexType                                 indexType);
 
-
-
-
 void Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleKHR                  func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern);
-
-
 
 void Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
@@ -1084,9 +1024,6 @@ void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
-
-
-
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDebugMarkerBeginEXT                func,
@@ -1103,7 +1040,6 @@ void Process_vkCmdDebugMarkerInsertEXT(
     PFN_vkCmdDebugMarkerInsertEXT               func,
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo);
-
 
 void Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
@@ -1161,8 +1097,6 @@ void Process_vkCmdDrawIndirectByteCountEXT(
     uint32_t                                    counterOffset,
     uint32_t                                    vertexStride);
 
-
-
 void Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountAMD               func,
@@ -1185,12 +1119,6 @@ void Process_vkCmdDrawIndexedIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);
 
-
-
-
-
-
-
 void Process_vkCmdBeginConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginConditionalRenderingEXT       func,
@@ -1202,7 +1130,6 @@ void Process_vkCmdEndConditionalRenderingEXT(
     PFN_vkCmdEndConditionalRenderingEXT         func,
     VkCommandBuffer                             commandBuffer);
 
-
 void Process_vkCmdSetViewportWScalingNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetViewportWScalingNV              func,
@@ -1210,12 +1137,6 @@ void Process_vkCmdSetViewportWScalingNV(
     uint32_t                                    firstViewport,
     uint32_t                                    viewportCount,
     const VkViewportWScalingNV*                 pViewportWScalings);
-
-
-
-
-
-
 
 void Process_vkCmdSetDiscardRectangleEXT(
     const ApiCallInfo&                          call_info,
@@ -1237,10 +1158,6 @@ void Process_vkCmdSetDiscardRectangleModeEXT(
     VkCommandBuffer                             commandBuffer,
     VkDiscardRectangleModeEXT                   discardRectangleMode);
 
-
-
-
-
 void Process_vkCmdBeginDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginDebugUtilsLabelEXT            func,
@@ -1258,16 +1175,11 @@ void Process_vkCmdInsertDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo);
 
-
-
 void Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetSampleLocationsEXT              func,
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo);
-
-
-
 
 void Process_vkCmdBindShadingRateImageNV(
     const ApiCallInfo&                          call_info,
@@ -1291,7 +1203,6 @@ void Process_vkCmdSetCoarseSampleOrderNV(
     VkCoarseSampleOrderTypeNV                   sampleOrderType,
     uint32_t                                    customSampleOrderCount,
     const VkCoarseSampleOrderCustomNV*          pCustomSampleOrders);
-
 
 void Process_vkCmdBuildAccelerationStructureNV(
     const ApiCallInfo&                          call_info,
@@ -1343,8 +1254,6 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery);
 
-
-
 void Process_vkCmdWriteBufferMarkerAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdWriteBufferMarkerAMD               func,
@@ -1362,8 +1271,6 @@ void Process_vkCmdWriteBufferMarker2AMD(
     VkBuffer                                    dstBuffer,
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker);
-
-
 
 void Process_vkCmdDrawMeshTasksNV(
     const ApiCallInfo&                          call_info,
@@ -1392,7 +1299,6 @@ void Process_vkCmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);
 
-
 void Process_vkCmdSetExclusiveScissorEnableNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetExclusiveScissorEnableNV        func,
@@ -1409,13 +1315,11 @@ void Process_vkCmdSetExclusiveScissorNV(
     uint32_t                                    exclusiveScissorCount,
     const VkRect2D*                             pExclusiveScissors);
 
-
 void Process_vkCmdSetCheckpointNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetCheckpointNV                    func,
     VkCommandBuffer                             commandBuffer,
     const void*                                 pCheckpointMarker);
-
 
 void Process_vkCmdSetPerformanceMarkerINTEL(
     const ApiCallInfo&                          call_info,
@@ -1438,24 +1342,12 @@ void Process_vkCmdSetPerformanceOverrideINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceOverrideInfoINTEL*       pOverrideInfo);
 
-
-
-
-
-
-
-
-
-
-
 void Process_vkCmdSetLineStippleEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleEXT                  func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern);
-
-
 
 void Process_vkCmdSetCullModeEXT(
     const ApiCallInfo&                          call_info,
@@ -1540,9 +1432,6 @@ void Process_vkCmdSetStencilOpEXT(
     VkStencilOp                                 depthFailOp,
     VkCompareOp                                 compareOp);
 
-
-
-
 void Process_vkCmdPreprocessGeneratedCommandsNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPreprocessGeneratedCommandsNV      func,
@@ -1564,15 +1453,11 @@ void Process_vkCmdBindPipelineShaderGroupNV(
     VkPipeline                                  pipeline,
     uint32_t                                    groupIndex);
 
-
 void Process_vkCmdSetDepthBias2EXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDepthBias2EXT                   func,
     VkCommandBuffer                             commandBuffer,
     const VkDepthBiasInfoEXT*                   pDepthBiasInfo);
-
-
-
 
 void Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
@@ -1580,10 +1465,6 @@ void Process_vkCmdSetFragmentShadingRateEnumNV(
     VkCommandBuffer                             commandBuffer,
     VkFragmentShadingRateNV                     shadingRate,
     const VkFragmentShadingRateCombinerOpKHR*   combinerOps);
-
-
-
-
 
 void Process_vkCmdSetVertexInputEXT(
     const ApiCallInfo&                          call_info,
@@ -1594,17 +1475,12 @@ void Process_vkCmdSetVertexInputEXT(
     uint32_t                                    vertexAttributeDescriptionCount,
     StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions);
 
-
-
-
 void Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindInvocationMaskHUAWEI           func,
     VkCommandBuffer                             commandBuffer,
     VkImageView                                 imageView,
     VkImageLayout                               imageLayout);
-
-
 
 void Process_vkCmdSetPatchControlPointsEXT(
     const ApiCallInfo&                          call_info,
@@ -1636,15 +1512,12 @@ void Process_vkCmdSetPrimitiveRestartEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable);
 
-
-
 void Process_vkCmdSetColorWriteEnableEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetColorWriteEnableEXT             func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    attachmentCount,
     const VkBool32*                             pColorWriteEnables);
-
 
 void Process_vkCmdDrawMultiEXT(
     const ApiCallInfo&                          call_info,
@@ -1666,7 +1539,6 @@ void Process_vkCmdDrawMultiIndexedEXT(
     uint32_t                                    firstInstance,
     uint32_t                                    stride,
     const int32_t*                              pVertexOffset);
-
 
 void Process_vkCmdBuildMicromapsEXT(
     const ApiCallInfo&                          call_info,
@@ -1703,7 +1575,6 @@ void Process_vkCmdWriteMicromapsPropertiesEXT(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery);
 
-
 void Process_vkCmdDrawClusterHUAWEI(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawClusterHUAWEI                  func,
@@ -1719,16 +1590,12 @@ void Process_vkCmdDrawClusterIndirectHUAWEI(
     VkBuffer                                    buffer,
     VkDeviceSize                                offset);
 
-
-
-
 void Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdUpdatePipelineIndirectBufferNV     func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline);
-
 
 void Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
@@ -1928,16 +1795,12 @@ void Process_vkCmdSetCoverageReductionModeNV(
     VkCommandBuffer                             commandBuffer,
     VkCoverageReductionModeNV                   coverageReductionMode);
 
-
-
 void Process_vkCmdOpticalFlowExecuteNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdOpticalFlowExecuteNV               func,
     VkCommandBuffer                             commandBuffer,
     VkOpticalFlowSessionNV                      session,
     const VkOpticalFlowExecuteInfoNV*           pExecuteInfo);
-
-
 
 void Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
@@ -1954,15 +1817,11 @@ void Process_vkCmdSetDepthClampRangeEXT(
     VkDepthClampModeEXT                         depthClampMode,
     const VkDepthClampRangeEXT*                 pDepthClampRange);
 
-
-
-
 void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT func,
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
-
 
 void Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
@@ -1977,8 +1836,6 @@ void Process_vkCmdExecuteGeneratedCommandsEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo);
-
-
 
 void Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,
@@ -2026,7 +1883,6 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery);
 
-
 void Process_vkCmdTraceRaysKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdTraceRaysKHR                       func,
@@ -2054,7 +1910,6 @@ void Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     PFN_vkCmdSetRayTracingPipelineStackSizeKHR  func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    pipelineStackSize);
-
 
 void Process_vkCmdDrawMeshTasksEXT(
     const ApiCallInfo&                          call_info,

@@ -183,7 +183,7 @@ class BaseGenerator(KhronosBaseGenerator):
         self,
         process_cmds=False,
         process_structs=False,
-        feature_break=True,
+        feature_break=False,
         err_file=sys.stderr,
         warn_file=sys.stderr,
         diag_file=sys.stdout

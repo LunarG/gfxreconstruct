@@ -66,7 +66,7 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -128,11 +128,9 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
                 cmd
             )
             write(cmddef, file=self.outFile)
-            first = False
