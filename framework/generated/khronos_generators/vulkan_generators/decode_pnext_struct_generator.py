@@ -69,28 +69,32 @@ class DecodePNextStructGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.get_api_data()
+        lower_api_name = current_api_data.api_name.lower()
+
         write(
-            '#include "decode/custom_vulkan_struct_decoders.h"',
+            '#include "decode/custom_{}_struct_decoders.h"'.format(lower_api_name),
             file=self.outFile
         )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_typed_node.h"', file=self.outFile)
+        write('#include "decode/{}_{}_node.h"'.format(
+                lower_api_name,
+                current_api_data.extended_struct_variable.lower()),
+            file=self.outFile)
+        write('#include "decode/{}_{}_typed_node.h"'.format(
+                lower_api_name,
+                current_api_data.extended_struct_variable.lower()), file=self.outFile)
         write(
-            '#include "generated/generated_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
+            '#include "generated/generated_{}_struct_decoders.h"'.format(
+                lower_api_name),file=self.outFile)
         write(
-            '#include "generated/generated_vulkan_enum_to_string.h"',
-            file=self.outFile
-        )
+            '#include "generated/generated_{}_enum_to_string.h"'.format(
+            lower_api_name), file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
@@ -98,22 +102,30 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
+
         write(
-            'size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  PNextNode** pNext)',
+            'size_t Decode{prefix}Struct(const uint8_t* parameter_buffer, size_t buffer_size, {prefix}Node** {})'.format(
+                current_api_data.extended_struct_variable,
+                prefix=current_api_data.extended_struct_func_prefix
+            ),
             file=self.outFile
         )
         write('{', file=self.outFile)
-        write('    assert(pNext != nullptr);', file=self.outFile)
+        write('    assert({} != nullptr);'.format(
+                current_api_data.extended_struct_variable,
+            ), file=self.outFile)
         self.newline()
         write('    size_t bytes_read = 0;', file=self.outFile)
         write('    uint32_t attrib = 0;', file=self.outFile)
         self.newline()
+
+        offset_var = current_api_data.struct_type_variable.lower() + '_offset'
         write(
             '    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(attrib)))',
             file=self.outFile
         )
         write('    {', file=self.outFile)
-        write('        size_t stype_offset = 0;', file=self.outFile)
+        write('        size_t {} = 0;'.format(offset_var), file=self.outFile)
         self.newline()
         write(
             '        // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.',
@@ -130,10 +142,10 @@ class DecodePNextStructGenerator(BaseGenerator):
         )
         write('        {', file=self.outFile)
         write(
-            '            // Offset to VkStructureType, after the pointer encoding preamble.',
+            '            // Offset to {}, after the pointer encoding preamble.'.format(current_api_data.struct_type_enum),
             file=self.outFile
         )
-        write('            stype_offset = sizeof(attrib);', file=self.outFile)
+        write('            {} = sizeof(attrib);'.format(offset_var), file=self.outFile)
         self.newline()
         write(
             '            if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)',
@@ -141,23 +153,30 @@ class DecodePNextStructGenerator(BaseGenerator):
         )
         write('            {', file=self.outFile)
         write(
-            '                stype_offset += sizeof(format::AddressEncodeType);',
+            '                {} += sizeof(format::AddressEncodeType);'.format(offset_var),
             file=self.outFile
         )
         write('            }', file=self.outFile)
         write('        }', file=self.outFile)
         self.newline()
         write(
-            '        if ((stype_offset != 0) && ((buffer_size - stype_offset) >= sizeof(VkStructureType)))',
+            '        if (({offset} != 0) && ((buffer_size - {offset}) >= sizeof({})))'.format(
+                current_api_data.struct_type_enum,
+                offset=offset_var
+            ),
             file=self.outFile
         )
         write('        {', file=self.outFile)
         write(
-            '            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer + stype_offset);',
+            '            const {struct_type}* {} = reinterpret_cast<const {struct_type}*>(parameter_buffer + {});'.format(
+                current_api_data.struct_type_variable,
+                offset_var,
+                struct_type=current_api_data.struct_type_enum
+            ),
             file=self.outFile
         )
         self.newline()
-        write('            switch (*sType)', file=self.outFile)
+        write('            switch (*{})'.format(current_api_data.struct_type_variable), file=self.outFile)
         write('            {', file=self.outFile)
         write('            default:', file=self.outFile)
         write(
@@ -165,7 +184,11 @@ class DecodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));',
+            '                GFXRECON_LOG_ERROR("Failed to decode {} value with unrecognized {} = %s", (util::ToString(*{}).c_str()));'.format(
+                current_api_data.extended_struct_variable,
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable,
+            ),
             file=self.outFile
         )
         write('                break;', file=self.outFile)
@@ -173,6 +196,10 @@ class DecodePNextStructGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         """Performs C++ code generation for the feature."""
+
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.get_api_data()
+
         for struct in self.all_extended_structs:
             if struct in self.struct_type_names:
                 stype = self.struct_type_names[struct]
@@ -181,12 +208,18 @@ class DecodePNextStructGenerator(BaseGenerator):
                     file=self.outFile
                 )
                 write(
-                    '                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'
-                    .format(struct),
+                    '                (*{}) = DecodeAllocator::Allocate<{}TypedNode<Decoded_{}>>();'
+                    .format(
+                        current_api_data.extended_struct_variable,
+                        current_api_data.extended_struct_func_prefix,
+                        struct),
                     file=self.outFile
                 )
                 write(
-                    '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
+                    '                bytes_read = (*{})->Decode(parameter_buffer, buffer_size);'
+                    .format(
+                        current_api_data.extended_struct_variable
+                    ),
                     file=self.outFile
                 )
                 write('                break;', file=self.outFile)
@@ -198,7 +231,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('    if ((bytes_read == 0) && (attrib != 0))', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        // The encoded pointer attribute mask included kIsNull, or the sType was unrecognized.',
+            '        // The encoded pointer attribute mask included kIsNull, or the {} was unrecognized.'
+            .format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(

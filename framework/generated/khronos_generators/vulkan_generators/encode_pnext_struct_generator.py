@@ -73,14 +73,18 @@ class EncodePNextStructGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.get_api_data()
+        lower_api_name = current_api_data.api_name.lower()
+
         write(
-            '#include "generated/generated_vulkan_struct_encoders.h"',
+            '#include "generated/generated_{}_struct_encoders.h"'.format(lower_api_name),
             file=self.outFile
         )
         self.newline()
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/vulkan_capture_manager.h"', file=self.outFile)
+        write('#include "encode/{}_capture_manager.h"'.format(lower_api_name), file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         self.includeVulkanHeaders(gen_opts)
@@ -92,46 +96,50 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
+
         write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value)',
+            'void Encode{}Struct(ParameterEncoder* encoder, const void* value)'.format(current_api_data.extended_struct_func_prefix),
             file=self.outFile
         )
         write('{', file=self.outFile)
         write('    assert(encoder != nullptr);', file=self.outFile)
         self.newline()
         write(
-            '    auto base = reinterpret_cast<const VkBaseInStructure*>(value);',
+            '    auto base = reinterpret_cast<const {}*>(value);'.format(current_api_data.base_in_struct),
             file=self.outFile
         )
         self.newline()
         write(
-            '    // Ignore the structures added to the pnext chain by the loader.',
+            '    // Ignore the structures added to the {} chain by the loader.'.format(current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
-            '    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||',
+            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
-            '                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))',
+            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write('    {', file=self.outFile)
-        write('        base = base->pNext;', file=self.outFile)
+        write('        base = base->{};'.format(current_api_data.extended_struct_variable), file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
         write('    if (base != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        switch (base->sType)', file=self.outFile)
+        write('        switch (base->{})'.format(current_api_data.struct_type_variable), file=self.outFile)
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
         write('            {', file=self.outFile)
         write(
-            '                // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.',
+            '                // {} is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.'.format(current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
+            '                int32_t message_size = std::snprintf(nullptr, 0, "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
+                current_api_data.extended_struct_variable,
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
@@ -139,11 +147,16 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
+            '                std::snprintf(message.get(), (message_size + 1), "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
+                current_api_data.extended_struct_variable,
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
-            '                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());',
+            '                {}CaptureManager::Get()->WriteDisplayMessageCmd(message.get());'.format(
+                current_api_data.api_class_prefix
+            ),
             file=self.outFile
         )
         write(
@@ -151,7 +164,7 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                EncodePNextStruct(encoder, base->pNext);',
+            '                Encode{}Struct(encoder, base->{});'.format(current_api_data.extended_struct_func_prefix, current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write('            }', file=self.outFile)
@@ -173,12 +186,16 @@ class EncodePNextStructGenerator(BaseGenerator):
                 )
                 write('            break;', file=self.outFile)
 
+        current_api_data = self.get_api_data()
+
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('    else', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        // pNext was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.',
+            '        // {} was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.'.format(
+                current_api_data.extended_struct_variable
+            ),
             file=self.outFile
         )
         write(

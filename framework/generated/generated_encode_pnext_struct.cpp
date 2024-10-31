@@ -56,7 +56,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
 
     auto base = reinterpret_cast<const VkBaseInStructure*>(value);
 
-    // Ignore the structures added to the pnext chain by the loader.
+    // Ignore the structures added to the pNext chain by the loader.
     while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||
                                  (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))
     {
