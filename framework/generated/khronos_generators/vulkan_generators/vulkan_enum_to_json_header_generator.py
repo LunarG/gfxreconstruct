@@ -36,7 +36,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         prefixText='',
         protectFile=False,
         protectFeature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -47,7 +47,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
             prefixText,
             protectFile,
             protectFeature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 

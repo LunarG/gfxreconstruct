@@ -40,7 +40,7 @@ class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         VulkanConsumerHeaderGeneratorOptions.__init__(
             self,
@@ -55,7 +55,7 @@ class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
