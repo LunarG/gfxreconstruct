@@ -320,7 +320,9 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         self.struct_names = set()                              # Set of current API's struct typenames
-        self.extended_structs = dict()                         # Map of all extended struct names
+        self.struct_type_names = OrderedDict()                 # Map of current API's struct type enums
+        self.all_extended_structs = dict()                     # Map of all extended struct names
+        self.feature_extended_structs = dict()                 # Map of per-feature extended struct names
         self.children_structs = dict()                         # Map of children struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
@@ -451,6 +453,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.feature_struct_members = OrderedDict()
         self.feature_struct_aliases = OrderedDict()
         self.feature_cmd_params = OrderedDict()
+        self.feature_extended_structs = dict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -909,6 +912,25 @@ class KhronosBaseGenerator(OutputGenerator):
                 typeinfo.elem.findall('.//member')
             ))
 
+            # Set the structure type value for this name if it exists
+            struct_type_enum_set = False
+            members = typeinfo.elem.findall('.//member')
+            for member in members:
+                membername = noneStr(member.find('name').text)
+
+                # We only care about structures with an sType, which can be included in a pNext chain.
+                if membername == self.getStructTypeVarName():
+                    # Check for value in the XML element.
+                    values = member.attrib.get('values')
+                    if values:
+                        self.struct_type_names[typename] = values
+                        struct_type_enum_set = True
+                        break
+            if (not struct_type_enum_set and (
+                typename != self.getBaseInputStructureName() and
+                typename != self.getBaseOutputStructureName())):
+                self.struct_type_names[typename] = self.generateStructureType(typename)
+
             # If this struct has a parent name, keep track of all
             # the parents and their children
             parent_name = typeinfo.elem.get('parentstruct')
@@ -919,11 +941,16 @@ class KhronosBaseGenerator(OutputGenerator):
                     self.children_structs[parent_name] = []
                 self.children_structs[parent_name].append(typename)
 
+            # If this struct extends another struct, save that info
             extended_struct = typeinfo.elem.get('structextends')
             if extended_struct:
-                self.extended_structs[typename] = extended_struct
+                self.addExtendedStructs(typename, extended_struct)
         else:
             self.addStructAlias(typename, alias)
+
+    def addExtendedStructs(self, name, extended):
+        self.all_extended_structs[name] = extended
+        self.feature_extended_structs[name] = extended
 
     def addStructAlias(self, name, alias):
         self.all_struct_aliases[name] = alias
