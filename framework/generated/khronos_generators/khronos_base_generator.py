@@ -250,9 +250,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def __init__(
         self,
-        process_cmds=True,
-        process_structs=True,
-        feature_break=False,
         err_file=sys.stderr,
         warn_file=sys.stderr,
         diag_file=sys.stdout
@@ -311,11 +308,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.enumAliases = dict()  # Map of enum names to aliases
         self.enumEnumerants = dict()  # Map of enum names to enumerants
 
-        # Type processing options
-        self.process_cmds = process_cmds  # Populate the feature_cmd_params map
-        self.process_structs = process_structs  # Populate the feature_struct_members map
-        self.feature_break = feature_break  # Insert a line break between features
-
         # Basetypes and their corresponding encode command type
         self.encode_types = dict()
         self.encode_types['int8_t'] = 'Int8'
@@ -328,20 +320,19 @@ class KhronosBaseGenerator(OutputGenerator):
         self.encode_types['uint64_t'] = 'UInt64'
 
         # Command parameter and struct member data for the current feature
-        if self.process_structs:
-            self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
-            self.all_struct_aliases = OrderedDict()                # Map of struct names to aliases
-            self.feature_struct_aliases = OrderedDict()            # Map of per-feature struct names to aliases
-            self.all_union_members = OrderedDict()                 # Map of union names to lists of per-member ValueInfo
-            self.feature_union_members = OrderedDict()             # Map of per-feature union names to lists of per-member ValueInfo
-            self.all_union_aliases = OrderedDict()                 # Map of union names to aliases
-            self.feature_union_aliases = OrderedDict()             # Map of per-feature union names to aliases
-            self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
-        if self.process_cmds:
-            self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
-            self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
+        self.all_struct_members = OrderedDict()                # Map of struct names to lists of per-member ValueInfo
+        self.feature_struct_members = OrderedDict()            # Map of per-feature struct names to lists of per-member ValueInfo
+        self.all_struct_aliases = OrderedDict()                # Map of struct names to aliases
+        self.feature_struct_aliases = OrderedDict()            # Map of per-feature struct names to aliases
+        self.all_union_members = OrderedDict()                 # Map of union names to lists of per-member ValueInfo
+        self.feature_union_members = OrderedDict()             # Map of per-feature union names to lists of per-member ValueInfo
+        self.all_union_aliases = OrderedDict()                 # Map of union names to aliases
+        self.feature_union_aliases = OrderedDict()             # Map of per-feature union names to aliases
+        self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+        self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
+
+        self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
+        self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
         self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
 
@@ -456,11 +447,9 @@ class KhronosBaseGenerator(OutputGenerator):
         OutputGenerator.beginFeature(self, interface, emit)
 
         # Reset feature specific data sets
-        if self.process_structs:
-            self.feature_struct_members = OrderedDict()
-            self.feature_struct_aliases = OrderedDict()
-        if self.process_cmds:
-            self.feature_cmd_params = OrderedDict()
+        self.feature_struct_members = OrderedDict()
+        self.feature_struct_aliases = OrderedDict()
+        self.feature_cmd_params = OrderedDict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -469,9 +458,6 @@ class KhronosBaseGenerator(OutputGenerator):
     def endFeature(self):
         """Method override. Generate code for the feature."""
         if self.emit and self.need_feature_generation():
-            if self.feature_break:
-                self.newline()
-
             if (self.featureExtraProtect is not None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
 
@@ -917,13 +903,12 @@ class KhronosBaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.process_structs:
-            if not alias:
-                self.addStructMembers(typename, self.make_value_info(
-                    typeinfo.elem.findall('.//member')
-                ))
-            else:
-                self.addStructAlias(typename, alias)
+        if not alias:
+            self.addStructMembers(typename, self.make_value_info(
+                typeinfo.elem.findall('.//member')
+            ))
+        else:
+            self.addStructAlias(typename, alias)
 
     def addStructAlias(self, name, alias):
         self.all_struct_aliases[name] = alias
@@ -943,15 +928,14 @@ class KhronosBaseGenerator(OutputGenerator):
         """
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.process_structs:
-            if not alias:
-                if typename not in self.feature_union_members:
-                    self.addUnionMembers(typename, self.make_value_info(
-                        typeinfo.elem.findall('.//member')
-                    ))
-            else:
-                if typename not in self.all_union_aliases:
-                    self.addUnionAlias(typename, alias)
+        if not alias:
+            if typename not in self.feature_union_members:
+                self.addUnionMembers(typename, self.make_value_info(
+                    typeinfo.elem.findall('.//member')
+                ))
+        else:
+            if typename not in self.all_union_aliases:
+                self.addUnionAlias(typename, alias)
 
     def addUnionAlias(self, name, alias):
         self.all_union_aliases[name] = alias
@@ -1001,25 +985,24 @@ class KhronosBaseGenerator(OutputGenerator):
         """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
 
-        if self.process_cmds:
-            # Create the declaration for the function prototype
-            proto = cmdinfo.elem.find('proto')
-            proto_decl = self.genOpts.apicall + noneStr(proto.text)
-            for elem in proto:
-                text = noneStr(elem.text)
-                tail = noneStr(elem.tail)
-                if (elem.tag == 'name'):
-                    if text.startswith('vk'):
-                        text = text[2:]
-                    proto_decl += self.makeProtoName(text, tail)
-                else:
-                    proto_decl += text + tail
+        # Create the declaration for the function prototype
+        proto = cmdinfo.elem.find('proto')
+        proto_decl = self.genOpts.apicall + noneStr(proto.text)
+        for elem in proto:
+            text = noneStr(elem.text)
+            tail = noneStr(elem.tail)
+            if (elem.tag == 'name'):
+                if text.startswith('vk'):
+                    text = text[2:]
+                proto_decl += self.makeProtoName(text, tail)
+            else:
+                proto_decl += text + tail
 
-            return_type = noneStr(proto.text
-                                  ) + noneStr(proto.find('type').text)
+        return_type = noneStr(proto.text
+                                ) + noneStr(proto.find('type').text)
 
-            self.addCommandParams(name, return_type, proto_decl,
-                self.make_value_info(cmdinfo.elem.findall('param')))
+        self.addCommandParams(name, return_type, proto_decl,
+            self.make_value_info(cmdinfo.elem.findall('param')))
 
     def addCommandParams(self, name, return_type, proto_decl, value_info):
         # TODO: Define a class or namedtuple for the dictionary entry

@@ -33,9 +33,6 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
     def __init__(self, **kwargs):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             **kwargs
         )
         # These are dummy structures that do not have their own VkStructureType values
