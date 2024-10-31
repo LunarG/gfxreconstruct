@@ -117,7 +117,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                 ) else False
                 access_op = '.'
 
-                if value.base_type in self.base_header_structs.keys():
+                if value.base_type in self.children_structs.keys():
                     if value.pointer_count == 1:
                         main_body += f'    switch (wrapper->{value.name}->GetPointer()->type)\n'
                         main_body += '    {\n'
@@ -138,7 +138,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                             value.name, buffer_args
                         )
                         main_body += '            break;\n'
-                        for child in self.base_header_structs[value.base_type]:
+                        for child in self.children_structs[value.base_type]:
                             type = self.generate_structure_type(child)
 
                             new_value = deepcopy(value)
@@ -218,7 +218,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                             )
         else:
             if is_struct:
-                if value.base_type in self.base_header_structs.keys():
+                if value.base_type in self.children_structs.keys():
                     main_body += f'        switch ({value.name}->GetPointer()->type)\n'
                     main_body += '        {\n'
                     main_body += '            default:\n'
@@ -232,7 +232,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                         buffer_args, value.name
                     )
                     main_body += '                break;\n'
-                    for child in self.base_header_structs[value.base_type]:
+                    for child in self.children_structs[value.base_type]:
                         switch_type = self.generate_structure_type(child)
 
                         new_value = deepcopy(value)
