@@ -833,4 +833,3 @@ class BaseGenerator(KhronosBaseGenerator):
         if platform and platform in platform_dict:
             return platform_dict[platform]
         return None
-
