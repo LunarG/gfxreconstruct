@@ -55,7 +55,7 @@ class VulkanConstantMapsGenerator(BaseGenerator):
 
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         write('#include <vector>', file=self.outFile)

@@ -90,7 +90,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         )
 
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         write("", file=self.outFile)
         namespace = format_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)

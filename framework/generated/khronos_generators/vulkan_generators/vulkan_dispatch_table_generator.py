@@ -92,7 +92,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vk_layer.h"', file=self.outFile)
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#ifdef WIN32', file=self.outFile)
         write('#ifdef CreateEvent', file=self.outFile)
