@@ -298,6 +298,13 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                     const UINT*             node_mask,
                                                     IUnknown* const*        present_queue);
 
+    void PreProcess_IDXGISwapChain_ResizeTarget(IDXGISwapChain_Wrapper* wrapper,
+                                                const DXGI_MODE_DESC*   pNewTargetParameters);
+
+    void PostProcess_IDXGISwapChain_ResizeTarget(IDXGISwapChain_Wrapper* wrapper,
+                                                 HRESULT                 result,
+                                                 const DXGI_MODE_DESC*   pNewTargetParameters);
+
     void Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper);
 
     void PostProcess_ID3D12Device_CreateDescriptorHeap(ID3D12Device_Wrapper*             wrapper,
