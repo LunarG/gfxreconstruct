@@ -729,12 +729,6 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
                 capture_mode_  = kModeDisabled;
 
-                if (use_asset_file_ && asset_file_stream_)
-                {
-                    asset_file_stream_->Flush();
-                    asset_file_stream_ = nullptr;
-                }
-
                 // Clean up all of the capture manager's state trackers
                 for (auto& manager_it : api_capture_managers_)
                 {
@@ -843,14 +837,13 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
-        if (asset_file_stream_.get() == nullptr)
+        std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
+        if (asset_file_stream)
         {
-            CreateAssetFile();
-        }
-
-        for (auto& manager : api_capture_managers_)
-        {
-            manager.first->WriteAssets(asset_file_stream_.get(), asset_file_name_, thread_data->thread_id_);
+            for (auto& manager : api_capture_managers_)
+            {
+                manager.first->WriteAssets(asset_file_stream.get(), &asset_file_name_, thread_data->thread_id_);
+            }
         }
 
         capture_mode_ = kModeTrack;
@@ -1047,24 +1040,32 @@ std::string CommonCaptureManager::CreateTrimDrawCallsFilename(const std::string&
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-void CommonCaptureManager::CreateAssetFile()
+std::unique_ptr<util::FileOutputStream> CommonCaptureManager::CreateAssetFile()
 {
-    asset_file_name_ = CreateAssetFilename(base_filename_);
+    if (asset_file_name_.empty())
+    {
+        asset_file_name_ = CreateAssetFilename(base_filename_);
 
-    if (timestamp_filename_)
-    {
-        asset_file_name_ = util::filepath::GenerateTimestampedFilename(asset_file_name_);
+        if (timestamp_filename_)
+        {
+            asset_file_name_ = util::filepath::GenerateTimestampedFilename(asset_file_name_);
+        }
     }
 
-    asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name_, kFileStreamBufferSize);
-    if (asset_file_stream_->IsValid())
+    std::unique_ptr<util::FileOutputStream> asset_file_stream =
+        std::make_unique<util::FileOutputStream>(asset_file_name_, kFileStreamBufferSize, true);
+    if (!asset_file_stream->IsValid())
     {
-        WriteFileHeader(asset_file_stream_.get());
+        GFXRECON_LOG_ERROR("Failed opening asset file %s", asset_file_name_.c_str())
+        return nullptr;
     }
-    else
+
+    if (!asset_file_stream->GetOffset())
     {
-        asset_file_stream_ = nullptr;
+        WriteFileHeader(asset_file_stream.get());
     }
+
+    return std::move(asset_file_stream);
 }
 
 std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const
@@ -1204,12 +1205,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         success      = false;
     }
 
-    // Create asset file
-    if (use_asset_file_ && asset_file_stream_.get() == nullptr)
-    {
-        CreateAssetFile();
-    }
-
     return success;
 }
 
@@ -1233,13 +1228,21 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
 
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
-
-        for (auto& manager : api_capture_managers_)
+        if (use_asset_file_)
         {
-            manager.first->WriteTrackedState(file_stream_.get(),
-                                             thread_data->thread_id_,
-                                             use_asset_file_ ? asset_file_stream_.get() : nullptr,
-                                             use_asset_file_ ? asset_file_name_ : "");
+            std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
+            for (auto& manager : api_capture_managers_)
+            {
+                manager.first->WriteTrackedState(
+                    file_stream_.get(), thread_data->thread_id_, asset_file_stream.get(), &asset_file_name_);
+            }
+        }
+        else
+        {
+            for (auto& manager : api_capture_managers_)
+            {
+                manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+            }
         }
     }
 
