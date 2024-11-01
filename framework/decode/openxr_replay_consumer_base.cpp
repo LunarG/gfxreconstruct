@@ -22,6 +22,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 #include <array>
+#include <iterator>
 
 #if defined(__ANDROID__)
 #include <android_native_app_glue.h>
@@ -599,6 +600,8 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                                   instance->GetPointer(),
                                   instance->GetHandlePointer(),
                                   &CommonObjectInfoTable::AddXrInstanceInfo);
+
+    InitializeEventBehavior();
 }
 
 void OpenXrReplayConsumerBase::Process_xrCreateVulkanInstanceKHR(
@@ -759,13 +762,33 @@ void OpenXrReplayConsumerBase::UpdateState_xrBeginFrame(const ApiCallInfo&      
     session_data.ClearViewRelativeProxySpaces(GetInstanceTable(session_data.GetHandle()));
 }
 
+void OpenXrReplayConsumerBase::InitializeEventBehavior()
+{
+    // Initialize the events that we want to treat as fatal and not perform any timeout
+    // reduction.
+    EventBehaviorTracking event_behavior;
+    event_behavior.allow_timeout_reduction                                         = false;
+    event_behavior.timeout_on_event_is_fatal                                       = true;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING]             = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED]             = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING]    = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_EVENTS_LOST]                       = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB] = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB]      = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB]      = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB]  = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB]           = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB]           = event_behavior;
+    event_behavior_tracking_[XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB]         = event_behavior;
+}
+
 struct EventStrings
 {
     XrStructureType type;
     char            name[128];
 };
 static EventStrings events_to_string[] = {
-    { XR_TYPE_UNKNOWN, "Unknown Event Type" },
+    { XR_STRUCTURE_TYPE_MAX_ENUM, "Unknown Event Type" },
     { XR_TYPE_EVENT_DATA_BUFFER, "XR_TYPE_EVENT_DATA_BUFFER" },
     { XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING, "XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING" },
     { XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED, "XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED" },
@@ -802,7 +825,9 @@ static EventStrings events_to_string[] = {
 const char* GetEventTypeString(XrStructureType type)
 {
     size_t len = sizeof(events_to_string) / sizeof(EventStrings);
-    for (size_t ii = 0; ii < len; ++ii)
+
+    // Skip 0 because it is our "unknown" event handling message.
+    for (size_t ii = 1; ii < len; ++ii)
     {
         if (type == events_to_string[ii].type)
         {
@@ -817,6 +842,13 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                                                    format::HandleId                                 instance,
                                                    StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
 {
+    // These defines are for the event list tracking for events that have
+    // occurred but not been handled.  We only want the list to grow so
+    // large before we start purging unhandled events so we don't get an
+    // out of control growth.
+    static const size_t MAX_EVENT_LIST_SIZE   = 2000;
+    static const size_t EVENT_LIST_PURGE_SIZE = 500;
+
     if (returnValue != XR_SUCCESS)
     {
         // Capture did not return an event, skip
@@ -827,15 +859,16 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrEventDataBuffer* capture_event = eventData->GetPointer();
 
     // We received events that haven't been handled yet already, so see if this one is in the list already
-    for (size_t ii = 0; ii < received_events_.size(); ++ii)
+    for (auto iter = previously_received_unhandled_events_.begin(); iter != previously_received_unhandled_events_.end();
+         iter++)
     {
-        if (received_events_[ii].type == capture_event->type)
+        if (iter->type == capture_event->type)
         {
-            GFXRECON_LOG_WARNING("Previously received event %s (0x%x, %u)",
-                                 GetEventTypeString(capture_event->type),
-                                 capture_event->type,
-                                 capture_event->type);
-            received_events_.erase(received_events_.begin() + ii);
+            GFXRECON_LOG_INFO("Using previously received event of type %s (0x%x, %u)",
+                              GetEventTypeString(capture_event->type),
+                              capture_event->type,
+                              capture_event->type);
+            previously_received_unhandled_events_.erase(iter);
             return;
         }
     }
@@ -844,17 +877,35 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         eventData->IsNull() ? nullptr : eventData->AllocateOutputData(1, { XR_TYPE_EVENT_DATA_BUFFER, nullptr });
     InitializeOutputStructNext(eventData);
 
-    XrResult replay_result;
-
-    // WIP: Put this constant somewhere interesting
-    const uint32_t kRetryLimit      = 10;
-    const int64_t  kMaxSleepLimitNs = 500000000; // 500ms
-    uint32_t       retry_count      = 0;
+    XrResult               replay_result;
+    bool                   assert_on_difference = true;
+    EventBehaviorTracking& behavior_tracking    = event_behavior_tracking_[capture_event->type];
 
     if (out_eventData && capture_event)
     {
-        int64_t sleep_time = 1;
-        do
+        uint32_t retry_limit = 24;
+        uint32_t retry_count = 0;
+        int64_t  sleep_time  = 1;
+
+        if (behavior_tracking.allow_timeout_reduction)
+        {
+            // Adjust the time we wait so that we don't wait as long by dropping the retry count
+            // by the number of times we've missed the event previously.
+            uint32_t current_reduction = behavior_tracking.current_timeout_reduction;
+            if (current_reduction >= retry_limit)
+            {
+                retry_limit = 1;
+            }
+            else
+            {
+                retry_limit -= current_reduction;
+            }
+        }
+
+        // Only assert on whether or not we receive the same result if the error is considered fatal.
+        assert_on_difference = behavior_tracking.timeout_on_event_is_fatal;
+
+        while ((retry_count < retry_limit) && capture_event->type != out_eventData->type)
         {
             *out_eventData = XrEventDataBuffer{ XR_TYPE_EVENT_DATA_BUFFER };
             replay_result  = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
@@ -864,55 +915,67 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
             {
                 if (replay_result == XR_SUCCESS)
                 {
-                    // Add it to the list of received events
-                    received_events_.push_back(*out_eventData);
-                    GFXRECON_LOG_WARNING("Recording event for later %s (0x%x, %u)",
-                                         GetEventTypeString(capture_event->type),
-                                         capture_event->type,
-                                         capture_event->type);
+                    // If this was a valid event, but not the one we're interested in, record
+                    // it to a list of received events for us to use later.
+                    previously_received_unhandled_events_.push_back(*out_eventData);
+                    GFXRECON_LOG_INFO("Recording event for later %s (0x%x, %u)",
+                                      GetEventTypeString(capture_event->type),
+                                      capture_event->type,
+                                      capture_event->type);
 
                     // If we grow too lare on the event vector, it's probably because we have
-                    // received a bunch of events we can not handle.  So remove the first 100
-                    // events to make room for more without bloating the list size.
-                    // TODO: Perhaps do this more elegantly?
-                    if (received_events_.size() > 1000)
+                    // received a bunch of events we can not handle.  So remove the first
+                    // EVENT_LIST_PURGE_SIZE events to make room for more without bloating the
+                    // list size.
+                    if (previously_received_unhandled_events_.size() > MAX_EVENT_LIST_SIZE)
                     {
-                        GFXRECON_LOG_WARNING("Event list is now %d in size, stripping the first 100!",
-                                             received_events_.size());
-                        received_events_.erase(received_events_.begin(), received_events_.begin() + 100);
+                        GFXRECON_LOG_WARNING(
+                            "Previously received event list is now %d in size, stripping the first %d!",
+                            previously_received_unhandled_events_.size(),
+                            EVENT_LIST_PURGE_SIZE);
+
+                        // Create an iterator for where we want to end and then delete from the
+                        // beginning of the list to there.
+                        auto delete_end_iter = previously_received_unhandled_events_.begin();
+                        std::advance(delete_end_iter, EVENT_LIST_PURGE_SIZE);
+                        previously_received_unhandled_events_.erase(previously_received_unhandled_events_.begin(),
+                                                                    delete_end_iter);
                     }
                 }
                 else if (replay_result == XR_EVENT_UNAVAILABLE)
                 {
-                    // Yield and retry
+                    // No event was ready in the time we waited, so yield and then retry again
                     std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
 
-                    if (sleep_time < kMaxSleepLimitNs)
-                    {
-                        // Next time, sleep for double what we initially slept for.  This way if we're just
-                        // spinning, we spin less and less each time.
-                        sleep_time *= 2;
-                    }
-                    // Clamp it to the max (should stay here from this point forward)
-                    if (sleep_time > kMaxSleepLimitNs)
-                    {
-                        sleep_time = kMaxSleepLimitNs;
-                    }
+                    // Next time, sleep for double what we initially slept for.  This way if we're just
+                    // spinning, we spin less and less each time.
+                    sleep_time *= 2;
                 }
                 else
                 {
+                    // An error of some kind occurred
                     GFXRECON_LOG_ERROR("xrPollEvent encountered an error of type 0x%x", replay_result);
                     break;
                 }
             }
-        } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
+        }
+
         if (capture_event->type != out_eventData->type)
         {
             GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
                                GetEventTypeString(capture_event->type),
                                capture_event->type,
                                capture_event->type);
-            replay_result = XR_ERROR_RUNTIME_FAILURE; // Runtime never gave us the event we were looking for
+
+            // Runtime never gave us the event we were looking for
+            replay_result = XR_ERROR_RUNTIME_FAILURE;
+
+            // If we allow timeout reduction, increase the amount we reduce the timeout for the
+            // next time we look for this event because it failed to find it this time.
+            if (behavior_tracking.allow_timeout_reduction)
+            {
+                behavior_tracking.current_timeout_reduction++;
+            }
         }
     }
     else
@@ -921,7 +984,7 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         replay_result = XR_ERROR_VALIDATION_FAILURE;
     }
 
-    CheckResult("xrPollEvent", returnValue, replay_result, call_info);
+    CheckResult("xrPollEvent", returnValue, replay_result, call_info, assert_on_difference);
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrWaitFrame(const ApiCallInfo&                             call_info,
@@ -1031,11 +1094,11 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                                  index,
     XrResult                                                   replay_result)
 {
-    uint32_t    capture_index = *index->GetPointer();
-    uint32_t    out_index     = *index->GetOutputPointer();
+    uint32_t capture_index = *index->GetPointer();
+    uint32_t out_index     = *index->GetOutputPointer();
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
-    replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+    replay_result                 = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrDestroySwapchain(const ApiCallInfo& call_info,
