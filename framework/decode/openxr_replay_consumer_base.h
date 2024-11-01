@@ -26,6 +26,7 @@
 #if ENABLE_OPENXR_SUPPORT
 
 #include <deque>
+#include <list>
 #include <optional>
 #include <unordered_map>
 #include "application/application.h"
@@ -489,7 +490,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
 
     VulkanReplayConsumerBase* vulkan_replay_consumer_ = nullptr;
 
-    std::vector<XrEventDataBuffer> received_events_;
+    std::list<XrEventDataBuffer> previously_received_unhandled_events_;
 
     // Replay specific state:
 
@@ -531,6 +532,28 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     {
         return GetReplayData<SwapchainData>(swapchain_id);
     }
+
+    // Track event-specific behavior in a structure (which will be stored in a map).
+    struct EventBehaviorTracking
+    {
+        // If we do allow the event to be waited less and less each time, what is
+        // the current reduction for this event.
+        uint32_t current_timeout_reduction{ 0 };
+
+        // Do we allow the event to waited on less and less each time we fail to
+        // properly receive the event?
+        bool allow_timeout_reduction{ true };
+
+        // Should the result of timing out on looking for this event during replay
+        // a fatal error.
+        bool timeout_on_event_is_fatal{ false };
+    };
+
+    // Create a map of event type to the event behavior tracking information.
+    std::unordered_map<XrStructureType, EventBehaviorTracking> event_behavior_tracking_;
+
+    // Initialize the above map of event behavior with hard-coded
+    void InitializeEventBehavior();
 };
 
 template <format::ApiCallId Id>
