@@ -97,7 +97,7 @@ class ApiData():
 
     Members:
         api_name                    - The name of the API
-        api_class_prefix            - The prefix to use for any class of the API
+        api_class_prefix            - The prefix to use for classes in this API
         command_prefix              - The prefix used to identify commands belonging to this Khronos API
         struct_prefix               - The prefix used to identify structures belonging to this Khronos API
         struct_type_enum            - The enum type used to define structure types for this Khronos API
@@ -107,7 +107,8 @@ class ApiData():
         base_in_struct              - The base input structure defined in this Khronos API
         base_out_struct             - The base output structure defined in this Khronos API
         extended_struct_variable    - The extended struct varible name used in this Khronos API
-        extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.=
+        extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.
+        boolean_type                - The type used by the API for booleans
     """
     def __init__(
             self,
@@ -123,6 +124,7 @@ class ApiData():
             base_out_struct,
             extended_struct_variable,
             extended_struct_func_prefix,
+            boolean_type,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
@@ -135,7 +137,8 @@ class ApiData():
         self.base_in_struct = base_in_struct
         self.base_out_struct = base_out_struct
         self.extended_struct_variable = extended_struct_variable
-        self.extended_struct_func_prefix =extended_struct_func_prefix
+        self.extended_struct_func_prefix = extended_struct_func_prefix
+        self.boolean_type = boolean_type
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -401,7 +404,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_in_struct='VkBaseInStructure',
                 base_out_struct='VkBaseOutStructure',
                 extended_struct_variable='pNext',
-                extended_struct_func_prefix='PNext'
+                extended_struct_func_prefix='PNext',
+                boolean_type='VkBool32'
             )
         )
         self.valid_khronos_supported_api_data.append(
@@ -417,7 +421,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_in_struct='XrBaseInStructure',
                 base_out_struct='XrBaseOutStructure',
                 extended_struct_variable='next',
-                extended_struct_func_prefix='Next'
+                extended_struct_func_prefix='Next',
+                boolean_type='XrBool32'
             )
         )
 
@@ -1236,6 +1241,13 @@ class KhronosBaseGenerator(OutputGenerator):
             if (type.startswith(api_data.struct_prefix) and
                 type == api_data.base_out_struct):
                 return True
+        return False
+
+    def is_boolean_type(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (type == api_data.boolean_type):
+                return True
+        return False
 
     def get_base_input_structure_name(self):
         api_data = self.get_api_data()
