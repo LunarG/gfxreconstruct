@@ -120,6 +120,10 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
             auto pair           = copy_resources_.emplace(device, std::move(copy_resource));
             copy_resource_entry = pair.first;
         }
+        else
+        {
+            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a command pool")
+        }
     }
 
     if (result == VK_SUCCESS)
@@ -392,6 +396,10 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                        data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to map resource memory");
                     }
                 }
                 else
