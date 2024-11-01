@@ -1350,10 +1350,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                                              binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
                                              binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 
-                if (immutable_image)
-                    assert(binding.images != nullptr);
-                else
-                    assert(binding.storage_images != nullptr);
+                assert((immutable_image && binding.images != nullptr) ||
+                       (!immutable_image && binding.storage_images != nullptr));
 
                 format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
                 format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
