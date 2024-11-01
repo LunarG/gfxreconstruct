@@ -1935,6 +1935,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SwapchainKHRWrapper* wrap
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (auto entry : wrapper->child_images)
     {
+        DestroyState(entry);
         state_table_.RemoveWrapper(entry);
     }
 }
