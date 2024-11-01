@@ -1335,8 +1335,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             {
                 auto& binding = wrapper->bindings[current_binding];
 
-                assert(binding.images != nullptr);
-
                 // Check count for consecutive updates.
                 uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
 
@@ -1351,6 +1349,11 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                                              binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
                                              binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
                                              binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+
+                if (immutable_image)
+                    assert(binding.images != nullptr);
+                else
+                    assert(binding.storage_images != nullptr);
 
                 format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
                 format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
