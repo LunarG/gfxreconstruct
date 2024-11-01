@@ -65,7 +65,6 @@ class VulkanStateWriter
     uint64_t WriteAssets(const VulkanStateTable& state_table);
 
     bool OutputStreamWrite(const void* data, size_t len);
-    void IncrementBlocksWritten();
 
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 

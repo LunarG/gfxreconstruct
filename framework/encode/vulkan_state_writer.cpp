@@ -1321,6 +1321,8 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
                                     wrapper->allocation_size,
                                     nullptr,
                                     this);
+
+        ++blocks_written_;
     }
 #endif
 
@@ -1948,11 +1950,6 @@ void VulkanStateWriter::WriteDeferredOperationJoinCommand(format::HandleId devic
 bool VulkanStateWriter::OutputStreamWrite(const void* data, size_t len)
 {
     return output_stream_->Write(data, len);
-}
-
-void VulkanStateWriter::IncrementBlocksWritten()
-{
-    ++blocks_written_;
 }
 
 void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
