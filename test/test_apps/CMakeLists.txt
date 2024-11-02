@@ -26,6 +26,8 @@
 # Description: CMake script for test apps
 ###############################################################################
 
+find_package(SDL3)
+
 add_custom_target(gfxrecon-testapps)
 
 add_subdirectory(triangle)
