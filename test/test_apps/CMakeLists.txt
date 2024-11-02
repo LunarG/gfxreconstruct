@@ -30,3 +30,5 @@ add_custom_target(gfxrecon-testapps)
 
 add_subdirectory(triangle)
 add_subdirectory(multisample-depth)
+add_subdirectory(pipeline-binaries)
+add_subdirectory(host-image-copy)
