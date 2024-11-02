@@ -7,6 +7,3 @@
 [submodule "external/SPIRV-Reflect"]
 	path = external/SPIRV-Reflect
 	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
-[submodule "external/SDL"]
-	path = external/SDL
-	url = https://github.com/libsdl-org/SDL.git
