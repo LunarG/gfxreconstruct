@@ -1,4 +1,3 @@
-
 #
 # generate_dispatch.py
 #
