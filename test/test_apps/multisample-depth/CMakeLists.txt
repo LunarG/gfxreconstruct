@@ -1,6 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +21,6 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Author: AMD Developer Tools Team
 # Description: CMake script for multisample depth test app
 ###############################################################################
 
