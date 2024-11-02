@@ -29,9 +29,9 @@
 add_executable(gfxrecon-testapp-multisample-depth "")
 
 target_sources(gfxrecon-testapp-multisample-depth
-               PRIVATE
-               ${CMAKE_CURRENT_LIST_DIR}/app.cpp
-               ${CMAKE_CURRENT_LIST_DIR}/../common/test_app_base.cpp)
+        PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/app.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/../common/test_app_base.cpp)
 
 target_include_directories(gfxrecon-testapp-multisample-depth PUBLIC
         ${CMAKE_BINARY_DIR}
@@ -47,12 +47,12 @@ target_link_libraries(gfxrecon-testapp-multisample-depth
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
     # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
         target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else()
+    else ()
         target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif()
-endif()
+    endif ()
+endif ()
 
 common_build_directives(gfxrecon-testapp-multisample-depth)
 
@@ -63,9 +63,11 @@ add_custom_command(
         ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-add_custom_command(TARGET gfxrecon-testapp-multisample-depth POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-multisample-depth> $<TARGET_FILE_DIR:gfxrecon-testapp-multisample-depth>
-        COMMAND_EXPAND_LISTS)
+if (WIN32)
+    add_custom_command(TARGET gfxrecon-testapp-multisample-depth POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-multisample-depth> $<TARGET_FILE_DIR:gfxrecon-testapp-multisample-depth>
+            COMMAND_EXPAND_LISTS)
+endif ()
 
 install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
