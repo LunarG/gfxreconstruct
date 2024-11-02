@@ -63,8 +63,11 @@ add_custom_command(
         POST_BUILD
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_LIST_DIR}/shaders "$<TARGET_FILE_DIR:gfxrecon-testapp-triangle>"
+            ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+add_custom_command(TARGET gfxrecon-testapp-triangle POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-triangle> $<TARGET_FILE_DIR:gfxrecon-testapp-triangle>
+        COMMAND_EXPAND_LISTS)
 
 install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
