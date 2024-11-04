@@ -324,6 +324,287 @@ target_link_libraries(vulkan_app vulkan xcb)
 )";
 // End of Xcb template strings
 
+// Beginning of Wayland template strings
+static const char* sWaylandOutputMainStart = R"(
+#include "global_var.h"
+
+int main() {
+)";
+
+static const char* sWaylandOutputMainEnd = R"(
+    return 0;
+}
+)";
+
+static const char* sWaylandOutputHeadersPlatform = R"(
+// This file is a generated source, follow the instructions under tools/tocpp/README.md to build.
+#define VK_USE_PLATFORM_WAYLAND_KHR
+)";
+
+static const char* sWaylandOutputHeader = R"(
+#include <wayland-client.h>
+#include <xdg-shell-client-protocol.h>
+
+#define VK_CALL_CHECK(VK_CALL, VK_RESULT) \
+    LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
+
+struct WaylandApp {
+    WaylandApp(uint32_t w, uint32_t h) {
+        width = w;
+        height = h;
+    }
+
+    ~WaylandApp();
+
+    uint32_t width { 320 };
+    uint32_t height { 240 };
+
+    struct {
+        wl_display *display { nullptr };
+        wl_compositor *compositor { nullptr };
+        wl_surface *surface { nullptr };
+        int shm_fd {-1};
+        wl_shm *shm { nullptr };
+        wl_shm_pool *shm_pool { nullptr };
+        wl_buffer *buffer { nullptr };
+    } wl;
+
+    struct {
+        xdg_wm_base *wm_base { nullptr };
+        xdg_surface *surface { nullptr };
+        xdg_toplevel *toplevel { nullptr };
+    } xdg;
+};
+
+extern WaylandApp appdata;
+
+extern void OverrideVkWaylandSurfaceCreateInfoKHR(VkWaylandSurfaceCreateInfoKHR* createInfo,
+                                                  struct WaylandApp& appdata);
+extern void UpdateWindowSize(uint32_t width,
+                             uint32_t height,
+                             uint32_t pre_transform,
+                             struct WaylandApp& appdata);
+extern void LogVkError(const char* function,
+                       VkResult returnValue,
+                       const char* file,
+                       int line,
+                       VkResult capturedReturnValue);
+extern size_t LoadBinaryData(const char* filename,
+                             size_t file_offset,
+                             void* buffer,
+                             size_t offset,
+                             size_t data_size,
+                             struct WaylandApp& appdata);
+)";
+
+static const char* sWaylandOutputOverrideMethod = R"(
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <time.h>
+#include <unistd.h>
+
+WaylandApp::~WaylandApp()
+{
+  wl_buffer_destroy(appdata.wl.buffer);
+  wl_shm_pool_destroy(appdata.wl.shm_pool);
+  wl_shm_destroy(appdata.wl.shm);
+  close(appdata.wl.shm_fd);
+  xdg_wm_base_destroy(appdata.xdg.wm_base);
+  xdg_toplevel_destroy(appdata.xdg.toplevel);
+  xdg_surface_destroy(appdata.xdg.surface);
+  wl_surface_destroy(appdata.wl.surface);
+  wl_compositor_destroy(appdata.wl.compositor);
+  wl_display_disconnect(appdata.wl.display);
+}
+
+static void Randname(char *buf)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    long r = ts.tv_nsec;
+    for (int i = 0; i < 6; ++i) {
+        buf[i] = 'A'+(r&15)+(r&16)*2;
+        r >>= 5;
+    }
+}
+
+static int CreateShmFile(void)
+{
+    int retries = 100;
+    do {
+        char name[] = "/wl_shm-XXXXXX";
+        Randname(name + sizeof(name) - 7);
+        --retries;
+        int fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL, 0600);
+        if (fd >= 0) {
+            shm_unlink(name);
+            return fd;
+        }
+    } while (retries > 0 && errno == EEXIST);
+    return -1;
+}
+
+int AllocateShmFile(size_t size)
+{
+    int fd = CreateShmFile();
+    if (fd < 0)
+        return -1;
+    int ret;
+    do {
+        ret = ftruncate(fd, size);
+    } while (ret < 0 && errno == EINTR);
+    if (ret < 0) {
+        close(fd);
+        return -1;
+    }
+    return fd;
+}
+
+static void
+RegistryHandleGlobal(void *data, wl_registry *registry, uint32_t name, const char* interface, uint32_t version)
+{
+    WaylandApp *app = (WaylandApp *)data;
+    if (strcmp(interface, wl_compositor_interface.name) == 0)
+    {
+        app->wl.compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 4);
+    }
+    if (strcmp(interface, wl_shm_interface.name) == 0)
+    {
+        app->wl.shm = (wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
+    }
+    if (strcmp(interface, xdg_wm_base_interface.name) == 0)
+    {
+      app->xdg.wm_base = (xdg_wm_base *)wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
+    }
+}
+
+static void RegistryHandleGlobalRemove(void *data, wl_registry *registry, uint32_t name)
+{
+}
+
+static const wl_registry_listener registry_listener = {
+    .global = RegistryHandleGlobal,
+    .global_remove = RegistryHandleGlobalRemove,
+};
+
+static void XdgSurfaceConfigure(void *data, xdg_surface *xdg_surface, uint32_t serial) {}
+
+static const xdg_surface_listener surface_listener = {
+    .configure = XdgSurfaceConfigure,
+};
+
+void OverrideVkWaylandSurfaceCreateInfoKHR(VkWaylandSurfaceCreateInfoKHR* createInfo, WaylandApp& appdata)
+{
+    if (appdata.wl.display == nullptr) {
+        // Open the connection to the wayland server
+        appdata.wl.display = wl_display_connect(nullptr);
+
+        if (appdata.wl.display == nullptr)
+        {
+          printf("Cannot open display\n");
+          exit(1);
+        }
+
+        wl_registry* registry = wl_display_get_registry(appdata.wl.display);
+        wl_registry_add_listener(registry, &registry_listener, &appdata);
+        wl_display_roundtrip(appdata.wl.display);
+        wl_registry_destroy(registry);
+
+        appdata.wl.surface = wl_compositor_create_surface(appdata.wl.compositor);
+
+        appdata.xdg.surface = xdg_wm_base_get_xdg_surface(appdata.xdg.wm_base, appdata.wl.surface);
+        xdg_surface_add_listener(appdata.xdg.surface, &surface_listener, &appdata);
+        appdata.xdg.toplevel = xdg_surface_get_toplevel(appdata.xdg.surface);
+        xdg_toplevel_set_title(appdata.xdg.toplevel, "vulkan-app");
+
+        const int width = appdata.width;
+        const int height = appdata.height;
+        const int stride = width * 4;
+        const int shm_pool_size = height * stride * 2;
+
+        appdata.wl.shm_fd = AllocateShmFile(shm_pool_size);
+
+        appdata.wl.shm_pool = wl_shm_create_pool(appdata.wl.shm, appdata.wl.shm_fd, shm_pool_size);
+
+        int index = 0;
+        int offset = height * stride * index;
+        appdata.wl.buffer = wl_shm_pool_create_buffer(
+            appdata.wl.shm_pool, offset, width, height, stride, WL_SHM_FORMAT_XRGB8888);
+
+        wl_surface_attach(appdata.wl.surface, appdata.wl.buffer, 0, 0);
+        wl_surface_damage(appdata.wl.surface, 0, 0, UINT32_MAX, UINT32_MAX);
+        wl_surface_commit(appdata.wl.surface);
+    }
+
+    createInfo->sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+    createInfo->display = appdata.wl.display;
+    createInfo->surface = appdata.wl.surface;
+}
+
+void UpdateWindowSize(uint32_t width, uint32_t height, uint32_t pretransform, WaylandApp& appdata)
+{
+    appdata.width = width;
+    appdata.height = height;
+}
+
+size_t LoadBinaryData(const char* filename,
+                      size_t file_offset,
+                      void* buffer,
+                      size_t offset,
+                      size_t data_size,
+                      WaylandApp& appdata)
+{
+    (void)appdata; // Unused
+
+    FILE* fp = fopen(filename, "rb");
+    if (fp == nullptr)
+    {
+        throw std::runtime_error("Error while opening file: " + std::string(filename));
+    }
+
+    fseek(fp, file_offset, SEEK_SET);
+    size_t read_size = fread((uint8_t *)buffer + offset, sizeof(uint8_t), data_size, fp);
+    if (read_size != data_size)
+    {
+        fclose(fp);
+        throw std::runtime_error("Error while reading file: " + std::string(filename));
+    }
+
+    fclose(fp);
+    return read_size;
+}
+
+WaylandApp appdata(%d, %d);
+)";
+
+static const char* sWaylandCMakeFile = R"(
+cmake_minimum_required(VERSION 3.7)
+project(vulkan_app)
+set (CMAKE_CXX_STANDARD 11)
+
+find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED)
+set(XDG_SHELL_PROTOCOL_C ${CMAKE_CURRENT_BINARY_DIR}/xdg-shell-protocol.c)
+set(XDG_SHELL_CLIENT_PROTOCOL_H ${CMAKE_CURRENT_BINARY_DIR}/xdg-shell-client-protocol.h)
+set(XDG_SHELL_XML /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml)
+add_custom_command(
+    OUTPUT ${XDG_SHELL_CLIENT_PROTOCOL_H} ${XDG_SHELL_PROTOCOL_C}
+    COMMAND ${WAYLAND_SCANNER} client-header ${XDG_SHELL_XML} ${XDG_SHELL_CLIENT_PROTOCOL_H}
+    COMMAND ${WAYLAND_SCANNER} private-code ${XDG_SHELL_XML} ${XDG_SHELL_PROTOCOL_C}
+    DEPENDS ${XDG_SHELL_XML}
+)
+
+include_directories(${PROJECT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)
+add_executable(vulkan_app ${SRC_FILES} ${MAIN_FILE} ${XDG_SHELL_PROTOCOL_C})
+find_package(Vulkan REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(WAYLAND_CLIENT REQUIRED wayland-client)
+target_link_libraries(vulkan_app Vulkan::Vulkan ${WAYLAND_CLIENT_LIBRARIES})
+)";
+// End of Wayland template strings
+
 // Beginning of Android template strings
 static const char* sAndroidOutputHeadersPlatform = R"(
 // This file is a generated source, follow the instructions under tools/tocpp/README.md to build.

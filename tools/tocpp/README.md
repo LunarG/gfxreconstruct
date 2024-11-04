@@ -19,7 +19,7 @@ These limitations are discussed below.
 Because the ToCpp tool is still not in a complete state, it has the following
 known issues which will be worked on over time:
 
-* The generated cpp code only executes on either Android or Linux (XCB)
+* The generated cpp code only executes on either Android or Linux (XCB or Wayland)
 * The generated cpp code does not support multi-window capture on Android
 * It does not currently support Ray Tracing contents in a capture
 * The generated cpp code expects a system exactly like the capture system:
@@ -62,7 +62,7 @@ gfxrecon-tocpp <command-line-args> <capture-file>
 | -h <br> --help                     | Optional                | Print Usage information and exit.                       |
 | -o <br> --output <dir>             | Required                | Directory path where the output will be generated into. |
 | -s --captured-swapchain            | Optional                | Use the swapchain as it was captured during toCpp replay instead of using the "Virtual Swapchain" path. |
-| -t <br> --target <platform>        | Optional                | Type of target platform to generate the Vulkan source.<br>Available Platforms: android, xcb |
+| -t <br> --target <platform>        | Optional                | Type of target platform to generate the Vulkan source.<br>Available Platforms: android, xcb, wayland |
 | -v <br> --version                  | Optional                | Print version information and exit.                     |
 
 ## Generate Source From a Capture
@@ -119,26 +119,27 @@ adb install ./app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-### Linux (XCB)
+### Linux
 
 ```sh
 # In the root of GFXReconstruct
 # Where 'build' in this case is the build folder used to generate the source
-./build/tools/tocpp/gfxrecon-tocpp -t xcb -o out_xcb_capture ./capture.gfxr
+./build/tools/tocpp/gfxrecon-tocpp -t xcb -o out_capture ./capture.gfxr
 ```
 
-* `-t xcb` indicates that we generate for XCB platform.
-* `-o out_xcb_capture` specify the directory where the generated files will be
+* `-t xcb` indicates that we generate for XCB platform. Alternatively, you could use `-t wayland` to generate sources for
+  Wayland.
+* `-o out_capture` specify the directory where the generated files will be
    placed.
 
-At the end the output directory (`out_xcb_capture`) contains the generated
+At the end the output directory (`out_capture`) contains the generated
 `capture.cpp` and the saved image data (`*.bin`).
 
-### Build the source for desktop (XCB)
+#### Build the source for desktop
 
 ```sh
 #cd <output directory>
-cd  out_xcb_capture
+cd out_capture
 
 # Generate build contents
 cmake -H. -Bbuild
@@ -147,10 +148,10 @@ cmake -H. -Bbuild
 cmake --build build
 ```
 
-### Run the source for desktop (XCB)
+#### Run the source for desktop
 
 ```sh
-# Inside the output directory (`out_xcb_capture`)
+# Inside the output directory (`out_capture`)
 ./build/vulkan_app
 ```
 
