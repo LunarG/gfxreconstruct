@@ -173,7 +173,7 @@ class VulkanFunctions
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library                = LoadLibrary(TEXT("vulkan-1.dll"));
+        library = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
@@ -2962,15 +2962,18 @@ void TestAppBase::configure_physical_device_selector(PhysicalDeviceSelector& phy
 void TestAppBase::configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device) {}
 void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder) {}
 
-bool DeviceBuilder::enable_extension_if_present(const char* extension) {
+bool DeviceBuilder::enable_extension_if_present(const char* extension)
+{
     return physical_device.enable_extension_if_present(extension);
 }
 
-bool DeviceBuilder::enable_extensions_if_present(const std::vector<const char*>& extensions) {
+bool DeviceBuilder::enable_extensions_if_present(const std::vector<const char*>& extensions)
+{
     return physical_device.enable_extensions_if_present(extensions);
 }
 
-bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& features_to_enable) {
+bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& features_to_enable)
+{
     return physical_device.enable_features_if_present(features_to_enable);
 }
 
