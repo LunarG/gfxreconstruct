@@ -783,6 +783,24 @@ class DeviceBuilder
         return *this;
     }
 
+    bool enable_extension_if_present(const char* extension);
+
+    // If all the given extensions are present, make all the extensions be enabled on the device.
+    // Returns true if all the extensions are present.
+    bool enable_extensions_if_present(const std::vector<const char*>& extensions);
+
+    // If the features from VkPhysicalDeviceFeatures are all present, make all of the features be enable on the device.
+    // Returns true if all the features are present.
+    bool enable_features_if_present(const VkPhysicalDeviceFeatures& features_to_enable);
+
+    // If the features from the provided features struct are all present, make all of the features be enable on the
+    // device. Returns true if all of the features are present.
+    template <typename T>
+    bool enable_extension_features_if_present(T const& features_check)
+    {
+        return physical_device.enable_extension_features_if_present(features_check);
+    }
+
     // Provide custom allocation callbacks.
     DeviceBuilder& set_allocation_callbacks(VkAllocationCallbacks* callbacks);
 
