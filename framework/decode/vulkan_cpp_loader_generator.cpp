@@ -77,6 +77,9 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XLIB_KHR\n");
                 break;
 #endif
+            default:
+                GFXRECON_LOG_FATAL("Failed to write out loader generator: Invalid platform (%d)", platform);
+                break;
         }
 
         fprintf(pfn_src_file, "#include \"loader.h\"\n\n");

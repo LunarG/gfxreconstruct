@@ -94,6 +94,9 @@ void VulkanCppConsumerBase::WriteMainHeader()
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainStart);
             break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to write main header: Invalid platform (%d)", platform_);
+            break;
     }
 }
 
@@ -109,6 +112,9 @@ void VulkanCppConsumerBase::WriteMainFooter()
             break;
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainEnd);
+            break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to write main footer: Invalid platform (%d)", platform_);
             break;
     }
 }
@@ -145,6 +151,9 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
                         sCommonHeaderOutputHeaders,
                         sXcbOutputHeader,
                         sCommonOutputHeaderFunctions);
+                break;
+            default:
+                GFXRECON_LOG_FATAL("Failed to write global header file: Invalid platform (%d)", platform_);
                 break;
         }
 
@@ -187,6 +196,9 @@ void VulkanCppConsumerBase::PrintOutCMakeFile()
                 break;
             case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(cmake_file, "%s", sXcbCMakeFile);
+                break;
+            default:
+                GFXRECON_LOG_FATAL("Failed to print out CMake file: Unknown platform (%d)", platform_);
                 break;
         }
         util::platform::FileClose(cmake_file);
@@ -273,6 +285,9 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 delete[] formatted_output_override_method;
                 break;
             }
+            default:
+                GFXRECON_LOG_FATAL("Failed to print out global var: Invalid platform (%d)", platform_);
+                break;
         }
 
         PrintToFile(global_file, "%s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
@@ -1703,6 +1718,9 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
             surface_create_func_call = "vkCreateXcbSurfaceKHR";
             break;
         }
+        default:
+            GFXRECON_LOG_FATAL("Failed to generate surface creation: Invalid platform (%d)", platform_);
+            break;
     }
     fprintf(file, "\n%s", stream_create_info.str().c_str());
     AddKnownVariables("VkSurfaceKHR", surface_var_name, pSurface);
