@@ -113,6 +113,8 @@ class KhronosStructToJsonBodyGenerator():
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif self.is_handle(value.base_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                elif self.isBooleanType(value.base_type):
+                    to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
             else:
