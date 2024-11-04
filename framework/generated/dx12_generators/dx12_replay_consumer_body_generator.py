@@ -556,7 +556,7 @@ class Dx12ReplayConsumerBodyGenerator(
             )
             if class_name != 'ID3D12GraphicsCommandList':
                 code += (
-                    "            {0}* command_list{1};\n"
+                    "            graphics::dx12::{0}ComPtr command_list{1};\n"
                     "            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list{1}));\n".format(class_name, class_name[-1])
                 )
                 indent_length = len(code)

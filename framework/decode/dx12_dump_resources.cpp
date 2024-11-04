@@ -455,7 +455,7 @@ void Dx12DumpResources::BeginRenderPass(
             }
 
             // before
-            ID3D12GraphicsCommandList4* command_list4_before;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4_before;
             dump_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
                 IID_PPV_ARGS(&command_list4_before));
 
@@ -479,7 +479,7 @@ void Dx12DumpResources::BeginRenderPass(
             command_list4_before->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
 
             // draw call
-            ID3D12GraphicsCommandList4* command_list4_draw_call;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4_draw_call;
             dump_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(
                 IID_PPV_ARGS(&command_list4_draw_call));
 
@@ -507,7 +507,7 @@ void Dx12DumpResources::BeginRenderPass(
                 NumRenderTargets, draw_call_rt_descs.data(), p_draw_call_ds_desc, Flags);
 
             // after
-            ID3D12GraphicsCommandList4* command_list4_after;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4_after;
             dump_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
                 IID_PPV_ARGS(&command_list4_after));
 
@@ -532,7 +532,7 @@ void Dx12DumpResources::BeginRenderPass(
         }
         else if (dump_command_sets.size() == 1)
         {
-            ID3D12GraphicsCommandList4* command_list4;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
             dump_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&command_list4));
             command_list4->BeginRenderPass(
                 NumRenderTargets, pRenderTargets->GetPointer(), pDepthStencil->GetPointer(), Flags);
