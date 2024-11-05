@@ -30,9 +30,9 @@ class KhronosBaseStructDecodersHeaderGenerator():
     # @note decoded_value must always be the first member of a decode struct so that
     # generated code following extended struct chains can use it to get to the sType in the raw
     # struct despite the type erasure.
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
+    def endFile(self):
+        """Performs C++ code generation."""
+        for struct in self.get_all_filtered_struct_names():
             body = '\n'
             body += 'struct Decoded_{}\n'.format(struct)
             body += '{\n'
@@ -41,7 +41,7 @@ class KhronosBaseStructDecodersHeaderGenerator():
             body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
             decls = self.make_member_declarations(
-                struct, self.feature_struct_members[struct]
+                struct, self.all_struct_members[struct]
             )
             if decls:
                 body += '\n'
@@ -52,10 +52,10 @@ class KhronosBaseStructDecodersHeaderGenerator():
             write(body, file=self.outFile)
 
         # Write typedefs for any aliases
-        for struct in self.feature_struct_aliases:
+        for struct in self.all_struct_aliases:
             body = '\n'
             body += 'typedef Decoded_{} Decoded_{};'.format(
-                self.feature_struct_aliases[struct], struct
+                self.all_struct_aliases[struct], struct
             )
             write(body, file=self.outFile)
 
