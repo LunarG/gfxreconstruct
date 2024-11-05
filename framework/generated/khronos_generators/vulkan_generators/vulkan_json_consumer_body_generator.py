@@ -119,6 +119,14 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
+        # of functions and structures not to generate code for. Once the feature is implemented, the following can be
+        # replaced with adding vkCreateRayTracingPipelinesKHR in corresponding blacklist.
+        if 'vkCreateRayTracingPipelinesKHR' in self.APICALL_BLACKLIST:
+            self.APICALL_BLACKLIST.remove('vkCreateRayTracingPipelinesKHR')
+
+        self.generate_json_content()
+
         body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
@@ -134,18 +142,13 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             return True
         return False
 
-    def generate_feature(self):
+    def generate_json_content(self):
         """Performs C++ code generation for the feature."""
 
-        # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
-        # of functions and structures not to generate code for. Once the feature is implemented, the following can be
-        # replaced with adding vkCreateRayTracingPipelinesKHR in corresponding blacklist.
-        if 'vkCreateRayTracingPipelinesKHR' in self.APICALL_BLACKLIST:
-            self.APICALL_BLACKLIST.remove('vkCreateRayTracingPipelinesKHR')
 
-        for cmd in self.get_filtered_cmd_names():
+        for cmd in self.get_all_filtered_cmd_names():
             if not cmd in self.customImplementationRequired:
-                info = self.feature_cmd_params[cmd]
+                info = self.all_cmd_params[cmd]
                 return_type = info[0]
                 values = info[2]
 
