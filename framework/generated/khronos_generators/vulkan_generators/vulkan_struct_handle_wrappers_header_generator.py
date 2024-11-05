@@ -100,6 +100,30 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        # Check for output structures, which retrieve handles that need to be wrapped.
+        for cmd in self.all_cmd_params:
+            info = self.all_cmd_params[cmd]
+            values = info[2]
+
+            for value in values:
+                if self.is_output_parameter(value) and self.is_struct(
+                    value.base_type
+                ) and (value.base_type in self.structs_with_handles
+                       ) and (value.base_type not in self.output_structs):
+                    self.output_structs.append(value.base_type)
+
+        # Generate unwrap and rewrap code for input structures.
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                body = '\n'
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
+                    struct
+                )
+                write(body, file=self.outFile)
+
         self.newline()
         write(
             'VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);',
@@ -234,32 +258,6 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         if self.feature_struct_members or self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        # Check for output structures, which retrieve handles that need to be wrapped.
-        for cmd in self.feature_cmd_params:
-            info = self.feature_cmd_params[cmd]
-            values = info[2]
-
-            for value in values:
-                if self.is_output_parameter(value) and self.is_struct(
-                    value.base_type
-                ) and (value.base_type in self.structs_with_handles
-                       ) and (value.base_type not in self.output_structs):
-                    self.output_structs.append(value.base_type)
-
-        # Generate unwrap and rewrap code for input structures.
-        for struct in self.get_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
-                    struct
-                )
-                write(body, file=self.outFile)
 
     def generate_create_wrapper_funcs(self):
         """Generates functions that wrap struct handle members."""
