@@ -131,6 +131,8 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        self.output_header_contents()
+
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -145,11 +147,10 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
+    def output_header_contents(self):
+        """Performs C++ code generation for the header contents."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 

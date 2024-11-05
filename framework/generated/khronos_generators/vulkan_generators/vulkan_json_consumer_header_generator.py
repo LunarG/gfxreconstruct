@@ -83,17 +83,20 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
             'vkGetPipelineCacheData',
         }
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
+    def beginFile(self, gen_opts):
+        VulkanConsumerHeaderGenerator.beginFile(self, gen_opts)
+
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
         # of functions and structures not to generate code for. Once the feature is implemented, the following can be
         # replaced with adding vkCreateRayTracingPipelinesKHR in corresponding blacklist.
         if 'vkCreateRayTracingPipelinesKHR' in self.APICALL_BLACKLIST:
             self.APICALL_BLACKLIST.remove('vkCreateRayTracingPipelinesKHR')
 
-        for cmd in self.get_filtered_cmd_names():
+    def output_header_contents(self):
+        """Performs C++ code generation for the header contents."""
+        for cmd in self.get_all_filtered_cmd_names():
             if cmd not in self.customImplementationRequired:
-                info = self.feature_cmd_params[cmd]
+                info = self.all_cmd_params[cmd]
                 return_type = info[0]
                 values = info[2]
 
