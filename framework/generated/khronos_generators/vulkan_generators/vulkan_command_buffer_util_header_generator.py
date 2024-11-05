@@ -88,6 +88,24 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        wrapper_prefix = self.get_wrapper_prefix_from_type()
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
+            values = info[2]
+
+            if values and (len(values) >
+                           1) and (values[0].base_type == 'VkCommandBuffer'):
+                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
+                handles = self.get_param_list_handles(values[1:])
+
+                if (handles):
+                    # Generate a function to build a list of handle types and values.
+                    cmddef = '\n'
+                    cmddef += 'void Track{}Handles({}::CommandBufferWrapper* wrapper, {});'.format(
+                        cmd[2:], wrapper_prefix, self.get_arg_list(handles)
+                    )
+                    write(cmddef, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -109,26 +127,6 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            values = info[2]
-
-            if values and (len(values) >
-                           1) and (values[0].base_type == 'VkCommandBuffer'):
-                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
-                handles = self.get_param_list_handles(values[1:])
-
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
-                    cmddef += 'void Track{}Handles({}::CommandBufferWrapper* wrapper, {});'.format(
-                        cmd[2:], wrapper_prefix, self.get_arg_list(handles)
-                    )
-                    write(cmddef, file=self.outFile)
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""
