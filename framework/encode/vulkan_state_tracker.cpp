@@ -1955,6 +1955,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
 void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
 
     if (wrapper != nullptr && wrapper->bind_device != nullptr)
     {
@@ -2037,6 +2038,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
 void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper)
 {
     assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
@@ -2046,6 +2048,9 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWr
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
 {
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
     if (wrapper->bind_memory_id != format::kNullHandleId)
     {
         vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
@@ -2078,6 +2083,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper)
 {
     assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
@@ -2093,6 +2099,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper
 void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrapper)
 {
     assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
@@ -2108,6 +2115,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrappe
 void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
 {
     assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
@@ -2117,6 +2125,9 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper)
 {
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
     for (auto& entry : wrapper->bindings)
     {
         vulkan_state_info::DescriptorInfo& binding = entry.second;
