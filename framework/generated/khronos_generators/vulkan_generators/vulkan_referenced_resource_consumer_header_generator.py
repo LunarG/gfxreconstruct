@@ -111,7 +111,10 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
+            if self.is_cmd_black_listed(cmd):
+                continue
+
             return_type = info[0]
             params = info[2]
             if params and params[0].base_type == 'VkCommandBuffer':
@@ -156,11 +159,6 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""
