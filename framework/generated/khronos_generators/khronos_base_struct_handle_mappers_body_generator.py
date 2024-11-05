@@ -29,6 +29,8 @@ class KhronosBaseStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
     def endFile(self):
+        self.generate_handle_mappers()
+
         # Print out a function to handle mapping the extended struct types
         extended_struct_func_name = self.get_extended_struct_func_prefix()
         self.newline()
@@ -98,9 +100,9 @@ class KhronosBaseStructHandleMappersBodyGenerator():
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
+    def generate_handle_mappers(self):
+        """Performs C++ code generation for the handle mappers."""
+        for struct in self.get_all_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
