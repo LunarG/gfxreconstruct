@@ -95,6 +95,35 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                handle_members = dict()
+                generic_handle_members = dict()
+
+                if struct in self.structs_with_handles:
+                    handle_members = self.structs_with_handles[struct]
+                if struct in self.GENERIC_HANDLE_STRUCTS:
+                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
+                                                                         ]
+
+                body = '\n'
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
+                    struct
+                )
+                body += '{\n'
+                body += '    if (value != nullptr)\n'
+                body += '    {\n'
+                body += self.make_struct_handle_unwrappings(
+                    struct, handle_members, generic_handle_members
+                )
+                body += '    }\n'
+                body += '}'
+
+                write(body, file=self.outFile)
+
         # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
         self.newline()
         write(
@@ -232,37 +261,6 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                handle_members = dict()
-                generic_handle_members = dict()
-
-                if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct]
-                if struct in self.GENERIC_HANDLE_STRUCTS:
-                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
-                                                                         ]
-
-                body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
-                    struct
-                )
-                body += '{\n'
-                body += '    if (value != nullptr)\n'
-                body += '    {\n'
-                body += self.make_struct_handle_unwrappings(
-                    struct, handle_members, generic_handle_members
-                )
-                body += '    }\n'
-                body += '}'
-
-                write(body, file=self.outFile)
 
     def make_struct_handle_unwrappings(
         self, name, handle_members, generic_handle_members
