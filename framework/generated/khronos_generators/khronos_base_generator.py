@@ -996,12 +996,10 @@ class KhronosBaseGenerator(OutputGenerator):
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
         if not alias:
-            self.add_struct_members(typename, self.make_value_info(
-                element.findall('.//member')
-            ))
+            members = element.findall('.//member')
+            self.add_struct_members(typename, self.make_value_info(members))
 
             # Set the structure type value for this name if it exists
-            members = element.findall('.//member')
             for member in members:
                 member_type = noneStr(member.find('type').text)
                 member_name = noneStr(member.find('name').text)
