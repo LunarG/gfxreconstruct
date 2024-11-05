@@ -119,6 +119,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        KhronosBaseReplayConsumerBodyGenerator.endFile(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -132,10 +133,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanReplayConsumer class member function definition."""
