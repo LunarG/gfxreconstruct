@@ -30,9 +30,12 @@ from copy import deepcopy
 class KhronosBaseStructDecodersBodyGenerator():
     """Base class for generating struct docoder body code."""
 
-    def generate_feature(self):
+    def endFile(self):
+        self.generate_decode_struct_body()
+
+    def generate_decode_struct_body(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
+        for struct in self.get_all_filtered_struct_names():
             body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
@@ -44,7 +47,7 @@ class KhronosBaseStructDecodersBodyGenerator():
             body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
             body += self.make_decode_struct_body(
-                struct, self.feature_struct_members[struct]
+                struct, self.all_struct_members[struct]
             )
             body += '\n'
             body += '    return bytes_read;\n'
