@@ -109,6 +109,18 @@ class LayerFuncTableGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            align = 100 - len(cmd)
+            if (cmd in self.LAYER_FUNCTIONS):
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
+            else:
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
+            write(body, file=self.outFile)
+
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by self.LAYER_FUNCTIONS:
         align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
@@ -126,17 +138,3 @@ class LayerFuncTableGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            align = 100 - len(cmd)
-            if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            write(body, file=self.outFile)
