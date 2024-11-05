@@ -108,6 +108,29 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for name in self.all_cmd_params:
+            # Ignore vkCreateInstance and vkCreateDevice, which are provided by the layer due to special handling requirements
+            if name not in ['vkCreateInstance', 'vkCreateDevice']:
+                info = self.all_cmd_params[name]
+                values = info[2]
+
+                if values and values[0]:
+                    first_param = values[0]
+                    if self.is_handle(first_param.base_type):
+                        return_type = info[0]
+                        proto = info[1]
+
+                        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
+                        # need to be probed from GetInstanceProcAddress due to a loader issue.
+                        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
+                        # TODO : When loader with fix for issue is widely available, remove this
+                        # special case.
+                        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
+                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
+                        elif first_param.base_type not in ['VkInstance', 'VkPhysicalDevice']:
+                            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
+                        else:
+                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
         self.newline()
 
         write('typedef const void* VulkanDispatchKey;', file=self.outFile)
@@ -187,32 +210,6 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for name in self.feature_cmd_params:
-            # Ignore vkCreateInstance and vkCreateDevice, which are provided by the layer due to special handling requirements
-            if name not in ['vkCreateInstance', 'vkCreateDevice']:
-                info = self.feature_cmd_params[name]
-                values = info[2]
-
-                if values and values[0]:
-                    first_param = values[0]
-                    if self.is_handle(first_param.base_type):
-                        return_type = info[0]
-                        proto = info[1]
-
-                        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
-                        # need to be probed from GetInstanceProcAddress due to a loader issue.
-                        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
-                        # TODO : When loader with fix for issue is widely available, remove this
-                        # special case.
-                        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
-                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
-                        elif first_param.base_type not in ['VkInstance', 'VkPhysicalDevice']:
-                            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
-                        else:
-                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
 
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
