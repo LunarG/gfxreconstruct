@@ -173,7 +173,7 @@ class VulkanFunctions
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library                = LoadLibrary(TEXT("vulkan-1.dll"));
+        library = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
@@ -677,8 +677,7 @@ SystemInfo::SystemInfo()
             layer_extensions, detail::vulkan_functions().fp_vkEnumerateInstanceExtensionProperties, layer.layerName);
         if (layer_extensions_ret == VK_SUCCESS)
         {
-            available_extensions.insert(
-                available_extensions.end(), layer_extensions.begin(), layer_extensions.end());
+            available_extensions.insert(available_extensions.end(), layer_extensions.begin(), layer_extensions.end());
             for (auto& ext : layer_extensions)
             {
                 if (strcmp(ext.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
