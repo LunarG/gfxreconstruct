@@ -156,7 +156,3 @@ class VulkanStructHandleMappersBodyGenerator(
         if self.feature_struct_members:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseStructHandleMappersBodyGenerator.generate_feature(self)
