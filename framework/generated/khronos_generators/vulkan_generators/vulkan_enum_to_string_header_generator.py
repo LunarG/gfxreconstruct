@@ -98,6 +98,8 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
+        self.write_enum_to_string_header()
+
         body = inspect.cleandoc('''
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_END_NAMESPACE(gfxrecon)
@@ -116,20 +118,16 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
         return False
 
     #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
+    # Performs C++ code generation for the enum to string header.
+    def write_enum_to_string_header(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if self.is_flags_enum_64bit(enum):
-                        body = 'std::string {0}ToString(const {0} value);'
-                        body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
-                    else:
-                        body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                        if 'Bits' in enum:
-                            body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
-                          file=self.outFile)
-    # yapf: enable
+            if not enum in self.enumAliases:
+                if self.is_flags_enum_64bit(enum):
+                    body = 'std::string {0}ToString(const {0} value);'
+                    body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
+                else:
+                    body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                    if 'Bits' in enum:
+                        body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
+                        file=self.outFile)
