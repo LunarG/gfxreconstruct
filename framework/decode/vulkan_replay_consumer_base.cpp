@@ -48,6 +48,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "util/linear_hashmap.h"
 
 #include "spirv_reflect.h"
 
@@ -7841,6 +7842,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                                          &pPipelines->GetPointer()[createInfoCount]);
     }
 
+    // NOTE: this is basically never true and does not look like it's going to change soon
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
         // Modify pipeline create infos with capture replay flag and data.
@@ -7956,10 +7958,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     }
     else
     {
-        GFXRECON_LOG_ERROR_ONCE("The replay used vkCreateRayTracingPipelinesKHR, which may require the "
-                                "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and "
-                                "replay. The replay device does not support this feature, so replay may fail.");
-
         if (omitted_pipeline_cache_data_)
         {
             AllowCompileDuringPipelineCreation(createInfoCount,
@@ -8187,14 +8185,6 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
 
-    if (!device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The captured application used vkGetRayTracingShaderGroupHandlesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The replay "
-            "device does not support this feature, so replay may fail.");
-    }
-
     VkDevice       device        = device_info->handle;
     VkPipeline     pipeline      = pipeline_info->handle;
     uint8_t*       output_data   = pData->GetOutputPointer();
@@ -8263,8 +8253,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
 
 void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* command_buffer_info)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
     command_buffer_info->frame_buffer_ids.clear();
+    command_buffer_info->bound_pipeline_id = format::kNullHandleId;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
@@ -8388,7 +8380,26 @@ void VulkanReplayConsumerBase::OverrideCmdInsertDebugUtilsLabelEXT(
     {
         command_buffer_info->is_frame_boundary = true;
     }
-};
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    func,
+                                                       VulkanCommandBufferInfo* command_buffer_info,
+                                                       VkPipelineBindPoint      pipelineBindPoint,
+                                                       VulkanPipelineInfo*      pipeline_info)
+{
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    VkPipeline      pipeline       = VK_NULL_HANDLE;
+
+    if (command_buffer_info != nullptr && pipeline_info != nullptr)
+    {
+        command_buffer = command_buffer_info->handle;
+        pipeline       = pipeline_info->handle;
+
+        // keep track of currently bound pipeline
+        command_buffer_info->bound_pipeline_id = pipeline_info->capture_id;
+    }
+    func(command_buffer, pipelineBindPoint, pipeline);
+}
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
@@ -8504,7 +8515,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 
         // identify buffer(s) by their device-address
         const VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        const auto&       address_tracker = GetDeviceAddressTracker(device_info->handle);
+        const auto&             address_tracker = GetDeviceAddressTracker(device_info->handle);
 
         auto address_remap = [&address_tracker](VkStridedDeviceAddressRegionKHR* address_region) {
             if (address_region->size > 0)
@@ -8516,7 +8527,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 {
                     uint64_t offset = address_region->deviceAddress - buffer_info->capture_address;
 
-                    // in-place address-remap via const-cast
+                    // in-place address-remap
                     address_region->deviceAddress = buffer_info->replay_address + offset;
                 }
                 else
@@ -8526,26 +8537,65 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 }
             }
         };
-        // in-place remap: capture-addresses -> replay-addresses
-        address_remap(in_pRaygenShaderBindingTable);
-        address_remap(in_pMissShaderBindingTable);
-        address_remap(in_pHitShaderBindingTable);
-        address_remap(in_pCallableShaderBindingTable);
+
+        auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
+        GFXRECON_ASSERT(bound_pipeline != nullptr)
+
+        // NOTE: expect this map to be populated here, but not for older captures using trimming.
+        auto& shader_group_handles = bound_pipeline->shader_group_handle_map;
+
+        // figure out if the captured group-handles are valid for replay
+        bool valid_group_handles = !shader_group_handles.empty();
+        bool valid_sbt_alignment = true;
 
         const VulkanPhysicalDeviceInfo* physical_device_info =
             GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
-        if (physical_device_info && physical_device_info->replay_device_info->raytracing_properties)
+        if (physical_device_info != nullptr && physical_device_info->replay_device_info->raytracing_properties)
         {
             const auto& replay_props = *physical_device_info->replay_device_info->raytracing_properties;
+
             if (physical_device_info->shaderGroupHandleSize != replay_props.shaderGroupHandleSize ||
                 physical_device_info->shaderGroupHandleAlignment != replay_props.shaderGroupHandleAlignment ||
                 physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
             {
-                // TODO: binding-table re-assembly
+                valid_sbt_alignment = false;
+            }
+        }
+
+        for (const auto& [lhs, rhs] : shader_group_handles)
+        {
+            if (lhs != rhs)
+            {
+                valid_group_handles = false;
+                break;
+            }
+        }
+
+        if (!(valid_group_handles && valid_sbt_alignment))
+        {
+            if (!valid_sbt_alignment)
+            {
                 // TODO: remove TODO/warning when issue #1526 is solved
-                GFXRECON_LOG_WARNING_ONCE(
-                    "OverrideCmdTraceRaysKHR: mismatching shader-binding-table size or alignments")
+                GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (handle-size and/or "
+                                          "alignments mismatch) -> TODO: run SBT re-assembly");
+
+                // TODO: create shadow-SBT-buffer, remap addresses to that
+            }
+            else
+            {
+                // in-place remap: capture-addresses -> replay-addresses
+                address_remap(in_pRaygenShaderBindingTable);
+                address_remap(in_pMissShaderBindingTable);
+                address_remap(in_pHitShaderBindingTable);
+                address_remap(in_pCallableShaderBindingTable);
+            }
+
+            // TODO: run sbt-handle replacer. (create linear hashmap (x), [create shadow-buffer], run compute-shader)
+            util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap;
+            for (const auto& [lhs, rhs] : shader_group_handles)
+            {
+                hashmap.put(lhs, rhs);
             }
         }
 

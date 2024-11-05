@@ -19,6 +19,10 @@
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
+**
+//-----------------------------------------------------------------------------
+// MurmurHash3 was written by Austin Appleby, and is placed in the public
+// domain. The author hereby disclaims copyright to this source code.
 */
 
 #pragma once
@@ -96,6 +100,58 @@ std::size_t hash_range(It first, It last)
         hash_combine(seed, *first);
     }
     return seed;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+inline uint32_t murmur_32_scramble(uint32_t k)
+{
+    k *= 0xcc9e2d51;
+    k = (k << 15) | (k >> 17);
+    k *= 0x1b873593;
+    return k;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+template <typename K>
+static inline uint32_t murmur3_32(const K& key, uint32_t seed)
+{
+    constexpr uint32_t num_hashes       = sizeof(K) / sizeof(uint32_t);
+    constexpr uint32_t num_excess_bytes = sizeof(K) % sizeof(uint32_t);
+
+    uint32_t h = seed;
+
+    if constexpr (num_hashes > 0u)
+    {
+        auto ptr = reinterpret_cast<const uint32_t*>(&key), end = ptr + num_hashes;
+
+        for (; ptr < end; ++ptr)
+        {
+            h ^= murmur_32_scramble(*ptr);
+            h = (h << 13) | (h >> 19);
+            h = h * 5 + 0xe6546b64;
+        }
+    }
+
+    if constexpr (num_excess_bytes > 0u)
+    {
+        auto     end_u8 = reinterpret_cast<const uint8_t*>(&key) + sizeof(uint32_t) * num_hashes;
+        uint32_t k      = 0;
+        for (uint32_t i = num_excess_bytes; i; i--)
+        {
+            k <<= 8;
+            k |= end_u8[i - 1];
+        }
+        h ^= murmur_32_scramble(k);
+    }
+
+    // finalize
+    h ^= sizeof(K);
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
 }
 
 GFXRECON_END_NAMESPACE(hash)
