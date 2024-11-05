@@ -146,6 +146,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        KhronosBaseReplayConsumerBodyGenerator.endFile(self)
         self.newline()
         write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
         write('{', file=self.outFile)
@@ -216,10 +217,6 @@ class VulkanReplayConsumerBodyGenerator(
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
