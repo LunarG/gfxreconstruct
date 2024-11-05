@@ -645,24 +645,24 @@ SystemInfo SystemInfo::get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanc
 SystemInfo::SystemInfo()
 {
     auto available_layers_ret = detail::get_vector<VkLayerProperties>(
-        this->available_layers, detail::vulkan_functions().fp_vkEnumerateInstanceLayerProperties);
+        available_layers, detail::vulkan_functions().fp_vkEnumerateInstanceLayerProperties);
     if (available_layers_ret != VK_SUCCESS)
     {
-        this->available_layers.clear();
+        available_layers.clear();
     }
 
-    for (auto& layer : this->available_layers)
+    for (auto& layer : available_layers)
         if (strcmp(layer.layerName, detail::validation_layer_name) == 0)
             validation_layers_available = true;
 
     auto available_extensions_ret = detail::get_vector<VkExtensionProperties>(
-        this->available_extensions, detail::vulkan_functions().fp_vkEnumerateInstanceExtensionProperties, nullptr);
+        available_extensions, detail::vulkan_functions().fp_vkEnumerateInstanceExtensionProperties, nullptr);
     if (available_extensions_ret != VK_SUCCESS)
     {
-        this->available_extensions.clear();
+        available_extensions.clear();
     }
 
-    for (auto& ext : this->available_extensions)
+    for (auto& ext : available_extensions)
     {
         if (strcmp(ext.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
         {
@@ -670,15 +670,15 @@ SystemInfo::SystemInfo()
         }
     }
 
-    for (auto& layer : this->available_layers)
+    for (auto& layer : available_layers)
     {
         std::vector<VkExtensionProperties> layer_extensions;
         auto                               layer_extensions_ret = detail::get_vector<VkExtensionProperties>(
             layer_extensions, detail::vulkan_functions().fp_vkEnumerateInstanceExtensionProperties, layer.layerName);
         if (layer_extensions_ret == VK_SUCCESS)
         {
-            this->available_extensions.insert(
-                this->available_extensions.end(), layer_extensions.begin(), layer_extensions.end());
+            available_extensions.insert(
+                available_extensions.end(), layer_extensions.begin(), layer_extensions.end());
             for (auto& ext : layer_extensions)
             {
                 if (strcmp(ext.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
@@ -727,7 +727,7 @@ void destroy_instance(Instance const& instance)
 
 Instance::operator VkInstance() const
 {
-    return this->instance;
+    return instance;
 }
 
 vkb::InstanceDispatchTable Instance::make_table() const
@@ -1933,7 +1933,7 @@ bool PhysicalDevice::enable_features_node_if_present(detail::GenericFeaturesPNex
 
 PhysicalDevice::operator VkPhysicalDevice() const
 {
-    return this->physical_device;
+    return physical_device;
 }
 
 // ---- Queues ---- //
@@ -2000,7 +2000,7 @@ vkb::DispatchTable Device::make_table() const
 
 Device::operator VkDevice() const
 {
-    return this->device;
+    return device;
 }
 
 CustomQueueDescription::CustomQueueDescription(uint32_t index, std::vector<float> priorities) :
@@ -2566,7 +2566,7 @@ void Swapchain::destroy_image_views(std::vector<VkImageView> const& image_views)
 }
 Swapchain::operator VkSwapchainKHR() const
 {
-    return this->swapchain;
+    return swapchain;
 }
 SwapchainBuilder& SwapchainBuilder::set_old_swapchain(VkSwapchainKHR old_swapchain)
 {
@@ -2820,12 +2820,12 @@ std::exception sdl_exception()
     return std::runtime_error(SDL_GetError());
 }
 
-void device_initialization_phase_1(const std::string& window_name, Init& init)
+void device_initialization_phase_1(const std::string& window_name, InitInfo& init)
 {
     init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
 }
 
-void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init& init)
+void device_initialization_phase_2(InstanceBuilder const& instance_builder, InitInfo& init)
 {
     init.instance = instance_builder.build();
 
@@ -2834,19 +2834,19 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
     init.surface = create_surface_sdl(init.instance, init.window);
 }
 
-PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, Init& init)
+PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, InitInfo& init)
 {
     return phys_device_selector.set_surface(init.surface).select();
 }
 
-void device_initialization_phase_4(DeviceBuilder const& device_builder, Init& init)
+void device_initialization_phase_4(DeviceBuilder const& device_builder, InitInfo& init)
 {
     init.device = device_builder.build();
 
     init.disp = init.device.make_table();
 }
 
-void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, Init& init)
+void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, InitInfo& init)
 {
     create_swapchain(swapchain_builder, init.swapchain);
 
@@ -2854,9 +2854,9 @@ void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, Init& in
     init.swapchain_image_views = init.swapchain.get_image_views();
 }
 
-Init device_initialization(const std::string& window_name)
+InitInfo device_initialization(const std::string& window_name)
 {
-    Init init;
+    InitInfo init;
 
     device_initialization_phase_1(window_name, init);
 
@@ -2875,7 +2875,7 @@ Init device_initialization(const std::string& window_name)
     return init;
 }
 
-void cleanup_init(Init& init)
+void cleanup_init(InitInfo& init)
 {
     init.swapchain.destroy_image_views(init.swapchain_image_views);
 
@@ -2886,7 +2886,7 @@ void cleanup_init(Init& init)
     destroy_window_sdl(init.window);
 }
 
-void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, Init& init, bool wait_for_idle)
+void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init, bool wait_for_idle)
 {
     if (wait_for_idle)
         init.disp.deviceWaitIdle();
@@ -2901,25 +2901,25 @@ void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, Init& init, bo
 
 void TestAppBase::run(const std::string& window_name)
 {
-    device_initialization_phase_1(window_name, this->init);
+    device_initialization_phase_1(window_name, init);
 
     InstanceBuilder instance_builder;
-    this->configure_instance_builder(instance_builder);
-    device_initialization_phase_2(instance_builder, this->init);
+    configure_instance_builder(instance_builder);
+    device_initialization_phase_2(instance_builder, init);
 
-    PhysicalDeviceSelector phys_device_selector(this->init.instance);
-    this->configure_physical_device_selector(phys_device_selector);
-    init.physical_device = device_initialization_phase_3(phys_device_selector, this->init);
+    PhysicalDeviceSelector phys_device_selector(init.instance);
+    configure_physical_device_selector(phys_device_selector);
+    init.physical_device = device_initialization_phase_3(phys_device_selector, init);
 
     DeviceBuilder device_builder{ init.physical_device };
-    this->configure_device_builder(device_builder, init.physical_device);
-    device_initialization_phase_4(device_builder, this->init);
+    configure_device_builder(device_builder, init.physical_device);
+    device_initialization_phase_4(device_builder, init);
 
     SwapchainBuilder swapchain_builder{ init.device };
-    this->configure_swapchain_builder(swapchain_builder);
-    device_initialization_phase_5(swapchain_builder, this->init);
+    configure_swapchain_builder(swapchain_builder);
+    device_initialization_phase_5(swapchain_builder, init);
 
-    this->setup();
+    setup();
 
     bool running   = true;
     int  frame_num = 0;
@@ -2938,17 +2938,17 @@ void TestAppBase::run(const std::string& window_name)
         ++frame_num;
     }
 
-    this->init.disp.deviceWaitIdle();
+    init.disp.deviceWaitIdle();
 
-    this->cleanup();
+    cleanup();
 
-    cleanup_init(this->init);
+    cleanup_init(init);
 }
 
 void TestAppBase::recreate_swapchain(bool wait_for_idle)
 {
     SwapchainBuilder swapchain_builder{ init.device };
-    this->configure_swapchain_builder(swapchain_builder);
+    configure_swapchain_builder(swapchain_builder);
     recreate_init_swapchain(swapchain_builder, init, wait_for_idle);
 }
 
