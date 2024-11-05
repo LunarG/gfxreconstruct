@@ -133,6 +133,20 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
+            return_type = info[0]
+            proto = info[1]
+            values = info[2]
+
+            cmddef = '\n'
+            cmddef += self.make_cmd_decl(proto, values)
+            cmddef += '{\n'
+            cmddef += self.make_cmd_body(return_type, cmd, values)
+            cmddef += '}'
+
+            write(cmddef, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -154,22 +168,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            proto = info[1]
-            values = info[2]
-
-            cmddef = '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-            cmddef += '{\n'
-            cmddef += self.make_cmd_body(return_type, cmd, values)
-            cmddef += '}'
-
-            write(cmddef, file=self.outFile)
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""
@@ -564,7 +562,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             else:
                 if handle.base_type in self.struct_names:
                     length_name = None
-                    for mem in self.feature_struct_members[handle.base_type]:
+                    for mem in self.all_struct_members[handle.base_type]:
                         # Assuming only one member is_array
                         if mem.is_array:
                             length_name = '{}->{}'.format(handle.name, mem.array_length)

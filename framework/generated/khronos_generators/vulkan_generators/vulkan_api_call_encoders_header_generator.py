@@ -82,6 +82,16 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
+            proto = info[1]
+            values = info[2]
+
+            cmddef = '\n'
+            cmddef += self.make_cmd_decl(proto, values)
+
+            write(cmddef, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -94,18 +104,6 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            proto = info[1]
-            values = info[2]
-
-            cmddef = '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-
-            write(cmddef, file=self.outFile)
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""
