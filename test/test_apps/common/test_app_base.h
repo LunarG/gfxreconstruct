@@ -1041,7 +1041,7 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
             throw gfxrecon::test::vulkan_exception(message, result); \
     }
 
-struct Init
+struct InitInfo
 {
     SDL_Window*                window;
     Instance                   instance;
@@ -1055,11 +1055,11 @@ struct Init
     std::vector<VkImageView>   swapchain_image_views;
 };
 
-Init device_initialization(const std::string& window_name);
+InitInfo device_initialization(const std::string& window_name);
 
-void cleanup_init(Init& init);
+void cleanup_init(InitInfo& init);
 
-void recreate_init_swapchain(Init& init, bool wait_for_idle = true);
+void recreate_init_swapchain(InitInfo& init, bool wait_for_idle = true);
 
 class TestAppBase
 {
@@ -1084,7 +1084,7 @@ class TestAppBase
     virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device);
     virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder);
 
-    Init init;
+    InitInfo init;
 };
 
 GFXRECON_END_NAMESPACE(test)
