@@ -2549,10 +2549,6 @@ struct Decoded_VkPhysicalDeviceShaderDrawParametersFeatures
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeatures;
-
-typedef Decoded_VkPhysicalDeviceShaderDrawParametersFeatures Decoded_VkPhysicalDeviceShaderDrawParameterFeatures;
-
 struct Decoded_VkPhysicalDeviceVulkan11Features
 {
     using struct_type = VkPhysicalDeviceVulkan11Features;
@@ -4887,76 +4883,6 @@ struct Decoded_VkVideoDecodeH264DpbSlotInfoKHR
     StructPointerDecoder<Decoded_StdVideoDecodeH264ReferenceInfo>* pStdReferenceInfo{ nullptr };
 };
 
-typedef Decoded_VkRenderingInfo Decoded_VkRenderingInfoKHR;
-
-typedef Decoded_VkRenderingAttachmentInfo Decoded_VkRenderingAttachmentInfoKHR;
-
-typedef Decoded_VkPipelineRenderingCreateInfo Decoded_VkPipelineRenderingCreateInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceDynamicRenderingFeatures Decoded_VkPhysicalDeviceDynamicRenderingFeaturesKHR;
-
-typedef Decoded_VkCommandBufferInheritanceRenderingInfo Decoded_VkCommandBufferInheritanceRenderingInfoKHR;
-
-typedef Decoded_VkRenderPassMultiviewCreateInfo Decoded_VkRenderPassMultiviewCreateInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceMultiviewFeatures Decoded_VkPhysicalDeviceMultiviewFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceMultiviewProperties Decoded_VkPhysicalDeviceMultiviewPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceFeatures2 Decoded_VkPhysicalDeviceFeatures2KHR;
-
-typedef Decoded_VkPhysicalDeviceProperties2 Decoded_VkPhysicalDeviceProperties2KHR;
-
-typedef Decoded_VkFormatProperties2 Decoded_VkFormatProperties2KHR;
-
-typedef Decoded_VkImageFormatProperties2 Decoded_VkImageFormatProperties2KHR;
-
-typedef Decoded_VkPhysicalDeviceImageFormatInfo2 Decoded_VkPhysicalDeviceImageFormatInfo2KHR;
-
-typedef Decoded_VkQueueFamilyProperties2 Decoded_VkQueueFamilyProperties2KHR;
-
-typedef Decoded_VkPhysicalDeviceMemoryProperties2 Decoded_VkPhysicalDeviceMemoryProperties2KHR;
-
-typedef Decoded_VkSparseImageFormatProperties2 Decoded_VkSparseImageFormatProperties2KHR;
-
-typedef Decoded_VkPhysicalDeviceSparseImageFormatInfo2 Decoded_VkPhysicalDeviceSparseImageFormatInfo2KHR;
-
-typedef Decoded_VkMemoryAllocateFlagsInfo Decoded_VkMemoryAllocateFlagsInfoKHR;
-
-typedef Decoded_VkDeviceGroupRenderPassBeginInfo Decoded_VkDeviceGroupRenderPassBeginInfoKHR;
-
-typedef Decoded_VkDeviceGroupCommandBufferBeginInfo Decoded_VkDeviceGroupCommandBufferBeginInfoKHR;
-
-typedef Decoded_VkDeviceGroupSubmitInfo Decoded_VkDeviceGroupSubmitInfoKHR;
-
-typedef Decoded_VkDeviceGroupBindSparseInfo Decoded_VkDeviceGroupBindSparseInfoKHR;
-
-typedef Decoded_VkBindBufferMemoryDeviceGroupInfo Decoded_VkBindBufferMemoryDeviceGroupInfoKHR;
-
-typedef Decoded_VkBindImageMemoryDeviceGroupInfo Decoded_VkBindImageMemoryDeviceGroupInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceGroupProperties Decoded_VkPhysicalDeviceGroupPropertiesKHR;
-
-typedef Decoded_VkDeviceGroupDeviceCreateInfo Decoded_VkDeviceGroupDeviceCreateInfoKHR;
-
-typedef Decoded_VkExternalMemoryProperties Decoded_VkExternalMemoryPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceExternalImageFormatInfo Decoded_VkPhysicalDeviceExternalImageFormatInfoKHR;
-
-typedef Decoded_VkExternalImageFormatProperties Decoded_VkExternalImageFormatPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceExternalBufferInfo Decoded_VkPhysicalDeviceExternalBufferInfoKHR;
-
-typedef Decoded_VkExternalBufferProperties Decoded_VkExternalBufferPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceIDProperties Decoded_VkPhysicalDeviceIDPropertiesKHR;
-
-typedef Decoded_VkExternalMemoryImageCreateInfo Decoded_VkExternalMemoryImageCreateInfoKHR;
-
-typedef Decoded_VkExternalMemoryBufferCreateInfo Decoded_VkExternalMemoryBufferCreateInfoKHR;
-
-typedef Decoded_VkExportMemoryAllocateInfo Decoded_VkExportMemoryAllocateInfoKHR;
-
 struct Decoded_VkImportMemoryWin32HandleInfoKHR
 {
     using struct_type = VkImportMemoryWin32HandleInfoKHR;
@@ -5040,12 +4966,6 @@ struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR
     PointerDecoder<uint64_t> pReleaseKeys;
 };
 
-typedef Decoded_VkPhysicalDeviceExternalSemaphoreInfo Decoded_VkPhysicalDeviceExternalSemaphoreInfoKHR;
-
-typedef Decoded_VkExternalSemaphoreProperties Decoded_VkExternalSemaphorePropertiesKHR;
-
-typedef Decoded_VkExportSemaphoreCreateInfo Decoded_VkExportSemaphoreCreateInfoKHR;
-
 struct Decoded_VkImportSemaphoreWin32HandleInfoKHR
 {
     using struct_type = VkImportSemaphoreWin32HandleInfoKHR;
@@ -5110,14 +5030,6 @@ struct Decoded_VkSemaphoreGetFdInfoKHR
     format::HandleId semaphore{ format::kNullHandleId };
 };
 
-typedef Decoded_VkPhysicalDevicePushDescriptorProperties Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderFloat16Int8Features Decoded_VkPhysicalDeviceShaderFloat16Int8FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderFloat16Int8Features Decoded_VkPhysicalDeviceFloat16Int8FeaturesKHR;
-
-typedef Decoded_VkPhysicalDevice16BitStorageFeatures Decoded_VkPhysicalDevice16BitStorageFeaturesKHR;
-
 struct Decoded_VkRectLayerKHR
 {
     using struct_type = VkRectLayerKHR;
@@ -5147,32 +5059,6 @@ struct Decoded_VkPresentRegionsKHR
     StructPointerDecoder<Decoded_VkPresentRegionKHR>* pRegions{ nullptr };
 };
 
-typedef Decoded_VkDescriptorUpdateTemplateEntry Decoded_VkDescriptorUpdateTemplateEntryKHR;
-
-typedef Decoded_VkDescriptorUpdateTemplateCreateInfo Decoded_VkDescriptorUpdateTemplateCreateInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceImagelessFramebufferFeatures Decoded_VkPhysicalDeviceImagelessFramebufferFeaturesKHR;
-
-typedef Decoded_VkFramebufferAttachmentsCreateInfo Decoded_VkFramebufferAttachmentsCreateInfoKHR;
-
-typedef Decoded_VkFramebufferAttachmentImageInfo Decoded_VkFramebufferAttachmentImageInfoKHR;
-
-typedef Decoded_VkRenderPassAttachmentBeginInfo Decoded_VkRenderPassAttachmentBeginInfoKHR;
-
-typedef Decoded_VkRenderPassCreateInfo2 Decoded_VkRenderPassCreateInfo2KHR;
-
-typedef Decoded_VkAttachmentDescription2 Decoded_VkAttachmentDescription2KHR;
-
-typedef Decoded_VkAttachmentReference2 Decoded_VkAttachmentReference2KHR;
-
-typedef Decoded_VkSubpassDescription2 Decoded_VkSubpassDescription2KHR;
-
-typedef Decoded_VkSubpassDependency2 Decoded_VkSubpassDependency2KHR;
-
-typedef Decoded_VkSubpassBeginInfo Decoded_VkSubpassBeginInfoKHR;
-
-typedef Decoded_VkSubpassEndInfo Decoded_VkSubpassEndInfoKHR;
-
 struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR
 {
     using struct_type = VkSharedPresentSurfaceCapabilitiesKHR;
@@ -5181,12 +5067,6 @@ struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceExternalFenceInfo Decoded_VkPhysicalDeviceExternalFenceInfoKHR;
-
-typedef Decoded_VkExternalFenceProperties Decoded_VkExternalFencePropertiesKHR;
-
-typedef Decoded_VkExportFenceCreateInfo Decoded_VkExportFenceCreateInfoKHR;
 
 struct Decoded_VkImportFenceWin32HandleInfoKHR
 {
@@ -5309,16 +5189,6 @@ struct Decoded_VkPerformanceQuerySubmitInfoKHR
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDevicePointClippingProperties Decoded_VkPhysicalDevicePointClippingPropertiesKHR;
-
-typedef Decoded_VkRenderPassInputAttachmentAspectCreateInfo Decoded_VkRenderPassInputAttachmentAspectCreateInfoKHR;
-
-typedef Decoded_VkInputAttachmentAspectReference Decoded_VkInputAttachmentAspectReferenceKHR;
-
-typedef Decoded_VkImageViewUsageCreateInfo Decoded_VkImageViewUsageCreateInfoKHR;
-
-typedef Decoded_VkPipelineTessellationDomainOriginStateCreateInfo Decoded_VkPipelineTessellationDomainOriginStateCreateInfoKHR;
-
 struct Decoded_VkPhysicalDeviceSurfaceInfo2KHR
 {
     using struct_type = VkPhysicalDeviceSurfaceInfo2KHR;
@@ -5348,10 +5218,6 @@ struct Decoded_VkSurfaceFormat2KHR
     PNextNode* pNext{ nullptr };
     Decoded_VkSurfaceFormatKHR* surfaceFormat{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointersFeaturesKHR;
 
 struct Decoded_VkDisplayProperties2KHR
 {
@@ -5403,38 +5269,6 @@ struct Decoded_VkDisplayPlaneCapabilities2KHR
     Decoded_VkDisplayPlaneCapabilitiesKHR* capabilities{ nullptr };
 };
 
-typedef Decoded_VkMemoryDedicatedRequirements Decoded_VkMemoryDedicatedRequirementsKHR;
-
-typedef Decoded_VkMemoryDedicatedAllocateInfo Decoded_VkMemoryDedicatedAllocateInfoKHR;
-
-typedef Decoded_VkBufferMemoryRequirementsInfo2 Decoded_VkBufferMemoryRequirementsInfo2KHR;
-
-typedef Decoded_VkImageMemoryRequirementsInfo2 Decoded_VkImageMemoryRequirementsInfo2KHR;
-
-typedef Decoded_VkImageSparseMemoryRequirementsInfo2 Decoded_VkImageSparseMemoryRequirementsInfo2KHR;
-
-typedef Decoded_VkMemoryRequirements2 Decoded_VkMemoryRequirements2KHR;
-
-typedef Decoded_VkSparseImageMemoryRequirements2 Decoded_VkSparseImageMemoryRequirements2KHR;
-
-typedef Decoded_VkImageFormatListCreateInfo Decoded_VkImageFormatListCreateInfoKHR;
-
-typedef Decoded_VkSamplerYcbcrConversionCreateInfo Decoded_VkSamplerYcbcrConversionCreateInfoKHR;
-
-typedef Decoded_VkSamplerYcbcrConversionInfo Decoded_VkSamplerYcbcrConversionInfoKHR;
-
-typedef Decoded_VkBindImagePlaneMemoryInfo Decoded_VkBindImagePlaneMemoryInfoKHR;
-
-typedef Decoded_VkImagePlaneMemoryRequirementsInfo Decoded_VkImagePlaneMemoryRequirementsInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR;
-
-typedef Decoded_VkSamplerYcbcrConversionImageFormatProperties Decoded_VkSamplerYcbcrConversionImageFormatPropertiesKHR;
-
-typedef Decoded_VkBindBufferMemoryInfo Decoded_VkBindBufferMemoryInfoKHR;
-
-typedef Decoded_VkBindImageMemoryInfo Decoded_VkBindImageMemoryInfoKHR;
-
 struct Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR
 {
     using struct_type = VkPhysicalDevicePortabilitySubsetFeaturesKHR;
@@ -5452,16 +5286,6 @@ struct Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceMaintenance3Properties Decoded_VkPhysicalDeviceMaintenance3PropertiesKHR;
-
-typedef Decoded_VkDescriptorSetLayoutSupport Decoded_VkDescriptorSetLayoutSupportKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR;
-
-typedef Decoded_VkPhysicalDevice8BitStorageFeatures Decoded_VkPhysicalDevice8BitStorageFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderAtomicInt64Features Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR;
 
 struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR
 {
@@ -5533,38 +5357,6 @@ struct Decoded_VkVideoDecodeH265DpbSlotInfoKHR
     StructPointerDecoder<Decoded_StdVideoDecodeH265ReferenceInfo>* pStdReferenceInfo{ nullptr };
 };
 
-typedef Decoded_VkDeviceQueueGlobalPriorityCreateInfo Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR;
-
-typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR;
-
-typedef Decoded_VkConformanceVersion Decoded_VkConformanceVersionKHR;
-
-typedef Decoded_VkPhysicalDeviceDriverProperties Decoded_VkPhysicalDeviceDriverPropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceFloatControlsProperties Decoded_VkPhysicalDeviceFloatControlsPropertiesKHR;
-
-typedef Decoded_VkSubpassDescriptionDepthStencilResolve Decoded_VkSubpassDescriptionDepthStencilResolveKHR;
-
-typedef Decoded_VkPhysicalDeviceDepthStencilResolveProperties Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR;
-
-typedef Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceTimelineSemaphoreProperties Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR;
-
-typedef Decoded_VkSemaphoreTypeCreateInfo Decoded_VkSemaphoreTypeCreateInfoKHR;
-
-typedef Decoded_VkTimelineSemaphoreSubmitInfo Decoded_VkTimelineSemaphoreSubmitInfoKHR;
-
-typedef Decoded_VkSemaphoreWaitInfo Decoded_VkSemaphoreWaitInfoKHR;
-
-typedef Decoded_VkSemaphoreSignalInfo Decoded_VkSemaphoreSignalInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures Decoded_VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR;
-
 struct Decoded_VkFragmentShadingRateAttachmentInfoKHR
 {
     using struct_type = VkFragmentShadingRateAttachmentInfoKHR;
@@ -5629,12 +5421,6 @@ struct Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR
     Decoded_VkExtent2D* shadingRateAttachmentTexelSize{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeatures Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR;
-
-typedef Decoded_VkRenderingAttachmentLocationInfo Decoded_VkRenderingAttachmentLocationInfoKHR;
-
-typedef Decoded_VkRenderingInputAttachmentIndexInfo Decoded_VkRenderingInputAttachmentIndexInfoKHR;
-
 struct Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceShaderQuadControlFeaturesKHR;
@@ -5653,12 +5439,6 @@ struct Decoded_VkSurfaceProtectedCapabilitiesKHR
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR;
-
-typedef Decoded_VkAttachmentReferenceStencilLayout Decoded_VkAttachmentReferenceStencilLayoutKHR;
-
-typedef Decoded_VkAttachmentDescriptionStencilLayout Decoded_VkAttachmentDescriptionStencilLayoutKHR;
-
 struct Decoded_VkPhysicalDevicePresentWaitFeaturesKHR
 {
     using struct_type = VkPhysicalDevicePresentWaitFeaturesKHR;
@@ -5667,18 +5447,6 @@ struct Decoded_VkPhysicalDevicePresentWaitFeaturesKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesKHR;
-
-typedef Decoded_VkBufferDeviceAddressInfo Decoded_VkBufferDeviceAddressInfoKHR;
-
-typedef Decoded_VkBufferOpaqueCaptureAddressCreateInfo Decoded_VkBufferOpaqueCaptureAddressCreateInfoKHR;
-
-typedef Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo Decoded_VkMemoryOpaqueCaptureAddressAllocateInfoKHR;
-
-typedef Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo Decoded_VkDeviceMemoryOpaqueCaptureAddressInfoKHR;
 
 struct Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR
 {
@@ -5743,14 +5511,6 @@ struct Decoded_VkPipelineExecutableInternalRepresentationKHR
     StringDecoder description;
     PointerDecoder<uint8_t> pData;
 };
-
-typedef Decoded_VkMemoryMapInfo Decoded_VkMemoryMapInfoKHR;
-
-typedef Decoded_VkMemoryUnmapInfo Decoded_VkMemoryUnmapInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures Decoded_VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties Decoded_VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR;
 
 struct Decoded_VkPipelineLibraryCreateInfoKHR
 {
@@ -5888,22 +5648,6 @@ struct Decoded_VkVideoEncodeSessionParametersFeedbackInfoKHR
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkMemoryBarrier2 Decoded_VkMemoryBarrier2KHR;
-
-typedef Decoded_VkBufferMemoryBarrier2 Decoded_VkBufferMemoryBarrier2KHR;
-
-typedef Decoded_VkImageMemoryBarrier2 Decoded_VkImageMemoryBarrier2KHR;
-
-typedef Decoded_VkDependencyInfo Decoded_VkDependencyInfoKHR;
-
-typedef Decoded_VkSubmitInfo2 Decoded_VkSubmitInfo2KHR;
-
-typedef Decoded_VkSemaphoreSubmitInfo Decoded_VkSemaphoreSubmitInfoKHR;
-
-typedef Decoded_VkCommandBufferSubmitInfo Decoded_VkCommandBufferSubmitInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceSynchronization2Features Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR;
-
 struct Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
@@ -5931,8 +5675,6 @@ struct Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR;
-
 struct Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR;
@@ -5941,30 +5683,6 @@ struct Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkCopyBufferInfo2 Decoded_VkCopyBufferInfo2KHR;
-
-typedef Decoded_VkCopyImageInfo2 Decoded_VkCopyImageInfo2KHR;
-
-typedef Decoded_VkCopyBufferToImageInfo2 Decoded_VkCopyBufferToImageInfo2KHR;
-
-typedef Decoded_VkCopyImageToBufferInfo2 Decoded_VkCopyImageToBufferInfo2KHR;
-
-typedef Decoded_VkBlitImageInfo2 Decoded_VkBlitImageInfo2KHR;
-
-typedef Decoded_VkResolveImageInfo2 Decoded_VkResolveImageInfo2KHR;
-
-typedef Decoded_VkBufferCopy2 Decoded_VkBufferCopy2KHR;
-
-typedef Decoded_VkImageCopy2 Decoded_VkImageCopy2KHR;
-
-typedef Decoded_VkImageBlit2 Decoded_VkImageBlit2KHR;
-
-typedef Decoded_VkBufferImageCopy2 Decoded_VkBufferImageCopy2KHR;
-
-typedef Decoded_VkImageResolve2 Decoded_VkImageResolve2KHR;
-
-typedef Decoded_VkFormatProperties3 Decoded_VkFormatProperties3KHR;
 
 struct Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR
 {
@@ -5982,16 +5700,6 @@ struct Decoded_VkTraceRaysIndirectCommand2KHR
     VkTraceRaysIndirectCommand2KHR* decoded_value{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceMaintenance4Features Decoded_VkPhysicalDeviceMaintenance4FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceMaintenance4Properties Decoded_VkPhysicalDeviceMaintenance4PropertiesKHR;
-
-typedef Decoded_VkDeviceBufferMemoryRequirements Decoded_VkDeviceBufferMemoryRequirementsKHR;
-
-typedef Decoded_VkDeviceImageMemoryRequirements Decoded_VkDeviceImageMemoryRequirementsKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderSubgroupRotateFeatures Decoded_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR;
-
 struct Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR;
@@ -6000,22 +5708,6 @@ struct Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceMaintenance5Features Decoded_VkPhysicalDeviceMaintenance5FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceMaintenance5Properties Decoded_VkPhysicalDeviceMaintenance5PropertiesKHR;
-
-typedef Decoded_VkRenderingAreaInfo Decoded_VkRenderingAreaInfoKHR;
-
-typedef Decoded_VkDeviceImageSubresourceInfo Decoded_VkDeviceImageSubresourceInfoKHR;
-
-typedef Decoded_VkImageSubresource2 Decoded_VkImageSubresource2KHR;
-
-typedef Decoded_VkSubresourceLayout2 Decoded_VkSubresourceLayout2KHR;
-
-typedef Decoded_VkPipelineCreateFlags2CreateInfo Decoded_VkPipelineCreateFlags2CreateInfoKHR;
-
-typedef Decoded_VkBufferUsageFlags2CreateInfo Decoded_VkBufferUsageFlags2CreateInfoKHR;
 
 struct Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR
 {
@@ -6385,24 +6077,6 @@ struct Decoded_VkVideoInlineQueryInfoKHR
     format::HandleId queryPool{ format::kNullHandleId };
 };
 
-typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorProperties Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
-
-typedef Decoded_VkVertexInputBindingDivisorDescription Decoded_VkVertexInputBindingDivisorDescriptionKHR;
-
-typedef Decoded_VkPipelineVertexInputDivisorStateCreateInfo Decoded_VkPipelineVertexInputDivisorStateCreateInfoKHR;
-
-typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceShaderFloatControls2Features Decoded_VkPhysicalDeviceShaderFloatControls2FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceIndexTypeUint8Features Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceLineRasterizationFeatures Decoded_VkPhysicalDeviceLineRasterizationFeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceLineRasterizationProperties Decoded_VkPhysicalDeviceLineRasterizationPropertiesKHR;
-
-typedef Decoded_VkPipelineRasterizationLineStateCreateInfo Decoded_VkPipelineRasterizationLineStateCreateInfoKHR;
-
 struct Decoded_VkCalibratedTimestampInfoKHR
 {
     using struct_type = VkCalibratedTimestampInfoKHR;
@@ -6411,8 +6085,6 @@ struct Decoded_VkCalibratedTimestampInfoKHR
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceShaderExpectAssumeFeatures Decoded_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR;
 
 struct Decoded_VkSetDescriptorBufferOffsetsInfoEXT
 {
@@ -6435,20 +6107,6 @@ struct Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT
     PNextNode* pNext{ nullptr };
     format::HandleId layout{ format::kNullHandleId };
 };
-
-typedef Decoded_VkPhysicalDeviceMaintenance6Features Decoded_VkPhysicalDeviceMaintenance6FeaturesKHR;
-
-typedef Decoded_VkPhysicalDeviceMaintenance6Properties Decoded_VkPhysicalDeviceMaintenance6PropertiesKHR;
-
-typedef Decoded_VkBindMemoryStatus Decoded_VkBindMemoryStatusKHR;
-
-typedef Decoded_VkBindDescriptorSetsInfo Decoded_VkBindDescriptorSetsInfoKHR;
-
-typedef Decoded_VkPushConstantsInfo Decoded_VkPushConstantsInfoKHR;
-
-typedef Decoded_VkPushDescriptorSetInfo Decoded_VkPushDescriptorSetInfoKHR;
-
-typedef Decoded_VkPushDescriptorSetWithTemplateInfo Decoded_VkPushDescriptorSetWithTemplateInfoKHR;
 
 struct Decoded_VkVideoEncodeQuantizationMapCapabilitiesKHR
 {
@@ -6856,8 +6514,6 @@ struct Decoded_VkViSurfaceCreateInfoNN
     uint64_t window{ 0 };
 };
 
-typedef Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT;
-
 struct Decoded_VkImageViewASTCDecodeModeEXT
 {
     using struct_type = VkImageViewASTCDecodeModeEXT;
@@ -6875,12 +6531,6 @@ struct Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDevicePipelineRobustnessFeatures Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT;
-
-typedef Decoded_VkPhysicalDevicePipelineRobustnessProperties Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT;
-
-typedef Decoded_VkPipelineRobustnessCreateInfo Decoded_VkPipelineRobustnessCreateInfoEXT;
 
 struct Decoded_VkConditionalRenderingBeginInfoEXT
 {
@@ -7270,10 +6920,6 @@ struct Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID
     Decoded_VkComponentMapping* samplerYcbcrConversionComponents{ nullptr };
 };
 
-typedef Decoded_VkSamplerReductionModeCreateInfo Decoded_VkSamplerReductionModeCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
-
 struct Decoded_VkAttachmentSampleCountInfoAMD
 {
     using struct_type = VkAttachmentSampleCountInfoAMD;
@@ -7283,14 +6929,6 @@ struct Decoded_VkAttachmentSampleCountInfoAMD
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkSampleCountFlagBits> pColorAttachmentSamples;
 };
-
-typedef Decoded_VkPhysicalDeviceInlineUniformBlockFeatures Decoded_VkPhysicalDeviceInlineUniformBlockFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceInlineUniformBlockProperties Decoded_VkPhysicalDeviceInlineUniformBlockPropertiesEXT;
-
-typedef Decoded_VkWriteDescriptorSetInlineUniformBlock Decoded_VkWriteDescriptorSetInlineUniformBlockEXT;
-
-typedef Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo Decoded_VkDescriptorPoolInlineUniformBlockCreateInfoEXT;
 
 struct Decoded_VkSampleLocationEXT
 {
@@ -7416,8 +7054,6 @@ struct Decoded_VkPipelineCoverageModulationStateCreateInfoNV
     PointerDecoder<float> pCoverageModulationTable;
 };
 
-typedef Decoded_VkAttachmentSampleCountInfoAMD Decoded_VkAttachmentSampleCountInfoNV;
-
 struct Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV
 {
     using struct_type = VkPhysicalDeviceShaderSMBuiltinsPropertiesNV;
@@ -7528,16 +7164,6 @@ struct Decoded_VkShaderModuleValidationCacheCreateInfoEXT
     PNextNode* pNext{ nullptr };
     format::HandleId validationCache{ format::kNullHandleId };
 };
-
-typedef Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceDescriptorIndexingFeatures Decoded_VkPhysicalDeviceDescriptorIndexingFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceDescriptorIndexingProperties Decoded_VkPhysicalDeviceDescriptorIndexingPropertiesEXT;
-
-typedef Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfoEXT;
-
-typedef Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupportEXT;
 
 struct Decoded_VkShadingRatePaletteNV
 {
@@ -7753,12 +7379,6 @@ struct Decoded_VkAccelerationStructureInstanceKHR
     Decoded_VkTransformMatrixKHR* transform{ nullptr };
 };
 
-typedef Decoded_VkTransformMatrixKHR Decoded_VkTransformMatrixNV;
-
-typedef Decoded_VkAabbPositionsKHR Decoded_VkAabbPositionsNV;
-
-typedef Decoded_VkAccelerationStructureInstanceKHR Decoded_VkAccelerationStructureInstanceNV;
-
 struct Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV
 {
     using struct_type = VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV;
@@ -7794,8 +7414,6 @@ struct Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkDeviceQueueGlobalPriorityCreateInfo Decoded_VkDeviceQueueGlobalPriorityCreateInfoEXT;
 
 struct Decoded_VkImportMemoryHostPointerInfoEXT
 {
@@ -7834,8 +7452,6 @@ struct Decoded_VkPipelineCompilerControlCreateInfoAMD
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkCalibratedTimestampInfoKHR Decoded_VkCalibratedTimestampInfoEXT;
-
 struct Decoded_VkPhysicalDeviceShaderCorePropertiesAMD
 {
     using struct_type = VkPhysicalDeviceShaderCorePropertiesAMD;
@@ -7863,12 +7479,6 @@ struct Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkVertexInputBindingDivisorDescription Decoded_VkVertexInputBindingDivisorDescriptionEXT;
-
-typedef Decoded_VkPipelineVertexInputDivisorStateCreateInfo Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT;
-
 struct Decoded_VkPresentFrameTokenGGP
 {
     using struct_type = VkPresentFrameTokenGGP;
@@ -7877,12 +7487,6 @@ struct Decoded_VkPresentFrameTokenGGP
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPipelineCreationFeedbackCreateInfo Decoded_VkPipelineCreationFeedbackCreateInfoEXT;
-
-typedef Decoded_VkPipelineCreationFeedback Decoded_VkPipelineCreationFeedbackEXT;
-
-typedef Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
 
 struct Decoded_VkPhysicalDeviceMeshShaderFeaturesNV
 {
@@ -7910,8 +7514,6 @@ struct Decoded_VkDrawMeshTasksIndirectCommandNV
 
     VkDrawMeshTasksIndirectCommandNV* decoded_value{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
 
 struct Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV
 {
@@ -8043,8 +7645,6 @@ struct Decoded_VkPerformanceConfigurationAcquireInfoINTEL
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL Decoded_VkQueryPoolCreateInfoINTEL;
-
 struct Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT
 {
     using struct_type = VkPhysicalDevicePCIBusInfoPropertiesEXT;
@@ -8131,14 +7731,6 @@ struct Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT
     format::HandleId imageView{ format::kNullHandleId };
 };
 
-typedef Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures Decoded_VkPhysicalDeviceScalarBlockLayoutFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures Decoded_VkPhysicalDeviceSubgroupSizeControlFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceSubgroupSizeControlProperties Decoded_VkPhysicalDeviceSubgroupSizeControlPropertiesEXT;
-
-typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT;
-
 struct Decoded_VkPhysicalDeviceShaderCoreProperties2AMD
 {
     using struct_type = VkPhysicalDeviceShaderCoreProperties2AMD;
@@ -8221,14 +7813,6 @@ struct Decoded_VkBufferDeviceAddressCreateInfoEXT
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT;
-
-typedef Decoded_VkBufferDeviceAddressInfo Decoded_VkBufferDeviceAddressInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceToolProperties Decoded_VkPhysicalDeviceToolPropertiesEXT;
-
-typedef Decoded_VkImageStencilUsageCreateInfo Decoded_VkImageStencilUsageCreateInfoEXT;
 
 struct Decoded_VkValidationFeaturesEXT
 {
@@ -8377,12 +7961,6 @@ struct Decoded_VkHeadlessSurfaceCreateInfoEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceLineRasterizationFeatures Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceLineRasterizationProperties Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT;
-
-typedef Decoded_VkPipelineRasterizationLineStateCreateInfo Decoded_VkPipelineRasterizationLineStateCreateInfoEXT;
-
 struct Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderAtomicFloatFeaturesEXT;
@@ -8392,10 +7970,6 @@ struct Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceHostQueryResetFeatures Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceIndexTypeUint8Features Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT;
-
 struct Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT;
@@ -8404,30 +7978,6 @@ struct Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceHostImageCopyFeatures Decoded_VkPhysicalDeviceHostImageCopyFeaturesEXT;
-
-typedef Decoded_VkPhysicalDeviceHostImageCopyProperties Decoded_VkPhysicalDeviceHostImageCopyPropertiesEXT;
-
-typedef Decoded_VkMemoryToImageCopy Decoded_VkMemoryToImageCopyEXT;
-
-typedef Decoded_VkImageToMemoryCopy Decoded_VkImageToMemoryCopyEXT;
-
-typedef Decoded_VkCopyMemoryToImageInfo Decoded_VkCopyMemoryToImageInfoEXT;
-
-typedef Decoded_VkCopyImageToMemoryInfo Decoded_VkCopyImageToMemoryInfoEXT;
-
-typedef Decoded_VkCopyImageToImageInfo Decoded_VkCopyImageToImageInfoEXT;
-
-typedef Decoded_VkHostImageLayoutTransitionInfo Decoded_VkHostImageLayoutTransitionInfoEXT;
-
-typedef Decoded_VkSubresourceHostMemcpySize Decoded_VkSubresourceHostMemcpySizeEXT;
-
-typedef Decoded_VkHostImageCopyDevicePerformanceQuery Decoded_VkHostImageCopyDevicePerformanceQueryEXT;
-
-typedef Decoded_VkSubresourceLayout2 Decoded_VkSubresourceLayout2EXT;
-
-typedef Decoded_VkImageSubresource2 Decoded_VkImageSubresource2EXT;
 
 struct Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT
 {
@@ -8554,8 +8104,6 @@ struct Decoded_VkReleaseSwapchainImagesInfoEXT
     format::HandleId swapchain{ format::kNullHandleId };
     PointerDecoder<uint32_t> pImageIndices;
 };
-
-typedef Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT;
 
 struct Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV
 {
@@ -8712,8 +8260,6 @@ struct Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties Decoded_VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT;
-
 struct Decoded_VkRenderPassTransformBeginInfoQCOM
 {
     using struct_type = VkRenderPassTransformBeginInfoQCOM;
@@ -8861,14 +8407,6 @@ struct Decoded_VkSwapchainPresentBarrierCreateInfoNV
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDevicePrivateDataFeatures Decoded_VkPhysicalDevicePrivateDataFeaturesEXT;
-
-typedef Decoded_VkDevicePrivateDataCreateInfo Decoded_VkDevicePrivateDataCreateInfoEXT;
-
-typedef Decoded_VkPrivateDataSlotCreateInfo Decoded_VkPrivateDataSlotCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures Decoded_VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT;
 
 struct Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV
 {
@@ -9053,8 +8591,6 @@ struct Decoded_VkCopyCommandTransformInfoQCOM
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceImageRobustnessFeatures Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT;
-
 struct Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceImageCompressionControlFeaturesEXT;
@@ -9166,8 +8702,6 @@ struct Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM;
-
 struct Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT;
@@ -9215,12 +8749,6 @@ struct Decoded_VkMutableDescriptorTypeCreateInfoEXT
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkMutableDescriptorTypeListEXT>* pMutableDescriptorTypeLists{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
-
-typedef Decoded_VkMutableDescriptorTypeListEXT Decoded_VkMutableDescriptorTypeListVALVE;
-
-typedef Decoded_VkMutableDescriptorTypeCreateInfoEXT Decoded_VkMutableDescriptorTypeCreateInfoVALVE;
 
 struct Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT
 {
@@ -9483,10 +9011,6 @@ struct Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT
 
     PNextNode* pNext{ nullptr };
 };
-
-typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT;
-
-typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesEXT;
 
 struct Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT
 {
@@ -10287,8 +9811,6 @@ struct Decoded_VkPhysicalDeviceLegacyDitheringFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
-
 struct Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID
 {
     using struct_type = VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
@@ -10383,8 +9905,6 @@ struct Decoded_VkDepthClampRangeEXT
 
     VkDepthClampRangeEXT* decoded_value{ nullptr };
 };
-
-typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
 
 struct Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM
 {
@@ -11362,6 +10882,486 @@ struct Decoded_VkDrawMeshTasksIndirectCommandEXT
 
     VkDrawMeshTasksIndirectCommandEXT* decoded_value{ nullptr };
 };
+
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeatures;
+
+typedef Decoded_VkPhysicalDeviceShaderDrawParametersFeatures Decoded_VkPhysicalDeviceShaderDrawParameterFeatures;
+
+typedef Decoded_VkRenderingInfo Decoded_VkRenderingInfoKHR;
+
+typedef Decoded_VkRenderingAttachmentInfo Decoded_VkRenderingAttachmentInfoKHR;
+
+typedef Decoded_VkPipelineRenderingCreateInfo Decoded_VkPipelineRenderingCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceDynamicRenderingFeatures Decoded_VkPhysicalDeviceDynamicRenderingFeaturesKHR;
+
+typedef Decoded_VkCommandBufferInheritanceRenderingInfo Decoded_VkCommandBufferInheritanceRenderingInfoKHR;
+
+typedef Decoded_VkRenderPassMultiviewCreateInfo Decoded_VkRenderPassMultiviewCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceMultiviewFeatures Decoded_VkPhysicalDeviceMultiviewFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMultiviewProperties Decoded_VkPhysicalDeviceMultiviewPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceFeatures2 Decoded_VkPhysicalDeviceFeatures2KHR;
+
+typedef Decoded_VkPhysicalDeviceProperties2 Decoded_VkPhysicalDeviceProperties2KHR;
+
+typedef Decoded_VkFormatProperties2 Decoded_VkFormatProperties2KHR;
+
+typedef Decoded_VkImageFormatProperties2 Decoded_VkImageFormatProperties2KHR;
+
+typedef Decoded_VkPhysicalDeviceImageFormatInfo2 Decoded_VkPhysicalDeviceImageFormatInfo2KHR;
+
+typedef Decoded_VkQueueFamilyProperties2 Decoded_VkQueueFamilyProperties2KHR;
+
+typedef Decoded_VkPhysicalDeviceMemoryProperties2 Decoded_VkPhysicalDeviceMemoryProperties2KHR;
+
+typedef Decoded_VkSparseImageFormatProperties2 Decoded_VkSparseImageFormatProperties2KHR;
+
+typedef Decoded_VkPhysicalDeviceSparseImageFormatInfo2 Decoded_VkPhysicalDeviceSparseImageFormatInfo2KHR;
+
+typedef Decoded_VkMemoryAllocateFlagsInfo Decoded_VkMemoryAllocateFlagsInfoKHR;
+
+typedef Decoded_VkDeviceGroupRenderPassBeginInfo Decoded_VkDeviceGroupRenderPassBeginInfoKHR;
+
+typedef Decoded_VkDeviceGroupCommandBufferBeginInfo Decoded_VkDeviceGroupCommandBufferBeginInfoKHR;
+
+typedef Decoded_VkDeviceGroupSubmitInfo Decoded_VkDeviceGroupSubmitInfoKHR;
+
+typedef Decoded_VkDeviceGroupBindSparseInfo Decoded_VkDeviceGroupBindSparseInfoKHR;
+
+typedef Decoded_VkBindBufferMemoryDeviceGroupInfo Decoded_VkBindBufferMemoryDeviceGroupInfoKHR;
+
+typedef Decoded_VkBindImageMemoryDeviceGroupInfo Decoded_VkBindImageMemoryDeviceGroupInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceGroupProperties Decoded_VkPhysicalDeviceGroupPropertiesKHR;
+
+typedef Decoded_VkDeviceGroupDeviceCreateInfo Decoded_VkDeviceGroupDeviceCreateInfoKHR;
+
+typedef Decoded_VkExternalMemoryProperties Decoded_VkExternalMemoryPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceExternalImageFormatInfo Decoded_VkPhysicalDeviceExternalImageFormatInfoKHR;
+
+typedef Decoded_VkExternalImageFormatProperties Decoded_VkExternalImageFormatPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceExternalBufferInfo Decoded_VkPhysicalDeviceExternalBufferInfoKHR;
+
+typedef Decoded_VkExternalBufferProperties Decoded_VkExternalBufferPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceIDProperties Decoded_VkPhysicalDeviceIDPropertiesKHR;
+
+typedef Decoded_VkExternalMemoryImageCreateInfo Decoded_VkExternalMemoryImageCreateInfoKHR;
+
+typedef Decoded_VkExternalMemoryBufferCreateInfo Decoded_VkExternalMemoryBufferCreateInfoKHR;
+
+typedef Decoded_VkExportMemoryAllocateInfo Decoded_VkExportMemoryAllocateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceExternalSemaphoreInfo Decoded_VkPhysicalDeviceExternalSemaphoreInfoKHR;
+
+typedef Decoded_VkExternalSemaphoreProperties Decoded_VkExternalSemaphorePropertiesKHR;
+
+typedef Decoded_VkExportSemaphoreCreateInfo Decoded_VkExportSemaphoreCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDevicePushDescriptorProperties Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderFloat16Int8Features Decoded_VkPhysicalDeviceShaderFloat16Int8FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderFloat16Int8Features Decoded_VkPhysicalDeviceFloat16Int8FeaturesKHR;
+
+typedef Decoded_VkPhysicalDevice16BitStorageFeatures Decoded_VkPhysicalDevice16BitStorageFeaturesKHR;
+
+typedef Decoded_VkDescriptorUpdateTemplateEntry Decoded_VkDescriptorUpdateTemplateEntryKHR;
+
+typedef Decoded_VkDescriptorUpdateTemplateCreateInfo Decoded_VkDescriptorUpdateTemplateCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceImagelessFramebufferFeatures Decoded_VkPhysicalDeviceImagelessFramebufferFeaturesKHR;
+
+typedef Decoded_VkFramebufferAttachmentsCreateInfo Decoded_VkFramebufferAttachmentsCreateInfoKHR;
+
+typedef Decoded_VkFramebufferAttachmentImageInfo Decoded_VkFramebufferAttachmentImageInfoKHR;
+
+typedef Decoded_VkRenderPassAttachmentBeginInfo Decoded_VkRenderPassAttachmentBeginInfoKHR;
+
+typedef Decoded_VkRenderPassCreateInfo2 Decoded_VkRenderPassCreateInfo2KHR;
+
+typedef Decoded_VkAttachmentDescription2 Decoded_VkAttachmentDescription2KHR;
+
+typedef Decoded_VkAttachmentReference2 Decoded_VkAttachmentReference2KHR;
+
+typedef Decoded_VkSubpassDescription2 Decoded_VkSubpassDescription2KHR;
+
+typedef Decoded_VkSubpassDependency2 Decoded_VkSubpassDependency2KHR;
+
+typedef Decoded_VkSubpassBeginInfo Decoded_VkSubpassBeginInfoKHR;
+
+typedef Decoded_VkSubpassEndInfo Decoded_VkSubpassEndInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceExternalFenceInfo Decoded_VkPhysicalDeviceExternalFenceInfoKHR;
+
+typedef Decoded_VkExternalFenceProperties Decoded_VkExternalFencePropertiesKHR;
+
+typedef Decoded_VkExportFenceCreateInfo Decoded_VkExportFenceCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDevicePointClippingProperties Decoded_VkPhysicalDevicePointClippingPropertiesKHR;
+
+typedef Decoded_VkRenderPassInputAttachmentAspectCreateInfo Decoded_VkRenderPassInputAttachmentAspectCreateInfoKHR;
+
+typedef Decoded_VkInputAttachmentAspectReference Decoded_VkInputAttachmentAspectReferenceKHR;
+
+typedef Decoded_VkImageViewUsageCreateInfo Decoded_VkImageViewUsageCreateInfoKHR;
+
+typedef Decoded_VkPipelineTessellationDomainOriginStateCreateInfo Decoded_VkPipelineTessellationDomainOriginStateCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointersFeaturesKHR;
+
+typedef Decoded_VkMemoryDedicatedRequirements Decoded_VkMemoryDedicatedRequirementsKHR;
+
+typedef Decoded_VkMemoryDedicatedAllocateInfo Decoded_VkMemoryDedicatedAllocateInfoKHR;
+
+typedef Decoded_VkBufferMemoryRequirementsInfo2 Decoded_VkBufferMemoryRequirementsInfo2KHR;
+
+typedef Decoded_VkImageMemoryRequirementsInfo2 Decoded_VkImageMemoryRequirementsInfo2KHR;
+
+typedef Decoded_VkImageSparseMemoryRequirementsInfo2 Decoded_VkImageSparseMemoryRequirementsInfo2KHR;
+
+typedef Decoded_VkMemoryRequirements2 Decoded_VkMemoryRequirements2KHR;
+
+typedef Decoded_VkSparseImageMemoryRequirements2 Decoded_VkSparseImageMemoryRequirements2KHR;
+
+typedef Decoded_VkImageFormatListCreateInfo Decoded_VkImageFormatListCreateInfoKHR;
+
+typedef Decoded_VkSamplerYcbcrConversionCreateInfo Decoded_VkSamplerYcbcrConversionCreateInfoKHR;
+
+typedef Decoded_VkSamplerYcbcrConversionInfo Decoded_VkSamplerYcbcrConversionInfoKHR;
+
+typedef Decoded_VkBindImagePlaneMemoryInfo Decoded_VkBindImagePlaneMemoryInfoKHR;
+
+typedef Decoded_VkImagePlaneMemoryRequirementsInfo Decoded_VkImagePlaneMemoryRequirementsInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR;
+
+typedef Decoded_VkSamplerYcbcrConversionImageFormatProperties Decoded_VkSamplerYcbcrConversionImageFormatPropertiesKHR;
+
+typedef Decoded_VkBindBufferMemoryInfo Decoded_VkBindBufferMemoryInfoKHR;
+
+typedef Decoded_VkBindImageMemoryInfo Decoded_VkBindImageMemoryInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance3Properties Decoded_VkPhysicalDeviceMaintenance3PropertiesKHR;
+
+typedef Decoded_VkDescriptorSetLayoutSupport Decoded_VkDescriptorSetLayoutSupportKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR;
+
+typedef Decoded_VkPhysicalDevice8BitStorageFeatures Decoded_VkPhysicalDevice8BitStorageFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderAtomicInt64Features Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR;
+
+typedef Decoded_VkDeviceQueueGlobalPriorityCreateInfo Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR;
+
+typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR;
+
+typedef Decoded_VkConformanceVersion Decoded_VkConformanceVersionKHR;
+
+typedef Decoded_VkPhysicalDeviceDriverProperties Decoded_VkPhysicalDeviceDriverPropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceFloatControlsProperties Decoded_VkPhysicalDeviceFloatControlsPropertiesKHR;
+
+typedef Decoded_VkSubpassDescriptionDepthStencilResolve Decoded_VkSubpassDescriptionDepthStencilResolveKHR;
+
+typedef Decoded_VkPhysicalDeviceDepthStencilResolveProperties Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR;
+
+typedef Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceTimelineSemaphoreProperties Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR;
+
+typedef Decoded_VkSemaphoreTypeCreateInfo Decoded_VkSemaphoreTypeCreateInfoKHR;
+
+typedef Decoded_VkTimelineSemaphoreSubmitInfo Decoded_VkTimelineSemaphoreSubmitInfoKHR;
+
+typedef Decoded_VkSemaphoreWaitInfo Decoded_VkSemaphoreWaitInfoKHR;
+
+typedef Decoded_VkSemaphoreSignalInfo Decoded_VkSemaphoreSignalInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures Decoded_VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeatures Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR;
+
+typedef Decoded_VkRenderingAttachmentLocationInfo Decoded_VkRenderingAttachmentLocationInfoKHR;
+
+typedef Decoded_VkRenderingInputAttachmentIndexInfo Decoded_VkRenderingInputAttachmentIndexInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR;
+
+typedef Decoded_VkAttachmentReferenceStencilLayout Decoded_VkAttachmentReferenceStencilLayoutKHR;
+
+typedef Decoded_VkAttachmentDescriptionStencilLayout Decoded_VkAttachmentDescriptionStencilLayoutKHR;
+
+typedef Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesKHR;
+
+typedef Decoded_VkBufferDeviceAddressInfo Decoded_VkBufferDeviceAddressInfoKHR;
+
+typedef Decoded_VkBufferOpaqueCaptureAddressCreateInfo Decoded_VkBufferOpaqueCaptureAddressCreateInfoKHR;
+
+typedef Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo Decoded_VkMemoryOpaqueCaptureAddressAllocateInfoKHR;
+
+typedef Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo Decoded_VkDeviceMemoryOpaqueCaptureAddressInfoKHR;
+
+typedef Decoded_VkMemoryMapInfo Decoded_VkMemoryMapInfoKHR;
+
+typedef Decoded_VkMemoryUnmapInfo Decoded_VkMemoryUnmapInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures Decoded_VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties Decoded_VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR;
+
+typedef Decoded_VkMemoryBarrier2 Decoded_VkMemoryBarrier2KHR;
+
+typedef Decoded_VkBufferMemoryBarrier2 Decoded_VkBufferMemoryBarrier2KHR;
+
+typedef Decoded_VkImageMemoryBarrier2 Decoded_VkImageMemoryBarrier2KHR;
+
+typedef Decoded_VkDependencyInfo Decoded_VkDependencyInfoKHR;
+
+typedef Decoded_VkSubmitInfo2 Decoded_VkSubmitInfo2KHR;
+
+typedef Decoded_VkSemaphoreSubmitInfo Decoded_VkSemaphoreSubmitInfoKHR;
+
+typedef Decoded_VkCommandBufferSubmitInfo Decoded_VkCommandBufferSubmitInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceSynchronization2Features Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR;
+
+typedef Decoded_VkCopyBufferInfo2 Decoded_VkCopyBufferInfo2KHR;
+
+typedef Decoded_VkCopyImageInfo2 Decoded_VkCopyImageInfo2KHR;
+
+typedef Decoded_VkCopyBufferToImageInfo2 Decoded_VkCopyBufferToImageInfo2KHR;
+
+typedef Decoded_VkCopyImageToBufferInfo2 Decoded_VkCopyImageToBufferInfo2KHR;
+
+typedef Decoded_VkBlitImageInfo2 Decoded_VkBlitImageInfo2KHR;
+
+typedef Decoded_VkResolveImageInfo2 Decoded_VkResolveImageInfo2KHR;
+
+typedef Decoded_VkBufferCopy2 Decoded_VkBufferCopy2KHR;
+
+typedef Decoded_VkImageCopy2 Decoded_VkImageCopy2KHR;
+
+typedef Decoded_VkImageBlit2 Decoded_VkImageBlit2KHR;
+
+typedef Decoded_VkBufferImageCopy2 Decoded_VkBufferImageCopy2KHR;
+
+typedef Decoded_VkImageResolve2 Decoded_VkImageResolve2KHR;
+
+typedef Decoded_VkFormatProperties3 Decoded_VkFormatProperties3KHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance4Features Decoded_VkPhysicalDeviceMaintenance4FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance4Properties Decoded_VkPhysicalDeviceMaintenance4PropertiesKHR;
+
+typedef Decoded_VkDeviceBufferMemoryRequirements Decoded_VkDeviceBufferMemoryRequirementsKHR;
+
+typedef Decoded_VkDeviceImageMemoryRequirements Decoded_VkDeviceImageMemoryRequirementsKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderSubgroupRotateFeatures Decoded_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance5Features Decoded_VkPhysicalDeviceMaintenance5FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance5Properties Decoded_VkPhysicalDeviceMaintenance5PropertiesKHR;
+
+typedef Decoded_VkRenderingAreaInfo Decoded_VkRenderingAreaInfoKHR;
+
+typedef Decoded_VkDeviceImageSubresourceInfo Decoded_VkDeviceImageSubresourceInfoKHR;
+
+typedef Decoded_VkImageSubresource2 Decoded_VkImageSubresource2KHR;
+
+typedef Decoded_VkSubresourceLayout2 Decoded_VkSubresourceLayout2KHR;
+
+typedef Decoded_VkPipelineCreateFlags2CreateInfo Decoded_VkPipelineCreateFlags2CreateInfoKHR;
+
+typedef Decoded_VkBufferUsageFlags2CreateInfo Decoded_VkBufferUsageFlags2CreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorProperties Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
+
+typedef Decoded_VkVertexInputBindingDivisorDescription Decoded_VkVertexInputBindingDivisorDescriptionKHR;
+
+typedef Decoded_VkPipelineVertexInputDivisorStateCreateInfo Decoded_VkPipelineVertexInputDivisorStateCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderFloatControls2Features Decoded_VkPhysicalDeviceShaderFloatControls2FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceIndexTypeUint8Features Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceLineRasterizationFeatures Decoded_VkPhysicalDeviceLineRasterizationFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceLineRasterizationProperties Decoded_VkPhysicalDeviceLineRasterizationPropertiesKHR;
+
+typedef Decoded_VkPipelineRasterizationLineStateCreateInfo Decoded_VkPipelineRasterizationLineStateCreateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceShaderExpectAssumeFeatures Decoded_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance6Features Decoded_VkPhysicalDeviceMaintenance6FeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceMaintenance6Properties Decoded_VkPhysicalDeviceMaintenance6PropertiesKHR;
+
+typedef Decoded_VkBindMemoryStatus Decoded_VkBindMemoryStatusKHR;
+
+typedef Decoded_VkBindDescriptorSetsInfo Decoded_VkBindDescriptorSetsInfoKHR;
+
+typedef Decoded_VkPushConstantsInfo Decoded_VkPushConstantsInfoKHR;
+
+typedef Decoded_VkPushDescriptorSetInfo Decoded_VkPushDescriptorSetInfoKHR;
+
+typedef Decoded_VkPushDescriptorSetWithTemplateInfo Decoded_VkPushDescriptorSetWithTemplateInfoKHR;
+
+typedef Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT;
+
+typedef Decoded_VkPhysicalDevicePipelineRobustnessFeatures Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT;
+
+typedef Decoded_VkPhysicalDevicePipelineRobustnessProperties Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT;
+
+typedef Decoded_VkPipelineRobustnessCreateInfo Decoded_VkPipelineRobustnessCreateInfoEXT;
+
+typedef Decoded_VkSamplerReductionModeCreateInfo Decoded_VkSamplerReductionModeCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
+
+typedef Decoded_VkPhysicalDeviceInlineUniformBlockFeatures Decoded_VkPhysicalDeviceInlineUniformBlockFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceInlineUniformBlockProperties Decoded_VkPhysicalDeviceInlineUniformBlockPropertiesEXT;
+
+typedef Decoded_VkWriteDescriptorSetInlineUniformBlock Decoded_VkWriteDescriptorSetInlineUniformBlockEXT;
+
+typedef Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo Decoded_VkDescriptorPoolInlineUniformBlockCreateInfoEXT;
+
+typedef Decoded_VkAttachmentSampleCountInfoAMD Decoded_VkAttachmentSampleCountInfoNV;
+
+typedef Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceDescriptorIndexingFeatures Decoded_VkPhysicalDeviceDescriptorIndexingFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceDescriptorIndexingProperties Decoded_VkPhysicalDeviceDescriptorIndexingPropertiesEXT;
+
+typedef Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfoEXT;
+
+typedef Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupportEXT;
+
+typedef Decoded_VkTransformMatrixKHR Decoded_VkTransformMatrixNV;
+
+typedef Decoded_VkAabbPositionsKHR Decoded_VkAabbPositionsNV;
+
+typedef Decoded_VkAccelerationStructureInstanceKHR Decoded_VkAccelerationStructureInstanceNV;
+
+typedef Decoded_VkDeviceQueueGlobalPriorityCreateInfo Decoded_VkDeviceQueueGlobalPriorityCreateInfoEXT;
+
+typedef Decoded_VkCalibratedTimestampInfoKHR Decoded_VkCalibratedTimestampInfoEXT;
+
+typedef Decoded_VkVertexInputBindingDivisorDescription Decoded_VkVertexInputBindingDivisorDescriptionEXT;
+
+typedef Decoded_VkPipelineVertexInputDivisorStateCreateInfo Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT;
+
+typedef Decoded_VkPipelineCreationFeedbackCreateInfo Decoded_VkPipelineCreationFeedbackCreateInfoEXT;
+
+typedef Decoded_VkPipelineCreationFeedback Decoded_VkPipelineCreationFeedbackEXT;
+
+typedef Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
+
+typedef Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
+
+typedef Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL Decoded_VkQueryPoolCreateInfoINTEL;
+
+typedef Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures Decoded_VkPhysicalDeviceScalarBlockLayoutFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures Decoded_VkPhysicalDeviceSubgroupSizeControlFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceSubgroupSizeControlProperties Decoded_VkPhysicalDeviceSubgroupSizeControlPropertiesEXT;
+
+typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT;
+
+typedef Decoded_VkBufferDeviceAddressInfo Decoded_VkBufferDeviceAddressInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceToolProperties Decoded_VkPhysicalDeviceToolPropertiesEXT;
+
+typedef Decoded_VkImageStencilUsageCreateInfo Decoded_VkImageStencilUsageCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceLineRasterizationFeatures Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceLineRasterizationProperties Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT;
+
+typedef Decoded_VkPipelineRasterizationLineStateCreateInfo Decoded_VkPipelineRasterizationLineStateCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDeviceHostQueryResetFeatures Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceIndexTypeUint8Features Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceHostImageCopyFeatures Decoded_VkPhysicalDeviceHostImageCopyFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceHostImageCopyProperties Decoded_VkPhysicalDeviceHostImageCopyPropertiesEXT;
+
+typedef Decoded_VkMemoryToImageCopy Decoded_VkMemoryToImageCopyEXT;
+
+typedef Decoded_VkImageToMemoryCopy Decoded_VkImageToMemoryCopyEXT;
+
+typedef Decoded_VkCopyMemoryToImageInfo Decoded_VkCopyMemoryToImageInfoEXT;
+
+typedef Decoded_VkCopyImageToMemoryInfo Decoded_VkCopyImageToMemoryInfoEXT;
+
+typedef Decoded_VkCopyImageToImageInfo Decoded_VkCopyImageToImageInfoEXT;
+
+typedef Decoded_VkHostImageLayoutTransitionInfo Decoded_VkHostImageLayoutTransitionInfoEXT;
+
+typedef Decoded_VkSubresourceHostMemcpySize Decoded_VkSubresourceHostMemcpySizeEXT;
+
+typedef Decoded_VkHostImageCopyDevicePerformanceQuery Decoded_VkHostImageCopyDevicePerformanceQueryEXT;
+
+typedef Decoded_VkSubresourceLayout2 Decoded_VkSubresourceLayout2EXT;
+
+typedef Decoded_VkImageSubresource2 Decoded_VkImageSubresource2EXT;
+
+typedef Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties Decoded_VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT;
+
+typedef Decoded_VkPhysicalDevicePrivateDataFeatures Decoded_VkPhysicalDevicePrivateDataFeaturesEXT;
+
+typedef Decoded_VkDevicePrivateDataCreateInfo Decoded_VkDevicePrivateDataCreateInfoEXT;
+
+typedef Decoded_VkPrivateDataSlotCreateInfo Decoded_VkPrivateDataSlotCreateInfoEXT;
+
+typedef Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures Decoded_VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceImageRobustnessFeatures Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM;
+
+typedef Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
+
+typedef Decoded_VkMutableDescriptorTypeListEXT Decoded_VkMutableDescriptorTypeListVALVE;
+
+typedef Decoded_VkMutableDescriptorTypeCreateInfoEXT Decoded_VkMutableDescriptorTypeCreateInfoVALVE;
+
+typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT;
+
+typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesEXT;
+
+typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
+
+typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
