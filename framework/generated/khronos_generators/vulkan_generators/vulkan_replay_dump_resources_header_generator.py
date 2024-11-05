@@ -141,6 +141,9 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+
+        self.generate_replay_dump_resources()
+
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -155,10 +158,10 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             return True
         return False
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
+    def generate_replay_dump_resources(self):
+        """Performs C++ code generation for replay dump resources."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
