@@ -636,12 +636,10 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                 
         // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
         decode::BeginInjectedCommands();
 
-        VkResult res = CreateSwapchainResourceData(
+        result = CreateSwapchainResourceData(
             device_info, swapchain_info, capture_image_count, replay_image_count, images, false);
 
         decode::EndInjectedCommands();
-
-        return res;
     }
 
     return result;
@@ -983,7 +981,6 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     VkPresentInfoKHR modified_present_info   = *present_info;
     modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(present_wait_semaphores.size());
     modified_present_info.pWaitSemaphores    = present_wait_semaphores.data();
-
     return func(queue, &modified_present_info);
 }
 

@@ -276,7 +276,6 @@ class FileProcessor
 
         return file_stack_.back();
     }
-
 };
 
 GFXRECON_END_NAMESPACE(decode)
