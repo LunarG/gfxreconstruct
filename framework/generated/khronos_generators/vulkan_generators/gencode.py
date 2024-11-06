@@ -55,7 +55,7 @@ from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, Vulkan
 from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
-from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
+from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
@@ -83,7 +83,7 @@ from layer_func_table_generator import LayerFuncTableGenerator, LayerFuncTableGe
 # Struct Encoders
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator, VulkanStructEncodersHeaderGeneratorOptions
-from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
+from vulkan_pnext_struct_encode_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
@@ -309,10 +309,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_decode_pnext_struct.cpp'] = [
+    gen_opts['generated_vulkan_pnext_struct_decoder.cpp'] = [
         DecodePNextStructGenerator,
         DecodePNextStructGeneratorOptions(
-            filename='generated_decode_pnext_struct.cpp',
+            filename='generated_vulkan_pnext_struct_decoder.cpp',
             directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
@@ -682,10 +682,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_encode_pnext_struct.cpp'] = [
+    gen_opts['generated_vulkan_pnext_struct_encoder.cpp'] = [
         EncodePNextStructGenerator,
         EncodePNextStructGeneratorOptions(
-            filename='generated_encode_pnext_struct.cpp',
+            filename='generated_vulkan_pnext_struct_encoder.cpp',
             directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
