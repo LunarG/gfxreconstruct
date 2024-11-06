@@ -387,6 +387,9 @@ class KhronosBaseGenerator(OutputGenerator):
         self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
         self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
+        # TODO: Temp, add "global_" to the name so they don't conflict with the existing items as we
+        # transition over to using global versions
+        self.global_structs_with_handles = OrderedDict() # Map of structures with handles
 
         # Data for every supported Khronos API
         # TODO: Eventually, we should move this info into a data file that we read (JSON?)
@@ -780,14 +783,14 @@ class KhronosBaseGenerator(OutputGenerator):
         return False
 
     def get_all_filtered_struct_names(self):
-        """Retrieves a filtered list of keys from self.all_struct_memebers with blacklisted items removed."""
+        """Retrieves a filtered list of keys from self.all_struct_members with blacklisted items removed."""
         return [
             key for key in self.all_struct_members
             if not self.is_struct_black_listed(key)
         ]
 
     def get_filtered_struct_names(self):
-        """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
+        """Retrieves a filtered list of keys from self.feature_struct_members with blacklisted items removed."""
         return [
             key for key in self.feature_struct_members
             if not self.is_struct_black_listed(key)
@@ -992,6 +995,33 @@ class KhronosBaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         self.process_struct(typeinfo.elem, typename, alias)
 
+    def gen_set_parent_has_handles(self, typename):
+        if self.is_struct_black_listed(typename) or typename in self.global_structs_with_handles:
+            return
+
+        # Now loop through every struct with the parent
+        # as a member and set it to having handles as well.
+        for cur_struct in self.all_struct_members.keys():
+            if (typename in self.all_struct_members[cur_struct]):
+                if cur_struct in self.global_structs_with_handles:
+                    self.global_structs_with_handles[cur_struct].append(handles)
+                else:
+                    handles = [ typename ]
+                    self.global_structs_with_handles[cur_struct] = handles
+                self.gen_set_parent_has_handles(cur_struct)
+
+        if (typename in self.children_structs.keys()):
+            # See if any of the children structures have handles
+            for child in self.children_structs[typename]:
+                if child in self.global_structs_with_handles:
+                    self.global_structs_with_handles[child].append(handles)
+                else:
+                    handles = [ typename ]
+                    self.global_structs_with_handles[child] = handles
+                self.gen_set_parent_has_handles(typename)
+
+        self.global_structs_with_handles[typename] = []
+
     def process_struct(self, element, typename, alias):
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
@@ -999,22 +1029,57 @@ class KhronosBaseGenerator(OutputGenerator):
             members = element.findall('.//member')
             self.add_struct_members(typename, self.make_value_info(members))
 
-            # Set the structure type value for this name if it exists
-            for member in members:
-                member_type = noneStr(member.find('type').text)
-                member_name = noneStr(member.find('name').text)
+            has_handles = False
+            handles = []
 
-                # We only care about structures with an sType, which can be included in a pNext chain.
-                if (member_type == self.get_struct_type_enum_name() and
-                    member_name == self.get_struct_type_var_name()):
+            for count in range(0,len(self.all_struct_members[typename])):
+                current_xml_member = members[count]
+                current_struct_member = self.all_struct_members[typename][count]
+
+                # If this structure has a type field, add it to the list
+                # of structure types
+                if (current_struct_member.base_type == self.get_struct_type_enum_name() and
+                    current_struct_member.name == self.get_struct_type_var_name()):
+
                     # Check for value in the XML element.
-                    values = member.attrib.get('values')
+                    values = current_xml_member.attrib.get('values')
                     if values:
                         self.struct_type_names[typename] = values
                     elif (not self.is_base_input_structure_type(typename) and
                           not self.is_base_output_structure_type(typename)):
                         self.struct_type_names[typename] = self.generate_structure_type(typename)
-                    break
+
+                # If this is the extnded struct member, and we already have this structure
+                # in the list of handled structs, it means one of the structs that extends
+                # this one has a handle.  So add it to the handle list
+                if (current_struct_member.name == self.get_extended_struct_var_name() and
+                    typename in self.all_extended_structs):
+                    for extended_struct in self.all_extended_structs[typename]:
+                        if extended_struct in self.global_structs_with_handles:
+                            handles.append(current_struct_member)
+                            has_handles = True
+
+                # If this member is a handle, of course we have handles in this struct
+                elif self.is_handle(current_struct_member.base_type):
+                    handles.append(current_struct_member)
+                    has_handles = True
+
+                # If the struct is one we already know about and it has handles, record that
+                elif self.is_struct(current_struct_member.base_type):
+                    if current_struct_member.base_type in self.global_structs_with_handles:
+                        handles.append(current_struct_member)
+                        has_handles = True
+
+                elif (current_struct_member.base_type in self.children_structs.keys()):
+                    # See if any of the children structures have handles
+                    for child in self.children_structs[current_struct_member.base_type]:
+                        if child in self.global_structs_with_handles:
+                            handles.append(current_struct_member)
+                            has_handles = True
+                            break
+
+            if has_handles:
+                self.global_structs_with_handles[typename] = handles
 
             # If this struct has a parent name, keep track of all
             # the parents and their children
@@ -1026,16 +1091,61 @@ class KhronosBaseGenerator(OutputGenerator):
                     self.children_structs[parent_name] = []
                 self.children_structs[parent_name].append(typename)
 
+                # If this has handles, but the parent is already present
+                # and not listed as having handles, update the parent
+                if has_handles:
+                    self.gen_set_parent_has_handles(parent_name)
+
             # If this struct extends another struct, save that info
             extended_struct = element.get('structextends')
             if extended_struct:
-                self.add_extended_structs(typename, extended_struct)
+                extended_struct_list = []
+                if ',' in extended_struct:
+                    extended_struct_list = extended_struct.split(",")
+                else:
+                    extended_struct_list.append(extended_struct)
+                for ext_struct in extended_struct_list:
+                    self.add_extended_structs(ext_struct, typename)
+
+                # If this struct has handles, check the extended struct
+                # (or structs) and set their extended struct field to
+                # having handles.
+                if has_handles:
+                    for ext_struct in extended_struct_list:
+                        if ext_struct in self.all_struct_members:
+                            for member in self.all_struct_members[ext_struct]:
+                                if member.name == self.get_extended_struct_var_name():
+                                    # If the extended struct already has handles, then
+                                    # just append the extended struct field name to the
+                                    # existing list if it's not already there
+                                    if ext_struct in self.global_structs_with_handles:
+                                        found = False
+                                        for check_handle in self.global_structs_with_handles[ext_struct]:
+                                            if check_handle.name == member.name:
+                                                found = True
+                                                break
+                                        if not found:
+                                            self.global_structs_with_handles[ext_struct].append(member)
+                                    # Otherwise, just add it to the list
+                                    else:
+                                        extended_handles = [ member ]
+                                        self.global_structs_with_handles[ext_struct] = extended_handles
+                                    break
         else:
             self.add_struct_alias(typename, alias)
 
     def add_extended_structs(self, name, extended):
-        self.all_extended_structs[name] = extended
-        self.feature_extended_structs[name] = extended
+        if name in self.all_extended_structs:
+            self.all_extended_structs[name].append(extended)    
+        else:
+            new_list = [ extended ]
+            self.all_extended_structs[name] = new_list    
+
+        if name in self.feature_extended_structs:
+            self.feature_extended_structs[name].append(extended)    
+        else:
+            new_list = [ extended ]
+            self.feature_extended_structs[name] = new_list    
 
     def add_struct_alias(self, name, alias):
         self.all_struct_aliases[name] = alias
