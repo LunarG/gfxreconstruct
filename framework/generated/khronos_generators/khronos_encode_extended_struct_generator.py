@@ -156,16 +156,24 @@ class KhronosEncodeExtendedStructGenerator():
     def write_encode_struct_definition_data(self):
         current_api_data = self.get_api_data()
 
+        extended_list = []
         for struct in self.all_extended_structs:
-            if struct in self.struct_type_names:
-                stype = self.struct_type_names[struct]
-                write('        case {}:'.format(stype), file=self.outFile)
-                write(
-                    '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
-                    .format(struct),
-                    file=self.outFile
-                )
-                write('            break;', file=self.outFile)
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for struct in sorted(extended_list):
+            if struct not in self.struct_type_names:
+                continue
+
+            stype = self.struct_type_names[struct]
+            write('        case {}:'.format(stype), file=self.outFile)
+            write(
+                '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
+                .format(struct),
+                file=self.outFile
+            )
+            write('            break;', file=self.outFile)
 
         current_api_data = self.get_api_data()
 
