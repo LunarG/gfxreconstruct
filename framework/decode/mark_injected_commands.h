@@ -26,8 +26,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-using PFN_BeginInjectedCommands = void (*)(void*);
-using PFN_EndInjectedCommands   = void (*)(void*);
+using PFN_BeginInjectedCommands       = void (*)(void*);
+using PFN_EndInjectedCommands         = void (*)(void*);
+using PFN_SetInjectedCommandCallbacks = void (*)(PFN_BeginInjectedCommands, PFN_EndInjectedCommands, void*);
 
 // Interface for registering callbacks so that GFXReconstruct can notify an external library about
 // generated API calls that are not included in the capture file.
