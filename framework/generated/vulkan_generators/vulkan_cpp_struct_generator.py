@@ -498,7 +498,17 @@ class VulkanCppStructGenerator(BaseGenerator):
             local_body.append(self.generateTodoFor(arg.name + '(input pointer)', indent))
 
         return local_header, local_body
-    
+
+    def handlePointer(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
+        local_header = []
+        local_body = []
+        local_header.extend(header)
+        local_body.extend(body)
+        arg_name = struct_prefix + arg.name
+        struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << {arg_name} << ")"'
+        local_body.append(makeOutStructSet(struct_arg, locals(), isFirstArg, isLastArg, indent))
+
+        return local_header, local_body
 
     def handleOutputParam(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
@@ -835,6 +845,9 @@ class VulkanCppStructGenerator(BaseGenerator):
 
             elif self.is_input_pointer(arg) and arg.is_array:
                 header, body = self.handleInputArray(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
+
+            elif arg.platform_full_type is not None and arg.pointer_count > 0:
+                header, body = self.handlePointer(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             else:
                 struct_arg = arg_name
