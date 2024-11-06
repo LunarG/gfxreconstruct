@@ -223,6 +223,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_json_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_json_consumer.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_feature_util.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_decoder.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
@@ -234,7 +235,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
