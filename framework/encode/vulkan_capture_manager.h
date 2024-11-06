@@ -1602,10 +1602,12 @@ class VulkanCaptureManager : public ApiCaptureManager
         state_tracker_ = nullptr;
     }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream,
-                                   format::ThreadId        thread_id,
-                                   util::FileOutputStream* asset_file_stream = nullptr,
-                                   const std::string*      asset_file_name   = nullptr) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+
+    virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
+                                                format::ThreadId        thread_id,
+                                                util::FileOutputStream* asset_file_stream,
+                                                const std::string*      asset_file_name) override;
 
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,

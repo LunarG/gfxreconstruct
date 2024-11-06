@@ -1233,7 +1233,7 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
             std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
             for (auto& manager : api_capture_managers_)
             {
-                manager.first->WriteTrackedState(
+                manager.first->WriteTrackedStateWithAssetFile(
                     file_stream_.get(), thread_data->thread_id_, asset_file_stream.get(), &asset_file_name_);
             }
         }

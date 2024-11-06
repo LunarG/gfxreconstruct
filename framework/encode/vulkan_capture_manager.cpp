@@ -101,10 +101,18 @@ void VulkanCaptureManager::DestroyInstance()
     singleton_->common_manager_->DestroyInstance(singleton_);
 }
 
-void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
-                                             format::ThreadId        thread_id,
-                                             util::FileOutputStream* asset_file_stream,
-                                             const std::string*      asset_file_name)
+void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
+{
+    uint64_t n_blocks = state_tracker_->WriteState(
+        file_stream, thread_id, [] { return GetUniqueId(); }, GetCompressor(), GetCurrentFrame(), nullptr, nullptr);
+
+    common_manager_->IncrementBlockIndex(n_blocks);
+}
+
+void VulkanCaptureManager::WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
+                                                          format::ThreadId        thread_id,
+                                                          util::FileOutputStream* asset_file_stream,
+                                                          const std::string*      asset_file_name)
 {
     uint64_t n_blocks = state_tracker_->WriteState(
         file_stream,
