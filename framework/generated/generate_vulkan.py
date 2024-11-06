@@ -42,7 +42,6 @@ VK_HEADERS_DIR = os.path.join(
 
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
-    'generated_encode_pnext_struct.cpp',
     'generated_vulkan_struct_encoders.h',
     'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
@@ -56,12 +55,13 @@ generate_targets = [
     'generated_vulkan_command_buffer_util.cpp',
     'generated_vulkan_dispatch_table.h',
     'generated_layer_func_table.h',
+    'generated_vulkan_pnext_struct_encoder.cpp',
+    'generated_vulkan_pnext_struct_encoder.cpp',
     'generated_vulkan_struct_decoders.h',
     'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_struct_decoders_forward.h',
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
-    'generated_decode_pnext_struct.cpp',
     'generated_vulkan_consumer.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
