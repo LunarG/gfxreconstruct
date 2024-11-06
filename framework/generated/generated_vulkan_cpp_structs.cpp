@@ -8383,7 +8383,7 @@ std::string GenerateStruct_VkXlibSurfaceCreateInfoKHR(std::ostream &out, const V
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkXlibSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->dpy << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<Display*>(" << structInfo->dpy << ")" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->window << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "xlibSurfaceCreateInfoKHR");
     out << "\t\t" << "VkXlibSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
@@ -8400,7 +8400,7 @@ std::string GenerateStruct_VkXcbSurfaceCreateInfoKHR(std::ostream &out, const Vk
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkXcbSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->connection << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<xcb_connection_t*>(" << structInfo->connection << ")" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->window << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "xcbSurfaceCreateInfoKHR");
     out << "\t\t" << "VkXcbSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
@@ -8417,8 +8417,8 @@ std::string GenerateStruct_VkWaylandSurfaceCreateInfoKHR(std::ostream &out, cons
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkWaylandSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->display << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->surface << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<struct wl_display*>(" << structInfo->display << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<struct wl_surface*>(" << structInfo->surface << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "waylandSurfaceCreateInfoKHR");
     out << "\t\t" << "VkWaylandSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -8434,7 +8434,7 @@ std::string GenerateStruct_VkAndroidSurfaceCreateInfoKHR(std::ostream &out, cons
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkAndroidSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->window << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<struct ANativeWindow*>(" << structInfo->window << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "androidSurfaceCreateInfoKHR");
     out << "\t\t" << "VkAndroidSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -8450,8 +8450,8 @@ std::string GenerateStruct_VkWin32SurfaceCreateInfoKHR(std::ostream &out, const 
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkWin32SurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hinstance << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hwnd << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HINSTANCE>(" << structInfo->hinstance << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<HWND>(" << structInfo->hwnd << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "win32SurfaceCreateInfoKHR");
     out << "\t\t" << "VkWin32SurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -9902,7 +9902,7 @@ std::string GenerateStruct_VkExportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkExportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -9917,8 +9917,8 @@ std::string GenerateStruct_VkImportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalMemoryHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->handle << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkImportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10123,7 +10123,7 @@ std::string GenerateStruct_VkExportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkExportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10140,8 +10140,8 @@ std::string GenerateStruct_VkImportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->semaphore) << "," << std::endl;
     struct_body << "\t\t\t" << "VkSemaphoreImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalSemaphoreHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->handle << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkImportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10312,7 +10312,7 @@ std::string GenerateStruct_VkExportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkExportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -10344,8 +10344,8 @@ std::string GenerateStruct_VkImportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->fence) << "," << std::endl;
     struct_body << "\t\t\t" << "VkFenceImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalFenceHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->handle << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->name << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkImportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -13187,7 +13187,7 @@ std::string GenerateStruct_VkImportMemoryWin32HandleInfoNV(std::ostream &out, co
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalMemoryHandleTypeFlagsNV(" << structInfo->handleType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->handle << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importMemoryWin32HandleInfoNV");
     out << "\t\t" << "VkImportMemoryWin32HandleInfoNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -15623,7 +15623,7 @@ std::string GenerateStruct_VkMetalSurfaceCreateInfoEXT(std::ostream &out, const 
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkMetalSurfaceCreateFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pLayer << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<const CAMetalLayer*>(" << structInfo->pLayer << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "metalSurfaceCreateInfoEXT");
     out << "\t\t" << "VkMetalSurfaceCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -16084,7 +16084,7 @@ std::string GenerateStruct_VkSurfaceFullScreenExclusiveWin32InfoEXT(std::ostream
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hmonitor << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<HMONITOR>(" << structInfo->hmonitor << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "surfaceFullScreenExclusiveWin32InfoEXT");
     out << "\t\t" << "VkSurfaceFullScreenExclusiveWin32InfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -17857,8 +17857,8 @@ std::string GenerateStruct_VkDirectFBSurfaceCreateInfoEXT(std::ostream &out, con
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkDirectFBSurfaceCreateFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->dfb << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->surface << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<IDirectFB*>(" << structInfo->dfb << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<IDirectFBSurface*>(" << structInfo->surface << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "directFBSurfaceCreateInfoEXT");
     out << "\t\t" << "VkDirectFBSurfaceCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -18329,8 +18329,8 @@ std::string GenerateStruct_VkScreenSurfaceCreateInfoQNX(std::ostream &out, const
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkScreenSurfaceCreateFlagsQNX(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->context << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->window << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<struct _screen_context*>(" << structInfo->context << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "reinterpret_cast<struct _screen_window*>(" << structInfo->window << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "screenSurfaceCreateInfoQNX");
     out << "\t\t" << "VkScreenSurfaceCreateInfoQNX " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
