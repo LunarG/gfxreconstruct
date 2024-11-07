@@ -65,18 +65,21 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
             case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XCB_KHR\n");
                 break;
+            case GfxToCppPlatform::PLATFORM_WAYLAND:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WAYLAND_KHR\n");
+                break;
 #if 0
             // TODO: implement these platforms
             case GfxToCppPlatform::PLATFORM_MACOS:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_METAL_EXT\n");
                 break;
-            case GfxToCppPlatform::PLATFORM_WAYLAND:
-                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WAYLAND_KHR\n");
-                break;
             case GfxToCppPlatform::PLATFORM_XLIB:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XLIB_KHR\n");
                 break;
 #endif
+            default:
+                GFXRECON_LOG_FATAL("Failed to write out loader generator: Invalid platform (%d)", platform);
+                break;
         }
 
         fprintf(pfn_src_file, "#include \"loader.h\"\n\n");

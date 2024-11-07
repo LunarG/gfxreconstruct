@@ -94,6 +94,12 @@ void VulkanCppConsumerBase::WriteMainHeader()
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainStart);
             break;
+        case GfxToCppPlatform::PLATFORM_WAYLAND:
+            fprintf(main_file_, "%s", sWaylandOutputMainStart);
+            break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to write main header: Invalid platform (%d)", platform_);
+            break;
     }
 }
 
@@ -109,6 +115,12 @@ void VulkanCppConsumerBase::WriteMainFooter()
             break;
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainEnd);
+            break;
+        case GfxToCppPlatform::PLATFORM_WAYLAND:
+            fprintf(main_file_, "%s", sWaylandOutputMainEnd);
+            break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to write main footer: Invalid platform (%d)", platform_);
             break;
     }
 }
@@ -145,6 +157,17 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
                         sCommonHeaderOutputHeaders,
                         sXcbOutputHeader,
                         sCommonOutputHeaderFunctions);
+                break;
+            case GfxToCppPlatform::PLATFORM_WAYLAND:
+                fprintf(header_file,
+                        "%s%s%s%s",
+                        sWaylandOutputHeadersPlatform,
+                        sCommonHeaderOutputHeaders,
+                        sWaylandOutputHeader,
+                        sCommonOutputHeaderFunctions);
+                break;
+            default:
+                GFXRECON_LOG_FATAL("Failed to write global header file: Invalid platform (%d)", platform_);
                 break;
         }
 
@@ -187,6 +210,12 @@ void VulkanCppConsumerBase::PrintOutCMakeFile()
                 break;
             case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(cmake_file, "%s", sXcbCMakeFile);
+                break;
+            case GfxToCppPlatform::PLATFORM_WAYLAND:
+                fprintf(cmake_file, "%s", sWaylandCMakeFile);
+                break;
+            default:
+                GFXRECON_LOG_FATAL("Failed to print out CMake file: Unknown platform (%d)", platform_);
                 break;
         }
         util::platform::FileClose(cmake_file);
@@ -273,6 +302,22 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 delete[] formatted_output_override_method;
                 break;
             }
+            case GfxToCppPlatform::PLATFORM_WAYLAND:
+            {
+                int   size = snprintf(NULL, 0, sWaylandOutputOverrideMethod, window_width_, window_height_);
+                char* formatted_output_override_method = new char[size + 2];
+                snprintf(formatted_output_override_method,
+                         size + 2,
+                         sWaylandOutputOverrideMethod,
+                         window_width_,
+                         window_height_);
+                fputs(formatted_output_override_method, global_file);
+                delete[] formatted_output_override_method;
+                break;
+            }
+            default:
+                GFXRECON_LOG_FATAL("Failed to print out global var: Invalid platform (%d)", platform_);
+                break;
         }
 
         PrintToFile(global_file, "%s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
@@ -1703,6 +1748,26 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
             surface_create_func_call = "vkCreateXcbSurfaceKHR";
             break;
         }
+        case GfxToCppPlatform::PLATFORM_WAYLAND:
+        {
+            VkWaylandSurfaceCreateInfoKHR         wayland_struct_info  = {};
+            Decoded_VkWaylandSurfaceCreateInfoKHR decoded_wayland_info = {};
+
+            if (platform_ == platform)
+            {
+                wayland_struct_info =
+                    *reinterpret_cast<StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>*>(pSurfaceCreateInfo)
+                         ->GetPointer();
+            }
+            wayland_struct_info.sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+            create_info_struct_var_name = GenerateStruct_VkWaylandSurfaceCreateInfoKHR(
+                stream_create_info, &wayland_struct_info, &decoded_wayland_info, *this);
+            surface_create_func_call = "vkCreateWaylandSurfaceKHR";
+            break;
+        }
+        default:
+            GFXRECON_LOG_FATAL("Failed to generate surface creation: Invalid platform (%d)", platform_);
+            break;
     }
     fprintf(file, "\n%s", stream_create_info.str().c_str());
     AddKnownVariables("VkSurfaceKHR", surface_var_name, pSurface);
