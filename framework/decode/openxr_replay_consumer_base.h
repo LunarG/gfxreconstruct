@@ -244,6 +244,11 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                              PointerDecoder<uint32_t>*                                  index,
                                              XrResult                                                   replay_result);
 
+    void UpdateState_xrDestroySwapchain(const ApiCallInfo& call_info,
+                                        XrResult           returnValue,
+                                        format::HandleId   swapchain,
+                                        XrResult           replay_result);
+
     void SetFatalErrorHandler(std::function<void(const char*)> handler)
     {
         fatal_error_handler_ = handler;
@@ -622,6 +627,16 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>
     static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
     {
         consumer->UpdateState_xrAcquireSwapchainImage(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrDestroySwapchain>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrDestroySwapchain(args...);
     }
 };
 

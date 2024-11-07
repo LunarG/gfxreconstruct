@@ -23,6 +23,8 @@
 #if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_replay_session_state.h"
+#include "decode/openxr_replay_swapchain_state.h"
+#include "decode/openxr_object_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -111,6 +113,17 @@ void SessionData::ClearViewRelativeProxySpaces(const encode::OpenXrInstanceTable
         }
     }
     proxy_spaces_.clear();
+}
+
+void SessionData::ClearSwapchains(CommonObjectInfoTable& table)
+{
+    for (format::HandleId swapchain : swapchains_)
+    {
+        OpenXrSwapchainInfo* swapchain_data = table.GetXrSwapchainInfo(swapchain);
+        assert((swapchain_data != nullptr) && swapchain_data->replay_data);
+        swapchain_data->replay_data->Clear();
+    }
+    swapchains_.clear();
 }
 
 void SessionData::RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info)

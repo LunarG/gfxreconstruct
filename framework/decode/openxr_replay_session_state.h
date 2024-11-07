@@ -56,7 +56,6 @@ struct VulkanSwapchainInfo
 
     std::vector<ProxyImage>                proxy_images;
     std::vector<XrSwapchainImageVulkanKHR> replay_images;
-    std::vector<VkCommandBuffer>           transfer_commandbuffer; // Indexed by replay image index
     VkCommandPool                          command_pool = VK_NULL_HANDLE;
 };
 
@@ -119,8 +118,11 @@ class SessionData : public BaseReplayData<XrSession>
                                    const format::ViewRelativeLocation& location,
                                    XrSpace                             replay_space);
     void ClearViewRelativeProxySpaces(const encode::OpenXrInstanceTable* instance_table);
+    void ClearSwapchains(CommonObjectInfoTable& table);
 
     void RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info);
+    void AddSwapchain(format::HandleId swapchain) { swapchains_.insert(swapchain); }
+    void RemoveSwapchain(format::HandleId swapchain) { swapchains_.erase(swapchain); }
 
   protected:
     ReferenceSpaceSet         reference_spaces_;
@@ -130,6 +132,7 @@ class SessionData : public BaseReplayData<XrSession>
 
     // These are the replay handles
     GraphicsBinding graphics_binding_;
+    std::unordered_set<format::HandleId> swapchains_;
 };
 
 GFXRECON_END_NAMESPACE(openxr)
