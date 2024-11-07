@@ -949,7 +949,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2(
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
         auto pBindDescriptorSetsInfo_ptr = pBindDescriptorSetsInfo->GetMetaStructPointer();
-
         if (!pBindDescriptorSetsInfo_ptr->pDescriptorSets.IsNull() && (pBindDescriptorSetsInfo_ptr->pDescriptorSets.HasData()))
         {
             auto pDescriptorSets_ptr = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetPointer();
@@ -959,19 +958,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2(
                 GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
             }
         }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdPushConstants2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
-{
-    assert(pPushConstantsInfo != nullptr);
-
-    if (!pPushConstantsInfo->IsNull() && (pPushConstantsInfo->HasData()))
-    {
-        auto pPushConstantsInfo_ptr = pPushConstantsInfo->GetMetaStructPointer();
     }
 }
 
@@ -985,7 +971,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2(
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
         auto pPushDescriptorSetInfo_ptr = pPushDescriptorSetInfo->GetMetaStructPointer();
-
         if (!pPushDescriptorSetInfo_ptr->pDescriptorWrites->IsNull() && (pPushDescriptorSetInfo_ptr->pDescriptorWrites->HasData()))
         {
             auto pDescriptorWrites_ptr = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetMetaStructPointer();
@@ -1571,7 +1556,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
         auto pBindDescriptorSetsInfo_ptr = pBindDescriptorSetsInfo->GetMetaStructPointer();
-
         if (!pBindDescriptorSetsInfo_ptr->pDescriptorSets.IsNull() && (pBindDescriptorSetsInfo_ptr->pDescriptorSets.HasData()))
         {
             auto pDescriptorSets_ptr = pBindDescriptorSetsInfo_ptr->pDescriptorSets.GetPointer();
@@ -1581,19 +1565,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
                 GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
             }
         }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdPushConstants2KHR(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
-{
-    assert(pPushConstantsInfo != nullptr);
-
-    if (!pPushConstantsInfo->IsNull() && (pPushConstantsInfo->HasData()))
-    {
-        auto pPushConstantsInfo_ptr = pPushConstantsInfo->GetMetaStructPointer();
     }
 }
 
@@ -1607,7 +1578,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
         auto pPushDescriptorSetInfo_ptr = pPushDescriptorSetInfo->GetMetaStructPointer();
-
         if (!pPushDescriptorSetInfo_ptr->pDescriptorWrites->IsNull() && (pPushDescriptorSetInfo_ptr->pDescriptorWrites->HasData()))
         {
             auto pDescriptorWrites_ptr = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetMetaStructPointer();
@@ -1662,32 +1632,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
                 }
             }
         }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo)
-{
-    assert(pSetDescriptorBufferOffsetsInfo != nullptr);
-
-    if (!pSetDescriptorBufferOffsetsInfo->IsNull() && (pSetDescriptorBufferOffsetsInfo->HasData()))
-    {
-        auto pSetDescriptorBufferOffsetsInfo_ptr = pSetDescriptorBufferOffsetsInfo->GetMetaStructPointer();
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo)
-{
-    assert(pBindDescriptorBufferEmbeddedSamplersInfo != nullptr);
-
-    if (!pBindDescriptorBufferEmbeddedSamplersInfo->IsNull() && (pBindDescriptorBufferEmbeddedSamplersInfo->HasData()))
-    {
-        auto pBindDescriptorBufferEmbeddedSamplersInfo_ptr = pBindDescriptorBufferEmbeddedSamplersInfo->GetMetaStructPointer();
     }
 }
 
@@ -2099,29 +2043,9 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsE
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_UNREFERENCED_PARAMETER(pGeneratedCommandsInfo);
 
-    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
-    {
-        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
-    }
     GetTable().AddUserToUser(commandBuffer, stateCommandBuffer);
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkBool32                                    isPreprocessed,
-    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
-
-    assert(pGeneratedCommandsInfo != nullptr);
-
-    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
-    {
-        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
-    }
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
