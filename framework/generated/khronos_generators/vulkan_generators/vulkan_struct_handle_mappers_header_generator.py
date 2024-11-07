@@ -72,15 +72,6 @@ class VulkanStructHandleMappersHeaderGenerator(
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -108,35 +99,12 @@ class VulkanStructHandleMappersHeaderGenerator(
     def endFile(self):
         """Method override."""
         KhronosBaseStructHandleMappersHeaderGenerator.endFile(self)
+
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            )
-
-    def genCmd(self, cmdinfo, name, alias):
-        """Method override."""
-        BaseGenerator.genCmd(self, cmdinfo, name, alias)
-
-        # Look for output structs that contain handles and add to list
-        if not alias:
-            for value_info in self.feature_cmd_params[name][2]:
-                if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_filtered_struct_names()
-                ) and (value_info.base_type in self.structs_with_handles) and (
-                    value_info.base_type
-                    not in self.output_structs_with_handles
-                ):
-                    self.output_structs_with_handles.append(
-                        value_info.base_type
-                    )
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
