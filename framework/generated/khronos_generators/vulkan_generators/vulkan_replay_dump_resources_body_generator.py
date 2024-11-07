@@ -90,14 +90,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # Map of struct types to associated VkStructureType.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
