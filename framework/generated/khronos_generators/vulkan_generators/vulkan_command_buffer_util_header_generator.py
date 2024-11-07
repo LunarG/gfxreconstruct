@@ -122,7 +122,7 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                 handles.append(value)
             elif self.is_struct(
                 value.base_type
-            ) and (value.base_type in self.global_structs_with_handles):
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
