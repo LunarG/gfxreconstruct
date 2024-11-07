@@ -88,14 +88,14 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         """Method override."""
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.global_structs_with_handles)
+                (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
 
-                if struct in self.global_structs_with_handles:
-                    handle_members = self.global_structs_with_handles[struct]
+                if struct in self.structs_with_handles:
+                    handle_members = self.structs_with_handles[struct]
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
@@ -214,7 +214,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('            return copy;', file=self.outFile)
         write('        }', file=self.outFile)
         for base_type in sorted(extended_list):
-            if (base_type in self.global_structs_with_handles and
+            if (base_type in self.structs_with_handles and
                 base_type in self.struct_type_names):
                 stype = self.struct_type_names[base_type]
                 write(

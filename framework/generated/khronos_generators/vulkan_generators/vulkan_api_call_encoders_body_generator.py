@@ -430,7 +430,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             elif self.is_struct(member.base_type):
                 # This can't handle the case where 'member' is an array of structs
                 member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
-                    self.global_structs_with_handles[member.base_type]
+                    self.structs_with_handles[member.base_type]
                 )
                 member_handle_name = '{}.{}'.format(
                     member.name, member_handle_name
@@ -497,7 +497,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         # "handle" is actually a struct with embedded handles
                         unwrap_handle_def = 'nullptr'
                         member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
-                            self.global_structs_with_handles[handle.base_type]
+                            self.structs_with_handles[handle.base_type]
                         )
 
                         if not member_array_length:
@@ -562,7 +562,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     # "handle" is actually a struct with embedded handles
                     unwrap_handle_def = 'nullptr'
                     member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
-                        self.global_structs_with_handles[handle.base_type]
+                        self.structs_with_handles[handle.base_type]
                     )
 
                     if not member_array_length:
@@ -654,7 +654,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             if self.is_output_parameter(value) and (
                 self.is_handle(value.base_type) or (
                     self.is_struct(value.base_type) and
-                    (value.base_type in self.global_structs_with_handles)
+                    (value.base_type in self.structs_with_handles)
                 )
             ):
                 # The VkInstance handle does not have parent, so the 'unused'
@@ -677,7 +677,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 ) and value.is_array and ('->' in value.array_length):
                     # An array of handles with length specified by an AllocateInfo structure (there is a -> in the length name) is a pool allocation.
                     # Extract the pool handle from the AllocateInfo structure, which is currently the first and only handle member.
-                    members = self.global_structs_with_handles[values[1].base_type]
+                    members = self.structs_with_handles[values[1].base_type]
                     for member in members:
                         if self.is_handle(member.base_type):
                             co_parent_type = wrapper_prefix + '::' + member.base_type[2:] + 'Wrapper'
@@ -701,7 +701,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
                     elif self.is_struct(
                         value.base_type
-                    ) and (value.base_type in self.global_structs_with_handles):
+                    ) and (value.base_type in self.structs_with_handles):
                         expr += indent + '{}::CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             wrapper_prefix, parent_type, co_parent_type, value.base_type,
                             parent_value, co_parent_value, value.name,
@@ -715,7 +715,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
                     elif self.is_struct(
                         value.base_type
-                    ) and (value.base_type in self.global_structs_with_handles):
+                    ) and (value.base_type in self.structs_with_handles):
                         expr += indent + '{}::CreateWrappedStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             wrapper_prefix, parent_type, co_parent_type, parent_value,
                             co_parent_value, value.name
@@ -731,7 +731,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
-                    if (value.base_type in self.global_structs_with_handles) or (
+                    if (value.base_type in self.structs_with_handles) or (
                         value.base_type in self.GENERIC_HANDLE_STRUCTS
                     ):
                         need_unwrap_memory = True
@@ -793,7 +793,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 handles.append(value)
             elif self.is_struct(
                 value.base_type
-            ) and (value.base_type in self.global_structs_with_handles):
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
@@ -817,7 +817,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         for value in values:
             if self.is_output_parameter(value) and (
                 self.is_handle(value.base_type) or
-                (value.base_type in self.global_structs_with_handles)
+                (value.base_type in self.structs_with_handles)
             ):
                 return True
         return False

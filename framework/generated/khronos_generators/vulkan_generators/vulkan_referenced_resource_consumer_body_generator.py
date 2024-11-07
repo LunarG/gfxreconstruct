@@ -174,7 +174,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 handles.append(value)
             elif self.is_struct(
                 value.base_type
-            ) and (value.base_type in self.global_structs_with_handles):
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
@@ -270,20 +270,20 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
         elif self.is_struct(
             value.base_type
-        ) and (value.base_type in self.global_structs_with_handles):
+        ) and (value.base_type in self.structs_with_handles):
             if value.is_array:
                 access_operator = '[{}].'.format(index_name)
             else:
                 access_operator = '->'
 
             for index, entry in enumerate(
-                self.global_structs_with_handles[value.base_type]
+                self.structs_with_handles[value.base_type]
             ):
                 if entry.name == 'pNext':
                     ext_structs_with_handles = [
                         ext_struct for ext_struct in
                         self.registry.validextensionstructs[value.base_type]
-                        if ext_struct in self.global_structs_with_handles
+                        if ext_struct in self.structs_with_handles
                     ]
                     if ext_structs_with_handles:
                         for ext_struct in ext_structs_with_handles:
