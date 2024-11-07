@@ -923,9 +923,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
             if (data_size > 0)
             {
                 if ((image_info->tiling == VK_IMAGE_TILING_LINEAR) &&
-                    (image_info->memory_property_flags &
-                     (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) ==
-                        (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT))
+                    (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
                 {
                     result = initializer->LoadData(data_size, data, image_info->allocator_data);
 

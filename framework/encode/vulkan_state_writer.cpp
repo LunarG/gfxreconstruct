@@ -54,8 +54,7 @@ static bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 
 static bool IsMemoryReadable(VkMemoryPropertyFlags property_flags)
 {
-    return ((property_flags & (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) ==
-            (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT));
+    return ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 }
 
 static bool IsBufferReadable(VkMemoryPropertyFlags                       property_flags,
