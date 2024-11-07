@@ -107,14 +107,14 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             for value in values:
                 if self.is_output_parameter(value) and self.is_struct(
                     value.base_type
-                ) and (value.base_type in self.global_structs_with_handles
+                ) and (value.base_type in self.structs_with_handles
                        ) and (value.base_type not in self.output_structs):
                     self.output_structs.append(value.base_type)
 
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.global_structs_with_handles)
+                (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
@@ -262,7 +262,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
 
             wrapper_prefix = self.get_wrapper_prefix_from_type()
 
-            for member in self.global_structs_with_handles[struct]:
+            for member in self.structs_with_handles[struct]:
                 if self.is_struct(member.base_type):
                     if member.is_array:
                         body += '        vulkan_wrappers::CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(

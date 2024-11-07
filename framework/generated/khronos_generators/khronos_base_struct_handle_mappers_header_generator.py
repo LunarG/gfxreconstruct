@@ -38,7 +38,7 @@ class KhronosBaseStructHandleMappersHeaderGenerator():
             for value_info in self.all_cmd_params[cmd][2]:
                 if self.is_output_parameter(value_info) and (
                     value_info.base_type in self.get_all_filtered_struct_names()
-                ) and (value_info.base_type in self.global_structs_with_handles) and (
+                ) and (value_info.base_type in self.structs_with_handles) and (
                     value_info.base_type
                     not in output_structs_with_handles
                 ):
@@ -50,7 +50,7 @@ class KhronosBaseStructHandleMappersHeaderGenerator():
 
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.global_structs_with_handles)
+                (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
@@ -75,7 +75,7 @@ class KhronosBaseStructHandleMappersHeaderGenerator():
             self.newline()
 
         for struct in output_structs_with_handles:
-            if struct in self.global_structs_with_handle_ptrs:
+            if struct in self.structs_with_handle_ptrs:
                 write(
                     'void SetStructHandleLengths(Decoded_{type}* wrapper);'
                     .format(type=struct),
