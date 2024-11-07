@@ -194,15 +194,15 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         """Generate the layer dispatch call invocation."""
         call_setup_expr = []
         object_name = values[0].name
+        wrapper_prefix = self.get_wrapper_prefix_from_command(name)
         if self.use_instance_table(name, values[0].base_type):
-            dispatchfunc = 'vulkan_wrappers::GetInstanceTable'
+            dispatchfunc = '{}::GetInstanceTable'.format(wrapper_prefix)
             if values[0].base_type == 'VkDevice':
                 object_name = 'physical_device'
-                wrapper_prefix = self.get_wrapper_prefix_from_type()
-                call_setup_expr.append("auto device_wrapper = vulkan_wrappers::GetWrapper<{}::DeviceWrapper>({});".format(wrapper_prefix, values[0].name))
+                call_setup_expr.append("auto device_wrapper = {0}::GetWrapper<{0}::DeviceWrapper>({1});".format(wrapper_prefix, values[0].name))
                 call_setup_expr.append("auto physical_device = device_wrapper->physical_device->handle;")
         else:
-            dispatchfunc = 'vulkan_wrappers::GetDeviceTable'
+            dispatchfunc = '{}::GetDeviceTable'.format(wrapper_prefix)
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
 
@@ -443,7 +443,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name == 'vkCreateInstance':
             decl = 'VulkanCaptureManager::Get()->'
 
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
+        wrapper_prefix = self.get_wrapper_prefix_from_command(name)
 
         if name.startswith('vkCreate') or name.startswith(
             'vkAllocate'
@@ -648,9 +648,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_handle_wrapping(self, values, indent):
         expr = ''
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
 
         for value in values:
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             if self.is_output_parameter(value) and (
                 self.is_handle(value.base_type) or (
                     self.is_struct(value.base_type) and
@@ -727,7 +727,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         expr = ''
         need_unwrap_memory = False
         for value in values:
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
@@ -773,7 +773,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if ("Pool" in handle.base_type) and name.startswith('vkFree'):
                     handle = values[3]
 
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_command(name)
 
             if handle.is_array:
                 expr += indent + '{}::DestroyWrappedHandles<{}::{}Wrapper>({}, {});\n'.format(

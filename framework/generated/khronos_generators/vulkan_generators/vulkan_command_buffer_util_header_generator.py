@@ -83,8 +83,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd in self.get_all_filtered_cmd_names():
+            wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
             info = self.all_cmd_params[cmd]
             values = info[2]
 

@@ -99,6 +99,7 @@ class ApiData():
     Members:
         api_name                    - The name of the API
         api_class_prefix            - The prefix to use for classes in this API
+        wrapper_prefix              - The prefix used to wrap namespaces
         command_prefix              - The prefix used to identify commands belonging to this Khronos API
         struct_prefix               - The prefix used to identify structures belonging to this Khronos API
         struct_type_enum            - The enum type used to define structure types for this Khronos API
@@ -110,11 +111,13 @@ class ApiData():
         extended_struct_variable    - The extended struct varible name used in this Khronos API
         extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.
         boolean_type                - The type used by the API for booleans
+        return_const_ptr_on_extended- Return a constant on extended pointer types
     """
     def __init__(
             self,
             api_name,
             api_class_prefix,
+            wrapper_prefix,
             command_prefix,
             struct_prefix,
             struct_type_enum,
@@ -126,9 +129,11 @@ class ApiData():
             extended_struct_variable,
             extended_struct_func_prefix,
             boolean_type,
+            return_const_ptr_on_extended,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
+        self.wrapper_prefix = wrapper_prefix
         self.command_prefix = command_prefix
         self.struct_type_enum = struct_type_enum
         self.struct_prefix = struct_prefix
@@ -140,6 +145,7 @@ class ApiData():
         self.extended_struct_variable = extended_struct_variable
         self.extended_struct_func_prefix = extended_struct_func_prefix
         self.boolean_type = boolean_type
+        self.return_const_ptr_on_extended = return_const_ptr_on_extended
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -400,6 +406,7 @@ class KhronosBaseGenerator(OutputGenerator):
             ApiData(
                 api_name='Vulkan',
                 api_class_prefix='Vulkan',
+                wrapper_prefix='vulkan_wrappers',
                 command_prefix='vk',
                 struct_type_enum='VkStructureType',
                 struct_prefix='Vk',
@@ -410,13 +417,15 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_out_struct='VkBaseOutStructure',
                 extended_struct_variable='pNext',
                 extended_struct_func_prefix='PNext',
-                boolean_type='VkBool32'
+                boolean_type='VkBool32',
+                return_const_ptr_on_extended=True
             )
         )
         self.valid_khronos_supported_api_data.append(
             ApiData(
                 api_name='OpenXR',
                 api_class_prefix='OpenXr',
+                wrapper_prefix='openxr_wrappers',
                 command_prefix='xr',
                 struct_type_enum='XrStructureType',
                 struct_prefix='Xr',
@@ -427,7 +436,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_out_struct='XrBaseOutStructure',
                 extended_struct_variable='next',
                 extended_struct_func_prefix='Next',
-                boolean_type='XrBool32'
+                boolean_type='XrBool32',
+                return_const_ptr_on_extended=False
             )
         )
 
@@ -514,10 +524,6 @@ class KhronosBaseGenerator(OutputGenerator):
     def get_prefix_from_type(self, type):
         """Intended to be overridden."""
         return self.get_api_prefix()
-
-    def get_wrapper_prefix_from_type(self):
-        """Intended to be overridden."""
-        return 'khronos_wrappers'
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -1486,6 +1492,24 @@ class KhronosBaseGenerator(OutputGenerator):
         if api_data is not None:
             return api_data.extended_struct_func_prefix
         return ''
+
+    def get_wrapper_prefix(self):
+        api_data = self.get_api_data()
+        if api_data is not None:
+            return api_data.wrapper_prefix
+        return ''
+
+    def get_wrapper_prefix_from_type(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if type.startswith(api_data.struct_prefix):
+                return api_data.wrapper_prefix
+        return self.get_wrapper_prefix()
+
+    def get_wrapper_prefix_from_command(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if type.startswith(api_data.command_prefix):
+                return api_data.wrapper_prefix
+        return self.get_wrapper_prefix()
 
     def is_extended_struct_definition(self, value):
         if (value.name == self.get_extended_struct_var_name() and
