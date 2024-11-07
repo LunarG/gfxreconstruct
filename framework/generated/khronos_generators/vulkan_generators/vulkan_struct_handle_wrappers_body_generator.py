@@ -69,15 +69,6 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.pnext_structs_with_handles = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
-        self.pnext_structs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -97,14 +88,14 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         """Method override."""
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
+                (struct in self.global_structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
 
-                if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct]
+                if struct in self.global_structs_with_handles:
+                    handle_members = self.global_structs_with_handles[struct]
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
@@ -160,9 +151,20 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         write('        break;', file=self.outFile)
-        for base_type in self.pnext_structs:
+
+        extended_list = []
+        for struct in self.all_extended_structs:
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for base_type in sorted(extended_list):
+            if base_type not in self.struct_type_names:
+                continue
+
+            stype = self.struct_type_names[base_type]
             write(
-                '    case {}:'.format(self.pnext_structs[base_type]),
+                '    case {}:'.format(stype),
                 file=self.outFile
             )
             write(
@@ -211,18 +213,19 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('            }', file=self.outFile)
         write('            return copy;', file=self.outFile)
         write('        }', file=self.outFile)
-        for base_type in self.pnext_structs_with_handles:
-            write(
-                '        case {}:'.format(
-                    self.pnext_structs_with_handles[base_type]
-                ),
-                file=self.outFile
-            )
-            write(
-                '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
-                .format(base_type),
-                file=self.outFile
-            )
+        for base_type in sorted(extended_list):
+            if (base_type in self.global_structs_with_handles and
+                base_type in self.struct_type_names):
+                stype = self.struct_type_names[base_type]
+                write(
+                    '        case {}:'.format(stype),
+                    file=self.outFile
+                )
+                write(
+                    '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
+                    .format(base_type),
+                    file=self.outFile
+                )
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
@@ -236,25 +239,6 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            has_handles = self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
-            # Track this struct if it can be present in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    if has_handles:
-                        self.pnext_structs_with_handles[typename] = stype
-
-                    self.pnext_structs[typename] = stype
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
