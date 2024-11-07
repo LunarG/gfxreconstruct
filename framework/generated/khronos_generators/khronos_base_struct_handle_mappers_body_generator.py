@@ -31,93 +31,19 @@ class KhronosBaseStructHandleMappersBodyGenerator():
     def endFile(self):
         self.generate_handle_mappers()
 
-        # Print out a function to handle mapping the extended struct types
-        extended_struct_func_name = self.get_extended_struct_func_prefix()
-        self.newline()
-        write(
-            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    if ((value != nullptr) && (wrapper != nullptr))',
-            file=self.outFile
-        )
-        write('    {', file=self.outFile)
-        write(
-            '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.get_base_input_structure_name()),
-            file=self.outFile
-        )
-        write('', file=self.outFile)
-        write('        switch (base->{})'.format(self.get_struct_type_var_name()), file=self.outFile)
-        write('        {', file=self.outFile)
-        write('        default:', file=self.outFile)
-        write(
-            '            // TODO: Report or raise fatal error for unrecognized {}?'.format(self.get_struct_type_var_name()),
-            file=self.outFile
-        )
-        write('            break;', file=self.outFile)
-
-        for base_type in self.pnext_structs:
-            if base_type in self.structs_with_handles:
-                write(
-                    '        case {}:'.format(self.pnext_structs[base_type]),
-                    file=self.outFile
-                )
-                write(
-                    '            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
-                    .format(base_type),
-                    file=self.outFile
-                )
-                write('            break;', file=self.outFile)
-
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
-
-        # Generate handle adding functions for output structs with handles
-        for struct in self.output_structs_with_handles:
-            self.newline()
-            write(
-                self.make_struct_handle_additions(
-                    struct, self.structs_with_handles[struct]
-                ),
-                file=self.outFile
-            )
-
-        # Generate handle memory allocation functions for output structs with handles
-        for struct in self.output_structs_with_handles:
-            if struct in self.structs_with_handle_ptrs:
-                self.newline()
-                write(
-                    self.make_struct_handle_allocations(
-                        struct, self.structs_with_handles[struct]
-                    ),
-                    file=self.outFile
-                )
-
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
     def generate_handle_mappers(self):
         """Performs C++ code generation for the handle mappers."""
+
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
+                (struct in self.global_structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
-                or (struct in self.structs_with_map_data)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = list()
                 generic_handle_members = dict()
 
-                if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct].copy()
-
-                if struct in self.structs_with_map_data:
-                    handle_members.extend(
-                        self.structs_with_map_data[struct].copy()
-                    )
+                if struct in self.global_structs_with_handles:
+                    handle_members = self.global_structs_with_handles[struct].copy()
 
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
@@ -160,6 +86,94 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                 body += '}'
 
                 write(body, file=self.outFile)
+
+        # Print out a function to handle mapping the extended struct types
+        extended_struct_func_name = self.get_extended_struct_func_prefix()
+        self.newline()
+        write(
+            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write(
+            '    if ((value != nullptr) && (wrapper != nullptr))',
+            file=self.outFile
+        )
+        write('    {', file=self.outFile)
+        write(
+            '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.get_base_input_structure_name()),
+            file=self.outFile
+        )
+        write('', file=self.outFile)
+        write('        switch (base->{})'.format(self.get_struct_type_var_name()), file=self.outFile)
+        write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write(
+            '            // TODO: Report or raise fatal error for unrecognized {}?'.format(self.get_struct_type_var_name()),
+            file=self.outFile
+        )
+        write('            break;', file=self.outFile)
+
+        extended_list = []
+        for struct in self.all_extended_structs:
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for base_type in sorted(extended_list):
+            if base_type in self.global_structs_with_handles:
+                write(
+                    '        case {}:'.format(self.struct_type_names[base_type]),
+                    file=self.outFile
+                )
+                write(
+                    '            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
+                    .format(base_type),
+                    file=self.outFile
+                )
+                write('            break;', file=self.outFile)
+
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+
+        # List of structs containing handles that are also used as output parameters for a command
+        output_structs_with_handles = []
+
+        # Look for output structs that contain handles and add to list
+        for cmd in self.get_all_filtered_cmd_names():
+            for value_info in self.all_cmd_params[cmd][2]:
+                if self.is_output_parameter(value_info) and (
+                    value_info.base_type in self.get_all_filtered_struct_names()
+                ) and (value_info.base_type in self.global_structs_with_handles) and (
+                    value_info.base_type
+                    not in output_structs_with_handles
+                ):
+                    output_structs_with_handles.append(
+                        value_info.base_type
+                    )
+
+
+        # Generate handle adding functions for output structs with handles
+        for struct in output_structs_with_handles:
+            self.newline()
+            write(
+                self.make_struct_handle_additions(
+                    struct, self.global_structs_with_handles[struct]
+                ),
+                file=self.outFile
+            )
+
+        # Generate handle memory allocation functions for output structs with handles
+        for struct in output_structs_with_handles:
+            if struct in self.global_structs_with_handle_ptrs:
+                self.newline()
+                write(
+                    self.make_struct_handle_allocations(
+                        struct, self.global_structs_with_handles[struct]
+                    ),
+                    file=self.outFile
+                )
 
     def make_struct_handle_mappings(
         self, name, handle_members, generic_handle_members
