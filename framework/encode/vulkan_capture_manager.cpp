@@ -33,6 +33,7 @@
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
+#include "encode/vulkan_capture_common.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
@@ -216,74 +217,6 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
         }
 
         WriteToFile(&resize_cmd2, sizeof(resize_cmd2));
-    }
-}
-
-void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
-                                                        AHardwareBuffer*                                    buffer,
-                                                        const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
-{
-    if (IsCaptureModeWrite())
-    {
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        assert(buffer != nullptr);
-
-        format::CreateHardwareBufferCommandHeader create_buffer_cmd;
-
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
-
-        create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
-        create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
-            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
-        create_buffer_cmd.thread_id = thread_data->thread_id_;
-        create_buffer_cmd.memory_id = memory_id;
-        create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
-
-        // Get AHB description data.
-        AHardwareBuffer_Desc ahb_desc = {};
-        AHardwareBuffer_describe(buffer, &ahb_desc);
-
-        create_buffer_cmd.format = ahb_desc.format;
-        create_buffer_cmd.width  = ahb_desc.width;
-        create_buffer_cmd.height = ahb_desc.height;
-        create_buffer_cmd.stride = ahb_desc.stride;
-        create_buffer_cmd.usage  = ahb_desc.usage;
-        create_buffer_cmd.layers = ahb_desc.layers;
-
-        size_t planes_size = 0;
-
-        if (plane_info.empty())
-        {
-            create_buffer_cmd.planes = 0;
-        }
-        else
-        {
-            create_buffer_cmd.planes = static_cast<uint32_t>(plane_info.size());
-            // Update size of packet with size of plane info.
-            planes_size = sizeof(plane_info[0]) * plane_info.size();
-            create_buffer_cmd.meta_header.block_header.size += planes_size;
-        }
-
-        {
-            if (planes_size > 0)
-            {
-                CombineAndWriteToFile(
-                    { { &create_buffer_cmd, sizeof(create_buffer_cmd) }, { plane_info.data(), planes_size } });
-            }
-            else
-            {
-                WriteToFile(&create_buffer_cmd, sizeof(create_buffer_cmd));
-            }
-        }
-#else
-        GFXRECON_UNREFERENCED_PARAMETER(memory_id);
-        GFXRECON_UNREFERENCED_PARAMETER(buffer);
-        GFXRECON_UNREFERENCED_PARAMETER(plane_info);
-
-        GFXRECON_LOG_ERROR("Skipping create AHardwareBuffer command write for unsupported platform");
-#endif
     }
 }
 
@@ -1722,179 +1655,51 @@ VkMemoryPropertyFlags VulkanCaptureManager::GetMemoryProperties(vulkan_wrappers:
     return memory_properties->memoryTypes[memory_type_index].propertyFlags;
 }
 
-void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer)
+void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
+                                                 AHardwareBuffer* hardware_buffer,
+                                                 VkDevice         device)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    assert(hardware_buffer != nullptr);
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    if (entry != hardware_buffers_.end())
+    {
+        return;
+    }
+
+    format::HandleId memory_id = GetUniqueId();
+
+    HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
+    ahb_info.memory_id           = memory_id;
+    ahb_info.reference_count     = 0;
+
     auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     VkDevice device_unwrapped = device_wrapper->handle;
     auto     device_table     = vulkan_wrappers::GetDeviceTable(device);
 
-    auto entry = hardware_buffers_.find(hardware_buffer);
-    if (entry == hardware_buffers_.end())
+    // Query the AHB size
+    VkAndroidHardwareBufferPropertiesANDROID properties = {
+        VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+    };
+    properties.pNext = nullptr;
+
+    VkResult vk_result =
+        device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
+
+    if (vk_result == VK_SUCCESS)
     {
-        // If this is the first device memory object to reference the hardware buffer, write a buffer creation
-        // command to the capture file and setup memory tracking.
-
-        std::vector<format::HardwareBufferPlaneInfo> plane_info;
-
-        AHardwareBuffer_Desc desc;
-        AHardwareBuffer_describe(hardware_buffer, &desc);
-
-        if ((desc.usage & AHARDWAREBUFFER_USAGE_CPU_READ_MASK) != 0)
-        {
-            void* data   = nullptr;
-            int   result = -1;
-
-            // The multi-plane functions are declared for API 26, but are only available to link with API 29.  So, this
-            // could be turned into a run-time check dependent on dlsym returning a valid pointer for
-            // AHardwareBuffer_lockPlanes.
-#if __ANDROID_API__ >= 29
-            AHardwareBuffer_Planes ahb_planes;
-            result = AHardwareBuffer_lockPlanes(
-                hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &ahb_planes);
-            if (result == 0)
-            {
-                data = ahb_planes.planes[0].data;
-
-                for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
-                {
-                    format::HardwareBufferPlaneInfo ahb_plane_info;
-                    ahb_plane_info.offset =
-                        reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
-                    ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
-                    ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
-                    plane_info.emplace_back(std::move(ahb_plane_info));
-                }
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
-            }
-#endif
-
-            // Only store buffer IDs and reference count if a creation command is written to the capture file.
-            format::HandleId memory_id = GetUniqueId();
-
-            HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
-            ahb_info.memory_id           = memory_id;
-            ahb_info.reference_count     = 0;
-
-            // Write CreateHardwareBufferCmd with or without the AHB payload
-            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-
-            // Query the AHB size
-            VkAndroidHardwareBufferPropertiesANDROID properties = {
-                VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
-            };
-            properties.pNext = nullptr;
-
-            VkResult vk_result =
-                device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
-
-            if (vk_result == VK_SUCCESS)
-            {
-                const size_t ahb_size = properties.allocationSize;
-                assert(ahb_size);
-
-                // If AHardwareBuffer_lockPlanes() failed (or is not available) try AHardwareBuffer_lock()
-                if (result != 0)
-                {
-                    result =
-                        AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
-                }
-
-                if (result == 0 && data != nullptr)
-                {
-                    WriteFillMemoryCmd(memory_id, 0, ahb_size, data);
-
-                    // Track the memory with the PageGuardManager
-                    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-                         GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
-                        GetPageGuardTrackAhbMemory())
-                    {
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, ahb_size);
-
-                        util::PageGuardManager* manager = util::PageGuardManager::Get();
-                        assert(manager != nullptr);
-
-                        manager->AddTrackedMemory(memory_id,
-                                                  data,
-                                                  0,
-                                                  static_cast<size_t>(ahb_size),
-                                                  util::PageGuardManager::kNullShadowHandle,
-                                                  false,  // No shadow memory for the imported AHB memory.
-                                                  false); // Write watch is not supported for this case.
-                    }
-
-                    result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
-                    if (result != 0)
-                    {
-                        GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR(
-                        "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
-
-                    // Dump zeros for AHB payload.
-                    std::vector<uint8_t> zeros(ahb_size, 0);
-                    WriteFillMemoryCmd(memory_id, 0, ahb_size, zeros.data());
-                }
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR(
-                    "GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer data will be omitted "
-                    "from the capture file");
-
-                // In case AHardwareBuffer_lockPlanes() succeeded
-                if (result == 0)
-                {
-                    result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
-                    if (result != 0)
-                    {
-                        GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
-                    }
-                }
-            }
-        }
-        else
-        {
-            // The AHB is not CPU-readable
-            // Only store buffer IDs and reference count if a creation command is written to the capture file.
-            format::HandleId memory_id = GetUniqueId();
-
-            HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
-            ahb_info.memory_id           = memory_id;
-            ahb_info.reference_count     = 0;
-
-            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-
-            GFXRECON_LOG_WARNING("AHardwareBuffer cannot be read: hardware buffer data will be omitted "
-                                 "from the capture file");
-
-            VkAndroidHardwareBufferPropertiesANDROID properties = {
-                VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
-            };
-            properties.pNext = nullptr;
-
-            VkResult vk_result =
-                device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
-
-            if (vk_result == VK_SUCCESS)
-            {
-                const size_t ahb_size = properties.allocationSize;
-
-                // Dump zeros for AHB payload.
-                std::vector<uint8_t> zeros(ahb_size, 0);
-                WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
-            }
-        }
+        const size_t ahb_size = properties.allocationSize;
+        assert(ahb_size);
+        CommonProcessHardwareBuffer(thread_id, memory_id, hardware_buffer, ahb_size, this, nullptr);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer data will be omitted "
+                           "from the capture file");
     }
 #else
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
 #endif
 }
 
@@ -1908,7 +1713,10 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
     auto memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
 
-    ProcessReferenceToAndroidHardwareBuffer(device, hardware_buffer);
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    ProcessHardwareBuffer(thread_data->thread_id_, hardware_buffer, device);
     auto entry = hardware_buffers_.find(hardware_buffer);
     GFXRECON_ASSERT(entry != hardware_buffers_.end());
 
@@ -2701,9 +2509,13 @@ void VulkanCaptureManager::PreProcess_vkGetAndroidHardwareBufferPropertiesANDROI
     GFXRECON_UNREFERENCED_PARAMETER(pProperties);
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
     if (hardware_buffer != nullptr)
     {
-        ProcessReferenceToAndroidHardwareBuffer(device, const_cast<AHardwareBuffer*>(hardware_buffer));
+        ProcessHardwareBuffer(thread_data->thread_id_, const_cast<AHardwareBuffer*>(hardware_buffer), device);
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(device);
