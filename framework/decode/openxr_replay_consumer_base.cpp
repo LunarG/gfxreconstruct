@@ -746,6 +746,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEndSession(const ApiCallInfo& call_
 {
     SessionData& session_data = GetSessionData(session);
     session_data.ClearViewRelativeProxySpaces(GetInstanceTable(session_data.GetHandle()));
+    session_data.ClearSwapchains(GetObjectInfoTable());
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrBeginFrame(const ApiCallInfo&                              call_info,
@@ -985,6 +986,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateSwapchain(
     SwapchainData& swap_data    = AddSwapchainData(*swapchain->GetPointer());
 
     swap_data.InitSwapchainData(session_data.GetGraphicsBinding(), amended_info, *out_swapchain);
+    session_data.AddSwapchain(*swapchain->GetPointer());
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
@@ -1034,6 +1036,21 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
     replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrDestroySwapchain(const ApiCallInfo& call_info,
+                                                              XrResult           returnValue,
+                                                              format::HandleId   swapchain,
+                                                              XrResult           replay_result)
+{
+    OpenXrSwapchainInfo* swapchain_info = GetObjectInfo<OpenXrSwapchainInfo>(swapchain, object_info_table_);
+    if (!swapchain_info)
+        return;
+
+    SessionData& session_data = GetSessionData(swapchain_info->parent_id);
+
+    swapchain_info->replay_data->Clear();
+    session_data.RemoveSwapchain(swapchain);
 }
 
 void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(

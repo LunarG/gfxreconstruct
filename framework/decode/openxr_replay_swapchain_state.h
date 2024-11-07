@@ -55,12 +55,16 @@ class SwapchainData : public BaseReplayData<XrSwapchain>
     XrResult ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo);
     void     WaitedWithoutTimeout();
 
+    void Clear();
+
   protected:
     static void MapVulkanSwapchainImageFlags(XrSwapchainUsageFlags xr_flags, VkImageCreateInfo& info);
     XrResult    InitSwapchainData(const XrSwapchainCreateInfo& xr_info, VulkanSwapchainInfo& vk_info);
     XrResult    AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index, VulkanSwapchainInfo& swap_info);
     XrResult    ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo,
                                       VulkanSwapchainInfo&                                       swap_info);
+
+    void Clear(VulkanSwapchainInfo& swap_info);
 
     XrSwapchain                            swapchain_;
     XrSwapchainCreateInfo                  create_info_;

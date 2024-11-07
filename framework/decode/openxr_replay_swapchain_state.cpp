@@ -137,7 +137,6 @@ XrResult SwapchainData::InitVirtualSwapchain(PointerDecoder<uint32_t>*          
     // WIP: Properly log and handle this
     assert(vk_result == VK_SUCCESS);
 
-    vk_swap.transfer_commandbuffer.resize(vk_swap.replay_images.size());
     VkCommandBufferAllocateInfo cb_alloc_info = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         nullptr,
@@ -310,6 +309,34 @@ void SwapchainData::WaitedWithoutTimeout()
     // The calling order will be enforced by the runtime at replay time, and if the application
     // didn't handle XR_TIMEOUT correctly, that's an invalid trace, which the replay runtime may respond poorly
     // to, but it's unsure whether we can do anything about it.
+}
+
+void SwapchainData::Clear()
+{
+    if (graphics_binding_->IsVulkan())
+    {
+        Clear(*swapchain_graphics_info_.vulkan_info);
+        swapchain_graphics_info_.vulkan_info.reset();
+    }
+}
+
+void SwapchainData::Clear(VulkanSwapchainInfo& vk_swap)
+{
+    assert(graphics_binding_->IsVulkan());
+    const VulkanGraphicsBinding& vk_binding   = graphics_binding_->GetVulkanBinding();
+    const VkDevice               vk_device    = vk_binding.device;
+    auto*                        device_table = vk_binding.device_table;
+
+    for (auto& proxy : vk_swap.proxy_images)
+    {
+        device_table->DestroyImage(vk_device, proxy.image, nullptr);
+        device_table->FreeMemory(vk_device, proxy.memory, nullptr);
+        device_table->DestroyFence(vk_device, proxy.cb_fence, nullptr);
+    }
+
+    vk_swap.proxy_images.clear();
+    device_table->DestroyCommandPool(vk_device, vk_swap.command_pool, nullptr);
+    vk_swap.command_pool = VK_NULL_HANDLE;
 }
 
 XrResult SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index, VulkanSwapchainInfo& swap)
