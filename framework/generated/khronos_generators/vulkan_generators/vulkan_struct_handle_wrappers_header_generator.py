@@ -260,33 +260,32 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             body += '    if (value != nullptr)\n'
             body += '    {\n'
 
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
-
             for member in self.structs_with_handles[struct]:
+                wrapper_prefix = self.get_wrapper_prefix_from_type(member.base_type)
                 if self.is_struct(member.base_type):
                     if member.is_array:
-                        body += '        vulkan_wrappers::CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member.base_type, member.name, member.array_length
+                        body += '        {}::CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type, member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member.name
+                        body += '        {}::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.name
                         )
                     else:
-                        body += '        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member.name
+                        body += '        {}::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.name
                         )
                 else:
                     if member.is_array:
-                        body += '        vulkan_wrappers::CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        {0}::CreateWrappedHandles<ParentWrapper, CoParentWrapper, {0}::{1}Wrapper>(parent, co_parent, value->{2}, value->{3}, get_id);\n'.format(
                             wrapper_prefix, member.base_type[2:], member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        {0}::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {0}::{1}Wrapper>(parent, co_parent, value->{2}, get_id);\n'.format(
                             wrapper_prefix, member.base_type[2:], member.name
                         )
                     else:
-                        body += '        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        {0}::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {0}::{1}Wrapper>(parent, co_parent, &value->{2}, get_id);\n'.format(
                             wrapper_prefix, member.base_type[2:], member.name
                         )
 

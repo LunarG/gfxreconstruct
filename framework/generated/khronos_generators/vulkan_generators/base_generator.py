@@ -711,10 +711,6 @@ class BaseGenerator(KhronosBaseGenerator):
         """Method override. Start processing in superclass."""
         return self.get_api_prefix()
 
-    def get_wrapper_prefix_from_type(self):
-        """Method override. Start processing in superclass."""
-        return 'vulkan_wrappers'
-
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
     ):
@@ -732,7 +728,7 @@ class BaseGenerator(KhronosBaseGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            wrapper = self.get_wrapper_prefix_from_type()
+            wrapper = self.get_wrapper_prefix_from_type(name)
             arg_name = '{}::GetWrappedId({}, {})'.format(
                 wrapper, arg_name, handle_type_name
             )
@@ -792,7 +788,7 @@ class BaseGenerator(KhronosBaseGenerator):
                 method_call += 'Value'
 
         if is_handle:
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:

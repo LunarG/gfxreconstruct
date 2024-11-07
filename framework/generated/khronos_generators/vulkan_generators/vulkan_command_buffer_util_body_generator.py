@@ -98,8 +98,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         for cmd in self.get_all_filtered_cmd_names():
             command_info[cmd] = self.all_cmd_params[cmd]
 
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd, info in command_info.items():
+            wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
             if not cmd[2:] in self.customImplementationRequired:
                 params = info[2]
                 if params and params[0].base_type == 'VkCommandBuffer':
@@ -184,7 +184,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         if self.is_handle(value.base_type):
             type_enum_value = '{}Handle'.format(value.base_type[2:])
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             value_name = value_prefix + value.name
             if value.is_array:
                 value_name = '{}[{}]'.format(value_name, index_name)
