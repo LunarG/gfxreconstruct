@@ -25,7 +25,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
+from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
@@ -62,7 +62,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayConsumerBodyGenerator(
-    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
@@ -138,7 +138,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosBaseReplayConsumerBodyGenerator.endFile(self)
+        KhronosReplayConsumerBodyGenerator.endFile(self)
         self.newline()
         write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
         write('{', file=self.outFile)

@@ -24,7 +24,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
+from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
 class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
@@ -57,7 +57,7 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayDumpResourcesBodyGenerator(
-    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
     """
@@ -111,7 +111,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosBaseReplayConsumerBodyGenerator.endFile(self)
+        KhronosReplayConsumerBodyGenerator.endFile(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
