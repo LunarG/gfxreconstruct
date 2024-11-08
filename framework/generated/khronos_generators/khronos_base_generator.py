@@ -101,7 +101,7 @@ class ApiData():
         api_class_prefix            - The prefix to use for classes in this API
         wrapper_prefix              - The prefix used to wrap namespaces
         command_prefix              - The prefix used to identify commands belonging to this Khronos API
-        struct_prefix               - The prefix used to identify structures belonging to this Khronos API
+        type_prefix                 - The prefix used to identify types belonging to this Khronos API
         struct_type_enum            - The enum type used to define structure types for this Khronos API
         struct_type_prefix          - The prefix used in the enum to identify the structure type enum value
         struct_type_variable        - The variable name used to identify structure types for this Khronos API
@@ -112,6 +112,12 @@ class ApiData():
         extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.
         boolean_type                - The type used by the API for booleans
         return_const_ptr_on_extended- Return a constant on extended pointer types
+        supports_handles            - This API supports Handles
+        handle_func_name_mod        - The name used to indicate a function is processing handles
+        supports_atoms              - This API supports Atoms as a type
+        atom_func_name_mod          - The name used to indicate a function is processing atoms
+        supports_opaques            - This API supports Opaques as a type
+        opaque_func_name_mod        - The name used to indicate a function is processing opaque
     """
     def __init__(
             self,
@@ -119,7 +125,7 @@ class ApiData():
             api_class_prefix,
             wrapper_prefix,
             command_prefix,
-            struct_prefix,
+            type_prefix,
             struct_type_enum,
             struct_type_prefix,
             struct_type_variable,
@@ -130,13 +136,19 @@ class ApiData():
             extended_struct_func_prefix,
             boolean_type,
             return_const_ptr_on_extended,
+            supports_handles,
+            handle_func_name_mod,
+            supports_atoms,
+            atom_func_name_mod,
+            supports_opaques,
+            opaque_func_name_mod,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
         self.wrapper_prefix = wrapper_prefix
         self.command_prefix = command_prefix
         self.struct_type_enum = struct_type_enum
-        self.struct_prefix = struct_prefix
+        self.type_prefix = type_prefix
         self.struct_type_prefix = struct_type_prefix
         self.struct_type_variable = struct_type_variable
         self.struct_type_func_prefix = struct_type_func_prefix
@@ -146,6 +158,12 @@ class ApiData():
         self.extended_struct_func_prefix = extended_struct_func_prefix
         self.boolean_type = boolean_type
         self.return_const_ptr_on_extended = return_const_ptr_on_extended
+        self.supports_handles = supports_handles
+        self.handle_func_name_mod = handle_func_name_mod
+        self.supports_atoms = supports_atoms
+        self.atom_func_name_mod = atom_func_name_mod
+        self.supports_opaques = supports_opaques
+        self.opaque_func_name_mod  = opaque_func_name_mod
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -399,6 +417,9 @@ class KhronosBaseGenerator(OutputGenerator):
         self.structs_with_handle_ptrs = set(
         )  # Set of structures with handles
 
+        self.atom_names = set()  # Set of current API's Atom typenames
+        self.opaque_names = set()  # Set of current API's Opaque typenames
+
         # Data for every supported Khronos API
         # TODO: Eventually, we should move this info into a data file that we read (JSON?)
         self.valid_khronos_supported_api_data = []
@@ -409,7 +430,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 wrapper_prefix='vulkan_wrappers',
                 command_prefix='vk',
                 struct_type_enum='VkStructureType',
-                struct_prefix='Vk',
+                type_prefix='Vk',
                 struct_type_prefix='VK_STRUCTURE_TYPE_',
                 struct_type_variable='sType',
                 struct_type_func_prefix='SType',
@@ -418,7 +439,13 @@ class KhronosBaseGenerator(OutputGenerator):
                 extended_struct_variable='pNext',
                 extended_struct_func_prefix='PNext',
                 boolean_type='VkBool32',
-                return_const_ptr_on_extended=True
+                return_const_ptr_on_extended=True,
+                supports_handles=True,
+                handle_func_name_mod='Handle',
+                supports_atoms=False,
+                atom_func_name_mod='',
+                supports_opaques=False,
+                opaque_func_name_mod=''
             )
         )
         self.valid_khronos_supported_api_data.append(
@@ -428,7 +455,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 wrapper_prefix='openxr_wrappers',
                 command_prefix='xr',
                 struct_type_enum='XrStructureType',
-                struct_prefix='Xr',
+                type_prefix='Xr',
                 struct_type_prefix='XR_TYPE_',
                 struct_type_variable='type',
                 struct_type_func_prefix='Type',
@@ -437,7 +464,13 @@ class KhronosBaseGenerator(OutputGenerator):
                 extended_struct_variable='next',
                 extended_struct_func_prefix='Next',
                 boolean_type='XrBool32',
-                return_const_ptr_on_extended=False
+                return_const_ptr_on_extended=False,
+                supports_handles=True,
+                handle_func_name_mod='Handle',
+                supports_atoms=True,
+                atom_func_name_mod='Atom',
+                supports_opaques=True,
+                opaque_func_name_mod='Opaque'
             )
         )
 
@@ -584,8 +617,60 @@ class KhronosBaseGenerator(OutputGenerator):
         return False
 
     def is_atom(self, base_type):
-        """Check if atom.  The subclass may override this method."""
+        for api_data in self.valid_khronos_supported_api_data:
+            if (api_data.supports_atoms and
+                base_type.startswith(api_data.type_prefix) and
+                base_type == self.atom_names):
+                return True
         return False
+
+    def is_opaque(self, base_type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (api_data.supports_opaques and
+                base_type == api_data.type_prefix and
+                base_type == self.opaque_names):
+                return True
+        return False
+
+    def is_handle_like(self, base_type):
+        if (self.is_handle(base_type) or
+            self.is_atom(base_type) or
+            self.is_opaque(base_type)):
+            return True
+        return False
+
+    def get_handle_func_name_modifier(self, base_type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (api_data.supports_handles and
+                base_type.startswith(api_data.type_prefix) and
+                (base_type in self.handle_names or base_type in self.structs_with_handles)):
+                return api_data.handle_func_name_mod
+        return ''
+
+    def get_atom_func_name_modifier(self, base_type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (api_data.supports_atoms and
+                base_type.startswith(api_data.type_prefix) and
+                base_type in self.atom_names):
+                return api_data.atom_func_name_mod
+        return ''
+
+    def get_opaque_func_name_modifier(self, base_type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if (api_data.supports_opaques and
+                base_type.startswith(api_data.type_prefix) and
+                base_type in self.opaque_names):
+                return api_data.opaque_func_name_mod
+        return ''
+
+    def get_handle_like_func_name_modifier(self, base_type):
+        if (self.is_handle(base_type) or base_type in self.structs_with_handles):
+            return self.get_handle_func_name_modifier(base_type)
+        if (self.is_atom(base_type)):
+            return self.get_atom_func_name_modifier(base_type)
+        if (self.is_opaque(base_type)):
+            return self.get_opaque_func_name_modifier(base_type)
+        return ''
 
     def get_default_handle_atom_value(self, base_type):
         return '0'
@@ -1425,14 +1510,14 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def is_base_input_structure_type(self, type):
         for api_data in self.valid_khronos_supported_api_data:
-            if (type.startswith(api_data.struct_prefix) and
+            if (type.startswith(api_data.type_prefix) and
                 type == api_data.base_in_struct):
                 return True
         return False
 
     def is_base_output_structure_type(self, type):
         for api_data in self.valid_khronos_supported_api_data:
-            if (type.startswith(api_data.struct_prefix) and
+            if (type.startswith(api_data.type_prefix) and
                 type == api_data.base_out_struct):
                 return True
         return False
@@ -1493,7 +1578,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def get_wrapper_prefix_from_type(self, type):
         for api_data in self.valid_khronos_supported_api_data:
-            if type.startswith(api_data.struct_prefix):
+            if type.startswith(api_data.type_prefix):
                 return api_data.wrapper_prefix
         return self.get_wrapper_prefix()
 
@@ -1511,7 +1596,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def get_api_prefix_from_type(self, type):
         for api_data in self.valid_khronos_supported_api_data:
-            if type.startswith(api_data.struct_prefix):
+            if type.startswith(api_data.type_prefix):
                 return api_data.api_class_prefix
         return self.get_api_prefix()
 
@@ -1535,7 +1620,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Apply any structure type prefix first
         for api_data in self.valid_khronos_supported_api_data:
-            upper_prefix = api_data.struct_prefix.upper()
+            upper_prefix = api_data.type_prefix.upper()
             if upper_type.startswith(upper_prefix):
                 type_with_prefix = api_data.struct_type_prefix + upper_type
 
@@ -1551,7 +1636,7 @@ class KhronosBaseGenerator(OutputGenerator):
         lower_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).lower()
 
         for api_data in self.valid_khronos_supported_api_data:
-            lower_prefix = api_data.struct_prefix.lower()
+            lower_prefix = api_data.type_prefix.lower()
             if lower_type.startswith(lower_prefix):
                 lower_prefix_len = len(lower_prefix)
                 new_lower_type = lower_type[:lower_prefix_len - 1] + '_' + lower_type[lower_prefix_len - 1:]
