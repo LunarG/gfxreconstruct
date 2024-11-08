@@ -517,14 +517,6 @@ class KhronosBaseGenerator(OutputGenerator):
         """Intended to be overridden."""
         return None
 
-    def get_api_prefix(self):
-        """Intended to be overridden."""
-        return 'Khronos'
-
-    def get_prefix_from_type(self, type):
-        """Intended to be overridden."""
-        return self.get_api_prefix()
-
     #
     # Indicates that the current feature has C++ code to generate.
     # The subclass should override this method.
@@ -1505,11 +1497,29 @@ class KhronosBaseGenerator(OutputGenerator):
                 return api_data.wrapper_prefix
         return self.get_wrapper_prefix()
 
-    def get_wrapper_prefix_from_command(self, type):
+    def get_wrapper_prefix_from_command(self, cmd):
         for api_data in self.valid_khronos_supported_api_data:
-            if type.startswith(api_data.command_prefix):
+            if cmd.startswith(api_data.command_prefix):
                 return api_data.wrapper_prefix
         return self.get_wrapper_prefix()
+
+    def get_api_prefix(self):
+        api_data = self.get_api_data()
+        if api_data is not None:
+            return api_data.api_class_prefix
+        return 'Khronos'
+
+    def get_api_prefix_from_type(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if type.startswith(api_data.struct_prefix):
+                return api_data.api_class_prefix
+        return self.get_api_prefix()
+
+    def get_api_prefix_from_command(self, cmd):
+        for api_data in self.valid_khronos_supported_api_data:
+            if cmd.startswith(api_data.command_prefix):
+                return api_data.api_class_prefix
+        return self.get_api_prefix()
 
     def is_extended_struct_definition(self, value):
         if (value.name == self.get_extended_struct_var_name() and
