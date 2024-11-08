@@ -49,7 +49,7 @@ class App : public gfxrecon::test::TestAppBase
     VkCommandPool   command_pool;
     VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
 
-    VkShaderEXT      shaders[5];
+    VkShaderEXT shaders[5];
 
     size_t current_frame = 0;
 
@@ -301,35 +301,35 @@ bool App::frame(const int frame_num)
     init.disp.cmdBindShadersEXT(command_buffer, 5u, stages, shaders);
 
     VkClearValue clear_value;
-    clear_value.color.float32[0]     = 0.0f;
-    clear_value.color.float32[1]     = 0.0f;
-    clear_value.color.float32[2]     = 0.4f;
-    clear_value.color.float32[3]     = 1.0f;
+    clear_value.color.float32[0] = 0.0f;
+    clear_value.color.float32[1] = 0.0f;
+    clear_value.color.float32[2] = 0.4f;
+    clear_value.color.float32[3] = 1.0f;
 
     VkRenderingAttachmentInfo color_attachment;
-    color_attachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    color_attachment.pNext = nullptr;
-    color_attachment.imageView = init.swapchain_image_views[image_index];
-    color_attachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    color_attachment.resolveMode = VK_RESOLVE_MODE_NONE;
-    color_attachment.resolveImageView = VK_NULL_HANDLE;
+    color_attachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    color_attachment.pNext              = nullptr;
+    color_attachment.imageView          = init.swapchain_image_views[image_index];
+    color_attachment.imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    color_attachment.resolveMode        = VK_RESOLVE_MODE_NONE;
+    color_attachment.resolveImageView   = VK_NULL_HANDLE;
     color_attachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    color_attachment.clearValue = clear_value;
+    color_attachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    color_attachment.storeOp            = VK_ATTACHMENT_STORE_OP_STORE;
+    color_attachment.clearValue         = clear_value;
 
     VkRenderingInfo rendering_info;
-    rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-    rendering_info.pNext = nullptr;
-    rendering_info.flags = 0u;
-    rendering_info.renderArea.offset = { 0, 0 };
-    rendering_info.renderArea.extent = init.swapchain.extent;
-    rendering_info.layerCount = 1u;
-    rendering_info.viewMask = 0x0;
+    rendering_info.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    rendering_info.pNext                = nullptr;
+    rendering_info.flags                = 0u;
+    rendering_info.renderArea.offset    = { 0, 0 };
+    rendering_info.renderArea.extent    = init.swapchain.extent;
+    rendering_info.layerCount           = 1u;
+    rendering_info.viewMask             = 0x0;
     rendering_info.colorAttachmentCount = 1u;
-    rendering_info.pColorAttachments = &color_attachment;
-    rendering_info.pDepthAttachment = nullptr;
-    rendering_info.pStencilAttachment = nullptr;
+    rendering_info.pColorAttachments    = &color_attachment;
+    rendering_info.pDepthAttachment     = nullptr;
+    rendering_info.pStencilAttachment   = nullptr;
 
     init.disp.cmdBeginRenderingKHR(command_buffer, &rendering_info);
     init.disp.cmdDraw(command_buffer, 4u, 1u, 0u, 0u);
