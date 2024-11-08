@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_struct_encoders_header_generator import KhronosStructEncodersHeaderGenerator
 
 
 class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -52,7 +53,7 @@ class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructEncodersHeaderGenerator(BaseGenerator):
+class VulkanStructEncodersHeaderGenerator(BaseGenerator, KhronosStructEncodersHeaderGenerator):
     """VulkanStructEncodersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ type and function declarations for encoding Vulkan API structures.
     Generate C++ function declarations for Vulkan struct encoding.
@@ -83,14 +84,10 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value);',
-            file=self.outFile
-        )
 
     def endFile(self):
         """Method override."""
-        self.write_encoder_content()
+        KhronosStructEncodersHeaderGenerator.write_encoder_content(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -104,12 +101,3 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def write_encoder_content(self):
-        """Performs C++ code generation for the encoder."""
-        for struct in self.get_all_filtered_struct_names():
-            write(
-                'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
-                .format(struct),
-                file=self.outFile
-            )
