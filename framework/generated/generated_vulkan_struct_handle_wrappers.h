@@ -417,6 +417,34 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
 
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
+template <typename ParentWrapper, typename CoParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);
+
+template <typename T>
+T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
+
+    const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);
+    size_t         num_bytes = len * sizeof(T);
+
+    return reinterpret_cast<T*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));
+}
+
+template <typename T>
+const T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
+{
+    T* unwrapped_struct = nullptr;
+
+    if (value != nullptr)
+    {
+        unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+        UnwrapStructHandles(unwrapped_struct, unwrap_memory);
+    }
+
+    return unwrapped_struct;
+}
+
 template <typename ParentWrapper, typename CoParentWrapper>
 void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
 {
@@ -502,32 +530,7 @@ void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, 
 }
 
 template <typename T>
-T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
-{
-    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
-
-    const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);
-    size_t         num_bytes = len * sizeof(T);
-
-    return reinterpret_cast<T*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));
-}
-
-template <typename T>
-const T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
-{
-    T* unwrapped_struct = nullptr;
-
-    if (value != nullptr)
-    {
-        unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-        UnwrapStructHandles(unwrapped_struct, unwrap_memory);
-    }
-
-    return unwrapped_struct;
-}
-
-template <typename T>
-const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+const  T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))
     {
@@ -536,6 +539,25 @@ const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemor
         for (size_t i = 0; i < len; ++i)
         {
             UnwrapStructHandles(&unwrapped_structs[i], unwrap_memory);
+        }
+
+        return unwrapped_structs;
+    }
+
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return values;
+}
+
+template <typename T>
+T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    if ((values != nullptr) && (len > 0))
+    {
+        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            UnwrapStructHandles(unwrapped_structs[i], unwrap_memory);
         }
 
         return unwrapped_structs;
