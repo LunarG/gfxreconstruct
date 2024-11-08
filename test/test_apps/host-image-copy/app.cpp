@@ -63,7 +63,7 @@ class App : public gfxrecon::test::TestAppBase
     VkCommandBuffer command_buffer;
     VkFence         fence;
 
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector);
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
 
     void configure_device_builder(test::DeviceBuilder&        device_builder,
                                   test::PhysicalDevice const& physical_device) override;

@@ -59,7 +59,7 @@ class App : public gfxrecon::test::TestAppBase
     VkPhysicalDeviceShaderObjectFeaturesEXT  shader_object_features;
     VkPhysicalDeviceFeatures2                features2;
 
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector);
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
 
     void configure_device_builder(test::DeviceBuilder&        device_builder,
                                   test::PhysicalDevice const& physical_device) override;
