@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_struct_handle_mappers_header_generator import KhronosBaseStructHandleMappersHeaderGenerator
+from khronos_struct_handle_mappers_header_generator import KhronosStructHandleMappersHeaderGenerator
 
 
 class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -54,7 +54,7 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructHandleMappersHeaderGenerator(
-    KhronosBaseStructHandleMappersHeaderGenerator, BaseGenerator
+    KhronosStructHandleMappersHeaderGenerator, BaseGenerator
 ):
     """VulkanStructHandleMappersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ function prototypes for mapping struct member handles
@@ -98,7 +98,7 @@ class VulkanStructHandleMappersHeaderGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosBaseStructHandleMappersHeaderGenerator.endFile(self)
+        KhronosStructHandleMappersHeaderGenerator.endFile(self)
 
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
