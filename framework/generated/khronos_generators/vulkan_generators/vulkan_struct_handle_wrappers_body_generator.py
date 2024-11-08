@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2019 Valve Corporation
-# Copyright (c) 2019 LunarG, Inc.
+# Copyright (c) 2019-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_struct_handle_wrappers_body_generator import KhronosStructHandleWrappersBodyGenerator
 
 
 class VulkanStructHandleWrappersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -52,7 +53,7 @@ class VulkanStructHandleWrappersBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
+class VulkanStructHandleWrappersBodyGenerator(BaseGenerator, KhronosStructHandleWrappersBodyGenerator):
     """VulkanStructHandleWrappersBodyGenerator - subclass of BaseGenerator.
     Generates C++ functions responsible for wrapping struct member handles
     when recording Vulkan API call parameter data.
@@ -86,53 +87,24 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for struct in self.get_all_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                handle_members = dict()
-                generic_handle_members = dict()
+        KhronosStructHandleWrappersBodyGenerator.write_struct_handle_wrapper_content(self)
 
-                if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct]
-                if struct in self.GENERIC_HANDLE_STRUCTS:
-                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
-                                                                         ]
-
-                body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
-                    struct
-                )
-                body += '{\n'
-                body += '    if (value != nullptr)\n'
-                body += '    {\n'
-                body += self.make_struct_handle_unwrappings(
-                    struct, handle_members, generic_handle_members
-                )
-                body += '    }\n'
-                body += '}'
-
-                write(body, file=self.outFile)
-
-        # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
         self.newline()
-        write(
-            'VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(base != nullptr);', file=self.outFile)
-        self.newline()
-        write('    VkBaseInStructure* copy = nullptr;', file=self.outFile)
-        write('    switch (base->sType)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('    default:', file=self.outFile)
-        write(
-            '        GFXRECON_LOG_WARNING("Failed to copy entire pNext chain when unwrapping handles due to unrecognized sType %d", base->sType);',
-            file=self.outFile
-        )
-        write('        break;', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_struct_members:
+            return True
+        return False
+
+    def write_special_case_struct_handling(self):
+        """Method override."""
         write(
             '    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO:',
             file=self.outFile
@@ -152,128 +124,15 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         )
         write('        break;', file=self.outFile)
 
-        extended_list = []
-        for struct in self.all_extended_structs:
-            for ext_struct in self.all_extended_structs[struct]:
-                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
-                    extended_list.append(ext_struct)
-
-        for base_type in sorted(extended_list):
-            if base_type not in self.struct_type_names:
-                continue
-
-            stype = self.struct_type_names[base_type]
-            write(
-                '    case {}:'.format(stype),
-                file=self.outFile
-            )
-            write(
-                '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
-                .format(base_type),
-                file=self.outFile
-            )
-            write('        break;', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    return copy;', file=self.outFile)
-        write('}', file=self.outFile)
-
-        # Generate the pNext handle wrapping code.
-        self.newline()
-        write(
-            'const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    if (value != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write(
-            '        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);',
-            file=self.outFile
-        )
-        self.newline()
-        write('        switch (base->sType)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('        default:', file=self.outFile)
-        write('        {', file=self.outFile)
-        write(
-            '            // This structure does not contain handles, but may point to a structure that does.',
-            file=self.outFile
-        )
-        write(
-            '            VkBaseInStructure* copy = CopyPNextStruct(base, unwrap_memory);',
-            file=self.outFile
-        )
-        write('            if (copy != nullptr)', file=self.outFile)
-        write('            {', file=self.outFile)
-        write(
-            '                copy->pNext = reinterpret_cast<const VkBaseInStructure*>(UnwrapPNextStructHandles(base->pNext, unwrap_memory));',
-            file=self.outFile
-        )
-        write('            }', file=self.outFile)
-        write('            return copy;', file=self.outFile)
-        write('        }', file=self.outFile)
-        for base_type in sorted(extended_list):
-            if (base_type in self.structs_with_handles and
-                base_type in self.struct_type_names):
-                stype = self.struct_type_names[base_type]
-                write(
-                    '        case {}:'.format(stype),
-                    file=self.outFile
-                )
-                write(
-                    '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
-                    .format(base_type),
-                    file=self.outFile
-                )
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    return nullptr;', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
+    def has_special_case_handle_unwrapping(self, name):
+        """Method override."""
+        if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
             return True
         return False
 
-    def make_struct_handle_unwrappings(
-        self, name, handle_members, generic_handle_members
-    ):
-        """Generating expressions for unwrapping struct handles before an API call."""
-        body = ''
-
-        for member in handle_members:
-            if 'pNext' in member.name:
-                body += '        if (value->pNext != nullptr)\n'
-                body += '        {\n'
-                # Workaround for spec missing const in VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext, should be removed next header update
-                if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
-                    body += '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
-                else:
-                    body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
-                body += '        }\n'
-            elif self.is_struct(member.base_type):
-                # This is a struct that includes handles.
-                if member.is_array:
-                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
-                        member.array_length, name=member.name
-                    )
-                elif member.is_pointer:
-                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
-                        name=member.name
-                    )
-                else:
-                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(
-                        member.name
-                    )
-        return body
+    def get_special_case_handle_wrapping(self, name):
+        """Method override."""
+        # Workaround for spec missing const in VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext, should be removed next header update
+        if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
+            return '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
+        return ''
