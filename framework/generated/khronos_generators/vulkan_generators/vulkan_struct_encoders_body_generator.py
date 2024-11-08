@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_struct_encoders_body_generator import KhronosStructEncodersBodyGenerator
 
 
 class VulkanStructEncodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -52,7 +53,7 @@ class VulkanStructEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructEncodersBodyGenerator(BaseGenerator):
+class VulkanStructEncodersBodyGenerator(BaseGenerator, KhronosStructEncodersBodyGenerator):
     """VulkanStructEncodersBodyGenerator - subclass of BaseGenerator.
     Generates C++ functions for encoding Vulkan API structures.
     Generate C++ functions for Vulkan struct encoding.
@@ -92,7 +93,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        self.write_encoder_content()
+        KhronosStructEncodersBodyGenerator.write_encoder_content(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -106,36 +107,3 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def write_encoder_content(self):
-        """Performs C++ code generation for the encoder."""
-        for struct in self.get_all_filtered_struct_names():
-            body = '\n'
-            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(
-                struct
-            )
-            body += '{\n'
-            body += self.make_struct_body(
-                struct, self.all_struct_members[struct], 'value.'
-            )
-            body += '}'
-            write(body, file=self.outFile)
-
-    def make_struct_body(self, name, values, prefix):
-        """Command definition."""
-        # Build array of lines for function body
-        body = ''
-
-        for value in values:
-            # pNext fields require special treatment and are not processed by typename
-            if 'pNext' in value.name:
-                body += '    EncodePNextStruct(encoder, {});\n'.format(
-                    prefix + value.name
-                )
-            else:
-                method_call = self.make_encoder_method_call(
-                    name, value, values, prefix
-                )
-                body += '    {};\n'.format(method_call)
-
-        return body
