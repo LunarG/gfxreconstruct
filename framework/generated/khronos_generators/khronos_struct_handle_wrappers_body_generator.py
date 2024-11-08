@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import sys
+import re, sys
 from khronos_base_generator import write
 
 
@@ -34,6 +34,30 @@ class KhronosStructHandleWrappersBodyGenerator():
     def write_special_case_struct_handling(self):
         """Method may be overridden"""
         return
+
+    def generate_parent_child_handling(self, api_data, type):
+        body = ''
+        if type in self.children_structs.keys():
+            type_var_name = api_data.struct_type_variable
+            body += '        switch (value->{})\n'.format(type_var_name)
+            body += '        {\n'
+            body += '            default:\n'
+            body += '                // Handle as parent-type below\n'
+            body += '                break;\n'
+
+            # Loop over each possible child
+            for child in self.children_structs[type]:
+                switch_type = self.struct_type_names[child]
+
+                body += f'            case {switch_type}:\n'
+                body += f'                UnwrapStructHandles(reinterpret_cast<{child}*>(value),\n'
+                body += f'                                 unwrap_memory);\n'
+                body += '                // Return here because we processed the appropriate data in\n'
+                body += '                // the correct structure type\n'
+                body += '                return;\n'
+            body += '        }\n'
+            body += '\n'
+        return body
 
     def wriate_struct_handle_wrapper_content(self):
         api_data = self.get_api_data()
@@ -65,6 +89,8 @@ class KhronosStructHandleWrappersBodyGenerator():
                 body += '{\n'
                 body += '    if (value != nullptr)\n'
                 body += '    {\n'
+
+                body += self.generate_parent_child_handling(api_data, struct)
                 body += self.make_struct_handle_unwrappings(
                     api_data, struct, handle_members, generic_handle_members
                 )
@@ -124,8 +150,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         # Generate the extended struct handle wrapping code.
         self.newline()
         write(
-            'const void* Unwrap{}StructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)'
-            .format(ext_struct_name),
+            '{}void* Unwrap{}StructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)'
+            .format(const_prefix, ext_struct_name),
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -212,9 +238,33 @@ class KhronosStructHandleWrappersBodyGenerator():
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
-                        member.array_length, name=member.name
-                    )
+                    if api_data.return_const_ptr_on_extended:
+                        body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
+                            member.array_length, name=member.name
+                        )
+                    else:
+                        if 'const' in member.full_type:
+                            temp_type = member.full_type
+                            full_type_non_const = re.sub(' const ', '', temp_type)
+                            full_type_non_const = re.sub(
+                                'const ', '', full_type_non_const
+                            )
+                            full_type_non_const = re.sub(
+                                ' const', '', full_type_non_const
+                            )
+                            variable_name = f'const_cast<{full_type_non_const}>(value->{member.name})'
+                        else:
+                            variable_name = f'value->{member.name}'
+
+                        length_exprs = member.array_length.split(',')
+                        length_count = len(length_exprs)
+
+                        if member.pointer_count > 1 and length_count < member.pointer_count:
+                            unwrap_function = 'UnwrapStructPtrArrayHandles'
+                        else:
+                            unwrap_function = 'UnwrapStructArrayHandles'
+
+                        body += f'        value->{member.name} = {unwrap_function}({variable_name}, value->{member.array_length}, unwrap_memory);\n'
                 elif member.is_pointer:
                     body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name
