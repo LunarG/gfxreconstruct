@@ -268,8 +268,8 @@ bool App::frame(const int frame_num)
     }
 
     VkReleaseCapturedPipelineDataInfoKHR release_captured_pipeline_data_info;
-    release_captured_pipeline_data_info.sType = VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR;
-    release_captured_pipeline_data_info.pNext = NULL;
+    release_captured_pipeline_data_info.sType    = VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR;
+    release_captured_pipeline_data_info.pNext    = NULL;
     release_captured_pipeline_data_info.pipeline = graphics_pipeline;
     result = init.disp.releaseCapturedPipelineDataKHR(&release_captured_pipeline_data_info, nullptr);
 
