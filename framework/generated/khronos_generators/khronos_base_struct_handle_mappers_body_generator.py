@@ -179,7 +179,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
         self, name, handle_members, generic_handle_members
     ):
         """Generating expressions for mapping struct handles read from the capture file to handles created at replay."""
-        prefix_from_type = self.get_prefix_from_type(name)
+        prefix_from_type = self.get_api_prefix_from_type(name)
 
         body = ''
         for member in handle_members:
@@ -229,7 +229,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                     )
             else:
                 type = member.base_type
-                prefix_from_type = self.get_prefix_from_type(member.base_type)
+                prefix_from_type = self.get_api_prefix_from_type(member.base_type)
                 func_id = member.base_type + 'Info'
                 type = prefix_from_type + member.base_type[2:] + 'Info'
                 object_info_table_get = ', &CommonObjectInfoTable::Get{}'.format(
