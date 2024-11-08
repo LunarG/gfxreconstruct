@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(test_app)
 
 GFXRECON_BEGIN_NAMESPACE(triangle)
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 class App : public gfxrecon::test::TestAppBase
 {
