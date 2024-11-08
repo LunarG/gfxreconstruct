@@ -1,0 +1,226 @@
+#!/usr/bin/python3 -i
+#
+# Copyright (c) 2019 Valve Corporation
+# Copyright (c) 2019-2024 LunarG, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+import sys
+from khronos_base_generator import write
+
+
+class KhronosStructHandleWrappersBodyGenerator():
+    """KhronosStructHandleWrappersBodyGenerator
+    Generates C++ functions responsible for wrapping struct member handles
+    when recording Khrosos API call parameter data.
+    """
+
+    def write_special_case_struct_handling(self):
+        """Method may be overridden"""
+        return
+
+    def wriate_struct_handle_wrapper_content(self):
+        api_data = self.get_api_data()
+        ext_struct_name = api_data.extended_struct_func_prefix
+        ext_var_name = api_data.extended_struct_variable
+        type_var_name = api_data.struct_type_variable
+        const_prefix = ''
+        if api_data.return_const_ptr_on_extended:
+            const_prefix = 'const '
+
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                handle_members = dict()
+                generic_handle_members = dict()
+
+                if struct in self.structs_with_handles:
+                    handle_members = self.structs_with_handles[struct]
+                if struct in self.GENERIC_HANDLE_STRUCTS:
+                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
+                                                                         ]
+
+                body = '\n'
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
+                    struct
+                )
+                body += '{\n'
+                body += '    if (value != nullptr)\n'
+                body += '    {\n'
+                body += self.make_struct_handle_unwrappings(
+                    api_data, struct, handle_members, generic_handle_members
+                )
+                body += '    }\n'
+                body += '}'
+
+                write(body, file=self.outFile)
+
+        # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
+        self.newline()
+        write(
+            '{0}* Copy{1}Struct(const {0}* base, HandleUnwrapMemory* unwrap_memory)'
+            .format(api_data.base_in_struct, ext_struct_name),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    assert(base != nullptr);', file=self.outFile)
+        self.newline()
+        write(
+            '    {}* copy = nullptr;'.format(api_data.base_in_struct),
+            file=self.outFile
+        )
+        write('    switch (base->{})'.format(type_var_name), file=self.outFile)
+        write('    {', file=self.outFile)
+        write('    default:', file=self.outFile)
+        write(
+            '        GFXRECON_LOG_WARNING("Failed to copy entire {0} chain when unwrapping handles due to unrecognized {1} %d", base->{1});'
+            .format(ext_var_name, type_var_name),
+            file=self.outFile
+        )
+        write('        break;', file=self.outFile)
+        self.write_special_case_struct_handling()
+
+        extended_list = []
+        for struct in self.all_extended_structs:
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for base_type in sorted(extended_list):
+            if base_type not in self.struct_type_names:
+                continue
+
+            stype = self.struct_type_names[base_type]
+            write('    case {}:'.format(stype), file=self.outFile)
+            write(
+                '        copy = reinterpret_cast<{}*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
+                .format(api_data.base_in_struct, base_type),
+                file=self.outFile
+            )
+            write('        break;', file=self.outFile)
+        write('    }', file=self.outFile)
+        self.newline()
+        write('    return copy;', file=self.outFile)
+        write('}', file=self.outFile)
+
+        # Generate the extended struct handle wrapping code.
+        self.newline()
+        write(
+            'const void* Unwrap{}StructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)'
+            .format(ext_struct_name),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if (value != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        const {0}* base = reinterpret_cast<const {0}*>(value);'.
+            format(api_data.base_in_struct),
+            file=self.outFile
+        )
+        self.newline()
+        write(
+            '        switch (base->{})'.format(type_var_name),
+            file=self.outFile
+        )
+        write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            // This structure does not contain handles, but may point to a structure that does.',
+            file=self.outFile
+        )
+        write(
+            '            {}* copy = Copy{}Struct(base, unwrap_memory);'.format(
+                api_data.base_in_struct, ext_struct_name
+            ),
+            file=self.outFile
+        )
+        write('            if (copy != nullptr)', file=self.outFile)
+        write('            {', file=self.outFile)
+        write(
+            '                copy->{2} = reinterpret_cast<const {0}*>(Unwrap{1}StructHandles(base->{2}, unwrap_memory));'
+            .format(api_data.base_in_struct, ext_struct_name, ext_var_name),
+            file=self.outFile
+        )
+        write('            }', file=self.outFile)
+        write('            return copy;', file=self.outFile)
+        write('        }', file=self.outFile)
+        for base_type in sorted(extended_list):
+            if (
+                base_type in self.structs_with_handles
+                and base_type in self.struct_type_names
+            ):
+                stype = self.struct_type_names[base_type]
+                write('        case {}:'.format(stype), file=self.outFile)
+                write(
+                    '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
+                    .format(base_type),
+                    file=self.outFile
+                )
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        self.newline()
+        write('    return nullptr;', file=self.outFile)
+        write('}', file=self.outFile)
+
+    def has_special_case_handle_unwrapping(self, name):
+        """Method may be overridden."""
+        return False
+
+    def get_special_case_handle_wrapping(self, name):
+        """Method may be overridden."""
+        return
+
+    def make_struct_handle_unwrappings(
+        self, api_data, name, handle_members, generic_handle_members
+    ):
+        """Generating expressions for unwrapping struct handles before an API call."""
+        body = ''
+
+        for member in handle_members:
+            if member.name == api_data.extended_struct_variable:
+                body += '        if (value->{} != nullptr)\n'.format(
+                    member.name
+                )
+                body += '        {\n'
+                if self.has_special_case_handle_unwrapping(name):
+                    body += self.get_special_case_handle_wrapping(name)
+                else:
+                    body += '            value->{0} = Unwrap{1}StructHandles(value->{0}, unwrap_memory);\n'.format(
+                        member.name, api_data.extended_struct_func_prefix
+                    )
+                body += '        }\n'
+            elif self.is_struct(member.base_type):
+                # This is a struct that includes handles.
+                if member.is_array:
+                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
+                        member.array_length, name=member.name
+                    )
+                elif member.is_pointer:
+                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
+                        name=member.name
+                    )
+                else:
+                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(
+                        member.name
+                    )
+        return body
