@@ -601,7 +601,7 @@ class BaseGenerator(KhronosBaseGenerator):
             type_name = value.base_type
 
             if is_override:
-                prefix_from_type = self.get_prefix_from_type(value.base_type)
+                prefix_from_type = self.get_api_prefix_from_type(value.base_type)
                 info_type = prefix_from_type + value.base_type[2:] + 'Info'
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count
@@ -704,14 +704,6 @@ class BaseGenerator(KhronosBaseGenerator):
             type_list = ', '.join([self.clean_type_define(v.full_type) for v in values])
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
-
-    def get_api_prefix(self):
-        """Method override. Start processing in superclass."""
-        return 'Vulkan'
-
-    def get_prefix_from_type(self, type):
-        """Method override. Start processing in superclass."""
-        return self.get_api_prefix()
 
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
