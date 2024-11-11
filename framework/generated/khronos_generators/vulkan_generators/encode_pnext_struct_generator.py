@@ -73,14 +73,18 @@ class EncodePNextStructGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.getApiData()
+        lower_api_name = current_api_data.api_name.lower()
+
         write(
-            '#include "generated/generated_vulkan_struct_encoders.h"',
+            '#include "generated/generated_{}_struct_encoders.h"'.format(lower_api_name),
             file=self.outFile
         )
         self.newline()
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/vulkan_capture_manager.h"', file=self.outFile)
+        write('#include "encode/{}_capture_manager.h"'.format(lower_api_name), file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         self.includeVulkanHeaders(gen_opts)
@@ -143,7 +147,9 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());',
+            '                {}CaptureManager::Get()->WriteDisplayMessageCmd(message.get());'.format(
+                current_api_data.api_class_prefix
+            ),
             file=self.outFile
         )
         write(
