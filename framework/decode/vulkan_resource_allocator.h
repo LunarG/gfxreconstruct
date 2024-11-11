@@ -235,9 +235,13 @@ class VulkanResourceAllocator
                                                        const ResourceData*                    allocator_resource_datas,
                                                        const MemoryData* allocator_memory_datas) = 0;
 
-    // Direct allocation methods that perform memory allocation and resource creation without performing memory
-    // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
-    // that the allocator is aware of all allocations performed at replay.
+    // Direct allocation methods allocate memory and create resources without performing memory translation, while using
+    // the replay memory type of the current allocator implementation.
+    //
+    // Replay allocates staging resources, which were not created during capture, for operations such as screenshot
+    // creation and resource initialization during the initial state setup for trimmed files. Allocating staging
+    // resources through the resource allocator allows the resource allocator to be aware of all memory allocations
+    // performed for replay.
     virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
                                         const VkAllocationCallbacks* allocation_callbacks,
                                         VkBuffer*                    buffer,
