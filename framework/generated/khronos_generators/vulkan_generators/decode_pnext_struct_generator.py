@@ -73,6 +73,16 @@ class DecodePNextStructGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        self.write_common_headers(gen_opts)
+
+        self.newline()
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
+        self.write_decode_struct_definition_prefix()
+
+    def write_common_headers(self, gen_opts):
         # Get the current API and generate the items relavent to that
         current_api_data = self.get_api_data()
         lower_api_name = current_api_data.api_name.lower()
@@ -98,10 +108,9 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
+
+    def write_decode_struct_definition_prefix(self):
+        current_api_data = self.get_api_data()
 
         write(
             'size_t Decode{prefix}Struct(const uint8_t* parameter_buffer, size_t buffer_size, {prefix}Node** {})'.format(
@@ -196,8 +205,15 @@ class DecodePNextStructGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         """Performs C++ code generation for the feature."""
+        self.write_decode_struct_definition_data()
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
-        # Get the current API and generate the items relavent to that
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
+    def write_decode_struct_definition_data(self):
         current_api_data = self.get_api_data()
 
         for struct in self.all_extended_structs:
@@ -244,12 +260,6 @@ class DecodePNextStructGenerator(BaseGenerator):
         self.newline()
         write('    return bytes_read;', file=self.outFile)
         write('}', file=self.outFile)
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
