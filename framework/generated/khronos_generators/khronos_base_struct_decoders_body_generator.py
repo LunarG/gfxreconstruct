@@ -139,7 +139,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                         )
                         main_body += '            break;\n'
                         for child in self.children_structs[value.base_type]:
-                            type = self.generate_structure_type(child)
+                            type = self.struct_type_names[child]
 
                             new_value = deepcopy(value)
                             new_value.base_type = child
@@ -233,7 +233,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                     )
                     main_body += '                break;\n'
                     for child in self.children_structs[value.base_type]:
-                        switch_type = self.generate_structure_type(child)
+                        switch_type = self.struct_type_names[child]
 
                         new_value = deepcopy(value)
                         new_value.base_type = child
