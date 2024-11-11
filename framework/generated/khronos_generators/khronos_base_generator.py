@@ -92,6 +92,26 @@ def BitsEnumToFlagsTypedef(enum):
         return flags
     return flags
 
+class ApiPrefix():
+    """ApiPrefix - Class to store various Khronos API prefixes.
+
+    Members:
+        api_name           - The name of the API
+        command_prefix     - The prefix used to identify commands belonging to this Khronos API
+        struct_prefix      - The prefix used to identify structures belonging to this Khronos API
+        struct_type_prefix - The prefix used in the enum to identify the structure type enum value
+    """
+    def __init__(
+            self,
+            api_name,
+            command_prefix,
+            struct_prefix,
+            struct_type_prefix
+    ):
+        self.api_name = api_name
+        self.command_prefix = command_prefix
+        self.struct_prefix = struct_prefix
+        self.struct_type_prefix = struct_type_prefix
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -340,10 +360,24 @@ class KhronosBaseGenerator(OutputGenerator):
 
 
         # Lower case prefix and structure type prefix for every supported Khronos API
-        self.valid_khronos_supported_api_prefixes = [
-            { 'vk', 'VK_STRUCTURE_TYPE_' },
-            { 'xr', 'XR_TYPE_' },
-        ]
+        # TODO: Eventually, we should move this info into a data file that we read (JSON?)
+        self.valid_khronos_supported_api_prefixes = []
+        self.valid_khronos_supported_api_prefixes.append(
+            ApiPrefix(
+                api_name='Vulkan',
+                command_prefix='vk',
+                struct_prefix='Vk',
+                struct_type_prefix='VK_STRUCTURE_TYPE_'
+            )
+        )
+        self.valid_khronos_supported_api_prefixes.append(
+            ApiPrefix(
+                api_name='OpenXR',
+                command_prefix='xr',
+                struct_prefix='Xr',
+                struct_type_prefix='XR_TYPE_'
+            )
+        )
 
     def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
@@ -905,6 +939,7 @@ class KhronosBaseGenerator(OutputGenerator):
         tags - they are a declaration of a struct or union member.
         """
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
+
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
         if not alias:
@@ -1191,10 +1226,10 @@ class KhronosBaseGenerator(OutputGenerator):
         type_with_prefix = upper_type
 
         # Apply any structure type prefix first
-        for api_prefix, struct_prefix in self.valid_khronos_supported_api_prefixes:
-            upper_prefix = api_prefix.upper()
+        for api_prefix in self.valid_khronos_supported_api_prefixes:
+            upper_prefix = api_prefix.struct_prefix.upper()
             if upper_type.startswith(upper_prefix):
-                type_with_prefix = struct_prefix + upper_type
+                type_with_prefix = api_prefix.struct_type_prefix + upper_type
 
         type_with_prefix = type_with_prefix.replace('_OPEN_GLES', '_OPENGL_ES_')
         type_with_prefix = type_with_prefix.replace('_OPEN_GL', '_OPENGL_')
