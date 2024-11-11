@@ -1090,28 +1090,46 @@ class KhronosBaseGenerator(OutputGenerator):
         return values
 
     def getBaseInputStructureName(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def getBaseOutputStructureName(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def getStructTypeVarName(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def getStructTypeFuncPrefix(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def getExtendedStructVarName(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def getExtendedStructFuncPrefix(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def isExtendedStructDefinition(self, value):
         if (value.name == self.getExtendedStructVarName() and
