@@ -298,9 +298,7 @@ class BaseGenerator(KhronosBaseGenerator):
             if name and category and (category == 'struct' or category == 'union'):
                 self.struct_names.add(name)
                 if category == 'struct':
-                    self.addStructMembers(name, self.make_value_info(
-                        element.findall('member')
-                    ))
+                    self.processStruct(element, name, None)
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
@@ -843,6 +841,10 @@ class BaseGenerator(KhronosBaseGenerator):
     def getBaseOutputStructureName(self):
         """Method override"""
         return 'VkBaseOutStructure'
+
+    def getStructTypeEnumName(self):
+        """Method override"""
+        return 'VkStructureType'
 
     def getStructTypeVarName(self):
         """Method override"""
