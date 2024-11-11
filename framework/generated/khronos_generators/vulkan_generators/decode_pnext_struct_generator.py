@@ -69,28 +69,32 @@ class DecodePNextStructGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.getApiData()
+        lower_api_name = current_api_data.api_name.lower()
+
         write(
-            '#include "decode/custom_vulkan_struct_decoders.h"',
+            '#include "decode/custom_{}_struct_decoders.h"'.format(lower_api_name),
             file=self.outFile
         )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_typed_node.h"', file=self.outFile)
+        write('#include "decode/{}_{}_node.h"'.format(
+                lower_api_name,
+                current_api_data.extended_struct_variable.lower()),
+            file=self.outFile)
+        write('#include "decode/{}_{}_typed_node.h"'.format(
+                lower_api_name,
+                current_api_data.extended_struct_variable.lower()), file=self.outFile)
         write(
-            '#include "generated/generated_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
+            '#include "generated/generated_{}_struct_decoders.h"'.format(
+                lower_api_name),file=self.outFile)
         write(
-            '#include "generated/generated_vulkan_enum_to_string.h"',
-            file=self.outFile
-        )
+            '#include "generated/generated_{}_enum_to_string.h"'.format(
+            lower_api_name), file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
