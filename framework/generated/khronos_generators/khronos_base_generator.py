@@ -1087,28 +1087,46 @@ class KhronosBaseGenerator(OutputGenerator):
         return values
 
     def get_base_input_structure_name(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def get_base_output_structure_name(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def get_struct_type_var_name(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def get_struct_type_func_prefix(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def get_extended_struct_var_name(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def get_extended_struct_func_prefix(self):
-        """Intended to be overridden."""
-        return ''
+        """
+        Intended to be overridden.
+        Must implement.
+        """
+        raise NotImplementedError
 
     def is_extended_struct_definition(self, value):
         if (value.name == self.get_extended_struct_var_name() and
