@@ -976,36 +976,37 @@ class KhronosBaseGenerator(OutputGenerator):
         tags - they are a declaration of a struct or union member.
         """
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
+        self.process_struct(typeinfo.elem, typename, alias)
 
+    def process_struct(self, element, typename, alias):
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
         if not alias:
             self.add_struct_members(typename, self.make_value_info(
-                typeinfo.elem.findall('.//member')
+                element.findall('.//member')
             ))
 
             # Set the structure type value for this name if it exists
-            struct_type_enum_set = False
-            members = typeinfo.elem.findall('.//member')
+            members = element.findall('.//member')
             for member in members:
-                membername = noneStr(member.find('name').text)
+                member_type = noneStr(member.find('type').text)
+                member_name = noneStr(member.find('name').text)
 
                 # We only care about structures with an sType, which can be included in a pNext chain.
-                if membername == self.get_struct_type_var_name():
+                if (member_type == self.get_struct_type_enum_name() and
+                    member_name == self.get_struct_type_var_name()):
                     # Check for value in the XML element.
                     values = member.attrib.get('values')
                     if values:
                         self.struct_type_names[typename] = values
-                        struct_type_enum_set = True
-                        break
-            if (not struct_type_enum_set and (
-                typename != self.get_base_input_structure_name() and
-                typename != self.get_base_output_structure_name())):
-                self.struct_type_names[typename] = self.generate_structure_type(typename)
+                    elif (typename != self.get_base_input_structure_name() and
+                        typename != self.get_base_output_structure_name()):
+                        self.struct_type_names[typename] = self.generate_structure_type(typename)
+                    break
 
             # If this struct has a parent name, keep track of all
             # the parents and their children
-            parent_name = typeinfo.elem.get('parentstruct')
+            parent_name = element.get('parentstruct')
             if parent_name:
                 # If it doesn't already appear in the list of parents,
                 # add an entry for it.
@@ -1014,7 +1015,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 self.children_structs[parent_name].append(typename)
 
             # If this struct extends another struct, save that info
-            extended_struct = typeinfo.elem.get('structextends')
+            extended_struct = element.get('structextends')
             if extended_struct:
                 self.add_extended_structs(typename, extended_struct)
         else:
