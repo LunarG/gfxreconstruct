@@ -102,16 +102,23 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
+
         write(
-            'size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  PNextNode** pNext)',
+            'size_t Decode{prefix}Struct(const uint8_t* parameter_buffer, size_t buffer_size, {prefix}Node** {})'.format(
+                current_api_data.extended_struct_variable,
+                prefix=current_api_data.extended_struct_func_prefix
+            ),
             file=self.outFile
         )
         write('{', file=self.outFile)
-        write('    assert(pNext != nullptr);', file=self.outFile)
+        write('    assert({} != nullptr);'.format(
+                current_api_data.extended_struct_variable,
+            ), file=self.outFile)
         self.newline()
         write('    size_t bytes_read = 0;', file=self.outFile)
         write('    uint32_t attrib = 0;', file=self.outFile)
         self.newline()
+
         write(
             '    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(attrib)))',
             file=self.outFile
@@ -169,7 +176,9 @@ class DecodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));',
+            '                GFXRECON_LOG_ERROR("Failed to decode {} value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));'.format(
+                current_api_data.extended_struct_variable
+            ),
             file=self.outFile
         )
         write('                break;', file=self.outFile)
@@ -177,6 +186,10 @@ class DecodePNextStructGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         """Performs C++ code generation for the feature."""
+
+        # Get the current API and generate the items relavent to that
+        current_api_data = self.getApiData()
+
         for struct in self.all_extended_structs:
             if struct in self.struct_type_names:
                 stype = self.struct_type_names[struct]
@@ -185,12 +198,18 @@ class DecodePNextStructGenerator(BaseGenerator):
                     file=self.outFile
                 )
                 write(
-                    '                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'
-                    .format(struct),
+                    '                (*{}) = DecodeAllocator::Allocate<{}TypedNode<Decoded_{}>>();'
+                    .format(
+                        current_api_data.extended_struct_variable,
+                        current_api_data.extended_struct_func_prefix,
+                        struct),
                     file=self.outFile
                 )
                 write(
-                    '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
+                    '                bytes_read = (*{})->Decode(parameter_buffer, buffer_size);'
+                    .format(
+                        current_api_data.extended_struct_variable
+                    ),
                     file=self.outFile
                 )
                 write('                break;', file=self.outFile)
