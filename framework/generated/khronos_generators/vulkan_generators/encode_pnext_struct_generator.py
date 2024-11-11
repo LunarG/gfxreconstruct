@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_encode_extended_struct_generator import KhronosEncodeExtendedStructGenerator
 
 
 class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
@@ -53,7 +54,7 @@ class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class EncodePNextStructGenerator(BaseGenerator):
+class EncodePNextStructGenerator(BaseGenerator, KhronosEncodeExtendedStructGenerator):
     """EncodePNextStructGenerator - subclass of BaseGenerator.
     Generates C++ code for Vulkan API pNext structure encoding.
     Generate pNext structure encoding C++ code.
@@ -73,117 +74,19 @@ class EncodePNextStructGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        self.write_common_headers(gen_opts)
+        KhronosEncodeExtendedStructGenerator.write_common_headers(self, gen_opts)
 
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
 
-        self.write_encode_struct_definition_prefix()
-
-    def write_common_headers(self, gen_opts):
-        # Get the current API and generate the items relavent to that
-        current_api_data = self.get_api_data()
-        lower_api_name = current_api_data.api_name.lower()
-
-        write(
-            '#include "generated/generated_{}_struct_encoders.h"'.format(lower_api_name),
-            file=self.outFile
-        )
-        self.newline()
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/{}_capture_manager.h"'.format(lower_api_name), file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.includeVulkanHeaders(gen_opts)
-        self.newline()
-        write('#include <cassert>', file=self.outFile)
-        write('#include <cstdio>', file=self.outFile)
-        write('#include <memory>', file=self.outFile)
-
-    def write_encode_struct_definition_prefix(self):
-        # Get the current API and generate the items relavent to that
-        current_api_data = self.get_api_data()
-        lower_api_name = current_api_data.api_name.lower()
-
-        write(
-            'void Encode{}Struct(ParameterEncoder* encoder, const void* value)'.format(current_api_data.extended_struct_func_prefix),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(encoder != nullptr);', file=self.outFile)
-        self.newline()
-        write(
-            '    auto base = reinterpret_cast<const {}*>(value);'.format(current_api_data.base_in_struct),
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '    // Ignore the structures added to the {} chain by the loader.'.format(current_api_data.extended_struct_variable),
-            file=self.outFile
-        )
-        write(
-            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
-            file=self.outFile
-        )
-        write(
-            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
-            file=self.outFile
-        )
-        write('    {', file=self.outFile)
-        write('        base = base->{};'.format(current_api_data.extended_struct_variable), file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    if (base != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        switch (base->{})'.format(current_api_data.struct_type_variable), file=self.outFile)
-        write('        {', file=self.outFile)
-        write('        default:', file=self.outFile)
-        write('            {', file=self.outFile)
-        write(
-            '                // {} is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.'.format(current_api_data.extended_struct_variable),
-            file=self.outFile
-        )
-        write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
-                current_api_data.extended_struct_variable,
-                current_api_data.struct_type_enum,
-                current_api_data.struct_type_variable),
-            file=self.outFile
-        )
-        write(
-            '                std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.',
-            file=self.outFile
-        )
-        write(
-            '                std::snprintf(message.get(), (message_size + 1), "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
-                current_api_data.extended_struct_variable,
-                current_api_data.struct_type_enum,
-                current_api_data.struct_type_variable),
-            file=self.outFile
-        )
-        write(
-            '                {}CaptureManager::Get()->WriteDisplayMessageCmd(message.get());'.format(
-                current_api_data.api_class_prefix
-            ),
-            file=self.outFile
-        )
-        write(
-            '                GFXRECON_LOG_WARNING("%s", message.get());',
-            file=self.outFile
-        )
-        write(
-            '                Encode{}Struct(encoder, base->{});'.format(current_api_data.extended_struct_func_prefix, current_api_data.extended_struct_variable),
-            file=self.outFile
-        )
-        write('            }', file=self.outFile)
-        write('            break;', file=self.outFile)
+        KhronosEncodeExtendedStructGenerator.write_encode_struct_definition_prefix(self)
 
     def endFile(self):
         """Method override."""
-        self.write_encode_struct_definition_data()
+        KhronosEncodeExtendedStructGenerator.write_encode_struct_definition_data(self)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -197,36 +100,13 @@ class EncodePNextStructGenerator(BaseGenerator):
             return True
         return False
 
-    def write_encode_struct_definition_data(self):
-        for struct in self.all_extended_structs:
-            if struct in self.struct_type_names:
-                stype = self.struct_type_names[struct]
-                write(
-                    '        case {}:'.format(stype),
-                    file=self.outFile
-                )
-                write(
-                    '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
-                    .format(struct),
-                    file=self.outFile
-                )
-                write('            break;', file=self.outFile)
-
-        current_api_data = self.get_api_data()
-
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('    else', file=self.outFile)
-        write('    {', file=self.outFile)
+    def write_encode_struct_while_loop_statement(self, current_api_data):
+        """Method Override"""
         write(
-            '        // {} was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.'.format(
-                current_api_data.extended_struct_variable
-            ),
+            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
-            '        encoder->EncodeStructPtrPreamble(nullptr);',
+            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
