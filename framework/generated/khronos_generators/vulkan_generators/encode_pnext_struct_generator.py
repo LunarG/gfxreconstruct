@@ -105,7 +105,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('    assert(encoder != nullptr);', file=self.outFile)
         self.newline()
         write(
-            '    auto base = reinterpret_cast<const VkBaseInStructure*>(value);',
+            '    auto base = reinterpret_cast<const {}*>(value);'.format(current_api_data.base_in_struct),
             file=self.outFile
         )
         self.newline()
@@ -114,11 +114,11 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||',
+            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
-            '                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))',
+            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
             file=self.outFile
         )
         write('    {', file=self.outFile)
@@ -127,7 +127,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         self.newline()
         write('    if (base != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        switch (base->sType)', file=self.outFile)
+        write('        switch (base->{})'.format(current_api_data.struct_type_variable), file=self.outFile)
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
         write('            {', file=self.outFile)
@@ -136,8 +136,10 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A {} value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);'.format(
-                current_api_data.extended_struct_variable),
+            '                int32_t message_size = std::snprintf(nullptr, 0, "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
+                current_api_data.extended_struct_variable,
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
@@ -145,8 +147,10 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                std::snprintf(message.get(), (message_size + 1), "A {} value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);'.format(
-                current_api_data.extended_struct_variable),
+            '                std::snprintf(message.get(), (message_size + 1), "A {} value with unrecognized {} = %d was omitted from the capture file, which may cause replay to fail.", base->{});'.format(
+                current_api_data.extended_struct_variable,
+                current_api_data.struct_type_enum,
+                current_api_data.struct_type_variable),
             file=self.outFile
         )
         write(
