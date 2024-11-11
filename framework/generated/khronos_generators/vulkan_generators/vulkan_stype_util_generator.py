@@ -35,8 +35,6 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
             self,
             **kwargs
         )
-        # These are dummy structures that do not have their own VkStructureType values
-        self.missing_stypes = ['VkBaseInStructure', 'VkBaseOutStructure']
 
     def beginFile(self, gen_opts):
         BaseGenerator.beginFile(self, gen_opts)
@@ -55,13 +53,10 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
             template <typename T> VkStructureType GetSType() = delete;'''), file=self.outFile)
         self.newline()
 
-    def genStruct(self, typeinfo, typename, alias):
-        if not alias and typename not in self.missing_stypes:
-            stype = self.make_structure_type_enum(typeinfo, typename)
-            if stype:
-                write(f'template <> constexpr VkStructureType GetSType<{typename}>(){{ return {stype}; }}', file=self.outFile)
-
     def endFile(self):
+        for struct in self.all_struct_members.keys():
+            if struct in self.struct_type_names:
+                write(f'template <> constexpr VkStructureType GetSType<{struct}>(){{ return {self.struct_type_names[struct]}; }}', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 

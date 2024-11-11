@@ -160,17 +160,18 @@ class EncodePNextStructGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         for struct in self.all_extended_structs:
-            stype = self.struct_type_names[struct]
-            write(
-                '        case {}:'.format(stype),
-                file=self.outFile
-            )
-            write(
-                '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
-                .format(struct),
-                file=self.outFile
-            )
-            write('            break;', file=self.outFile)
+            if struct in self.struct_type_names:
+                stype = self.struct_type_names[struct]
+                write(
+                    '        case {}:'.format(stype),
+                    file=self.outFile
+                )
+                write(
+                    '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
+                    .format(struct),
+                    file=self.outFile
+                )
+                write('            break;', file=self.outFile)
 
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
