@@ -174,21 +174,22 @@ class DecodePNextStructGenerator(BaseGenerator):
         """Method override."""
         """Performs C++ code generation for the feature."""
         for struct in self.all_extended_structs:
-            stype = self.struct_type_names[struct]
-            write(
-                '            case {}:'.format(stype),
-                file=self.outFile
-            )
-            write(
-                '                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'
-                .format(struct),
-                file=self.outFile
-            )
-            write(
-                '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
-                file=self.outFile
-            )
-            write('                break;', file=self.outFile)
+            if struct in self.struct_type_names:
+                stype = self.struct_type_names[struct]
+                write(
+                    '            case {}:'.format(stype),
+                    file=self.outFile
+                )
+                write(
+                    '                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'
+                    .format(struct),
+                    file=self.outFile
+                )
+                write(
+                    '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
+                    file=self.outFile
+                )
+                write('                break;', file=self.outFile)
 
         write('            }', file=self.outFile)
         write('        }', file=self.outFile)

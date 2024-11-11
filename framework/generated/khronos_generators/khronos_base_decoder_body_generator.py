@@ -200,7 +200,7 @@ class KhronosBaseDecoderBodyGenerator():
                         main_body += '         switch (xr_type)\n'
                         main_body += '         {\n'
                         for child in self.children_structs[value.base_type]:
-                            switch_type = self.generate_structure_type(child)
+                            switch_type = self.struct_type_names[child]
                             main_body += f'             case {switch_type}:\n'
                             child_var = self.make_simple_var_name(child)
                             main_body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
