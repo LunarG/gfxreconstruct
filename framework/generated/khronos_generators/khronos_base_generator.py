@@ -97,6 +97,7 @@ class ApiData():
 
     Members:
         api_name                    - The name of the API
+        api_class_prefix            - The prefix to use for any class of the API
         command_prefix              - The prefix used to identify commands belonging to this Khronos API
         struct_prefix               - The prefix used to identify structures belonging to this Khronos API
         struct_type_enum            - The enum type used to define structure types for this Khronos API
@@ -111,6 +112,7 @@ class ApiData():
     def __init__(
             self,
             api_name,
+            api_class_prefix,
             command_prefix,
             struct_prefix,
             struct_type_enum,
@@ -123,6 +125,7 @@ class ApiData():
             extended_struct_func_prefix,
     ):
         self.api_name = api_name
+        self.api_class_prefix = api_class_prefix
         self.command_prefix = command_prefix
         self.struct_type_enum = struct_type_enum
         self.struct_prefix = struct_prefix
@@ -386,6 +389,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.valid_khronos_supported_api_data.append(
             ApiData(
                 api_name='Vulkan',
+                api_class_prefix='Vulkan',
                 command_prefix='vk',
                 struct_type_enum='VkStructureType',
                 struct_prefix='Vk',
@@ -401,6 +405,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.valid_khronos_supported_api_data.append(
             ApiData(
                 api_name='OpenXR',
+                api_class_prefix='OpenXr',
                 command_prefix='xr',
                 struct_type_enum='XrStructureType',
                 struct_prefix='Xr',
