@@ -96,8 +96,9 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
+
         write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value)',
+            'void Encode{}Struct(ParameterEncoder* encoder, const void* value)'.format(current_api_data.extended_struct_func_prefix),
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -109,7 +110,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         )
         self.newline()
         write(
-            '    // Ignore the structures added to the pnext chain by the loader.',
+            '    // Ignore the structures added to the {} chain by the loader.'.format(current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
@@ -121,7 +122,7 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write('    {', file=self.outFile)
-        write('        base = base->pNext;', file=self.outFile)
+        write('        base = base->{};'.format(current_api_data.extended_struct_variable), file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
         write('    if (base != nullptr)', file=self.outFile)
@@ -131,11 +132,12 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('        default:', file=self.outFile)
         write('            {', file=self.outFile)
         write(
-            '                // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.',
+            '                // {} is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.'.format(current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
+            '                int32_t message_size = std::snprintf(nullptr, 0, "A {} value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);'.format(
+                current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
@@ -143,7 +145,8 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
+            '                std::snprintf(message.get(), (message_size + 1), "A {} value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);'.format(
+                current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write(
@@ -157,7 +160,7 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                EncodePNextStruct(encoder, base->pNext);',
+            '                Encode{}Struct(encoder, base->{});'.format(current_api_data.extended_struct_func_prefix, current_api_data.extended_struct_variable),
             file=self.outFile
         )
         write('            }', file=self.outFile)
@@ -179,12 +182,16 @@ class EncodePNextStructGenerator(BaseGenerator):
                 )
                 write('            break;', file=self.outFile)
 
+        current_api_data = self.getApiData()
+
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('    else', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        // pNext was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.',
+            '        // {} was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.'.format(
+                current_api_data.extended_struct_variable
+            ),
             file=self.outFile
         )
         write(
