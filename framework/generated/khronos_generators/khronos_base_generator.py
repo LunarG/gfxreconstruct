@@ -347,6 +347,8 @@ class KhronosBaseGenerator(OutputGenerator):
         self.handle_names = set()  # Set of current API's handle typenames
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict()  # Map of flags types
+        self.flags_type_aliases = dict()  # Map of flags type aliases
+        self.flags_enum_bits_types = dict() # Map of flags enum to bits type
         self.enum_names = set()  # Set of current API's  enumeration typenames
         self.enumAliases = dict()  # Map of enum names to aliases
         self.enumEnumerants = dict()  # Map of enum names to enumerants
@@ -958,9 +960,16 @@ class KhronosBaseGenerator(OutputGenerator):
             if alias:
                 # Use same base type as the alias if one exists
                 self.flags_types[name] = self.flags_types[alias]
+                self.flags_type_aliases[name] = alias
             else:
                 # Otherwise, look for base type inside type declaration
                 self.flags_types[name] = type_elem.find('type').text
+
+                bittype = type_elem.get('requires')
+                if bittype is None:
+                    bittype = type_elem.get('bitvalues')
+                if bittype is not None:
+                    self.flags_enum_bits_types[bittype] = name
 
         elif (
             (category == "basetype") and (
