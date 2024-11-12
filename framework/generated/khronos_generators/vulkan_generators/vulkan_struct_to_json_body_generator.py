@@ -115,6 +115,25 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
+        for struct in self.get_all_filtered_struct_names():
+            if not struct in self.customImplementationRequired:
+                body = '''
+                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
+                    {{
+                        if (data && data->decoded_value)
+                        {{
+                            const {0}& decoded_value = *data->decoded_value;
+                            const Decoded_{0}& meta_struct = *data;
+
+                    '''.format(struct)
+                body += self.makeStructBody(struct, self.all_struct_members[struct])
+                body += remove_leading_empty_lines('''
+                        }
+                    }
+                    ''')
+                body = remove_trailing_newlines(indent_cpp_code(body))
+                write(body, file=self.outFile)
+
         body = '''
             void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
             {
@@ -149,30 +168,6 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
-        for struct in self.get_filtered_struct_names():
-            if not struct in self.customImplementationRequired:
-                body = '''
-                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
-                    {{
-                        if (data && data->decoded_value)
-                        {{
-                            const {0}& decoded_value = *data->decoded_value;
-                            const Decoded_{0}& meta_struct = *data;
-
-                    '''.format(struct)
-                body += self.makeStructBody(struct, self.feature_struct_members[struct])
-                body += remove_leading_empty_lines('''
-                        }
-                    }
-                    ''')
-                body = remove_trailing_newlines(indent_cpp_code(body))
-                write(body, file=self.outFile)
-    # yapf: enable
 
     #
     # Command definition
