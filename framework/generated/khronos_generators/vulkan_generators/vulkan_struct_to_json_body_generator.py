@@ -25,6 +25,7 @@ import sys
 from base_generator import *
 from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
+
 class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
 
@@ -88,6 +89,21 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             'VkDeviceMemoryReportCallbackDataEXT',
         }
 
+    def shouldDecodeStruct(self, struct):
+        """Method indended to be overridden.
+        Indicates that the provided struct is a struct we want to decode"""
+        return not struct in self.customImplementationRequired
+
+    def decodeAsHandle(self, parent_type, member):
+        """Method indended to be overridden.
+        Indicates that the given type should be decoded as a handle."""
+        return (
+            (
+                self.is_handle(member.base_type)
+                or member.name in self.formatAsHandle
+            ) and not (parent_type in self.notDecoded)
+        )
+
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
@@ -99,19 +115,34 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            using util::JsonOptions;
-            using util::to_hex_variable_width;
-            using util::uuid_to_string;
         ''')
-        body += "\n"
         write(body, file=self.outFile)
     # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
+        self.writeBodyContents()
+        self.newline()
+
+        body = format_cpp_code('''
+            GFXRECON_END_NAMESPACE(decode)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+            ''')
+        write(body, file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+    # yapf: enable
+
+    def writeBodyContents(self):
+        write('using util::JsonOptions;', file=self.outFile)
+        write('using util::to_hex_variable_width;', file=self.outFile)
+        write('using util::uuid_to_string;', file=self.outFile)
+        self.newline()
+
         for struct in self.get_all_filtered_struct_names():
-            if not struct in self.customImplementationRequired:
+            if self.shouldDecodeStruct(struct):
                 body = '''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
@@ -146,16 +177,9 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     }
                 }
             }
-
-            GFXRECON_END_NAMESPACE(decode)
-            GFXRECON_END_NAMESPACE(gfxrecon)
         '''
         body = remove_trailing_newlines(indent_cpp_code(body))
         write(body, file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -206,7 +230,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     else:
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
-                    if (self.is_handle(value.base_type) or value.name in self.formatAsHandle) and not (name in self.notDecoded):
+                    if self.decodeAsHandle(name, value):
                         to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif value.base_type in self.formatAsHex:
                         to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
