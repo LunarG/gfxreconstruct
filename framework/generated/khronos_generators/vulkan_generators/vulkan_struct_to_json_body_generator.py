@@ -123,7 +123,6 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     # yapf: disable
     def endFile(self):
         self.writeBodyContents()
-        self.newline()
 
         body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
@@ -160,25 +159,20 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 body = remove_trailing_newlines(indent_cpp_code(body))
                 write(body, file=self.outFile)
 
+        stype_var = self.getStructTypeVarName()
+        base_in_struct = self.getBaseInputStructureName()
         body = '''
             void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
             {
                 if (data && data->GetPointer())
                 {
-                    const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
+        '''
+        body += '            const auto s_type = reinterpret_cast<const {}*>(data->GetPointer())->{};'.format(base_in_struct, stype_var)
+        body += '''
                     switch (s_type)
                     {'''
-        body += self.make_pnext_body()
-        body += '''
-                        default:
-                        {
-                            GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
-                        }
-                    }
-                }
-            }
-        '''
-        body = remove_trailing_newlines(indent_cpp_code(body))
+        body += self.makeExtendedStructBody()
+        body = indent_cpp_code(body)
         write(body, file=self.outFile)
 
     #
@@ -190,23 +184,22 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
 
     #
     # Command definition
-    # yapf: disable
     def makeStructBody(self, name, values):
         body = ''
-        has_pnext = False
+        has_extended_struct = False
+        extended_struct_var_name = self.getExtendedStructVarName()
         for value in values:
             type_name = self.make_decoded_param_type(value)
             flagsEnumType = value.base_type
 
-            if value.name == 'pNext':
-                # move pnext to be the last member
-                has_pnext = True
+            if value.name == extended_struct_var_name:
+                has_extended_struct = True
                 continue
 
             # Default to getting the data from the native Vulkan struct:
             to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
 
-            if 'pfn' in value.name or 'pUserData' in value.name:
+            if (self.is_function_ptr(value.base_type) or ('pUserData' == value.name or 'userData' == value.name)):
                 to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
@@ -242,29 +235,40 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_enum(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-                    elif 'VkBool32' == value.base_type:
+                    elif self.isBooleanType(value.base_type):
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
 
             to_json = to_json.format(value.name, value.base_type, flagsEnumType)
             body += '        {0};\n'.format(to_json)
-        # Save pnext as last member
-        if has_pnext:
-            body += '        FieldToJson(jdata["pNext"], meta_struct.pNext, options);\n'
+
+        # Handle the extended struct lastremove_leading_empty_lines
+        if has_extended_struct:
+            body += '        FieldToJson(jdata["{0}"], meta_struct.{0}, options);\n'.format(
+                extended_struct_var_name
+            )
 
         return body
-    # yapf: enable
 
-    def make_pnext_body(self):
+    def makeExtendedStructBody(self):
         body = ''
+        var_name = self.getExtendedStructVarName().lower()
         for struct in self.all_extended_structs:
             if struct not in self.struct_type_names:
                 continue
             body += '''
             case {1}:
             {{
-               const auto* pnext = reinterpret_cast<const Decoded_{0}*>(data->GetMetaStructPointer());
-               FieldToJson(jdata, pnext, options);
+               const auto* {2} = reinterpret_cast<const Decoded_{0}*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, {2}, options);
                break;
             }}
-            '''.format(struct, self.struct_type_names[struct])
+            '''.format(struct, self.struct_type_names[struct], var_name)
+        body += '\n'
+        body += '            default:\n'
+        body += '            {\n'
+        body += '                GFXRECON_LOG_WARNING("Unknown {} node type: %u.", (unsigned) s_type);\n'.format(var_name)
+        body += '            }\n'
+        body += '        }\n'
+        body += '    }\n'
+        body += '}\n'
         return body
