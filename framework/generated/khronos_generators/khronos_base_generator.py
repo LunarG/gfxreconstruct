@@ -578,7 +578,6 @@ class KhronosBaseGenerator(OutputGenerator):
             or (base_type in self.PLATFORM_STRUCTS)
         ):
             return True
-        return False
 
     def is_handle(self, base_type):
         """Check if handle.  The subclass may override this method."""

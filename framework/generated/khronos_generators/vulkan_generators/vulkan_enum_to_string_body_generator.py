@@ -71,14 +71,6 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = {
-            'VkAccessFlagBits2KHR',
-            'VkPipelineStageFlagBits2KHR',
-        }
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
@@ -119,8 +111,6 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
         for enum in sorted(self.enum_names):
             if not enum in self.enumAliases:
                 if self.is_flags_enum_64bit(enum):
-                    # print(enum)
-                    # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                     # Since every caller needs to know exactly what it is calling, we may as well
                     # dispense with the parameters that are always ignored:
                     body = 'std::string {0}ToString(const {0} value)\n'
