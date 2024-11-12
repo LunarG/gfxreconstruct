@@ -75,9 +75,6 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         #   referenced by extensions multiple times.  This list is prepopulated with
         #   enums that should be skipped.
         self.processedEnums = set()
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagEnumBitsType = dict()
 
     # Method override
     # yapf: disable
@@ -141,35 +138,15 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagEnumBitsType[name] = bittype
     #
     # Performs C++ code generation for the feature.
     # yapf: disable
     def make_decls(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM and not enum in self.flagEnumBitsType:
+            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM:
                 self.processedEnums.add(enum)
-                bitwidth = 'VkFlags'
 
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                if self.is_flags_enum_64bit(enum):
                     body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
                 else:
                     body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
@@ -190,16 +167,20 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                     body += '    jdata = to_hex_fixed_width(value);\n'
 
                 body += '}}\n'
-                body = body.format(enum, bitwidth)
+                body = body.format(enum)
                 write(body, file=self.outFile)
 
-        for enum in sorted(self.flagsType):
+        for enum in sorted(self.flags_types):
+            if enum in self.flags_type_aliases:
+                continue
+
             bittype = None
-            if enum in self.flagEnumBitsType:
-                bittype = self.flagEnumBitsType[enum]
+            if enum in self.flags_to_enum_bits:
+                bittype = self.flags_to_enum_bits[enum]
+
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
             body += '{{\n'
-            if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
+            if bittype is not None and len(self.enumEnumerants[bittype]):
                 body += "    if (!options.expand_flags)\n"
                 body += "    {{\n"
                 body += "        jdata = to_hex_fixed_width(flags);\n"
