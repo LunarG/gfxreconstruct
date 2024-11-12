@@ -709,7 +709,7 @@ class KhronosBaseGenerator(OutputGenerator):
     # that is 64 bits wide.
     def is_64bit_flags(self, flag_type):
         if flag_type in self.flags_types:
-            if 'Flags64' in self.flags_types[flag_type]:
+            if self.flags_types[flag_type].endswith('Flags64'):
                 return True
         return False
 
