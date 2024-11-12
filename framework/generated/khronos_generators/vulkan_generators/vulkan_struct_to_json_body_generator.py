@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import *
+from khronos_struct_to_json_body_generator import KhronosStructToJsonBodyGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
 
@@ -55,7 +56,7 @@ class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
 
 # VulkanStructToJsonBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for serializing Vulkan API structures to JSON.
-class VulkanStructToJsonBodyGenerator(BaseGenerator):
+class VulkanStructToJsonBodyGenerator(BaseGenerator, KhronosStructToJsonBodyGenerator):
     """Generate C++ functions for Vulkan FieldToJson(...) functions"""
 
     def __init__(
@@ -122,7 +123,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
-        self.writeBodyContents()
+        KhronosStructToJsonBodyGenerator.writeBodyContents(self)
 
         body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
@@ -134,141 +135,9 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
     # yapf: enable
 
-    def writeBodyContents(self):
-        write('using util::JsonOptions;', file=self.outFile)
-        write('using util::to_hex_variable_width;', file=self.outFile)
-        write('using util::uuid_to_string;', file=self.outFile)
-        self.newline()
-
-        for struct in self.get_all_filtered_struct_names():
-            if self.shouldDecodeStruct(struct):
-                body = '''
-                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
-                    {{
-                        if (data && data->decoded_value)
-                        {{
-                            const {0}& decoded_value = *data->decoded_value;
-                            const Decoded_{0}& meta_struct = *data;
-
-                    '''.format(struct)
-                body += self.makeStructBody(struct, self.all_struct_members[struct])
-                body += remove_leading_empty_lines('''
-                        }
-                    }
-                    ''')
-                body = remove_trailing_newlines(indent_cpp_code(body))
-                write(body, file=self.outFile)
-
-        stype_var = self.getStructTypeVarName()
-        base_in_struct = self.getBaseInputStructureName()
-        body = '''
-            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
-            {
-                if (data && data->GetPointer())
-                {
-        '''
-        body += '            const auto s_type = reinterpret_cast<const {}*>(data->GetPointer())->{};'.format(base_in_struct, stype_var)
-        body += '''
-                    switch (s_type)
-                    {'''
-        body += self.makeExtendedStructBody()
-        body = indent_cpp_code(body)
-        write(body, file=self.outFile)
-
     #
     # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Command definition
-    def makeStructBody(self, name, values):
-        body = ''
-        has_extended_struct = False
-        extended_struct_var_name = self.getExtendedStructVarName()
-        for value in values:
-            type_name = self.make_decoded_param_type(value)
-            flagsEnumType = value.base_type
-
-            if value.name == extended_struct_var_name:
-                has_extended_struct = True
-                continue
-
-            # Default to getting the data from the native Vulkan struct:
-            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-
-            if (self.is_function_ptr(value.base_type) or ('pUserData' == value.name or 'userData' == value.name)):
-                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
-            elif value.is_pointer:
-                if 'String' in type_name:
-                    to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif self.is_handle(value.base_type):
-                    to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                else:
-                    to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-            else:
-                if value.is_array:
-                    if 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
-                    elif 'String' in type_name:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_handle(value.base_type):
-                        to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_struct(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif not value.is_dynamic:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    else:
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                else:
-                    if self.decodeAsHandle(name, value):
-                        to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif value.base_type in self.formatAsHex:
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
-                    elif self.is_struct(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif self.is_flags(value.base_type):
-                        if value.base_type in self.flags_type_aliases:
-                            flagsEnumType = self.flags_type_aliases[value.base_type]
-                        to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.is_enum(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.isBooleanType(value.base_type):
-                        to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
-
-            to_json = to_json.format(value.name, value.base_type, flagsEnumType)
-            body += '        {0};\n'.format(to_json)
-
-        # Handle the extended struct lastremove_leading_empty_lines
-        if has_extended_struct:
-            body += '        FieldToJson(jdata["{0}"], meta_struct.{0}, options);\n'.format(
-                extended_struct_var_name
-            )
-
-        return body
-
-    def makeExtendedStructBody(self):
-        body = ''
-        var_name = self.getExtendedStructVarName().lower()
-        for struct in self.all_extended_structs:
-            if struct not in self.struct_type_names:
-                continue
-            body += '''
-            case {1}:
-            {{
-               const auto* {2} = reinterpret_cast<const Decoded_{0}*>(data->GetMetaStructPointer());
-               FieldToJson(jdata, {2}, options);
-               break;
-            }}
-            '''.format(struct, self.struct_type_names[struct], var_name)
-        body += '\n'
-        body += '            default:\n'
-        body += '            {\n'
-        body += '                GFXRECON_LOG_WARNING("Unknown {} node type: %u.", (unsigned) s_type);\n'.format(var_name)
-        body += '            }\n'
-        body += '        }\n'
-        body += '    }\n'
-        body += '}\n'
-        return body
