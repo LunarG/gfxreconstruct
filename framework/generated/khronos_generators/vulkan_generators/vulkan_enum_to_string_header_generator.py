@@ -66,14 +66,6 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = {
-            'VkAccessFlagBits2KHR',
-            'VkPipelineStageFlagBits2KHR',
-        }
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
