@@ -22,6 +22,7 @@
 
 import sys
 from base_generator import *
+from khronos_enum_to_json_header_generator import KhronosEnumToJsonHeaderGenerator
 from reformat_code import format_cpp_code
 
 class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -53,7 +54,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
 
 # VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
+class VulkanEnumToJsonHeaderGenerator(BaseGenerator, KhronosEnumToJsonHeaderGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
 
     SKIP_ENUM = [
@@ -68,11 +69,6 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = set()
 
     # Method override
     # yapf: disable
@@ -99,7 +95,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
     # yapf: disable
     def endFile(self):
         self.newline()
-        self.make_decls()
+        KhronosEnumToJsonHeaderGenerator.make_decls(self)
 
         self.newline()
         body = format_cpp_code('''
@@ -118,33 +114,3 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def make_decls(self):
-        for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases:
-                continue
-            body = 'struct {0}_t {{ }};'
-            write(body.format(flag), file=self.outFile)
-
-        for enum in sorted(self.enum_names):
-            if not enum in self.enumAliases:
-                if self.is_flags_enum_64bit(enum):
-                    body = 'struct {0}_t {{ }};'
-                    write(body.format(enum), file=self.outFile)
-
-        self.newline()
-        for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if self.is_flags_enum_64bit(enum):
-                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    else:
-                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    write(body.format(enum), file=self.outFile)
-
-        for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases:
-                continue
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flags_types[flag]), file=self.outFile)
