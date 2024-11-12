@@ -302,8 +302,8 @@ template <> std::string ToString<VkPerformanceOverrideTypeINTEL>(const VkPerform
 template <> std::string ToString<VkPerformanceParameterTypeINTEL>(const VkPerformanceParameterTypeINTEL& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPerformanceValueTypeINTEL>(const VkPerformanceValueTypeINTEL& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysicalDeviceLayeredApiKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysicalDeviceSchedulingControlsFlagBitsARM value);
+std::string VkPhysicalDeviceSchedulingControlsFlagsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPhysicalDeviceType>(const VkPhysicalDeviceType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineBindPoint>(const VkPipelineBindPoint& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCacheCreateFlagBits>(const VkPipelineCacheCreateFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
