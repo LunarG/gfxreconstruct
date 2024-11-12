@@ -91,6 +91,11 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
+        for struct in self.get_all_filtered_struct_names():
+            if not struct in self.customImplementationRequired:
+                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const util::JsonOptions& options = util::JsonOptions());".format(struct)
+                write(body, file=self.outFile)
+
         body = remove_trailing_newlines(indent_cpp_code('''
             /// Works out the type of the struct at the end of a pNext pointer and dispatches
             /// recursively to the FieldToJson for that.
@@ -111,14 +116,3 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
-        for struct in self.get_filtered_struct_names():
-            if not struct in self.customImplementationRequired:
-                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const util::JsonOptions& options = util::JsonOptions());".format(struct)
-                write(body, file=self.outFile)
-    # yapf: enable
-
