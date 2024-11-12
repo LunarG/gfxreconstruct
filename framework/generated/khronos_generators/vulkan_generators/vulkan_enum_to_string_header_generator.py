@@ -22,6 +22,7 @@
 
 import os, re, sys, inspect
 from base_generator import *
+from khronos_enum_to_string_header_generator import KhronosEnumToStringHeaderGenerator
 
 
 class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -53,7 +54,7 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
 
 # VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToStringHeaderGenerator(BaseGenerator):
+class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeaderGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -90,7 +91,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
-        self.write_enum_to_string_header()
+        KhronosEnumToStringHeaderGenerator.write_enum_to_string_header(self)
 
         body = inspect.cleandoc('''
             GFXRECON_END_NAMESPACE(util)
@@ -108,18 +109,3 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the enum to string header.
-    def write_enum_to_string_header(self):
-        for enum in sorted(self.enum_names):
-            if not enum in self.enumAliases:
-                if self.is_flags_enum_64bit(enum):
-                    body = 'std::string {0}ToString(const {0} value);'
-                    body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
-                else:
-                    body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    if 'Bits' in enum:
-                        body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                write(body.format(enum, self.get_flags_type_from_enum(enum)),
-                        file=self.outFile)
