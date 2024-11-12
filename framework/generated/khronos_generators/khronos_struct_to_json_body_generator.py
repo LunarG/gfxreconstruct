@@ -94,7 +94,13 @@ class KhronosStructToJsonBodyGenerator():
         extended_struct_var_name = self.get_extended_struct_var_name()
         for value in values:
             type_name = self.make_decoded_param_type(value)
-            flagsEnumType = value.base_type
+
+            # Determine the appropriate type.  If it's an alias, get
+            # the original type
+            value_type = value.base_type
+            if (self.is_struct(value.base_type) and value.base_type in self.all_struct_aliases):
+                value_type = self.all_struct_aliases[value.base_type]
+            flagsEnumType = value_type
 
             if value.name == extended_struct_var_name:
                 has_extended_struct = True
@@ -104,14 +110,14 @@ class KhronosStructToJsonBodyGenerator():
             to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
 
             if (
-                self.is_function_ptr(value.base_type)
+                self.is_function_ptr(value_type)
                 or ('pUserData' == value.name or 'userData' == value.name)
             ):
                 to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif self.is_handle(value.base_type):
+                elif self.is_handle(value_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
@@ -121,9 +127,9 @@ class KhronosStructToJsonBodyGenerator():
                         to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
                     elif 'String' in type_name:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_handle(value.base_type):
+                    elif self.is_handle(value_type):
                         to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_struct(value.base_type):
+                    elif self.is_struct(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif not value.is_dynamic:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
@@ -132,22 +138,22 @@ class KhronosStructToJsonBodyGenerator():
                 else:
                     if self.decode_as_handle(name, value):
                         to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif value.base_type in self.formatAsHex:
+                    elif value_type in self.formatAsHex:
                         to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
-                    elif self.is_struct(value.base_type):
+                    elif self.is_struct(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif self.is_flags(value.base_type):
-                        if value.base_type in self.flags_type_aliases:
+                    elif self.is_flags(value_type):
+                        if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
-                                value.base_type]
+                                value_type]
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.is_enum(value.base_type):
+                    elif self.is_enum(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.is_boolean_type(value.base_type):
+                    elif self.is_boolean_type(value_type):
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
 
             to_json = to_json.format(
-                value.name, value.base_type, flagsEnumType
+                value.name, value_type, flagsEnumType
             )
             body += '        {0};\n'.format(to_json)
 
