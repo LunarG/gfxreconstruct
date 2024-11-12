@@ -76,22 +76,18 @@ def remove_suffix(self: str, suffix: str, /) -> str:
 # It works for true enums and the 64 bit collections of static const variables
 # which are tied together only with a naming convention in the C header.
 def BitsEnumToFlagsTypedef(enum):
-    # if enum.endswith
-    flags = remove_suffix(enum, 'Bits')
-    if flags != enum:
-        flags = flags + 's'
-        return flags
-    flags = remove_suffix(enum, 'Bits2')
-    if flags != enum:
-        flags = flags + 's2'
-        return flags
-    # Gods preserve us from Bits 3, 4, 5, etc.
-    # It might have more extension suffix.
-    flags = remove_suffix(enum, 'Bits2KHR')
-    if flags != enum:
-        flags = flags + 's2KHR'
-        return flags
-    return flags
+    result = enum.find('FlagBits')
+
+    # If we have a FlagBits type, strip off that, and save the extension
+    if result > 0:
+        trimmed_enum = enum[:result + 4]
+        extension = enum[result + 8:]
+
+        # Add an s toe the type plus add back any extension
+        flag_type = trimmed_enum + 's' + extension
+        return flag_type
+    else:
+        return enum
 
 class ApiData():
     """ApiData - Class to store various Khronos API data.
@@ -376,7 +372,8 @@ class KhronosBaseGenerator(OutputGenerator):
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict()  # Map of flags types
         self.flags_type_aliases = dict()  # Map of flags type aliases
-        self.flags_enum_bits_types = dict() # Map of flags enum to bits type
+        self.flags_to_enum_bits = dict() # Map of flags to enum bits
+        self.enum_bits_to_flag = dict() # Map of enum bits to flag type
         self.enum_names = set()  # Set of current API's  enumeration typenames
         self.enumAliases = dict()  # Map of enum names to aliases
         self.enumEnumerants = dict()  # Map of enum names to enumerants
@@ -718,8 +715,13 @@ class KhronosBaseGenerator(OutputGenerator):
     # Note, all 64 bit pseudo-enums represent flags since the only reason to go to
     # 64 bits is to allow more than 32 flags to be represented.
     def is_flags_enum_64bit(self, enum):
-        flag_type = BitsEnumToFlagsTypedef(enum)
+        flag_type = self.get_flags_type_from_enum(enum)
         return self.is_64bit_flags(flag_type)
+
+    def get_flags_type_from_enum(self, enum):
+        if enum in self.enum_bits_to_flag:
+            return self.enum_bits_to_flag[enum]
+        return BitsEnumToFlagsTypedef(enum)
 
     def is_has_specific_key_word_in_type(self, value, key_word):
         if key_word in value.base_type:
@@ -1059,7 +1061,10 @@ class KhronosBaseGenerator(OutputGenerator):
                 if bittype is None:
                     bittype = type_elem.get('bitvalues')
                 if bittype is not None:
-                    self.flags_enum_bits_types[bittype] = name
+                    if bittype in self.enumAliases:
+                        bittype = self.enumAliases[bittype]
+                    self.flags_to_enum_bits[name] = bittype
+                    self.enum_bits_to_flag[bittype] = name
 
         elif (
             (category == "basetype") and (
@@ -1359,27 +1364,28 @@ class KhronosBaseGenerator(OutputGenerator):
         These are concatenated together with other types.
         """
         OutputGenerator.genGroup(self, groupinfo, group_name, alias)
-        self.enum_names.add(group_name)
-        if not alias:
-            enumerants = dict()
-            for elem in groupinfo.elem:
-                supported = elem.get('supported')
-                is_supported = False
-                if not supported:
-                    is_supported = True
-                else:
-                    supported_list = supported.split(",")
-                    for e in supported_list:
-                        if e in self.SUPPORTED_SUBSETS:
-                            is_supported = True
-                            break
-                if is_supported:
-                    name = elem.get('name')
-                    if name and not elem.get('alias'):
-                        enumerants[name] = elem.get('value')
-            self.enumEnumerants[group_name] = enumerants
-        else:
-            self.enumAliases[group_name] = alias
+        if group_name not in self.enum_names:
+            self.enum_names.add(group_name)
+            if not alias:
+                enumerants = dict()
+                for elem in groupinfo.elem:
+                    supported = elem.get('supported')
+                    is_supported = False
+                    if not supported:
+                        is_supported = True
+                    else:
+                        supported_list = supported.split(",")
+                        for e in supported_list:
+                            if e in self.SUPPORTED_SUBSETS:
+                                is_supported = True
+                                break
+                    if is_supported:
+                        name = elem.get('name')
+                        if name and not elem.get('alias'):
+                            enumerants[name] = elem.get('value')
+                self.enumEnumerants[group_name] = enumerants
+            else:
+                self.enumAliases[group_name] = alias
 
     def genEnum(self, enuminfo, name, alias):
         """Method override.
