@@ -86,6 +86,35 @@ class KhronosStructToJsonBodyGenerator():
         body = indent_cpp_code(body)
         write(body, file=self.outFile)
 
+    def generateParentChildJsonInfo(self, var_type, var_name, is_array):
+        to_json = ''
+        body = ''
+        if is_array:
+            # If this is a situation with a parent for the data and it's an
+            # array, we need to determine the child of the first element of that array
+            # and then treat the entire array as if it is of that child type.
+            to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+        else:
+            # Otherwise, we need to go through and actually decode the appropriate
+            # type of the struct pointed at by the base header struct pointer.
+            body += f'    switch ({var_name}->GetPointer()->type)\n'
+            body += '    {\n'
+            body += '        default:\n'
+            body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
+            body += '            break;\n'
+            for child in self.children_structs[var_type]:
+                struct_type = self.struct_type_names[child]
+
+                body += f'        case {struct_type}:\n'
+                body += f'            FieldToJson(args["{var_name}"],\n'
+                body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
+                body += '                        json_options);\n'
+                body += '            break;\n'
+            body += '    }\n'
+
+        return to_json, body
+
+
     #
     # Command definition
     def makeStructBody(self, name, values):
@@ -132,7 +161,15 @@ class KhronosStructToJsonBodyGenerator():
                     elif self.is_handle(value_type):
                         to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_struct(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        # If this is a parent class, generate the parent->child conversion info
+                        # appropriately
+                        if value_type in self.children_structs.keys():
+                            to_json, local_body = self.generateParentChildJsonInfo(
+                                value_type, value.name, value.is_array
+                            )
+                            body += local_body
+                        else:
+                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif not value.is_dynamic:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     else:
@@ -143,7 +180,15 @@ class KhronosStructToJsonBodyGenerator():
                     elif value_type in self.formatAsHex:
                         to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
                     elif self.is_struct(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        # If this is a parent class, generate the parent->child conversion info
+                        # appropriately
+                        if value.base_type in self.children_structs.keys():
+                            to_json, local_body = self.generateParentChildJsonInfo(
+                                value_type, value.name, value.is_array
+                            )
+                            body += local_body
+                        else:
+                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value_type):
                         if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
