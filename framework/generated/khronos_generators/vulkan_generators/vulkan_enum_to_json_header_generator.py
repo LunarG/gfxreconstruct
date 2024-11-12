@@ -74,10 +74,6 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         #   enums that should be skipped.
         self.processedEnums = set()
 
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagBitsType = dict()
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
@@ -123,34 +119,16 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
             return True
         return False
 
-
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagBitsType[bittype] = name
-
     def make_decls(self):
-        for flag in sorted(self.flagsType):
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases:
+                continue
             body = 'struct {0}_t {{ }};'
             write(body.format(flag), file=self.outFile)
 
-
         for enum in sorted(self.enum_names):
             if not enum in self.enumAliases:
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                if self.is_flags_enum_64bit(enum):
                     body = 'struct {0}_t {{ }};'
                     write(body.format(enum), file=self.outFile)
 
@@ -159,12 +137,14 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
             if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
                 self.processedEnums.add(enum)
                 if not enum in self.enumAliases:
-                    if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                    if self.is_flags_enum_64bit(enum):
                         body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
                     else:
                         body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
                     write(body.format(enum), file=self.outFile)
 
-        for flag in sorted(self.flagsType):
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases:
+                continue
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flagsType[flag]), file=self.outFile)
+            write(body.format(flag, self.flags_types[flag]), file=self.outFile)
