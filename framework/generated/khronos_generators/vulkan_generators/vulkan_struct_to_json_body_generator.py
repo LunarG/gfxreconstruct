@@ -88,11 +88,6 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             'VkDeviceMemoryReportCallbackDataEXT',
         }
 
-        self.pnext_extension_structs = dict()
-        self.flagsType = dict()
-        self.flagsTypeAlias = dict()
-        self.flagEnumBitsType = dict()
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
@@ -218,8 +213,8 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value.base_type):
-                        if value.base_type in self.flagsTypeAlias:
-                            flagsEnumType = self.flagsTypeAlias[value.base_type]
+                        if value.base_type in self.flags_type_aliases:
+                            flagsEnumType = self.flags_type_aliases[value.base_type]
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_enum(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
@@ -235,31 +230,11 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         return body
     # yapf: enable
 
-    def genStruct(self, typeinfo, typename, alias):
-        super().genStruct(typeinfo, typename, alias)
-
-        if not alias:
-            if typeinfo.elem.get('structextends'):
-                pnext_extension_struct = self.make_structure_type_enum(typeinfo, typename)
-                if pnext_extension_struct:
-                    self.pnext_extension_structs[typename] = pnext_extension_struct
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name):
-            if alias is None:
-                self.flagsType[name] = self.flags_types[name]
-                bittype = typeinfo.elem.get('requires')
-                if bittype is None:
-                    bittype = typeinfo.elem.get('bitvalues')
-                if bittype is not None:
-                    self.flagEnumBitsType[bittype] = name
-            else:
-                self.flagsTypeAlias[name] = alias
-
     def make_pnext_body(self):
         body = ''
-        for struct in self.pnext_extension_structs:
+        for struct in self.all_extended_structs:
+            if struct not in self.struct_type_names:
+                continue
             body += '''
             case {1}:
             {{
@@ -267,5 +242,5 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                FieldToJson(jdata, pnext, options);
                break;
             }}
-            '''.format(struct, self.pnext_extension_structs[struct])
+            '''.format(struct, self.struct_type_names[struct])
         return body
