@@ -706,9 +706,22 @@ class KhronosBaseGenerator(OutputGenerator):
             flag_type = trimmed_enum + 's' + extension
 
             if flag_type in self.flags_types:
-                self.enum_bits_to_flag[enum] = flag_type
+                if flag_type not in self.enum_bits_to_flag:
+                    self.enum_bits_to_flag[enum] = flag_type
+                if flag_type not in self.flags_to_enum_bits:
+                    self.flags_to_enum_bits[flag_type] = enum
 
             return flag_type
+        else:
+            return None
+
+    def get_enum_from_flags_type(self, flag):
+        if flag in self.flags_to_enum_bits:
+            return self.flags_to_enum_bits[flag]
+
+        enum = re.sub('FlagBit', '', flag)
+        if enum in self.enum_names:
+            return enum
         else:
             return None
 
