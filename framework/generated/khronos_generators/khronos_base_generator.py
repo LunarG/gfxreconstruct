@@ -62,33 +62,6 @@ def make_re_string(list, default=None):
         return default
 
 
-def remove_suffix(self: str, suffix: str, /) -> str:
-    # suffix='' should not call self[:-0].
-    if suffix and self.endswith(suffix):
-        return self[:-len(suffix)]
-    else:
-        return self[:]
-
-
-# Strip the "Bit" ending or near-ending from an enum representing a group of
-# flag bits to give the name of the type (typedef of Flags or Flags64) used to
-# hold a disjoint set of them.
-# It works for true enums and the 64 bit collections of static const variables
-# which are tied together only with a naming convention in the C header.
-def BitsEnumToFlagsTypedef(enum):
-    result = enum.find('FlagBits')
-
-    # If we have a FlagBits type, strip off that, and save the extension
-    if result > 0:
-        trimmed_enum = enum[:result + 4]
-        extension = enum[result + 8:]
-
-        # Add an s toe the type plus add back any extension
-        flag_type = trimmed_enum + 's' + extension
-        return flag_type
-    else:
-        return enum
-
 class ApiData():
     """ApiData - Class to store various Khronos API data.
 
@@ -721,7 +694,24 @@ class KhronosBaseGenerator(OutputGenerator):
     def get_flags_type_from_enum(self, enum):
         if enum in self.enum_bits_to_flag:
             return self.enum_bits_to_flag[enum]
-        return BitsEnumToFlagsTypedef(enum)
+
+        # If we don't already have one picked out, determine it
+        result = enum.find('FlagBits')
+
+        # If we have a FlagBits type, strip off that, and save the extension
+        if result > 0:
+            trimmed_enum = enum[:result + 4]
+            extension = enum[result + 8:]
+
+            # Add an s toe the type plus add back any extension
+            flag_type = trimmed_enum + 's' + extension
+
+            if flag_type in self.flags_types:
+                self.enum_bits_to_flag[enum] = flag_type
+
+            return flag_type
+        else:
+            return None
 
     def is_has_specific_key_word_in_type(self, value, key_word):
         if key_word in value.base_type:

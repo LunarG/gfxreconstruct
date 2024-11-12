@@ -173,9 +173,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                         body += '{{\n'
                         body += '    return BitmaskToString<{0}>(vkFlags);\n'
                         body += '}}\n'
-                write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
+                write(body.format(enum, self.get_flags_type_from_enum(enum)),
                       file=self.outFile)
-                # if self.is_flags_enum_64bit(enum):
-                #    print(body.format(enum, BitsEnumToFlagsTypedef(enum)))
 
     # yapf: enable
