@@ -3591,7 +3591,7 @@ template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysical
     return "Unhandled VkPhysicalDeviceLayeredApiKHR";
 }
 
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
+std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysicalDeviceSchedulingControlsFlagBitsARM value)
 {
     switch (value) {
     case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM: return "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM";
@@ -3600,9 +3600,28 @@ template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(
     return "Unhandled VkPhysicalDeviceSchedulingControlsFlagBitsARM";
 }
 
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+std::string VkPhysicalDeviceSchedulingControlsFlagsARMToString(VkFlags64 vkFlags)
 {
-    return BitmaskToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(vkFlags);
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(static_cast<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(0U));
+    }
+    return str;
 }
 
 template <> std::string ToString<VkPhysicalDeviceType>(const VkPhysicalDeviceType& value, ToStringFlags, uint32_t, uint32_t)
