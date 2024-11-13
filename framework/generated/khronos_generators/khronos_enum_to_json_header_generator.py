@@ -29,6 +29,10 @@ from khronos_base_generator import write
 class KhronosEnumToJsonHeaderGenerator():
     """Generate C++ functions to serialize Khronos enumaration to JSON"""
 
+    def skip_generating_enum_to_json_for_type(self, type):
+        """ Method may be overridden"""
+        return False
+
     def make_decls(self):
         # Set of enums that have been processed since we'll encounter enums that are
         #   referenced by extensions multiple times.  This list is prepopulated with
@@ -36,27 +40,35 @@ class KhronosEnumToJsonHeaderGenerator():
         processedEnums = set()
 
         for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases:
+            if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(
+                flag
+            ):
                 continue
             body = 'struct {0}_t {{ }};'
             write(body.format(flag), file=self.outFile)
 
         for enum in sorted(self.enum_names):
-            if not enum in self.enumAliases:
-                if self.is_flags_enum_64bit(enum):
-                    body = 'struct {0}_t {{ }};'
-                    write(body.format(enum), file=self.outFile)
+            if enum in self.enumAliases or self.skip_generating_enum_to_json_for_type(
+                enum
+            ):
+                continue
+            if self.is_flags_enum_64bit(enum):
+                body = 'struct {0}_t {{ }};'
+                write(body.format(enum), file=self.outFile)
 
         self.newline()
         for enum in sorted(self.enum_names):
-            if not enum in processedEnums and not enum in self.SKIP_ENUM:
-                processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if self.is_flags_enum_64bit(enum):
-                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    else:
-                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    write(body.format(enum), file=self.outFile)
+            if enum in processedEnums or enum in self.SKIP_ENUM or self.skip_generating_enum_to_json_for_type(
+                enum
+            ):
+                continue
+            processedEnums.add(enum)
+            if not enum in self.enumAliases:
+                if self.is_flags_enum_64bit(enum):
+                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+                else:
+                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+                write(body.format(enum), file=self.outFile)
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases:
