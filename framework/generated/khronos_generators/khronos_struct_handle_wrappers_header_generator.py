@@ -31,6 +31,20 @@ class KhronosStructHandleWrappersHeaderGenerator():
     when recording Khronos API call parameter data.
     """
 
+    # Recursively search a structs members to see if they too belong in the
+    # output struct list.  This could be because an including struct is an
+    # output struct.
+    def process_struct_members_to_output_struct(self, value):
+        for member in self.all_struct_members[value.base_type]:
+            if (
+                self.is_struct(member.base_type)
+                and not self.is_struct_black_listed(value.base_type)
+                and (member.base_type in self.structs_with_handles)
+                and (member.base_type not in self.output_structs)
+            ):
+                self.output_structs.append(member.base_type)
+                self.process_struct_members_to_output_struct(member)
+
     def write_struct_handle_wrapper_content(self):
         """Method override."""
         # Check for output structures, which retrieve handles that need to be wrapped.
@@ -44,12 +58,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
                 ) and (value.base_type in self.structs_with_handles
                        ) and (value.base_type not in self.output_structs):
                     self.output_structs.append(value.base_type)
-                    for member in self.all_struct_members[value.base_type]:
-                        if self.is_struct(member.base_type) and (
-                            member.base_type in self.structs_with_handles
-                            and member.base_type not in self.output_structs
-                        ):
-                            self.output_structs.append(member.base_type)
+                    self.process_struct_members_to_output_struct(value)
 
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_all_filtered_struct_names():
