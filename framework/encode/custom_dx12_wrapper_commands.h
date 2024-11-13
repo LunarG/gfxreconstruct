@@ -177,6 +177,26 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBu
 };
 
 template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_IDXGISwapChain_ResizeTarget(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain_ResizeTarget(args...);
+    }
+};
+
+template <>
 inline void CustomWrapperDestroyCall<IDXGISwapChain_Wrapper>(IDXGISwapChain_Wrapper* wrapper)
 {
     D3D12CaptureManager::Get()->Destroy_IDXGISwapChain(wrapper);
