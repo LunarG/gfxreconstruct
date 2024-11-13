@@ -70,12 +70,6 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.output_structs = [
-        ]  # Output structures that retrieve handles, which need to be wrapped.
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
