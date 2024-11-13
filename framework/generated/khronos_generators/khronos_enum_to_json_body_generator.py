@@ -30,6 +30,10 @@ from reformat_code import format_cpp_code
 class KhronosEnumToJsonBodyGenerator():
     """Generate C++ functions to serialize Khronos enumaration to JSON"""
 
+    def skip_generating_enum_to_json_for_type(self, type):
+        """ Method may be overridden"""
+        return False
+
     def make_decls(self):
         body = format_cpp_code(
             '''
@@ -71,37 +75,39 @@ class KhronosEnumToJsonBodyGenerator():
         processedEnums = set()
 
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM:
-                self.processedEnums.add(enum)
+            if enum in self.processedEnums or enum in self.enumAliases or enum in self.SKIP_ENUM or self.skip_generating_enum_to_json_for_type(enum):
+                continue
 
-                if self.is_flags_enum_64bit(enum):
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                body += '{{\n'
-                if len(self.enumEnumerants[enum]):
-                    body += '    switch (value) {{\n'
-                    for enumerant in self.enumEnumerants[enum]:
-                        body += textwrap.indent(
-                            prefix='        ',
-                            text=textwrap.dedent(
-                                '''\
-                        case {0}:
-                            jdata = "{0}";
-                            break;
-                        '''.format(enumerant)
-                            )
+            self.processedEnums.add(enum)
+
+            if self.is_flags_enum_64bit(enum):
+                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+            else:
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+            body += '{{\n'
+            if len(self.enumEnumerants[enum]):
+                body += '    switch (value) {{\n'
+                for enumerant in self.enumEnumerants[enum]:
+                    body += textwrap.indent(
+                        prefix='        ',
+                        text=textwrap.dedent(
+                            '''\
+                    case {0}:
+                        jdata = "{0}";
+                        break;
+                    '''.format(enumerant)
                         )
-                    body += '        default:\n'
-                    body += '            jdata = to_hex_fixed_width(value);\n'
-                    body += '            break;\n'
-                    body += '    }}\n'
-                else:
-                    body += '    jdata = to_hex_fixed_width(value);\n'
+                    )
+                body += '        default:\n'
+                body += '            jdata = to_hex_fixed_width(value);\n'
+                body += '            break;\n'
+                body += '    }}\n'
+            else:
+                body += '    jdata = to_hex_fixed_width(value);\n'
 
-                body += '}}\n'
-                body = body.format(enum)
-                write(body, file=self.outFile)
+            body += '}}\n'
+            body = body.format(enum)
+            write(body, file=self.outFile)
 
         for enum in sorted(self.flags_types):
             if enum in self.flags_type_aliases:
