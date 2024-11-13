@@ -181,6 +181,68 @@ class StructPointerDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
+    // When a parent struct pointer was being decoded, determine what child is actually being used
+    // and allocate and decode the appropriate child.
+    size_t DecodeChildren(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding structs.
+        GFXRECON_ASSERT((GetAttributeMask() & format::PointerAttributes::kIsStruct) ==
+                        format::PointerAttributes::kIsStruct);
+
+        if (!IsNull())
+        {
+            size_t len = GetLength();
+
+            if (!is_memory_external_)
+            {
+                GFXRECON_ASSERT(struct_memory_ == nullptr);
+
+                struct_memory_ = reinterpret_cast<typename T::struct_type*>(
+                    DecodeAllocator::Allocate<typename T::union_size_type>(len));
+                capacity_ = len;
+            }
+            else
+            {
+                GFXRECON_ASSERT(struct_memory_ != nullptr);
+                GFXRECON_ASSERT(len <= capacity_);
+
+                if ((struct_memory_ == nullptr) || (len > capacity_))
+                {
+                    GFXRECON_LOG_WARNING("Struct pointer decoder's external memory capacity (%" PRIuPTR
+                                         ") is smaller than the decoded array size (%" PRIuPTR
+                                         "); an internal memory allocation will be used instead",
+                                         capacity_,
+                                         len);
+
+                    is_memory_external_ = false;
+                    struct_memory_      = reinterpret_cast<typename T::struct_type*>(
+                        DecodeAllocator::Allocate<typename T::union_size_type>(len));
+                    capacity_ = len;
+                }
+            }
+
+            decoded_structs_ = T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len);
+
+            if (HasData())
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    decoded_structs_[i].decoded_value = &struct_memory_[i];
+
+                    // Note: We only expect this class to be used with structs that have a decode_struct function.
+                    //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                    //       updated to support the new type.
+                    bytes_read +=
+                        T::DecodeAppropriate((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+                }
+            }
+        }
+
+        return bytes_read;
+    }
+
   private:
     /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
     /// to an externally provided allocation when #is_memory_external_ is true.
@@ -278,6 +340,78 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
     }
 
     size_t GetInnerLength(size_t index) const { return inner_lens_[index]; }
+
+    // When a parent struct pointer was being decoded, determine what child is actually being used
+    // and allocate and decode the appropriate child.
+    size_t DecodeChildren(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should only be decoding 2D struct arrays.
+        GFXRECON_ASSERT(
+            (GetAttributeMask() & (format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray2D)) ==
+            (format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray2D));
+
+        if (!IsNull() && HasData())
+        {
+            GFXRECON_ASSERT(struct_memory_ == nullptr);
+
+            size_t len       = GetLength();
+            struct_memory_   = DecodeAllocator::Allocate<typename T::struct_type*>(len, false);
+            decoded_structs_ = DecodeAllocator::Allocate<T*>(len, false);
+            inner_lens_.resize(len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                uint32_t attrib = 0;
+                bytes_read +=
+                    ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+                if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+                {
+                    if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+                    {
+                        uint64_t address;
+                        bytes_read +=
+                            ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+                    }
+
+                    GFXRECON_ASSERT((attrib & format::PointerAttributes::kIsStruct) ==
+                                    format::PointerAttributes::kIsStruct);
+
+                    bytes_read += ValueDecoder::DecodeSizeTValue(
+                        (buffer + bytes_read), (buffer_size - bytes_read), &inner_lens_[i]);
+
+                    typename T::struct_type* inner_struct_memory =
+                        DecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
+                    // TODO: We initialize == true because the next field isn't always cleared on kIsNull in the lower
+                    //       level decoders.  If this is a performance bottleneck, can clean up the lower decoders to
+                    //       initialize all fields.
+                    T* inner_decoded_structs =
+                        T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), inner_lens_[i], true);
+
+                    for (size_t j = 0; j < inner_lens_[i]; ++j)
+                    {
+                        inner_decoded_structs[j].decoded_value = &inner_struct_memory[j];
+                        // Note: We only expect this class to be used with structs that have a decode_struct function.
+                        //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                        //       updated to support the new type.
+                        bytes_read += T::DecodeAppropriate(
+                            (buffer + bytes_read), (buffer_size - bytes_read), &inner_decoded_structs[i]);
+                    }
+
+                    struct_memory_[i]   = inner_struct_memory;
+                    decoded_structs_[i] = inner_decoded_structs;
+                }
+                else
+                {
+                    struct_memory_[i]   = nullptr;
+                    decoded_structs_[i] = nullptr;
+                }
+            }
+        }
+
+        return bytes_read;
+    }
 
   private:
     T**                       decoded_structs_; ///< Memory to hold decoded data.

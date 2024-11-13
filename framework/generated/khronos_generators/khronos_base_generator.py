@@ -1665,8 +1665,42 @@ class KhronosBaseGenerator(OutputGenerator):
         return lower_type
 
     def write_includes_of_common_api_headers(self, gen_opts):
-        """
-        Intended to be overridden.
-        Must implement.
-        """
+        """ Method intended to be overridden. """
         raise NotImplementedError
+
+    def generate_child_struct_switch_statement(
+        self, parent_struct, value, initial_indent, switch_expression,
+        fn_emit_default, fn_emit_case
+    ):
+        """ Parent structs are abstract, need to case to specific child struct based on type """
+        indent = '    '
+        indent1 = initial_indent
+        indent2 = indent1 + indent
+        indent3 = indent2 + indent
+        body = ''
+        body += f'{indent1}// Cast and call the appropriate encoder based on the structure type\n'
+        body += f'{indent1}switch({switch_expression})\n'
+
+        body += f'{indent1}{{\n'
+        body += f'{indent2}default:\n'
+        body += f'{indent2}{{\n'
+        body += '\n'.join(
+            [indent3 + line for line in fn_emit_default(parent_struct, value)]
+        )
+        body += f'\n{indent2}}}\n'
+
+        for child_struct in self.children_structs[parent_struct]:
+            struct_type_name = self.struct_type_names[child_struct]
+            body += f'{indent2}case {struct_type_name}:\n'
+            body += f'{indent2}{{\n'
+            body += '\n'.join(
+                [
+                    indent3 + line for line in fn_emit_case(
+                        parent_struct, child_struct, struct_type_name, value
+                    )
+                ]
+            )
+            body += f'\n{indent2}}}\n'
+
+        body += f'{indent1}}}\n'
+        return body
