@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -427,7 +427,13 @@ uint64_t GetSubresourceSizeTex1D(DXGI_FORMAT format, uint32_t width, uint32_t mi
 uint64_t GetSubresourceSizeTex2D(
     DXGI_FORMAT format, uint32_t height, uint32_t mip_levels, uint32_t row_pitch, uint32_t subresource);
 
-uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource);
+uint64_t GetSubresourceSizeTex3D(DXGI_FORMAT format,
+                                 uint32_t    height,
+                                 uint32_t    depth,
+                                 uint32_t    mip_levels,
+                                 uint32_t    row_pitch,
+                                 uint32_t    depth_pitch,
+                                 uint32_t    subresource);
 
 uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
                                      DXGI_FORMAT              dst_format,

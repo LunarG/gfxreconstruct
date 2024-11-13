@@ -715,8 +715,13 @@ uint64_t GetSubresourceWriteDataSize(
                                                     dst_subresource);
                 break;
             case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-                data_size = GetSubresourceSizeTex3D(
-                    resource_desc.DepthOrArraySize, resource_desc.MipLevels, src_depth_pitch, dst_subresource);
+                data_size = GetSubresourceSizeTex3D(resource_desc.Format,
+                                                    resource_desc.Height,
+                                                    resource_desc.DepthOrArraySize,
+                                                    resource_desc.MipLevels,
+                                                    src_row_pitch,
+                                                    src_depth_pitch,
+                                                    dst_subresource);
                 break;
             case D3D12_RESOURCE_DIMENSION_UNKNOWN:
                 GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
@@ -775,7 +780,21 @@ uint64_t GetSubresourceWriteDataSize(
                 }
                 case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
                 {
-                    data_size = CalculateBoxRange(dst_box->front, dst_box->back) * src_depth_pitch;
+                    auto depth             = CalculateBoxRange(dst_box->front, dst_box->back);
+                    auto first_slice_pitch = src_row_pitch;
+
+                    if (IsFormatCompressed(resource_desc.Format))
+                    {
+                        first_slice_pitch *= CalculateBoxRangeBC(dst_box->top, dst_box->bottom);
+                    }
+                    else
+                    {
+                        first_slice_pitch *= CalculateBoxRange(dst_box->top, dst_box->bottom);
+                    }
+
+                    first_slice_pitch = std::max(first_slice_pitch, src_depth_pitch);
+
+                    data_size = first_slice_pitch + ((depth - 1) * src_depth_pitch);
                     break;
                 }
                 case D3D12_RESOURCE_DIMENSION_UNKNOWN:
@@ -1622,8 +1641,11 @@ uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC* desc, const D3D11_SUBRES
 {
     GFXRECON_ASSERT(data != nullptr);
     GFXRECON_ASSERT(desc != nullptr);
-    return GetSubresourceSizeTex3D(desc->Depth,
+    return GetSubresourceSizeTex3D(desc->Format,
+                                   desc->Height,
+                                   desc->Depth,
                                    GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth),
+                                   data->SysMemPitch,
                                    data->SysMemSlicePitch,
                                    subresource);
 }
@@ -1643,8 +1665,11 @@ uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC1* desc, const D3D11_SUBRE
 {
     GFXRECON_ASSERT(data != nullptr);
     GFXRECON_ASSERT(desc != nullptr);
-    return GetSubresourceSizeTex3D(desc->Depth,
+    return GetSubresourceSizeTex3D(desc->Format,
+                                   desc->Height,
+                                   desc->Depth,
                                    GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth),
+                                   data->SysMemPitch,
                                    data->SysMemSlicePitch,
                                    subresource);
 }
@@ -1673,7 +1698,7 @@ uint64_t GetSubresourceSize(D3D11_RESOURCE_DIMENSION type,
             data_size = GetSubresourceSizeTex2D(format, height, mip_levels, row_pitch, subresource);
             break;
         case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-            data_size = GetSubresourceSizeTex3D(depth, mip_levels, depth_pitch, subresource);
+            data_size = GetSubresourceSizeTex3D(format, height, depth, mip_levels, row_pitch, depth_pitch, subresource);
             break;
         case D3D12_RESOURCE_DIMENSION_UNKNOWN:
             GFXRECON_LOG_ERROR("Detected resource with D3D11_RESOURCE_DIMENSION_UNKNOWN dimension");
@@ -1714,12 +1739,32 @@ uint64_t GetSubresourceSizeTex2D(
     return static_cast<uint64_t>(mip_height) * row_pitch;
 }
 
-uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource)
+uint64_t GetSubresourceSizeTex3D(DXGI_FORMAT format,
+                                 uint32_t    height,
+                                 uint32_t    depth,
+                                 uint32_t    mip_levels,
+                                 uint32_t    row_pitch,
+                                 uint32_t    depth_pitch,
+                                 uint32_t    subresource)
 {
-    auto mip_level = subresource % mip_levels;
-    auto mip_depth = std::max(depth >> mip_level, 1u);
+    auto mip_level  = subresource % mip_levels;
+    auto mip_height = std::max(height >> mip_level, 1u);
+    auto mip_depth  = std::max(depth >> mip_level, 1u);
 
-    return static_cast<uint64_t>(mip_depth) * depth_pitch;
+    if (IsFormatCompressed(format))
+    {
+        mip_height = (mip_height + 3) / 4;
+    }
+
+    // With 3D textures, applications will sometimes overlap slice data by specifying a depth pitch value that is
+    // smaller than the row pitch value, eg. RowPitch=1024 and DepthPitch=64, indicating that the next slice starts 64
+    // bytes into the current slice. To handle this case, we start by calculating the size of the first slice and then
+    // add ((Slices - 1) * DepthPitch) to it. When the slices aren't overlapped, this should simpify to (Slices *
+    // DepthPitch). When they do overlap it should resolve to (Height * RowPitch) + ((Slices - 1) * DepthPitch), which
+    // produces the size of a complete slice plus the size of the additional non-overlaping slice data.
+    auto first_slice_pitch =
+        std::max(static_cast<uint64_t>(mip_height) * row_pitch, static_cast<uint64_t>(depth_pitch));
+    return first_slice_pitch + (static_cast<uint64_t>(mip_depth - 1) * depth_pitch);
 }
 #endif
 
@@ -1759,9 +1804,10 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
                     GetSubresourceSizeTex2D(dst_format, dst_height, dst_mip_levels, src_row_pitch, dst_subresource);
                 break;
             case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
-                data_size = GetSubresourceSizeTex3D(dst_depth, dst_mip_levels, src_depth_pitch, dst_subresource);
+                data_size = GetSubresourceSizeTex3D(
+                    dst_format, dst_height, dst_depth, dst_mip_levels, src_row_pitch, src_depth_pitch, dst_subresource);
                 break;
-            case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+            case D3D11_RESOURCE_DIMENSION_UNKNOWN:
                 GFXRECON_LOG_ERROR("Detected resource with D3D11_RESOURCE_DIMENSION_UNKNOWN dimension");
                 break;
             default:
@@ -1816,7 +1862,21 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
                 }
                 case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
                 {
-                    data_size = CalculateBoxRange(dst_box->front, dst_box->back) * src_depth_pitch;
+                    auto depth             = CalculateBoxRange(dst_box->front, dst_box->back);
+                    auto first_slice_pitch = src_row_pitch;
+
+                    if (IsFormatCompressed(dst_format))
+                    {
+                        first_slice_pitch *= CalculateBoxRangeBC(dst_box->top, dst_box->bottom);
+                    }
+                    else
+                    {
+                        first_slice_pitch *= CalculateBoxRange(dst_box->top, dst_box->bottom);
+                    }
+
+                    first_slice_pitch = std::max(first_slice_pitch, src_depth_pitch);
+
+                    data_size = first_slice_pitch + ((depth - 1) * src_depth_pitch);
                     break;
                 }
                 case D3D11_RESOURCE_DIMENSION_UNKNOWN:
