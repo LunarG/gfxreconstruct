@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_consumer_header_generator import KhronosConsumerHeaderGenerator
 
 
 class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -64,7 +65,7 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         self.constructor_args = constructor_args
 
 
-class VulkanConsumerHeaderGenerator(BaseGenerator):
+class VulkanConsumerHeaderGenerator(BaseGenerator, KhronosConsumerHeaderGenerator):
     """VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
     Generates C++ member declarations for the VulkanConsumer class responsible for processing
     Vulkan API call parameter data.
@@ -97,75 +98,10 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    def write_class_setup(self, class_name, constructor_args):
-        write(
-            'class {class_name} : public {class_name}Base'.format(
-                class_name=class_name
-            ),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        if constructor_args:
-            arg_list = ', '.join(
-                [
-                    arg.split(' ')[-1]
-                    for arg in constructor_args.split(',')
-                ]
-            )
-            write(
-                '    {class_name}({}) : {class_name}Base({}) {{ }}\n'.format(
-                    constructor_args,
-                    arg_list,
-                    class_name=class_name
-                ),
-                file=self.outFile
-            )
-        else:
-            write(
-                '    {}() {{ }}\n'.format(class_name),
-                file=self.outFile
-            )
-        write(
-            '    virtual ~{}() override {{ }}'.format(class_name),
-            file=self.outFile
-        )
-
-
-    def write_class_completion(self):
-        write('};', file=self.outFile)
-
-    def write_class_contents(self):
-        """Method may be overridden."""
-        for cmd in self.get_all_filtered_cmd_names():
-            info = self.all_cmd_params[cmd]
-            return_type = info[0]
-            values = info[2]
-
-            decl = self.make_consumer_func_decl(
-                return_type, 'Process_' + cmd, values
-            )
-
-            cmddef = '\n'
-            if self.genOpts.is_override:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' override;', self.INDENT_SIZE
-                )
-            else:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' {}', self.INDENT_SIZE
-                )
-
-            write(cmddef, file=self.outFile)
-
-    def output_header_contents(self, class_name, constructor_args):
-        self.write_class_setup(class_name, constructor_args)
-        self.write_class_contents()
-        self.write_class_completion()
-
     def endFile(self):
         """Method override."""
-        self.output_header_contents(self.genOpts.class_name, self.genOpts.constructor_args)
+        KhronosConsumerHeaderGenerator.output_header_contents(
+            self, self.genOpts.class_name, self.genOpts.constructor_args)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
