@@ -75,7 +75,9 @@ class KhronosEnumToJsonBodyGenerator():
         processedEnums = set()
 
         for enum in sorted(self.enum_names):
-            if enum in self.processedEnums or enum in self.enumAliases or enum in self.SKIP_ENUM or self.skip_generating_enum_to_json_for_type(enum):
+            if enum in self.processedEnums or enum in self.enumAliases or enum in self.SKIP_ENUM or self.skip_generating_enum_to_json_for_type(
+                enum
+            ):
                 continue
 
             self.processedEnums.add(enum)
@@ -109,13 +111,13 @@ class KhronosEnumToJsonBodyGenerator():
             body = body.format(enum)
             write(body, file=self.outFile)
 
-        for enum in sorted(self.flags_types):
-            if enum in self.flags_type_aliases:
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases:
                 continue
 
             bittype = None
-            if enum in self.flags_to_enum_bits:
-                bittype = self.flags_to_enum_bits[enum]
+            if flag in self.flags_to_enum_bits:
+                bittype = self.flags_to_enum_bits[flag]
 
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
             body += '{{\n'
@@ -146,4 +148,4 @@ class KhronosEnumToJsonBodyGenerator():
                 body += '    jdata = to_hex_fixed_width(flags);\n'
 
             body += '}}\n'
-            write(body.format(enum, self.flags_types[enum]), file=self.outFile)
+            write(body.format(flag, self.flags_types[flag]), file=self.outFile)
