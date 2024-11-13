@@ -2504,15 +2504,16 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
                     IsEqualIID(buffer_iid, __uuidof(ID3D12Resource2)))
                 {
                     InitialResourceExtraInfo(surface, D3D12_RESOURCE_STATE_PRESENT, false);
+
+                    auto res_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
+                    res_info->swap_chain_id = replay_object_info->capture_id;
+                    res_info->buffer_index  = buffer;
                 }
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
                 ++object_info->extra_ref;
 
-                auto res_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
-                res_info->swap_chain_id = replay_object_info->capture_id;
-                res_info->buffer_index  = buffer;
                 // Store the surface's HandleId so the reference can be released later.
                 swapchain_info->image_ids[buffer] = *surface->GetPointer();
             }
