@@ -34,6 +34,11 @@ class KhronosEnumToStringHeaderGenerator():
         return False
 
     def write_enum_to_string_header(self):
+        api_data = self.get_api_data()
+        flags_type = api_data.flags_type
+        flags64_type = api_data.flags_64_type
+        flag_variable = api_data.type_prefix.lower() + 'Flags'
+
         for enum in sorted(self.enum_names):
             if enum in self.enumAliases or self.skip_generating_enum_to_string_for_type(
                 enum
@@ -41,12 +46,12 @@ class KhronosEnumToStringHeaderGenerator():
                 continue
             if self.is_flags_enum_64bit(enum):
                 body = 'std::string {0}ToString(const {0} value);'
-                body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
+                body += '\nstd::string {1}ToString({2} {3});'
             else:
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
                 if 'Bits' in enum:
-                    body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                    body += '\ntemplate <> std::string ToString<{0}>({4} {3}, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
             write(
-                body.format(enum, self.get_flags_type_from_enum(enum)),
+                body.format(enum, self.get_flags_type_from_enum(enum), flags64_type, flag_variable, flags_type),
                 file=self.outFile
             )
