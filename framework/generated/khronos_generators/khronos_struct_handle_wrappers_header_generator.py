@@ -44,6 +44,12 @@ class KhronosStructHandleWrappersHeaderGenerator():
                 ) and (value.base_type in self.structs_with_handles
                        ) and (value.base_type not in self.output_structs):
                     self.output_structs.append(value.base_type)
+                    for member in self.all_struct_members[value.base_type]:
+                        if self.is_struct(member.base_type) and (
+                            member.base_type in self.structs_with_handles
+                            and member.base_type not in self.output_structs
+                        ):
+                            self.output_structs.append(member.base_type)
 
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_all_filtered_struct_names():
