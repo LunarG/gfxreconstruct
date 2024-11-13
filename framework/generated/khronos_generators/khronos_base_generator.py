@@ -80,6 +80,8 @@ class ApiData():
         extended_struct_variable    - The extended struct varible name used in this Khronos API
         extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.
         boolean_type                - The type used by the API for booleans
+        flags_type                  - The type used for general flags in the API
+        flags_64_type               - The type used for 64-bit flags in the API
         return_const_ptr_on_extended- Return a constant on extended pointer types
         supports_handles            - This API supports Handles
         handle_func_name_mod        - The name used to indicate a function is processing handles
@@ -104,6 +106,8 @@ class ApiData():
             extended_struct_variable,
             extended_struct_func_prefix,
             boolean_type,
+            flags_type,
+            flags_64_type,
             return_const_ptr_on_extended,
             supports_handles,
             handle_func_name_mod,
@@ -126,6 +130,8 @@ class ApiData():
         self.extended_struct_variable = extended_struct_variable
         self.extended_struct_func_prefix = extended_struct_func_prefix
         self.boolean_type = boolean_type
+        self.flags_type = flags_type
+        self.flags_64_type = flags_64_type
         self.return_const_ptr_on_extended = return_const_ptr_on_extended
         self.supports_handles = supports_handles
         self.handle_func_name_mod = handle_func_name_mod
@@ -409,6 +415,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 extended_struct_variable='pNext',
                 extended_struct_func_prefix='PNext',
                 boolean_type='VkBool32',
+                flags_type='VkFlags',
+                flags_64_type='VkFlags64',
                 return_const_ptr_on_extended=True,
                 supports_handles=True,
                 handle_func_name_mod='Handle',
@@ -434,6 +442,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 extended_struct_variable='next',
                 extended_struct_func_prefix='Next',
                 boolean_type='XrBool32',
+                flags_type='',
+                flags_64_type='XrFlags64',
                 return_const_ptr_on_extended=False,
                 supports_handles=True,
                 handle_func_name_mod='Handle',
@@ -678,8 +688,10 @@ class KhronosBaseGenerator(OutputGenerator):
     # that is 64 bits wide.
     def is_64bit_flags(self, flag_type):
         if flag_type in self.flags_types:
-            if self.flags_types[flag_type].endswith('Flags64'):
-                return True
+            for api_data in self.valid_khronos_supported_api_data:
+                if (flag_type.startswith(api_data.type_prefix) and
+                    self.flags_types[flag_type] == api_data.flags_64_type):
+                    return True
         return False
 
     # Return true if the enum or 64 bit pseudo enum passed-in represents a set
