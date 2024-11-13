@@ -25,32 +25,20 @@ import sys
 from khronos_base_generator import write
 
 
-class KhronosStructEncodersHeaderGenerator():
-    """KhronosStructEncodersHeaderGenerator
-    Generates C++ type and function declarations for encoding Khronos API structures.
+class KhronosStructDecodersForwardGenerator():
+    """KhronosStructDecodersForwardGenerator
+    Generates C++ type and function declarations for decoding Khronos API structures.
     """
 
-    def write_encoder_content(self):
-        ext_struct_prefix = self.get_extended_struct_func_prefix()
+    def write_struct_decoder_forward_prototypes(self):
+        for struct in self.get_all_filtered_struct_names():
+            write('struct Decoded_{};'.format(struct), file=self.outFile)
 
-        write(
-            'void Encode{}Struct(ParameterEncoder* encoder, const void* value);'
-            .format(ext_struct_prefix),
-            file=self.outFile
-        )
+        self.newline()
 
         for struct in self.get_all_filtered_struct_names():
             write(
-                'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
+                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
                 .format(struct),
                 file=self.outFile
             )
-
-            # If this struct is a parent struct, we need to support encoding an array loop to
-            # decipher children information
-            if struct in self.children_structs:
-                write(
-                    '\ntemplate <>\nvoid EncodeStructArrayLoop<{struct}>(ParameterEncoder* encoder, const {struct}* value, size_t len);'
-                    .format(struct=struct),
-                    file=self.outFile
-                )

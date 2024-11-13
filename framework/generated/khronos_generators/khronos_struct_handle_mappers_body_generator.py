@@ -28,12 +28,21 @@ from khronos_base_generator import write
 class KhronosStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
-    def endFile(self):
-        self.generate_handle_mappers()
+    # Recursively search a structs members to see if they too belong in the
+    # output struct list.  This could be because an including struct is an
+    # output struct.
+    def process_struct_members_to_output_struct(self, value):
+        for member in self.all_struct_members[value.base_type]:
+            if (
+                self.is_struct(member.base_type)
+                and not self.is_struct_black_listed(member.base_type)
+                and (member.base_type in self.structs_with_handles)
+                and (member.base_type not in self.output_structs)
+            ):
+                self.output_structs.append(member.base_type)
+                self.process_struct_members_to_output_struct(member)
 
-    def generate_handle_mappers(self):
-        """Performs C++ code generation for the handle mappers."""
-
+    def write_struct_handle_wrapper_content(self):
         for struct in self.get_all_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles)
@@ -78,6 +87,29 @@ class KhronosStructHandleMappersBodyGenerator():
                     body += '        {}* value = wrapper->decoded_value;\n'.format(
                         struct
                     )
+
+                    # Add handling for parent/child structs since this actually might be one of the children.
+                    if struct in self.children_structs.keys():
+                        type_var = self.getStructTypeMemberName()
+                        body += '\n'
+                        body += f'        switch (value->{type_var})\n'
+                        body += '        {\n'
+                        body += '            default:\n'
+                        body += '                // Handle as base-type below\n'
+                        body += '                break;\n'
+
+                        for child in self.children_structs[struct]:
+                            if child not in self.struct_type_names:
+                                continue
+                            switch_type = self.struct_type_names[child]
+
+                            body += f'            case {switch_type}:\n'
+                            body += f'                MapStructHandles(reinterpret_cast<Decoded_{child}*>(wrapper),\n'
+                            body += f'                                 object_info_table);\n'
+                            body += '                // Return here because we processed the appropriate data in\n'
+                            body += '                // the correct structure type\n'
+                            body += '                return;\n'
+                        body += '        }\n'
 
                 body += self.make_struct_handle_mappings(
                     struct, handle_members, generic_handle_members
@@ -137,24 +169,20 @@ class KhronosStructHandleMappersBodyGenerator():
         write('}', file=self.outFile)
 
         # List of structs containing handles that are also used as output parameters for a command
-        output_structs_with_handles = []
+        self.output_structs = []
 
         # Look for output structs that contain handles and add to list
         for cmd in self.get_all_filtered_cmd_names():
             for value_info in self.all_cmd_params[cmd][2]:
-                if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_all_filtered_struct_names()
-                ) and (value_info.base_type in self.structs_with_handles) and (
+                if self.is_output_parameter(value_info) and self.is_struct(
                     value_info.base_type
-                    not in output_structs_with_handles
-                ):
-                    output_structs_with_handles.append(
-                        value_info.base_type
-                    )
-
+                ) and (value_info.base_type in self.structs_with_handles
+                       ) and (value_info.base_type not in self.output_structs):
+                    self.output_structs.append(value_info.base_type)
+                    self.process_struct_members_to_output_struct(value_info)
 
         # Generate handle adding functions for output structs with handles
-        for struct in output_structs_with_handles:
+        for struct in self.output_structs:
             self.newline()
             write(
                 self.make_struct_handle_additions(
@@ -164,7 +192,7 @@ class KhronosStructHandleMappersBodyGenerator():
             )
 
         # Generate handle memory allocation functions for output structs with handles
-        for struct in output_structs_with_handles:
+        for struct in self.output_structs:
             if struct in self.structs_with_handle_ptrs:
                 self.newline()
                 write(
