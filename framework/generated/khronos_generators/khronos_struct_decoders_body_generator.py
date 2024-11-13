@@ -47,6 +47,9 @@ class KhronosStructDecodersBodyGenerator():
         )
 
         for struct in self.get_all_filtered_struct_names():
+            if struct in self.all_struct_aliases or struct in self.all_union_aliases:
+                continue
+
             body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
