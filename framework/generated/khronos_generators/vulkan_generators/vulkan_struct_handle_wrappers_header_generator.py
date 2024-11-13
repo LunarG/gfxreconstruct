@@ -101,7 +101,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
     def endFile(self):
         """Method override."""
 
-        KhronosStructHandleWrappersHeaderGenerator.wriate_struct_handle_wrapper_content(self)
+        KhronosStructHandleWrappersHeaderGenerator.write_struct_handle_wrapper_content(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)

@@ -31,7 +31,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
     when recording Khronos API call parameter data.
     """
 
-    def wriate_struct_handle_wrapper_content(self):
+    def write_struct_handle_wrapper_content(self):
         """Method override."""
         # Check for output structures, which retrieve handles that need to be wrapped.
         for cmd in self.all_cmd_params:

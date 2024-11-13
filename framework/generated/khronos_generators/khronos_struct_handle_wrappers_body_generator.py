@@ -59,7 +59,7 @@ class KhronosStructHandleWrappersBodyGenerator():
             body += '\n'
         return body
 
-    def wriate_struct_handle_wrapper_content(self):
+    def write_struct_handle_wrapper_content(self):
         api_data = self.get_api_data()
         ext_struct_name = api_data.extended_struct_func_prefix
         ext_var_name = api_data.extended_struct_variable
