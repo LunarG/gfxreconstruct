@@ -31,6 +31,10 @@ class KhronosConsumerHeaderGenerator():
     for processing the current Khronos API call parameter data.
     """
 
+    def skip_generating_command(self, command):
+        """ Method may be overridden. """
+        return False
+
     def write_class_setup(self, class_name, constructor_args):
         write(
             'class {class_name} : public {class_name}Base'.format(
@@ -63,6 +67,9 @@ class KhronosConsumerHeaderGenerator():
     def write_class_contents(self):
         """Method may be overridden."""
         for cmd in self.get_all_filtered_cmd_names():
+            if self.skip_generating_command(cmd):
+                continue
+
             info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
