@@ -88,6 +88,29 @@ class KhronosStructHandleMappersBodyGenerator():
                         struct
                     )
 
+                    # Add handling for parent/child structs since this actually might be one of the children.
+                    if struct in self.children_structs.keys():
+                        type_var = self.getStructTypeMemberName()
+                        body += '\n'
+                        body += f'        switch (value->{type_var})\n'
+                        body += '        {\n'
+                        body += '            default:\n'
+                        body += '                // Handle as base-type below\n'
+                        body += '                break;\n'
+
+                        for child in self.children_structs[struct]:
+                            if child not in self.struct_type_names:
+                                continue
+                            switch_type = self.struct_type_names[child]
+
+                            body += f'            case {switch_type}:\n'
+                            body += f'                MapStructHandles(reinterpret_cast<Decoded_{child}*>(wrapper),\n'
+                            body += f'                                 object_info_table);\n'
+                            body += '                // Return here because we processed the appropriate data in\n'
+                            body += '                // the correct structure type\n'
+                            body += '                return;\n'
+                        body += '        }\n'
+
                 body += self.make_struct_handle_mappings(
                     struct, handle_members, generic_handle_members
                 )
