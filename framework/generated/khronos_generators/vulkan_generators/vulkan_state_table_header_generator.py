@@ -87,7 +87,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
     # yapf: enable
 
-    def add_wrapper_funcs_for_type(self, name):
+    def add_wrapper_funcs_for_type(self, api_data, name):
         wrapper_prefix = self.get_wrapper_prefix_from_type(name)
         type_prefix = self.get_api_struct_prefix_from_type(name)
         short_name = name[len(type_prefix):]
@@ -105,8 +105,8 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         self.api_remove_code += '         if (wrapper == nullptr) return false;\n'
         self.api_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
         self.api_remove_code += '    }\n'
-        self.api_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map)
-        self.api_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map)
+        self.api_get_code += 'template<> inline {0}* {3}StateHandleTable::GetWrapper<{0}>({1} handle) {{ return {3}StateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map, api_data.api_class_prefix)
+        self.api_const_get_code += 'template<> inline const {0}* {3}StateHandleTable::GetWrapper<{0}>({1} handle) const {{ return {3}StateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map, api_data.api_class_prefix)
         self.api_map_code += '    std::unordered_map<{}, {}*> {};\n'.format(name, handle_wrapper_type, handle_map)
 
     # yapf: disable
@@ -125,25 +125,27 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         self.api_get_code = ''
         self.api_map_code = ''
 
+        api_data = self.get_api_data()
+
         for handle in sorted(self.handle_names):
             if handle in self.handle_aliases:
                 continue
-            self.add_wrapper_funcs_for_type(handle)
+            self.add_wrapper_funcs_for_type(api_data, handle)
         for atom in sorted(self.atom_names):
             if atom in self.atom_aliases:
                 continue
-            self.add_wrapper_funcs_for_type(atom)
+            self.add_wrapper_funcs_for_type(api_data, atom)
         for opaque in sorted(self.opaque_names):
             if atom in self.opaque_aliases:
                 continue
-            self.add_wrapper_funcs_for_type(opaque)
+            self.add_wrapper_funcs_for_type(api_data, opaque)
 
         self.newline()
-        code = 'class VulkanStateTable : VulkanStateTableBase\n'
+        code = 'class {0}StateTable : {0}StateTableBase\n'.format(api_data.api_class_prefix)
         code += '{\n'
         code += '  public:\n'
-        code += '    VulkanStateTable() {}\n'
-        code += '    ~VulkanStateTable() {}\n'
+        code += '    {}StateTable() {{}}\n'.format(api_data.api_class_prefix)
+        code += '    ~{}StateTable() {{}}\n'.format(api_data.api_class_prefix)
         code += '\n'
         code += self.insert_code
         code += '\n'
@@ -159,11 +161,11 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += self.map_code
         code += '};\n'
         code += '\n'
-        code += 'class VulkanStateHandleTable : VulkanStateTableBase\n'
+        code += 'class {0}StateHandleTable : {0}StateTableBase\n'.format(api_data.api_class_prefix)
         code += '{\n'
         code += '  public:\n'
-        code += '    VulkanStateHandleTable() {}\n'
-        code += '    ~VulkanStateHandleTable() {}\n'
+        code += '    {}StateHandleTable() {{}}\n'.format(api_data.api_class_prefix)
+        code += '    ~{}StateHandleTable() {{}}\n'.format(api_data.api_class_prefix)
         code += '\n'
         code += self.api_insert_code
         code += '\n'
