@@ -58,6 +58,8 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory(
     CustomReplayPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         riid,
         ppFactory);
 }
@@ -86,6 +88,8 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory1(
     CustomReplayPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory1>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         riid,
         ppFactory);
 }
@@ -118,6 +122,8 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
     CustomReplayPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         Flags,
         riid,
         ppFactory);
@@ -150,6 +156,8 @@ void Dx12ReplayConsumer::Process_DXGIGetDebugInterface1(
     CustomReplayPostCall<format::ApiCallId::ApiCall_DXGIGetDebugInterface1>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         Flags,
         riid,
         pDebug);
@@ -166,7 +174,9 @@ void Dx12ReplayConsumer::Process_DXGIDeclareAdapterRemovalSupport(
     CheckReplayResult("DXGIDeclareAdapterRemovalSupport", return_value, replay_result);
     CustomReplayPostCall<format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport>::Dispatch(
         this,
-        call_info);
+        call_info,
+        return_value,
+        replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
@@ -203,6 +213,8 @@ void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12SerializeRootSignature>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         pRootSignature,
         Version,
         ppBlob,
@@ -239,6 +251,8 @@ void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         pSrcData,
         SrcDataSizeInBytes,
         pRootSignatureDeserializerInterface,
@@ -276,6 +290,8 @@ void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         pRootSignature,
         ppBlob,
         ppErrorBlob);
@@ -311,6 +327,8 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         pSrcData,
         SrcDataSizeInBytes,
         pRootSignatureDeserializerInterface,
@@ -349,6 +367,8 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12CreateDevice>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         pAdapter,
         MinimumFeatureLevel,
         riid,
@@ -379,6 +399,8 @@ void Dx12ReplayConsumer::Process_D3D12GetDebugInterface(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12GetDebugInterface>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         riid,
         ppvDebug);
 }
@@ -406,6 +428,8 @@ void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         NumFeatures,
         pIIDs,
         pConfigurationStructs,
@@ -439,6 +463,8 @@ void Dx12ReplayConsumer::Process_D3D12GetInterface(
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12GetInterface>::Dispatch(
         this,
         call_info,
+        return_value,
+        replay_result,
         rclsid,
         riid,
         ppvDebug);
@@ -469,6 +495,8 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Name,
             DataSize,
             pData);
@@ -499,6 +527,8 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Name,
             pUnknown);
     }
@@ -539,6 +569,8 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Name,
             pDataSize,
             pData);
@@ -575,6 +607,8 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetParent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppParent);
     }
@@ -610,6 +644,8 @@ void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppDevice);
     }
@@ -641,6 +677,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pSharedHandle);
         PostProcessExternalObject(replay_result, out_op_pSharedHandle, out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
     }
@@ -666,6 +704,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetUsage(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pUsage);
     }
 }
@@ -690,6 +730,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             EvictionPriority);
     }
 }
@@ -718,6 +760,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pEvictionPriority);
     }
 }
@@ -745,6 +789,8 @@ void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Key,
             dwMilliseconds);
     }
@@ -770,6 +816,8 @@ void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Key);
     }
 }
@@ -798,6 +846,8 @@ void Dx12ReplayConsumer::Process_IDXGISurface_GetDesc(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -829,6 +879,8 @@ void Dx12ReplayConsumer::Process_IDXGISurface_Map(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pLockedRect,
             MapFlags);
     }
@@ -851,7 +903,9 @@ void Dx12ReplayConsumer::Process_IDXGISurface_Unmap(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISurface_Unmap>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -884,6 +938,8 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Discard,
             phdc);
         PostProcessExternalObject(replay_result, out_op_phdc, out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
@@ -910,6 +966,8 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDirtyRect);
     }
 }
@@ -944,6 +1002,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Output,
             ppOutput);
     }
@@ -973,6 +1033,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -1004,6 +1066,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             InterfaceName,
             pUMDVersion);
     }
@@ -1033,6 +1097,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDesc(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -1075,6 +1141,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             EnumFormat,
             Flags,
             pNumModes,
@@ -1113,6 +1181,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pModeToMatch,
             pClosestMatch,
             pConcernedDevice);
@@ -1136,7 +1206,9 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_WaitForVBlank(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -1164,6 +1236,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             Exclusive);
     }
@@ -1212,6 +1286,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pGammaCaps);
     }
 }
@@ -1236,6 +1312,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pArray);
     }
 }
@@ -1264,6 +1342,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pArray);
     }
 }
@@ -1289,6 +1369,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pScanoutSurface);
     }
 }
@@ -1314,6 +1396,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDestination);
     }
 }
@@ -1342,6 +1426,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pStats);
     }
 }
@@ -1371,6 +1457,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             SyncInterval,
             Flags);
     }
@@ -1411,6 +1499,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Buffer,
             riid,
             ppSurface);
@@ -1443,6 +1533,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Fullscreen,
             pTarget);
     }
@@ -1482,6 +1574,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFullscreen,
             ppTarget);
     }
@@ -1511,6 +1605,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -1549,6 +1645,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             BufferCount,
             Width,
             Height,
@@ -1577,6 +1675,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pNewTargetParameters);
     }
 }
@@ -1608,6 +1708,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ppOutput);
     }
 }
@@ -1636,6 +1738,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pStats);
     }
 }
@@ -1664,6 +1768,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pLastPresentCount);
     }
 }
@@ -1698,6 +1804,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Adapter,
             ppAdapter);
     }
@@ -1727,6 +1835,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             WindowHandle,
             Flags);
     }
@@ -1758,6 +1868,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pWindowHandle);
         PostProcessExternalObject(replay_result, out_op_pWindowHandle, out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
     }
@@ -1799,6 +1911,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             pDesc,
             ppSwapChain);
@@ -1836,6 +1950,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Module,
             ppAdapter);
     }
@@ -1868,6 +1984,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pAdapter);
     }
 }
@@ -1911,6 +2029,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             NumSurfaces,
             Usage,
@@ -1950,6 +2070,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ppResources,
             pResidencyStatus,
             NumResources);
@@ -1976,6 +2098,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Priority);
     }
 }
@@ -2004,6 +2128,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pPriority);
     }
 }
@@ -2038,6 +2164,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Adapter,
             ppAdapter);
     }
@@ -2059,7 +2187,9 @@ void Dx12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -2087,6 +2217,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -2111,6 +2243,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             MaxLatency);
     }
 }
@@ -2139,6 +2273,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pMaxLatency);
     }
 }
@@ -2159,7 +2295,9 @@ void Dx12ReplayConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -2248,6 +2386,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             TimeoutInMilliseconds,
             pFrameInfo,
             ppDesktopResource);
@@ -2288,6 +2428,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             DirtyRectsBufferSize,
             pDirtyRectsBuffer,
             pDirtyRectsBufferSizeRequired);
@@ -2328,6 +2470,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             MoveRectsBufferSize,
             pMoveRectBuffer,
             pMoveRectsBufferSizeRequired);
@@ -2375,6 +2519,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             PointerShapeBufferSize,
             pPointerShapeBuffer,
             pPointerShapeBufferSizeRequired,
@@ -2406,6 +2552,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pLockedRect);
     }
 }
@@ -2427,7 +2575,9 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -2448,7 +2598,9 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -2489,6 +2641,8 @@ void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppParentResource,
             pSubresourceIndex);
@@ -2525,6 +2679,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             index,
             ppSurface);
     }
@@ -2565,6 +2721,8 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pAttributes,
             dwAccess,
             lpName,
@@ -2600,6 +2758,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumResources,
             ppResources,
             Priority);
@@ -2637,6 +2797,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumResources,
             ppResources,
             pDiscarded);
@@ -2664,6 +2826,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent);
     }
 }
@@ -2692,6 +2856,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -2720,6 +2886,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -2750,6 +2918,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHwnd);
         PostProcessExternalObject(replay_result, out_op_pHwnd, out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
     }
@@ -2785,6 +2955,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             refiid,
             ppUnk);
     }
@@ -2818,6 +2990,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             SyncInterval,
             PresentFlags,
             pPresentParameters);
@@ -2840,7 +3014,9 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -2871,6 +3047,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ppRestrictToOutput);
     }
 }
@@ -2895,6 +3073,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pColor);
     }
 }
@@ -2923,6 +3103,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pColor);
     }
 }
@@ -2947,6 +3129,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Rotation);
     }
 }
@@ -2975,6 +3159,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pRotation);
     }
 }
@@ -2995,7 +3181,9 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -3045,6 +3233,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             hWnd,
             pDesc,
@@ -3098,6 +3288,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             pWindow,
             pDesc,
@@ -3134,6 +3326,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hResource,
             pLuid);
     }
@@ -3170,6 +3364,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             WindowHandle,
             wMsg,
             pdwCookie);
@@ -3204,6 +3400,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent,
             pdwCookie);
     }
@@ -3262,6 +3460,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             WindowHandle,
             wMsg,
             pdwCookie);
@@ -3296,6 +3496,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent,
             pdwCookie);
     }
@@ -3363,6 +3565,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             pDesc,
             pRestrictToOutput,
@@ -3394,6 +3598,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -3436,6 +3642,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             EnumFormat,
             Flags,
             pNumModes,
@@ -3474,6 +3682,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pModeToMatch,
             pClosestMatch,
             pConcernedDevice);
@@ -3501,6 +3711,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDestination);
     }
 }
@@ -3536,6 +3748,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             ppOutputDuplication);
     }
@@ -3583,6 +3797,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Width,
             Height);
     }
@@ -3619,6 +3835,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pWidth,
             pHeight);
     }
@@ -3644,6 +3862,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             MaxLatency);
     }
 }
@@ -3672,6 +3892,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pMaxLatency);
     }
 }
@@ -3692,7 +3914,9 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -3716,6 +3940,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pMatrix);
     }
 }
@@ -3744,6 +3970,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pMatrix);
     }
 }
@@ -3764,7 +3992,9 @@ void Dx12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -3784,7 +4014,9 @@ void Dx12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -3814,6 +4046,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             BufferToPresent,
             SyncInterval,
             Flags);
@@ -3840,6 +4074,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pRect);
     }
 }
@@ -3864,6 +4100,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pRect);
     }
 }
@@ -3891,6 +4129,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Width,
             Height);
     }
@@ -3920,6 +4160,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pRect);
     }
 }
@@ -3948,6 +4190,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pRect);
     }
 }
@@ -3983,6 +4227,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pWidth,
             pHeight);
     }
@@ -4008,6 +4254,8 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ColorSpace);
     }
 }
@@ -4028,7 +4276,9 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -4074,6 +4324,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             hSurface,
             pDesc,
@@ -4128,6 +4380,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             hSurface,
             pDesc,
@@ -4161,6 +4415,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pStats);
     }
 }
@@ -4185,6 +4441,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Duration);
     }
 }
@@ -4223,6 +4481,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             DesiredPresentDuration,
             pClosestSmallerPresentDuration,
             pClosestLargerPresentDuration);
@@ -4260,6 +4520,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             EnumFormat,
             pConcernedDevice,
             pFlags);
@@ -4282,7 +4544,9 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -4313,6 +4577,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ColorSpace,
             pColorSpaceSupport);
     }
@@ -4338,6 +4604,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ColorSpace);
     }
 }
@@ -4383,6 +4651,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             BufferCount,
             Width,
             Height,
@@ -4427,6 +4697,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Format,
             ColorSpace,
             pConcernedDevice,
@@ -4467,6 +4739,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             AdapterLuid,
             riid,
             ppvAdapter);
@@ -4503,6 +4777,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppvAdapter);
     }
@@ -4536,6 +4812,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtection
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent,
             pdwCookie);
     }
@@ -4593,6 +4871,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NodeIndex,
             MemorySegmentGroup,
             pVideoMemoryInfo);
@@ -4625,6 +4905,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NodeIndex,
             MemorySegmentGroup,
             Reservation);
@@ -4659,6 +4941,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNo
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent,
             pdwCookie);
     }
@@ -4726,6 +5010,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDevice,
             Flags,
             SupportedFormatsCount,
@@ -4760,6 +5046,8 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             Size,
             pMetaData);
@@ -4796,6 +5084,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumResources,
             ppResources,
             Priority,
@@ -4834,6 +5124,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumResources,
             ppResources,
             pResults);
@@ -4864,6 +5156,8 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -4892,6 +5186,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc);
     }
 }
@@ -4920,6 +5216,8 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFlags);
     }
 }
@@ -4960,6 +5258,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Adapter,
             GpuPreference,
             riid,
@@ -4995,6 +5295,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hEvent,
             pdwCookie);
     }
@@ -5020,6 +5322,8 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             dwCookie);
     }
 }
@@ -5059,6 +5363,8 @@ void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             guid,
             pDataSize,
             pData);
@@ -5091,6 +5397,8 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             guid,
             DataSize,
             pData);
@@ -5121,6 +5429,8 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             guid,
             pData);
     }
@@ -5148,6 +5458,8 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetName(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Name);
     }
 }
@@ -5182,6 +5494,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppvDevice);
     }
@@ -5203,7 +5517,9 @@ void Dx12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatur
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5235,6 +5551,8 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             convertToVersion,
             ppDesc);
     }
@@ -5256,7 +5574,9 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnc
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5276,7 +5596,9 @@ void Dx12ReplayConsumer::Process_ID3D12Heap_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5312,6 +5634,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Subresource,
             pReadRange,
             ppData);
@@ -5361,7 +5685,9 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5382,7 +5708,9 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5420,6 +5748,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDstData,
             DstRowPitch,
             DstDepthPitch,
@@ -5459,6 +5789,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeapProperties,
             pHeapFlags);
     }
@@ -5481,7 +5813,9 @@ void Dx12ReplayConsumer::Process_ID3D12CommandAllocator_Reset(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandAllocator_Reset>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5502,7 +5836,9 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Fence_GetCompletedValue>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5531,6 +5867,8 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Value,
             hEvent);
     }
@@ -5558,6 +5896,8 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_Signal(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Value);
     }
 }
@@ -5578,7 +5918,9 @@ void Dx12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Fence1_GetCreationFlags>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5609,6 +5951,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ppBlob);
     }
 }
@@ -5629,7 +5973,9 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5650,7 +5996,9 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForH
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5671,7 +6019,9 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForH
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5691,7 +6041,9 @@ void Dx12ReplayConsumer::Process_ID3D12CommandList_GetType(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandList_GetType>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5721,7 +6073,9 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -5752,6 +6106,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pAllocator,
             pInitialState);
     }
@@ -8329,6 +8685,8 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFence,
             Value);
     }
@@ -8360,6 +8718,8 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFence,
             Value);
     }
@@ -8389,6 +8749,8 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFrequency);
     }
 }
@@ -8424,6 +8786,8 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pGpuTimestamp,
             pCpuTimestamp);
     }
@@ -8445,7 +8809,9 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -8465,7 +8831,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -8504,6 +8872,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppCommandQueue);
@@ -8543,6 +8913,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             type,
             riid,
             ppCommandAllocator);
@@ -8585,6 +8957,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppPipelineState);
@@ -8627,6 +9001,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppPipelineState);
@@ -8679,6 +9055,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             nodeMask,
             type,
             pCommandAllocator,
@@ -8723,6 +9101,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDescriptorHeapDesc,
             riid,
             ppvHeap);
@@ -8750,6 +9130,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             DescriptorHeapType);
     }
 }
@@ -8795,6 +9177,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             nodeMask,
             pBlobWithRootSignature,
             blobLengthInBytes,
@@ -9101,6 +9485,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             visibleMask,
             numResourceDescs,
             pResourceDescs);
@@ -9129,6 +9515,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             nodeMask,
             heapType);
     }
@@ -9182,6 +9570,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -9227,6 +9617,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppvHeap);
@@ -9282,6 +9674,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeap,
             HeapOffset,
             pDesc,
@@ -9334,6 +9728,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             InitialState,
             pOptimizedClearValue,
@@ -9381,6 +9777,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pObject,
             pAttributes,
             Access,
@@ -9424,6 +9822,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NTHandle,
             riid,
             ppvObj);
@@ -9462,6 +9862,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Name,
             Access,
             pNTHandle);
@@ -9493,6 +9895,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumObjects,
             ppObjects);
     }
@@ -9522,6 +9926,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumObjects,
             ppObjects);
     }
@@ -9565,6 +9971,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             InitialValue,
             Flags,
             riid,
@@ -9589,7 +9997,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetDeviceRemovedReason>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -9692,6 +10102,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppvHeap);
@@ -9718,6 +10130,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Enable);
     }
 }
@@ -9761,6 +10175,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             pRootSignature,
             riid,
@@ -9851,7 +10267,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -9879,6 +10297,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pName,
             pPipeline);
     }
@@ -9923,6 +10343,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pName,
             pDesc,
             riid,
@@ -9969,6 +10391,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pName,
             pDesc,
             riid,
@@ -9992,7 +10416,9 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10023,6 +10449,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pData,
             DataSizeInBytes);
     }
@@ -10067,6 +10495,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pName,
             pDesc,
             riid,
@@ -10112,6 +10542,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pLibraryBlob,
             BlobLength,
             riid,
@@ -10153,6 +10585,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ppFences,
             pFenceValues,
             NumFences,
@@ -10188,6 +10622,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumObjects,
             ppObjects,
             pPriorities);
@@ -10230,6 +10666,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppPipelineState);
@@ -10271,6 +10709,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pAddress,
             riid,
             ppvHeap);
@@ -10311,6 +10751,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             hFileMapping,
             riid,
             ppvHeap);
@@ -10353,6 +10795,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Flags,
             NumObjects,
             ppObjects,
@@ -10391,6 +10835,8 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppFence);
     }
@@ -10412,7 +10858,9 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10432,7 +10880,9 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10477,6 +10927,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             nodeMask,
             type,
             flags,
@@ -10518,6 +10970,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppSession);
@@ -10576,6 +11030,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -10626,6 +11082,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             pProtectedSession,
             riid,
@@ -10679,6 +11137,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             InitialState,
             pOptimizedClearValue,
@@ -10720,6 +11180,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             visibleMask,
             numResourceDescs,
             pResourceDescs,
@@ -10765,7 +11227,9 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetLUID>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10799,6 +11263,8 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppv);
     }
@@ -10844,6 +11310,8 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndC
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riidResource,
             ppvResource,
             riidQueue,
@@ -10868,7 +11336,9 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_InsertImplicitSync>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -10893,6 +11363,8 @@ void Dx12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pObject);
     }
 }
@@ -10918,6 +11390,8 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pExportName);
     }
 }
@@ -10941,6 +11415,8 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pExportName);
     }
 }
@@ -10961,7 +11437,9 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSiz
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetPipelineStackSize>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -11021,6 +11499,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOwner,
             riid,
             ppvTracker);
@@ -11078,6 +11558,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pNumMetaCommands,
             pDescs);
     }
@@ -11128,6 +11610,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             CommandId,
             Stage,
             pTotalStructureSizeInBytes,
@@ -11178,6 +11662,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             CommandId,
             NodeMask,
             pCreationParametersData,
@@ -11223,6 +11709,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppStateObject);
@@ -11283,6 +11771,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             SerializedDataType,
             pIdentifierToCheck);
     }
@@ -11429,6 +11919,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOutput);
     }
 }
@@ -11454,6 +11946,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAll
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOutput);
     }
 }
@@ -11486,6 +11980,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOutput);
     }
 }
@@ -11515,6 +12011,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOutput);
     }
 }
@@ -11544,6 +12042,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetPageFaultAl
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pOutput);
     }
 }
@@ -11564,7 +12064,9 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -11602,6 +12104,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Mode,
             MeasurementsAction,
             hEventToSignalUponCompletion,
@@ -11625,7 +12129,9 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession1_GetDesc1>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -11669,6 +12175,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pAddition,
             pStateObjectToGrowFrom,
             riid,
@@ -11709,6 +12217,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppSession);
@@ -11747,6 +12257,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             visibleMask,
             numResourceDescs,
             pResourceDescs,
@@ -11806,6 +12318,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -11866,6 +12380,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeap,
             HeapOffset,
             pDesc,
@@ -12005,6 +12521,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppProtectedSession);
     }
@@ -12026,7 +12544,9 @@ void Dx12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Resource2_GetDesc1>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -12060,6 +12580,8 @@ void Dx12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppProtectedSession);
     }
@@ -12121,6 +12643,8 @@ void Dx12ReplayConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceS
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Stage,
             ParameterIndex);
     }
@@ -12493,6 +13017,8 @@ void Dx12ReplayConsumer::Process_ID3D12ShaderCacheSession_FindValue(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pKey,
             KeySize,
             pValue,
@@ -12529,6 +13055,8 @@ void Dx12ReplayConsumer::Process_ID3D12ShaderCacheSession_StoreValue(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pKey,
             KeySize,
             pValue,
@@ -12571,7 +13099,9 @@ void Dx12ReplayConsumer::Process_ID3D12ShaderCacheSession_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -12608,6 +13138,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device9_CreateShaderCacheSession(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             riid,
             ppvSession);
@@ -12637,6 +13169,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device9_ShaderCacheControl(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Kinds,
             Control);
     }
@@ -12680,6 +13214,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device9_CreateCommandQueue1(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             CreatorID,
             riid,
@@ -12745,6 +13281,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateCommittedResource3(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -12813,6 +13351,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreatePlacedResource2(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pHeap,
             HeapOffset,
             pDesc,
@@ -12877,6 +13417,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateReservedResource2(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             InitialLayout,
             pOptimizedClearValue,
@@ -12953,6 +13495,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             visibleMask,
             numResourceDescs,
             pResourceDescs,
@@ -12992,6 +13536,8 @@ void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pObject,
             pHandle);
         PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost, "ID3D12VirtualizationGuestDevice_ShareWithHost");
@@ -13029,6 +13575,8 @@ void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_CreateFenceFd(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFence,
             FenceValue,
             pFenceFd);
@@ -13073,7 +13621,9 @@ void Dx12ReplayConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13100,6 +13650,8 @@ void Dx12ReplayConsumer::Process_ID3D12SDKConfiguration_SetSDKVersion(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             SDKVersion,
             SDKPath);
     }
@@ -13141,6 +13693,8 @@ void Dx12ReplayConsumer::Process_ID3D12SDKConfiguration1_CreateDeviceFactory(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             SDKVersion,
             SDKPath,
             riid,
@@ -13184,7 +13738,9 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_InitializeFromGlobalState(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_InitializeFromGlobalState>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13205,7 +13761,9 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_ApplyToGlobalState(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_ApplyToGlobalState>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13229,6 +13787,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_SetFlags(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             flags);
     }
 }
@@ -13249,7 +13809,9 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_GetFlags(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetFlags>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13286,6 +13848,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_GetConfigurationInterface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             clsid,
             iid,
             ppv);
@@ -13321,6 +13885,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_EnableExperimentalFeatures(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             NumFeatures,
             pIIDs,
             pConfigurationStructs,
@@ -13367,6 +13933,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_CreateDevice(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             adapter,
             FeatureLevel,
             riid,
@@ -13390,7 +13958,9 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_GetDesc(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetDesc>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13421,6 +13991,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_GetEnabledExperimenta
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pGuids,
             NumGuids);
     }
@@ -13463,6 +14035,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_SerializeVersionedRoo
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pDesc,
             ppResult,
             ppError);
@@ -13505,6 +14079,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_CreateVersionedRootSi
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pBlob,
             Size,
             riid,
@@ -13817,6 +14393,8 @@ void Dx12ReplayConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pD3D12Device,
             NodeMask,
             riid,
@@ -13840,7 +14418,9 @@ void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13860,7 +14440,9 @@ void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13895,6 +14477,8 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             callbackFn,
             pData,
             pCallbackID);
@@ -13921,6 +14505,8 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCa
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             callbackID);
     }
 }
@@ -14184,6 +14770,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14220,6 +14808,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14246,6 +14836,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Flags);
     }
 }
@@ -14270,6 +14862,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Mask);
     }
 }
@@ -14290,7 +14884,9 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugDevice_GetFeatureMask>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -14314,6 +14910,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Flags);
     }
 }
@@ -14344,6 +14942,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14380,6 +14980,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14412,6 +15014,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pResource,
             Subresource,
             State);
@@ -14506,6 +15110,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pResource,
             Subresource,
             State);
@@ -14538,6 +15144,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14574,6 +15182,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14606,6 +15216,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pResource,
             Subresource,
             State);
@@ -14632,6 +15244,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Mask);
     }
 }
@@ -14652,7 +15266,9 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList_GetFeatureMask>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -14682,6 +15298,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14718,6 +15336,8 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Type,
             pData,
             DataSize);
@@ -14935,6 +15555,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             MessageCountLimit);
     }
 }
@@ -14993,6 +15615,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessage(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             MessageIndex,
             pMessage,
             pMessageByteLength);
@@ -15015,7 +15639,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageF
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15035,7 +15661,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFi
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15055,7 +15683,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessages>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15075,7 +15705,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRe
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15095,7 +15727,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessag
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15115,7 +15749,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessageCountLimit>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15139,6 +15775,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter);
     }
 }
@@ -15175,6 +15813,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter,
             pFilterByteLength);
     }
@@ -15216,7 +15856,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyStorageFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15237,7 +15879,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfStorageFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15261,6 +15905,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter);
     }
 }
@@ -15300,7 +15946,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilterStackSize>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15324,6 +15972,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter);
     }
 }
@@ -15360,6 +16010,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter,
             pFilterByteLength);
     }
@@ -15401,7 +16053,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyRetrievalFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15422,7 +16076,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfRetrievalFilter>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15446,6 +16102,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             pFilter);
     }
 }
@@ -15485,7 +16143,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilterStackSize>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15518,6 +16178,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddMessage(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Category,
             Severity,
             ID,
@@ -15548,6 +16210,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Severity,
             pDescription);
     }
@@ -15576,6 +16240,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Category,
             bEnable);
     }
@@ -15604,6 +16270,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Severity,
             bEnable);
     }
@@ -15632,6 +16300,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ID,
             bEnable);
     }
@@ -15656,6 +16326,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Category);
     }
 }
@@ -15679,6 +16351,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             Severity);
     }
 }
@@ -15702,6 +16376,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             ID);
     }
 }
@@ -15744,7 +16420,9 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMuteDebugOutput>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15782,6 +16460,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             CallbackFunc,
             CallbackFilterFlags,
             pContext,
@@ -15809,6 +16489,8 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             CallbackCookie);
     }
 }
@@ -15843,6 +16525,8 @@ void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
             this,
             call_info,
             replay_object,
+            return_value,
+            replay_result,
             riid,
             ppvObject);
     }
@@ -15865,7 +16549,9 @@ void Dx12ReplayConsumer::Process_IUnknown_AddRef(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IUnknown_AddRef>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -15886,7 +16572,9 @@ void Dx12ReplayConsumer::Process_IUnknown_Release(
         CustomReplayPostCall<format::ApiCallId::ApiCall_IUnknown_Release>::Dispatch(
             this,
             call_info,
-            replay_object);
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
