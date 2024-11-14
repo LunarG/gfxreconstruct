@@ -82,6 +82,7 @@ class ApiData():
         boolean_type                - The type used by the API for booleans
         flags_type                  - The type used for general flags in the API
         flags_64_type               - The type used for 64-bit flags in the API
+        void_func_pointer_type      - The type for the void function pointer
         return_const_ptr_on_extended- Return a constant on extended pointer types
         supports_handles            - This API supports Handles
         handle_func_name_mod        - The name used to indicate a function is processing handles
@@ -108,6 +109,7 @@ class ApiData():
             boolean_type,
             flags_type,
             flags_64_type,
+            void_func_pointer_type,
             return_const_ptr_on_extended,
             supports_handles,
             handle_func_name_mod,
@@ -132,6 +134,7 @@ class ApiData():
         self.boolean_type = boolean_type
         self.flags_type = flags_type
         self.flags_64_type = flags_64_type
+        self.void_func_pointer_type = void_func_pointer_type
         self.return_const_ptr_on_extended = return_const_ptr_on_extended
         self.supports_handles = supports_handles
         self.handle_func_name_mod = handle_func_name_mod
@@ -419,6 +422,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 boolean_type='VkBool32',
                 flags_type='VkFlags',
                 flags_64_type='VkFlags64',
+                void_func_pointer_type='PFN_vkVoidFunction',
                 return_const_ptr_on_extended=True,
                 supports_handles=True,
                 handle_func_name_mod='Handle',
@@ -446,6 +450,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 boolean_type='XrBool32',
                 flags_type='',
                 flags_64_type='XrFlags64',
+                void_func_pointer_type='PFN_xrVoidFunction',
                 return_const_ptr_on_extended=False,
                 supports_handles=True,
                 handle_func_name_mod='Handle',
