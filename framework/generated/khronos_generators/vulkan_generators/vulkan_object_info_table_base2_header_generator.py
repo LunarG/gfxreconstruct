@@ -94,7 +94,7 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         map_code = ''
 
         for handle_name in sorted(self.handle_names):
-            if handle_name in self.DUPLICATE_HANDLE_TYPES:
+            if handle_name in self.handle_aliases:
                 continue
             short_handle_name = handle_name[2:]
             handle_info = short_handle_name + 'Info'

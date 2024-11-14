@@ -334,7 +334,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # These types represent pointers to non-Khronos objects that were written as 64-bit address IDs.
         self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
-        self.DUPLICATE_HANDLE_TYPES = []
         self.MANUALLY_GENERATED_COMMANDS = []
         self.SKIP_COMMANDS = []
 
@@ -348,6 +347,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.base_types = dict()  # Set of current API's basetypes
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
+        self.handle_aliases = dict() # Map of hanlde aliases
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict()  # Map of flags types
         self.flags_type_aliases = dict()  # Map of flags type aliases
@@ -394,7 +394,9 @@ class KhronosBaseGenerator(OutputGenerator):
         )  # Set of structures with handles
 
         self.atom_names = set()  # Set of current API's Atom typenames
+        self.atom_aliases = dict()  # Map of current API's Atom aliases
         self.opaque_names = set()  # Set of current API's Opaque typenames
+        self.opaque_aliases = dict()  # Map of current API's Opaque aliases
 
         # Data for every supported Khronos API
         # TODO: Eventually, we should move this info into a data file that we read (JSON?)
@@ -1060,6 +1062,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 and '_DEFINE_HANDLE' == type_elem.find('type').text[2:]
             ):
                 self.dispatchable_handle_names.add(name)
+
+            # Flags can have either VkFlags or VkFlags64 base type
+            alias = type_elem.get('alias')
+            if alias:
+                self.handle_aliases[name] = alias
         elif (category == 'bitmask'):
             # Flags can have either VkFlags or VkFlags64 base type
             alias = type_elem.get('alias')
@@ -1618,6 +1625,12 @@ class KhronosBaseGenerator(OutputGenerator):
         for api_data in self.valid_khronos_supported_api_data:
             if type.startswith(api_data.type_prefix):
                 return api_data.api_class_prefix
+        return self.get_api_prefix()
+
+    def get_api_struct_prefix_from_type(self, type):
+        for api_data in self.valid_khronos_supported_api_data:
+            if type.startswith(api_data.type_prefix):
+                return api_data.type_prefix
         return self.get_api_prefix()
 
     def get_api_prefix_from_command(self, cmd):
