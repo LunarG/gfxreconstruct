@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_layer_func_table_generator import KhronosLayerFuncTableGenerator
 
 
 class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
@@ -53,7 +54,7 @@ class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanLayerFuncTableGenerator(BaseGenerator):
+class VulkanLayerFuncTableGenerator(BaseGenerator, KhronosLayerFuncTableGenerator):
     """LayerFuncTableGenerator - subclass of BaseGenerator.
     Generates C++ function table for the Vulkan API calls exported by the layer.
     Generate Vulkan layer function table C++ type declarations.
@@ -106,7 +107,7 @@ class VulkanLayerFuncTableGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
 
-        self.write_layer_func_table_contents(self.LAYER_FUNCTIONS, 100)
+        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -114,31 +115,8 @@ class VulkanLayerFuncTableGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def write_layer_func_table_contents(self, skip_func_list, align_col):
-        api_data = self.get_api_data()
-
-        write(
-            'const std::unordered_map<std::string, {}> {}_func_table = {{'.format(api_data.void_func_pointer_type, api_data.api_name.lower()),
-            file=self.outFile
-        )
-
-        for cmd in self.get_all_filtered_cmd_names():
-            align = align_col - len(cmd)
-            if (cmd in skip_func_list):
-                body = '    {{ "{}",{}reinterpret_cast<{}>({}_entry::{}) }},'.format(
-                    cmd, (' ' * align), api_data.void_func_pointer_type, api_data.api_name.lower(), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
-                    cmd, (' ' * align), api_data.void_func_pointer_type, cmd[2:]
-                )
-            write(body, file=self.outFile)
-
-        self.write_custom_layer_func_table_contents(api_data, align_col)
-
-        write('};', file=self.outFile)
-
     def write_custom_layer_func_table_contents(self, api_data, align_col):
+        """ Method override """
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by skip_func_list:
         align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
