@@ -209,10 +209,10 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
     }
 }
 
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
-                                                           VkDescriptorSet            descriptorSet,
-                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                           const void*                pData)
+VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplate(VkDevice                   device,
+                                                             VkDescriptorSet            descriptorSet,
+                                                             VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                             const void*                pData)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
@@ -250,7 +250,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer            commandBuffer,
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate(VkCommandBuffer            commandBuffer,
                                                             VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                             VkPipelineLayout           layout,
                                                             uint32_t                   set,
@@ -293,11 +293,11 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer     
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
-                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                               VkPipelineLayout           layout,
-                                                               uint32_t                   set,
-                                                               const void*                pData)
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
+                                                                 VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                                 VkPipelineLayout           layout,
+                                                                 uint32_t                   set,
+                                                                 const void*                pData)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
@@ -337,7 +337,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2(
     VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfo* pPushDescriptorSetWithTemplateInfo)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
@@ -376,7 +376,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2KHR(
     VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
@@ -416,10 +416,10 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 }
 
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
-                                                              VkDescriptorSet            descriptorSet,
-                                                              VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                              const void*                pData)
+VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
+                                                                VkDescriptorSet            descriptorSet,
+                                                                VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                                const void*                pData)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
@@ -458,11 +458,11 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
-BuildAccelerationStructuresKHR(VkDevice                                               device,
-                               VkDeferredOperationKHR                                 deferredOperation,
-                               uint32_t                                               infoCount,
-                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
-                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos)
+vkBuildAccelerationStructuresKHR(VkDevice                                               device,
+                                 VkDeferredOperationKHR                                 deferredOperation,
+                                 uint32_t                                               infoCount,
+                                 const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                                 const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos)
 {
     // TODO
     GFXRECON_LOG_ERROR("BuildAccelerationStructuresKHR encoding is not supported");
@@ -470,33 +470,33 @@ BuildAccelerationStructuresKHR(VkDevice                                         
         device, deferredOperation, infoCount, pInfos, ppRangeInfos);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
-                                                            VkDeferredOperationKHR                    deferredOperation,
-                                                            const VkCopyAccelerationStructureInfoKHR* pInfo)
+VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureKHR(VkDevice               device,
+                                                              VkDeferredOperationKHR deferredOperation,
+                                                              const VkCopyAccelerationStructureInfoKHR* pInfo)
 {
     // TODO
     GFXRECON_LOG_ERROR("CopyAccelerationStructureKHR encoding is not supported");
     return vulkan_wrappers::GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
 }
 
-VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
+VKAPI_ATTR uint64_t VKAPI_CALL vkGetBlockIndexGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     return manager->GetBlockIndex();
 }
 
-VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR()
+VKAPI_ATTR void VKAPI_CALL vkDumpAssetsGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     manager->SetWriteAssets();
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
-                                                       VkPipelineCache                     pipelineCache,
-                                                       uint32_t                            createInfoCount,
-                                                       const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                                       const VkAllocationCallbacks*        pAllocator,
-                                                       VkPipeline*                         pPipelines)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(VkDevice                            device,
+                                                         VkPipelineCache                     pipelineCache,
+                                                         uint32_t                            createInfoCount,
+                                                         const VkGraphicsPipelineCreateInfo* pCreateInfos,
+                                                         const VkAllocationCallbacks*        pAllocator,
+                                                         VkPipeline*                         pPipelines)
 {
     if (!VulkanCaptureManager::Get()->GetAllowPipelineCompileRequired())
     {
@@ -586,12 +586,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                           device,
-                                                      VkPipelineCache                    pipelineCache,
-                                                      uint32_t                           createInfoCount,
-                                                      const VkComputePipelineCreateInfo* pCreateInfos,
-                                                      const VkAllocationCallbacks*       pAllocator,
-                                                      VkPipeline*                        pPipelines)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateComputePipelines(VkDevice                           device,
+                                                        VkPipelineCache                    pipelineCache,
+                                                        uint32_t                           createInfoCount,
+                                                        const VkComputePipelineCreateInfo* pCreateInfos,
+                                                        const VkAllocationCallbacks*       pAllocator,
+                                                        VkPipeline*                        pPipelines)
 {
     if (!VulkanCaptureManager::Get()->GetAllowPipelineCompileRequired())
     {
@@ -681,12 +681,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice                                device,
-                                                           VkPipelineCache                         pipelineCache,
-                                                           uint32_t                                createInfoCount,
-                                                           const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
-                                                           const VkAllocationCallbacks*            pAllocator,
-                                                           VkPipeline*                             pPipelines)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesNV(VkDevice                                device,
+                                                             VkPipelineCache                         pipelineCache,
+                                                             uint32_t                                createInfoCount,
+                                                             const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
+                                                             const VkAllocationCallbacks*            pAllocator,
+                                                             VkPipeline*                             pPipelines)
 {
     if (!VulkanCaptureManager::Get()->GetAllowPipelineCompileRequired())
     {
@@ -778,13 +778,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice                                 device,
-                                                            VkDeferredOperationKHR                   deferredOperation,
-                                                            VkPipelineCache                          pipelineCache,
-                                                            uint32_t                                 createInfoCount,
-                                                            const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-                                                            const VkAllocationCallbacks*             pAllocator,
-                                                            VkPipeline*                              pPipelines)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesKHR(VkDevice               device,
+                                                              VkDeferredOperationKHR deferredOperation,
+                                                              VkPipelineCache        pipelineCache,
+                                                              uint32_t               createInfoCount,
+                                                              const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                              const VkAllocationCallbacks*             pAllocator,
+                                                              VkPipeline*                              pPipelines)
 {
     if (!VulkanCaptureManager::Get()->GetAllowPipelineCompileRequired())
     {
