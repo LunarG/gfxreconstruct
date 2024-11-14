@@ -84,44 +84,55 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
     # yapf: enable
 
+    def add_wrapper_funcs_for_type(self, name):
+        wrapper_prefix = self.get_wrapper_prefix_from_type(name)
+        type_prefix = self.get_api_struct_prefix_from_type(name)
+        short_name = name[len(type_prefix):]
+        handle_wrapper_func = short_name + 'Wrapper'
+        handle_wrapper_type = wrapper_prefix + '::' + short_name + 'Wrapper'
+        handle_map = short_name[0].lower() + short_name[1:] + '_map_'
+        self.insert_code += '    bool InsertWrapper(format::HandleId id, {}* wrapper) {{ return InsertEntry(id, wrapper, {}); }}\n'.format(handle_wrapper_type, handle_map)
+        self.remove_code += '    bool RemoveWrapper(const {}* wrapper) {{ return RemoveEntry(wrapper, {}); }}\n'.format(handle_wrapper_type, handle_map)
+        self.visit_code += '    void VisitWrappers(std::function<void({}*)> visitor) const {{ for (auto entry : {}) {{ visitor(entry.second); }} }}\n'.format(handle_wrapper_type, handle_map)
+        self.get_code += '    {0}* Get{1}(format::HandleId id) {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
+        self.const_get_code += '    const {0}* Get{1}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
+        self.map_code += '    std::map<format::HandleId, {}*> {};\n'.format(handle_wrapper_type, handle_map)
+        self.api_insert_code += '    bool InsertWrapper({}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {}); }}\n'.format(handle_wrapper_type, handle_map)
+        self.api_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(handle_wrapper_type)
+        self.api_remove_code += '         if (wrapper == nullptr) return false;\n'
+        self.api_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
+        self.api_remove_code += '    }\n'
+        self.api_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map)
+        self.api_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, name, handle_map)
+        self.api_map_code += '    std::unordered_map<{}, {}*> {};\n'.format(name, handle_wrapper_type, handle_map)
+
     # yapf: disable
     def generate_all(self):
-        insert_code = ''
-        remove_code = ''
-        const_get_code = ''
-        get_code = ''
-        visit_code = ''
-        map_code = ''
+        self.insert_code = ''
+        self.remove_code = ''
+        self.const_get_code = ''
+        self.get_code = ''
+        self.visit_code = ''
+        self.map_code = ''
 
-        vk_insert_code = ''
-        vk_remove_code = ''
-        vk_const_get_code = ''
-        vk_get_code = ''
-        vk_map_code = ''        
+        self.api_insert_code = ''
+        self.api_remove_code = ''
+        self.api_const_get_code = ''
+        self.api_get_code = ''
+        self.api_map_code = ''
 
-        for vkhandle_name in sorted(self.handle_names):
-            if vkhandle_name in self.handle_aliases:
+        for handle in sorted(self.handle_names):
+            if handle in self.handle_aliases:
                 continue
-            handle_name = vkhandle_name[2:]
-            wrapper_prefix = self.get_wrapper_prefix_from_type(vkhandle_name)
-            handle_prefix = self.get_api_prefix()
-            handle_wrapper_func = handle_name + 'Wrapper'
-            handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
-            handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
-            insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
-            remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
-            visit_code += '    void VisitWrappers(std::function<void({0}*)> visitor) const {{ for (auto entry : {1}) {{ visitor(entry.second); }} }}\n'.format(handle_wrapper_type, handle_map)
-            get_code += '    {0}* Get{1}(format::HandleId id) {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
-            const_get_code += '    const {0}* Get{1}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
-            map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(handle_wrapper_type, handle_map)
-            vk_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
-            vk_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(handle_wrapper_type)
-            vk_remove_code += '         if (wrapper == nullptr) return false;\n'
-            vk_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
-            vk_remove_code += '    }\n'
-            vk_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, vkhandle_name, handle_map)
-            vk_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, vkhandle_name, handle_map)
-            vk_map_code += '    std::unordered_map<{0}, {1}*> {2};\n'.format(vkhandle_name, handle_wrapper_type, handle_map)
+            self.add_wrapper_funcs_for_type(handle)
+        for atom in sorted(self.atom_names):
+            if atom in self.atom_aliases:
+                continue
+            self.add_wrapper_funcs_for_type(atom)
+        for opaque in sorted(self.opaque_names):
+            if atom in self.opaque_aliases:
+                continue
+            self.add_wrapper_funcs_for_type(opaque)
 
         self.newline()
         code = 'class VulkanStateTable : VulkanStateTableBase\n'
@@ -130,18 +141,18 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '    VulkanStateTable() {}\n'
         code += '    ~VulkanStateTable() {}\n'
         code += '\n'
-        code += insert_code
+        code += self.insert_code
         code += '\n'
-        code += remove_code
+        code += self.remove_code
         code += '\n'
-        code += const_get_code
+        code += self.const_get_code
         code += '\n'
-        code += get_code
+        code += self.get_code
         code += '\n'
-        code += visit_code
+        code += self.visit_code
         code += '\n'
         code += '  private:\n'
-        code += map_code
+        code += self.map_code
         code += '};\n'
         code += '\n'
         code += 'class VulkanStateHandleTable : VulkanStateTableBase\n'
@@ -150,21 +161,21 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '    VulkanStateHandleTable() {}\n'
         code += '    ~VulkanStateHandleTable() {}\n'
         code += '\n'
-        code += vk_insert_code
+        code += self.api_insert_code
         code += '\n'
-        code += vk_remove_code
+        code += self.api_remove_code
         code += '\n'
         code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
         code += '\n'
         code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'
         code += '\n'                
         code += '  private:\n'
-        code += vk_map_code
+        code += self.api_map_code
         code += '};\n'
         code += '\n'
-        code += vk_const_get_code
+        code += self.api_const_get_code
         code += '\n'
-        code += vk_get_code
+        code += self.api_get_code
         write(code, file=self.outFile)
     # yapf: enable
 
