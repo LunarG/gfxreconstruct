@@ -68,7 +68,10 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        self.write_include()
+        write(
+            '#include "encode/vulkan_state_table_base.h"\n', file=self.outFile
+        )
+        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
     # yapf: enable
@@ -76,7 +79,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
-        self.generate_all()
+        self.generate_state_table_content()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -107,7 +110,8 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         self.api_map_code += '    std::unordered_map<{}, {}*> {};\n'.format(name, handle_wrapper_type, handle_map)
 
     # yapf: disable
-    def generate_all(self):
+    def generate_state_table_content(self):
+
         self.insert_code = ''
         self.remove_code = ''
         self.const_get_code = ''
@@ -178,9 +182,3 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += self.api_get_code
         write(code, file=self.outFile)
     # yapf: enable
-
-    def write_include(self):
-        write(
-            '#include "encode/vulkan_state_table_base.h"\n', file=self.outFile
-        )
-        self.newline()
