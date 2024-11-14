@@ -4725,14 +4725,16 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
             riid,
             ppvAdapter);
         if(!ppvAdapter->IsNull()) ppvAdapter->SetHandleLength(1);
-        auto out_p_ppvAdapter    = ppvAdapter->GetPointer();
-        auto out_hp_ppvAdapter   = ppvAdapter->GetHandlePointer();
-        auto replay_result = reinterpret_cast<IDXGIFactory4*>(replay_object->object)->EnumAdapterByLuid(*AdapterLuid.decoded_value,
-                                                                                                        *riid.decoded_value,
-                                                                                                        out_hp_ppvAdapter);
+        DxObjectInfo object_info_ppvAdapter{};
+        ppvAdapter->SetConsumerData(0, &object_info_ppvAdapter);
+        auto replay_result = OverrideEnumAdapterByLuid(replay_object,
+                                                       return_value,
+                                                       AdapterLuid,
+                                                       riid,
+                                                       ppvAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter, format::ApiCall_IDXGIFactory4_EnumAdapterByLuid);
+            AddObject(ppvAdapter->GetPointer(), ppvAdapter->GetHandlePointer(), std::move(object_info_ppvAdapter), format::ApiCall_IDXGIFactory4_EnumAdapterByLuid);
         }
         CheckReplayResult("IDXGIFactory4_EnumAdapterByLuid", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid>::Dispatch(
