@@ -28,30 +28,29 @@ from khronos_base_generator import write
 class KhronosStructHandleMappersHeaderGenerator():
     """Base class for generating struct handle mappers header code."""
 
-    def endFile(self):
+    # Recursively search a structs members to see if they too belong in the
+    # output struct list.  This could be because an including struct is an
+    # output struct.
+    def process_struct_members_to_output_struct(self, value):
+        for member in self.all_struct_members[value.base_type]:
+            if (
+                self.is_struct(member.base_type)
+                and not self.is_struct_black_listed(member.base_type)
+                and (member.base_type not in self.all_struct_aliases)
+                and (member.base_type in self.structs_with_handles)
+                and (member.base_type not in self.output_structs)
+            ):
+                self.output_structs.append(member.base_type)
+                self.process_struct_members_to_output_struct(member)
 
-        # List of structs containing handles that are also used as output parameters for a command
-        output_structs_with_handles = []
-
-        # Look for output structs that contain handles and add to list
-        for cmd in self.get_all_filtered_cmd_names():
-            for value_info in self.all_cmd_params[cmd][2]:
-                if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_all_filtered_struct_names()
-                ) and (value_info.base_type in self.structs_with_handles) and (
-                    value_info.base_type
-                    not in output_structs_with_handles
-                ):
-                    output_structs_with_handles.append(
-                        value_info.base_type
-                    )
+    def write_struct_handle_mapper_header(self):
 
         extended_struct_func_name = self.get_extended_struct_func_prefix()
 
         for struct in self.get_all_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table);'.format(
@@ -61,12 +60,30 @@ class KhronosStructHandleMappersHeaderGenerator():
 
         self.newline()
         write(
-            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);'.format(extended_struct_func_name),
+            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);'
+            .format(extended_struct_func_name),
             file=self.outFile
         )
         self.newline()
 
-        for struct in output_structs_with_handles:
+        # List of structs containing handles that are also used as output parameters for a command
+        self.output_structs = []
+
+        # Look for output structs that contain handles and add to list
+        for cmd in self.get_all_filtered_cmd_names():
+            for value_info in self.all_cmd_params[cmd][2]:
+                if (
+                    self.is_output_parameter(value_info)
+                    and self.is_struct(value_info.base_type)
+                    and not self.is_struct_black_listed(value_info.base_type)
+                    and (value_info.base_type not in self.all_struct_aliases)
+                    and (value_info.base_type in self.structs_with_handles)
+                    and (value_info.base_type not in self.output_structs)
+                ):
+                    self.output_structs.append(value_info.base_type)
+                    self.process_struct_members_to_output_struct(value_info)
+
+        for struct in self.output_structs:
             write(
                 'void AddStructHandles(format::HandleId parent_id, const Decoded_{type}* id_wrapper, const {type}* handle_struct, CommonObjectInfoTable* object_info_table);'
                 .format(type=struct),
@@ -74,13 +91,16 @@ class KhronosStructHandleMappersHeaderGenerator():
             )
             self.newline()
 
-        for struct in output_structs_with_handles:
+        for struct in self.output_structs:
             if struct in self.structs_with_handle_ptrs:
                 write(
-                    'void SetStructHandleLengths(Decoded_{type}* wrapper);'
-                    .format(type=struct),
+                    'void SetStructHandleLengths(Decoded_{type}* wrapper);'.
+                    format(type=struct),
                     file=self.outFile
                 )
                 self.newline()
 
-        write('#include "decode/common_struct_handle_mappers.h"', file=self.outFile)
+        write(
+            '#include "decode/common_struct_handle_mappers.h"',
+            file=self.outFile
+        )
