@@ -334,7 +334,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # These types represent pointers to non-Khronos objects that were written as 64-bit address IDs.
         self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
-        self.DUPLICATE_HANDLE_TYPES = []
         self.MANUALLY_GENERATED_COMMANDS = []
         self.SKIP_COMMANDS = []
 
@@ -348,6 +347,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.base_types = dict()  # Set of current API's basetypes
         self.union_names = set()  # Set of current API's union typenames
         self.handle_names = set()  # Set of current API's handle typenames
+        self.handle_aliases = dict() # Map of hanlde aliases
         self.dispatchable_handle_names = set()  # Set of current API's dispatchable handle typenames
         self.flags_types = dict()  # Map of flags types
         self.flags_type_aliases = dict()  # Map of flags type aliases
@@ -1060,6 +1060,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 and '_DEFINE_HANDLE' == type_elem.find('type').text[2:]
             ):
                 self.dispatchable_handle_names.add(name)
+
+            # Flags can have either VkFlags or VkFlags64 base type
+            alias = type_elem.get('alias')
+            if alias:
+                self.handle_aliases[name] = alias
         elif (category == 'bitmask'):
             # Flags can have either VkFlags or VkFlags64 base type
             alias = type_elem.get('alias')

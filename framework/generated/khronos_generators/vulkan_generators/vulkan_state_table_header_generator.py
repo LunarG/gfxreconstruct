@@ -100,7 +100,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         vk_map_code = ''        
 
         for vkhandle_name in sorted(self.handle_names):
-            if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
+            if vkhandle_name in self.handle_aliases:
                 continue
             handle_name = vkhandle_name[2:]
             wrapper_prefix = self.get_wrapper_prefix_from_type(vkhandle_name)

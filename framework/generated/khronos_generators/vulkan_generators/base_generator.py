@@ -245,10 +245,6 @@ class BaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
-        self.DUPLICATE_HANDLE_TYPES = [
-            'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
-        ]
-
         self.VIDEO_TREE = None
 
         self.generate_video = False
