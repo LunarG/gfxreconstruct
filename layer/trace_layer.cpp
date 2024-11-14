@@ -274,7 +274,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // set to the internal "loader_instance".  Detect that case and return
     if (!strcmp(pName, "vkCreateInstance"))
     {
-        return reinterpret_cast<PFN_vkVoidFunction>(encode::CreateInstance);
+        return reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateInstance);
     }
 
     bool has_implementation = false;

@@ -1432,8 +1432,6 @@ class KhronosBaseGenerator(OutputGenerator):
             text = noneStr(elem.text)
             tail = noneStr(elem.tail)
             if (elem.tag == 'name'):
-                if text.startswith('vk'):
-                    text = text[2:]
                 proto_decl += self.makeProtoName(text, tail)
             else:
                 proto_decl += text + tail
