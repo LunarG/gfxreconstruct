@@ -37,10 +37,10 @@
     <Compile Include="vulkan_replay_consumer_body_generator.py" />
     <Compile Include="vulkan_replay_dump_resources_body_generator.py" />
     <Compile Include="vulkan_replay_dump_resources_header_generator.py" />
-    <Compile Include="base_generator.py" />
+    <Compile Include="vulkan_base_generator.py" />
     <Compile Include="vulkan_struct_decoders_header_generator.py" />
-    <Compile Include="decode_pnext_struct_generator.py" />
-    <Compile Include="encode_pnext_struct_generator.py" />
+    <Compile Include="vulkan_pnext_struct_decode_generator.py" />
+    <Compile Include="vulkan_pnext_struct_encode_generator.py" />
     <Compile Include="gencode.py" />
     <Compile Include="vulkan_layer_func_table_generator.py" />
     <Compile Include="vulkan_struct_decoders_body_generator.py" />
