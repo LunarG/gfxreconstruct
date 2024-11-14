@@ -115,28 +115,30 @@ class VulkanLayerFuncTableGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
 
     def write_layer_func_table_contents(self, skip_func_list, align_col):
+        api_data = self.get_api_data()
+
         write(
-            'const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {',
+            'const std::unordered_map<std::string, {}> {}_func_table = {{'.format(api_data.void_func_pointer_type, api_data.api_name.lower()),
             file=self.outFile
         )
 
         for cmd in self.get_all_filtered_cmd_names():
             align = align_col - len(cmd)
             if (cmd in skip_func_list):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
+                body = '    {{ "{}",{}reinterpret_cast<{}>({}_entry::{}) }},'.format(
+                    cmd, (' ' * align), api_data.void_func_pointer_type, api_data.api_name.lower(), cmd[2:]
                 )
             else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
+                body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
+                    cmd, (' ' * align), api_data.void_func_pointer_type, cmd[2:]
                 )
             write(body, file=self.outFile)
 
-        self.write_custom_layer_func_table_contents(align_col)
+        self.write_custom_layer_func_table_contents(api_data, align_col)
 
         write('};', file=self.outFile)
 
-    def write_custom_layer_func_table_contents(self, align_col):
+    def write_custom_layer_func_table_contents(self, api_data, align_col):
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by skip_func_list:
         align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
