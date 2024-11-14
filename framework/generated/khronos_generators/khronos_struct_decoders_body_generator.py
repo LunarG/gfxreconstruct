@@ -85,8 +85,8 @@ class KhronosStructDecodersBodyGenerator():
                     var=extended_struct_name
                 )
             else:
-                preamble, main_body, epilogue = KhronosStructDecodersBodyGenerator.make_decode_invocation(
-                    self, name, value, preamble, main_body, epilogue
+                preamble, main_body, epilogue = self.make_decode_invocation(
+                    name, value, preamble, main_body, epilogue
                 )
 
         if len(preamble) > 0:
@@ -135,53 +135,14 @@ class KhronosStructDecodersBodyGenerator():
 
                 if value.base_type in self.children_structs.keys():
                     if value.pointer_count == 1:
-                        main_body += f'    switch (wrapper->{value.name}->GetPointer()->type)\n'
-                        main_body += '    {\n'
-                        main_body += '        default:\n'
-                        main_body += '            wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
-                            value.name, self.make_decoded_param_type(value)
-                        )
-
-                        if is_static_array:
-                            array_dimension = ''
-                            # The pointer decoder will write directly to the struct member's memory.
-                            main_body += '            wrapper->{name}->SetExternalMemory({}value->{name}, {arraylen});\n'.format(
-                                array_dimension,
-                                name=value.name,
-                                arraylen=value.array_capacity
-                            )
-                        main_body += '            bytes_read += wrapper->{}->Decode({});\n'.format(
-                            value.name, buffer_args
-                        )
-                        main_body += '            break;\n'
-                        for child in self.children_structs[value.base_type]:
-                            type = self.struct_type_names[child]
-
-                            new_value = deepcopy(value)
-                            new_value.base_type = child
-                            decode_type = self.make_decoded_param_type(
-                                new_value
-                            )
-                            var_name = value.name + '_' + child.lower()
-                            preamble += f'    {decode_type}* {var_name};\n'
-
-                            main_body += f'        case {switch_type}:\n'
-                            main_body += '            {} = DecodeAllocator::Allocate<{}>();\n'.format(
-                                var_name, decode_type
-                            )
-                            main_body += '            bytes_read += {}->Decode({});\n'.format(
-                                var_name, buffer_args
-                            )
-                            main_body += '            wrapper->{} = std::move(reinterpret_cast<StructPointerDecoder<Decoded_{}>*>({}));\n'.format(
-                                value.name, value.base_type, var_name
-                            )
-                            main_body += '            break;\n'
-                        main_body += '    }\n'
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeChildren((buffer + bytes_read), (buffer_size - bytes_read));\n'
                     else:
-                        # TODO: Doesn't currently support arrays of pointers
-                        main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
-                            value.name, self.make_decoded_param_type(value)
-                        )
+                        main_body += '\n'
+                        main_body += '    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first\n'
+                        main_body += '    // and then read the array attributes so we can jump right in to decoding the contents\n'
+                        main_body += f'    wrapper->{value.name} = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_{value.base_type}*>>();\n'
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeChildren((buffer + bytes_read), (buffer_size - bytes_read));\n'
+                        main_body += f'    value->{value.name} = wrapper->{value.name}->GetPointer();\n'
                 else:
                     if is_struct:
                         main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
