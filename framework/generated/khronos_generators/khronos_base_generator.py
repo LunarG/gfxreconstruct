@@ -394,7 +394,9 @@ class KhronosBaseGenerator(OutputGenerator):
         )  # Set of structures with handles
 
         self.atom_names = set()  # Set of current API's Atom typenames
+        self.atom_aliases = dict()  # Map of current API's Atom aliases
         self.opaque_names = set()  # Set of current API's Opaque typenames
+        self.opaque_aliases = dict()  # Map of current API's Opaque aliases
 
         # Data for every supported Khronos API
         # TODO: Eventually, we should move this info into a data file that we read (JSON?)
