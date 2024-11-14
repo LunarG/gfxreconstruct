@@ -93,7 +93,7 @@ class VulkanStructDecodersBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosStructDecodersBodyGenerator.endFile(self)
+        KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

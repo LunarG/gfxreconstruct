@@ -30,10 +30,7 @@ from copy import deepcopy
 class KhronosStructDecodersBodyGenerator():
     """Base class for generating struct docoder body code."""
 
-    def endFile(self):
-        self.generate_decode_struct_body()
-
-    def generate_decode_struct_body(self):
+    def generate_struct_decoder_content(self):
         """Performs C++ code generation for the feature."""
         api_data = self.get_api_data()
 
