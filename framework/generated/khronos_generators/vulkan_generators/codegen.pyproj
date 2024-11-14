@@ -42,7 +42,7 @@
     <Compile Include="decode_pnext_struct_generator.py" />
     <Compile Include="encode_pnext_struct_generator.py" />
     <Compile Include="gencode.py" />
-    <Compile Include="layer_func_table_generator.py" />
+    <Compile Include="vulkan_layer_func_table_generator.py" />
     <Compile Include="vulkan_struct_decoders_body_generator.py" />
     <Compile Include="vulkan_struct_decoders_forward_generator.py" />
     <Compile Include="vulkan_struct_encoders_body_generator.py" />

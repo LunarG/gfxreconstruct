@@ -25,7 +25,7 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
+class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     function table generation.
     Options for Vulkan layer function table C++ code generation.
@@ -53,7 +53,7 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class LayerFuncTableGenerator(BaseGenerator):
+class VulkanLayerFuncTableGenerator(BaseGenerator):
     """LayerFuncTableGenerator - subclass of BaseGenerator.
     Generates C++ function table for the Vulkan API calls exported by the layer.
     Generate Vulkan layer function table C++ type declarations.
