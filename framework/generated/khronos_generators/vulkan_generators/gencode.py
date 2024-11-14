@@ -78,7 +78,7 @@ from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeade
 from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator, VulkanCommandBufferUtilBodyGeneratorOptions
 from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator, VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
-from layer_func_table_generator import LayerFuncTableGenerator, LayerFuncTableGeneratorOptions
+from vulkan_layer_func_table_generator import VulkanLayerFuncTableGenerator, VulkanLayerFuncTableGeneratorOptions
 
 # Struct Encoders
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
@@ -640,10 +640,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_layer_func_table.h'] = [
-        LayerFuncTableGenerator,
-        LayerFuncTableGeneratorOptions(
-            filename='generated_layer_func_table.h',
+    gen_opts['generated_vulkan_layer_func_table.h'] = [
+        VulkanLayerFuncTableGenerator,
+        VulkanLayerFuncTableGeneratorOptions(
+            filename='generated_vulkan_layer_func_table.h',
             directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,

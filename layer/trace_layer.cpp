@@ -25,10 +25,10 @@
 
 #include "layer/trace_layer.h"
 
-#include "encode/custom_layer_func_table.h"
+#include "encode/custom_vulkan_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
-#include "generated/generated_layer_func_table.h"
+#include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "util/platform.h"
 
