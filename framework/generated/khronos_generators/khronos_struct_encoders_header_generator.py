@@ -45,3 +45,12 @@ class KhronosStructEncodersHeaderGenerator():
                 .format(struct),
                 file=self.outFile
             )
+
+            # If this struct is a parent struct, we need to support encoding an array loop to
+            # decipher children information
+            if struct in self.children_structs:
+                write(
+                    '\ntemplate <>\nvoid EncodeStructArrayLoop<{struct}>(ParameterEncoder* encoder, const {struct}* value, size_t len);'
+                    .format(struct=struct),
+                    file=self.outFile
+                )
