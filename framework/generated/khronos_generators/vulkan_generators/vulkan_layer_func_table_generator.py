@@ -25,7 +25,7 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
+class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     function table generation.
     Options for Vulkan layer function table C++ code generation.
@@ -53,7 +53,7 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class LayerFuncTableGenerator(BaseGenerator):
+class VulkanLayerFuncTableGenerator(BaseGenerator):
     """LayerFuncTableGenerator - subclass of BaseGenerator.
     Generates C++ function table for the Vulkan API calls exported by the layer.
     Generate Vulkan layer function table C++ type declarations.
@@ -102,36 +102,48 @@ class LayerFuncTableGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
-        write(
-            'const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {',
-            file=self.outFile
-        )
 
     def endFile(self):
         """Method override."""
-        for cmd in self.get_all_filtered_cmd_names():
-            align = 100 - len(cmd)
-            if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            write(body, file=self.outFile)
 
-        # Manually output the physical device proc address function as its name doesn't
-        # match the scheme used by self.LAYER_FUNCTIONS:
-        align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
-        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+        self.write_layer_func_table_contents(self.LAYER_FUNCTIONS, 100)
 
-        write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+
+    def write_layer_func_table_contents(self, skip_func_list, align_col):
+        api_data = self.get_api_data()
+
+        write(
+            'const std::unordered_map<std::string, {}> {}_func_table = {{'.format(api_data.void_func_pointer_type, api_data.api_name.lower()),
+            file=self.outFile
+        )
+
+        for cmd in self.get_all_filtered_cmd_names():
+            align = align_col - len(cmd)
+            if (cmd in skip_func_list):
+                body = '    {{ "{}",{}reinterpret_cast<{}>({}_entry::{}) }},'.format(
+                    cmd, (' ' * align), api_data.void_func_pointer_type, api_data.api_name.lower(), cmd[2:]
+                )
+            else:
+                body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
+                    cmd, (' ' * align), api_data.void_func_pointer_type, cmd[2:]
+                )
+            write(body, file=self.outFile)
+
+        self.write_custom_layer_func_table_contents(api_data, align_col)
+
+        write('};', file=self.outFile)
+
+    def write_custom_layer_func_table_contents(self, api_data, align_col):
+        # Manually output the physical device proc address function as its name doesn't
+        # match the scheme used by skip_func_list:
+        align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
+        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
