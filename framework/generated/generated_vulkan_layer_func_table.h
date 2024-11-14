@@ -27,8 +27,8 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_LAYER_FUNC_TABLE_H
-#define  GFXRECON_GENERATED_LAYER_FUNC_TABLE_H
+#ifndef  GFXRECON_GENERATED_VULKAN_LAYER_FUNC_TABLE_H
+#define  GFXRECON_GENERATED_VULKAN_LAYER_FUNC_TABLE_H
 
 #include "encode/custom_vulkan_api_call_encoders.h"
 #include "generated/generated_vulkan_api_call_encoders.h"

@@ -640,10 +640,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_layer_func_table.h'] = [
+    gen_opts['generated_vulkan_layer_func_table.h'] = [
         VulkanLayerFuncTableGenerator,
         VulkanLayerFuncTableGeneratorOptions(
-            filename='generated_layer_func_table.h',
+            filename='generated_vulkan_layer_func_table.h',
             directory=directory,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
