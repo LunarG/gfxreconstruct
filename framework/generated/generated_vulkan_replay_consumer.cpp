@@ -989,7 +989,7 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
         auto task = AsyncCreateGraphicsPipelines(GetDeviceTable(in_device->handle)->CreateGraphicsPipelines, returnValue, call_info, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
-           AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkPipelineInfo, std::move(task));
+           AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &CommonObjectInfoTable::AddVkPipelineInfo, std::move(task));
            return;
         }
     }
@@ -1023,7 +1023,7 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
         auto task = AsyncCreateComputePipelines(GetDeviceTable(in_device->handle)->CreateComputePipelines, returnValue, call_info, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
-           AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkPipelineInfo, std::move(task));
+           AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &CommonObjectInfoTable::AddVkPipelineInfo, std::move(task));
            return;
         }
     }
@@ -8277,6 +8277,7 @@ void VulkanReplayConsumer::Process_vkSetLocalDimmingAMD(
     }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkSwapchainKHR in_swapChain = MapHandle<VulkanSwapchainKHRInfo>(swapChain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
+    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapChain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapChain)->surface_id)->surface_creation_skipped) { return; }
 
     GetDeviceTable(in_device)->SetLocalDimmingAMD(in_device, in_swapChain, localDimmingEnable);
 }
@@ -10402,7 +10403,7 @@ void VulkanReplayConsumer::Process_vkCreateShadersEXT(
         auto task = AsyncCreateShadersEXT(GetDeviceTable(in_device->handle)->CreateShadersEXT, returnValue, call_info, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
         if(task)
         {
-           AddHandlesAsync<VulkanShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkShaderEXTInfo, std::move(task));
+           AddHandlesAsync<VulkanShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &CommonObjectInfoTable::AddVkShaderEXTInfo, std::move(task));
            return;
         }
     }

@@ -116,12 +116,19 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         parameter on a separate line
       align_func_param - if nonzero and parameters are being put on a
         separate line, align parameter names at the specified column
+      replay_overrides - Path to JSON file listing Vulkan API calls to
+        override on replay.
+      dump_resources_overrides - Path to JSON file listing Vulkan API
+        calls to override on replay.
+      replay_async_overrides - Path to JSON file listing Vulkan API calls
+        to override on replay.
+      extra_headers - headers to include in addition to the standard Khronos API
     """
 
     def __init__(
         self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        blacklists=None,
+        platform_types=None,
         # Khronos CGeneratorOptions
         filename=None,
         directory='.',
@@ -143,6 +150,9 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         add_extensions=_add_extensions_pat,
         remove_extensions=_remove_extensions_pat,
         emit_extensions=_emit_extensions_pat,
+        replay_overrides=None,
+        dump_resources_overrides=None,
+        replay_async_overrides=None,
         extra_headers=[]
     ):
         KhronosBaseGeneratorOptions.__init__(
@@ -169,6 +179,9 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
             add_extensions=add_extensions,
             remove_extensions=remove_extensions,
             emit_extensions=emit_extensions,
+            replay_overrides=replay_overrides,
+            dump_resources_overrides=dump_resources_overrides,
+            replay_async_overrides=replay_async_overrides,
             extra_headers=extra_headers
         )
 
