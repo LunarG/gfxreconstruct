@@ -232,6 +232,13 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         parameter on a separate line
       align_func_param - if nonzero and parameters are being put on a
         separate line, align parameter names at the specified column
+      replay_overrides - Path to JSON file listing Vulkan API calls to
+        override on replay.
+      dump_resources_overrides - Path to JSON file listing Vulkan API
+        calls to override on replay.
+      replay_async_overrides - Path to JSON file listing Vulkan API calls
+        to override on replay.
+      extra_headers - headers to include in addition to the standard Khronos API
     """
 
     def __init__(
@@ -259,6 +266,9 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         add_extensions=None,
         remove_extensions=None,
         emit_extensions=None,
+        replay_overrides=None,
+        dump_resources_overrides=None,
+        replay_async_overrides=None,
         extra_headers=[]
     ):
         GeneratorOptions.__init__(
@@ -278,6 +288,9 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         )
         self.blacklists = blacklists
         self.platform_types = platform_types
+        self.replay_overrides = replay_overrides
+        self.dump_resources_overrides = dump_resources_overrides
+        self.replay_async_overrides = replay_async_overrides
         # Khronos CGeneratorOptions
         self.prefix_text = prefix_text
         self.protect_file = protect_file
@@ -339,6 +352,13 @@ class KhronosBaseGenerator(OutputGenerator):
         self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
         self.MANUALLY_GENERATED_COMMANDS = []
         self.SKIP_COMMANDS = []
+
+        # Map of Khronos function names to override function names.  Calls to Khronos functions in the map
+        # will be replaced by the override value.
+        self.REPLAY_OVERRIDES = {}
+        self.DUMP_RESOURCES_OVERRIDES = {}
+        self.REPLAY_ASYNC_OVERRIDES = {}
+
 
         # The list of supported subsets
         self.SUPPORTED_SUBSETS = []
@@ -488,18 +508,49 @@ class KhronosBaseGenerator(OutputGenerator):
             if platform_structs:
                 self.PLATFORM_STRUCTS += platform_structs
 
+    def __load_replay_overrides(
+        self, filename, dump_resources_overrides_filename,
+        replay_async_overrides_filename
+    ):
+        if filename is not None:
+            overrides = json.loads(open(filename, 'r').read())
+            self.REPLAY_OVERRIDES = overrides['functions']
+
+        if dump_resources_overrides_filename is not None:
+            dump_resources_overrides = json.loads(
+                open(dump_resources_overrides_filename, 'r').read()
+            )
+            self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides[
+                'functions']
+
+        if replay_async_overrides_filename is not None:
+            replay_async_overrides = json.loads(
+                open(replay_async_overrides_filename, 'r').read()
+            )
+            self.REPLAY_ASYNC_OVERRIDES = replay_async_overrides['functions']
+
     def beginFile(self, gen_opts):
         """Method override."""
         OutputGenerator.beginFile(self, gen_opts)
 
         if gen_opts.blacklists:
             self.__load_blacklists(gen_opts.blacklists)
+
         if gen_opts.platform_types:
             self.__load_platform_types(gen_opts.platform_types)
 
             # Platform defined struct processing must be implemented manually,
             # so these structs will be added to the blacklist.
             self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
+
+        if (
+            gen_opts.replay_overrides or gen_opts.dump_resources_overrides
+            or gen_opts.replay_async_overrides
+        ):
+            self.__load_replay_overrides(
+                gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
+                gen_opts.replay_async_overrides
+            )
 
         # User-supplied prefix text, if any (list of strings)
         if (gen_opts.prefix_text):

@@ -54,11 +54,11 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
+            replay_overrides=replay_overrides,
+            dump_resources_overrides=dump_resources_overrides,
+            replay_async_overrides=replay_async_overrides,
             extra_headers=extra_headers
         )
-        self.replay_overrides = replay_overrides
-        self.dump_resources_overrides = dump_resources_overrides
-        self.replay_async_overrides = replay_async_overrides
 
 
 class VulkanReplayConsumerBodyGenerator(
@@ -69,11 +69,6 @@ class VulkanReplayConsumerBodyGenerator(
     replaying decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file replay.
     """
-
-    # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
-    # will be replaced by the override value.
-    REPLAY_OVERRIDES = {}
-    DUMP_RESOURCES_OVERRIDES = {}
 
     # Map of pool object types associating the pool type with the allocated type and the allocated type with the pool type.
     POOL_OBJECT_ASSOCIATIONS = {
@@ -102,10 +97,6 @@ class VulkanReplayConsumerBodyGenerator(
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
-
-        if gen_opts.replay_overrides:
-            self.__load_replay_overrides(gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
-                                         gen_opts.replay_async_overrides)
 
         write(
             '#include "generated/generated_vulkan_replay_consumer.h"',
@@ -984,13 +975,3 @@ class VulkanReplayConsumerBodyGenerator(
 
     def is_async_handle_type(self, basetype):
         return basetype in ["VkPipeline", "VkShaderExt"]
-
-    def __load_replay_overrides(self, filename, dump_resources_overrides_filename, replay_async_overrides_filename):
-        overrides = json.loads(open(filename, 'r').read())
-        self.REPLAY_OVERRIDES = overrides['functions']
-
-        dump_resources_overrides = json.loads(open(dump_resources_overrides_filename, 'r').read())
-        self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides['functions']
-
-        replay_async_overrides = json.loads(open(replay_async_overrides_filename, 'r').read())
-        self.REPLAY_ASYNC_OVERRIDES = replay_async_overrides['functions']
