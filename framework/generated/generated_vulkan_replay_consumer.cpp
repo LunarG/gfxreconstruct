@@ -987,7 +987,7 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
 
     if (UseAsyncOperations())
     {
-        auto task = AsyncCreateGraphicsPipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        auto task = AsyncCreateGraphicsPipelines(GetDeviceTable(in_device->handle)->CreateGraphicsPipelines, returnValue, call_info, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
            AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkPipelineInfo, std::move(task));
@@ -1021,7 +1021,7 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
 
     if (UseAsyncOperations())
     {
-        auto task = AsyncCreateComputePipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        auto task = AsyncCreateComputePipelines(GetDeviceTable(in_device->handle)->CreateComputePipelines, returnValue, call_info, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
            AddHandlesAsync<VulkanPipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkPipelineInfo, std::move(task));
@@ -10116,7 +10116,7 @@ void VulkanReplayConsumer::Process_vkCreateShadersEXT(
 
     if (UseAsyncOperations())
     {
-        auto task = AsyncCreateShadersEXT(call_info, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
+        auto task = AsyncCreateShadersEXT(GetDeviceTable(in_device->handle)->CreateShadersEXT, returnValue, call_info, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
         if(task)
         {
            AddHandlesAsync<VulkanShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddVkShaderEXTInfo, std::move(task));

@@ -28,6 +28,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/json_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/json_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
