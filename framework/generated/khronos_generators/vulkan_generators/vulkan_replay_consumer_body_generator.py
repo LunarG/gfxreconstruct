@@ -138,7 +138,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosReplayConsumerBodyGenerator.endFile(self)
+        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self)
         self.newline()
         write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
         write('{', file=self.outFile)

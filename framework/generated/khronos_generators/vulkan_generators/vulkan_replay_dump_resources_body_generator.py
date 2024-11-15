@@ -111,7 +111,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosReplayConsumerBodyGenerator.endFile(self)
+        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)

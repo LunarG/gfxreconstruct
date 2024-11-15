@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -27,11 +27,8 @@ from khronos_base_generator import write
 class KhronosReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
-    def endFile(self):
-        self.generate_replay_dump_resources_body()
-
-    def generate_replay_dump_resources_body(self):
-        """Performs C++ code generation for the replay dump resources."""
+    def generate_replay_consumer_content(self):
+        """Performs C++ code generation for the replay consumer."""
         platform_type = self.get_api_prefix()
 
         for cmd in self.get_all_filtered_cmd_names():
