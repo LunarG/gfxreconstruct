@@ -43,13 +43,13 @@ class KhronosLayerFuncTableGenerator():
             align = align_col - len(cmd)
             if (cmd in skip_func_list):
                 body = '    {{ "{}",{}reinterpret_cast<{}>({}_entry::{}) }},'.format(
-                    cmd, (' ' * align), api_data.void_func_pointer_type,
+                    cmd[2:], (' ' * align), api_data.void_func_pointer_type,
                     api_data.api_name.lower(), cmd[2:]
                 )
             else:
                 body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
-                    cmd, (' ' * align), api_data.void_func_pointer_type,
-                    cmd[2:]
+                    cmd[2:], (' ' * align), api_data.void_func_pointer_type,
+                    cmd
                 )
             write(body, file=self.outFile)
 

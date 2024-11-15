@@ -218,7 +218,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
         for name in self.instance_cmd_names:
             decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name[2:]
+                name, name[2:], name
             )
             write(decl, file=self.outFile)
 
@@ -231,7 +231,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
         for name in self.device_cmd_names:
             decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name[2:]
+                name, name[2:], name
             )
             write(decl, file=self.outFile)
 

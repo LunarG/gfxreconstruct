@@ -32,68 +32,68 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
-                                                           VkDescriptorSet            descriptorSet,
-                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                           const void*                pData);
+VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplate(VkDevice                   device,
+                                                             VkDescriptorSet            descriptorSet,
+                                                             VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                             const void*                pData);
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
-                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                               VkPipelineLayout           layout,
-                                                               uint32_t                   set,
-                                                               const void*                pData);
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
+                                                                 VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                                 VkPipelineLayout           layout,
+                                                                 uint32_t                   set,
+                                                                 const void*                pData);
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2KHR(
     VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
 
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
-                                                              VkDescriptorSet            descriptorSet,
-                                                              VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                              const void*                pData);
+VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
+                                                                VkDescriptorSet            descriptorSet,
+                                                                VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                                const void*                pData);
 
 VKAPI_ATTR VkResult VKAPI_CALL
-BuildAccelerationStructuresKHR(VkDevice                                               device,
-                               VkDeferredOperationKHR                                 deferredOperation,
-                               uint32_t                                               infoCount,
-                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
-                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos);
+vkBuildAccelerationStructuresKHR(VkDevice                                               device,
+                                 VkDeferredOperationKHR                                 deferredOperation,
+                                 uint32_t                                               infoCount,
+                                 const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                                 const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos);
 
-VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
-                                                            VkDeferredOperationKHR                    deferredOperation,
-                                                            const VkCopyAccelerationStructureInfoKHR* pInfo);
+VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureKHR(VkDevice               device,
+                                                              VkDeferredOperationKHR deferredOperation,
+                                                              const VkCopyAccelerationStructureInfoKHR* pInfo);
 
-VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
+VKAPI_ATTR uint64_t VKAPI_CALL vkGetBlockIndexGFXR();
 
-VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR();
+VKAPI_ATTR void VKAPI_CALL vkDumpAssetsGFXR();
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
-                                                       VkPipelineCache                     pipelineCache,
-                                                       uint32_t                            createInfoCount,
-                                                       const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                                       const VkAllocationCallbacks*        pAllocator,
-                                                       VkPipeline*                         pPipelines);
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(VkDevice                            device,
+                                                         VkPipelineCache                     pipelineCache,
+                                                         uint32_t                            createInfoCount,
+                                                         const VkGraphicsPipelineCreateInfo* pCreateInfos,
+                                                         const VkAllocationCallbacks*        pAllocator,
+                                                         VkPipeline*                         pPipelines);
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                           device,
-                                                      VkPipelineCache                    pipelineCache,
-                                                      uint32_t                           createInfoCount,
-                                                      const VkComputePipelineCreateInfo* pCreateInfos,
-                                                      const VkAllocationCallbacks*       pAllocator,
-                                                      VkPipeline*                        pPipelines);
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateComputePipelines(VkDevice                           device,
+                                                        VkPipelineCache                    pipelineCache,
+                                                        uint32_t                           createInfoCount,
+                                                        const VkComputePipelineCreateInfo* pCreateInfos,
+                                                        const VkAllocationCallbacks*       pAllocator,
+                                                        VkPipeline*                        pPipelines);
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice                                device,
-                                                           VkPipelineCache                         pipelineCache,
-                                                           uint32_t                                createInfoCount,
-                                                           const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
-                                                           const VkAllocationCallbacks*            pAllocator,
-                                                           VkPipeline*                             pPipelines);
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesNV(VkDevice                                device,
+                                                             VkPipelineCache                         pipelineCache,
+                                                             uint32_t                                createInfoCount,
+                                                             const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
+                                                             const VkAllocationCallbacks*            pAllocator,
+                                                             VkPipeline*                             pPipelines);
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice                                 device,
-                                                            VkDeferredOperationKHR                   deferredOperation,
-                                                            VkPipelineCache                          pipelineCache,
-                                                            uint32_t                                 createInfoCount,
-                                                            const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-                                                            const VkAllocationCallbacks*             pAllocator,
-                                                            VkPipeline*                              pPipelines);
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesKHR(VkDevice               device,
+                                                              VkDeferredOperationKHR deferredOperation,
+                                                              VkPipelineCache        pipelineCache,
+                                                              uint32_t               createInfoCount,
+                                                              const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                              const VkAllocationCallbacks*             pAllocator,
+                                                              VkPipeline*                              pPipelines);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
