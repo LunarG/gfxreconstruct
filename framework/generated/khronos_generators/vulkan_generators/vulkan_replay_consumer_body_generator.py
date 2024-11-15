@@ -139,49 +139,7 @@ class VulkanReplayConsumerBodyGenerator(
     def endFile(self):
         """Method override."""
         KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self)
-        self.newline()
-        write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    while(in_pnext)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        switch(in_pnext->sType)', file=self.outFile)
-        write('        {', file=self.outFile)
-        for struct in self.struct_type_names:
-            struct_type = self.struct_type_names[struct]
-            if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
-                write('            case {}:'.format(struct_type), file=self.outFile)
-                write('            {', file=self.outFile)
-                write('                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
-                    .format(struct),
-                    file=self.outFile
-                )
-                write('                break;', file=self.outFile)
-                write('            }', file=self.outFile)
-        write('            default:', file=self.outFile)
-        write('                break;', file=self.outFile)
-        write('        }', file=self.outFile)
-        write('        output_struct = output_struct->pNext;', file=self.outFile)
-        write('        output_struct->sType = in_pnext->sType;',file=self.outFile)
-        write('        in_pnext = in_pnext->pNext;', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    if(decoder->IsNull()) return;', file=self.outFile)
-        write('    size_t len = decoder->GetOutputLength();', file=self.outFile)
-        write('    auto input = decoder->GetPointer();', file=self.outFile)
-        write('    auto output = decoder->GetOutputPointer();', file=self.outFile)
-        write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);', file=self.outFile)
-        write('        if( in_pnext == nullptr ) continue;', file=self.outFile)
-        write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);', file=self.outFile)
-        write('        InitializeOutputStructPNextImpl(in_pnext, output_struct);', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
+        KhronosReplayConsumerBodyGenerator.generate_extended_struct_handling(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)

@@ -58,3 +58,111 @@ class KhronosReplayConsumerBodyGenerator():
             cmddef += '}'
 
             write(cmddef, file=self.outFile)
+
+    def generate_extended_struct_handling(self):
+        api_data = self.get_api_data()
+        var_name = 'in_' + api_data.extended_struct_variable.lower()
+
+        self.newline()
+        write(
+            'static void InitializeOutputStruct{}Impl(const {}* in_pnext, {}* output_struct)'
+            .format(
+                api_data.extended_struct_func_prefix, api_data.base_in_struct,
+                api_data.base_out_struct
+            ),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    while({})'.format(var_name), file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        switch({}->{})'.format(
+                var_name, api_data.struct_type_variable
+            ),
+            file=self.outFile
+        )
+        write('        {', file=self.outFile)
+        for struct in self.struct_type_names:
+            struct_type = self.struct_type_names[struct]
+            write(
+                '            case {}:'.format(struct_type), file=self.outFile
+            )
+            write('            {', file=self.outFile)
+            write(
+                '                output_struct->{} = reinterpret_cast<{}*>(DecodeAllocator::Allocate<{}>());'
+                .format(
+                    api_data.extended_struct_variable,
+                    api_data.base_out_struct, struct
+                ),
+                file=self.outFile
+            )
+            write('                break;', file=self.outFile)
+            write('            }', file=self.outFile)
+        write('            default:', file=self.outFile)
+        write('                break;', file=self.outFile)
+        write('        }', file=self.outFile)
+        write(
+            '        output_struct = output_struct->{};'.format(
+                api_data.extended_struct_variable
+            ),
+            file=self.outFile
+        )
+        write(
+            '        output_struct->{0} = {1}->{0};'.format(
+                api_data.struct_type_variable, var_name
+            ),
+            file=self.outFile
+        )
+        write(
+            '        {0} = {0}->{1};'.format(
+                var_name, api_data.extended_struct_variable
+            ),
+            file=self.outFile
+        )
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+
+        self.newline()
+        write('template <typename T>', file=self.outFile)
+        write(
+            'void InitializeOutputStruct{}(StructPointerDecoder<T> *decoder)'.
+            format(api_data.extended_struct_func_prefix),
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if(decoder->IsNull()) return;', file=self.outFile)
+        write(
+            '    size_t len = decoder->GetOutputLength();', file=self.outFile
+        )
+        write('    auto input = decoder->GetPointer();', file=self.outFile)
+        write(
+            '    auto output = decoder->GetOutputPointer();',
+            file=self.outFile
+        )
+        write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        const auto* {} = reinterpret_cast<const {}*>(input[i].{});'
+            .format(
+                var_name, api_data.base_in_struct,
+                api_data.extended_struct_variable
+            ),
+            file=self.outFile
+        )
+        write(
+            '        if( {} == nullptr ) continue;'.format(var_name),
+            file=self.outFile
+        )
+        write(
+            '        auto* output_struct = reinterpret_cast<{}*>(&output[i]);'.
+            format(api_data.base_out_struct),
+            file=self.outFile
+        )
+        write(
+            '        InitializeOutputStruct{}Impl({}, output_struct);'.format(
+                api_data.extended_struct_func_prefix, var_name
+            ),
+            file=self.outFile
+        )
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
