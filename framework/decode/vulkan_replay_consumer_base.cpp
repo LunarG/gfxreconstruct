@@ -2629,7 +2629,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 {
     const VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto     instance_table = GetInstanceTable(physical_device);
+    auto instance_table = GetInstanceTable(physical_device);
     assert(instance_table != nullptr);
 
     auto replay_create_info = pCreateInfo->GetPointer();
@@ -8534,7 +8534,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 
         // TODO: create some getter for VulkanAddressReplacer (combine with 'GetDeviceAddressTracker'?)
         VulkanAddressReplacer address_replacer(device_info, GetDeviceTable(device_info->handle), GetObjectInfoTable());
-        address_replacer.ProcessCmdTraceRays(commandBuffer,
+        address_replacer.ProcessCmdTraceRays(command_buffer_info,
                                              in_pRaygenShaderBindingTable,
                                              in_pMissShaderBindingTable,
                                              in_pHitShaderBindingTable,

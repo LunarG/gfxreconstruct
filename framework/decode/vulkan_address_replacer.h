@@ -23,6 +23,7 @@
 #ifndef GFXRECON_GRAPHICS_VULKAN_ADDRESS_REPLACER_H
 #define GFXRECON_GRAPHICS_VULKAN_ADDRESS_REPLACER_H
 
+#include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "format/platform_types.h"
@@ -41,7 +42,7 @@ class VulkanAddressReplacer
     ~VulkanAddressReplacer();
 
     void ProcessCmdTraceRays(
-        VkCommandBuffer                                                                             commandBuffer,
+        const VulkanCommandBufferInfo*                                                              command_buffer_info,
         VkStridedDeviceAddressRegionKHR*                                                            raygen_sbt,
         VkStridedDeviceAddressRegionKHR*                                                            miss_sbt,
         VkStridedDeviceAddressRegionKHR*                                                            hit_sbt,
@@ -50,12 +51,35 @@ class VulkanAddressReplacer
         const std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t>& group_handle_map);
 
   private:
-    const encode::VulkanDeviceTable* device_table_        = nullptr;
-    bool                             valid_sbt_alignment_ = true;
+    struct buffer_context_t
+    {
+        decode::VulkanResourceAllocator*              resource_allocator_ = nullptr;
+        VkDeviceMemory                                device_memory_      = VK_NULL_HANDLE;
+        VkBuffer                                      buffer_             = VK_NULL_HANDLE;
+        decode::VulkanResourceAllocator::ResourceData allocator_data_{};
+        decode::VulkanResourceAllocator::MemoryData   memory_data_{};
+        VkDeviceAddress                               device_address_ = 0;
+        uint32_t                                      num_bytes       = 0;
+        void*                                         mapped_data     = nullptr;
+        ~buffer_context_t();
+    };
+    const encode::VulkanDeviceTable*     device_table_        = nullptr;
+    const decode::CommonObjectInfoTable* object_table_        = nullptr;
+    VkPhysicalDeviceMemoryProperties     memory_properties_   = {};
+    bool                                 valid_sbt_alignment_ = true;
 
-    VkDevice         device_          = VK_NULL_HANDLE;
-    VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
-    VkPipeline       pipeline_        = VK_NULL_HANDLE;
+    bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context);
+
+    VkDevice                         device_             = VK_NULL_HANDLE;
+    decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
+    VkPipelineLayout                 pipeline_layout_    = VK_NULL_HANDLE;
+    VkPipeline                       pipeline_           = VK_NULL_HANDLE;
+
+    buffer_context_t input_handle_buffer_ = {};
+    buffer_context_t hashmap_storage_     = {};
+
+    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> handle_hashmap_;
+    std::unordered_map<VkStridedDeviceAddressRegionKHR*, buffer_context_t>                 shadow_sbt_map_;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
