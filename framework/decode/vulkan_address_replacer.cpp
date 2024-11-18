@@ -209,7 +209,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
     }
 
     // hack to force address-replacement
-//    valid_group_handles = false;
+    valid_group_handles = false;
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
@@ -281,9 +281,11 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             replacer_params.num_handles                                    = group_handle_map.size();
 
             device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
+
+            // TODO: using push-constant might not work, need to re-establish previous data :(
             device_table_->CmdPushConstants(command_buffer_info->handle,
                                             pipeline_layout_,
-                                            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                            VK_SHADER_STAGE_COMPUTE_BIT,
                                             0,
                                             sizeof(replacer_params_t),
                                             &replacer_params);
@@ -291,12 +293,15 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             constexpr uint32_t wg_size = 32;
             device_table_->CmdDispatch(command_buffer_info->handle, div_up(replacer_params.num_handles, wg_size), 1, 1);
 
-            auto pipeline_info = object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
-            assert(pipeline_info);
-            device_table_->CmdBindPipeline(
-                command_buffer_info->handle, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline_info->handle);
-
             // TODO: memory-barrier
+
+            // set previous push-constant data
+            device_table_->CmdPushConstants(command_buffer_info->handle,
+                                            command_buffer_info->push_constant_pipeline_layout,
+                                            command_buffer_info->push_constant_stage_flags,
+                                            0,
+                                            command_buffer_info->push_constant_data.size(),
+                                            command_buffer_info->push_constant_data.data());
         }
         else
         {

@@ -1274,6 +1274,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  VkPipelineBindPoint      pipelineBindPoint,
                                  VulkanPipelineInfo*      pipeline_info);
 
+    void OverrideCmdPushConstants(PFN_vkCmdPushConstants              func,
+                                  VulkanCommandBufferInfo*            command_buffer_info,
+                                  VulkanObjectInfo<VkPipelineLayout>* pipeline_layout_info,
+                                  VkShaderStageFlags                  stage_flags,
+                                  uint32_t                            offset,
+                                  uint32_t                            size,
+                                  PointerDecoder<uint8_t>*            data_decoder);
+
     void OverrideCmdBeginRenderPass(PFN_vkCmdBeginRenderPass                             func,
                                     VulkanCommandBufferInfo*                             command_buffer_info,
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,

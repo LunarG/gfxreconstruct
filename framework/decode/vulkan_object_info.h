@@ -623,6 +623,9 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::vector<format::HandleId>                       frame_buffer_ids;
     std::unordered_map<format::HandleId, VkImageLayout> image_layout_barriers;
     format::HandleId                                    bound_pipeline_id = format::kNullHandleId;
+    std::vector<uint8_t>                                push_constant_data;
+    VkShaderStageFlags                                  push_constant_stage_flags     = 0;
+    VkPipelineLayout                                    push_constant_pipeline_layout = VK_NULL_HANDLE;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
