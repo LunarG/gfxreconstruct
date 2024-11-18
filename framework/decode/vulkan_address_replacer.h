@@ -69,6 +69,12 @@ class VulkanAddressReplacer
     bool                                 valid_sbt_alignment_ = true;
 
     bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context);
+    void barrier(VkCommandBuffer      command_buffer,
+                 VkBuffer             buffer,
+                 VkPipelineStageFlags src_stage,
+                 VkAccessFlags        src_access,
+                 VkPipelineStageFlags dst_stage,
+                 VkAccessFlags        dst_access);
 
     VkDevice                         device_             = VK_NULL_HANDLE;
     decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
