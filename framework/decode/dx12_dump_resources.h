@@ -269,6 +269,10 @@ class Dx12DumpResources
                          StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
                          D3D12_RENDER_PASS_FLAGS                                             Flags,
                          uint64_t                                                            block_index);
+    void GetDescriptorSubresourceIndices(DHShaderResourceViewInfo& info, const DxObjectInfo* resource);
+    void GetDescriptorSubresourceIndices(DHUnorderedAccessViewInfo& info, const DxObjectInfo* resource);
+    void GetDescriptorSubresourceIndices(DHRenderTargetViewInfo& info, const DxObjectInfo* resource);
+    void GetDescriptorSubresourceIndices(DHDepthStencilViewInfo& info, const DxObjectInfo* resource);
 
   private:
     void StartDump(ID3D12Device* device, const std::string& filename);

@@ -299,7 +299,7 @@ struct DHShaderResourceViewInfo
     bool                            is_desc_null{ false };
     format::HandleId                resource_id{ format::kNullHandleId };
     D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>           subresource_indices;
+    std::vector<uint32_t>           subresource_indices; // Only use for dump resources
 };
 
 struct DHUnorderedAccessViewInfo
@@ -309,7 +309,7 @@ struct DHUnorderedAccessViewInfo
     format::HandleId                 resource_id{ format::kNullHandleId };
     format::HandleId                 counter_resource_id{ format::kNullHandleId };
     D3D12_CPU_DESCRIPTOR_HANDLE      replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>            subresource_indices;
+    std::vector<uint32_t>            subresource_indices; // Only use for dump resources
 };
 
 struct DHCbvSrvUavInfo
@@ -326,7 +326,7 @@ struct DHRenderTargetViewInfo
     D3D12_RENDER_TARGET_VIEW_DESC desc{};
     bool                          is_desc_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>         subresource_indices;
+    std::vector<uint32_t>         subresource_indices; // Only use for dump resources
 };
 
 struct DHDepthStencilViewInfo
@@ -335,7 +335,7 @@ struct DHDepthStencilViewInfo
     D3D12_DEPTH_STENCIL_VIEW_DESC desc{};
     bool                          is_desc_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>         subresource_indices;
+    std::vector<uint32_t>         subresource_indices; // Only use for dump resources
 };
 
 struct DHSamplerInfo
