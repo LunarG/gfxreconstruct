@@ -178,14 +178,14 @@ class KhronosReplayConsumerBodyGenerator():
             return True
         return False
 
-    def determine_remove_value(self, command, values):
+    def determine_handle_to_remove_value(self, command, values):
         """ Method may be overridden. """
         return values[0]
 
     def generate_remove_handle_expression(self, command, values):
         """ Method may be overridden. """
         if self.needs_remove_handle_expression(command):
-            value = self.determine_remove_value(command, values)
+            value = self.determine_handle_to_remove_value(command, values)
             return 'RemoveHandle({}, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
                 value.name, basetype=value.base_type
             )
@@ -254,3 +254,575 @@ class KhronosReplayConsumerBodyGenerator():
             value.base_type, handle_type, name, return_value,
             handle_value.name, index_id, value.name, array_name, info_func
         )
+
+    def make_body_expression(self, return_type, name, values, is_override):
+        """"
+        Generating expressions for mapping decoded parameters to arguments used in the API call.
+        For array lengths that are stored in pointers, this will map the original parameter name
+        to the temporary parameter name that was created to store the value to be provided to the
+        Khronos API call.
+        """
+        api_data = self.get_api_data()
+        array_lengths = dict()
+        is_variable_length = False
+
+        args = []  # List of arguments to the API call.
+        preexpr = [
+        ]  # Variable declarations for handle mappings, temporary output allocations, and input pointers.
+        postexpr = [
+        ]  # Expressions to add new handles to the handle map and delete temporary allocations.
+
+        for value in values:
+            need_initialize_output_pnext_struct = ''
+            info_type = ''
+            pool_info_type = ''
+            pool_alloc_type = ''
+            if self.is_handle(value.base_type):
+                info_type = '{}{}Info'.format(
+                    api_data.api_class_prefix, value.base_type[2:]
+                )
+                if self.is_pool_allocation(name):
+                    pool_alloc_type = self.get_pool_allocation_type(values[-1])
+                    pool_info_type = '{}{}Info'.format(
+                        api_data.api_class_prefix, pool_alloc_type[2:]
+                    )
+
+            if value.is_pointer or value.is_array:
+                full_type = value.full_type if not value.platform_full_type else value.platform_full_type
+                is_input = self.is_input_pointer(value)
+                is_extenal_object = False
+                need_temp_value = True
+                expr = ''
+
+                if (
+                    value.base_type in self.EXTERNAL_OBJECT_TYPES
+                ) and not value.is_array:
+                    # Currently, all arrays of external object types are 'void*' values that represent arrays
+                    # of bytes, so we only have a pointer to an external object when the value is not an array.
+                    is_extenal_object = True
+
+                if (value.is_array and not value.is_dynamic):
+                    # Use dynamic pointer syntax for static arrays.
+                    full_type += '*'
+
+                if is_override and not is_extenal_object:
+                    # Overrides receive the PointerDecoder object instead of the actual Khronos pointer, so
+                    # the temporary value used to hold the pointer returned by PointerDecoder::GetPointer()
+                    # is not needed for most cases.
+                    # Pointers to external (non-Khronos) objects are subject to separate pre/post
+                    # processing, so continue to use a temporary value that is passed to the override function
+                    # instead of the PointerDecoder object.
+                    need_temp_value = False
+
+                # Determine name of variable specifying the length of an array.  An override may be required to
+                # replace the original length value with a temporary pointer variable.
+                length_name = value.array_length
+                if length_name:
+                    if length_name in array_lengths:
+                        # Array lengths with pointer types are received by the consumer as PointerDecoder<T> objects,
+                        # so an intermediate value of type T is created to hold the value that will be provided to
+                        # the Khronos API call.
+                        # The 'array_lengths' dictionary contains a mapping of the original parameter name to the
+                        # intermediate value name.  For this case, we need to use the intermediate value for array
+                        # allocations.
+                        length_name = array_lengths[length_name]
+                        is_variable_length = True
+                    elif '->' in length_name:
+                        # Some counts are members of an allocate info struct.  Similar to the above PointerDecoder<T> case,
+                        # Pointers to structures are received in a StructPointerDecoder<T> object and an intermediate value is
+                        # created to store the pointer encapsulated by the object.  This case also requires using the intermediate
+                        # value to access the array length.  Prepending 'in_' to the 'arraylen' value is currently sufficient to
+                        # handle this case.
+                        if need_temp_value:
+                            length_name = 'in_' + length_name
+                        else:
+                            length_name = length_name.replace(
+                                '->', '->GetPointer()->'
+                            )
+
+                if not need_temp_value:
+                    args.append(value.name)
+                else:
+                    # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
+                    if is_input:
+                        arg_name = 'in_' + value.name
+                    else:
+                        arg_name = 'out_' + value.name
+
+                    args.append(arg_name)
+
+                    # Assign PointerDecoder pointer to temporary variable.
+                    expr = '{} {} = '.format(full_type, arg_name)
+
+                if is_input:
+                    # Assign avalue to the temporary variable based on type.  Some array variables require temporary allocations.
+                    if is_extenal_object:
+                        # If this was an array with the 'void*' type, it was encoded as an array of bytes.
+                        # If not (this case), it is a pointer to an unknown object type that was encoded as a uint64_t ID value.
+                        # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
+                        # need to report a warning that we may have a case that replay cannot handle.
+                        if value.platform_full_type:
+                            expr += 'static_cast<{}>(PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}"));'.format(
+                                value.platform_full_type,
+                                value.name,
+                                name=name
+                            )
+                        else:
+                            expr += 'PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(
+                                value.name, name=name
+                            )
+                    elif self.is_allocation_callback_type(value.base_type):
+                        if need_temp_value:
+                            # The replay consumer needs to override the allocation callbacks used by the captured application.
+                            expr += 'GetAllocationCallbacks({});'.format(
+                                value.name
+                            )
+                    elif self.is_handle(value.base_type):
+                        # We received an array of 64-bit integer IDs from the decoder.
+                        expr += 'MapHandles<{info_type}>({}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
+                            value.name,
+                            length_name,
+                            info_type=info_type,
+                            base_type=value.base_type
+                        )
+                    else:
+                        if need_temp_value:
+                            expr += '{}->GetPointer();'.format(value.name)
+
+                        if (value.base_type in self.structs_with_handles) or (
+                            value.base_type in self.GENERIC_HANDLE_STRUCTS
+                        ):
+                            preexpr.append(expr)
+                            if value.is_array:
+                                expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(
+                                    name=value.name
+                                )
+                            else:
+                                # If surface was not created, need to automatically ignore for non-overrides queries
+                                # Swapchain also need to check if a dummy swapchain was created instead
+                                if value.name == "pSurfaceInfo":
+                                    expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
+                                        value.name
+                                    )
+                                    preexpr.append(expr)
+
+                                expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
+                                    value.name
+                                )
+
+                                # If surface was not created, need to automatically ignore for non-overrides queries
+                                if value.name == "pSurfaceInfo":
+                                    preexpr.append(expr)
+
+                                    var_name = 'in_' + value.name + '_meta'
+                                    expr = 'auto {} = {}->GetMetaStructPointer();'.format(
+                                        var_name, value.name
+                                    )
+                                    preexpr.append(expr)
+                                    expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
+                                        var_name, var_name
+                                    )
+                                    preexpr.append(expr)
+                                    expr = ''
+                else:
+                    # Initialize output pointer.
+                    if value.is_array:
+                        if is_variable_length:
+                            # Store the result of an array size query.
+                            postexpr.append(
+                                self.make_variable_length_array_post_expr(
+                                    name, value, values, length_name
+                                )
+                            )
+
+                        if value.base_type in self.EXTERNAL_OBJECT_TYPES:
+                            # This is effectively an array with type void*, which was encoded as an array of bytes.
+                            if need_temp_value:
+                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(
+                                    length_name, name=value.name
+                                )
+                            else:
+                                expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(
+                                    length_name, name=value.name
+                                )
+                        elif self.is_handle(value.base_type):
+                            # Add mappings for the newly created handles.
+                            preexpr.append(
+                                'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
+                                .format(length_name, paramname=value.name)
+                            )
+                            if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
+                                preexpr.append(
+                                    'if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'
+                                    .format(length_name)
+                                )
+                            if need_temp_value:
+                                expr += '{}->GetHandlePointer();'.format(
+                                    value.name
+                                )
+                                if self.is_pool_allocation(name):
+                                    postexpr.append(
+                                        'AddPoolHandles<{pool_info_type}, {info_type}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        .format(
+                                            self.get_parent_id(value, values),
+                                            values[1].name,
+                                            arg_name,
+                                            length_name,
+                                            paramname=value.name,
+                                            info_type=info_type,
+                                            basetype=value.base_type,
+                                            pool_info_type=pool_info_type,
+                                            poolbasetype=pool_alloc_type
+                                        )
+                                    )
+                                else:
+                                    postexpr.append(
+                                        'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        .format(
+                                            info_type,
+                                            self.get_parent_id(value, values),
+                                            arg_name,
+                                            length_name,
+                                            paramname=value.name,
+                                            basetype=value.base_type
+                                        )
+                                    )
+                            else:
+                                preexpr.append(
+                                    'std::vector<{}> handle_info({});'.format(
+                                        info_type, length_name
+                                    )
+                                )
+                                expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(
+                                    length_name, value.name
+                                )
+                                if self.is_pool_allocation(name):
+                                    postexpr.append(
+                                        'AddPoolHandles<{}, {}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
+                                        .format(
+                                            pool_info_type,
+                                            info_type,
+                                            self.get_parent_id(value, values),
+                                            values[1].name,
+                                            length_name,
+                                            paramname=value.name,
+                                            basetype=value.base_type,
+                                            poolbasetype=pool_alloc_type
+                                        )
+                                    )
+                                else:
+                                    # additionally add an asynchronous flavour to postexpr, so both are available later
+                                    if name in self.REPLAY_ASYNC_OVERRIDES:
+                                        postexpr.append(
+                                            'AddHandlesAsync<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
+                                            .format(
+                                                info_type,
+                                                self.get_parent_id(
+                                                    value, values
+                                                ),
+                                                arg_name,
+                                                length_name,
+                                                paramname=value.name,
+                                                basetype=value.base_type
+                                            )
+                                        )
+                                    postexpr.append(
+                                        'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
+                                        .format(
+                                            info_type,
+                                            self.get_parent_id(value, values),
+                                            length_name,
+                                            paramname=value.name,
+                                            basetype=value.base_type
+                                        )
+                                    )
+
+                        elif self.is_struct(value.base_type):
+                            # Generate the expression to allocate the output array.
+                            alloc_expr = ''
+                            if value.base_type in self.struct_type_names:
+                                # If this is a struct with sType and pNext fields, we need to initialize them.
+                                # TODO: recreate pNext value read from the capture file.
+                                alloc_expr += 'AllocateOutputData({}, {}{{ {}, nullptr }});'.format(
+                                    length_name, value.base_type,
+                                    self.struct_type_names[value.base_type]
+                                )
+                            else:
+                                alloc_expr += 'AllocateOutputData({});'.format(
+                                    length_name
+                                )
+
+                            if need_temp_value:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->{}'.format(
+                                    alloc_expr, paramname=value.name
+                                )
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles.
+                                if value.base_type in self.structs_with_handles:
+                                    if value.base_type in self.structs_with_handle_ptrs:
+                                        preexpr.append(
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            .format(
+                                                value.base_type,
+                                                paramname=value.name
+                                            )
+                                        )
+                                    postexpr.append(
+                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, &GetObjectInfoTable());'
+                                        .format(
+                                            self.get_parent_id(value, values),
+                                            arg_name,
+                                            length_name,
+                                            paramname=value.name,
+                                            basetype=value.base_type
+                                        )
+                                    )
+                            else:
+                                expr += 'if (!{paramname}->IsNull()) {{ {paramname}->{} }}'.format(
+                                    alloc_expr, paramname=value.name
+                                )
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles.
+                                if value.base_type in self.structs_with_handles:
+                                    if value.base_type in self.structs_with_handle_ptrs:
+                                        preexpr.append(
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            .format(
+                                                value.base_type,
+                                                paramname=value.name
+                                            )
+                                        )
+                                    postexpr.append(
+                                        'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, &GetObjectInfoTable());'
+                                        .format(
+                                            self.get_parent_id(value, values),
+                                            length_name,
+                                            paramname=value.name,
+                                            basetype=value.base_type
+                                        )
+                                    )
+                        else:
+                            if need_temp_value:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(
+                                    length_name, paramname=value.name
+                                )
+                            else:
+                                expr = 'if ({paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(
+                                    length_name, paramname=value.name
+                                )
+                    else:
+                        if is_extenal_object:
+                            # Map the object ID to the new object
+                            if value.platform_full_type:
+                                expr += '{paramname}->IsNull() ? nullptr : reinterpret_cast<{}>({paramname}->AllocateOutputData(1));'.format(
+                                    full_type, paramname=value.name
+                                )
+                                if return_type != 'void':
+                                    postexpr.append(
+                                        'PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        .format(
+                                            value.name, arg_name, name=name
+                                        )
+                                    )
+                                else:
+                                    postexpr.append(
+                                        'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        .format(
+                                            value.name, arg_name, name=name
+                                        )
+                                    )
+                            else:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
+                                    paramname=value.name
+                                )
+                                if return_type != 'void':
+                                    postexpr.append(
+                                        'PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        .format(
+                                            paramname=value.name, name=name
+                                        )
+                                    )
+                                else:
+                                    postexpr.append(
+                                        'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        .format(
+                                            paramname=value.name, name=name
+                                        )
+                                    )
+                        elif self.is_handle(value.base_type):
+                            # Add mapping for the newly created handle
+                            preexpr.append(
+                                'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'
+                                .format(paramname=value.name)
+                            )
+                            if need_temp_value:
+                                expr += '{}->GetHandlePointer();'.format(
+                                    value.name
+                                )
+                                postexpr.append(
+                                    'AddHandle<{}>({}, {}->GetPointer(), {}, &CommonObjectInfoTable::Add{}Info);'
+                                    .format(
+                                        info_type,
+                                        self.get_parent_id(value, values),
+                                        value.name, arg_name, value.base_type
+                                    )
+                                )
+                            else:
+                                preexpr.append(
+                                    '{} handle_info;'.format(info_type)
+                                )
+                                expr = '{}->SetConsumerData(0, &handle_info);'.format(
+                                    value.name
+                                )
+                                postexpr.append(
+                                    'AddHandle<{}>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
+                                    .format(
+                                        info_type,
+                                        self.get_parent_id(value, values),
+                                        paramname=value.name,
+                                        basetype=value.base_type
+                                    )
+                                )
+                        else:
+                            if self.is_array_len(value.name, values):
+                                # If this is an array length, it is an in/out parameter and we need to assign the input value.
+                                array_len_expr = self.make_variable_length_array_get_count_call(
+                                    return_type, name, value, values
+                                )
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {});'.format(
+                                    array_len_expr, paramname=value.name
+                                )
+                                # Need to store the name of the intermediate value for use with allocating the array associated with this length.
+                                if need_temp_value:
+                                    array_lengths[value.name
+                                                  ] = '*{}'.format(arg_name)
+                                else:
+                                    array_lengths[
+                                        value.name
+                                    ] = '*{}->GetOutputPointer()'.format(
+                                        value.name
+                                    )
+                            elif self.is_struct(value.base_type):
+                                # If this is a struct with sType and pNext fields, we need to initialize them.
+                                if value.base_type in self.struct_type_names:
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
+                                        self.struct_type_names[value.base_type
+                                                               ],
+                                        paramname=value.name
+                                    )
+                                    need_initialize_output_pnext_struct = value.name
+                                else:
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
+                                        paramname=value.name
+                                    )
+
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles.
+                                if value.base_type in self.structs_with_handles:
+                                    if need_temp_value:
+                                        if value.base_type in self.structs_with_handle_ptrs:
+                                            preexpr.append(
+                                                'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                                .format(
+                                                    value.base_type,
+                                                    paramname=value.name
+                                                )
+                                            )
+                                        postexpr.append(
+                                            'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
+                                            .format(
+                                                self.get_parent_id(
+                                                    value, values
+                                                ),
+                                                arg_name,
+                                                name=value.name,
+                                                basetype=value.base_type
+                                            )
+                                        )
+                                    else:
+                                        if value.base_type in self.structs_with_handle_ptrs:
+                                            preexpr.append(
+                                                'SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                                .format(
+                                                    value.base_type,
+                                                    paramname=value.name
+                                                )
+                                            )
+                                        postexpr.append(
+                                            'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'
+                                            .format(
+                                                self.get_parent_id(
+                                                    value, values
+                                                ),
+                                                name=value.name,
+                                                basetype=value.base_type
+                                            )
+                                        )
+                            else:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, static_cast<{}>(0));'.format(
+                                    value.base_type, paramname=value.name
+                                )
+                if expr:
+                    preexpr.append(expr)
+            elif self.is_handle(value.base_type):
+                # Handles need to be mapped.
+                arg_name = 'in_' + value.name
+                args.append(arg_name)
+                if is_override:
+                    # We use auto in case the compiler can determine if the value should be const or non-const based on the override function signature.
+                    expr = 'auto {} = GetObjectInfoTable().Get{}Info({});'.format(
+                        arg_name, value.base_type, value.name
+                    )
+                    preexpr.append(expr)
+
+                    # If surface was not created, need to automatically ignore for non-overrides queries
+                    # Swapchain also need to check if a dummy swapchain was created instead
+                    if value.name == "surface":
+                        expr = 'if ({} == nullptr || {}->surface_creation_skipped) {{ return; }}'.format(
+                            arg_name, arg_name
+                        )
+                        preexpr.append(expr)
+                else:
+                    expr = '{} {} = '.format(value.full_type, arg_name)
+                    expr += 'MapHandle<{}>({}, &CommonObjectInfoTable::Get{}Info);'.format(
+                        info_type, value.name, value.base_type
+                    )
+                    preexpr.append(expr)
+
+                    # If surface was not created, need to automatically ignore for non-overrides queries
+                    # Swapchain also need to check if a dummy swapchain was created instead
+                    if value.name == "surface":
+                        expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
+                            value.name, value.name
+                        )
+                        preexpr.append(expr)
+                    elif value.name == "swapchain":
+                        expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
+                            value.base_type, value.name, value.base_type,
+                            value.name
+                        )
+                        preexpr.append(expr)
+            elif self.is_generic_cmd_handle_value(name, value.name):
+                # Handles need to be mapped.
+                arg_name = 'in_' + value.name
+                args.append(arg_name)
+                expr = '{} {} = '.format(value.full_type, arg_name)
+                expr += 'MapHandle({}, {});'.format(
+                    value.name,
+                    self.get_generic_cmd_handle_type_value(name, value.name)
+                )
+                preexpr.append(expr)
+            elif self.is_function_ptr(value.base_type):
+                # Function pointers are encoded as a 64-bit address value.
+                # TODO: Check for cases that need to be handled.
+                print(
+                    "WARNING: Generating replay code for a function {} with a {} parameter that is undefined."
+                    .format(name, value.base_type)
+                )
+            else:
+                # Only need to append the parameter name to the args list; no other expressions are necessary.
+                args.append(value.name)
+
+            if len(need_initialize_output_pnext_struct) > 0:
+                preexpr.append(
+                    'InitializeOutputStructPNext({});'.
+                    format(need_initialize_output_pnext_struct)
+                )
+        return args, preexpr, postexpr

@@ -91,7 +91,7 @@ class ApiData():
         supports_opaques            - This API supports Opaques as a type
         opaque_func_name_mod        - The name used to indicate a function is processing opaque
         return_type_enum            - The name of the enum type used to return common return values
-        return_type_success_value   = The value of a successs
+        return_type_success_value   - The value of a successs
     """
     def __init__(
             self,
@@ -852,6 +852,14 @@ class KhronosBaseGenerator(OutputGenerator):
         ):
             return True
         return False
+
+    def is_pool_allocation(self, command):
+        """Method may be overridden"""
+        return False
+
+    def get_pool_allocation_type(self, value):
+        """Method may be overridden"""
+        return None
 
     def get_array_len(self, param):
         """Retrieve the length of an array defined by a <param> or <member> element."""
