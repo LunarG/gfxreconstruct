@@ -35,9 +35,17 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanAddressReplacer
 {
   public:
+    VulkanAddressReplacer() = default;
+
     VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
                           const encode::VulkanDeviceTable*     device_table,
                           const decode::CommonObjectInfoTable& object_table);
+
+    //! prevent copying
+    VulkanAddressReplacer(const VulkanAddressReplacer&) = delete;
+
+    //! allow moving
+    VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept;
 
     ~VulkanAddressReplacer();
 
@@ -49,6 +57,8 @@ class VulkanAddressReplacer
         VkStridedDeviceAddressRegionKHR*                                                            callable_sbt,
         const decode::VulkanDeviceAddressTracker&                                                   address_tracker,
         const std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t>& group_handle_map);
+
+    friend void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept;
 
   private:
     struct buffer_context_t
@@ -63,18 +73,20 @@ class VulkanAddressReplacer
         void*                                         mapped_data     = nullptr;
         ~buffer_context_t();
     };
-    const encode::VulkanDeviceTable*     device_table_        = nullptr;
-    const decode::CommonObjectInfoTable* object_table_        = nullptr;
-    VkPhysicalDeviceMemoryProperties     memory_properties_   = {};
-    bool                                 valid_sbt_alignment_ = true;
 
     bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context);
+
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
                  VkPipelineStageFlags src_stage,
                  VkAccessFlags        src_access,
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
+
+    const encode::VulkanDeviceTable*     device_table_        = nullptr;
+    const decode::CommonObjectInfoTable* object_table_        = nullptr;
+    VkPhysicalDeviceMemoryProperties     memory_properties_   = {};
+    bool                                 valid_sbt_alignment_ = true;
 
     VkDevice                         device_             = VK_NULL_HANDLE;
     decode::VulkanResourceAllocator* resource_allocator_ = nullptr;

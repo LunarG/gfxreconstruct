@@ -173,6 +173,11 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
     }
 }
 
+VulkanAddressReplacer::VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept : VulkanAddressReplacer()
+{
+    swap(*this, other);
+}
+
 VulkanAddressReplacer::~VulkanAddressReplacer()
 {
     if (pipeline_ != VK_NULL_HANDLE)
@@ -283,7 +288,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                 barrier(command_buffer_info->handle,
                         buf,
                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                        VK_ACCESS_SHADER_READ_BIT,
+                        VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                         VK_ACCESS_SHADER_WRITE_BIT);
             }
@@ -298,7 +303,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
             device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
 
-            // NOTE: using push-constants here requires us to re-establish the previous data later
+            // NOTE: using push-constants here requires us to re-establish the previous data, if any
             device_table_->CmdPushConstants(command_buffer_info->handle,
                                             pipeline_layout_,
                                             VK_SHADER_STAGE_COMPUTE_BIT,
@@ -321,12 +326,15 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             }
 
             // set previous push-constant data
-            device_table_->CmdPushConstants(command_buffer_info->handle,
-                                            command_buffer_info->push_constant_pipeline_layout,
-                                            command_buffer_info->push_constant_stage_flags,
-                                            0,
-                                            command_buffer_info->push_constant_data.size(),
-                                            command_buffer_info->push_constant_data.data());
+            if (!command_buffer_info->push_constant_data.empty())
+            {
+                device_table_->CmdPushConstants(command_buffer_info->handle,
+                                                command_buffer_info->push_constant_pipeline_layout,
+                                                command_buffer_info->push_constant_stage_flags,
+                                                0,
+                                                command_buffer_info->push_constant_data.size(),
+                                                command_buffer_info->push_constant_data.data());
+            }
         }
         else
         {
@@ -368,7 +376,7 @@ bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplace
     if (buffer_context.buffer_ != VK_NULL_HANDLE)
     {
         resource_allocator_->DestroyBufferDirect(buffer_context.buffer_, nullptr, buffer_context.allocator_data_);
-        resource_allocator_->FreeMemoryDirect(buffer_context.device_memory_, nullptr, buffer_context.allocator_data_);
+//        resource_allocator_->FreeMemoryDirect(buffer_context.device_memory_, nullptr, buffer_context.allocator_data_);
     }
 
     VkBufferCreateInfo buffer_create_info = {};
@@ -456,6 +464,22 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 
     device_table_->CmdPipelineBarrier(
         command_buffer, src_stage, dst_stage, VkDependencyFlags(0), 0, nullptr, 1, &barrier, 0, nullptr);
+}
+
+void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept
+{
+    std::swap(lhs.device_table_, rhs.device_table_);
+    std::swap(lhs.object_table_, rhs.object_table_);
+    std::swap(lhs.memory_properties_, rhs.memory_properties_);
+    std::swap(lhs.valid_sbt_alignment_, rhs.valid_sbt_alignment_);
+    std::swap(lhs.device_, rhs.device_);
+    std::swap(lhs.resource_allocator_, rhs.resource_allocator_);
+    std::swap(lhs.pipeline_layout_, rhs.pipeline_layout_);
+    std::swap(lhs.pipeline_, rhs.pipeline_);
+    std::swap(lhs.input_handle_buffer_, rhs.input_handle_buffer_);
+    std::swap(lhs.hashmap_storage_, rhs.hashmap_storage_);
+    std::swap(lhs.handle_hashmap_, rhs.handle_hashmap_);
+    std::swap(lhs.shadow_sbt_map_, rhs.shadow_sbt_map_);
 }
 
 GFXRECON_END_NAMESPACE(decode)

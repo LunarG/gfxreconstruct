@@ -30,6 +30,7 @@
 #include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
@@ -1535,7 +1536,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              const VulkanDescriptorUpdateTemplateInfo* template_info,
                                              const DescriptorUpdateTemplateDecoder*    decoder) const;
 
-    VulkanDeviceAddressTracker& GetDeviceAddressTracker(VkDevice device);
+    decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
+    decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
 
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,
@@ -1592,7 +1594,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    std::unordered_map<VkDevice, decode::VulkanDeviceAddressTracker> _device_address_trackers;
+    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker> _device_address_trackers;
+    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>      _device_address_replacers;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
