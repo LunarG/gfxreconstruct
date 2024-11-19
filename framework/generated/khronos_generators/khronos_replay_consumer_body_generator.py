@@ -199,7 +199,7 @@ class KhronosReplayConsumerBodyGenerator():
         """
         handle_value = values[0]
         api_data = self.get_api_data()
-        if self.is_handle(values[1].base_type):
+        if self.is_handle_like(values[1].base_type):
             handle_value = values[1]
 
         index_id = 'k{}Array{}'.format(handle_value.base_type[2:], name[2:])
@@ -228,7 +228,7 @@ class KhronosReplayConsumerBodyGenerator():
             return_value = 'returnValue'
 
         handle_value = values[0]
-        if self.is_handle(values[1].base_type):
+        if self.is_handle_like(values[1].base_type):
             handle_value = values[1]
 
         array_name = None
@@ -277,7 +277,7 @@ class KhronosReplayConsumerBodyGenerator():
             info_type = ''
             pool_info_type = ''
             pool_alloc_type = ''
-            if self.is_handle(value.base_type):
+            if self.is_handle_like(value.base_type):
                 info_type = '{}{}Info'.format(
                     api_data.api_class_prefix, value.base_type[2:]
                 )
@@ -377,7 +377,7 @@ class KhronosReplayConsumerBodyGenerator():
                             expr += 'GetAllocationCallbacks({});'.format(
                                 value.name
                             )
-                    elif self.is_handle(value.base_type):
+                    elif self.is_handle_like(value.base_type):
                         # We received an array of 64-bit integer IDs from the decoder.
                         expr += 'MapHandles<{info_type}>({}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
                             value.name,
@@ -445,7 +445,7 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(
                                     length_name, name=value.name
                                 )
-                        elif self.is_handle(value.base_type):
+                        elif self.is_handle_like(value.base_type):
                             # Add mappings for the newly created handles.
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
@@ -647,7 +647,7 @@ class KhronosReplayConsumerBodyGenerator():
                                             paramname=value.name, name=name
                                         )
                                     )
-                        elif self.is_handle(value.base_type):
+                        elif self.is_handle_like(value.base_type):
                             # Add mapping for the newly created handle
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'
@@ -681,6 +681,11 @@ class KhronosReplayConsumerBodyGenerator():
                                         basetype=value.base_type
                                     )
                                 )
+
+                            # If this is a handle, but from another Khronos API, we may have to some additional work
+                            other_api_handle_text = self.process_other_khronos_api_handles(value, values)
+                            if len(other_api_handle_text) > 0:
+                                postexpr.append(other_api_handle_text)
                         else:
                             if self.is_array_len(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
@@ -761,7 +766,7 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
                 if expr:
                     preexpr.append(expr)
-            elif self.is_handle(value.base_type):
+            elif self.is_handle_like(value.base_type):
                 # Handles need to be mapped.
                 arg_name = 'in_' + value.name
                 args.append(arg_name)
@@ -826,3 +831,7 @@ class KhronosReplayConsumerBodyGenerator():
                     format(need_initialize_output_pnext_struct)
                 )
         return args, preexpr, postexpr
+
+    def process_other_khronos_api_handles(self, value, values):
+        """ Method may be overridden. """
+        return ''
