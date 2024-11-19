@@ -27,6 +27,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+inline uint32_t aligned_size(uint32_t size, uint32_t alignment)
+{
+    return (size + alignment - 1) & ~(alignment - 1);
+}
+
 inline uint32_t div_up(uint32_t nom, uint32_t denom)
 {
     return (nom + denom - 1) / denom;
@@ -70,15 +75,15 @@ struct replacer_params_t
 
 decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
 {
-    if (resource_allocator_ != nullptr)
+    if (resource_allocator != nullptr)
     {
-        if (buffer_ != VK_NULL_HANDLE)
+        if (buffer != VK_NULL_HANDLE)
         {
-            resource_allocator_->DestroyBufferDirect(buffer_, nullptr, allocator_data_);
+            resource_allocator->DestroyBufferDirect(buffer, nullptr, allocator_data);
         }
-        if (device_memory_ != VK_NULL_HANDLE)
+        if (device_memory != VK_NULL_HANDLE)
         {
-            resource_allocator_->FreeMemoryDirect(device_memory_, nullptr, allocator_data_);
+            resource_allocator->FreeMemoryDirect(device_memory, nullptr, allocator_data);
         }
     }
 }
@@ -86,7 +91,7 @@ decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
                                              const encode::VulkanDeviceTable*     device_table,
                                              const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table), object_table_(&object_table)
+    device_table_(device_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr)
 
@@ -262,6 +267,12 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             handle_hashmap_.put(lhs, rhs);
         }
 
+        if (!create_buffer(handle_hashmap_.get_storage(nullptr), hashmap_storage_))
+        {
+            GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
+        }
+        handle_hashmap_.get_storage(hashmap_storage_.mapped_data);
+
         // input-handles
         constexpr uint32_t max_num_handles = 4;
         if (!create_buffer(max_num_handles * sizeof(VkDeviceAddress), input_handle_buffer_))
@@ -278,22 +289,20 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                 input_addresses[num_addresses++] = region->deviceAddress;
             }
         }
-        if (!create_buffer(handle_hashmap_.get_storage(nullptr), hashmap_storage_))
-        {
-            GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
-        }
-        handle_hashmap_.get_storage(hashmap_storage_.mapped_data);
 
         replacer_params_t replacer_params = {};
-        replacer_params.hashmap.storage   = hashmap_storage_.device_address_;
+        replacer_params.hashmap.storage   = hashmap_storage_.device_address;
         replacer_params.hashmap.size      = handle_hashmap_.size();
         replacer_params.hashmap.capacity  = handle_hashmap_.capacity();
 
-        replacer_params.input_handles = replacer_params.output_handles = input_handle_buffer_.device_address_;
-        replacer_params.num_handles                                    = num_addresses;
+        replacer_params.input_handles = input_handle_buffer_.device_address;
+        replacer_params.num_handles   = num_addresses;
 
         if (valid_sbt_alignment_)
         {
+            // rewrite group-handles in-place
+            replacer_params.output_handles = replacer_params.input_handles;
+
             // pre memory-barrier
             for (const auto& buf : buffer_set)
             {
@@ -307,20 +316,57 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            // TODO: remove TODO/warning when issue #1526 is solved
-            GFXRECON_LOG_WARNING_ONCE("OverrideCmdTraceRaysKHR: invalid shader-binding-table (handle-size and/or "
-                                      "alignments mismatch) -> TODO: run SBT re-assembly");
+            // output-handles
+            if (!create_buffer(max_num_handles * sizeof(VkDeviceAddress), output_handle_buffer_))
+            {
+                GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
+            }
+            // output to shadow-sbt-buffer
+            replacer_params.output_handles = output_handle_buffer_.device_address;
 
             // find/create shadow-SBT-buffer
-            auto&    buf_context = shadow_sbt_map_[raygen_sbt];
-            uint32_t sbt_size    = 1024;
-            if (!create_buffer(sbt_size, buf_context))
+            uint32_t sbt_offset         = 0;
+            auto&    shadow_buf_context = shadow_sbt_map_[raygen_sbt];
+
+            const uint32_t handle_size = replay_ray_properties_.shaderGroupHandleSize;
+            const uint32_t handle_size_aligned =
+                aligned_size(handle_size, replay_ray_properties_.shaderGroupHandleAlignment);
+
+            for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
+            {
+                if (region != nullptr)
+                {
+                    uint32_t num_handles_limit = region->size / region->stride;
+                    uint32_t group_size        = aligned_size(num_handles_limit * handle_size_aligned,
+                                                       replay_ray_properties_.shaderGroupBaseAlignment);
+                    sbt_offset += group_size;
+
+                    // adjust group-size
+                    region->size   = group_size;
+                    region->stride = handle_size_aligned;
+                }
+            }
+            // raygen: stride == size
+            raygen_sbt->size = raygen_sbt->stride = replay_ray_properties_.shaderGroupBaseAlignment;
+
+            if (!create_buffer(sbt_offset, shadow_buf_context))
             {
                 GFXRECON_LOG_ERROR("VulkanAddressReplacer: shadow shader-binding-table creation failed");
             }
 
-            // TODO: populate shadow-buffer
-            // TODO: remap addresses to shadow-buffer
+            auto     output_addresses = reinterpret_cast<VkDeviceAddress*>(output_handle_buffer_.mapped_data);
+            uint32_t out_index        = 0;
+            sbt_offset                = 0;
+            for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
+            {
+                if (region != nullptr)
+                {
+                    // assign shadow-sbt-address
+                    region->deviceAddress = shadow_buf_context.device_address + sbt_offset;
+                    sbt_offset += region->size;
+                    output_addresses[out_index++] = region->deviceAddress;
+                }
+            }
         }
 
         device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
@@ -376,14 +422,14 @@ bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplace
     buffer_create_info.size  = num_bytes;
 
     VkResult result = resource_allocator_->CreateBufferDirect(
-        &buffer_create_info, nullptr, &buffer_context.buffer_, &buffer_context.allocator_data_);
+        &buffer_create_info, nullptr, &buffer_context.buffer, &buffer_context.allocator_data);
     if (result != VK_SUCCESS)
     {
         return false;
     }
 
     VkMemoryRequirements memory_requirements;
-    device_table_->GetBufferMemoryRequirements(device_, buffer_context.buffer_, &memory_requirements);
+    device_table_->GetBufferMemoryRequirements(device_, buffer_context.buffer, &memory_requirements);
 
     uint32_t memory_type_index =
         get_memory_type_index(memory_properties_,
@@ -406,7 +452,7 @@ bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplace
     alloc_info.allocationSize       = num_bytes;
     alloc_info.memoryTypeIndex      = memory_type_index;
     result                          = resource_allocator_->AllocateMemoryDirect(
-        &alloc_info, nullptr, &buffer_context.device_memory_, &buffer_context.memory_data_);
+        &alloc_info, nullptr, &buffer_context.device_memory, &buffer_context.memory_data);
 
     if (result != VK_SUCCESS)
     {
@@ -414,11 +460,11 @@ bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplace
     }
 
     VkMemoryPropertyFlags memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    result                             = resource_allocator_->BindBufferMemory(buffer_context.buffer_,
-                                                   buffer_context.device_memory_,
+    result                             = resource_allocator_->BindBufferMemory(buffer_context.buffer,
+                                                   buffer_context.device_memory,
                                                    0,
-                                                   buffer_context.allocator_data_,
-                                                   buffer_context.memory_data_,
+                                                   buffer_context.allocator_data,
+                                                   buffer_context.memory_data,
                                                    &memory_flags);
     if (result != VK_SUCCESS)
     {
@@ -428,12 +474,12 @@ bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplace
     // get device-address
     VkBufferDeviceAddressInfo address_info = {};
     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-    address_info.buffer                    = buffer_context.buffer_;
-    buffer_context.device_address_         = get_device_address_fn_(device_, &address_info);
+    address_info.buffer                    = buffer_context.buffer;
+    buffer_context.device_address          = get_device_address_fn_(device_, &address_info);
 
     // map buffer
     result = resource_allocator_->MapResourceMemoryDirect(
-        buffer_context.num_bytes, 0, &buffer_context.mapped_data, buffer_context.allocator_data_);
+        buffer_context.num_bytes, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
     return result == VK_SUCCESS;
 }
 
@@ -460,7 +506,6 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept
 {
     std::swap(lhs.device_table_, rhs.device_table_);
-    std::swap(lhs.object_table_, rhs.object_table_);
     std::swap(lhs.memory_properties_, rhs.memory_properties_);
     std::swap(lhs.capture_ray_properties_, rhs.capture_ray_properties_);
     std::swap(lhs.replay_ray_properties_, rhs.replay_ray_properties_);
@@ -471,6 +516,7 @@ void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept
     std::swap(lhs.pipeline_layout_, rhs.pipeline_layout_);
     std::swap(lhs.pipeline_, rhs.pipeline_);
     std::swap(lhs.input_handle_buffer_, rhs.input_handle_buffer_);
+    std::swap(lhs.output_handle_buffer_, rhs.output_handle_buffer_);
     std::swap(lhs.hashmap_storage_, rhs.hashmap_storage_);
     std::swap(lhs.handle_hashmap_, rhs.handle_hashmap_);
     std::swap(lhs.address_hashmap_, rhs.address_hashmap_);

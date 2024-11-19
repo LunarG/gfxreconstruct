@@ -63,14 +63,14 @@ class VulkanAddressReplacer
   private:
     struct buffer_context_t
     {
-        decode::VulkanResourceAllocator*              resource_allocator_ = nullptr;
-        VkDeviceMemory                                device_memory_      = VK_NULL_HANDLE;
-        VkBuffer                                      buffer_             = VK_NULL_HANDLE;
-        decode::VulkanResourceAllocator::ResourceData allocator_data_{};
-        decode::VulkanResourceAllocator::MemoryData   memory_data_{};
-        VkDeviceAddress                               device_address_ = 0;
-        uint32_t                                      num_bytes       = 0;
-        void*                                         mapped_data     = nullptr;
+        decode::VulkanResourceAllocator*              resource_allocator = nullptr;
+        VkDeviceMemory                                device_memory      = VK_NULL_HANDLE;
+        VkBuffer                                      buffer             = VK_NULL_HANDLE;
+        decode::VulkanResourceAllocator::ResourceData allocator_data{};
+        decode::VulkanResourceAllocator::MemoryData   memory_data{};
+        VkDeviceAddress                               device_address = 0;
+        uint32_t                                      num_bytes      = 0;
+        void*                                         mapped_data    = nullptr;
         ~buffer_context_t();
     };
 
@@ -84,9 +84,8 @@ class VulkanAddressReplacer
                  VkAccessFlags        dst_access);
 
     const encode::VulkanDeviceTable*                device_table_      = nullptr;
-    const decode::CommonObjectInfoTable*            object_table_      = nullptr;
     VkPhysicalDeviceMemoryProperties                memory_properties_ = {};
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR capture_ray_properties_, replay_ray_properties_;
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR capture_ray_properties_{}, replay_ray_properties_{};
     bool                                            valid_sbt_alignment_ = true;
 
     VkDevice                         device_                = VK_NULL_HANDLE;
@@ -95,8 +94,9 @@ class VulkanAddressReplacer
     VkPipelineLayout                 pipeline_layout_       = VK_NULL_HANDLE;
     VkPipeline                       pipeline_              = VK_NULL_HANDLE;
 
-    buffer_context_t input_handle_buffer_ = {};
-    buffer_context_t hashmap_storage_     = {};
+    buffer_context_t input_handle_buffer_  = {};
+    buffer_context_t output_handle_buffer_ = {};
+    buffer_context_t hashmap_storage_      = {};
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> handle_hashmap_;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 address_hashmap_;
