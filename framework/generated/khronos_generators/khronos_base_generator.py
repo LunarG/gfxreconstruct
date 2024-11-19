@@ -90,6 +90,8 @@ class ApiData():
         atom_func_name_mod          - The name used to indicate a function is processing atoms
         supports_opaques            - This API supports Opaques as a type
         opaque_func_name_mod        - The name used to indicate a function is processing opaque
+        return_type_enum            - The name of the enum type used to return common return values
+        return_type_success_value   = The value of a successs
     """
     def __init__(
             self,
@@ -117,6 +119,8 @@ class ApiData():
             atom_func_name_mod,
             supports_opaques,
             opaque_func_name_mod,
+            return_type_enum,
+            return_type_success_value,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
@@ -142,6 +146,8 @@ class ApiData():
         self.atom_func_name_mod = atom_func_name_mod
         self.supports_opaques = supports_opaques
         self.opaque_func_name_mod  = opaque_func_name_mod
+        self.return_type_enum = return_type_enum
+        self.return_type_success_value  = return_type_success_value
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -449,7 +455,9 @@ class KhronosBaseGenerator(OutputGenerator):
                 supports_atoms=False,
                 atom_func_name_mod='',
                 supports_opaques=False,
-                opaque_func_name_mod=''
+                opaque_func_name_mod='',
+                return_type_enum='VkResult',
+                return_type_success_value='VK_SUCCESS',
             )
         )
         self.valid_khronos_supported_api_data.append(
@@ -477,7 +485,9 @@ class KhronosBaseGenerator(OutputGenerator):
                 supports_atoms=True,
                 atom_func_name_mod='Atom',
                 supports_opaques=True,
-                opaque_func_name_mod='Opaque'
+                opaque_func_name_mod='Opaque',
+                return_type_enum='XrResult',
+                return_type_success_value='XR_SUCCESS',
             )
         )
 

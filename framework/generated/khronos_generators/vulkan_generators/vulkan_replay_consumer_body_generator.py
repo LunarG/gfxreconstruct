@@ -348,59 +348,6 @@ class VulkanReplayConsumerBodyGenerator(
 
         return body
 
-    def make_variable_length_array_post_expr(
-        self, name, value, values, length_name
-    ):
-        """Generate expressions to store the result of the count query for an array containing a variable number of values."""
-        handle_value = values[0]
-        if self.is_handle(values[1].base_type):
-            handle_value = values[1]
-
-        index_id = 'k{}Array{}'.format(handle_value.base_type[2:], name[2:])
-        handle_type = 'Vulkan{}Info'.format(handle_value.base_type[2:])
-        info_func = '&CommonObjectInfoTable::Get{}Info'.format(
-            handle_value.base_type
-        )
-
-        return 'if ({}->IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(
-            value.name, handle_type, handle_value.name, index_id, length_name,
-            info_func
-        )
-
-    def make_variable_length_array_get_count_call(
-        self, return_type, name, value, values
-    ):
-        """Generate expressions to call a function that retrieves the count of an array containing a variable number of values."""
-        return_value = 'VK_SUCCESS'
-        if (return_type == 'VkResult'):
-            return_value = 'returnValue'
-
-        handle_value = values[0]
-        if self.is_handle(values[1].base_type):
-            handle_value = values[1]
-
-        array_name = None
-        for v in values:
-            if v.array_length == value.name:
-                array_name = v.name
-
-        if not array_name:
-            print(
-                "WARNING: Could not determine the name of the array parameter associate with function {} count parameter {}."
-                .format(name, value.name)
-            )
-
-        index_id = 'k{}Array{}'.format(handle_value.base_type[2:], name[2:])
-        handle_type = 'Vulkan{}Info'.format(handle_value.base_type[2:])
-        info_func = '&CommonObjectInfoTable::Get{}Info'.format(
-            handle_value.base_type
-        )
-
-        return 'GetOutputArrayCount<{}, {}>("{}", {}, {}, {}, {}, {}, {})'.format(
-            value.base_type, handle_type, name, return_value,
-            handle_value.name, index_id, value.name, array_name, info_func
-        )
-
     def make_body_expressions(self, return_type, name, values, is_override):
         """"Generating expressions for mapping decoded parameters to arguments used in the API call.
         For array lengths that are stored in pointers, this will map the original parameter name
