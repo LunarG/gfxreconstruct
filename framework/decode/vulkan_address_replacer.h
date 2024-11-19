@@ -83,10 +83,11 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
 
-    const encode::VulkanDeviceTable*     device_table_        = nullptr;
-    const decode::CommonObjectInfoTable* object_table_        = nullptr;
-    VkPhysicalDeviceMemoryProperties     memory_properties_   = {};
-    bool                                 valid_sbt_alignment_ = true;
+    const encode::VulkanDeviceTable*                device_table_      = nullptr;
+    const decode::CommonObjectInfoTable*            object_table_      = nullptr;
+    VkPhysicalDeviceMemoryProperties                memory_properties_ = {};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR capture_ray_properties_, replay_ray_properties_;
+    bool                                            valid_sbt_alignment_ = true;
 
     VkDevice                         device_                = VK_NULL_HANDLE;
     PFN_vkGetBufferDeviceAddress     get_device_address_fn_ = nullptr;
@@ -98,6 +99,7 @@ class VulkanAddressReplacer
     buffer_context_t hashmap_storage_     = {};
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> handle_hashmap_;
+    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 address_hashmap_;
     std::unordered_map<VkStridedDeviceAddressRegionKHR*, buffer_context_t>                 shadow_sbt_map_;
 };
 GFXRECON_END_NAMESPACE(decode)

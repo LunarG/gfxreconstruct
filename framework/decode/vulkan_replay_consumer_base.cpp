@@ -1355,9 +1355,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceI
     if (auto ray_capture_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(capture_properties))
     {
-        physical_device_info->shaderGroupBaseAlignment   = ray_capture_props->shaderGroupBaseAlignment;
-        physical_device_info->shaderGroupHandleAlignment = ray_capture_props->shaderGroupHandleAlignment;
-        physical_device_info->shaderGroupHandleSize      = ray_capture_props->shaderGroupHandleSize;
+        physical_device_info->capture_raytracing_properties = *ray_capture_props;
     }
 
     if (auto ray_replay_props =
@@ -8209,7 +8207,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
         auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
         // in practice: always 32 bytes
-        uint32_t capture_handle_size = physical_device_info->shaderGroupHandleSize;
+        uint32_t capture_handle_size = physical_device_info->capture_raytracing_properties->shaderGroupHandleSize;
         uint32_t replay_handle_size =
             physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
 

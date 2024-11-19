@@ -280,11 +280,8 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     std::string                      capture_device_name;
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};
 
-    // capture raytracing shader-binding-table properties
-    // extracted from VkPhysicalDeviceRayTracingPipelinePropertiesKHR
-    uint32_t shaderGroupHandleSize      = 0;
-    uint32_t shaderGroupBaseAlignment   = 0;
-    uint32_t shaderGroupHandleAlignment = 0;
+    // capture raytracing (shader-binding-table) properties
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_raytracing_properties = {};
 
     // Closest matching replay device.
     VulkanReplayDeviceInfo* replay_device_info{ nullptr };
