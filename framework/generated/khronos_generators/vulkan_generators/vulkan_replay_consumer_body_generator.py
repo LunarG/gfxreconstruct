@@ -342,7 +342,7 @@ class VulkanReplayConsumerBodyGenerator(
             )
             body += '\n'
 
-        cleanup_expr = self.make_remove_handle_expression(name, values)
+        cleanup_expr = self.generate_remove_handle_expression(name, values)
         if cleanup_expr:
             body += '    {}\n'.format(cleanup_expr)
 
@@ -938,18 +938,29 @@ class VulkanReplayConsumerBodyGenerator(
                 preexpr.append('InitializeOutputStructPNext({});'.format(need_initialize_output_pnext_struct))
         return args, preexpr, postexpr
 
-    def make_remove_handle_expression(self, name, values):
+    def needs_remove_handle_expression(self, command):
+        """Method override."""
+        if (KhronosReplayConsumerBodyGenerator.needs_remove_handle_expression(self, command) or
+            command == 'vkFreeMemory'):
+            return True
+        return False
+
+    def determine_remove_value(self, command, values):
+        """Method override."""
+        # For functions starting with 'vkDestroy' and vkFreeMemory, the handle being destroyed/freed is the second parameter, except for.
+        # vkDestroyInstance and vkDestroyDevice, where there is no parent object and the handle being destroyed is the first parameter.
+        value = values[0] if command in [
+            'vkDestroyInstance', 'vkDestroyDevice'
+        ] else values[1]
+        return value
+
+    def generate_remove_handle_expression(self, name, values):
+        """Method override."""
         expr = None
-        if name.startswith('vkDestroy') or (name == 'vkFreeMemory'):
-            # For functions starting with 'vkDestroy' and vkFreeMemory, the handle being destroyed/freed is the second parameter, except for.
-            # vkDestroyInstance and vkDestroyDevice, where there is no parent object and the handle being destroyed is the first parameter.
-            value = values[0] if name in [
-                'vkDestroyInstance', 'vkDestroyDevice'
-            ] else values[1]
+        if self.needs_remove_handle_expression(name):
+            value = self.determine_remove_value(name, values)
             if value.base_type not in self.POOL_OBJECT_ASSOCIATIONS:
-                expr = 'RemoveHandle({}, &CommonObjectInfoTable::Remove{}Info);'.format(
-                    value.name, value.base_type
-                )
+                expr = KhronosReplayConsumerBodyGenerator.generate_remove_handle_expression(self, name, values)
             else:
                 # Pools require special case processing to cleanup objects allocated from them.
                 expr = 'RemovePoolHandle<Vulkan{type}Info>({}, &CommonObjectInfoTable::Get{basetype}Info, &CommonObjectInfoTable::Remove{basetype}Info, &CommonObjectInfoTable::Remove{}Info);'.format(

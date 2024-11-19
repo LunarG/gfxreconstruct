@@ -33,7 +33,8 @@ class KhronosReplayConsumerBodyGenerator():
 
         for cmd in self.get_all_filtered_cmd_names():
 
-            if self.is_resource_dump_class() and self.is_dump_resources_api_call(cmd) == False:
+            if self.is_resource_dump_class(
+            ) and self.is_dump_resources_api_call(cmd) == False:
                 continue
 
             info = self.all_cmd_params[cmd]
@@ -44,8 +45,8 @@ class KhronosReplayConsumerBodyGenerator():
             if self.is_resource_dump_class():
                 cmddef += self.make_dump_resources_func_decl(
                     return_type,
-                    '{}ReplayDumpResources::Process_'.format(platform_type) + cmd,
-                    values, cmd in self.DUMP_RESOURCES_OVERRIDES
+                    '{}ReplayDumpResources::Process_'.format(platform_type)
+                    + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES
                 ) + '\n'
             else:
                 cmddef += self.make_consumer_func_decl(
@@ -166,3 +167,25 @@ class KhronosReplayConsumerBodyGenerator():
         )
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
+
+    def needs_remove_handle_expression(self, command):
+        """ Method may be overridden. """
+        api_data = self.get_api_data()
+        if (
+            command.startswith(api_data.command_prefix)
+            and command[len(api_data.command_prefix):].startswith('Destroy')
+        ):
+            return True
+        return False
+
+    def determine_remove_value(self, command, values):
+        """ Method may be overridden. """
+        return values[0]
+
+    def generate_remove_handle_expression(self, command, values):
+        """ Method may be overridden. """
+        if self.needs_remove_handle_expression(command):
+            value = self.determine_remove_value(command, values)
+            return 'RemoveHandle({}, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
+                value.name, basetype=value.base_type
+            )
