@@ -119,67 +119,6 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
         assert(physical_device_info->replay_device_info->memory_properties.has_value());
         memory_properties_ = *physical_device_info->replay_device_info->memory_properties;
     }
-
-    VkPushConstantRange push_constant_range = {};
-    push_constant_range.stageFlags          = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-    push_constant_range.offset              = 0;
-    push_constant_range.size                = sizeof(replacer_params_t);
-
-    VkPipelineLayoutCreateInfo pipeline_layout_info = {};
-    pipeline_layout_info.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_info.pNext                      = nullptr;
-    pipeline_layout_info.flags                      = 0;
-    pipeline_layout_info.setLayoutCount             = 0;
-    pipeline_layout_info.pSetLayouts                = nullptr;
-    pipeline_layout_info.pushConstantRangeCount     = 1;
-    pipeline_layout_info.pPushConstantRanges        = &push_constant_range;
-
-    VkResult result = device_table_->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &pipeline_layout_);
-
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_FATAL("VulkanAddressReplacer: failed in vkCreatePipelineLayout");
-    }
-    VkShaderModule           compute_module = VK_NULL_HANDLE;
-    VkShaderModuleCreateInfo ps_info        = {};
-    ps_info.sType                           = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    ps_info.pNext                           = VK_NULL_HANDLE;
-    ps_info.flags                           = 0;
-    ps_info.codeSize                        = g_replacer_sbt_comp.size();
-    ps_info.pCode                           = reinterpret_cast<const uint32_t*>(g_replacer_sbt_comp.data());
-
-    result = device_table_->CreateShaderModule(device_, &ps_info, nullptr, &compute_module);
-
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_FATAL("VulkanAddressReplacer: failed in vkCreateShaderModule");
-    }
-    VkPipelineShaderStageCreateInfo stage_info = {};
-    stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stage_info.pNext                           = nullptr;
-    stage_info.flags                           = 0;
-    stage_info.stage                           = VK_SHADER_STAGE_COMPUTE_BIT;
-    stage_info.module                          = compute_module;
-    stage_info.pName                           = "main";
-    stage_info.pSpecializationInfo             = nullptr;
-
-    VkComputePipelineCreateInfo pipeline_create_info = {};
-    pipeline_create_info.sType                       = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    pipeline_create_info.layout                      = pipeline_layout_;
-    pipeline_create_info.stage                       = stage_info;
-
-    result = device_table_->CreateComputePipelines(
-        device_, VK_NULL_HANDLE, 1, &pipeline_create_info, VK_NULL_HANDLE, &pipeline_);
-
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("VulkanAddressReplacer: pipeline creation failed");
-    }
-
-    if (compute_module != VK_NULL_HANDLE)
-    {
-        device_table_->DestroyShaderModule(device_, compute_module, nullptr);
-    }
 }
 
 VulkanAddressReplacer::VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept : VulkanAddressReplacer()
@@ -223,10 +162,15 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
     }
 
     // hack to force address-replacement
-    valid_group_handles = false;
+    //        valid_sbt_alignment_ = false;
+    //    valid_group_handles = false;
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
+        if (pipeline_ == VK_NULL_HANDLE)
+        {
+            init_pipeline();
+        }
         std::unordered_set<VkBuffer> buffer_set;
 
         auto address_remap = [&address_tracker, &buffer_set](VkStridedDeviceAddressRegionKHR* address_region) {
@@ -328,9 +272,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             uint32_t sbt_offset         = 0;
             auto&    shadow_buf_context = shadow_sbt_map_[raygen_sbt];
 
-            const uint32_t handle_size = replay_ray_properties_.shaderGroupHandleSize;
-            const uint32_t handle_size_aligned =
-                aligned_size(handle_size, replay_ray_properties_.shaderGroupHandleAlignment);
+            const uint32_t handle_size_aligned = aligned_size(replay_ray_properties_.shaderGroupHandleSize,
+                                                              replay_ray_properties_.shaderGroupHandleAlignment);
 
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
@@ -405,6 +348,137 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
     } // !valid_sbt_alignment_ || !valid_group_handles
 }
+
+void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
+    const VulkanCommandBufferInfo*               command_buffer_info,
+    uint32_t                                     info_count,
+    VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
+    const VulkanDeviceAddressTracker&            address_tracker)
+{
+    auto address_remap = [&address_tracker](VkDeviceAddress& capture_address) {
+        auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+
+        // TODO: we 'should' find that buffer here, check what's missing
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        {
+            uint64_t offset = capture_address - buffer_info->capture_address;
+
+            // in-place address-remap via const-cast
+            capture_address = buffer_info->replay_address + offset;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "OverrideCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap failed");
+        }
+    };
+
+    for (uint32_t i = 0; i < info_count; ++i)
+    {
+        auto& build_geometry_info = build_geometry_infos[i];
+
+        for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
+        {
+            auto geometry = const_cast<VkAccelerationStructureGeometryKHR*>(build_geometry_info.pGeometries != nullptr
+                                                                                ? build_geometry_info.pGeometries + j
+                                                                                : build_geometry_info.ppGeometries[j]);
+            switch (geometry->geometryType)
+            {
+                case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                {
+                    auto& triangles = geometry->geometry.triangles;
+                    address_remap(triangles.vertexData.deviceAddress);
+                    address_remap(triangles.indexData.deviceAddress);
+                    break;
+                }
+                case VK_GEOMETRY_TYPE_AABBS_KHR:
+                {
+                    auto& aabbs = geometry->geometry.aabbs;
+                    address_remap(aabbs.data.deviceAddress);
+                    break;
+                }
+                case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                {
+                    auto& instances = geometry->geometry.instances;
+                    address_remap(instances.data.deviceAddress);
+                    // TODO: replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
+                    // (issue #1526)
+                    break;
+                }
+                default:
+                    GFXRECON_LOG_ERROR(
+                        "OverrideCmdBuildAccelerationStructuresKHR: unhandled case in switch-statement: %d",
+                        geometry->geometryType);
+                    break;
+            }
+        }
+    }
+}
+
+void VulkanAddressReplacer::init_pipeline()
+{
+    VkPushConstantRange push_constant_range = {};
+    push_constant_range.stageFlags          = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    push_constant_range.offset              = 0;
+    push_constant_range.size                = sizeof(replacer_params_t);
+
+    VkPipelineLayoutCreateInfo pipeline_layout_info = {};
+    pipeline_layout_info.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_info.pNext                      = nullptr;
+    pipeline_layout_info.flags                      = 0;
+    pipeline_layout_info.setLayoutCount             = 0;
+    pipeline_layout_info.pSetLayouts                = nullptr;
+    pipeline_layout_info.pushConstantRangeCount     = 1;
+    pipeline_layout_info.pPushConstantRanges        = &push_constant_range;
+
+    VkResult result = device_table_->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &pipeline_layout_);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_FATAL("VulkanAddressReplacer: failed in vkCreatePipelineLayout");
+    }
+    VkShaderModule           compute_module = VK_NULL_HANDLE;
+    VkShaderModuleCreateInfo ps_info        = {};
+    ps_info.sType                           = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    ps_info.pNext                           = VK_NULL_HANDLE;
+    ps_info.flags                           = 0;
+    ps_info.codeSize                        = g_replacer_sbt_comp.size();
+    ps_info.pCode                           = reinterpret_cast<const uint32_t*>(g_replacer_sbt_comp.data());
+
+    result = device_table_->CreateShaderModule(device_, &ps_info, nullptr, &compute_module);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_FATAL("VulkanAddressReplacer: failed in vkCreateShaderModule");
+    }
+    VkPipelineShaderStageCreateInfo stage_info = {};
+    stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    stage_info.pNext                           = nullptr;
+    stage_info.flags                           = 0;
+    stage_info.stage                           = VK_SHADER_STAGE_COMPUTE_BIT;
+    stage_info.module                          = compute_module;
+    stage_info.pName                           = "main";
+    stage_info.pSpecializationInfo             = nullptr;
+
+    VkComputePipelineCreateInfo pipeline_create_info = {};
+    pipeline_create_info.sType                       = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    pipeline_create_info.layout                      = pipeline_layout_;
+    pipeline_create_info.stage                       = stage_info;
+
+    result = device_table_->CreateComputePipelines(
+        device_, VK_NULL_HANDLE, 1, &pipeline_create_info, VK_NULL_HANDLE, &pipeline_);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: pipeline creation failed");
+    }
+
+    if (compute_module != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyShaderModule(device_, compute_module, nullptr);
+    }
+}
+
 bool VulkanAddressReplacer::create_buffer(size_t num_bytes, VulkanAddressReplacer::buffer_context_t& buffer_context)
 {
     // nothing to do

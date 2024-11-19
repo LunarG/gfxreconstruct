@@ -7717,61 +7717,12 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
 
-    auto& address_tracker = GetDeviceAddressTracker(device_info);
+    auto& address_tracker  = GetDeviceAddressTracker(device_info);
+    auto& address_replacer = GetDeviceAddressReplacer(device_info);
 
-    auto address_remap = [&address_tracker](VkDeviceAddress& capture_address) {
-        auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+    address_replacer.ProcessCmdBuildAccelerationStructuresKHR(
+        command_buffer_info, infoCount, build_geometry_infos, address_tracker);
 
-        // TODO: we 'should' find that buffer here, check what's missing
-        if (buffer_info != nullptr && buffer_info->replay_address != 0)
-        {
-            uint64_t offset = capture_address - buffer_info->capture_address;
-
-            // in-place address-remap via const-cast
-            capture_address = buffer_info->replay_address + offset;
-        }
-    };
-
-    for (uint32_t i = 0; i < infoCount; ++i)
-    {
-        auto& build_geometry_info = build_geometry_infos[i];
-
-        for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
-        {
-            auto geometry = const_cast<VkAccelerationStructureGeometryKHR*>(build_geometry_info.pGeometries != nullptr
-                                                                                ? build_geometry_info.pGeometries + j
-                                                                                : build_geometry_info.ppGeometries[j]);
-            switch (geometry->geometryType)
-            {
-                case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
-                {
-                    auto& triangles = geometry->geometry.triangles;
-                    address_remap(triangles.vertexData.deviceAddress);
-                    address_remap(triangles.indexData.deviceAddress);
-                    break;
-                }
-                case VK_GEOMETRY_TYPE_AABBS_KHR:
-                {
-                    auto& aabbs = geometry->geometry.aabbs;
-                    address_remap(aabbs.data.deviceAddress);
-                    break;
-                }
-                case VK_GEOMETRY_TYPE_INSTANCES_KHR:
-                {
-                    auto& instances = geometry->geometry.instances;
-                    address_remap(instances.data.deviceAddress);
-                    // TODO: replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
-                    // (issue #1526)
-                    break;
-                }
-                default:
-                    GFXRECON_LOG_ERROR(
-                        "OverrideCmdBuildAccelerationStructuresKHR: unhandled case in switch-statement: %d",
-                        geometry->geometryType);
-                    break;
-            }
-        }
-    }
     func(command_buffer, infoCount, build_geometry_infos, build_range_infos);
 }
 

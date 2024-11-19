@@ -58,6 +58,11 @@ class VulkanAddressReplacer
         const decode::VulkanDeviceAddressTracker&                                                   address_tracker,
         const std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t>& group_handle_map);
 
+    void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
+                                                  uint32_t                                     info_count,
+                                                  VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
+                                                  const decode::VulkanDeviceAddressTracker&    address_tracker);
+
     friend void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept;
 
   private:
@@ -73,6 +78,8 @@ class VulkanAddressReplacer
         void*                                         mapped_data    = nullptr;
         ~buffer_context_t();
     };
+
+    void init_pipeline();
 
     bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context);
 
