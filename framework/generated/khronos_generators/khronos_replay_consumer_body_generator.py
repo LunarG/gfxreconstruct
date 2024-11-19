@@ -255,6 +255,26 @@ class KhronosReplayConsumerBodyGenerator():
             handle_value.name, index_id, value.name, array_name, info_func
         )
 
+    def is_special_case_value(self, value):
+        """ Method may be overridden. """
+        return False
+
+    def handle_special_case_pointer_array(self, value, is_override):
+        """ Method may be overridden. """
+        return ''
+
+    def needs_pipeline_customization(self, name):
+        """ Method may be overridden. """
+        return False
+
+    def handle_pipeline_customization(self, length_name):
+        """ Method may be overridden. """
+        return ''
+
+    def process_other_khronos_api_handles(self, value, values):
+        """ Method may be overridden. """
+        return ''
+
     def make_body_expression(self, return_type, name, values, is_override):
         """"
         Generating expressions for mapping decoded parameters to arguments used in the API call.
@@ -397,33 +417,17 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(
                                     name=value.name
                                 )
-                            else:
-                                # If surface was not created, need to automatically ignore for non-overrides queries
-                                # Swapchain also need to check if a dummy swapchain was created instead
-                                if value.name == "pSurfaceInfo":
-                                    expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
-                                        value.name
-                                    )
-                                    preexpr.append(expr)
+                            elif self.is_special_case_value(value):
+                                preexpr_special = self.handle_special_case_pointer_array(
+                                    value, is_override
+                                )
+                                preexpr.extend(preexpr_special)
+                                expr = ''
 
+                            else:
                                 expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
                                     value.name
                                 )
-
-                                # If surface was not created, need to automatically ignore for non-overrides queries
-                                if value.name == "pSurfaceInfo":
-                                    preexpr.append(expr)
-
-                                    var_name = 'in_' + value.name + '_meta'
-                                    expr = 'auto {} = {}->GetMetaStructPointer();'.format(
-                                        var_name, value.name
-                                    )
-                                    preexpr.append(expr)
-                                    expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
-                                        var_name, var_name
-                                    )
-                                    preexpr.append(expr)
-                                    expr = ''
                 else:
                     # Initialize output pointer.
                     if value.is_array:
@@ -451,10 +455,10 @@ class KhronosReplayConsumerBodyGenerator():
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
                                 .format(length_name, paramname=value.name)
                             )
-                            if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
+                            if self.needs_pipeline_customization(name):
                                 preexpr.append(
-                                    'if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'
-                                    .format(length_name)
+                                    self.
+                                    handle_pipeline_customization(length_name)
                                 )
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
@@ -514,7 +518,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     # additionally add an asynchronous flavour to postexpr, so both are available later
                                     if name in self.REPLAY_ASYNC_OVERRIDES:
                                         postexpr.append(
-                                            'AddHandlesAsync<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
+                                            'AddHandlesAsync<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info, std::move(task));'
                                             .format(
                                                 info_type,
                                                 self.get_parent_id(
@@ -624,9 +628,12 @@ class KhronosReplayConsumerBodyGenerator():
                                     )
                                 else:
                                     postexpr.append(
-                                        'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject({}, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
-                                            value.name, arg_name, name=name
+                                            api_data.return_type_success_value,
+                                            value.name,
+                                            arg_name,
+                                            name=name
                                         )
                                     )
                             else:
@@ -642,9 +649,11 @@ class KhronosReplayConsumerBodyGenerator():
                                     )
                                 else:
                                     postexpr.append(
-                                        'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
+                                        'PostProcessExternalObject({}, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(
-                                            paramname=value.name, name=name
+                                            api_data.return_type_success_value,
+                                            paramname=value.name,
+                                            name=name
                                         )
                                     )
                         elif self.is_handle_like(value.base_type):
@@ -683,7 +692,9 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
 
                             # If this is a handle, but from another Khronos API, we may have to some additional work
-                            other_api_handle_text = self.process_other_khronos_api_handles(value, values)
+                            other_api_handle_text = self.process_other_khronos_api_handles(
+                                value, values
+                            )
                             if len(other_api_handle_text) > 0:
                                 postexpr.append(other_api_handle_text)
                         else:
@@ -777,13 +788,11 @@ class KhronosReplayConsumerBodyGenerator():
                     )
                     preexpr.append(expr)
 
-                    # If surface was not created, need to automatically ignore for non-overrides queries
-                    # Swapchain also need to check if a dummy swapchain was created instead
-                    if value.name == "surface":
-                        expr = 'if ({} == nullptr || {}->surface_creation_skipped) {{ return; }}'.format(
-                            arg_name, arg_name
+                    if self.is_special_case_value(value):
+                        preexpr_special = self.handle_special_case_pointer_array(
+                            value, is_override
                         )
-                        preexpr.append(expr)
+                        preexpr.extend(preexpr_special)
                 else:
                     expr = '{} {} = '.format(value.full_type, arg_name)
                     expr += 'MapHandle<{}>({}, &CommonObjectInfoTable::Get{}Info);'.format(
@@ -791,19 +800,11 @@ class KhronosReplayConsumerBodyGenerator():
                     )
                     preexpr.append(expr)
 
-                    # If surface was not created, need to automatically ignore for non-overrides queries
-                    # Swapchain also need to check if a dummy swapchain was created instead
-                    if value.name == "surface":
-                        expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
-                            value.name, value.name
+                    if self.is_special_case_value(value):
+                        preexpr_special = self.handle_special_case_pointer_array(
+                            value, is_override
                         )
-                        preexpr.append(expr)
-                    elif value.name == "swapchain":
-                        expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
-                            value.base_type, value.name, value.base_type,
-                            value.name
-                        )
-                        preexpr.append(expr)
+                        preexpr.extend(preexpr_special)
             elif self.is_generic_cmd_handle_value(name, value.name):
                 # Handles need to be mapped.
                 arg_name = 'in_' + value.name
@@ -831,7 +832,3 @@ class KhronosReplayConsumerBodyGenerator():
                     format(need_initialize_output_pnext_struct)
                 )
         return args, preexpr, postexpr
-
-    def process_other_khronos_api_handles(self, value, values):
-        """ Method may be overridden. """
-        return ''

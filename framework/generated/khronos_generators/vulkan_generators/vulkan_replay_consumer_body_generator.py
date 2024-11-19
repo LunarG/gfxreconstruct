@@ -409,3 +409,75 @@ class VulkanReplayConsumerBodyGenerator(
     def is_allocation_callback_type(self, struct):
         """Method override."""
         return struct == 'VkAllocationCallbacks'
+
+    def is_special_case_value(self, value):
+        """Method override."""
+        if ((value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR') or
+             value.name == 'surface' or value.name == 'swapchain'):
+            return True
+        return False
+
+    def handle_special_case_pointer_array(self, value, is_override):
+        """Method override."""
+        preexpr = []
+        # If surface was not created, need to automatically ignore for non-overrides queries
+        # Swapchain also need to check if a dummy swapchain was created instead
+        if value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR':
+            expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
+                value.name
+            )
+            preexpr.append(expr)
+
+            expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
+                value.name
+            )
+            preexpr.append(expr)
+
+            var_name = 'in_' + value.name + '_meta'
+            expr = 'auto {} = {}->GetMetaStructPointer();'.format(
+                var_name, value.name
+            )
+            preexpr.append(expr)
+
+            expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface) == nullptr || '.format(
+                var_name
+            )
+            expr += 'GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
+                var_name
+            )
+            preexpr.append(expr)
+        # If surface was not created, need to automatically ignore for non-overrides queries
+        # Swapchain also need to check if a dummy swapchain was created instead
+        elif value.name == "surface":
+            if is_override:
+                arg_name = 'in_' + value.name
+                expr = 'if ({} == nullptr || {}->surface_creation_skipped) {{ return; }}'.format(
+                    arg_name, arg_name
+                )
+                preexpr.append(expr)
+            else:
+                expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}) == nullptr || '.format(
+                    value.name
+                )
+                expr += 'GetObjectInfoTable().GetVkSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
+                    value.name
+                )
+                preexpr.append(expr)
+        elif value.name == "swapchain":
+            expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || '.format(
+                value.base_type, value.name
+            )
+            expr += 'GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
+                value.base_type, value.name
+            )
+            preexpr.append(expr)
+        return preexpr
+
+
+    def needs_pipeline_customization(self, name):
+        """Method override."""
+        return (name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV')
+
+    def handle_pipeline_customization(self, length_name):
+        """Method override."""
+        return 'if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name)
