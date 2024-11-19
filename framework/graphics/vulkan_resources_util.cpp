@@ -2094,6 +2094,137 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
     return result;
 }
 
+bool GetIntersectForSparseMemoryBind(uint32_t               new_bind_resource_offset,
+                                     uint32_t               new_bind_resource_size,
+                                     uint32_t               existing_bind_resource_offset,
+                                     uint32_t               existing_bind_resource_size,
+                                     uint32_t&              intersection_resource_offset,
+                                     uint32_t&              intersection_resource_size,
+                                     std::vector<uint32_t>& remaining_resource_offsets,
+                                     std::vector<uint32_t>& remaining_resource_sizes,
+                                     bool&                  new_bind_range_include_existing_bind_tange,
+                                     bool&                  existing_bind_range_include_new_bind_tange)
+{
+    bool     intersection_exist = false;
+    uint32_t intersection_start = std::max(new_bind_resource_offset, existing_bind_resource_offset);
+    uint32_t intersection_end   = std::min(new_bind_resource_offset + new_bind_resource_size,
+                                         existing_bind_resource_offset + existing_bind_resource_size);
+
+    existing_bind_range_include_new_bind_tange = false;
+    new_bind_range_include_existing_bind_tange = false;
+
+    if (intersection_start < intersection_end)
+    {
+        intersection_exist           = true;
+        intersection_resource_offset = intersection_start;
+        intersection_resource_size   = intersection_end - intersection_start;
+
+        if ((intersection_resource_offset == new_bind_resource_offset) &&
+            (intersection_resource_size == new_bind_resource_size))
+        {
+            existing_bind_range_include_new_bind_tange = true;
+        }
+
+        if ((intersection_resource_offset == existing_bind_resource_offset) &&
+            (intersection_resource_size == existing_bind_resource_size))
+        {
+            new_bind_range_include_existing_bind_tange = true;
+        }
+
+        if (intersection_resource_offset > existing_bind_resource_offset)
+        {
+            remaining_resource_offsets.push_back(existing_bind_resource_offset);
+            remaining_resource_sizes.push_back(intersection_resource_offset - existing_bind_resource_offset);
+        }
+
+        if ((intersection_resource_offset + intersection_resource_size) <
+            (existing_bind_resource_offset + existing_bind_resource_size))
+        {
+            remaining_resource_offsets.push_back(intersection_resource_offset + intersection_resource_size);
+            remaining_resource_sizes.push_back((existing_bind_resource_offset + existing_bind_resource_size) -
+                                               (intersection_resource_offset + intersection_resource_size));
+        }
+    }
+
+    return intersection_exist;
+}
+
+void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& sparse_memory_bind_map,
+                               const VkSparseMemoryBind&                   new_sparse_memory_bind)
+{
+    std::vector<VkSparseMemoryBind> all_remaining_existing_bind_ranges{};
+    std::vector<VkSparseMemoryBind> delete_existing_bind_ranges{};
+
+    VkDeviceSize search_key = new_sparse_memory_bind.resourceOffset + new_sparse_memory_bind.size;
+    auto         iterator   = sparse_memory_bind_map.lower_bound(search_key);
+    bool         is_intersected_with_any_existing_bind = false;
+
+    bool ignored = false;
+
+    if ((sparse_memory_bind_map.size() != 0) && (iterator != sparse_memory_bind_map.begin()))
+    {
+        for (auto item = sparse_memory_bind_map.begin(); item != iterator; item++)
+        {
+            uint32_t              intersection_resource_offset, intersection_resource_size;
+            std::vector<uint32_t> remaining_resource_offsets, remaining_resource_sizes;
+            bool new_bind_range_include_existing_bind_tange, existing_bind_range_include_new_bind_tange;
+
+            bool is_intersected = GetIntersectForSparseMemoryBind(new_sparse_memory_bind.resourceOffset,
+                                                                  new_sparse_memory_bind.size,
+                                                                  item->second.resourceOffset,
+                                                                  item->second.size,
+                                                                  intersection_resource_offset,
+                                                                  intersection_resource_size,
+                                                                  remaining_resource_offsets,
+                                                                  remaining_resource_sizes,
+                                                                  new_bind_range_include_existing_bind_tange,
+                                                                  existing_bind_range_include_new_bind_tange);
+
+            if (is_intersected)
+            {
+                is_intersected_with_any_existing_bind = false;
+
+                VkSparseMemoryBind add_sparse_memory_bind = { 0, 0, item->second.memory, 0, item->second.flags };
+                GFXRECON_ASSERT(item->second.flags == new_sparse_memory_bind.flags);
+
+                uint32_t index = 0;
+                for (auto& bind_offset : remaining_resource_offsets)
+                {
+                    add_sparse_memory_bind.resourceOffset = bind_offset;
+                    add_sparse_memory_bind.size           = remaining_resource_sizes[index];
+                    add_sparse_memory_bind.memoryOffset =
+                        item->second.memoryOffset + bind_offset - item->second.resourceOffset;
+                    all_remaining_existing_bind_ranges.push_back(add_sparse_memory_bind);
+
+                    index++;
+                }
+
+                delete_existing_bind_ranges.push_back(item->second);
+            }
+        }
+    }
+
+    if (is_intersected_with_any_existing_bind)
+    {
+        for (auto& delete_item : delete_existing_bind_ranges)
+        {
+            sparse_memory_bind_map.erase(delete_item.resourceOffset);
+        }
+
+        size_t index = 0, remaining_range_base = 0;
+
+        for (auto add_item : all_remaining_existing_bind_ranges)
+        {
+            sparse_memory_bind_map[add_item.resourceOffset] = add_item;
+        }
+    }
+
+    if (new_sparse_memory_bind.memory != VK_NULL_HANDLE)
+    {
+        sparse_memory_bind_map[new_sparse_memory_bind.resourceOffset] = new_sparse_memory_bind;
+    }
+}
+
 bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkImageTiling  src_image_tiling,
                                           VkFormat       dst_format,
