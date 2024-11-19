@@ -69,19 +69,19 @@ class VulkanAddressReplacer
     struct buffer_context_t
     {
         decode::VulkanResourceAllocator*              resource_allocator = nullptr;
+        uint32_t                                      num_bytes          = 0;
         VkDeviceMemory                                device_memory      = VK_NULL_HANDLE;
         VkBuffer                                      buffer             = VK_NULL_HANDLE;
         decode::VulkanResourceAllocator::ResourceData allocator_data{};
         decode::VulkanResourceAllocator::MemoryData   memory_data{};
         VkDeviceAddress                               device_address = 0;
-        uint32_t                                      num_bytes      = 0;
         void*                                         mapped_data    = nullptr;
         ~buffer_context_t();
     };
 
     void init_pipeline();
 
-    bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context);
+    bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context, uint32_t usage_flags = 0);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -107,7 +107,7 @@ class VulkanAddressReplacer
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> handle_hashmap_;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 address_hashmap_;
-    std::unordered_map<VkStridedDeviceAddressRegionKHR*, buffer_context_t>                 shadow_sbt_map_;
+    std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
