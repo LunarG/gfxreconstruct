@@ -88,10 +88,11 @@ class VulkanAddressReplacer
     VkPhysicalDeviceMemoryProperties     memory_properties_   = {};
     bool                                 valid_sbt_alignment_ = true;
 
-    VkDevice                         device_             = VK_NULL_HANDLE;
-    decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
-    VkPipelineLayout                 pipeline_layout_    = VK_NULL_HANDLE;
-    VkPipeline                       pipeline_           = VK_NULL_HANDLE;
+    VkDevice                         device_                = VK_NULL_HANDLE;
+    PFN_vkGetBufferDeviceAddress     get_device_address_fn_ = nullptr;
+    decode::VulkanResourceAllocator* resource_allocator_    = nullptr;
+    VkPipelineLayout                 pipeline_layout_       = VK_NULL_HANDLE;
+    VkPipeline                       pipeline_              = VK_NULL_HANDLE;
 
     buffer_context_t input_handle_buffer_ = {};
     buffer_context_t hashmap_storage_     = {};
