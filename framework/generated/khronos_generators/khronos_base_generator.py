@@ -92,6 +92,11 @@ class ApiData():
         opaque_func_name_mod        - The name used to indicate a function is processing opaque
         return_type_enum            - The name of the enum type used to return common return values
         return_type_success_value   - The value of a successs
+        instance_type               - The name of the type used to store an instance
+        get_instance_proc_addr      - The name of the function to get instance proc addresses
+        has_device                  - Boolean indicating if a device object is supported
+        device_type                 - The name of the type used to store a device
+        get_device_proc_addr        - The name of the function to get device proc addresses
     """
     def __init__(
             self,
@@ -121,6 +126,11 @@ class ApiData():
             opaque_func_name_mod,
             return_type_enum,
             return_type_success_value,
+            instance_type,
+            get_instance_proc_addr,
+            has_device,
+            device_type,
+            get_device_proc_addr,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
@@ -148,6 +158,11 @@ class ApiData():
         self.opaque_func_name_mod  = opaque_func_name_mod
         self.return_type_enum = return_type_enum
         self.return_type_success_value  = return_type_success_value
+        self.instance_type = instance_type
+        self.get_instance_proc_addr = get_instance_proc_addr
+        self.has_device = has_device
+        self.device_type = device_type
+        self.get_device_proc_addr = get_device_proc_addr
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -458,6 +473,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 opaque_func_name_mod='',
                 return_type_enum='VkResult',
                 return_type_success_value='VK_SUCCESS',
+                instance_type='VkInstance',
+                get_instance_proc_addr='vkGetInstanceProcAddr',
+                has_device=True,
+                device_type='VkDevice',
+                get_device_proc_addr='vkGetDeviceProcAddr',
             )
         )
         self.valid_khronos_supported_api_data.append(
@@ -488,6 +508,11 @@ class KhronosBaseGenerator(OutputGenerator):
                 opaque_func_name_mod='Opaque',
                 return_type_enum='XrResult',
                 return_type_success_value='XR_SUCCESS',
+                instance_type='XrInstance',
+                get_instance_proc_addr='xrGetInstanceProcAddr',
+                has_device=False,
+                device_type='',
+                get_device_proc_addr='',
             )
         )
 
