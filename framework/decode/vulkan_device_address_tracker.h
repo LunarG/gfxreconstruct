@@ -90,6 +90,8 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
     GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
+
   private:
     //! use a sorted (BST-based) map
     using buffer_address_map_t = std::map<VkDeviceAddress, format::HandleId>;

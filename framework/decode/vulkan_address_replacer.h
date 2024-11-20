@@ -81,9 +81,20 @@ class VulkanAddressReplacer
         const decode::VulkanDeviceAddressTracker&                                                   address_tracker,
         const std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t>& group_handle_map);
 
+    /**
+     * @brief   ProcessCmdBuildAccelerationStructuresKHR will check
+     *          and potentially correct input-parameters to 'VkCmdBuildAccelerationStructuresKHR'
+     *
+     * @param command_buffer_info   a provided VulkanCommandBufferInfo
+     * @param info_count            number of elements in 'build_geometry_infos'
+     * @param build_geometry_infos  provided array of VkAccelerationStructureBuildGeometryInfoKHR
+     * @param build_range_infos     provided array of VkAccelerationStructureBuildRangeInfoKHR*
+     * @param address_tracker       const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
     void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
                                                   uint32_t                                     info_count,
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
+                                                  VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
 
     friend void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept;
@@ -100,6 +111,13 @@ class VulkanAddressReplacer
         VkDeviceAddress                               device_address = 0;
         void*                                         mapped_data    = nullptr;
         ~buffer_context_t();
+    };
+
+    struct pipeline_context_t
+    {
+        buffer_context_t input_handle_buffer  = {};
+        buffer_context_t output_handle_buffer = {};
+        buffer_context_t hashmap_storage      = {};
     };
 
     void init_pipeline();
@@ -121,15 +139,21 @@ class VulkanAddressReplacer
     VkDevice                         device_                = VK_NULL_HANDLE;
     PFN_vkGetBufferDeviceAddress     get_device_address_fn_ = nullptr;
     decode::VulkanResourceAllocator* resource_allocator_    = nullptr;
-    VkPipelineLayout                 pipeline_layout_       = VK_NULL_HANDLE;
-    VkPipeline                       pipeline_              = VK_NULL_HANDLE;
 
-    buffer_context_t input_handle_buffer_  = {};
-    buffer_context_t output_handle_buffer_ = {};
-    buffer_context_t hashmap_storage_      = {};
+    // common layout used for all pipelines
+    VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
 
-    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> handle_hashmap_;
-    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 address_hashmap_;
+    // pipeline dealing with shader-binding-table (SBT), replacing group-handles
+    VkPipeline pipeline_sbt_ = VK_NULL_HANDLE;
+
+    // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
+    VkPipeline pipeline_bda_ = VK_NULL_HANDLE;
+
+    pipeline_context_t pipeline_context_sbt_;
+    pipeline_context_t pipeline_context_bda_;
+
+    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap_sbt_;
+    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 hashmap_bda_;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
 };
 GFXRECON_END_NAMESPACE(decode)
