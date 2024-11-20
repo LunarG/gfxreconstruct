@@ -674,7 +674,7 @@ class KhronosBaseGenerator(OutputGenerator):
     def is_opaque(self, base_type):
         for api_data in self.valid_khronos_supported_api_data:
             if (api_data.supports_opaques and
-                base_type == api_data.type_prefix and
+                base_type.startswith(api_data.type_prefix) and
                 base_type == self.opaque_names):
                 return True
         return False
