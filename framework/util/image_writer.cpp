@@ -342,22 +342,22 @@ bool WriteBmpImage(const std::string& filename,
 {
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
+    if (data_pitch == 0)
+    {
+        data_pitch = width * DataFormatsSizes(format);
+        if (data_pitch == 0)
+        {
+            GFXRECON_LOG_ERROR("%s() Failed writing file (data_pitch == 0)", __func__);
+            return false;
+        }
+    }
+
     bool    success = false;
     FILE*   file    = nullptr;
     int32_t result  = util::platform::FileOpen(&file, filename.c_str(), "wb");
 
     if ((result == 0) && (file != nullptr))
     {
-        if (data_pitch == 0)
-        {
-            data_pitch = width * DataFormatsSizes(format);
-
-            if (!data_pitch)
-            {
-                return false;
-            }
-        }
-
         // BMP image data requires row to be a multiple of 4 bytes
         // Round-up row size to next multiple of 4, if it isn't already
         const uint32_t bmp_pitch =
@@ -444,11 +444,12 @@ bool WritePngImage(const std::string& filename,
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
-    if (!data_pitch)
+    if (data_pitch == 0)
     {
         data_pitch = width * DataFormatsSizes(format);
-        if (!data_pitch)
+        if (data_pitch == 0)
         {
+            GFXRECON_LOG_ERROR("%s() Failed writing file (data_pitch == 0)", __func__);
             return false;
         }
     }
