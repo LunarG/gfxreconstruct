@@ -49,6 +49,29 @@ class VulkanAddressReplacer
 
     ~VulkanAddressReplacer();
 
+    /**
+     * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'VkCmdTraceRays',
+     *          like buffer-device-addresses and shader-group-handles.
+     *
+     * Depending on capture- and replay-device-properties one of the following strategies will be used:
+     *
+     * if the shader-binding-table (SBT) layout is compatible and group-handles are also valid:
+     * - happy day, nothing to do!
+     *
+     * if the shader-binding-table (SBT) layout is compatible, but group-handles are invalid:
+     * - Apply in-place correction of group-handles contained in SBT
+     *
+     * if the shader-binding-table (SBT) layout is not compatible:
+     * - Create a shadow-SBT matching the replay-device's layout, map/copy group-handles to that, adjust input-addresses
+     *
+     * @param command_buffer_info   a provided VulkanCommandBufferInfo
+     * @param raygen_sbt            ray-generation sbt
+     * @param miss_sbt              ray-miss sbt
+     * @param hit_sbt               ray-hit sbt
+     * @param callable_sbt          ray-callable sbt
+     * @param address_tracker       const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param group_handle_map      a map from capture- to replay-time group-handles
+     */
     void ProcessCmdTraceRays(
         const VulkanCommandBufferInfo*                                                              command_buffer_info,
         VkStridedDeviceAddressRegionKHR*                                                            raygen_sbt,
