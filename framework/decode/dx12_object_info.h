@@ -50,8 +50,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 constexpr size_t   kNullCpuAddress = 0;
 constexpr uint64_t kNullGpuAddress = 0;
 
-typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
-
 enum class DxObjectInfoType : uint32_t
 {
     kUnused = 0,
@@ -286,47 +284,64 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     bool is_uma{ false };
 };
 
-struct ConstantBufferInfo
+// Constant Buffer View, Shader Resource View and Unordered Access View could overrride each other.
+// So they should be in the one container.
+struct DHConstantBufferViewInfo
 {
-    D3D12_CONSTANT_BUFFER_VIEW_DESC captured_view{};
+    D3D12_CONSTANT_BUFFER_VIEW_DESC captured_desc{};
+    bool                            is_desc_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
 };
 
-struct ShaderResourceInfo
+struct DHShaderResourceViewInfo
 {
+    D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+    bool                            is_desc_null{ false };
     format::HandleId                resource_id{ format::kNullHandleId };
-    D3D12_SHADER_RESOURCE_VIEW_DESC view{};
-    bool                            is_view_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>           subresource_indices;
+    std::vector<uint32_t>           subresource_indices; // Only use for dump resources
 };
 
-struct UnorderedAccessInfo
+struct DHUnorderedAccessViewInfo
 {
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc{};
+    bool                             is_desc_null{ false };
     format::HandleId                 resource_id{ format::kNullHandleId };
     format::HandleId                 counter_resource_id{ format::kNullHandleId };
-    D3D12_UNORDERED_ACCESS_VIEW_DESC view{};
-    bool                             is_view_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE      replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>            subresource_indices;
+    std::vector<uint32_t>            subresource_indices; // Only use for dump resources
 };
 
-struct RenderTargetInfo
+struct DHCbvSrvUavInfo
 {
-    format::HandleId              resource_id{ format::kNullHandleId };
-    D3D12_RENDER_TARGET_VIEW_DESC view{};
-    bool                          is_view_null{ false };
-    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>         subresource_indices;
+    D3D12_DESCRIPTOR_RANGE_TYPE type{};
+    DHConstantBufferViewInfo    cbv;
+    DHShaderResourceViewInfo    srv;
+    DHUnorderedAccessViewInfo   uav;
 };
 
-struct DepthStencilInfo
+struct DHRenderTargetViewInfo
 {
     format::HandleId              resource_id{ format::kNullHandleId };
-    D3D12_DEPTH_STENCIL_VIEW_DESC view{};
-    bool                          is_view_null{ false };
+    D3D12_RENDER_TARGET_VIEW_DESC desc{};
+    bool                          is_desc_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
-    std::vector<uint32_t>         subresource_indices;
+    std::vector<uint32_t>         subresource_indices; // Only use for dump resources
+};
+
+struct DHDepthStencilViewInfo
+{
+    format::HandleId              resource_id{ format::kNullHandleId };
+    D3D12_DEPTH_STENCIL_VIEW_DESC desc{};
+    bool                          is_desc_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>         subresource_indices; // Only use for dump resources
+};
+
+struct DHSamplerInfo
+{
+    D3D12_SAMPLER_DESC          desc{};
+    D3D12_CPU_DESCRIPTOR_HANDLE replay_handle{ kNullCpuAddress };
 };
 
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
@@ -344,11 +359,10 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 
     // Descriptor info maps. Key is descriptor's uint32_t heap index.
-    std::map<uint32_t, ConstantBufferInfo>  constant_buffer_infos;
-    std::map<uint32_t, ShaderResourceInfo>  shader_resource_infos;
-    std::map<uint32_t, UnorderedAccessInfo> unordered_access_infos;
-    std::map<uint32_t, RenderTargetInfo>    render_target_infos;
-    std::map<uint32_t, DepthStencilInfo>    depth_stencil_infos;
+    std::map<uint32_t, DHCbvSrvUavInfo>        cbv_srv_uav_infos;
+    std::map<uint32_t, DHRenderTargetViewInfo> rtv_infos;
+    std::map<uint32_t, DHDepthStencilViewInfo> dsv_infos;
+    std::map<uint32_t, DHSamplerInfo>          sampler_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo
