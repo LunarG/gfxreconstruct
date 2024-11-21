@@ -7693,11 +7693,14 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
 
-    auto& address_tracker  = GetDeviceAddressTracker(device_info);
-    auto& address_replacer = GetDeviceAddressReplacer(device_info);
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
 
-    address_replacer.ProcessCmdBuildAccelerationStructuresKHR(
-        command_buffer_info, infoCount, build_geometry_infos, build_range_infos, address_tracker);
+        address_replacer.ProcessCmdBuildAccelerationStructuresKHR(
+            command_buffer_info, infoCount, build_geometry_infos, build_range_infos, address_tracker);
+    }
 
     func(command_buffer, infoCount, build_geometry_infos, build_range_infos);
 }
