@@ -1036,6 +1036,8 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                         WriteExecuteFromFile(asset_file_name_, 1, offset);
                     }
                 }
+
+                ++blocks_written_;
             }
         }
     });
@@ -2201,8 +2203,6 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
                     WriteExecuteFromFile(asset_file_name_, 1, offset);
                 }
 
-                ++blocks_written_;
-
                 if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
                 {
                     device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
@@ -2536,10 +2536,9 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                         upload_cmd.level_count = 0;
 
                         output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                        ++blocks_written_;
                     }
                 }
-
-                ++blocks_written_;
             }
         }
         else
@@ -3779,9 +3778,8 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId         call_id,
     {
         output_stream_->Write(header_pointer, header_size);
         output_stream_->Write(data_pointer, data_size);
+        ++blocks_written_;
     }
-
-    ++blocks_written_;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -4336,6 +4334,8 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
 
     output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
     output_stream_->Write(relative_file.c_str(), filename_length);
+
+    blocks_written_ += n_blocks + 1;
 }
 
 GFXRECON_END_NAMESPACE(encode)
