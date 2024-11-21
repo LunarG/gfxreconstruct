@@ -618,8 +618,9 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
     }
 
     // free previous resources
-    buffer_context           = { .resource_allocator = resource_allocator_ };
-    buffer_context.num_bytes = num_bytes;
+    buffer_context                    = {};
+    buffer_context.resource_allocator = resource_allocator_;
+    buffer_context.num_bytes          = num_bytes;
 
     VkBufferCreateInfo buffer_create_info = {};
     buffer_create_info.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
