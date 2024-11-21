@@ -463,33 +463,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                if (!ext_struct_info->pAttachments.IsNull() && (ext_struct_info->pAttachments.HasData()))
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
+                    auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                    size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                    for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                     {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
+                        GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                     }
-                    break;
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -567,33 +554,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                if (!ext_struct_info->pAttachments.IsNull() && (ext_struct_info->pAttachments.HasData()))
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
+                    auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                    size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                    for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                     {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
+                        GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                     }
-                    break;
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -807,31 +781,19 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRendering(
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
         auto pRenderingInfo_ptr = pRenderingInfo->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderingInfo_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
-            pnext_header = pnext_header->pNext;
+        }
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
+            }
         }
 
         if (!pRenderingInfo_ptr->pColorAttachments->IsNull() && (pRenderingInfo_ptr->pColorAttachments->HasData()))
@@ -965,31 +927,19 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
         auto pRenderingInfo_ptr = pRenderingInfo->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderingInfo_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-                {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pRenderingInfo_ptr->pNext->GetPointer());
-                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
-                    break;
-                }
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
             }
-            pnext_header = pnext_header->pNext;
+        }
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR>(pRenderingInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->imageView);
+            }
         }
 
         if (!pRenderingInfo_ptr->pColorAttachments->IsNull() && (pRenderingInfo_ptr->pColorAttachments->HasData()))
@@ -1041,33 +991,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
         size_t pDescriptorWrites_count = pDescriptorWrites->GetLength();
         for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
         {
-            const VkBaseInStructure* pnext_header = nullptr;
-            if (pDescriptorWrites_ptr->pNext != nullptr)
             {
-                pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites_ptr->pNext->GetPointer());
-            }
-            while (pnext_header)
-            {
-                switch (pnext_header->sType)
+                const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(pDescriptorWrites_ptr->pNext);
+                if (ext_struct_info != nullptr)
                 {
-                    default:
-                        break;
-                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                    if (!ext_struct_info->pAccelerationStructures.IsNull() && (ext_struct_info->pAccelerationStructures.HasData()))
                     {
-                        auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                        if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
+                        auto pAccelerationStructures_ptr = ext_struct_info->pAccelerationStructures.GetPointer();
+                        size_t pAccelerationStructures_count = ext_struct_info->pAccelerationStructures.GetLength();
+                        for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
                         {
-                            auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
-                            size_t pAccelerationStructures_count = pnext_value->pAccelerationStructures.GetLength();
-                            for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
-                            {
-                                GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
-                            }
+                            GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                         }
-                        break;
                     }
                 }
-                pnext_header = pnext_header->pNext;
             }
             GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
 
@@ -1117,33 +1054,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
         auto pRenderPassBegin_ptr = pRenderPassBegin->GetMetaStructPointer();
-        const VkBaseInStructure* pnext_header = nullptr;
-        if (pRenderPassBegin_ptr->pNext != nullptr)
         {
-            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin_ptr->pNext->GetPointer());
-        }
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(pRenderPassBegin_ptr->pNext);
+            if (ext_struct_info != nullptr)
             {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                if (!ext_struct_info->pAttachments.IsNull() && (ext_struct_info->pAttachments.HasData()))
                 {
-                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
-                    if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
+                    auto pAttachments_ptr = ext_struct_info->pAttachments.GetPointer();
+                    size_t pAttachments_count = ext_struct_info->pAttachments.GetLength();
+                    for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
                     {
-                        auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
-                        size_t pAttachments_count = pnext_value->pAttachments.GetLength();
-                        for (size_t pAttachments_index = 0; pAttachments_index < pAttachments_count; ++pAttachments_index)
-                        {
-                            GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
-                        }
+                        GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                     }
-                    break;
                 }
             }
-            pnext_header = pnext_header->pNext;
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
     }
@@ -1507,33 +1431,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
             size_t pDescriptorWrites_count = pPushDescriptorSetInfo_ptr->pDescriptorWrites->GetLength();
             for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
             {
-                const VkBaseInStructure* pnext_header = nullptr;
-                if (pDescriptorWrites_ptr->pNext != nullptr)
                 {
-                    pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                }
-                while (pnext_header)
-                {
-                    switch (pnext_header->sType)
+                    const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(pDescriptorWrites_ptr->pNext);
+                    if (ext_struct_info != nullptr)
                     {
-                        default:
-                            break;
-                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                        if (!ext_struct_info->pAccelerationStructures.IsNull() && (ext_struct_info->pAccelerationStructures.HasData()))
                         {
-                            auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
-                            if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
+                            auto pAccelerationStructures_ptr = ext_struct_info->pAccelerationStructures.GetPointer();
+                            size_t pAccelerationStructures_count = ext_struct_info->pAccelerationStructures.GetLength();
+                            for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
                             {
-                                auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
-                                size_t pAccelerationStructures_count = pnext_value->pAccelerationStructures.GetLength();
-                                for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
-                                {
-                                    GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
-                                }
+                                GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                             }
-                            break;
                         }
                     }
-                    pnext_header = pnext_header->pNext;
                 }
                 GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
 
