@@ -42,7 +42,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
   public:
     VulkanRebindAllocator();
 
-    virtual ~VulkanRebindAllocator() override;
+    ~VulkanRebindAllocator() override = default;
 
     virtual VkResult Initialize(uint32_t                                api_version,
                                 VkInstance                              instance,
@@ -435,17 +435,17 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                              const VkPhysicalDeviceMemoryProperties& device_memory_properties);
 
   private:
-    VkDevice                         device_;
+    VkDevice                         device_ = VK_NULL_HANDLE;
     VmaAllocator                     allocator_;
     Functions                        functions_;
     VmaVulkanFunctions               vma_functions_;
     VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
     VkPhysicalDeviceMemoryProperties replay_memory_properties_;
-    VkCommandBuffer                  cmd_buffer_;
-    VkCommandPool                    cmd_pool_;
-    VkQueue                          staging_queue_;
-    uint32_t                         staging_queue_family_;
+    VkCommandBuffer                  cmd_buffer_    = VK_NULL_HANDLE;
+    VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
+    VkQueue                          staging_queue_ = VK_NULL_HANDLE;
+    uint32_t                         staging_queue_family_{};
 };
 
 GFXRECON_END_NAMESPACE(decode)

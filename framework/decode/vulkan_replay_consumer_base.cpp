@@ -4600,30 +4600,6 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
         allocator->ReportBindBufferIncompatibility(
             buffer_info->handle, buffer_info->allocator_data, memory_info->allocator_data);
     }
-
-    if (result == VK_SUCCESS && !allocator->SupportsOpaqueDeviceAddresses())
-    {
-        // TODO: this might be not necessary
-        // On fast-forwarded traces buffer device addresses might be missing (no GetBufferDeviceAddress calls)
-        // Fill out this data based on original memory device address and binding offset
-        auto entry = device_info->opaque_addresses.find(memory_info->capture_id);
-        if (entry != device_info->opaque_addresses.end())
-        {
-            uint64_t                  memory_device_address   = entry->second;
-            uint64_t                  original_buffer_address = memory_device_address + memoryOffset;
-            VkBufferDeviceAddressInfo info                    = {};
-            info.sType                                        = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-            info.pNext                                        = nullptr;
-            info.buffer                                       = buffer_info->handle;
-
-            buffer_info->capture_address = original_buffer_address;
-            buffer_info->replay_address =
-                GetDeviceTable(device_info->handle)->GetBufferDeviceAddress(device_info->handle, &info);
-
-            // track buffer-addresses
-            GetDeviceAddressTracker(device_info).TrackBuffer(buffer_info);
-        }
-    }
     return result;
 }
 
@@ -7804,7 +7780,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                                          &pPipelines->GetPointer()[createInfoCount]);
     }
 
-    // NOTE: this is basically never true and does not look like it's going to change soon
+    // NOTE: this is almost never true, even on newest desktop-drivers
+    // TODO: consider removing all of the feature_rayTracingPipelineShaderGroupHandleCaptureReplay logic here
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
         // Modify pipeline create infos with capture replay flag and data.
@@ -8100,13 +8077,6 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
 {
     assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
 
-    if (!device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
-    {
-        GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetAccelerationStructureDeviceAddressKHR, which may "
-                                  "require the accelerationStructureCaptureReplay feature for accurate capture and "
-                                  "replay. The replay device does not support this feature, so replay may fail.");
-    }
-
     VkDevice                                           device       = device_info->handle;
     const VkAccelerationStructureDeviceAddressInfoKHR* address_info = pInfo->GetPointer();
 
@@ -8121,13 +8091,7 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     // track device-address
     GetDeviceAddressTracker(device_info).TrackAccelerationStructure(acceleration_structure_info);
 
-    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The captured application used vkGetAccelerationStructureDeviceAddressKHR. The specified replay option '-m "
-            "rebind' may not support the replay of captured device addresses, so replay may fail.");
-    }
-    else
+    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         // opaque addresses should match
         GFXRECON_ASSERT(original_result == replay_address);

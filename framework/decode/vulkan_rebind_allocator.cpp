@@ -67,15 +67,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const format::HandleId kPlaceholderHandleId = static_cast<format::HandleId>(~0);
-const uintptr_t        kPlaceholderAddress  = static_cast<uintptr_t>(~0);
+constexpr format::HandleId kPlaceholderHandleId = static_cast<format::HandleId>(~0ul);
+constexpr uintptr_t        kPlaceholderAddress  = static_cast<uintptr_t>(~0ul);
 
 VulkanRebindAllocator::VulkanRebindAllocator() :
     device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
     capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
 {}
-
-VulkanRebindAllocator::~VulkanRebindAllocator() {}
 
 VkResult VulkanRebindAllocator::Initialize(uint32_t                                api_version,
                                            VkInstance                              instance,
@@ -200,6 +198,16 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
             {
                 create_info.flags |= VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT;
             }
+            else if (entry == VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME)
+            {
+                create_info.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+            }
+        }
+
+        if(api_version >= VK_API_VERSION_1_2)
+        {
+            // when core (1.2+), use the feature unconditionally
+            create_info.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
         }
 
         if (have_memory_reqs2 && have_dedicated_allocation)
