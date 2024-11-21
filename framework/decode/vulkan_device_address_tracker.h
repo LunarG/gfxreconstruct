@@ -90,6 +90,11 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
     GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
+    /**
+     * @brief   Create and return a lookup-table containing all internally stored acceleration-structure addresses.
+     *
+     * @return  a lookup-table for acceleration-structure addresses.
+     */
     std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
 
   private:

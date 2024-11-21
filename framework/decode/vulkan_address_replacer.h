@@ -25,9 +25,9 @@
 
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "format/platform_types.h"
-#include "vulkan_device_address_tracker.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

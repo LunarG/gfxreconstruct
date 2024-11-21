@@ -34,6 +34,7 @@ inline uint32_t aligned_size(uint32_t size, uint32_t alignment)
 
 inline uint32_t div_up(uint32_t nom, uint32_t denom)
 {
+    GFXRECON_ASSERT(denom > 0)
     return (nom + denom - 1) / denom;
 }
 
@@ -115,8 +116,8 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
             valid_sbt_alignment_ = false;
         }
 
-        assert(physical_device_info->replay_device_info != nullptr);
-        assert(physical_device_info->replay_device_info->memory_properties.has_value());
+        GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
+        GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
         memory_properties_ = *physical_device_info->replay_device_info->memory_properties;
     }
 }
@@ -660,7 +661,7 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 
-    assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+    GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
 
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
