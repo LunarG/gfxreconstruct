@@ -286,9 +286,7 @@ class CommonCaptureManager
     void        ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
     void        DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
 
-    void WriteFileHeader();
-
-    void WriteFileHeader(util::FileOutputStream* file_stream);
+    void WriteFileHeader(util::FileOutputStream* file_stream = nullptr);
 
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
@@ -308,7 +306,8 @@ class CommonCaptureManager
     void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
 
     template <size_t N>
-    void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
+    void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N],
+                               util::FileOutputStream* file_stream = nullptr)
     {
         static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
 
@@ -322,7 +321,7 @@ class CommonCaptureManager
             scratch_buffer.insert(scratch_buffer.end(), data, data + size);
         }
 
-        WriteToFile(scratch_buffer.data(), scratch_buffer.size());
+        WriteToFile(scratch_buffer.data(), scratch_buffer.size(), file_stream);
     }
 
     void IncrementBlockIndex(uint64_t blocks)
