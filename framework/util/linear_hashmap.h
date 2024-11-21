@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 #include "util/hash.h"
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <optional>
