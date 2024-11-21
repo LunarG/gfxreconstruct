@@ -153,9 +153,15 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 {
     GFXRECON_ASSERT(device_table_ != nullptr);
 
-    // figure out if the captured group-handles are valid for replay
     // NOTE: we expect this map to be populated here, but not for older captures (before #1844) using trimming.
-    bool valid_group_handles = !group_handle_map.empty();
+    if (group_handle_map.empty())
+    {
+        // the capture appears to be older and is missing information we require here -> bail out
+        return;
+    }
+
+    // figure out if the captured group-handles are valid for replay
+    bool valid_group_handles = true;
 
     for (const auto& [lhs, rhs] : group_handle_map)
     {
