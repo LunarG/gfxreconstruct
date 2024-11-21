@@ -166,8 +166,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
     }
 
-    // hack to force address-replacement
-    valid_sbt_alignment_ = false;
+    // TODO: testing only -> remove when closing issue #1526
+    //    valid_sbt_alignment_ = false;
     //    valid_group_handles  = false;
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
@@ -365,8 +365,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 {
     GFXRECON_ASSERT(device_table_ != nullptr);
 
-    // tmp: debug
-    constexpr bool force_replace = true;
+    // TODO: testing only -> remove when closing issue #1526
+    constexpr bool force_replace = false;
 
     std::unordered_set<VkBuffer> buffer_set;
     auto                         address_remap = [&address_tracker, &buffer_set](VkDeviceAddress& capture_address) {
