@@ -204,7 +204,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
             }
         }
 
-        if(api_version >= VK_API_VERSION_1_2)
+        if (api_version >= VK_API_VERSION_1_2)
         {
             // when core (1.2+), use the feature unconditionally
             create_info.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
