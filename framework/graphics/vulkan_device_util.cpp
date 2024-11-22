@@ -152,7 +152,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                 accelerationStructureCaptureReplay_ptr = (&accel_struct_features->accelerationStructureCaptureReplay);
                 accelerationStructureCaptureReplay_original = accel_struct_features->accelerationStructureCaptureReplay;
 
-                if (accel_struct_features->accelerationStructure)
+                if (accel_struct_features->accelerationStructure &&
+                    !accel_struct_features->accelerationStructureCaptureReplay)
                 {
                     // Get acceleration struct properties
                     VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
@@ -161,10 +162,11 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     GetPhysicalDeviceFeatures(
                         instance_api_version, instance_table, physical_device, supported_features);
 
-                    // Enable accelerationStructureCaptureReplay if supported during capture & replay
-                    accel_struct_features->accelerationStructureCaptureReplay =
-                        accel_struct_features->accelerationStructureCaptureReplay &&
-                        supported_features.accelerationStructureCaptureReplay;
+                    // Enable accelerationStructureCaptureReplay if it is supported
+                    if (supported_features.accelerationStructureCaptureReplay)
+                    {
+                        accel_struct_features->accelerationStructureCaptureReplay = VK_TRUE;
+                    }
                 }
 
                 result.feature_accelerationStructureCaptureReplay =
@@ -182,7 +184,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                 rayTracingPipelineShaderGroupHandleCaptureReplay_original =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
-                if (rt_pipeline_features->rayTracingPipeline)
+                if (rt_pipeline_features->rayTracingPipeline &&
+                    !rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay)
                 {
                     VkPhysicalDeviceRayTracingPipelineFeaturesKHR supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR, nullptr
@@ -190,11 +193,12 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     GetPhysicalDeviceFeatures(
                         instance_api_version, instance_table, physical_device, supported_features);
 
-                    // Enable 'rayTracingPipelineShaderGroupHandleCaptureReplay' if supported during capture & replay
-                    result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
-                        rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay &&
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay =
                         supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay;
                 }
+
+                result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
                 // retrieve raytracing-pipeline-properties
                 VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
