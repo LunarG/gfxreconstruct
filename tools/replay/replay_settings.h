@@ -361,6 +361,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
     GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
     GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dir <dir>");
+    GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write dump resources output files.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is the current working directory.");
 #endif
 }
 

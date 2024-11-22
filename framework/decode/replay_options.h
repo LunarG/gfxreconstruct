@@ -69,6 +69,7 @@ struct ReplayOptions
     uint32_t                     screenshot_width, screenshot_height;
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
+    std::string                  dump_resources_output_dir;
 };
 
 GFXRECON_END_NAMESPACE(decode)

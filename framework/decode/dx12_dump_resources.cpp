@@ -131,7 +131,7 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
         active_delegate_  = default_delegate_.get();
     }
 
-    active_delegate_->BeginDumpResources(capture_file_name, track_dump_resources_);
+    active_delegate_->BeginDumpResources(options_.dump_resources_output_dir, capture_file_name, track_dump_resources_);
 }
 
 void Dx12DumpResources::FinishDump(DxObjectInfo* queue_object_info)
@@ -2317,7 +2317,8 @@ std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDum
     return cmd_sets;
 }
 
-void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&        capture_file_name,
+void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&        dump_resources_output_dir,
+                                                          const std::string&        capture_file_name,
                                                           const TrackDumpResources& track_dump_resources)
 {
     // prepare for output data
@@ -2333,10 +2334,9 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     }
     json_filename_ += "_dr." + util::get_json_format(json_options_.format);
     json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
-    json_options_.root_dir     = util::filepath::GetBasedir(capture_file_name);
+    json_options_.root_dir     = dump_resources_output_dir;
 
-    auto file_path = json_options_.root_dir + util::filepath::kPathSepStr + json_filename_;
-
+    auto file_path = util::filepath::Join(json_options_.root_dir, json_filename_);
     util::platform::FileOpen(&json_file_handle_, file_path.c_str(), "w");
 
     header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);

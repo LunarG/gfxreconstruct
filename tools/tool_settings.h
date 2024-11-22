@@ -1158,6 +1158,8 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         }
     }
 
+    replay_options.dump_resources_output_dir = GetDumpResourcesDir(arg_parser);
+
     const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
     if (!memory_usage.empty())
     {

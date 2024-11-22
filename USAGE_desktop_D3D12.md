@@ -213,6 +213,7 @@ Usage:
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
                         [--dump-resources <submit-index,command-index,draw-call-index>] <file>
+                        [--dump-resources-dir <dir>]
                         [--pbi-all] [--pbis <index1,index2>]
 
 Required arguments:
@@ -340,11 +341,12 @@ D3D12-only:
                                Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
                                100 means use all available system and GPU memory.
   --dump-resources <submit-index,command-index,draw-call-index>
-                                Output binaray resources for a specific draw call.
-                                Include vertex, index, const buffer, shader resource, render target,
-                                and depth stencil. And for before and after draw call.
-                                Arguments becomes three indices, submit index, command index,
-                                draw call index. The command index is based on its in ExecuteCommandLists.
+                               Output binaray resources for a specific draw call.
+                               Include vertex, index, const buffer, shader resource, render target,
+                               and depth stencil. And for before and after draw call.
+                               Arguments becomes three indices, submit index, command index,
+                               draw call index. The command index is based on its in ExecuteCommandLists.
+  --dump-resources-dir <dir>   Directory to write dump resources output files. Default is the current working directory.
 ```
 
 

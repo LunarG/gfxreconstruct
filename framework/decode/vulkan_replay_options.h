@@ -80,7 +80,6 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<std::vector<uint64_t>>              TraceRays_Indices;
     std::unordered_set<uint64_t>                    QueueSubmit_Indices;
     std::string                                     dump_resources;
-    std::string                                     dump_resources_output_dir;
     util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
 
     // Flag to quickly check whether the feature is enabled or not
