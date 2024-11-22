@@ -151,9 +151,11 @@ class Dx12DumpResourcesDelegate
   public:
     virtual ~Dx12DumpResourcesDelegate() {}
 
-    virtual void BeginDumpResources(const std::string& filename, const TrackDumpResources& track_dump_resources) = 0;
-    virtual void DumpResource(CopyResourceDataPtr resource_data)                                                 = 0;
-    virtual void EndDumpResources()                                                                              = 0;
+    virtual void BeginDumpResources(const std::string&        dump_resources_output_dir,
+                                    const std::string&        capture_file_name,
+                                    const TrackDumpResources& track_dump_resources) = 0;
+    virtual void DumpResource(CopyResourceDataPtr resource_data)                    = 0;
+    virtual void EndDumpResources()                                                 = 0;
     virtual void WriteSingleData(const std::vector<std::pair<std::string, int32_t>>& json_path,
                                  const std::string&                                  key,
                                  uint64_t                                            value)                                                                    = 0;
@@ -183,7 +185,8 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
   public:
     virtual ~DefaultDx12DumpResourcesDelegate() {}
 
-    virtual void BeginDumpResources(const std::string&        capture_file_name,
+    virtual void BeginDumpResources(const std::string&        dump_resources_output_dir,
+                                    const std::string&        capture_file_name,
                                     const TrackDumpResources& track_dump_resources) override;
     virtual void DumpResource(CopyResourceDataPtr resource_data) override;
     virtual void EndDumpResources() override;
