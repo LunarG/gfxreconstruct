@@ -95,7 +95,7 @@ class VulkanDeviceAddressTracker
      *
      * @return  a lookup-table for acceleration-structure addresses.
      */
-    std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
+    [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
 
   private:
     //! use a sorted (BST-based) map

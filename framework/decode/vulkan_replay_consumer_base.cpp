@@ -8475,23 +8475,21 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
         VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
         VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
 
-        if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
-        {
-            // identify buffer(s) by their device-address
-            const auto& address_tracker  = GetDeviceAddressTracker(device_info);
-            auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+        // identify buffer(s) by their device-address
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
 
-            auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
-            GFXRECON_ASSERT(bound_pipeline != nullptr)
+        auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
+        GFXRECON_ASSERT(bound_pipeline != nullptr)
 
-            address_replacer.ProcessCmdTraceRays(command_buffer_info,
-                                                 in_pRaygenShaderBindingTable,
-                                                 in_pMissShaderBindingTable,
-                                                 in_pHitShaderBindingTable,
-                                                 in_pCallableShaderBindingTable,
-                                                 address_tracker,
-                                                 bound_pipeline->shader_group_handle_map);
-        }
+        address_replacer.ProcessCmdTraceRays(command_buffer_info,
+                                             in_pRaygenShaderBindingTable,
+                                             in_pMissShaderBindingTable,
+                                             in_pHitShaderBindingTable,
+                                             in_pCallableShaderBindingTable,
+                                             address_tracker,
+                                             bound_pipeline->shader_group_handle_map);
+
         func(commandBuffer,
              in_pRaygenShaderBindingTable,
              in_pMissShaderBindingTable,
@@ -9277,6 +9275,7 @@ VulkanReplayConsumerBase::GetDeviceAddressTracker(const decode::VulkanDeviceInfo
     {
         auto [new_it, success] =
             _device_address_trackers.insert({ device_info, VulkanDeviceAddressTracker(*object_info_table_) });
+        GFXRECON_ASSERT(success);
         return new_it->second;
     }
     return it->second;
@@ -9290,6 +9289,7 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
         auto [new_it, success] = _device_address_replacers.insert(
             { device_info,
               VulkanAddressReplacer(device_info, GetDeviceTable(device_info->handle), *object_info_table_) });
+        GFXRECON_ASSERT(success);
         return new_it->second;
     }
     return it->second;
