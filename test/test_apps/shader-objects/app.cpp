@@ -29,11 +29,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(shader_objects)
+namespace shader_objects
+{
 
 const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -59,10 +62,14 @@ class App : public gfxrecon::test::TestAppBase
     VkPhysicalDeviceShaderObjectFeaturesEXT  shader_object_features_;
     VkPhysicalDeviceFeatures2                features2_;
 
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
+                                            vkmock::TestConfig*) override;
 
     void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device) override;
+                                  test::PhysicalDevice const& physical_device,
+                                  vkmock::TestConfig*) override;
 
     void create_shader_objects();
     void cleanup() override;
@@ -70,7 +77,13 @@ class App : public gfxrecon::test::TestAppBase
     void setup() override;
 };
 
-void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector)
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
+{
+    test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
+    TestAppBase::configure_instance_builder(instance_builder, test_config);
+}
+
+void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig*)
 {
     phys_device_selector.add_required_extension("VK_KHR_multiview");
     phys_device_selector.add_required_extension("VK_KHR_maintenance2");
@@ -80,7 +93,9 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
     phys_device_selector.add_required_extension("VK_EXT_shader_object");
 }
 
-void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
+void App::configure_device_builder(test::DeviceBuilder&        device_builder,
+                                   test::PhysicalDevice const& physical_device,
+                                   vkmock::TestConfig*)
 {
     dynamic_rendering_features_.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     dynamic_rendering_features_.pNext            = nullptr;
@@ -101,11 +116,11 @@ void App::configure_device_builder(test::DeviceBuilder& device_builder, test::Ph
 
 void App::create_shader_objects()
 {
-    auto vert_shader = gfxrecon::test::readFile("green.vspv");
-    auto tesc_shader = gfxrecon::test::readFile("green.tcspv");
-    auto tese_shader = gfxrecon::test::readFile("green.tespv");
-    auto geom_shader = gfxrecon::test::readFile("green.gspv");
-    auto frag_shader = gfxrecon::test::readFile("green.fspv");
+    auto vert_shader = gfxrecon::test::readFile("shaders/green.vspv");
+    auto tesc_shader = gfxrecon::test::readFile("shaders/green.tcspv");
+    auto tese_shader = gfxrecon::test::readFile("shaders/green.tespv");
+    auto geom_shader = gfxrecon::test::readFile("shaders/green.gspv");
+    auto frag_shader = gfxrecon::test::readFile("shaders/green.fspv");
 
     VkShaderCreateInfoEXT shader_create_infos[5];
     shader_create_infos[0].sType                  = VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT;
@@ -461,11 +476,11 @@ void App::setup()
     init.disp.allocateCommandBuffers(&command_buffer_allocate_info, command_buffers_);
 }
 
-GFXRECON_END_NAMESPACE(shader_objects)
+} // namespace shader_objects
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {
@@ -475,7 +490,7 @@ int main(int argc, char* argv[])
         app.run("shader objects");
         return 0;
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         return -1;

@@ -21,6 +21,7 @@
 */
 
 #include "test_app_base.h"
+#include <iostream>
 
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -39,11 +40,14 @@
 #include <fstream>
 #include <Vulkan-Utility-Libraries/vk_enum_string_helper.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test)
+namespace test
+{
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 GenericFeaturesPNextNode::GenericFeaturesPNextNode()
 {
@@ -162,23 +166,41 @@ class VulkanFunctions
         {
             return true;
         }
+        auto library_path = std::getenv("VULKAN_LIBRARY_PATH");
 #if defined(__linux__)
-        library = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+        if (library_path != nullptr)
+        {
+            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
+        }
+        if (!library)
+            library = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
         if (!library)
             library = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
 #elif defined(__APPLE__)
-        library = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
+        if (library_path != nullptr)
+        {
+            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
+        }
+        if (!library)
+            library = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
         if (!library)
             library = dlopen("libvulkan.1.dylib", RTLD_NOW | RTLD_LOCAL);
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library = LoadLibrary(TEXT("vulkan-1.dll"));
+        if (library_path != nullptr)
+        {
+            library = LoadLibrary(library_path);
+        }
+        if (!library)
+            library = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
         if (!library)
+        {
             return false;
+        }
         load_func(ptr_vkGetInstanceProcAddr, "vkGetInstanceProcAddr");
         return ptr_vkGetInstanceProcAddr != nullptr;
     }
@@ -192,6 +214,7 @@ class VulkanFunctions
         func_dest = reinterpret_cast<T>(GetProcAddress(library, func_name));
 #endif
     }
+
     void close()
     {
 #if defined(__linux__) || defined(__APPLE__)
@@ -335,7 +358,7 @@ auto get_vector_noerror(F&& f, Ts&&... ts) -> std::vector<T>
     return results;
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 const char* to_string_message_severity(VkDebugUtilsMessageSeverityFlagBitsEXT s)
 {
@@ -413,7 +436,8 @@ void destroy_debug_utils_messenger(VkInstance               instance,
     }
 }
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 bool check_layer_supported(std::vector<VkLayerProperties> const& available_layers, const char* layer_name)
 {
@@ -484,7 +508,7 @@ void setup_pNext_chain(T& structure, std::vector<VkBaseOutStructure*> const& str
 }
 const char* validation_layer_name = "VK_LAYER_KHRONOS_validation";
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 #define CASE_TO_STRING(CATEGORY, TYPE) \
     case CATEGORY::TYPE:               \
@@ -806,16 +830,6 @@ Instance InstanceBuilder::build() const
         extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
     }
 
-#if defined(VK_KHR_portability_enumeration)
-    bool portability_enumeration_support =
-        detail::check_extension_supported(system.available_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-    if (portability_enumeration_support)
-    {
-        extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-    }
-#else
-    bool portability_enumeration_support = false;
-#endif
     if (!info.headless_context)
     {
         auto check_add_window_ext = [&](const char* name) -> bool {
@@ -825,20 +839,28 @@ Instance InstanceBuilder::build() const
             return true;
         };
         bool khr_surface_added = check_add_window_ext("VK_KHR_surface");
+        bool added_window_exts = false;
+        if (std::getenv("GFXRECON_TESTAPP_HEADLESS") != nullptr)
+        {
+            added_window_exts = check_add_window_ext("VK_EXT_headless_surface");
+        }
+        else
+        {
 #if defined(_WIN32)
-        bool added_window_exts = check_add_window_ext("VK_KHR_win32_surface");
+            added_window_exts = check_add_window_ext("VK_KHR_win32_surface");
 #elif defined(__ANDROID__)
-        bool added_window_exts = check_add_window_ext("VK_KHR_android_surface");
+            added_window_exts = check_add_window_ext("VK_KHR_android_surface");
 #elif defined(_DIRECT2DISPLAY)
-        bool added_window_exts = check_add_window_ext("VK_KHR_display");
+            added_window_exts = check_add_window_ext("VK_KHR_display");
 #elif defined(__linux__)
-        // make sure all three calls to check_add_window_ext, don't allow short circuiting
-        bool added_window_exts = check_add_window_ext("VK_KHR_xcb_surface");
-        added_window_exts      = check_add_window_ext("VK_KHR_xlib_surface") || added_window_exts;
-        added_window_exts      = check_add_window_ext("VK_KHR_wayland_surface") || added_window_exts;
+            // make sure all three calls to check_add_window_ext, don't allow short circuiting
+            added_window_exts = check_add_window_ext("VK_KHR_xcb_surface");
+            added_window_exts = check_add_window_ext("VK_KHR_xlib_surface") || added_window_exts;
+            added_window_exts = check_add_window_ext("VK_KHR_wayland_surface") || added_window_exts;
 #elif defined(__APPLE__)
-        bool added_window_exts = check_add_window_ext("VK_EXT_metal_surface");
+            added_window_exts = check_add_window_ext("VK_EXT_metal_surface");
 #endif
+        }
         if (!khr_surface_added || !added_window_exts)
             throw to_exception(InstanceError::windowing_extensions_not_present);
     }
@@ -911,12 +933,6 @@ Instance InstanceBuilder::build() const
     instance_create_info.ppEnabledExtensionNames = extensions.data();
     instance_create_info.enabledLayerCount       = static_cast<uint32_t>(layers.size());
     instance_create_info.ppEnabledLayerNames     = layers.data();
-#if defined(VK_KHR_portability_enumeration)
-    if (portability_enumeration_support)
-    {
-        instance_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-    }
-#endif
 
     Instance instance;
     VkResult res = detail::vulkan_functions().fp_vkCreateInstance(
@@ -1123,7 +1139,8 @@ void destroy_debug_messenger(VkInstance const instance, VkDebugUtilsMessengerEXT
 
 // ---- Physical Device ---- //
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 std::vector<std::string> check_device_extension_support(std::vector<std::string> const& available_extensions,
                                                         std::vector<std::string> const& desired_extensions)
@@ -1337,7 +1354,7 @@ std::optional<uint32_t> get_present_queue_index(VkPhysicalDevice const          
     return {};
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 PhysicalDevice
 PhysicalDeviceSelector::populate_device_details(VkPhysicalDevice                   vk_phys_device,
@@ -2146,7 +2163,8 @@ DeviceBuilder& DeviceBuilder::set_allocation_callbacks(VkAllocationCallbacks* ca
 
 // ---- Swapchain ---- //
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 struct SurfaceSupportDetails
 {
@@ -2291,7 +2309,7 @@ VkExtent2D find_extent(VkSurfaceCapabilitiesKHR const& capabilities, uint32_t de
     }
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 void destroy_swapchain(Swapchain const& swapchain)
 {
@@ -2717,6 +2735,17 @@ VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAlloc
     return surface;
 }
 
+VkSurfaceKHR
+create_surface_headless(VkInstance instance, vkb::InstanceDispatchTable& disp, VkAllocationCallbacks* callbacks)
+{
+    VkSurfaceKHR                   surface = VK_NULL_HANDLE;
+    VkHeadlessSurfaceCreateInfoEXT create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT;
+    VERIFY_VK_RESULT("failed to create headless surface",
+                     disp.createHeadlessSurfaceEXT(&create_info, callbacks, &surface));
+    return surface;
+}
+
 void create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain)
 {
     auto new_swapchain = swapchain_builder.set_old_swapchain(swapchain).build();
@@ -2821,7 +2850,10 @@ std::exception sdl_exception()
 
 void device_initialization_phase_1(const std::string& window_name, InitInfo& init)
 {
-    init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+    if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
+    {
+        init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+    }
 }
 
 void device_initialization_phase_2(InstanceBuilder const& instance_builder, InitInfo& init)
@@ -2830,7 +2862,14 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
 
     init.inst_disp = init.instance.make_table();
 
-    init.surface = create_surface_sdl(init.instance, init.window);
+    if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
+    {
+        init.surface = create_surface_sdl(init.instance, init.window);
+    }
+    else
+    {
+        init.surface = create_surface_headless(init.instance, init.inst_disp);
+    }
 }
 
 PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, InitInfo& init)
@@ -2853,11 +2892,46 @@ void device_initialization_phase_5(SwapchainBuilder& swapchain_builder, InitInfo
     init.swapchain_image_views = init.swapchain.get_image_views();
 }
 
+static vkmock::TestConfig* try_load_test_config()
+{
+    char const* mock_icd_location = std::getenv("GFXRECON_TESTAPP_MOCK_ICD");
+    if (mock_icd_location == nullptr)
+    {
+        return nullptr;
+    }
+#if defined(__linux__) || defined(__APPLE__)
+    auto library = dlopen(mock_icd_location, RTLD_NOW | RTLD_LOCAL);
+    if (library == nullptr)
+    {
+        return nullptr;
+    }
+    PFN_mockICD_getTestConfig getTestConfig =
+        reinterpret_cast<PFN_mockICD_getTestConfig>(dlsym(library, "mockICD_getTestConfig"));
+#elif defined(_WIN32)
+    auto module = LoadLibrary(TEXT(mock_icd_location));
+    if (module == nullptr)
+    {
+        return nullptr;
+    }
+    PFN_mockICD_getTestConfig getTestConfig =
+        reinterpret_cast<PFN_mockICD_getTestConfig>(GetProcAddress(module, "mockICD_getTestConfig"));
+#else
+    static_assert(false && "Unsupported platform");
+#endif
+    if (getTestConfig == nullptr)
+    {
+        return nullptr;
+    }
+    return getTestConfig();
+}
+
 InitInfo device_initialization(const std::string& window_name)
 {
     InitInfo init;
 
     device_initialization_phase_1(window_name, init);
+
+    init.test_config = try_load_test_config();
 
     InstanceBuilder instance_builder;
     device_initialization_phase_2(instance_builder, init);
@@ -2882,7 +2956,8 @@ void cleanup_init(InitInfo& init)
     destroy_device(init.device);
     destroy_surface(init.instance, init.surface);
     destroy_instance(init.instance);
-    destroy_window_sdl(init.window);
+    if (init.window != nullptr)
+        destroy_window_sdl(init.window);
 }
 
 void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init, bool wait_for_idle)
@@ -2902,20 +2977,22 @@ void TestAppBase::run(const std::string& window_name)
 {
     device_initialization_phase_1(window_name, init);
 
+    init.test_config = try_load_test_config();
+
     InstanceBuilder instance_builder;
-    configure_instance_builder(instance_builder);
+    configure_instance_builder(instance_builder, init.test_config);
     device_initialization_phase_2(instance_builder, init);
 
     PhysicalDeviceSelector phys_device_selector(init.instance);
-    configure_physical_device_selector(phys_device_selector);
+    configure_physical_device_selector(phys_device_selector, init.test_config);
     init.physical_device = device_initialization_phase_3(phys_device_selector, init);
 
     DeviceBuilder device_builder{ init.physical_device };
-    configure_device_builder(device_builder, init.physical_device);
+    configure_device_builder(device_builder, init.physical_device, init.test_config);
     device_initialization_phase_4(device_builder, init);
 
     SwapchainBuilder swapchain_builder{ init.device };
-    configure_swapchain_builder(swapchain_builder);
+    configure_swapchain_builder(swapchain_builder, init.test_config);
     device_initialization_phase_5(swapchain_builder, init);
 
     setup();
@@ -2947,19 +3024,29 @@ void TestAppBase::run(const std::string& window_name)
 void TestAppBase::recreate_swapchain(bool wait_for_idle)
 {
     SwapchainBuilder swapchain_builder{ init.device };
-    configure_swapchain_builder(swapchain_builder);
+    configure_swapchain_builder(swapchain_builder, init.test_config);
     recreate_init_swapchain(swapchain_builder, init, wait_for_idle);
 }
 
 void TestAppBase::setup() {}
+
 void TestAppBase::cleanup() {}
-void TestAppBase::configure_instance_builder(InstanceBuilder& instance_builder)
+
+void TestAppBase::configure_instance_builder(InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
     instance_builder.use_default_debug_messenger().request_validation_layers();
 }
-void TestAppBase::configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector) {}
-void TestAppBase::configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device) {}
-void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder) {}
+
+void TestAppBase::configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector,
+                                                     vkmock::TestConfig*     test_config)
+{}
+
+void TestAppBase::configure_device_builder(DeviceBuilder&        device_builder,
+                                           PhysicalDevice const& physical_device,
+                                           vkmock::TestConfig*   test_config)
+{}
+
+void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config) {}
 
 bool DeviceBuilder::enable_extension_if_present(const char* extension)
 {
@@ -2976,6 +3063,6 @@ bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& f
     return physical_device.enable_features_if_present(features_to_enable);
 }
 
-GFXRECON_END_NAMESPACE(test)
+} // namespace test
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon

@@ -15,18 +15,20 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
+          - {
             name: "Ubuntu GCC Release",
             os: ubuntu-latest,
             artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-ubuntu-gcc-release",
             type: "release",
             build_dir: "build",
             cc: "gcc", cxx: "g++"
           }
-        - {
+          - {
             name: "Ubuntu GCC Debug",
             os: ubuntu-latest,
             artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-ubuntu-gcc-debug",
             type: "debug",
             build_dir: "dbuild",
             cc: "gcc", cxx: "g++"
@@ -55,6 +57,20 @@ jobs:
         else
           python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
         fi
+    - name: Run test app test cases
+      id: test_apps
+      run: |
+        cd ${{matrix.config.build_dir}}/linux/x64/output/test
+        sudo useradd test
+        sudo usermod -a -G docker test
+        chmod -R g+w .
+        sudo -n -u test ./run-tests.sh
+    - name: Upload test failure artifacts
+      uses: actions/upload-artifact@v4
+      if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
+      with:
+        name: ${{ matrix.config.test_failure_artifact }}
+        path: ${{matrix.config.build_dir}}/linux/x64/output/test
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
@@ -77,18 +93,20 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
+          - {
             name: "Windows MSVC Release",
             os: windows-latest,
             artifact: "gfxreconstruct-dev-windows-msvc-release",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-release",
             type: "release",
             build_dir: "build",
             cc: "cl", cxx: "cl"
           }
-        - {
+          - {
             name: "Windows MSVC Debug",
             os: windows-latest,
             artifact: "gfxreconstruct-dev-windows-msvc-debug",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-debug",
             type: "debug",
             build_dir: "dbuild",
             cc: "cl", cxx: "cl"
@@ -120,6 +138,20 @@ jobs:
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+    - name: Run test app test cases
+      id: test_apps
+      run: |
+        curl.exe -o vulkan-sdk.zip https://sdk.lunarg.com/sdk/download/1.3.296.0/windows/VulkanRT-1.3.296.0-Components.zip
+        Expand-Archive vulkan-sdk.zip -DestinationPath $pwd\vulkan-sdk
+        $env:Path += ";$pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64"
+        cd ${{matrix.config.build_dir}}\windows\x64\output\test
+        ./run-tests.ps1
+    - name: Upload test failure artifacts
+      uses: actions/upload-artifact@v4
+      if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
+      with:
+        name: ${{ matrix.config.test_failure_artifact }}
+        path: ${{matrix.config.build_dir}}\windows\x64\output\test
     - name: Prepare artifacts
       run: |
         copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
@@ -141,17 +173,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
+          - {
             name: "macOS Release",
             os: macos-latest,
             artifact: "gfxreconstruct-dev-macOS-release",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-release",
             type: "release",
             build_dir: "build"
           }
-        - {
+          - {
             name: "macOS Debug",
             os: macos-latest,
             artifact: "gfxreconstruct-dev-macOS-debug",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-debug",
             type: "debug",
             build_dir: "dbuild"
           }
@@ -172,6 +206,31 @@ jobs:
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0 --test-apps
+    - name: Run test app test cases
+      id: test_apps
+      run: |
+        WORKING_PATH="$(pwd)/${{matrix.config.build_dir}}/darwin/universal/output/test"
+        cd $WORKING_PATH
+        curl https://sdk.lunarg.com/sdk/download/1.4.304.0/mac/vulkansdk-macos-1.4.304.0.zip -o ./vulkan-sdk.zip 
+        unzip ./vulkan-sdk.zip -d ./vulkan-sdk
+        sudo ./vulkan-sdk/InstallVulkan.app/Contents/MacOS/InstallVulkan --root $(pwd)/VulkanSDK/1.3.304.0 --accept-licenses --default-answer --confirm-command install
+        sudo dscl . -create /Users/test
+        sudo dscl . append /Groups/staff GroupMembership test
+        sudo dscl . -create /Users/test UserShell /bin/bash
+        sudo dscl . -create /Users/test RealName "Test"
+        sudo dscl . -create /Users/test UniqueID "1001"
+        sudo dscl . -create /Users/test PrimaryGroupID 80
+        sudo dscl . -create /Users/test NFSHomeDirectory /Users/test 
+        sudo mkdir -p /Users/test
+        sudo chown -R test:staff /Users/test
+        sudo chmod -R g+w .
+        sudo su - test -c "cd $WORKING_PATH && VULKAN_LIBRARY_PATH=$(pwd)/VulkanSDK/1.3.304.0/macOS/lib/libvulkan.dylib ./run-tests_macos.sh"
+    - name: Upload test failure artifacts
+      uses: actions/upload-artifact@v4
+      if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
+      with:
+        name: ${{ matrix.config.test_failure_artifact }}
+        path: ${{matrix.config.build_dir}}/darwin/universal/output/test
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
@@ -198,58 +257,60 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
+          - {
             name: "Android Debug",
             os: ubuntu-latest,
             type: "debug",
-            artifact: "gfxreconstruct-dev-android-debug"
+            artifact: "gfxreconstruct-dev-android-debug",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-android-debug"
           }
-        - {
+          - {
             name: "Android Release",
             os: ubuntu-latest,
             type: "release",
-            artifact: "gfxreconstruct-dev-android-release"
+            artifact: "gfxreconstruct-dev-android-release",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-android-release"
           }
     steps:
-    - name: Clone repository
-      uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-    - name: Update submodules
-      run: |
-        git submodule update --init
-    - name: Set up Java
-      uses: "actions/setup-java@v4"
-      with:
-        java-version: 17
-        distribution: "temurin"
-    - name: Gradle build
-      run: |
-        cd android
-        if [ "${{ matrix.config.type }}" == "release" ]
-        then
-          sh gradlew assembleRelease -Parm64-v8a
-        else
-          sh gradlew assembleDebug -Parm64-v8a
-        fi
-    - name: Prepare artifacts
-      run: |
-        mkdir gfxreconstruct-dev
-        mkdir gfxreconstruct-dev/layer
-        mkdir gfxreconstruct-dev/tools
-        cp LICENSE.txt gfxreconstruct-dev/
-        cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
-        cp USAGE_android.md gfxreconstruct-dev/
-        cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        if [ "${{ matrix.config.type }}" == "release" ]
-        then
-            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-        else
-            cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
-        fi
-        cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: ./gfxreconstruct-dev
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Update submodules
+        run: |
+          git submodule update --init
+      - name: Set up Java
+        uses: "actions/setup-java@v4"
+        with:
+          java-version: 17
+          distribution: "temurin"
+      - name: Gradle build
+        run: |
+          cd android
+          if [ "${{ matrix.config.type }}" == "release" ]
+          then
+            sh gradlew assembleRelease -Parm64-v8a
+          else
+            sh gradlew assembleDebug -Parm64-v8a
+          fi
+      - name: Prepare artifacts
+        run: |
+          mkdir gfxreconstruct-dev
+          mkdir gfxreconstruct-dev/layer
+          mkdir gfxreconstruct-dev/tools
+          cp LICENSE.txt gfxreconstruct-dev/
+          cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
+          cp USAGE_android.md gfxreconstruct-dev/
+          cp layer/vk_layer_settings.txt gfxreconstruct-dev/
+          if [ "${{ matrix.config.type }}" == "release" ]
+          then
+              cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+          else
+              cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+          fi
+          cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: ./gfxreconstruct-dev

@@ -39,7 +39,7 @@
 #include <SDL3/SDL_vulkan.h>
 
 #include "test_app_dispatch.h"
-#include "util/defines.h"
+#include "mock_icd_test_config.h"
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -63,14 +63,22 @@
 #define VKB_VK_API_VERSION_1_0 VKB_MAKE_VK_VERSION(0, 1, 0, 0)
 #endif
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace vkmock
+{
+struct TestConfig;
+}
 
-GFXRECON_BEGIN_NAMESPACE(test)
+namespace gfxrecon
+{
+
+namespace test
+{
 
 std::exception vulkan_exception(const char* message, VkResult result);
 std::exception sdl_exception();
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 struct GenericFeaturesPNextNode
 {
 
@@ -122,7 +130,7 @@ struct GenericFeatureChain
     void combine(GenericFeatureChain const& right) noexcept;
 };
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 enum class InstanceError
 {
@@ -1007,6 +1015,9 @@ class SwapchainBuilder
 SDL_Window*  create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void         destroy_window_sdl(SDL_Window* window);
 VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAllocationCallbacks* allocator = nullptr);
+VkSurfaceKHR create_surface_headless(VkInstance                  instance,
+                                     vkb::InstanceDispatchTable& disp,
+                                     VkAllocationCallbacks*      callbacks = nullptr);
 void         create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain);
 
 VkCommandPool create_command_pool(vkb::DispatchTable const& disp, uint32_t queue_family_index);
@@ -1038,8 +1049,9 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 
 #define VERIFY_VK_RESULT(message, result)                            \
     {                                                                \
-        if (result != VK_SUCCESS)                                    \
+        if (result != VK_SUCCESS) {                                  \
             throw gfxrecon::test::vulkan_exception(message, result); \
+        }                                                            \
     }
 
 struct InitInfo
@@ -1054,6 +1066,7 @@ struct InitInfo
     Swapchain                  swapchain;
     std::vector<VkImage>       swapchain_images;
     std::vector<VkImageView>   swapchain_image_views;
+    vkmock::TestConfig*        test_config;
 };
 
 InitInfo device_initialization(const std::string& window_name);
@@ -1080,16 +1093,16 @@ class TestAppBase
     virtual void setup();
     virtual bool frame(const int frame_num) = 0;
     virtual void cleanup();
-    virtual void configure_instance_builder(InstanceBuilder& instance_builder);
-    virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector);
-    virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device);
-    virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder);
+    virtual void configure_instance_builder(InstanceBuilder& instance_builder, vkmock::TestConfig* test_config);
+    virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig* test_config);
+    virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device, vkmock::TestConfig* test_config);
+    virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config);
 
     InitInfo init;
 };
 
-GFXRECON_END_NAMESPACE(test)
+} // namespace test
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 #endif // GFXRECON_TEST_APP_BASE_H

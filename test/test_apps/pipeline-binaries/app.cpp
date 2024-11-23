@@ -29,11 +29,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(pipeline_binaries)
+namespace pipeline_binaries
+{
 
 class App : public gfxrecon::test::TestAppBase
 {
@@ -49,23 +52,27 @@ class App : public gfxrecon::test::TestAppBase
     VkPipelineLayout pipeline_layout_;
     VkPipeline       graphics_pipeline_;
 
-    void configure_instance_builder(test::InstanceBuilder& instance_builder) override;
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
+                                            vkmock::TestConfig*) override;
 
     void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device) override;
+                                  test::PhysicalDevice const& physical_device,
+                                  vkmock::TestConfig*) override;
     void create_graphics_pipeline();
     void cleanup() override;
     bool frame(const int frame_num) override;
     void setup() override;
 };
 
-void App::configure_instance_builder(test::InstanceBuilder& instance_builder)
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
+    test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
+
     instance_builder.require_api_version(VK_API_VERSION_1_1);
 }
 
-void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector)
+void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig*)
 {
     phys_device_selector.add_required_extension("VK_KHR_multiview");
     phys_device_selector.add_required_extension("VK_KHR_maintenance2");
@@ -76,7 +83,9 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
     phys_device_selector.add_required_extension("VK_KHR_pipeline_binary");
 }
 
-void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
+void App::configure_device_builder(test::DeviceBuilder&        device_builder,
+                                   test::PhysicalDevice const& physical_device,
+                                   vkmock::TestConfig*)
 {
     dynamic_rendering_features_.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     dynamic_rendering_features_.pNext            = nullptr;
@@ -91,8 +100,8 @@ void App::configure_device_builder(test::DeviceBuilder& device_builder, test::Ph
 
 void App::create_graphics_pipeline()
 {
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -297,11 +306,11 @@ void App::setup()
     create_graphics_pipeline();
 }
 
-GFXRECON_END_NAMESPACE(pipeline_binaries)
+} // namespace pipeline_binaries
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {
@@ -311,7 +320,7 @@ int main(int argc, char* argv[])
         app.run("pipeline binaries");
         return 0;
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         return -1;

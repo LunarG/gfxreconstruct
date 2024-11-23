@@ -24,51 +24,13 @@
 # Description: CMake script for triangle test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-triangle "")
+add_executable(gfxrecon-testapp-triangle app.cpp)
 
-target_sources(gfxrecon-testapp-triangle
-        PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/app.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/../common/test_app_base.cpp)
-
-target_include_directories(gfxrecon-testapp-triangle PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/../common)
-
-target_link_libraries(gfxrecon-testapp-triangle
-        gfxrecon_application
-        gfxrecon_decode
-        gfxrecon_graphics
-        gfxrecon_format
-        gfxrecon_util
-        SDL3::SDL3
-        platform_specific)
-
-if (MSVC)
-    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else ()
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif ()
-endif ()
+target_link_libraries(gfxrecon-testapp-triangle gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-triangle)
 
-add_custom_command(
-        TARGET gfxrecon-testapp-triangle
-        POST_BUILD
-        COMMAND
-        ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-if (WIN32)
-    add_custom_command(TARGET gfxrecon-testapp-triangle POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-triangle> $<TARGET_FILE_DIR:gfxrecon-testapp-triangle>
-            COMMAND_EXPAND_LISTS)
-endif ()
-
-install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
+install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)

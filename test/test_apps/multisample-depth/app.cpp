@@ -20,6 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#define VMA_IMPLEMENTATION
+
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
@@ -29,11 +31,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(multisample_depth)
+namespace multisample_depth
+{
 
 const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -77,10 +82,17 @@ class App : public gfxrecon::test::TestAppBase
     void cleanup() override;
     bool frame(const int frame_num) override;
     void setup() override;
-    void configure_swapchain_builder(gfxrecon::test::SwapchainBuilder& swapchain_builder) override;
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+    void configure_swapchain_builder(gfxrecon::test::SwapchainBuilder& swapchain_builder, vkmock::TestConfig*) override;
 };
 
-void App::configure_swapchain_builder(gfxrecon::test::SwapchainBuilder& swapchain_builder)
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
+{
+    test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
+    TestAppBase::configure_instance_builder(instance_builder, test_config);
+}
+
+void App::configure_swapchain_builder(gfxrecon::test::SwapchainBuilder& swapchain_builder, vkmock::TestConfig*)
 {
     swapchain_builder.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 }
@@ -238,8 +250,8 @@ void App::create_render_pass()
 
 void App::create_graphics_pipeline()
 {
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -656,11 +668,11 @@ void App::setup()
     sync_ = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 }
 
-GFXRECON_END_NAMESPACE(multisample_depth)
+} // namespace multisample_depth
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {
@@ -670,7 +682,7 @@ int main(int argc, char* argv[])
         app.run("multisample depth");
         return 0;
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         return -1;

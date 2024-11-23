@@ -60,7 +60,7 @@ option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the 
 
 if (NOT DEFINED HEADLESS)
     set(HEADLESS TRUE)
-endif()
+endif ()
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
@@ -75,38 +75,38 @@ if (GIT_REFSPEC)
     if (GIT_IS_MASTER OR GIT_IS_SDK)
         if (GIT_TAG)
             set(GIT_BRANCH ${GIT_TAG})
-        else()
+        else ()
             set(GIT_BRANCH "")
-        endif()
-        if(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
+        endif ()
+        if (NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
             set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
-        endif()
-    elseif(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
+        endif ()
+    elseif (NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "-dev")
-    endif()
-elseif(GIT_TAG)
+    endif ()
+elseif (GIT_TAG)
     string(REGEX MATCH "^v[0-9]+\.[0-9]+\.[0-9]+$" GIT_IS_VERSION_RELEASE_TAG ${GIT_TAG})
     if (GIT_IS_VERSION_RELEASE_TAG)
         set(GIT_BRANCH ${GIT_TAG})
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
-    endif()
-elseif(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
+    endif ()
+elseif (NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
     set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
-endif()
+endif ()
 
 if (GIT_SHA1)
     string(SUBSTRING ${GIT_SHA1} 0 7 GFXRECON_PROJECT_VERSION_SHA1)
 
     if (GIT_BRANCH)
         string(CONCAT GFXRECON_PROJECT_VERSION_SHA1 ${GIT_BRANCH} ":" ${GFXRECON_PROJECT_VERSION_SHA1})
-    endif()
+    endif ()
 
     git_local_changes(GIT_LOCAL_STATE)
     string(COMPARE EQUAL ${GIT_LOCAL_STATE} "DIRTY" GIT_DIRTY)
     if (GIT_DIRTY)
         string(CONCAT GFXRECON_PROJECT_VERSION_SHA1 ${GFXRECON_PROJECT_VERSION_SHA1} "*")
-    endif()
-endif()
+    endif ()
+endif ()
 
 # Adds all the configure time information into project_version_temp.h.in
 configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
@@ -133,15 +133,15 @@ macro(common_build_directives TARGET)
 endmacro()
 
 option(GFXRECON_ENABLE_RELEASE_ASSERTS "Enable release builds to output failed conditions caught by GFXRECON_ASSERT macro." OFF)
-if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
+if (${GFXRECON_ENABLE_RELEASE_ASSERTS})
     add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
-endif()
+endif ()
 
 option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
 
 option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" OFF)
 
-if(MSVC)
+if (MSVC)
 
     # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):
     message(STATUS "CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE: " ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE})
@@ -152,24 +152,24 @@ if(MSVC)
     message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: " ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
 
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
-    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    if (CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
         set(GFXR_ARM_WINDOWS_BUILD TRUE)
-    endif()
+    endif ()
 
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
-    set (PRECOMPILED_ARCH "64")
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set (PRECOMPILED_ARCH "32")
-    endif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(PRECOMPILED_ARCH "64")
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(PRECOMPILED_ARCH "32")
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 4)
 
-    if(GFXR_ARM_WINDOWS_BUILD)
-        set (PRECOMPILED_ARCH "64-arm")
-    endif()
+    if (GFXR_ARM_WINDOWS_BUILD)
+        set(PRECOMPILED_ARCH "64-arm")
+    endif ()
 
     set(CMAKE_PREFIX_PATH
-        ${CMAKE_PREFIX_PATH}
-       "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
-       "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+            ${CMAKE_PREFIX_PATH}
+            "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
+            "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
 
     # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -179,11 +179,11 @@ if(MSVC)
 
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
-	
+
     # Enable STL locks to work after building capture libs with certain versions of VS
     add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
-    if(${D3D12_SUPPORT})
+    if (${D3D12_SUPPORT})
         set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc")
         add_definitions(-DD3D12_SUPPORT)
 
@@ -191,26 +191,26 @@ if(MSVC)
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
         if (NOT ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} STREQUAL ${EXPECTED_WIN_SDK_VER})
             message(WARNING
-                "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
-                "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} may not be compatible. If you encounter build errors, "
-                "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
-                "for more information.")
-        endif()
-        
+                    "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
+                    "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} may not be compatible. If you encounter build errors, "
+                    "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
+                    "for more information.")
+        endif ()
+
         find_package(DXC)
         if (DXC_FOUND)
             set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${DXC_INCLUDE_DIR})
             add_definitions(-DGFXRECON_DXC_SUPPORT)
-        endif()        
+        endif ()
 
-    else()
+    else ()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
-    endif()
+    endif ()
 
 
-    if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
+    if (${BUILD_LAUNCHER_AND_INTERCEPTOR})
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
-    endif()
+    endif ()
 
     # Add option to enable/disable AGS support.
     option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
@@ -227,128 +227,128 @@ if(MSVC)
                     # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
                     # to determine the final result.
                     set(GFXRECON_AGS_SUPPORT_FINAL ON)
-                else()
+                else ()
                     message(WARNING "GFXRECON_AGS_SUPPORT was requested but the required dependencies were not found. "
                             "AGS support will be disabled.")
-                endif() # AGS_FOUND
-            else()
+                endif () # AGS_FOUND
+            else ()
                 message(WARNING "GFXRECON_AGS_SUPPORT was requested but is not supported. An x64 build is required. "
                         "AGS support will be disabled.")
-            endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
-        endif() # GFXRECON_AGS_SUPPORT
-    endif() # D3D12_SUPPORT
+            endif () # CMAKE_SIZEOF_VOID_P EQUAL 8
+        endif () # GFXRECON_AGS_SUPPORT
+    endif () # D3D12_SUPPORT
 
-else(MSVC)
+else (MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)
     set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         set(CMAKE_PREFIX_PATH
-            ${CMAKE_PREFIX_PATH}
-        "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
-    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+                ${CMAKE_PREFIX_PATH}
+                "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
+    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
         set(CMAKE_PREFIX_PATH
-            ${CMAKE_PREFIX_PATH}
-        "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm")
-    endif()
-endif(MSVC)
+                ${CMAKE_PREFIX_PATH}
+                "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm")
+    endif ()
+endif (MSVC)
 
-if(APPLE)
+if (APPLE)
     add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
     set(CMAKE_PREFIX_PATH
-        "${CMAKE_SOURCE_DIR}/external/precompiled/macos"
-        ${CMAKE_PREFIX_PATH})
-endif()
+            "${CMAKE_SOURCE_DIR}/external/precompiled/macos"
+            ${CMAKE_PREFIX_PATH})
+endif ()
 
 # GFXReconstruct provided find modules
-if(WIN32)
-find_package(Detours)
-endif() # WIN32
+if (WIN32)
+    find_package(Detours)
+endif () # WIN32
 
 option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
 find_package(LZ4)
 
-if(NOT LZ4_FOUND)
-    if(LZ4_OPTIONAL)
+if (NOT LZ4_FOUND)
+    if (LZ4_OPTIONAL)
         message(STATUS "LZ4 library not found, but declared optional. LZ4 support is disabled.")
-    else()
+    else ()
         message(FATAL_ERROR "LZ4 library not found. Please install LZ4 or allow building without it by setting LZ4_OPTIONAL to ON.")
-    endif()# LZ4_OPTIONAL
-endif()# NOT LZ4_FOUND
+    endif ()# LZ4_OPTIONAL
+endif ()# NOT LZ4_FOUND
 
 find_package(ZSTD)
 
-if(MSVC)
-find_package(jsoncpp)
-endif() # MSVC
+if (MSVC)
+    find_package(jsoncpp)
+endif () # MSVC
 
-if(UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
 
-    if(BUILD_WSI_XCB_SUPPORT)
+    if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB)
-    endif()
+    endif ()
 
-    if(BUILD_WSI_WAYLAND_SUPPORT)
+    if (BUILD_WSI_WAYLAND_SUPPORT)
         find_package(WAYLAND)
-    endif()
-endif(UNIX AND NOT APPLE)
+    endif ()
+endif (UNIX AND NOT APPLE)
 
 # CMake provided find modules
-if(BUILD_STATIC)
+if (BUILD_STATIC)
     find_library(ZLIB NAMES libz.a REQUIRED PATH_SUFFIXES lib lib/x86_64-linux-gnu lib64)
-else()
+else ()
     find_package(ZLIB)
-endif()
-if(UNIX AND NOT APPLE)
+endif ()
+if (UNIX AND NOT APPLE)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    if(BUILD_WSI_XLIB_SUPPORT)
+    if (BUILD_WSI_XLIB_SUPPORT)
         find_package(X11)
-    endif()
-endif(UNIX AND NOT APPLE)
+    endif ()
+endif (UNIX AND NOT APPLE)
 
 add_library(windows_specific INTERFACE)
 
 target_compile_definitions(windows_specific INTERFACE
-    WIN32_LEAN_AND_MEAN
-    NOMINMAX
-    VK_USE_PLATFORM_WIN32_KHR
-    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
-    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:"GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\"">
-    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\"">
-    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\"">
-    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_DXGI_PATH=\"$<TARGET_FILE:dxgi>\"">)
+        WIN32_LEAN_AND_MEAN
+        NOMINMAX
+        VK_USE_PLATFORM_WIN32_KHR
+        $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
+        $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:"GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\"">
+        $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\"">
+        $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\"">
+        $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_DXGI_PATH=\"$<TARGET_FILE:dxgi>\"">)
 
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
-    $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
-    $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
-    $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
-    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
-    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
-    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+        $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
+        $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
+        $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
+        $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
+        $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
+        $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(macos_specific INTERFACE)
 target_compile_definitions(macos_specific INTERFACE
-    VK_USE_PLATFORM_METAL_EXT
-    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+        VK_USE_PLATFORM_METAL_EXT
+        $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
-    $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<BOOL:${APPLE}>:macos_specific>
-    $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
+        $<$<BOOL:${WIN32}>:windows_specific>
+        $<$<BOOL:${APPLE}>:macos_specific>
+        $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
 
-if(BUILD_WERROR)
-    if(MSVC)
+if (BUILD_WERROR)
+    if (MSVC)
         target_compile_options(platform_specific INTERFACE /WX)
-    else()
+    else ()
         target_compile_options(platform_specific INTERFACE -Werror)
-    endif()
-endif()
+    endif ()
+endif ()
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
@@ -359,7 +359,7 @@ target_include_directories(spirv_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/e
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )
 target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
@@ -374,23 +374,24 @@ add_subdirectory(external/SPIRV-Reflect EXCLUDE_FROM_ALL)
 if (${RUN_TESTS})
     add_library(catch2 INTERFACE)
     target_include_directories(catch2 SYSTEM INTERFACE external)
-endif()
+endif ()
 
 add_subdirectory(external/nlohmann)
 add_subdirectory(framework)
-if(NOT BUILD_STATIC)
+if (NOT BUILD_STATIC)
     add_subdirectory(layer)
-endif()
+endif ()
 add_subdirectory(tools)
 
-if(GFXRECON_INCLUDE_TEST_APPS)
-add_subdirectory(test)
-endif()
+if (GFXRECON_INCLUDE_TEST_APPS)
+    add_subdirectory(external/Vulkan-Headers)
+    add_subdirectory(test)
+endif ()
 
 if (${RUN_TESTS})
     add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)
     add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
     generate_test_package(gfx_reconstruct_test)
-endif()
+endif ()
 
 add_subdirectory(scripts)

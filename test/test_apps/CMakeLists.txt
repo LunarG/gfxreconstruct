@@ -28,6 +28,9 @@ find_package(SDL3)
 
 add_custom_target(gfxrecon-testapps)
 
+SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+
+add_subdirectory(common)
 add_subdirectory(triangle)
 add_subdirectory(multisample-depth)
 add_subdirectory(pipeline-binaries)
