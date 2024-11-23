@@ -369,6 +369,7 @@ if(NOT BUILD_STATIC)
     add_subdirectory(layer)
 endif()
 add_subdirectory(tools)
+add_subdirectory(external/Vulkan-Headers)
 add_subdirectory(test)
 
 if (${RUN_TESTS})
