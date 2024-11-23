@@ -24,6 +24,7 @@
 # Description: CMake script for gfxrecon tests
 ###############################################################################
 
+add_subdirectory(icd)
 add_subdirectory(test_apps)
 
 # TODO: runner goes here
