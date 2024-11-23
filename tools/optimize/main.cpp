@@ -161,7 +161,7 @@ void FilterUnreferencedResources(const std::string&                             
                                  std::unordered_set<gfxrecon::format::HandleId>&& unreferenced_ids)
 {
     gfxrecon::FileOptimizer file_processor(std::move(unreferenced_ids));
-    if (file_processor.Initialize(input_filename, output_filename, "optimize"))
+    if (file_processor.Initialize(input_filename, output_filename))
     {
         file_processor.Process();
 

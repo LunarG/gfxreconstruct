@@ -103,6 +103,11 @@ bool FileTransformer::Initialize(const std::string& input_filename,
     return success;
 }
 
+bool FileTransformer::Initialize(const std::string& input_filename, const std::string& output_filename)
+{
+    return Initialize(input_filename, output_filename, "");
+}
+
 // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
 bool FileTransformer::Process()
 {
@@ -111,25 +116,28 @@ bool FileTransformer::Process()
     const char*  label        = format::kAnnotationLabelTransformer;
     const size_t label_length = util::platform::StringLength(label);
 
-    std::string data = "";
-    data += "{\n";
-    data += "  \"input\": " + input_filename_ + ",\n";
-    data += "  \"output\": " + output_filename_ + ",\n";
-    data += "  \"tool\": " + tool_ + "\n";
-    data += "}";
-    const size_t data_length = data.size();
-
-    format::AnnotationHeader annotation;
-    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-    annotation.block_header.type = format::BlockType::kAnnotation;
-    annotation.annotation_type   = format::kJson;
-    annotation.label_length      = label_length;
-    annotation.data_length       = data_length;
-    if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
-        !WriteBytes(data.c_str(), data_length))
+    if (!tool_.empty())
     {
-        HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write transformer annotation");
-        return false;
+        std::string data = "";
+        data += "{\n";
+        data += "  \"input\": " + input_filename_ + ",\n";
+        data += "  \"output\": " + output_filename_ + ",\n";
+        data += "  \"tool\": " + tool_ + "\n";
+        data += "}";
+        const size_t data_length = data.size();
+
+        format::AnnotationHeader annotation;
+        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+        annotation.block_header.type = format::BlockType::kAnnotation;
+        annotation.annotation_type   = format::kJson;
+        annotation.label_length      = label_length;
+        annotation.data_length       = data_length;
+        if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
+            !WriteBytes(data.c_str(), data_length))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write transformer annotation");
+            return false;
+        }
     }
 
     block_index_ = 0;

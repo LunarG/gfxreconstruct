@@ -69,6 +69,8 @@ class FileTransformer
 
     bool Initialize(const std::string& input_filename, const std::string& output_filename, const std::string& tool);
 
+    bool Initialize(const std::string& input_filename, const std::string& output_filename);
+
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool Process();
 
