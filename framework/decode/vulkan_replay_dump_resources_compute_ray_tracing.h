@@ -204,6 +204,7 @@ class DispatchTraceRaysDumpingContext
     bool                           dump_immutable_resources;
     bool                           dump_all_image_subresources;
     bool                           dump_images_raw;
+    bool                           dump_images_separate_alpha;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_compute;

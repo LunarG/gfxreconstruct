@@ -446,6 +446,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          util::ScreenshotFormat             image_file_format,
                          bool                               dump_all_subresources,
                          bool                               dump_image_raw,
+                         bool                               dump_separate_alpha,
                          VkImageLayout                      layout,
                          const VkExtent3D*                  extent_p)
 {
@@ -574,25 +575,51 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                 }
                 else if (output_image_format == kFormatBMP)
                 {
-                    util::imagewriter::WriteBmpImage(filename,
-                                                     scaled_extent.width,
-                                                     scaled_extent.height,
-                                                     subresource_sizes[0],
-                                                     data.data(),
-                                                     stride,
-                                                     image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                    if (dump_separate_alpha)
+                    {
+                        util::imagewriter::WriteBmpImageSeparateAlpha(filename,
+                                                                      scaled_extent.width,
+                                                                      scaled_extent.height,
+                                                                      subresource_sizes[0],
+                                                                      data.data(),
+                                                                      stride,
+                                                                      image_writer_format);
+                    }
+                    else
+                    {
+                        util::imagewriter::WriteBmpImage(filename,
+                                                         scaled_extent.width,
+                                                         scaled_extent.height,
+                                                         subresource_sizes[0],
+                                                         data.data(),
+                                                         stride,
+                                                         image_writer_format,
+                                                         vkuFormatHasAlpha(image_info->format));
+                    }
                 }
                 else if (output_image_format == KFormatPNG)
                 {
-                    util::imagewriter::WritePngImage(filename,
-                                                     scaled_extent.width,
-                                                     scaled_extent.height,
-                                                     subresource_sizes[0],
-                                                     data.data(),
-                                                     stride,
-                                                     image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                    if (dump_separate_alpha)
+                    {
+                        util::imagewriter::WritePngImageSeparateAlpha(filename,
+                                                                      scaled_extent.width,
+                                                                      scaled_extent.height,
+                                                                      subresource_sizes[0],
+                                                                      data.data(),
+                                                                      stride,
+                                                                      image_writer_format);
+                    }
+                    else
+                    {
+                        util::imagewriter::WritePngImage(filename,
+                                                         scaled_extent.width,
+                                                         scaled_extent.height,
+                                                         subresource_sizes[0],
+                                                         data.data(),
+                                                         stride,
+                                                         image_writer_format,
+                                                         vkuFormatHasAlpha(image_info->format));
+                    }
                 }
             }
             else
@@ -656,23 +683,51 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         }
                         else if (output_image_format == kFormatBMP)
                         {
-                            util::imagewriter::WriteBmpImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             subresource_sizes[sub_res_idx],
-                                                             data_offset,
-                                                             stride,
-                                                             image_writer_format);
+                            if (dump_separate_alpha)
+                            {
+                                util::imagewriter::WriteBmpImageSeparateAlpha(filename,
+                                                                              scaled_extent.width,
+                                                                              scaled_extent.height,
+                                                                              subresource_sizes[sub_res_idx],
+                                                                              data_offset,
+                                                                              stride,
+                                                                              image_writer_format);
+                            }
+                            else
+                            {
+                                util::imagewriter::WriteBmpImage(filename,
+                                                                 scaled_extent.width,
+                                                                 scaled_extent.height,
+                                                                 subresource_sizes[sub_res_idx],
+                                                                 data_offset,
+                                                                 stride,
+                                                                 image_writer_format,
+                                                                 vkuFormatHasAlpha(image_info->format));
+                            }
                         }
                         else if (output_image_format == KFormatPNG)
                         {
-                            util::imagewriter::WritePngImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             subresource_sizes[sub_res_idx],
-                                                             data_offset,
-                                                             stride,
-                                                             image_writer_format);
+                            if (dump_separate_alpha)
+                            {
+                                util::imagewriter::WritePngImageSeparateAlpha(filename,
+                                                                              scaled_extent.width,
+                                                                              scaled_extent.height,
+                                                                              subresource_sizes[sub_res_idx],
+                                                                              data_offset,
+                                                                              stride,
+                                                                              image_writer_format);
+                            }
+                            else
+                            {
+                                util::imagewriter::WritePngImage(filename,
+                                                                 scaled_extent.width,
+                                                                 scaled_extent.height,
+                                                                 subresource_sizes[sub_res_idx],
+                                                                 data_offset,
+                                                                 stride,
+                                                                 image_writer_format,
+                                                                 vkuFormatHasAlpha(image_info->format));
+                            }
                         }
                     }
                     else

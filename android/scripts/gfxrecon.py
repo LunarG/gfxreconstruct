@@ -112,6 +112,7 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-immutable-resources', action='store_true', default=False, help= 'Dump immutable immutable shader resources.')
     parser.add_argument('--dump-resources-dump-all-image-subresources', action='store_true', default=False, help= 'Dump all available mip levels and layers when dumping images.')
     parser.add_argument('--dump-resources-dump-raw-images', action='store_true', default=False, help= 'Dump images verbatim as raw binary files.')
+    parser.add_argument('--dump-resources-dump-separate-alpha', action='store_true', default=False, help= 'Dump image alpha in a separate image file.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
@@ -274,6 +275,9 @@ def MakeExtrasString(args):
 
     if args.dump_resources_dump_raw_images:
         arg_list.append('--dump-resources-dump-raw-images')
+
+    if args.dump_resources_dump_separate_alpha:
+        arg_list.append('--dump-resources-dump-separate-alpha')
 
     if args.pbi_all:
         arg_list.append('--pbi-all')

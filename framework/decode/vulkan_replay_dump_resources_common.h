@@ -117,6 +117,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          util::ScreenshotFormat             image_file_format,
                          bool                               dump_all_subresources = false,
                          bool                               dump_image_raw        = false,
+                         bool                               dump_separate_alpha   = false,
                          VkImageLayout                      layout                = VK_IMAGE_LAYOUT_MAX_ENUM,
                          const VkExtent3D*                  extent_p              = nullptr);
 
