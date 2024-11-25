@@ -31,7 +31,9 @@ enable_testing()
 find_package(GoogleTest REQUIRED)
 include(GoogleTest)
 add_executable(gfxrecon-testapp-runner
-        test_cases/triangle.cpp)
+        test_cases/triangle.cpp
+)
+target_include_directories(gfxrecon-testapp-runner ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(gfxrecon-testapp-runner
         nlohmann_json::nlohmann_json
         GTest::gtest GTest::gtest_main)
