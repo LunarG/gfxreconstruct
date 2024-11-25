@@ -1,5 +1,6 @@
 #include "verify-gfxr.h"
 
+#include <gtest/gtest.h>
 #include <fstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
