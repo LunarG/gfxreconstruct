@@ -27,4 +27,12 @@
 add_subdirectory(icd)
 add_subdirectory(test_apps)
 
-# TODO: runner goes here
+enable_testing()
+find_package(GoogleTest REQUIRED)
+include(GoogleTest)
+add_executable(gfxrecon-testapp-runner
+        test_cases/triangle.cpp)
+target_link_libraries(gfxrecon-testapp-runner
+        nlohmann_json::nlohmann_json
+        GTest::gtest GTest::gtest_main)
+gtest_discover_tests(gfxrecon-testapp-runner)
