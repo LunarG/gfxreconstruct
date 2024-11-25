@@ -55,6 +55,9 @@ jobs:
         else
           python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0
         fi
+    #- name: Run test app test cases
+      #run: |
+        #APP_PATH_BASE=$(pwd)/build/test/test_apps GFXR_CONVERT_PATH=$(pwd)/build/tools/convert/gfxrecon-convert GFXR_LAYER_PATH=$(pwd)/build/layer/ KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good MOCK_DRIVER_PATH=$(pwd)/build/test/icd/VkICD_mock_icd.json ./build/test/gfxrecon-testapp-runner
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
@@ -64,6 +67,7 @@ jobs:
         mv ${{ matrix.config.build_dir }}/linux/x64/output/bin gfxreconstruct-dev
         mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/linux/x64/output/test/gfxrecon-testapp-runner gfxreconstruct-dev/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
