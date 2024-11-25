@@ -33,6 +33,8 @@ include(GoogleTest)
 add_executable(gfxrecon-testapp-runner
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
+        test_cases/shader-objects.cpp
+        test_cases/pipeline-binaries.cpp
         verify-gfxr.cpp
 )
 target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
