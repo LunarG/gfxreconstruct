@@ -97,7 +97,7 @@ static size_t                     temporary_buffer_size = 0;
         }                                                                                             \
     }
 
-static void ResizeTemoraryBuffer(size_t new_size)
+static void ResizeTemporaryBuffer(size_t new_size)
 {
     if (new_size > temporary_buffer_size)
     {
@@ -123,7 +123,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
     }
 
     const uint32_t output_size = height * output_pitch;
-    ResizeTemoraryBuffer(output_size);
+    ResizeTemporaryBuffer(output_size);
 
     uint8_t* temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get());
 
@@ -337,7 +337,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
 static uint8_t* ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t data_pitch, bool is_png)
 {
     const size_t output_size = width * height * (is_png ? 1 : kImageBppNoAlpha);
-    ResizeTemoraryBuffer(output_size);
+    ResizeTemporaryBuffer(output_size);
 
     const uint32_t* pixels      = reinterpret_cast<const uint32_t*>(data);
     uint8_t*        temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get());
