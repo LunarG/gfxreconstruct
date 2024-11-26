@@ -62,6 +62,12 @@ add_custom_command(
         TARGET gfxrecon-testapp-host-image-copy
         POST_BUILD
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+if (MSVC)
+    set_target_properties(gfxrecon-testapp-host-image-copy PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(gfxrecon-testapp-host-image-copy PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(gfxrecon-testapp-host-image-copy PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
+endif ()
+
 if (WIN32)
 add_custom_command(TARGET gfxrecon-testapp-host-image-copy POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-host-image-copy> $<TARGET_FILE_DIR:gfxrecon-testapp-host-image-copy>

@@ -3,7 +3,7 @@
 #include "verify-gfxr.h"
 
 char const* const APP_RUN_DIRECTORY = "multisample-depth";
-char const* const APP_PATH          = "Debug/gfxrecon-testapp-multisample-depth.exe";
+char const* const APP_PATH          = "gfxrecon-testapp-multisample-depth.exe";
 char const* const CAPTURE_FILE      = "multisample-depth.gfxr";
 char const* const KNOWN_GFXR_PATH   = "multisample-depth.gfxr";
 
