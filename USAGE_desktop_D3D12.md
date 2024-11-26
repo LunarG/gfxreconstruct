@@ -197,7 +197,7 @@ The `gfxrecon-replay` tool accepts the following command line arguments:
 gfxrecon-replay.exe - A tool to replay GFXReconstruct capture files.
 
 Usage:
-  gfxrecon-replay.exe   [-h | --help] [--version] [--gpu <index>]
+  gfxrecon-replay.exe   [-h | --help] [--version] [--cpu-mask <binary-mask>] [--gpu <index>]
                         [--pause-frame <N>] [--paused] [--sync] [--screenshot-all]
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
@@ -271,6 +271,13 @@ Optional arguments:
   --validate            Enables the Khronos Vulkan validation layer when replaying a
                         Vulkan capture or the Direct3D debug layer when replaying a
                         Direct3D 12 capture.
+  --cpu-mask <binary-mask>
+                        Set of CPU cores used by the replayer.
+                        `binary-mask` is a succession of '0' and '1' that specifies
+                        used/unused cores. For example '1010' activates the first and
+                        third cores and deactivate all other cores.
+                        If the option is not set, all cores can be used. If the option
+                        is set only for some cores, the other cores are not used.
   --gpu <index>         Use the specified device for replay, where index
                         is the zero-based index to the array of physical devices
                         returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
