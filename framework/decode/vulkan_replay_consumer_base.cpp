@@ -222,6 +222,15 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
             num_threads += (int32_t)std::thread::hardware_concurrency();
         }
         background_queue_.set_num_threads(std::clamp<uint32_t>(num_threads, 0, std::thread::hardware_concurrency()));
+
+        if (options_.add_new_pipeline_caches || !options_.save_pipeline_cache_filename.empty() ||
+            !options_.load_pipeline_cache_filename.empty())
+        {
+            GFXRECON_LOG_WARNING("Requested both asynchronous pipeline-creation (--pipeline-creation-jobs) and "
+                                 "explicit pipeline-caches (--save-pipeline-cache | --load-pipeline-cache). This is "
+                                 "currently not supported and will "
+                                 "prevent usage of pipeline-caches.");
+        }
     }
 
     // If we want to save a pipeline cache file, we do this to be sure the file exists, is empty, and optionally, is
