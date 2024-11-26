@@ -1408,20 +1408,29 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             {
                 auto& binding = wrapper->bindings[current_binding];
 
-                assert(binding.buffers != nullptr);
-
-                // Check count for consecutive updates.
-                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
-
-                bool* written_start = &binding.written[current_array_element];
-                std::fill(written_start, written_start + current_writes, true);
-
                 if (binding.type != entry.type)
                 {
                     GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
                 }
                 const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                                               binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+                if (immutable_buffer)
+                {
+                    GFXRECON_ASSERT(binding.buffers != nullptr);
+                }
+                else
+                {
+                    GFXRECON_ASSERT(binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC ||
+                                    binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+                    GFXRECON_ASSERT(binding.storage_buffers != nullptr);
+                }
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
 
                 format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
                 VkDescriptorBufferInfo* dst_info       = immutable_buffer ? &binding.buffers[current_array_element]
