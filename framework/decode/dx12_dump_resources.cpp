@@ -2416,9 +2416,43 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
     util::FieldToJson((*jdata_node)[key], value, json_options_);
 }
 
+std::string GetJsonPathString(const std::vector<std::pair<std::string, int32_t>>& json_path)
+{
+    std::string path_string;
+    for (const auto& path : json_path)
+    {
+        path_string += path.first;
+        path_string += "\\";
+        path_string += std::to_string(path.second);
+        path_string += "\\";
+    }
+    return path_string;
+}
+
 void DefaultDx12DumpResourcesDelegate::WriteNote(const std::vector<std::pair<std::string, int32_t>>& json_path,
                                                  const std::string&                                  value)
 {
+    auto path_string = GetJsonPathString(json_path);
+    auto notes_entry = notes_.find(path_string);
+    if (notes_entry == notes_.end())
+    {
+        std::set<std::string> notes;
+        notes.insert(value);
+        notes_[path_string] = notes;
+    }
+    else
+    {
+        auto note_entry = notes_entry->second.find(value);
+        if (note_entry == notes_entry->second.end())
+        {
+            notes_entry->second.insert(value);
+        }
+        else
+        {
+            // duplicate note, skip.
+            return;
+        }
+    }
     auto* jdata_node  = FindDrawCallJsonNode(json_path);
     auto& jdata_notes = (*jdata_node)[NameNotes()];
     auto  size        = jdata_notes.size();
