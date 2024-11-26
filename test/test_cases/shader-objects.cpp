@@ -3,7 +3,7 @@
 #include "verify-gfxr.h"
 
 char const* const APP_RUN_DIRECTORY = "shader-objects";
-char const* const APP_PATH          = "Debug/gfxrecon-testapp-shader-objects.exe";
+char const* const APP_PATH          = "gfxrecon-testapp-shader-objects.exe";
 char const* const CAPTURE_FILE      = "shader-objects.gfxr";
 char const* const KNOWN_GFXR_PATH   = "shader-objects.gfxr";
 

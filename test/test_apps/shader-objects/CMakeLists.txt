@@ -47,6 +47,11 @@ target_link_libraries(gfxrecon-testapp-shader-objects
         platform_specific)
 
 if (MSVC)
+    set_target_properties(gfxrecon-testapp-shader-objects PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(gfxrecon-testapp-shader-objects PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(gfxrecon-testapp-shader-objects PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
+endif ()
+if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
     # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
     if (CMAKE_SIZEOF_VOID_P EQUAL 4)
