@@ -8408,8 +8408,11 @@ void VulkanReplayConsumerBase::OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    
 
     if (command_buffer_info != nullptr && pipeline_info != nullptr)
     {
-        command_buffer = command_buffer_info->handle;
-        pipeline       = pipeline_info->handle;
+        command_buffer = MapHandle<VulkanCommandBufferInfo>(command_buffer_info->capture_id,
+                                                            &CommonObjectInfoTable::GetVkCommandBufferInfo);
+
+        // MapHandle will force synchronization with potentially running asynchronous tasks.
+        pipeline = MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &CommonObjectInfoTable::GetVkPipelineInfo);
 
         // keep track of currently bound pipeline
         command_buffer_info->bound_pipeline_id = pipeline_info->capture_id;
