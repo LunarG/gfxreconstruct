@@ -2091,7 +2091,7 @@ void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectI
         switch (base->sType)
         {
         default:
-            // TODO: Report or raise fatal error for unrecongized sType?
+            // TODO: Report or raise fatal error for unrecognized sType?
             break;
         case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
             MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleCreateInfo*>(wrapper), object_info_table);

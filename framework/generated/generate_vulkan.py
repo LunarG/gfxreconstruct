@@ -34,8 +34,8 @@ KHRONOS_REGISTRY_DIR = os.path.normpath(
         SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers', 'registry'
     )
 )
-BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'base_generators')
-GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'vulkan_generators')
+KHRONOS_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators')
+GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'vulkan_generators')
 VK_HEADERS_DIR = os.path.join(
     SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers'
 )
@@ -131,8 +131,8 @@ if __name__ == '__main__':
 
 
 
-    BASE_GENERATOR_DIR = os.path.normpath(
-        os.path.join(SCRIPT_DIR, BASE_GENERATOR_DIR)
+    KHRONOS_GENERATOR_DIR = os.path.normpath(
+        os.path.join(SCRIPT_DIR, KHRONOS_GENERATOR_DIR)
     )
     env = os.environ.copy()
     if not 'PYTHONPATH' in env:
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     env['PYTHONPATH'] = os.pathsep.join(
         [
             KHRONOS_REGISTRY_DIR,
-            BASE_GENERATOR_DIR,
+            KHRONOS_GENERATOR_DIR,
             GENERATOR_DIR,
             VK_HEADERS_DIR,
         ]
