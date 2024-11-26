@@ -228,8 +228,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
         {
             GFXRECON_LOG_WARNING("Requested both asynchronous pipeline-creation (--pipeline-creation-jobs) and "
                                  "explicit pipeline-caches (--save-pipeline-cache | --load-pipeline-cache). This is "
-                                 "currently not supported and will "
-                                 "prevent usage of pipeline-caches.");
+                                 "currently not supported and will prevent usage of pipeline-caches.");
         }
     }
 
@@ -6031,7 +6030,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     VkPipelineCacheCreateInfo override_create_info = *pCreateInfo->GetPointer();
 
     // If pipeline cache must be loaded from file
-
     std::vector<char> pipelineCacheData;
     if (!options_.load_pipeline_cache_filename.empty())
     {
@@ -6053,7 +6051,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
 
     // If pipeline cache must not be loaded
-
     else if (options_.omit_pipeline_cache_data)
     {
         if (override_create_info.initialDataSize != 0)
@@ -6066,7 +6063,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
 
     // If tracked pipeline cache data can be used
-
     else if ((override_create_info.pInitialData != nullptr) && (override_create_info.initialDataSize != 0))
     {
         // This vkCreatePipelineCache call has initial pipeline cache data, the data is valid for capture time,
@@ -6127,19 +6123,22 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
 
     // Actual pipeline cache creation call
-
     VkResult result = func(device_info->handle,
                            &override_create_info,
                            GetAllocationCallbacks(pAllocator),
                            pPipelineCache->GetHandlePointer());
 
     // If we are creating a pipeline cache file, add this pipeline cache to the tracked list
-
     if (!options_.save_pipeline_cache_filename.empty())
     {
         tracked_pipeline_caches_.emplace(*pPipelineCache->GetPointer(),
                                          std::make_pair(device_info, *pPipelineCache->GetHandlePointer()));
     }
+
+    // keep track if external synchronization is required
+    auto handle_info = reinterpret_cast<VulkanPipelineCacheInfo*>(pPipelineCache->GetConsumerData(0));
+    handle_info->requires_external_synchronization =
+        override_create_info.flags & VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
 
     return result;
 }
