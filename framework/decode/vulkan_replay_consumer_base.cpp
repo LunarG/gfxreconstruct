@@ -1679,9 +1679,9 @@ void VulkanReplayConsumerBase::GetMatchingDeviceGroup(VulkanInstanceInfo*       
 {
     for (auto handle_id : capture_device_group)
     {
-        auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(handle_id);
-        GetMatchingDevice(instance_info, physical_device_info);
-        replay_device_group.emplace_back(physical_device_info->handle);
+        auto pd_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(handle_id);
+        GetMatchingDevice(instance_info, pd_info);
+        replay_device_group.emplace_back(pd_info->handle);
     }
 
     // Modified physical device group to fit requirements(VVL).
@@ -5786,15 +5786,14 @@ static bool SPIRVReflectPerformReflectionOnShaderModule(VulkanShaderModuleInfo* 
             VkDescriptorType type     = SpvReflectToVkDescriptorType(binding->descriptor_type);
             bool             readonly = ((binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) ==
                              SPV_REFLECT_DECORATION_NON_WRITABLE);
-            const uint32_t   count    = binding->count;
             const bool       is_array = binding->array.dims_count > 0;
 
             shader_info->used_descriptors_info[binding->set].emplace(
                 binding->binding,
-                VulkanShaderModuleInfo::ShaderDescriptorInfo(type, readonly, binding->accessed, count, is_array));
+                VulkanShaderModuleInfo::ShaderDescriptorInfo(
+                    type, readonly, binding->accessed, binding->count, is_array));
         }
     }
-
     return true;
 }
 
@@ -5824,8 +5823,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
             if (options_.dumping_resources)
             {
-                VulkanShaderModuleInfo* shader_info =
-                    reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+                auto shader_info = reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
                 assert(shader_info);
 
                 const VulkanPhysicalDeviceInfo* phys_dev =
@@ -5877,8 +5875,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
         if (vk_res == VK_SUCCESS && options_.dumping_resources)
         {
-            VulkanShaderModuleInfo* shader_info =
-                reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+            auto shader_info = reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
             assert(shader_info);
 
             const VulkanPhysicalDeviceInfo* phys_dev =
@@ -6454,8 +6451,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
             for (uint32_t i = 0; i < capture_image_count; ++i)
             {
-                VkImage*         replay_image = &(replay_images[i]);
-                VulkanImageInfo* image_info = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                VkImage* replay_image = &(replay_images[i]);
+                auto     image_info   = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 assert(image_info != nullptr);
 
                 result = CreateSwapchainImage(device_info, &image_create_info, replay_image, image_info);
@@ -6738,7 +6735,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             assert(replay_index != nullptr);
 
-            auto swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(acquire_meta_info->swapchain);
+            auto local_swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(acquire_meta_info->swapchain);
 
             // If expected result is VK_SUCCESS, ensure that vkAcquireNextImageKHR2 waits until the image is
             // available by using a timeout of UINT64_MAX.
@@ -6756,18 +6753,18 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             result = swapchain_->AcquireNextImage2KHR(original_result,
                                                       func,
                                                       device_info,
-                                                      swapchain_info,
+                                                      local_swapchain_info,
                                                       &modified_acquire_info,
                                                       captured_index,
                                                       replay_index);
 
-            if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+            if (captured_index >= static_cast<uint32_t>(local_swapchain_info->acquired_indices.size()))
             {
-                swapchain_info->acquired_indices.resize(captured_index + 1);
+                local_swapchain_info->acquired_indices.resize(captured_index + 1);
             }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
-            swapchain_info->acquired_indices[captured_index] = { (*replay_index), true };
+            local_swapchain_info->acquired_indices[captured_index] = { (*replay_index), true };
         }
     }
     else
@@ -6900,7 +6897,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         }
 
         // If a swapchain was removed, pNext stucts that reference the swapchain need to be modified as well.
-        if (removed_swapchain_indices_.empty() == false)
+        if (!removed_swapchain_indices_.empty())
         {
             const VkBaseInStructure* next = reinterpret_cast<const VkBaseInStructure*>(modified_present_info.pNext);
             while (next != nullptr)
@@ -7370,9 +7367,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
 
     auto wsi_context    = application_ ? application_->GetWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME) : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
-                                GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
-                          : false;
+    return window_factory != nullptr && window_factory->GetPhysicalDevicePresentationSupport(
+                                            GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
@@ -7424,9 +7420,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
 
     auto wsi_context    = application_ ? application_->GetWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME) : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
-                                GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
-                          : false;
+    return window_factory != nullptr && window_factory->GetPhysicalDevicePresentationSupport(
+                                            GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
@@ -7478,9 +7473,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
 
     auto wsi_context    = application_ ? application_->GetWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME) : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
-                                GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
-                          : false;
+    return window_factory != nullptr && window_factory->GetPhysicalDevicePresentationSupport(
+                                            GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
@@ -7594,9 +7588,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationS
 
     auto wsi_context    = application_ ? application_->GetWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME) : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
-                                GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
-                          : false;
+    return window_factory != nullptr && window_factory->GetPhysicalDevicePresentationSupport(
+                                            GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateMetalSurfaceEXT(
@@ -8044,7 +8037,7 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
                                                            const VulkanDeviceInfo*         device_info,
                                                            VulkanDeferredOperationKHRInfo* deferred_operation_info)
 {
-    if (deferred_operation_info->pending_state == false)
+    if (!deferred_operation_info->pending_state)
     {
         // The deferred operation object has no deferred command or its deferred command has been finished.
         return VK_SUCCESS;
@@ -8988,7 +8981,7 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(
 void VulkanReplayConsumerBase::SignalShadowSemaphore(VulkanSemaphoreInfo*                     semaphore_info,
                                                      std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores)
 {
-    if (semaphore_info->shadow_signaled == true)
+    if (semaphore_info->shadow_signaled)
     {
         // If found, unsignal the semaphore to represent it being used.
         shadow_semaphores->push_back(semaphore_info);
@@ -9076,7 +9069,7 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
                 }
 
                 // If not removed, mark as forward progress.
-                if (removed == false)
+                if (!removed)
                 {
                     semaphore_info->forward_progress = true;
                 }
@@ -9115,7 +9108,7 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
                 }
 
                 // If not removed, mark as forward progress.
-                if (removed == false)
+                if (!removed)
                 {
                     semaphore_info->forward_progress = true;
                 }
@@ -9140,7 +9133,7 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(
             VulkanSemaphoreInfo* semaphore_info = object_info_table_->GetVkSemaphoreInfo(semaphore_ids[i]);
             if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
             {
-                if (semaphore_info->signaled == false)
+                if (!semaphore_info->signaled)
                 {
                     semaphore_info->signaled = true;
                 }
@@ -9167,9 +9160,9 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(
         for (uint32_t i = 0; i < count; ++i)
         {
             VulkanSemaphoreInfo* semaphore_info = object_info_table_->GetVkSemaphoreInfo(semaphore_infos[i].semaphore);
-            if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
+            if ((semaphore_info != nullptr) && !semaphore_info->forward_progress)
             {
-                if (semaphore_info->signaled == false)
+                if (!semaphore_info->signaled)
                 {
                     semaphore_info->signaled = true;
                 }
@@ -9936,7 +9929,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
                 object_info_table_->GetVkShaderModuleInfo(create_info_meta[i].stage->module);
             assert(module_info);
 
-            VulkanPipelineInfo* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+            auto pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
             assert(pipeline_info);
 
             pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
@@ -10043,7 +10036,7 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
 
     if (pipeline_info != nullptr)
     {
-        VkPipeline in_pipeline =
+        in_pipeline =
             MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
 
         if (IsUsedByAsyncTask(pipeline_info->capture_id))
