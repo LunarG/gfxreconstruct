@@ -955,11 +955,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                       const VulkanPipelineCacheInfo*                             pipeline_cache_info,
                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    void OverrideDestroyPipeline(PFN_vkDestroyPipeline                                      func,
-                                 const VulkanDeviceInfo*                                    device_info,
-                                 const VulkanPipelineInfo*                                  pipeline_info,
-                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
-
     VkResult OverrideResetDescriptorPool(PFN_vkResetDescriptorPool  func,
                                          VkResult                   original_result,
                                          const VulkanDeviceInfo*    device_info,
@@ -1372,7 +1367,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverrideDestroyPipeline(PFN_vkDestroyPipeline                                      func,
                                  const VulkanDeviceInfo*                                    device_info,
-                                 VulkanPipelineInfo*                                        pipeline_info,
+                                 const VulkanPipelineInfo*                                  pipeline_info,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void OverrideDestroyRenderPass(PFN_vkDestroyRenderPass                                    func,

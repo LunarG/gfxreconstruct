@@ -6168,61 +6168,6 @@ void VulkanReplayConsumerBase::OverrideDestroyPipelineCache(
     func(device_info->handle, pipeline_cache_info->handle, GetAllocationCallbacks(pAllocator));
 }
 
-void VulkanReplayConsumerBase::OverrideDestroyPipeline(
-    PFN_vkDestroyPipeline                                      func,
-    const VulkanDeviceInfo*                                    device_info,
-    const VulkanPipelineInfo*                                  pipeline_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    assert(device_info != nullptr);
-
-    if (pipeline_info == nullptr)
-    {
-        func(device_info->handle, VK_NULL_HANDLE, GetAllocationCallbacks(pAllocator));
-        return;
-    }
-
-    func(device_info->handle, pipeline_info->handle, GetAllocationCallbacks(pAllocator));
-
-    // Check if the pipeline has been created with a specially created pipeline cache
-
-    auto itCorresp = pipeline_cache_correspondances_.find(pipeline_info->handle);
-    if (itCorresp != pipeline_cache_correspondances_.end())
-    {
-        format::HandleId id = itCorresp->second;
-        pipeline_cache_correspondances_.erase(itCorresp);
-
-        // Find if other pipelines have been created with the same pipeline cache
-
-        bool sameIdFound = false;
-        for (const std::pair<VkPipeline, format::HandleId>& elt : pipeline_cache_correspondances_)
-        {
-            if (elt.second == id)
-            {
-                sameIdFound = true;
-                break;
-            }
-        }
-
-        // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
-
-        if (!sameIdFound)
-        {
-            auto itTracked = tracked_pipeline_caches_.find(id);
-
-            if (!options_.save_pipeline_cache_filename.empty())
-            {
-                SavePipelineCache(id, itTracked->second.first, itTracked->second.second);
-            }
-
-            auto device_table = GetDeviceTable(device_info->handle);
-            device_table->DestroyPipelineCache(itTracked->second.first->handle, itTracked->second.second, nullptr);
-
-            tracked_pipeline_caches_.erase(itTracked);
-        }
-    }
-}
-
 VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescriptorPool  func,
                                                                VkResult                   original_result,
                                                                const VulkanDeviceInfo*    device_info,
@@ -10257,7 +10202,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
 void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PFN_vkDestroyPipeline                                      func,
     const VulkanDeviceInfo*                                    device_info,
-    VulkanPipelineInfo*                                        pipeline_info,
+    const VulkanPipelineInfo*                                  pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_ASSERT(device_info != nullptr);
@@ -10277,6 +10222,39 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
                 func(in_device, in_pipeline, in_pAllocator);
             });
             return;
+        }
+
+        // Check if the pipeline has been created with a specially created pipeline cache
+        auto itCorresp = pipeline_cache_correspondances_.find(pipeline_info->handle);
+        if (itCorresp != pipeline_cache_correspondances_.end())
+        {
+            format::HandleId id = itCorresp->second;
+            pipeline_cache_correspondances_.erase(itCorresp);
+
+            // Find if other pipelines have been created with the same pipeline cache
+            bool sameIdFound = false;
+            for (const auto& elt : pipeline_cache_correspondances_)
+            {
+                if (elt.second == id)
+                {
+                    sameIdFound = true;
+                    break;
+                }
+            }
+
+            // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
+            if (!sameIdFound)
+            {
+                auto itTracked = tracked_pipeline_caches_.find(id);
+
+                if (!options_.save_pipeline_cache_filename.empty())
+                {
+                    SavePipelineCache(id, itTracked->second.first, itTracked->second.second);
+                }
+                auto device_table = GetDeviceTable(device_info->handle);
+                device_table->DestroyPipelineCache(itTracked->second.first->handle, itTracked->second.second, nullptr);
+                tracked_pipeline_caches_.erase(itTracked);
+            }
         }
     }
     func(in_device, in_pipeline, in_pAllocator);
