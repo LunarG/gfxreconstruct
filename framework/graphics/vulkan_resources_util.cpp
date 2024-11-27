@@ -1674,9 +1674,10 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     const bool use_blit = (format != dst_format && is_blit_supported) || (scale != 1.0f && scaling_supported);
 
-    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max((float)extent.width * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max((float)extent.height * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max((float)extent.depth * scale, 1.0f)) };
+    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(static_cast<float>(extent.width) * scale, 1.0f)),
+                                       static_cast<uint32_t>(std::max(static_cast<float>(extent.height) * scale, 1.0f)),
+                                       static_cast<uint32_t>(
+                                           std::max(static_cast<float>(extent.depth) * scale, 1.0f)) };
 
     subresource_offsets.clear();
     subresource_sizes.clear();
@@ -1870,14 +1871,14 @@ void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                ima
                                                       std::vector<uint64_t>& subresource_offsets,
                                                       std::vector<uint64_t>& subresource_sizes)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-    assert(mapped_image_ptr);
+    GFXRECON_ASSERT(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    GFXRECON_ASSERT(mapped_image_ptr);
 
     subresource_offsets.clear();
     subresource_sizes.clear();
 
     const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
-    assert(texel_size == static_cast<double>(static_cast<uint64_t>(texel_size)));
+    GFXRECON_ASSERT(texel_size == std::floor(texel_size));
 
     uint64_t offset = 0;
     for (uint32_t m = 0; m < mip_levels; ++m)

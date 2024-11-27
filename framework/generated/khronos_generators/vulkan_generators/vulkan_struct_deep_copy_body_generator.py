@@ -94,7 +94,7 @@ void handle_pointer(const T&  base_struct,
                     uint8_t*  out_data)
 {
     static_assert(std::is_pointer_v<U>);
-    
+
     if (pointer_member == nullptr || count == 0)
     {
         return;
@@ -105,7 +105,8 @@ void handle_pointer(const T&  base_struct,
         reinterpret_cast<const uint8_t*>(&pointer_member) - reinterpret_cast<const uint8_t*>(&base_struct);
 
     // copy pointer-chain recursively
-    uint64_t copy_size = vulkan_struct_deep_copy(pointer_member, (uint32_t)count, offset_ptr(out_data, offset));
+    uint64_t copy_size =
+        vulkan_struct_deep_copy(pointer_member, static_cast<uint32_t>(count), offset_ptr(out_data, offset));
 
     // re-direct pointers to point at copy
     if (out_data != nullptr)

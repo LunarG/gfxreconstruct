@@ -44,6 +44,8 @@ if (USE_STRICT_COMPILER_WARNINGS)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
+    else ()
+        message(WARNING "option 'USE_STRICT_COMPILER_WARNINGS' is set, but not implemented for this platform")
     endif ()
 endif (USE_STRICT_COMPILER_WARNINGS)
 
