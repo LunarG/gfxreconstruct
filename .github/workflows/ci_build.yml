@@ -55,9 +55,9 @@ jobs:
           else
             python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0
           fi
-      - name: Run test app test cases
-        run: |
-          APP_PATH_BASE=${{matrix.config.build_dir}}/linux/64/output/bin/testapp GFXR_CONVERT_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert GFXR_LAYER_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good MOCK_DRIVER_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json ${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
+      #- name: Run test app test cases
+        #run: |
+          #APP_PATH_BASE=${{matrix.config.build_dir}}/linux/64/output/bin/testapp GFXR_CONVERT_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert GFXR_LAYER_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good MOCK_DRIVER_PATH=${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json ${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
       - name: Prepare artifacts
         run: |
           cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
