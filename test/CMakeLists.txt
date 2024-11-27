@@ -28,6 +28,7 @@ add_subdirectory(icd)
 add_subdirectory(test_apps)
 
 enable_testing()
+set(INSTALL_GTEST OFF)
 find_package(GoogleTest REQUIRED)
 include(GoogleTest)
 add_executable(gfxrecon-testapp-runner
@@ -37,14 +38,10 @@ add_executable(gfxrecon-testapp-runner
         test_cases/pipeline-binaries.cpp
         verify-gfxr.cpp
 )
-if (MSVC)
-    set_target_properties(gfxrecon-testapp-runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-    set_target_properties(gfxrecon-testapp-runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
-    set_target_properties(gfxrecon-testapp-runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
-endif ()
 add_dependencies(gfxrecon-testapp-runner gfxrecon-testapps VkICD_mock_icd)
 target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(gfxrecon-testapp-runner
         nlohmann_json::nlohmann_json
         GTest::gtest GTest::gtest_main)
 gtest_discover_tests(gfxrecon-testapp-runner)
+install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

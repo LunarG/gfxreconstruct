@@ -91,9 +91,9 @@ endif()
 set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${MOCK_ICD_NAME}.json.in")
 set(INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/mock_icd.json")
 set(OUTPUT_FILE_FINAL_NAME "${MOCK_ICD_NAME}.json")
-set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/testapp)
 if (WIN32)
-    set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}) # WIN32 expect the dll in the `bin` dir, this matches our WIN32 SDK process
+    set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/testapp) # WIN32 expect the dll in the `bin` dir, this matches our WIN32 SDK process
 endif()
 
 if (WIN32)
@@ -110,15 +110,6 @@ configure_file(${INPUT_FILE} ${INTERMEDIATE_FILE} @ONLY)
 add_custom_command(TARGET VkICD_mock_icd POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${INTERMEDIATE_FILE} $<TARGET_FILE_DIR:VkICD_mock_icd>/${OUTPUT_FILE_FINAL_NAME}
 )
-
-# Installing the Mock ICD to system directories is probably not desired since this ICD is not a very complete implementation.
-# Require the user to ask that it be installed if they really want it.
-option(INSTALL_ICD "Install Mock icd")
-if (INSTALL_ICD)
-    message(NOTICE "INSTALL_ICD enabled!")
-else()
-    return()
-endif()
 
 # For UNIX-based systems, `library_path` should not contain a relative path (indicated by "./") before installing to system directories
 # This json isn't used for regular local development, it's used for installation
