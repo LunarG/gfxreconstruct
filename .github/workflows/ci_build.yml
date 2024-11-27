@@ -57,7 +57,12 @@ jobs:
           fi
       - name: Run test app test cases
         run: |
-          APP_PATH_BASE=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp GFXR_CONVERT_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert GFXR_LAYER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good MOCK_DRIVER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json $(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
+          export APP_PATH_BASE=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp 
+          export GFXR_CONVERT_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert 
+          export GFXR_LAYER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin 
+          export KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good 
+          export MOCK_DRIVER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json 
+          ./${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
       - name: Prepare artifacts
         run: |
           cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
@@ -125,7 +130,12 @@ jobs:
           python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
       - name: Run test app test cases
         run: |
-          APP_PATH_BASE=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp GFXR_CONVERT_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert.exe GFXR_LAYER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good MOCK_DRIVER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json $(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner.exe
+          set APP_PATH_BASE=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/testapp
+          set GFXR_CONVERT_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/gfxrecon-convert.exe 
+          set GFXR_LAYER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin 
+          set KNOWN_GFXR_PATH_BASE=%cd%/test/known_good 
+          set MOCK_DRIVER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/testapp/VkICD_mock_icd.json 
+          ./${{matrix.config.build_dir}}/windows/x64/output/bin/gfxrecon-testapp-runner.exe
       - name: Prepare artifacts
         run: |
           copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
