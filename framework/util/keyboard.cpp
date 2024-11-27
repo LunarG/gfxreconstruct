@@ -137,12 +137,11 @@ bool Keyboard::GetKeyState(const std::string& key)
         auto  iterator_key_code = xcb_key_code_map.find(key);
         if (iterator_key_code != xcb_key_code_map.end())
         {
-            int                key_state      = 0;
             xcb_key_symbols_t* hot_key_symbol = xcb_keysyms.key_symbols_alloc(xcb_connection_);
             if (hot_key_symbol != nullptr)
             {
-                xcb_keycode_t* xcb_key_code =
-                    xcb_keysyms.key_symbols_get_keycode(hot_key_symbol, iterator_key_code->second);
+                xcb_keycode_t* xcb_key_code = xcb_keysyms.key_symbols_get_keycode(
+                    hot_key_symbol, static_cast<xcb_keysym_t>(iterator_key_code->second));
                 if (xcb_key_code != nullptr)
                 {
                     xcb_query_keymap_cookie_t cookie = xcb_keysyms.query_keymap(xcb_connection_);

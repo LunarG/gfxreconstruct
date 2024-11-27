@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
  * @param   spirv_code  SPIRV-bytecode
  * @param   num_bytes   number of bytes
  */
-static void vulkan_check_buffer_references(const uint32_t* const spirv_code, uint32_t num_bytes)
+static void vulkan_check_buffer_references(const uint32_t* const spirv_code, size_t num_bytes)
 {
     // check for buffer-references, issue warning
     gfxrecon::util::SpirVParsingUtil spirv_util;

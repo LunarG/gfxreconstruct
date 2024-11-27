@@ -54,13 +54,13 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
     int compressed_size_generated =
         LZ4_compress_fast(reinterpret_cast<const char*>(uncompressed_data),
                           reinterpret_cast<char*>(compressed_data->data() + compressed_data_offset),
-                          static_cast<const int32_t>(uncompressed_size),
+                          static_cast<int32_t>(uncompressed_size),
                           static_cast<int32_t>(lz4_compressed_size),
                           1);
 
     if (compressed_size_generated > 0)
     {
-        data_size = compressed_size_generated;
+        data_size = static_cast<size_t>(compressed_size_generated);
     }
 
     return data_size;
@@ -85,7 +85,7 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
 
     if (uncompressed_size_generated > 0)
     {
-        data_size = uncompressed_size_generated;
+        data_size = static_cast<size_t>(uncompressed_size_generated);
     }
     else
     {

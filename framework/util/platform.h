@@ -286,7 +286,7 @@ inline uint64_t GetCurrentThreadId()
 #if !defined(__APPLE__)
 inline int SendSignalToThread(uint64_t tid, int signal)
 {
-    return syscall(SYS_tgkill, getpid(), tid, signal);
+    return static_cast<int>(syscall(SYS_tgkill, getpid(), tid, signal));
 }
 #endif
 

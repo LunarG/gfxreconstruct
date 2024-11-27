@@ -51,7 +51,7 @@ inline size_t shallow_copy(const T* structs, uint32_t count, uint8_t* out_data)
     return num_bytes;
 }
 
-inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
+inline uint8_t* offset_ptr(uint8_t* ptr, uint64_t offset)
 {
     return ptr != nullptr ? ptr + offset : nullptr;
 }
@@ -91,7 +91,7 @@ size_t vulkan_struct_deep_copy(const void* structs, uint32_t count, uint8_t* out
 template <typename T, typename U>
 void handle_pointer(const T&  base_struct,
                     const U&  pointer_member,
-                    uint32_t  count,
+                    uint64_t  count,
                     uint32_t  out_index,
                     uint64_t& offset,
                     uint8_t*  out_data)
@@ -104,11 +104,11 @@ void handle_pointer(const T&  base_struct,
     }
 
     // member-offset within struct in bytes
-    uint32_t member_offset =
+    int64_t member_offset =
         reinterpret_cast<const uint8_t*>(&pointer_member) - reinterpret_cast<const uint8_t*>(&base_struct);
 
     // copy pointer-chain recursively
-    uint32_t copy_size = vulkan_struct_deep_copy(pointer_member, count, offset_ptr(out_data, offset));
+    uint64_t copy_size = vulkan_struct_deep_copy(pointer_member, (uint32_t)count, offset_ptr(out_data, offset));
 
     // re-direct pointers to point at copy
     if (out_data != nullptr)
@@ -138,7 +138,7 @@ template <typename T, typename U>
 void handle_struct_member(
     const T& base_struct, const U& struct_member, uint32_t out_index, uint64_t& offset, uint8_t* out_data)
 {
-    uint32_t member_offset =
+    int64_t member_offset =
         reinterpret_cast<const uint8_t*>(&struct_member) - reinterpret_cast<const uint8_t*>(&base_struct);
 
     auto out_address = offset_ptr(out_data, offset);
@@ -166,15 +166,15 @@ void handle_array_of_pointers(const T&  base_struct,
     {
         return;
     }
-    uint32_t copy_size = struct_pointer_array_count * sizeof(pointer_type);
+    uint64_t copy_size = struct_pointer_array_count * sizeof(pointer_type);
 
     // member-offset within struct in bytes
-    uint32_t member_offset =
+    int64_t member_offset =
         reinterpret_cast<const uint8_t*>(&struct_pointer_array) - reinterpret_cast<const uint8_t*>(&base_struct);
 
     for (uint32_t i = 0; i < struct_pointer_array_count; ++i)
     {
-        uint32_t out_offset = offset + copy_size;
+        uint64_t out_offset = offset + copy_size;
 
         // copy pointers in array recursively
         copy_size += vulkan_struct_deep_copy(struct_pointer_array[i], 1, offset_ptr(out_data, out_offset));

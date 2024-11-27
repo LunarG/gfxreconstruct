@@ -393,7 +393,7 @@ bool PageGuardManager::UffdHandleFault(MemoryInfo* memory_info, uint64_t address
         return false;
     }
 
-    if (copy.copy != system_page_size_)
+    if (static_cast<size_t>(copy.copy) != system_page_size_)
     {
         GFXRECON_LOG_ERROR("Unexpected copy.copy (%" PRId64 " != %zu)", copy.copy, system_page_size_);
         return false;
@@ -448,7 +448,7 @@ void* PageGuardManager::UffdHandlerThread(void* args)
             GFXRECON_LOG_ERROR("Messages might have been lost");
         }
 
-        const unsigned int n_messages = readres / sizeof(struct uffd_msg);
+        const unsigned int n_messages = static_cast<uint32_t>(readres) / sizeof(struct uffd_msg);
         for (unsigned int i = 0; i < n_messages; ++i)
         {
             assert(msg[i].event == UFFD_EVENT_PAGEFAULT);
@@ -526,7 +526,7 @@ bool PageGuardManager::UffdInit()
     assert(uffd_fd_ == -1);
 
     // open the userfault fd
-    uffd_fd_ = syscall(SYS_userfaultfd, UFFD_USER_MODE_ONLY | O_CLOEXEC);
+    uffd_fd_ = static_cast<int>(syscall(SYS_userfaultfd, UFFD_USER_MODE_ONLY | O_CLOEXEC));
     if (uffd_fd_ == -1)
     {
         GFXRECON_LOG_ERROR("syscall/userfaultfd: %s", strerror(errno));

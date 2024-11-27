@@ -88,7 +88,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(graphics)', file=self.outFile)
         self.newline()
-        write('inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)', file=self.outFile)
+        write('inline uint8_t* offset_ptr(uint8_t* ptr, uint64_t offset)', file=self.outFile)
         write('{', file=self.outFile)
         write('    return ptr != nullptr ? ptr + offset : nullptr;', file=self.outFile)
         write('}', file=self.outFile)

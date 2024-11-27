@@ -305,12 +305,12 @@ bool RegistryDxDriverVersion(std::string& driver_info, const std::vector<LUID>& 
 
 std::string ConvertDataToVersionNumber(uint64_t data)
 {
-    uint16_t    version[4]  = {};
-    std::string str_version = "";
-    version[0]              = (unsigned int)((data & 0xFFFF000000000000) >> 16 * 3);
-    version[1]              = (unsigned int)((data & 0x0000FFFF00000000) >> 16 * 2);
-    version[2]              = (unsigned int)((data & 0x00000000FFFF0000) >> 16 * 1);
-    version[3]              = (unsigned int)((data & 0x000000000000FFFF));
+    uint16_t    version[4] = {};
+    std::string str_version;
+    version[0]  = (uint16_t)((data & 0xFFFF000000000000) >> 16 * 3);
+    version[1]  = (uint16_t)((data & 0x0000FFFF00000000) >> 16 * 2);
+    version[2]  = (uint16_t)((data & 0x00000000FFFF0000) >> 16 * 1);
+    version[3]  = (uint16_t)((data & 0x000000000000FFFF));
     str_version = std::to_string(version[0]) + "." + std::to_string(version[1]) + "." + std::to_string(version[2]) +
                   "." + std::to_string(version[3]);
 

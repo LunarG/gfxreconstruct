@@ -36,7 +36,7 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     {
         return {};
     }
-    uint32_t                             count = create_infos->GetLength();
+    size_t                               count = create_infos->GetLength();
     std::unordered_set<format::HandleId> handle_deps;
 
     // track dependencies on opaque vulkan-handles
@@ -76,7 +76,7 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     {
         return {};
     }
-    uint32_t                             count = create_infos->GetLength();
+    size_t                               count = create_infos->GetLength();
     std::unordered_set<format::HandleId> handle_deps;
 
     // track dependencies on opaque vulkan-handles
@@ -108,7 +108,7 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
 
 template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
-    const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos)
+    const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* /*create_infos*/)
 {
     return {};
 }
