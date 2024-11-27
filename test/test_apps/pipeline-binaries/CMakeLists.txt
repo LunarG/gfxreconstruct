@@ -58,7 +58,7 @@ endif()
 
 common_build_directives(gfxrecon-testapp-pipeline-binaries)
 
-install(TARGETS gfxrecon-testapp-pipeline-binaries RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries)
+install(TARGETS gfxrecon-testapp-pipeline-binaries RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries PERMISSIONS OWNER_EXECUTE)
 install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-pipeline-binaries)

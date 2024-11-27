@@ -58,7 +58,7 @@ endif ()
 
 common_build_directives(gfxrecon-testapp-shader-objects)
 
-install(TARGETS gfxrecon-testapp-shader-objects RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
+install(TARGETS gfxrecon-testapp-shader-objects RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects PERMISSIONS OWNER_EXECUTE)
 install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-shader-objects)

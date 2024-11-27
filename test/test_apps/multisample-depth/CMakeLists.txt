@@ -54,7 +54,7 @@ endif ()
 
 common_build_directives(gfxrecon-testapp-multisample-depth)
 
-install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
+install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth PERMISSIONS OWNER_EXECUTE)
 install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-multisample-depth)

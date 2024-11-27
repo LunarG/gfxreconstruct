@@ -56,7 +56,7 @@ endif ()
 
 common_build_directives(gfxrecon-testapp-triangle)
 
-install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
+install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle PERMISSIONS OWNER_EXECUTE)
 install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)
