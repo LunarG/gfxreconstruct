@@ -83,8 +83,8 @@ const uint32_t kImageBpp    = 4;  // Expecting 4 bytes per pixel for 32-bit BGRA
 const uint16_t kBmpBitCountNoAlpha = 24; // Expecting 24-bit BGR bitmap data.
 const uint32_t kImageBppNoAlpha    = 3;  // Expecting 3 bytes per pixel for 32-bit BGRA bitmap data; alpha removed.
 
-static std::unique_ptr<uint8_t[]> temporary_buffer;
-static size_t                     temporary_buffer_size = 0;
+static size_t               temporary_buffer_size = 0;
+static std::vector<uint8_t> temporary_buffer;
 
 #define CheckFwriteRetVal(_val_, _file_)                                                              \
     {                                                                                                 \
@@ -96,15 +96,6 @@ static size_t                     temporary_buffer_size = 0;
             return false;                                                                             \
         }                                                                                             \
     }
-
-static void ResizeTemporaryBuffer(size_t new_size)
-{
-    if (new_size > temporary_buffer_size)
-    {
-        temporary_buffer_size = new_size;
-        temporary_buffer      = std::make_unique<uint8_t[]>(new_size);
-    }
-}
 
 static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                                                  uint32_t    height,
@@ -123,9 +114,13 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
     }
 
     const uint32_t output_size = height * output_pitch;
-    ResizeTemporaryBuffer(output_size);
+    if (temporary_buffer_size < output_size)
+    {
+        temporary_buffer_size = output_size;
+        temporary_buffer.resize(output_size);
+    }
 
-    uint8_t* temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get());
+    uint8_t* temp_buffer = temporary_buffer.data();
 
     switch (format)
     {
@@ -162,7 +157,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 bytes += data_pitch;
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -199,7 +194,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 bytes += data_pitch;
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -237,7 +232,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 bytes += data_pitch;
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -264,7 +259,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 floats      = reinterpret_cast<const float*>(reinterpret_cast<const uint8_t*>(floats) + data_pitch);
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -292,7 +287,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 bytes_u32 = reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(bytes_u32) + data_pitch);
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -320,7 +315,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 }
 
                 bytes_u16 = reinterpret_cast<const uint16_t*>(reinterpret_cast<const uint8_t*>(bytes_u16) + data_pitch);
-                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
             }
         }
         break;
@@ -331,16 +326,21 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
             return nullptr;
     }
 
-    return reinterpret_cast<const uint8_t*>(temporary_buffer.get());
+    return reinterpret_cast<const uint8_t*>(temporary_buffer.data());
 }
 
-static uint8_t* ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t data_pitch, bool is_png)
+static uint8_t*
+ExtractAlphaChannel(uint32_t width, uint32_t height, const void* data, uint32_t data_pitch, bool expand_to_rgb)
 {
-    const size_t output_size = width * height * (is_png ? 1 : kImageBppNoAlpha);
-    ResizeTemporaryBuffer(output_size);
+    const size_t output_size = width * height * (expand_to_rgb ? kImageBppNoAlpha : 1);
+    if (temporary_buffer_size < output_size)
+    {
+        temporary_buffer_size = output_size;
+        temporary_buffer.resize(output_size);
+    }
 
     const uint32_t* pixels      = reinterpret_cast<const uint32_t*>(data);
-    uint8_t*        temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get());
+    uint8_t*        temp_buffer = temporary_buffer.data();
 
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -350,7 +350,7 @@ static uint8_t* ExtractAlphaChannel(uint32_t width, uint32_t height, const void*
 
             *(temp_buffer++) = alpha;
 
-            if (!is_png)
+            if (expand_to_rgb)
             {
                 *(temp_buffer++) = alpha;
                 *(temp_buffer++) = alpha;
@@ -360,7 +360,7 @@ static uint8_t* ExtractAlphaChannel(uint32_t width, uint32_t height, const void*
         pixels = reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(pixels) + data_pitch);
     }
 
-    return reinterpret_cast<uint8_t*>(temporary_buffer.get());
+    return temporary_buffer.data();
 }
 
 static bool WriteBmpHeader(FILE* file, uint32_t width, uint32_t height, bool write_alpha)
@@ -488,7 +488,7 @@ bool WriteBmpImageSeparateAlpha(const std::string& filename,
 
     if (success && DataFormatHasAlpha(data_format))
     {
-        const uint8_t*    alpha_channel    = ExtractAlphaChannel(width, height, data, data_pitch, false);
+        const uint8_t*    alpha_channel    = ExtractAlphaChannel(width, height, data, data_pitch, true);
         const std::string alpha_filename   = util::filepath::InsertFilenamePostfix(filename, "_alpha");
         const size_t      alpha_pitch      = width * kImageBppNoAlpha;
         const size_t      alpha_image_size = alpha_pitch * height;
@@ -555,7 +555,7 @@ bool WritePngImageSeparateAlpha(const std::string& filename,
     if (success && DataFormatHasAlpha(format))
     {
         const std::string alpha_filename   = util::filepath::InsertFilenamePostfix(filename, "_alpha");
-        const uint8_t*    alpha_channel    = ExtractAlphaChannel(width, height, data, data_pitch, true);
+        const uint8_t*    alpha_channel    = ExtractAlphaChannel(width, height, data, data_pitch, false);
         const size_t      alpha_pitch      = width;
         const size_t      alpha_image_size = alpha_pitch * height;
         success = stbi_write_png(alpha_filename.c_str(), width, height, 1, alpha_channel, alpha_pitch);
