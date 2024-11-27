@@ -44,4 +44,4 @@ target_link_libraries(gfxrecon-testapp-runner
         nlohmann_json::nlohmann_json
         GTest::gtest GTest::gtest_main)
 gtest_discover_tests(gfxrecon-testapp-runner)
-install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS OWNER_EXECUTE)
