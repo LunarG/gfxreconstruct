@@ -62,6 +62,11 @@ jobs:
           export GFXR_LAYER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin 
           export KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good 
           export MOCK_DRIVER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json 
+          echo $APP_PATH_BASE
+          echo $GFXR_CONVERT_PATH
+          echo $GFXR_LAYER_PATH
+          echo $KNOWN_GFXR_PATH_BASE
+          echo $MOCK_DRIVER_PATH
           ./${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
       - name: Prepare artifacts
         run: |
@@ -135,6 +140,11 @@ jobs:
           set GFXR_LAYER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin 
           set KNOWN_GFXR_PATH_BASE=%cd%/test/known_good 
           set MOCK_DRIVER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/testapp/VkICD_mock_icd.json 
+          echo %APP_PATH_BASE%
+          echo %GFXR_CONVERT_PATH%
+          echo %GFXR_LAYER_PATH%
+          echo %KNOWN_GFXR_PATH_BASE%
+          echo %MOCK_DRIVER_PATH%
           ./${{matrix.config.build_dir}}/windows/x64/output/bin/gfxrecon-testapp-runner.exe
       - name: Prepare artifacts
         run: |
