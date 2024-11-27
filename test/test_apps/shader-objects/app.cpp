@@ -101,11 +101,11 @@ void App::configure_device_builder(test::DeviceBuilder& device_builder, test::Ph
 
 void App::create_shader_objects()
 {
-    auto vert_shader = gfxrecon::test::readFile("green.vspv");
-    auto tesc_shader = gfxrecon::test::readFile("green.tcspv");
-    auto tese_shader = gfxrecon::test::readFile("green.tespv");
-    auto geom_shader = gfxrecon::test::readFile("green.gspv");
-    auto frag_shader = gfxrecon::test::readFile("green.fspv");
+    auto vert_shader = gfxrecon::test::readFile("shaders/green.vspv");
+    auto tesc_shader = gfxrecon::test::readFile("shaders/green.tcspv");
+    auto tese_shader = gfxrecon::test::readFile("shaders/green.tespv");
+    auto geom_shader = gfxrecon::test::readFile("shaders/green.gspv");
+    auto frag_shader = gfxrecon::test::readFile("shaders/green.fspv");
 
     VkShaderCreateInfoEXT shader_create_infos[5];
     shader_create_infos[0].sType                  = VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT;

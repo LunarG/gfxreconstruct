@@ -238,8 +238,8 @@ void App::create_render_pass()
 
 void App::create_graphics_pipeline()
 {
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "frag.spv");
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

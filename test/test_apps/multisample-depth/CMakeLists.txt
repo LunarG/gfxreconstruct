@@ -39,7 +39,7 @@ target_link_libraries(gfxrecon-testapp-multisample-depth
         vulkan_memory_allocator
         gfxrecon_application
         gfxrecon_util
-        SDL3::SDL3
+        SDL3::SDL3-static
         platform_specific)
 
 if (MSVC)
@@ -54,24 +54,7 @@ endif ()
 
 common_build_directives(gfxrecon-testapp-multisample-depth)
 
-add_custom_command(
-        TARGET gfxrecon-testapp-multisample-depth
-        POST_BUILD
-        COMMAND
-        ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-if (MSVC)
-    set_target_properties(gfxrecon-testapp-multisample-depth PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-    set_target_properties(gfxrecon-testapp-multisample-depth PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
-    set_target_properties(gfxrecon-testapp-multisample-depth PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
-endif ()
-if (WIN32)
-    add_custom_command(TARGET gfxrecon-testapp-multisample-depth POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-multisample-depth> $<TARGET_FILE_DIR:gfxrecon-testapp-multisample-depth>
-            COMMAND_EXPAND_LISTS)
-endif ()
-
-install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
+install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-multisample-depth)
