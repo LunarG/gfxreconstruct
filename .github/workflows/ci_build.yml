@@ -8,81 +8,6 @@ on:
       - dev
 
 jobs:
-  linux:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {
-            name: "Ubuntu GCC Release",
-            os: ubuntu-latest,
-            artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
-            type: "release",
-            build_dir: "build",
-            cc: "gcc", cxx: "g++"
-          }
-          - {
-            name: "Ubuntu GCC Debug",
-            os: ubuntu-latest,
-            artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
-            type: "debug",
-            build_dir: "dbuild",
-            cc: "gcc", cxx: "g++"
-          }
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
-      - uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: 3.16.3
-      - name: Run build script
-        run: |
-          if [ "${{ matrix.config.type }}" == "release" ]
-          then
-            clang-format --version # A check for version 9 should be added.
-            git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-            python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0
-            python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
-            git diff --exit-code
-          else
-            python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0
-          fi
-      - name: Run test app test cases
-        run: |
-          export APP_PATH_BASE=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp 
-          export GFXR_CONVERT_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-convert 
-          export GFXR_LAYER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin 
-          export KNOWN_GFXR_PATH_BASE=$(pwd)/test/known_good 
-          export MOCK_DRIVER_PATH=$(pwd)/${{matrix.config.build_dir}}/linux/x64/output/bin/testapp/VkICD_mock_icd.json 
-          echo $APP_PATH_BASE
-          echo $GFXR_CONVERT_PATH
-          echo $GFXR_LAYER_PATH
-          echo $KNOWN_GFXR_PATH_BASE
-          echo $MOCK_DRIVER_PATH
-          ./${{matrix.config.build_dir}}/linux/x64/output/bin/gfxrecon-testapp-runner
-      - name: Prepare artifacts
-        run: |
-          cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-          cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-          cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-          cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-          mv ${{ matrix.config.build_dir }}/linux/x64/output/bin gfxreconstruct-dev
-          mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
-          mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.config.artifact }}
-          path: ./gfxreconstruct-dev
-
   windows:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -96,14 +21,6 @@ jobs:
             artifact: "gfxreconstruct-dev-windows-msvc-release",
             type: "release",
             build_dir: "build",
-            cc: "cl", cxx: "cl"
-          }
-          - {
-            name: "Windows MSVC Debug",
-            os: windows-latest,
-            artifact: "gfxreconstruct-dev-windows-msvc-debug",
-            type: "debug",
-            build_dir: "dbuild",
             cc: "cl", cxx: "cl"
           }
     steps:
@@ -135,17 +52,17 @@ jobs:
           python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
       - name: Run test app test cases
         run: |
-          set APP_PATH_BASE=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/testapp
-          set GFXR_CONVERT_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/gfxrecon-convert.exe 
-          set GFXR_LAYER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin 
-          set KNOWN_GFXR_PATH_BASE=%cd%/test/known_good 
-          set MOCK_DRIVER_PATH=%cd%/${{matrix.config.build_dir}}/windows/x64/output/bin/testapp/VkICD_mock_icd.json 
-          echo %APP_PATH_BASE%
-          echo %GFXR_CONVERT_PATH%
-          echo %GFXR_LAYER_PATH%
-          echo %KNOWN_GFXR_PATH_BASE%
-          echo %MOCK_DRIVER_PATH%
-          ./${{matrix.config.build_dir}}/windows/x64/output/bin/gfxrecon-testapp-runner.exe
+          $env:APP_PATH_BASE = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\testapp"
+          $env:GFXR_CONVERT_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\gfxrecon-convert.exe"
+          $env:GFXR_LAYER_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin"
+          $env:KNOWN_GFXR_PATH_BASE = "$($pwd)\test\known_good"
+          $env:MOCK_DRIVER_PATH = "$($pwd)\${{matrix.config.build_dir}}/windows\x64\output\bin\testapp\VkICD_mock_icd.json"
+          echo $env:APP_PATH_BASE
+          echo $env:GFXR_CONVERT_PATH
+          echo $env:GFXR_LAYER_PATH
+          echo $env:KNOWN_GFXR_PATH_BASE
+          echo $env:MOCK_DRIVER_PATH
+          ${{matrix.config.build_dir}}\windows\x64\output\bin\gfxrecon-testapp-runner.exe
       - name: Prepare artifacts
         run: |
           copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
@@ -159,123 +76,3 @@ jobs:
         with:
           name: ${{ matrix.config.artifact }}
           path: .\gfxreconstruct-dev
-
-  macOS:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {
-            name: "macOS Release",
-            os: macos-latest,
-            artifact: "gfxreconstruct-dev-macOS-release",
-            type: "release",
-            build_dir: "build"
-          }
-          - {
-            name: "macOS Debug",
-            os: macos-latest,
-            artifact: "gfxreconstruct-dev-macOS-debug",
-            type: "debug",
-            build_dir: "dbuild"
-          }
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-      - name: Cache dependencies
-        id: cache-deps
-        uses: actions/cache@v3
-        with:
-          path: ~/deps
-          key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
-      - name: Build dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: .github/workflows/scripts/build-dependencies-macos.sh
-      - name: Run build script
-        run: |
-          python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
-      - name: Prepare artifacts
-        run: |
-          cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-          cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-          cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-          cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-          mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
-          mv ${{ matrix.config.build_dir }}/darwin/universal/output/lib*/*.dylib gfxreconstruct-dev/
-          mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
-          # GitHub's artifact uploader doesn't preserve permissions, so zip everything ourselves
-          # This will result in a zip in a zip, but Finder's unzip will conveniently unzip both at once, so it's not too bad
-          cd gfxreconstruct-dev
-          zip -r9 "../${{ matrix.config.artifact }}.zip" *
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.config.artifact }}
-          path: ${{ matrix.config.artifact }}.zip
-
-  android:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {
-            name: "Android Debug",
-            os: ubuntu-latest,
-            type: "debug",
-            artifact: "gfxreconstruct-dev-android-debug"
-          }
-          - {
-            name: "Android Release",
-            os: ubuntu-latest,
-            type: "release",
-            artifact: "gfxreconstruct-dev-android-release"
-          }
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-      - name: Update submodules
-        run: |
-          git submodule update --init
-      - name: Set up Java
-        uses: "actions/setup-java@v4"
-        with:
-          java-version: 17
-          distribution: "temurin"
-      - name: Gradle build
-        run: |
-          cd android
-          if [ "${{ matrix.config.type }}" == "release" ]
-          then
-            sh gradlew assembleRelease -Parm64-v8a
-          else
-            sh gradlew assembleDebug -Parm64-v8a
-          fi
-      - name: Prepare artifacts
-        run: |
-          mkdir gfxreconstruct-dev
-          mkdir gfxreconstruct-dev/layer
-          mkdir gfxreconstruct-dev/tools
-          cp LICENSE.txt gfxreconstruct-dev/
-          cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
-          cp USAGE_android.md gfxreconstruct-dev/
-          cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-          if [ "${{ matrix.config.type }}" == "release" ]
-          then
-              cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-          else
-              cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
-          fi
-          cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.config.artifact }}
-          path: ./gfxreconstruct-dev
