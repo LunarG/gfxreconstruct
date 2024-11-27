@@ -246,6 +246,10 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
     nlohmann::ordered_json draw_call_;
     uint32_t               num_objects_{ 0 };
     uint32_t               num_files_{ 0 };
+
+    // Record notes to avoid writing deplciate note.
+    // key: notes path. value: notes
+    std::unordered_map<std::string, std::set<std::string>> notes_;
 };
 
 // TODO: This class copys a lot of code to write json from VulkanExportJsonConsumerBase.
