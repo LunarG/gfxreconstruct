@@ -56,7 +56,7 @@ jobs:
           $env:GFXR_CONVERT_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\gfxrecon-convert.exe"
           $env:GFXR_LAYER_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin"
           $env:KNOWN_GFXR_PATH_BASE = "$($pwd)\test\known_good"
-          $env:MOCK_DRIVER_PATH = "$($pwd)\${{matrix.config.build_dir}}/windows\x64\output\bin\testapp\VkICD_mock_icd.json"
+          $env:MOCK_DRIVER_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\testapp\VkICD_mock_icd.json"
           echo $env:APP_PATH_BASE
           echo $env:GFXR_CONVERT_PATH
           echo $env:GFXR_LAYER_PATH
