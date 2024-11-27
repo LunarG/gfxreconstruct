@@ -58,6 +58,6 @@ endif()
 
 common_build_directives(gfxrecon-testapp-host-image-copy)
 
-install(TARGETS gfxrecon-testapp-host-image-copy RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/host-image-copy)
+install(TARGETS gfxrecon-testapp-host-image-copy RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/host-image-copy PERMISSIONS OWNER_EXECUTE)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-host-image-copy)
