@@ -56,6 +56,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.h
+                    ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/zstd_compressor.h

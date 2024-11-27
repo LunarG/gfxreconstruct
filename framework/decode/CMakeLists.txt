@@ -74,8 +74,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/json_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.h
-                    ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/portability.h

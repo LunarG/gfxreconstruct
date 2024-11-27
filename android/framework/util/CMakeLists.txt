@@ -28,6 +28,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/mark_injected_commands.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/mark_injected_commands.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/monotonic_allocator.h

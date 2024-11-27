@@ -26,7 +26,7 @@
 #include "mark_injected_commands.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 static void BeginEndInjectedCommandsNoop(void* data)
 {
@@ -71,5 +71,5 @@ void EndInjectedCommands()
     EndInjectCommands_fp(InjectCommandsData_ptr);
 }
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
