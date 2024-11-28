@@ -73,7 +73,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
     dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), current_render_pass_type(kNone),
-    capture_filename(capture_filename), dump_images_raw(options.dump_resources_dump_raw_images)
+    capture_filename(capture_filename), dump_images_raw(options.dump_resources_dump_raw_images),
+    dump_images_separate_alpha(options.dump_resources_dump_separate_alpha)
 {
     must_backup_resources = (dc_indices.size() > 1);
 
@@ -1190,6 +1191,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                                   ImageFailedScaling(filenameAfter),
                                                   mip,
                                                   layer,
+                                                  dump_images_separate_alpha,
                                                   dump_resources_before ? &filenameBefore : nullptr);
 
                         // Skip rest of layers
@@ -1268,6 +1270,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                               ImageFailedScaling(filenameAfter),
                                               mip,
                                               layer,
+                                              dump_images_separate_alpha,
                                               dump_resources_before ? &filenameBefore : nullptr);
 
                     // Skip rest of layers
@@ -1416,7 +1419,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                                                           aspect,
                                                                           ImageFailedScaling(filename),
                                                                           mip,
-                                                                          layer);
+                                                                          layer,
+                                                                          dump_images_separate_alpha);
 
                                                 if (!dump_all_image_subresources)
                                                 {
@@ -1719,6 +1723,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        image_file_format,
                                        dump_all_image_subresources,
                                        dump_images_raw,
+                                       dump_images_separate_alpha,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                        &extent);
 
@@ -1796,6 +1801,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        image_file_format,
                                        dump_all_image_subresources,
                                        dump_images_raw,
+                                       dump_images_separate_alpha,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                        &extent);
 
@@ -2084,7 +2090,8 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
                                        scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources,
-                                       dump_images_raw);
+                                       dump_images_raw,
+                                       dump_images_separate_alpha);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -2996,7 +3003,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  o
 
         const VulkanDeviceInfo* device_info =
             object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
-        VkDevice          device      = device_info->handle;
+        VkDevice device = device_info->handle;
 
         assert(sub < new_render_pass.size());
         VkResult res = device_table->CreateRenderPass(device, &ci, nullptr, &new_render_pass[sub]);
@@ -3047,7 +3054,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
 
     if (active_renderpass->subpass_refs[current_subpass].has_depth)
     {
-        const uint32_t       depth_att_idx = active_renderpass->subpass_refs[current_subpass].depth_att_ref.attachment;
+        const uint32_t depth_att_idx = active_renderpass->subpass_refs[current_subpass].depth_att_ref.attachment;
         const VulkanImageViewInfo* depth_img_view_info =
             object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
         assert(depth_img_view_info);

@@ -69,6 +69,7 @@ class VulkanReplayDumpResourcesJson
                          bool                    scale_failed,
                          uint32_t                mip_level       = 0,
                          uint32_t                array_layer     = 0,
+                         bool                    separate_alpha  = false,
                          const std::string*      filename_before = nullptr);
 
     void InsertBufferInfo(nlohmann::ordered_json& json_entry,

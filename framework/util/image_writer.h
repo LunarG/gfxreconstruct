@@ -77,6 +77,28 @@ enum DataFormats
     kFormat_ASTC
 };
 
+constexpr bool DataFormatHasAlpha(DataFormats format)
+{
+    switch (format)
+    {
+        case kFormat_RGBA:
+        case kFormat_BGRA:
+            return true;
+
+        case kFormat_RGB:
+        case kFormat_BGR:
+        case kFormat_D32_FLOAT:
+        case kFormat_D24_UNORM:
+        case kFormat_D16_UNORM:
+        case kFormat_ASTC:
+            return false;
+
+        default:
+            assert(0);
+            return false;
+    }
+}
+
 constexpr size_t DataFormatsSizes(DataFormats format)
 {
     switch (format)
@@ -126,6 +148,14 @@ bool WriteBmpImage(const std::string& filename,
                    DataFormats        data_format = kFormat_BGRA,
                    bool               write_alpha = false);
 
+bool WriteBmpImageSeparateAlpha(const std::string& filename,
+                                uint32_t           width,
+                                uint32_t           height,
+                                uint64_t           data_size,
+                                const void*        data,
+                                uint32_t           pitch,
+                                DataFormats        data_format);
+
 bool WritePngImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
@@ -134,6 +164,14 @@ bool WritePngImage(const std::string& filename,
                    uint32_t           pitch       = 0,
                    DataFormats        format      = kFormat_BGRA,
                    bool               write_alpha = false);
+
+bool WritePngImageSeparateAlpha(const std::string& filename,
+                                uint32_t           width,
+                                uint32_t           height,
+                                uint64_t           data_size,
+                                const void*        data,
+                                uint32_t           pitch,
+                                DataFormats        format);
 
 bool WriteAstcImage(const std::string& filename,
                     uint32_t           width,

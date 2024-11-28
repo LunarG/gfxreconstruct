@@ -270,6 +270,10 @@ Dump resources feature can be control in several ways. To do so, a number of par
               Enables dumping of resources that are used as inputs in the commands requested for dumping
   --dump-resources-dump-all-image-subresources
               Enables dumping of all image sub resources (mip map levels and array layers)
+  --dump-resources-dump-raw-images
+              When enabled all image resources will be dumped verbatim as raw bin files.
+  --dump-resources-dump-separate-alpha
+              When enabled alpha channel of dumped images will be dumped in a separate file.
 ```
 
 ## Output

@@ -64,7 +64,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
     dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename),
-    reached_end_command_buffer(false), dump_images_raw(options.dump_resources_dump_raw_images)
+    reached_end_command_buffer(false), dump_images_raw(options.dump_resources_dump_raw_images),
+    dump_images_separate_alpha(options.dump_resources_dump_separate_alpha)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -483,8 +484,8 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
     assert(IsRecording());
 
     // Scan for mutable resources in the bound pipeline
-    const uint32_t      bind_point = static_cast<uint32_t>(is_dispatch ? kBindPoint_compute : kBindPoint_ray_tracing);
-    const VulkanPipelineInfo* pipeline   = bound_pipelines[bind_point];
+    const uint32_t bind_point = static_cast<uint32_t>(is_dispatch ? kBindPoint_compute : kBindPoint_ray_tracing);
+    const VulkanPipelineInfo* pipeline = bound_pipelines[bind_point];
     assert(pipeline != nullptr);
 
     for (const auto& shader : pipeline->shaders)
@@ -1138,6 +1139,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                            image_file_format,
                                            false,
                                            dump_images_raw,
+                                           dump_images_separate_alpha,
                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             if (res != VK_SUCCESS)
             {
@@ -1256,6 +1258,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                        image_file_format,
                                        false,
                                        dump_images_raw,
+                                       dump_images_separate_alpha,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
         if (res != VK_SUCCESS)
         {
@@ -2195,7 +2198,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                       aspect,
                                                       ImageFailedScaling(filename),
                                                       mip,
-                                                      layer);
+                                                      layer,
+                                                      dump_images_separate_alpha);
 
                             if (!dump_all_image_subresources)
                             {
@@ -2301,7 +2305,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                   aspect,
                                                   ImageFailedScaling(filename),
                                                   mip,
-                                                  layer);
+                                                  layer,
+                                                  dump_images_separate_alpha);
 
                         if (!dump_all_image_subresources)
                         {
@@ -2413,7 +2418,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                                                   aspect,
                                                                   ImageFailedScaling(filename),
                                                                   mip,
-                                                                  layer);
+                                                                  layer,
+                                                                  dump_images_separate_alpha);
 
                                         if (!dump_all_image_subresources)
                                         {
@@ -2634,7 +2640,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                       aspect,
                                                       ImageFailedScaling(filename),
                                                       mip,
-                                                      layer);
+                                                      layer,
+                                                      dump_images_separate_alpha);
 
                             if (!dump_all_image_subresources)
                             {
@@ -2739,7 +2746,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                   aspect,
                                                   ImageFailedScaling(filename),
                                                   mip,
-                                                  layer);
+                                                  layer,
+                                                  dump_images_separate_alpha);
 
                         if (!dump_all_image_subresources)
                         {
@@ -2854,7 +2862,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                                                       aspect,
                                                                       ImageFailedScaling(filename),
                                                                       mip,
-                                                                      layer);
+                                                                      layer,
+                                                                      dump_images_separate_alpha);
 
                                             if (!dump_all_image_subresources)
                                             {
