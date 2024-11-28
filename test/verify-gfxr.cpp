@@ -38,6 +38,7 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
 
 void verify_gfxr(char const* app_directory, char const* app_executable, char const* known_gfxr_path)
 {
+    std::system("set");
     auto base_path = std::filesystem::current_path();
 
     std::filesystem::path full_app_directory(base_path);
