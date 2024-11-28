@@ -16,11 +16,11 @@ jobs:
       matrix:
         config:
           - {
-            name: "Windows MSVC Release",
+            name: "Windows MSVC Debug",
             os: windows-latest,
-            artifact: "gfxreconstruct-dev-windows-msvc-release",
-            type: "release",
-            build_dir: "build",
+            artifact: "gfxreconstruct-dev-windows-msvc-debug",
+            type: "debug",
+            build_dir: "dbuild",
             cc: "cl", cxx: "cl"
           }
     steps:
