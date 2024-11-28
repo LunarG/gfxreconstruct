@@ -66,7 +66,6 @@ class FileOutputStream : public OutputStream
     FileOutputStream& operator=(const FileOutputStream&) = delete;
     FILE*             file_;
     bool              own_file_;
-    const std::string filename;
 };
 
 class FileNoLockOutputStream : public FileOutputStream

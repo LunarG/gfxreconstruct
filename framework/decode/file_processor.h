@@ -248,7 +248,7 @@ class FileProcessor
     {
         ActiveFiles() {}
 
-        ActiveFiles(FILE* fd) : fd(fd) {}
+        ActiveFiles(FILE* _fd) : fd(_fd) {}
 
         FILE* fd{ nullptr };
     };
@@ -257,9 +257,9 @@ class FileProcessor
 
     struct ActiveFileContext
     {
-        ActiveFileContext(const std::string& filename) : filename(filename){};
-        ActiveFileContext(const std::string& filename, bool execute_till_eof) :
-            filename(filename), execute_till_eof(execute_till_eof){};
+        ActiveFileContext(const std::string& _filename) : filename(_filename) {};
+        ActiveFileContext(const std::string& _filename, bool _execute_till_eof) :
+            filename(_filename), execute_till_eof(_execute_till_eof) {};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };

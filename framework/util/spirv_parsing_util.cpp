@@ -593,15 +593,13 @@ bool SpirVParsingUtil::SPIRVReflectPerformReflectionOnShaderModule(
             VkDescriptorType type     = SpvReflectToVkDescriptorType(binding->descriptor_type);
             bool             readonly = ((binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) ==
                              SPV_REFLECT_DECORATION_NON_WRITABLE);
-            const uint32_t   count    = binding->count;
             const bool       is_array = binding->array.dims_count > 0;
 
             shader_reflection[binding->set].emplace(binding->binding,
                                                     encode::vulkan_state_info::ShaderReflectionDescriptorInfo(
-                                                        type, readonly, binding->accessed, count, is_array));
+                                                        type, readonly, binding->accessed, binding->count, is_array));
         }
     }
-
     return true;
 }
 
