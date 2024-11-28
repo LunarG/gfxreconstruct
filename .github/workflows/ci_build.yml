@@ -52,17 +52,8 @@ jobs:
           python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
       - name: Run test app test cases
         run: |
-          $env:APP_PATH_BASE = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\testapp"
-          $env:GFXR_CONVERT_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\gfxrecon-convert.exe"
-          $env:GFXR_LAYER_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin"
-          $env:KNOWN_GFXR_PATH_BASE = "$($pwd)\test\known_good"
-          $env:MOCK_DRIVER_PATH = "$($pwd)\${{matrix.config.build_dir}}\windows\x64\output\bin\testapp\VkICD_mock_icd.json"
-          echo $env:APP_PATH_BASE
-          echo $env:GFXR_CONVERT_PATH
-          echo $env:GFXR_LAYER_PATH
-          echo $env:KNOWN_GFXR_PATH_BASE
-          echo $env:MOCK_DRIVER_PATH
-          ${{matrix.config.build_dir}}\windows\x64\output\bin\gfxrecon-testapp-runner.exe
+          cd ${{matrix.config.build_dir}}\windows\x64\output\bin
+          ./run-tests.ps1
       - name: Prepare artifacts
         run: |
           copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\

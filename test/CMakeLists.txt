@@ -45,3 +45,6 @@ target_link_libraries(gfxrecon-testapp-runner
         GTest::gtest GTest::gtest_main)
 gtest_discover_tests(gfxrecon-testapp-runner)
 install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS OWNER_EXECUTE)
+install(DIRECTORY known_good DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS run-tests.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS run-tests.ps1 DESTINATION ${CMAKE_INSTALL_BINDIR})
