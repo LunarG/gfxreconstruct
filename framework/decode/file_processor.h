@@ -37,6 +37,7 @@
 #include <deque>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -257,9 +258,9 @@ class FileProcessor
 
     struct ActiveFileContext
     {
-        ActiveFileContext(const std::string& _filename) : filename(_filename) {};
-        ActiveFileContext(const std::string& _filename, bool _execute_till_eof) :
-            filename(_filename), execute_till_eof(_execute_till_eof) {};
+        ActiveFileContext(std::string _filename) : filename(std::move(_filename)){};
+        ActiveFileContext(std::string _filename, bool _execute_till_eof) :
+            filename(std::move(_filename)), execute_till_eof(_execute_till_eof){};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };
