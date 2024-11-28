@@ -175,7 +175,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
     // TODO: testing only -> remove when closing issue #1526
     //    valid_sbt_alignment_ = false;
-    //    valid_group_handles  = false;
+    //    valid_group_handles = false;
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
@@ -257,6 +257,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
         if (valid_sbt_alignment_)
         {
+            GFXRECON_LOG_WARNING_ONCE("Replay adjusted mismatching raytracing shader-group-handles");
+
             // rewrite group-handles in-place
             replacer_params.output_handles = replacer_params.input_handles;
 
@@ -273,6 +275,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
+            GFXRECON_LOG_WARNING_ONCE(
+                "Replay adjusted a mismatching raytracing shader-binding-table using a shadow-buffer");
+
             // output-handles
             if (!create_buffer(max_num_handles * sizeof(VkDeviceAddress), pipeline_context_sbt_.output_handle_buffer))
             {
