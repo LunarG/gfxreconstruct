@@ -125,6 +125,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define DEBUG_LAYER_UPPER                                    "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER                              "debug_device_lost"
 #define DEBUG_DEVICE_LOST_UPPER                              "DEBUG_DEVICE_LOST"
+#define ENABLE_PIPELINE_LIBRARY_LOWER                        "enable_pipeline_library"
+#define ENABLE_PIPELINE_LIBRARY_UPPER                        "ENABLE_PIPELINE_LIBRARY"
 #define DISABLE_DXR_LOWER                                    "disable_dxr"
 #define DISABLE_DXR_UPPER                                    "DISABLE_DXR"
 #define ACCEL_STRUCT_PADDING_LOWER                           "accel_struct_padding"
@@ -207,6 +209,7 @@ const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_OPTION_S
 const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_OPTION_STR(CAPTURE_QUEUE_SUBMITS);
 const char kDebugLayerEnvVar[]                               = GFXRECON_OPTION_STR(DEBUG_LAYER);
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_OPTION_STR(DEBUG_DEVICE_LOST);
+const char kEnablePipelineLibrary[]                          = GFXRECON_OPTION_STR(ENABLE_PIPELINE_LIBRARY);
 const char kDisableDxrEnvVar[]                               = GFXRECON_OPTION_STR(DISABLE_DXR);
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_OPTION_STR(ACCEL_STRUCT_PADDING);
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_OPTION_STR(FORCE_COMMAND_SERIALIZATION);
@@ -268,6 +271,7 @@ const std::string kOptionKeyPageGuardSignalHandlerWatcher            = std::stri
 const std::string kOptionKeyPageGuardSignalHandlerWatcherMaxRestores = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER);
 const std::string kDebugLayer                                        = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                                   = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
+const std::string kOptionEnablePipelineLibrary                       = std::string(kSettingsFilter) + std::string(ENABLE_PIPELINE_LIBRARY_LOWER);
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
@@ -434,6 +438,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kScreenshotIntervalEnvVar, kOptionKeyScreenshotInterval);
 
     // DirectX environment variables
+    LoadSingleOptionEnvVar(options, kEnablePipelineLibrary, kOptionEnablePipelineLibrary);
     LoadSingleOptionEnvVar(options, kDisableDxrEnvVar, kOptionDisableDxr);
     LoadSingleOptionEnvVar(options, kAccelStructPaddingEnvVar, kOptionAccelStructPadding);
 
@@ -643,6 +648,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
 
     // DirectX options
+    settings->trace_settings_.enable_pipeline_library = ParseBoolString(
+        FindOption(options, kOptionEnablePipelineLibrary), settings->trace_settings_.enable_pipeline_library);
     settings->trace_settings_.disable_dxr =
         ParseBoolString(FindOption(options, kOptionDisableDxr), settings->trace_settings_.disable_dxr);
     settings->trace_settings_.accel_struct_padding = gfxrecon::util::ParseUintString(

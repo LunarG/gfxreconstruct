@@ -125,6 +125,7 @@ class CaptureSettings
         bool                         page_guard_signal_handler_watcher{ false };
         bool                         debug_layer{ false };
         bool                         debug_device_lost{ false };
+        bool                         enable_pipeline_library{ false };
         bool                         disable_dxr{ false };
         uint32_t                     accel_struct_padding{ 0 };
         bool                         force_command_serialization{ false };

@@ -305,6 +305,10 @@ class CommonCaptureManager
     void                                SetCaptureMode(CaptureMode new_mode) { capture_mode_ = new_mode; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
+    bool                                GetEnablePipelineLibrarySetting() const
+    {
+        return enable_pipeline_library_;
+    }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
     bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
@@ -450,6 +454,7 @@ class CommonCaptureManager
     bool                                    debug_device_lost_;
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
+    bool                                    enable_pipeline_library_;
     bool                                    disable_dxr_;
     uint32_t                                accel_struct_padding_;
     bool                                    iunknown_wrapping_;

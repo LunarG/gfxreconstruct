@@ -2078,12 +2078,10 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
     }
 }
 
-static auto placeholder_pipeline_library_enabled = true;
-
 HRESULT D3D12CaptureManager::OverrideID3D12Device1_CreatePipelineLibrary(
     ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library)
 {
-    if (!placeholder_pipeline_library_enabled && (library_blob != nullptr) && (blob_length > 0))
+    if (!GetEnablePipelineLibrarySetting() && (library_blob != nullptr) && (blob_length > 0))
     {
         return D3D12_ERROR_DRIVER_VERSION_MISMATCH;
     }
@@ -2155,7 +2153,7 @@ D3D12CaptureManager::OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12Pip
                                                                        REFIID                                   riid,
                                                                        void** pipeline_state)
 {
-    if (!placeholder_pipeline_library_enabled)
+    if (!GetEnablePipelineLibrarySetting())
     {
         return E_INVALIDARG;
     }
@@ -2170,7 +2168,7 @@ D3D12CaptureManager::OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(ID3D12Pi
                                                                         REFIID                                    riid,
                                                                         void** pipeline_state)
 {
-    if (!placeholder_pipeline_library_enabled)
+    if (!GetEnablePipelineLibrarySetting())
     {
         return E_INVALIDARG;
     }
@@ -2184,7 +2182,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
                                                                          REFIID                                  riid,
                                                                          void** pipeline_state)
 {
-    if (!placeholder_pipeline_library_enabled)
+    if (!GetEnablePipelineLibrarySetting())
     {
         return E_INVALIDARG;
     }
