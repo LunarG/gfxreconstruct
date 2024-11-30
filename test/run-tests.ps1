@@ -3,7 +3,9 @@ $is_admin = ([Security.Principal.WindowsPrincipal] `
             ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator);
 
 if ($is_admin) {
+    New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
     New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers" -Name "$pwd\VkLayer_gfxreconstruct.json" -PropertyType "DWord" -Value 0
+    New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers"
     New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers" -Name "$pwd\test_apps\VkICD_mock_icd.json" -PropertyType "DWord" -Value 0
 } else {
     $env:VK_LAYER_PATH="$pwd"
