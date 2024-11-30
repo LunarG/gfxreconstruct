@@ -6,7 +6,7 @@ if ($is_admin) {
     New-Item -Path "HKLM:\SOFTWARE\Khronos"
     New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan"
     New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
-    New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers" -Name "$pwd\VkLayer_gfxreconstruct.json" -PropertyType "DWord" -Value 0
+    New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\ImplicitLayers" -Name "$pwd\VkLayer_gfxreconstruct.json" -PropertyType "DWord" -Value 1
     New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers"
     New-ItemProperty -Path "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers" -Name "$pwd\test_apps\VkICD_mock_icd.json" -PropertyType "DWord" -Value 0
 } else {
