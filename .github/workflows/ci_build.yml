@@ -55,10 +55,6 @@ jobs:
           curl.exe -o vulkan-sdk.zip https://sdk.lunarg.com/sdk/download/1.3.296.0/windows/VulkanRT-1.3.296.0-Components.zip
           Expand-Archive vulkan-sdk.zip -DestinationPath $pwd\vulkan-sdk
           $env:Path += ";$pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64"
-          dir $pwd
-          dir $pwd\vulkan-sdk\
-          dir $pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components
-          dir $pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64
           cd ${{matrix.config.build_dir}}\windows\x64\output\bin
           ./run-tests.ps1
       - name: Prepare artifacts
