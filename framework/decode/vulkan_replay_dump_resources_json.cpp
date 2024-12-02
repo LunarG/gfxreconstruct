@@ -51,7 +51,7 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpImmutableResources"]   = options.dump_resources_dump_immutable_resources;
     dr_options["dumpResourcesDumpAllImageSubresources"] = options.dump_resources_dump_all_image_subresources;
     dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
-    dr_options["dumpResourcesDumpSeparateAlpja"]        = options.dump_resources_dump_separate_alpha;
+    dr_options["dumpResourcesDumpSeparateAlpha"]        = options.dump_resources_dump_separate_alpha;
 };
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
