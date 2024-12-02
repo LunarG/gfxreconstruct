@@ -28,7 +28,7 @@ find_package(SDL3)
 
 add_custom_target(gfxrecon-testapps)
 
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+SET(GFXRECON_INSTALL_TESTAPPDIR ${CMAKE_INSTALL_BINDIR}/test_apps)
 
 add_subdirectory(triangle)
 add_subdirectory(multisample-depth)
