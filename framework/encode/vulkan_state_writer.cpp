@@ -2861,6 +2861,9 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     *device_wrapper->physical_device->layer_table_ref,
                                                     device_wrapper->physical_device->memory_properties);
 
+        GFXRECON_ASSERT(device_wrapper->physical_device->parent_instance != nullptr);
+        resource_util.SetCallbacks(device_wrapper->physical_device->parent_instance->registered_app_callbacks);
+
         if (max_staging_copy_size > 0)
         {
             assert(device_wrapper != nullptr);

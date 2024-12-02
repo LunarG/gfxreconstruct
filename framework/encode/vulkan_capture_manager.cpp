@@ -1634,6 +1634,7 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
                 }
 
                 physical_device_wrapper->instance_api_version = instance_wrapper->api_version;
+                physical_device_wrapper->parent_instance      = instance_wrapper;
 
                 WriteSetDevicePropertiesCommand(physical_device_id, properties);
                 WriteSetDeviceMemoryPropertiesCommand(physical_device_id, physical_device_wrapper->memory_properties);
@@ -3426,6 +3427,23 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
     if (IsCaptureModeTrack())
     {
         state_tracker_->TrackBeginRendering(commandBuffer, pRenderingInfo);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCreateDebugReportCallbackEXT(
+    VkResult                                  result,
+    VkInstance                                instance,
+    const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks*              pAllocator,
+    VkDebugReportCallbackEXT*                 pCallback)
+{
+    if (result == VK_SUCCESS && pCreateInfo != nullptr && pCreateInfo->pfnCallback != nullptr)
+    {
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(instance);
+        if (wrapper != nullptr)
+        {
+            wrapper->registered_app_callbacks[pCreateInfo->pfnCallback] = pCreateInfo->pUserData;
+        }
     }
 }
 

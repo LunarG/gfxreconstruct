@@ -127,6 +127,7 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkInstance
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+struct InstanceWrapper;
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
     VulkanInstanceTable*            layer_table_ref{ nullptr };
@@ -146,14 +147,17 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
     // Track RayTracingPipelinePropertiesKHR
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> ray_tracing_pipeline_properties;
+
+    InstanceWrapper* parent_instance{ nullptr };
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
-    VulkanInstanceTable                 layer_table;
-    std::vector<PhysicalDeviceWrapper*> child_physical_devices;
-    bool                                have_device_properties{ false };
-    uint32_t                            api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    VulkanInstanceTable                           layer_table;
+    std::vector<PhysicalDeviceWrapper*>           child_physical_devices;
+    bool                                          have_device_properties{ false };
+    uint32_t                                      api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    std::map<PFN_vkDebugReportCallbackEXT, void*> registered_app_callbacks;
 };
 
 struct QueueWrapper : public HandleWrapper<VkQueue>
