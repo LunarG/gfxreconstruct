@@ -19,6 +19,7 @@ jobs:
             name: "Windows MSVC Debug",
             os: windows-latest,
             artifact: "gfxreconstruct-dev-windows-msvc-debug",
+            test_failure_artifact: "gfxreconstruct-test-failure-dev-windows-msvc-debug",
             type: "debug",
             build_dir: "dbuild",
             cc: "cl", cxx: "cl"
