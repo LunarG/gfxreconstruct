@@ -580,6 +580,7 @@ bool WritePngImageSeparateAlpha(const std::string& filename,
             GFXRECON_LOG_ERROR("%s() Failed writing file %s", __func__, alpha_filename.c_str());
         }
     }
+
     return success;
 }
 

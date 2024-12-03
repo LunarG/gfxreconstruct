@@ -249,7 +249,7 @@ class FileProcessor
     {
         ActiveFiles() {}
 
-        ActiveFiles(FILE* _fd) : fd(_fd) {}
+        ActiveFiles(FILE* fd_) : fd(fd_) {}
 
         FILE* fd{ nullptr };
     };
@@ -258,9 +258,9 @@ class FileProcessor
 
     struct ActiveFileContext
     {
-        ActiveFileContext(std::string _filename) : filename(std::move(_filename)){};
-        ActiveFileContext(std::string _filename, bool _execute_till_eof) :
-            filename(std::move(_filename)), execute_till_eof(_execute_till_eof){};
+        ActiveFileContext(std::string filename_) : filename(std::move(filename_)){};
+        ActiveFileContext(std::string filename_, bool execute_till_eof_) :
+            filename(std::move(filename_)), execute_till_eof(execute_till_eof_){};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };
