@@ -47,7 +47,7 @@ target_link_libraries(gfxrecon-testapp-runner
         GTest::gtest GTest::gtest_main)
 gtest_discover_tests(gfxrecon-testapp-runner)
 
-install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR} PERMISSIONS OWNER_EXECUTE)
+install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
 install(DIRECTORY known_good DESTINATION ${GFXRECON_INSTALL_TESTDIR})
 install(PROGRAMS run-tests.sh DESTINATION ${GFXRECON_INSTALL_TESTDIR})
 install(PROGRAMS run-tests.ps1 DESTINATION ${GFXRECON_INSTALL_TESTDIR})
