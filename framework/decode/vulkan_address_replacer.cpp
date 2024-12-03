@@ -22,10 +22,27 @@
 
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_address_replacer_shaders.h"
+#include "decode/mark_injected_commands.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+//! RAII helper to mark injected commands in scope
+struct mark_injected_commands_helper_t
+{
+    mark_injected_commands_helper_t()
+    {
+        // mark injected commands
+        decode::BeginInjectedCommands();
+    }
+
+    ~mark_injected_commands_helper_t()
+    {
+        // mark end of injected commands
+        decode::EndInjectedCommands();
+    }
+};
 
 inline uint32_t aligned_size(uint32_t size, uint32_t alignment)
 {
@@ -129,6 +146,13 @@ VulkanAddressReplacer::VulkanAddressReplacer(VulkanAddressReplacer&& other) noex
 
 VulkanAddressReplacer::~VulkanAddressReplacer()
 {
+    mark_injected_commands_helper_t mark_injected_commands_helper;
+
+    // explicitly free resources here, in order to mark destruction API-calls as injected
+    pipeline_context_sbt_ = {};
+    pipeline_context_bda_ = {};
+    shadow_sbt_map_       = {};
+
     if (pipeline_bda_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyPipeline(device_, pipeline_bda_, nullptr);
@@ -179,6 +203,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
+        // mark injected commands
+        decode::BeginInjectedCommands();
+
         if (pipeline_sbt_ == VK_NULL_HANDLE)
         {
             init_pipeline();
@@ -365,6 +392,10 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                                             command_buffer_info->push_constant_data.size(),
                                             command_buffer_info->push_constant_data.data());
         }
+
+        // mark end of injected commands
+        decode::EndInjectedCommands();
+
     } // !valid_sbt_alignment_ || !valid_group_handles
 }
 
@@ -471,6 +502,9 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
         if (!hashmap_bda_.empty())
         {
+            // mark injected commands
+            decode::BeginInjectedCommands();
+
             if (pipeline_bda_ == VK_NULL_HANDLE)
             {
                 init_pipeline();
@@ -535,7 +569,10 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                                 command_buffer_info->push_constant_data.size(),
                                                 command_buffer_info->push_constant_data.data());
             }
-        }
+
+            // mark end of injected commands
+            decode::EndInjectedCommands();
+        } // !hashmap_bda_.empty()
     }
 }
 
