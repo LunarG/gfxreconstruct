@@ -1,0 +1,67 @@
+name: CI Build
+
+# Perform CI builds for pull requests targeting the dev branches.
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "Windows MSVC Debug",
+            os: windows-latest,
+            artifact: "gfxreconstruct-dev-windows-msvc-debug",
+            test_failure_artifact: "gfxreconstruct-test-failure-dev-windows-msvc-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "cl", cxx: "cl"
+          }
+    steps:
+      - name: Require Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Ply Python Module
+        run: pip install ply
+      - name: Run with VsDevCmd
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install SDK 20348
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+        with:
+          sdk-version: 20348
+      - name: Set WindowsSDKVersion
+        run:
+          echo ("WindowsSDKVersion=10.0.20348.0\") >> $env:GITHUB_ENV
+      - name: Clone repository from merge of PR branch and dev branch
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Check generated code
+        run: |
+          python3 framework/generated/generate_dx12.py # check generated code isn't out of date
+          git diff --exit-code
+      - name: Run build script
+        run: |
+          python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
+      - name: Run test app test cases
+        id: test_apps
+        run: |
+          curl.exe -o vulkan-sdk.zip https://sdk.lunarg.com/sdk/download/1.3.296.0/windows/VulkanRT-1.3.296.0-Components.zip
+          Expand-Archive vulkan-sdk.zip -DestinationPath $pwd\vulkan-sdk
+          $env:Path += ";$pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64"
+          cd ${{matrix.config.build_dir}}\windows\x64\output\test
+          ./run-tests.ps1
+      - name: Upload test failure artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
+        with:
+          name: ${{ matrix.config.test_failure_artifact }}
+          path: ${{matrix.config.build_dir}}\windows\x64\output\test
