@@ -29,7 +29,7 @@ add_executable(gfxrecon-testapp-multisample-depth app.cpp)
 target_link_libraries(gfxrecon-testapp-multisample-depth vulkan_memory_allocator gfxrecon-testapp-base platform_specific)
 common_build_directives(gfxrecon-testapp-multisample-depth)
 
-install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth PERMISSIONS OWNER_EXECUTE)
+install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth )
 install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-multisample-depth)
