@@ -38,7 +38,7 @@ add_executable(gfxrecon-testapp-runner
         test_cases/pipeline-binaries.cpp
         verify-gfxr.cpp
 )
-add_dependencies(gfxrecon-testapp-runner gfxrecon-testapps VkICD_mock_icd)
+add_dependencies(gfxrecon-testapp-runner gfxrecon-testapps VkICD_mock_icd gfxrecon-convert VkLayer_gfxreconstruct)
 target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(gfxrecon-testapp-runner
         nlohmann_json::nlohmann_json

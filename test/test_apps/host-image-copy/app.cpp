@@ -29,11 +29,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(host_image_copy)
+namespace host_image_copy
+{
 
 class App : public gfxrecon::test::TestAppBase
 {
@@ -469,11 +472,11 @@ void App::setup()
     init.disp.createFence(&fence_create_info, nullptr, &fence_);
 }
 
-GFXRECON_END_NAMESPACE(host_image_copy)
+} // namespace host_image_copy
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {

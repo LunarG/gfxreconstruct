@@ -39,7 +39,6 @@
 #include <SDL3/SDL_vulkan.h>
 
 #include "test_app_dispatch.h"
-#include "util/defines.h"
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -63,14 +62,17 @@
 #define VKB_VK_API_VERSION_1_0 VKB_MAKE_VK_VERSION(0, 1, 0, 0)
 #endif
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test)
+namespace test
+{
 
 std::exception vulkan_exception(const char* message, VkResult result);
 std::exception sdl_exception();
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 struct GenericFeaturesPNextNode
 {
 
@@ -122,7 +124,7 @@ struct GenericFeatureChain
     void combine(GenericFeatureChain const& right) noexcept;
 };
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 enum class InstanceError
 {
@@ -1088,8 +1090,8 @@ class TestAppBase
     InitInfo init;
 };
 
-GFXRECON_END_NAMESPACE(test)
+} // namespace test
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 #endif // GFXRECON_TEST_APP_BASE_H

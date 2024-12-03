@@ -39,11 +39,14 @@
 #include <fstream>
 #include <Vulkan-Utility-Libraries/vk_enum_string_helper.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test)
+namespace test
+{
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 GenericFeaturesPNextNode::GenericFeaturesPNextNode()
 {
@@ -173,7 +176,7 @@ class VulkanFunctions
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library                = LoadLibrary(TEXT("vulkan-1.dll"));
+        library = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
@@ -335,7 +338,7 @@ auto get_vector_noerror(F&& f, Ts&&... ts) -> std::vector<T>
     return results;
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 const char* to_string_message_severity(VkDebugUtilsMessageSeverityFlagBitsEXT s)
 {
@@ -413,7 +416,8 @@ void destroy_debug_utils_messenger(VkInstance               instance,
     }
 }
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 bool check_layer_supported(std::vector<VkLayerProperties> const& available_layers, const char* layer_name)
 {
@@ -484,7 +488,7 @@ void setup_pNext_chain(T& structure, std::vector<VkBaseOutStructure*> const& str
 }
 const char* validation_layer_name = "VK_LAYER_KHRONOS_validation";
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 #define CASE_TO_STRING(CATEGORY, TYPE) \
     case CATEGORY::TYPE:               \
@@ -1123,7 +1127,8 @@ void destroy_debug_messenger(VkInstance const instance, VkDebugUtilsMessengerEXT
 
 // ---- Physical Device ---- //
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 std::vector<std::string> check_device_extension_support(std::vector<std::string> const& available_extensions,
                                                         std::vector<std::string> const& desired_extensions)
@@ -1337,7 +1342,7 @@ std::optional<uint32_t> get_present_queue_index(VkPhysicalDevice const          
     return {};
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 PhysicalDevice
 PhysicalDeviceSelector::populate_device_details(VkPhysicalDevice                   vk_phys_device,
@@ -2146,7 +2151,8 @@ DeviceBuilder& DeviceBuilder::set_allocation_callbacks(VkAllocationCallbacks* ca
 
 // ---- Swapchain ---- //
 
-GFXRECON_BEGIN_NAMESPACE(detail)
+namespace detail
+{
 
 struct SurfaceSupportDetails
 {
@@ -2291,7 +2297,7 @@ VkExtent2D find_extent(VkSurfaceCapabilitiesKHR const& capabilities, uint32_t de
     }
 }
 
-GFXRECON_END_NAMESPACE(detail)
+} // namespace detail
 
 void destroy_swapchain(Swapchain const& swapchain)
 {
@@ -2976,6 +2982,6 @@ bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& f
     return physical_device.enable_features_if_present(features_to_enable);
 }
 
-GFXRECON_END_NAMESPACE(test)
+} // namespace test
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
