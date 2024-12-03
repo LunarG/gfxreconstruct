@@ -55,6 +55,9 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_address_replacer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_address_replacer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_address_replacer_shaders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_device_address_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_device_address_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.h

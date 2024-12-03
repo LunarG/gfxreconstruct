@@ -280,11 +280,8 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     std::string                      capture_device_name;
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};
 
-    // capture raytracing shader-binding-table properties
-    // extracted from VkPhysicalDeviceRayTracingPipelinePropertiesKHR
-    uint32_t shaderGroupHandleSize      = 0;
-    uint32_t shaderGroupBaseAlignment   = 0;
-    uint32_t shaderGroupHandleAlignment = 0;
+    // capture raytracing (shader-binding-table) properties
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_raytracing_properties = {};
 
     // Closest matching replay device.
     VulkanReplayDeviceInfo* replay_device_info{ nullptr };
@@ -623,6 +620,9 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::vector<format::HandleId>                       frame_buffer_ids;
     std::unordered_map<format::HandleId, VkImageLayout> image_layout_barriers;
     format::HandleId                                    bound_pipeline_id = format::kNullHandleId;
+    std::vector<uint8_t>                                push_constant_data;
+    VkShaderStageFlags                                  push_constant_stage_flags     = 0;
+    VkPipelineLayout                                    push_constant_pipeline_layout = VK_NULL_HANDLE;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>

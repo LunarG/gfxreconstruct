@@ -123,6 +123,22 @@ VulkanDeviceAddressTracker::GetAccelerationStructureByCaptureDeviceAddress(VkDev
     }
     return nullptr;
 }
+std::unordered_map<VkDeviceAddress, VkDeviceAddress>
+VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
+{
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> ret;
+    for (const auto& [address, handleId] : _acceleration_structure_capture_addresses)
+    {
+        const VulkanAccelerationStructureKHRInfo* acceleration_structure_info =
+            _object_info_table.GetVkAccelerationStructureKHRInfo(handleId);
+
+        if (acceleration_structure_info != nullptr && acceleration_structure_info->replay_address != 0)
+        {
+            ret[address] = acceleration_structure_info->replay_address;
+        }
+    }
+    return ret;
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

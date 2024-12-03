@@ -25,6 +25,7 @@
 
 #include "util/defines.h"
 #include "util/hash.h"
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -75,7 +76,7 @@ class linear_hashmap
 
     linear_hashmap()                      = default;
     linear_hashmap(const linear_hashmap&) = delete;
-    linear_hashmap(linear_hashmap& other) : linear_hashmap() { swap(*this, other); };
+    linear_hashmap(linear_hashmap&& other) noexcept : linear_hashmap() { swap(*this, other); };
     linear_hashmap& operator=(linear_hashmap other)
     {
         swap(*this, other);
