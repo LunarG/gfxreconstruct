@@ -24,6 +24,8 @@
 # Description: CMake script for gfxrecon tests
 ###############################################################################
 
+set(GFXRECON_INSTALL_TESTDIR ${CMAKE_INSTALL_PREFIX}/test)
+
 add_subdirectory(icd)
 add_subdirectory(test_apps)
 
@@ -44,7 +46,16 @@ target_link_libraries(gfxrecon-testapp-runner
         nlohmann_json::nlohmann_json
         GTest::gtest GTest::gtest_main)
 gtest_discover_tests(gfxrecon-testapp-runner)
-install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS OWNER_EXECUTE)
-install(DIRECTORY known_good DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(PROGRAMS run-tests.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(PROGRAMS run-tests.ps1 DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR} PERMISSIONS OWNER_EXECUTE)
+install(DIRECTORY known_good DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+install(PROGRAMS run-tests.sh DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+install(PROGRAMS run-tests.ps1 DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+install(TARGETS gfxrecon-convert RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR} PERMISSIONS OWNER_EXECUTE)
+install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+if (UNIX)
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d)
+else()
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+endif()
+
