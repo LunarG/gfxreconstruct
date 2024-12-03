@@ -206,14 +206,14 @@ jobs:
     - name: Run test app test cases
       id: test_apps
       run: |
-        cd ${{matrix.config.build_dir}}\darwin\universal\output\test
+        cd ${{matrix.config.build_dir}}/darwin/universal/output/test
         ./run-tests.sh
     - name: Upload test failure artifacts
       uses: actions/upload-artifact@v4
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
-        path: ${{matrix.config.build_dir}}\darwin\universal\output\test
+        path: ${{matrix.config.build_dir}}/darwin/universal/output/test
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
