@@ -656,8 +656,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionAccelStructPadding), settings->trace_settings_.accel_struct_padding);
 
     // IUnknown wrapping option
-    settings->trace_settings_.iunknown_wrapping =
-        ParseBoolString(FindOption(options, kOptionKeyCaptureIUnknownWrapping), settings->trace_settings_.disable_dxr);
+    settings->trace_settings_.iunknown_wrapping = ParseBoolString(
+        FindOption(options, kOptionKeyCaptureIUnknownWrapping), settings->trace_settings_.iunknown_wrapping);
 
     settings->trace_settings_.force_command_serialization = ParseBoolString(
         FindOption(options, kOptionForceCommandSerialization), settings->trace_settings_.force_command_serialization);
