@@ -26,35 +26,9 @@
 # Description: CMake script for shader-objects test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-shader-objects "")
+add_executable(gfxrecon-testapp-shader-objects app.cpp)
 
-target_sources(gfxrecon-testapp-shader-objects
-        PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/app.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/../common/test_app_base.cpp)
-
-target_include_directories(gfxrecon-testapp-shader-objects PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/../common)
-
-target_link_libraries(gfxrecon-testapp-shader-objects
-        gfxrecon_application
-        gfxrecon_decode
-        gfxrecon_graphics
-        gfxrecon_format
-        gfxrecon_util
-        SDL3::SDL3-static
-        platform_specific)
-
-if (MSVC)
-    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else ()
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif ()
-endif ()
+target_link_libraries(gfxrecon-testapp-shader-objects gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-shader-objects)
 

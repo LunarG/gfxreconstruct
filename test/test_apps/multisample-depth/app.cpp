@@ -20,6 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#define VMA_IMPLEMENTATION
+
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
@@ -29,11 +31,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(multisample_depth)
+namespace multisample_depth
+{
 
 const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -657,11 +662,11 @@ void App::setup()
     this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 }
 
-GFXRECON_END_NAMESPACE(multisample_depth)
+} // namespace multisample_depth
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {

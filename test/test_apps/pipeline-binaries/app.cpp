@@ -29,11 +29,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(pipeline_binaries)
+namespace pipeline_binaries
+{
 
 class App : public gfxrecon::test::TestAppBase
 {
@@ -297,11 +300,11 @@ void App::setup()
     create_graphics_pipeline();
 }
 
-GFXRECON_END_NAMESPACE(pipeline_binaries)
+} // namespace pipeline_binaries
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {
