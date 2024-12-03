@@ -6028,11 +6028,22 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
                     (pPipelineCache->GetHandlePointer() != nullptr) && (pCreateInfo->GetPointer() != nullptr));
 
     VkPipelineCacheCreateInfo override_create_info = *pCreateInfo->GetPointer();
+    std::vector<char>         pipelineCacheData;
 
-    // If pipeline cache must be loaded from file
-    std::vector<char> pipelineCacheData;
-    if (!options_.load_pipeline_cache_filename.empty())
+    // If pipeline cache must not be loaded
+    if (options_.omit_pipeline_cache_data)
     {
+        if (override_create_info.initialDataSize != 0)
+        {
+            omitted_pipeline_cache_data_ = true;
+        }
+
+        override_create_info.initialDataSize = 0;
+        override_create_info.pInitialData    = nullptr;
+    }
+    else if (!options_.load_pipeline_cache_filename.empty())
+    {
+        // If pipeline cache must be loaded from file
         LoadPipelineCache(*pPipelineCache->GetPointer(), pipelineCacheData);
 
         if (!pipelineCacheData.empty())
@@ -6049,22 +6060,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             override_create_info.pInitialData    = nullptr;
         }
     }
-
-    // If pipeline cache must not be loaded
-    else if (options_.omit_pipeline_cache_data)
-    {
-        if (override_create_info.initialDataSize != 0)
-        {
-            omitted_pipeline_cache_data_ = true;
-        }
-
-        override_create_info.initialDataSize = 0;
-        override_create_info.pInitialData    = nullptr;
-    }
-
-    // If tracked pipeline cache data can be used
     else if ((override_create_info.pInitialData != nullptr) && (override_create_info.initialDataSize != 0))
     {
+        // If tracked pipeline cache data can be used
+
         // This vkCreatePipelineCache call has initial pipeline cache data, the data is valid for capture time,
         // but it might not be valid for replay time if considering platform/driver version change. So in the
         // following process, we'll try to find corresponding replay time pipeline cache data.
