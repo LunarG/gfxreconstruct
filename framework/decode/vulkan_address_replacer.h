@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_GRAPHICS_VULKAN_ADDRESS_REPLACER_H
-#define GFXRECON_GRAPHICS_VULKAN_ADDRESS_REPLACER_H
+#ifndef GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
+#define GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
@@ -32,6 +32,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+/**
+ * @brief   VulkanAddressReplacer can be used to check and potentially sanitize input-parameters for various cases.
+ *
+ * Important note: all internal Vulkan-API calls performed by this class are expected to be wrapped by calls to:
+ * - decode::BeginInjectedCommands() / decode::EndInjectedCommands()
+ */
 class VulkanAddressReplacer
 {
   public:
@@ -120,9 +126,9 @@ class VulkanAddressReplacer
         buffer_context_t hashmap_storage      = {};
     };
 
-    void init_pipeline();
+    [[nodiscard]] bool init_pipeline();
 
-    bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context, uint32_t usage_flags = 0);
+    [[nodiscard]] bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context, uint32_t usage_flags = 0);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -159,4 +165,4 @@ class VulkanAddressReplacer
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_GRAPHICS_VULKAN_ADDRESS_REPLACER_H
+#endif // GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
