@@ -91,9 +91,9 @@ endif()
 set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${MOCK_ICD_NAME}.json.in")
 set(INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/mock_icd.json")
 set(OUTPUT_FILE_FINAL_NAME "${MOCK_ICD_NAME}.json")
-set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/test_apps)
+set(LAYER_INSTALL_DIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
 if (WIN32)
-    set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/test_apps) # WIN32 expect the dll in the `bin` dir, this matches our WIN32 SDK process
+    set(LAYER_INSTALL_DIR ${GFXRECON_INSTALL_TESTDIR}/test_apps) # WIN32 expect the dll in the `bin` dir, this matches our WIN32 SDK process
 endif()
 
 if (WIN32)

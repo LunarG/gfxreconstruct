@@ -57,11 +57,11 @@ jobs:
           curl.exe -o vulkan-sdk.zip https://sdk.lunarg.com/sdk/download/1.3.296.0/windows/VulkanRT-1.3.296.0-Components.zip
           Expand-Archive vulkan-sdk.zip -DestinationPath $pwd\vulkan-sdk
           $env:Path += ";$pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64"
-          cd ${{matrix.config.build_dir}}\windows\x64\output\bin
+          cd ${{matrix.config.build_dir}}\windows\x64\output\test
           ./run-tests.ps1
       - name: Upload test failure artifacts
         uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
         with:
           name: ${{ matrix.config.test_failure_artifact }}
-          path: ${{matrix.config.build_dir}}\windows\x64\output\bin
+          path: ${{matrix.config.build_dir}}\windows\x64\output\test
