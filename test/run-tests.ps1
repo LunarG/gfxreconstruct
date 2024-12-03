@@ -14,8 +14,10 @@ if ($is_admin) {
     $env:VK_DRIVER_FILES="$pwd\test_apps\VkICD_mock_icd.json"
     $env:VK_INSTANCE_LAYERS="VK_LAYER_LUNARG_gfxreconstruct"
 }
+$env:VK_LOADER_LAYERS_DISABLE="~all~"
+$env:VK_LOADER_LAYERS_ENABLE="*gfxreconstruct*"
 $env:GFXRECON_CAPTURE_FILE_TIMESTAMP="false"
 $env:GFXRECON_CAPTURE_FILE="actual.gfxr"
 # $env:GFXRECON_LOG_LEVEL="info"
-$env:VK_LOADER_DEBUG="driver"
+# $env:VK_LOADER_DEBUG="layer"
 ./gfxrecon-testapp-runner.exe
