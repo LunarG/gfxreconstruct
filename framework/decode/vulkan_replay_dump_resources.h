@@ -357,7 +357,7 @@ class VulkanReplayDumpResourcesBase
     std::string capture_filename;
 
     std::function<void(const char*)> fatal_error_handler_;
-    void RaiseFatalError(const char* message) const;
+    void                             RaiseFatalError(const char* message) const;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
