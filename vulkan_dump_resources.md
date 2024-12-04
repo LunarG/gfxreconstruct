@@ -471,8 +471,7 @@ Here is an example of a json output file:
 
 ### Image file output
 
-The image files that created are either images (in one of the supported image formats), `.astc` files, or raw binary files (`.bin`).
-Astc compressed images are dumped as .astc files which can be decompressed and converted into a plain image file offline on the host.
+The image files that created are either images (in one of the supported image formats), or raw binary files (`.bin`).
 Raw binary files are created when the dumped resource is an image with a format which cannot be converted into a plain 32bit RGBA layout.
 
 ### Buffer file output
