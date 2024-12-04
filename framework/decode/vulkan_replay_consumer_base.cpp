@@ -1035,6 +1035,13 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     }
 }
 
+void VulkanReplayConsumerBase::SetFatalErrorHandler(std::function<void(const char*)> handler)
+{
+    fatal_error_handler_ = handler;
+    assert(resource_dumper_);
+    resource_dumper_->DumpResourcesSetFatalErrorHandler(handler);
+}
+
 void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 {
     // TODO: Should there be a default action if no error handler has been provided?

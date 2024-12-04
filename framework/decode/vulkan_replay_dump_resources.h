@@ -317,6 +317,8 @@ class VulkanReplayDumpResourcesBase
                                    uint32_t                                                          createInfoCount,
                                    HandlePointerDecoder<VkPipeline>*                                 pPipelines);
 
+    void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
+
   private:
     bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
 
@@ -353,6 +355,9 @@ class VulkanReplayDumpResourcesBase
     bool                          output_json_per_command;
 
     std::string capture_filename;
+
+    std::function<void(const char*)> fatal_error_handler_;
+    void RaiseFatalError(const char* message) const;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

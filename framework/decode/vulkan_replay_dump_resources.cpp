@@ -1876,10 +1876,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                     queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
                 if (res != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_ERROR("Dumping draw calls failed (%s). Terminating.",
-                                       util::ToString<VkResult>(res).c_str())
                     Release();
-                    exit(1);
+                    RaiseFatalError(("Dumping draw calls failed (" + util::ToString<VkResult>(res) + ")").c_str());
                     return res;
                 }
 
@@ -1891,12 +1889,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
                 res = dr_context->DumpDispatchTraceRays(
                     queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
+                res = VK_TIMEOUT;   // DEBUG!!
                 if (res != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_ERROR("Dumping dispatch/ray tracing failed (%s). Terminating.",
-                                       util::ToString<VkResult>(res).c_str())
                     Release();
-                    exit(1);
+                    RaiseFatalError(("Dumping dispatch/ray tracing failed (" + util::ToString<VkResult>(res) + ")").c_str());
                     return res;
                 }
 
@@ -2167,6 +2164,19 @@ void VulkanReplayDumpResourcesBase::OverrideEndCommandBuffer(const ApiCallInfo& 
         {
             context->EndCommandBuffer();
         }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler)
+{
+    fatal_error_handler_ = handler;
+}
+
+void VulkanReplayDumpResourcesBase::RaiseFatalError(const char* message) const
+{
+    if (fatal_error_handler_ != nullptr)
+    {
+        fatal_error_handler_(message);
     }
 }
 
