@@ -231,6 +231,11 @@ debug breaks may be disabled with the following command:
 process handle SIGSEGV -n true -p true -s false
 ```
 
+The equivalent command for GDB is:
+
+```text
+handle SIGSEGV nostop noprint
+```
 
 ### Capture Options
 
