@@ -220,6 +220,23 @@ reset. The signal used one of the real time signals, the first in the range
 `userfaultfd` is less efficient performance wise than `page_guard` but
 should be fast enough for real-world applications and games.
 
+##### Disabling Debug Breaks Triggered by the GFXReconstruct Layer
+
+When running an application in a debugger with the layer enabled, the
+access violations triggered by the layer's memory tracking behavior may
+cause the debugger to break. For example, on macOS using LLDB, these
+debug breaks may be disabled with the following command:
+
+```text
+process handle SIGSEGV -n true -p true -s false
+```
+
+The equivalent command for GDB is:
+
+```text
+handle SIGSEGV nostop noprint
+```
+
 ### Capture Options
 
 The GFXReconstruct layer supports several options, which may be enabled
