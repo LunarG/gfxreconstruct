@@ -375,7 +375,12 @@ class VulkanReplayConsumerBodyGenerator(
                         else:
                             dump_resource_arglist += 'in_' + val.name + '->handle'
                     else:
-                        dump_resource_arglist += val.name
+                        if val.is_pointer and val.base_type == "void":
+                            # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
+                            # -> dump-resource API expects raw void*
+                            dump_resource_arglist += val.name + '->GetPointer()'
+                        else:
+                            dump_resource_arglist += val.name
                     dump_resource_arglist += ', '
                 dump_resource_arglist = dump_resource_arglist[:-2]
             else:

@@ -2231,7 +2231,7 @@ void VulkanReplayConsumer::Process_vkCmdPushConstants(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushConstants(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants, in_commandBuffer->handle, in_layout->handle, stageFlags, offset, size, pValues);
+        resource_dumper_->Process_vkCmdPushConstants(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants, in_commandBuffer->handle, in_layout->handle, stageFlags, offset, size, pValues->GetPointer());
     }
 }
 
