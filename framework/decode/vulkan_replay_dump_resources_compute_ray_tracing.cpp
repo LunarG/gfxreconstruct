@@ -2069,7 +2069,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
     if (output_json_per_command)
     {
         std::stringstream filename;
-        filename << "Dispatch_" << disp_index << "_qs_" << qs_index << "_bcb_" << bcb_index << ".json";
+        filename << "Dispatch_" << disp_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str());
         std::string           full_filename = (filedirname / filebasename).string();
@@ -2518,7 +2518,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
     if (output_json_per_command)
     {
         std::stringstream filename;
-        filename << "TraceRays_" << tr_index << "_qs_" << qs_index << "_bcb_" << bcb_index << ".json";
+        filename << "TraceRays_" << tr_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str());
         std::string           full_filename = (filedirname / filebasename).string();

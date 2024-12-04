@@ -990,7 +990,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     {
         std::stringstream filename;
         filename << capture_filename << "_";
-        filename << "DrawCall_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << ".json";
+        filename << "DrawCall_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str());
         std::string           full_filename = (filedirname / filebasename).string();
