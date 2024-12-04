@@ -1640,7 +1640,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             }
 
             VulkanImageInfo* depth_attachment;
-            VkImageLayout depth_attachment_layout;
+            VkImageLayout    depth_attachment_layout;
             if (rendering_info_meta->pDepthAttachment != nullptr &&
                 rendering_info_meta->pDepthAttachment->GetMetaStructPointer() != nullptr)
             {
@@ -1889,11 +1889,11 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
                 res = dr_context->DumpDispatchTraceRays(
                     queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
-                res = VK_TIMEOUT;   // DEBUG!!
                 if (res != VK_SUCCESS)
                 {
                     Release();
-                    RaiseFatalError(("Dumping dispatch/ray tracing failed (" + util::ToString<VkResult>(res) + ")").c_str());
+                    RaiseFatalError(
+                        ("Dumping dispatch/ray tracing failed (" + util::ToString<VkResult>(res) + ")").c_str());
                     return res;
                 }
 
