@@ -57,7 +57,7 @@ class FileOptimizer : public decode::FileTransformer
 
     bool FilterMethodCall(const format::BlockHeader& block_header, format::ApiCallId api_call_id, uint64_t block_index);
 
-  private:
+  protected:
     std::unordered_set<format::HandleId> unreferenced_ids_;
     std::unordered_set<uint64_t>         unreferenced_blocks_;
 };
