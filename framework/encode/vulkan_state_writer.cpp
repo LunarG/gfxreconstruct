@@ -88,14 +88,19 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                  ou
                                      format::ThreadId                         thread_id,
                                      std::function<format::HandleId()>        get_unique_id_fn,
                                      util::FileOutputStream*                  asset_file_stream,
-                                     const std::string&                       asset_file_name,
+                                     const std::string*                       asset_file_name,
                                      VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets) :
     output_stream_(output_stream),
     compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_),
     get_unique_id_(std::move(get_unique_id_fn)), asset_file_stream_(asset_file_stream),
-    asset_file_name_(asset_file_name), asset_file_offsets_(asset_file_offsets)
+    asset_file_offsets_(asset_file_offsets)
 {
     assert(output_stream != nullptr || asset_file_stream != nullptr);
+
+    if (asset_file_name != nullptr)
+    {
+        asset_file_name_ = *asset_file_name;
+    }
 }
 
 uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table)

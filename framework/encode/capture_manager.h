@@ -279,12 +279,12 @@ class CommonCaptureManager
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateTrimDrawCallsFilename(const std::string&                    base_filename,
                                             const CaptureSettings::TrimDrawCalls& trim_draw_calls);
-    void        CreateAssetFile();
-    std::string CreateAssetFilename(const std::string& base_filename) const;
-    bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
-    void        WriteCaptureOptions(std::string& operation_annotation);
-    void        ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
-    void        DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
+    std::unique_ptr<util::FileOutputStream> CreateAssetFile();
+    std::string                             CreateAssetFilename(const std::string& base_filename) const;
+    bool CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
+    void WriteCaptureOptions(std::string& operation_annotation);
+    void ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
+    void DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
 
     void WriteFileHeader(util::FileOutputStream* file_stream = nullptr);
 
@@ -373,7 +373,6 @@ class CommonCaptureManager
         capture_settings_; // Settings from the settings file and environment at capture manager creation time.
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
-    std::unique_ptr<util::FileOutputStream> asset_file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
     std::string                             capture_filename_;
