@@ -266,31 +266,99 @@ class Dx12ReplayConsumerBodyGenerator(
 
             if is_class:
                 if is_output:
-                    handle_length = 1
-                    code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
-                            .format(value.name, handle_length)
-                    if is_override:
-                        code += '    DxObjectInfo object_info_{0}{{}};\n'\
-                                '    {0}->SetConsumerData(0, &object_info_{0});\n'\
-                                .format(value.name)
+                    handles = 1
+                    if is_variable_length_array:
+                        handles = value.array_length.replace(
+                            ' ', ''
+                        ) + '->GetOutputPointer()'
+                        array_length = value.array_length.replace('* ', '')
+                        # Ensure that the array's output data initialization expression is written to the
+                        # file after the size parameter is initialized, storing the expression string now
+                        # and appending it to the code string immediately before generating the API call,
+                        # after all other parameters have been processed.
+                        set_length_expr = '    if(!{}->IsNull() && !{}->IsNull())\n    {{\n        {}->SetHandleLength({});\n'.format(
+                            value.name, array_length, value.name, handles
+                        )
+
+                        if is_override:
+                            set_length_expr += '        for (size_t i = 0; i < {1}; ++i) {{ {0}->SetConsumerData(i, &object_info_{0}[i]); }}\n'.format(
+                                value.name, handles
+                            )
+                            set_length_expr += '    }\n'
+                        else:
+                            set_length_expr += '    }\n'
+                            set_length_expr += '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                                               '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'.format(value.name)
+
+                        # Add a null check to the expression stored in handles for its use here and in the
+                        # AddObjects expression generated below.
+                        handles = '!{}->IsNull() ? {} : 0'.format(array_length, handles)
+                        if is_override:
+                            set_length_expr = '    std::vector<DxObjectInfo> object_info_{}({});\n'.format(
+                                value.name, handles
+                            ) + set_length_expr
+                        pre_call_expr_list.append(set_length_expr)
                     else:
-                        code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
-                                '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
-                                .format(value.name)
+                        if value.array_length:
+                            if isinstance(value.array_length, str
+                                          ) and value.array_length[0] == '*':
+                                handles = value.array_length + '->GetPointer()'
+                            else:
+                                handles = value.array_length
+                        if is_override:
+                            if value.array_length:
+                                code += '    std::vector<DxObjectInfo> object_info_{}({});\n'.format(
+                                    value.name, handles
+                                )
+                            else:
+                                code += '    DxObjectInfo object_info_{}{{}};\n'.format(
+                                    value.name
+                                )
+                            code += '    if(!{0}->IsNull())\n    {{\n        {0}->SetHandleLength({1});\n'\
+                                    .format(value.name, handles)
+                            if value.array_length:
+                                code += '        for (size_t i = 0; i < {1}; ++i) {{ {0}->SetConsumerData(i, &object_info_{0}[i]); }}\n'.format(
+                                    value.name, handles
+                                )
+                            else:
+                                code += '        {0}->SetConsumerData(0, &object_info_{0});\n'\
+                                        .format(value.name)
+                            code += '    }\n'
+                        else:
+                            code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
+                                        .format(value.name, handles)
+                            code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                                    '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
+                                    .format(value.name)
 
                     if is_override:
                         arg_list.append(value.name)
+                        if value.array_length:
+                            add_object_list.append(
+                                 'AddObjects({0}->GetPointer(), {0}->GetLength(), {0}->GetHandlePointer(), {1}'\
+                                 'std::move(object_info_{0}), format::ApiCall_{2});\n'\
+                                 .format(value.name, handles, name)
+                            )
+                        else:
+                            add_object_list.append(
+                                'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), '\
+                                'std::move(object_info_{0}), format::ApiCall_{1});\n'\
+                                .format(value.name, name)
+                            )
                     else:
                         arg_list.append('out_hp_{}'.format(value.name))
+                        if value.array_length:
+                            add_object_list.append(
+                                'AddObjects(out_p_{0}, {0}->GetLength(), out_hp_{0}, {1}, format::ApiCall_{2});\n'
+                                .format(value.name, handles, name)
+                            )
+                        else:
+                            add_object_list.append(
+                                'AddObject(out_p_{0}, out_hp_{0}, format::ApiCall_{1});\n'.format(
+                                    value.name, name
+                                )
+                            )
 
-                    if is_override:
-                        add_object_list.append(
-                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), std::move(object_info_{0}), format::ApiCall_{1});\n'.format(value.name, name)
-                        )
-                    else:
-                        add_object_list.append(
-                            'AddObject(out_p_{0}, out_hp_{0}, format::ApiCall_{1});\n'.format(value.name, name)
-                        )
                     set_resource_dimension_layout_list.append(
                         'SetResourceDesc({0}, pDesc);\n'.format(
                             value.name
