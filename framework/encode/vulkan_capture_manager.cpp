@@ -730,12 +730,14 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
             wrapper->physical_device = physical_device_wrapper;
         }
 
+        wrapper->queue_family_indices.resize(pCreateInfo_unwrapped->queueCreateInfoCount);
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
             assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
                    wrapper->queue_family_creation_flags.end());
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+            wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
 
@@ -1687,7 +1689,14 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
     {
         const size_t ahb_size = properties.allocationSize;
         assert(ahb_size);
-        CommonProcessHardwareBuffer(thread_id, memory_id, hardware_buffer, ahb_size, this, nullptr);
+
+        CommonProcessHardwareBuffer(thread_id,
+                                    device_wrapper,
+                                    memory_id,
+                                    hardware_buffer,
+                                    ahb_size,
+                                    this,
+                                    nullptr);
     }
     else
     {
