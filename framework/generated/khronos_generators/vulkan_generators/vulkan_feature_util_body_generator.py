@@ -76,14 +76,14 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "decode/vulkan_feature_util.h"', file=self.outFile)
+        write('#include "graphics/vulkan_feature_util.h"', file=self.outFile)
         self.newline()
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include "format/platform_types.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(graphics)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(feature_util)', file=self.outFile)
 
     def endFile(self):
@@ -92,7 +92,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         write(self.make_feature_helper(), file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(feature_util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(graphics)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
