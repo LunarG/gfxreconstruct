@@ -35,6 +35,7 @@
 
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -56,6 +57,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t           GetAllocationCount() const { return allocation_count_; }
     uint64_t           GetMinAllocationSize() const { return min_allocation_size_; }
     uint64_t           GetMaxAllocationSize() const { return max_allocation_size_; }
+
+    const std::unordered_set<std::string>&              GetInstanceExtensions() const { return instance_extensions_; }
+    const std::vector<std::unordered_set<std::string>>& GetDeviceExtensions() const { return device_extension_sets_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -86,6 +90,13 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         {
             auto create_info = pCreateInfo->GetPointer();
             auto app_info    = create_info->pApplicationInfo;
+
+            for (uint32_t i = 0; i < create_info->enabledExtensionCount; i++)
+            {
+                std::string extension(create_info->ppEnabledExtensionNames[i]);
+                instance_extensions_.insert(extension);
+            }
+
             if (app_info != nullptr)
             {
                 if (app_info->pApplicationName != nullptr)
@@ -143,17 +154,30 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void
-    Process_vkCreateDevice(const gfxrecon::decode::ApiCallInfo& call_info,
-                           VkResult                             returnValue,
-                           gfxrecon::format::HandleId           physicalDevice,
-                           gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>*,
-                           gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
-                           gfxrecon::decode::HandlePointerDecoder<VkDevice>*) override
+    virtual void Process_vkCreateDevice(
+        const gfxrecon::decode::ApiCallInfo&                                                  call_info,
+        VkResult                                                                              returnValue,
+        gfxrecon::format::HandleId                                                            physicalDevice,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>* pCreateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
+        gfxrecon::decode::HandlePointerDecoder<VkDevice>*) override
     {
         if (returnValue >= 0)
         {
             used_physical_devices_.insert(physicalDevice);
+
+            if ((pCreateInfo != nullptr) && !pCreateInfo->IsNull())
+            {
+                auto create_info = pCreateInfo->GetPointer();
+
+                std::unordered_set<std::string> enabled_extensions;
+                for (uint32_t i = 0; i < create_info->enabledExtensionCount; i++)
+                {
+                    std::string extension(create_info->ppEnabledExtensionNames[i]);
+                    enabled_extensions.insert(extension);
+                }
+                device_extension_sets_.push_back(enabled_extensions);
+            }
         }
     }
 
@@ -417,6 +441,10 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     std::string engine_name_;
     uint32_t    engine_version_{ 0 };
     uint32_t    api_version_{ 0 };
+
+    // Extension info.
+    std::unordered_set<std::string>              instance_extensions_;
+    std::vector<std::unordered_set<std::string>> device_extension_sets_;
 
     // Physical device info.
     std::set<gfxrecon::format::HandleId>                                       used_physical_devices_;
