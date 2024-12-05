@@ -614,6 +614,12 @@ class Dx12ReplayConsumerBodyGenerator(
         if is_object:
             code += "\n        replay_object,"
 
+        if return_type != 'void':
+            code += (
+                "\n        return_value,"
+                "\n        replay_result,"
+            )
+
         for value in values:
             code += ('\n' + "        " + value.name + ",")
 
