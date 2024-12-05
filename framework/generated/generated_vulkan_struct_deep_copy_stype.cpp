@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
+inline uint8_t* offset_ptr(uint8_t* ptr, uint64_t offset)
 {
     return ptr != nullptr ? ptr + offset : nullptr;
 }

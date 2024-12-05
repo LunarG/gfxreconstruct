@@ -430,8 +430,10 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
     // by the dump resources feature
     struct ShaderDescriptorInfo
     {
-        ShaderDescriptorInfo(VkDescriptorType type, bool readonly, uint32_t accessed, uint32_t count, bool is_array) :
-            type(type), readonly(readonly), accessed(accessed), count(count), is_array(is_array)
+        ShaderDescriptorInfo(
+            VkDescriptorType _type, bool _readonly, uint32_t _accessed, uint32_t _count, bool _is_array) :
+            type(_type),
+            readonly(_readonly), accessed(_accessed), count(_count), is_array(_is_array)
         {}
 
         ShaderDescriptorInfo(const ShaderDescriptorInfo& other)            = default;

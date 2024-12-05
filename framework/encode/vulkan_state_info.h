@@ -144,14 +144,9 @@ enum CommandHandleType : uint32_t
 struct ShaderReflectionDescriptorInfo
 {
     ShaderReflectionDescriptorInfo(
-        VkDescriptorType type, bool readonly, uint32_t accessed, uint32_t count, bool is_array) :
-        type(type),
-        readonly(readonly), accessed(accessed), count(count), is_array(is_array)
-    {}
-
-    ShaderReflectionDescriptorInfo(const ShaderReflectionDescriptorInfo& other) :
-        type(other.type), readonly(other.readonly), accessed(other.accessed), count(other.count),
-        is_array(other.is_array)
+        VkDescriptorType _type, bool _readonly, uint32_t _accessed, uint32_t _count, bool _is_array) :
+        type(_type),
+        readonly(_readonly), accessed(_accessed), count(_count), is_array(_is_array)
     {}
 
     VkDescriptorType type;

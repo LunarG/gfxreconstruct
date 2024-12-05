@@ -36,7 +36,8 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 static double GetElapsedSeconds(uint64_t start_time, uint64_t end_time)
 {
-    return util::datetime::ConvertTimestampToSeconds(util::datetime::DiffTimestamps(start_time, end_time));
+    return util::datetime::ConvertTimestampToSeconds(
+        util::datetime::DiffTimestamps(static_cast<int64_t>(start_time), static_cast<int64_t>(end_time)));
 }
 
 static void
@@ -44,7 +45,7 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
 {
     assert(end_frame >= start_frame && end_time >= start_time);
 
-    double   diff_time_sec = GetElapsedSeconds(start_time, end_time);
+    double   diff_time_sec = GetElapsedSeconds(static_cast<uint64_t>(start_time), static_cast<uint64_t>(end_time));
     uint64_t total_frames  = (end_frame - start_frame) + 1;
     double   fps           = (diff_time_sec > 0.0) ? (static_cast<double>(total_frames) / diff_time_sec) : 0.0;
     GFXRECON_WRITE_CONSOLE("%s %f fps, %f seconds, %" PRIu64 " frame%s, framerange %" PRIu64 "-%" PRIu64,
@@ -67,10 +68,10 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
-    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
-    flush_inside_measurement_range_(flush_inside_measurement_range), has_measurement_range_(has_measurement_range),
+    has_measurement_range_(has_measurement_range), quit_after_range_(quit_after_range),
+    flush_measurement_range_(flush_measurement_range), flush_inside_measurement_range_(flush_inside_measurement_range),
     started_measurement_(false), ended_measurement_(false), frame_start_time_(0), frame_durations_(),
-    preload_measurement_range_(preload_measurement_range), measurement_file_name_(measurement_file_name)
+    measurement_file_name_(measurement_file_name), preload_measurement_range_(preload_measurement_range)
 {
     if (has_measurement_range_)
     {
@@ -81,7 +82,7 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
 void FpsInfo::BeginFile()
 {
     replay_start_frame_ = 1;
-    replay_start_time_ = start_time_ = util::datetime::GetTimestamp();
+    replay_start_time_ = start_time_ = static_cast<uint64_t>(util::datetime::GetTimestamp());
 }
 
 bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
@@ -127,7 +128,8 @@ void FpsInfo::EndFrame(uint64_t frame)
             {
                 double   start_time   = util::datetime::ConvertTimestampToSeconds(measurement_start_time_);
                 double   end_time     = util::datetime::ConvertTimestampToSeconds(measurement_end_time_);
-                double   diff_time    = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+                double   diff_time    = GetElapsedSeconds(static_cast<uint64_t>(measurement_start_time_),
+                                                     static_cast<uint64_t>(measurement_end_time_));
                 uint64_t total_frames = measurement_end_frame_ - measurement_start_frame_;
                 double   fps          = static_cast<double>(total_frames) / diff_time;
 
@@ -193,8 +195,8 @@ void FpsInfo::EndFile(uint64_t frame)
 
 void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
 {
-    replay_start_frame_ = frame_number;
-    replay_start_time_  = util::datetime::GetTimestamp();
+    replay_start_frame_ = static_cast<int64_t>(frame_number);
+    replay_start_time_  = static_cast<uint64_t>(util::datetime::GetTimestamp());
 }
 
 void FpsInfo::LogToConsole()
@@ -208,19 +210,21 @@ void FpsInfo::LogToConsole()
         {
             GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
         }
-        GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, measurement_end_time_));
+        GFXRECON_WRITE_CONSOLE("Total time: %f seconds",
+                               GetElapsedSeconds(start_time_, static_cast<uint64_t>(measurement_end_time_)));
 
         WriteFpsToConsole("Replay FPS:",
-                          replay_start_frame_,
-                          measurement_end_frame_ - 1 + replay_start_frame_ - 1,
-                          replay_start_time_,
+                          static_cast<uint64_t>(replay_start_frame_),
+                          measurement_end_frame_ - 1 + static_cast<uint64_t>(replay_start_frame_) - 1,
+                          static_cast<int64_t>(replay_start_time_),
                           measurement_end_time_);
     }
     else
     {
         // There was a measurement range, emit only statistics about the
         // measurement range
-        double   diff_time_sec = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+        double   diff_time_sec = GetElapsedSeconds(static_cast<uint64_t>(measurement_start_time_),
+                                                 static_cast<uint64_t>(measurement_end_time_));
         uint64_t total_frames  = measurement_end_frame_ - measurement_start_frame_;
         double   fps           = static_cast<double>(total_frames) / diff_time_sec;
         GFXRECON_WRITE_CONSOLE("Measurement range FPS: %f fps, %f seconds, %lu frame%s, 1 loop, framerange [%lu-%lu)",

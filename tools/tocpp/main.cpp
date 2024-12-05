@@ -364,7 +364,7 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
 
     do
     {
-        printf("  Processing Frame %u\r", file_processor.GetCurrentFrameNumber());
+        printf("  Processing Frame %u\r", static_cast<uint32_t>(file_processor.GetCurrentFrameNumber()));
         fflush(stdout);
         success = file_processor.ProcessNextFrame();
     } while (success && file_processor.GetCurrentFrameNumber() <= frame_limit);

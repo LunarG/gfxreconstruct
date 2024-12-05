@@ -37,6 +37,7 @@
 #include <deque>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -96,7 +97,7 @@ class FileProcessor
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
-    uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
+    uint64_t GetCurrentFrameNumber() const { return current_frame_number_; }
 
     uint64_t GetCurrentBlockIndex() const { return block_index_; }
 
@@ -248,7 +249,7 @@ class FileProcessor
     {
         ActiveFiles() {}
 
-        ActiveFiles(FILE* fd) : fd(fd) {}
+        ActiveFiles(FILE* fd_) : fd(fd_) {}
 
         FILE* fd{ nullptr };
     };
@@ -257,9 +258,9 @@ class FileProcessor
 
     struct ActiveFileContext
     {
-        ActiveFileContext(const std::string& filename) : filename(filename){};
-        ActiveFileContext(const std::string& filename, bool execute_till_eof) :
-            filename(filename), execute_till_eof(execute_till_eof){};
+        ActiveFileContext(std::string filename_) : filename(std::move(filename_)){};
+        ActiveFileContext(std::string filename_, bool execute_till_eof_) :
+            filename(std::move(filename_)), execute_till_eof(execute_till_eof_){};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };

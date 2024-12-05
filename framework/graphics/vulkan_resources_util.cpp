@@ -351,12 +351,12 @@ bool GetImageTexelSize(VkFormat      format,
 
         if (block_width_ptr != nullptr)
         {
-            *block_width_ptr = format_info.block_extent.width;
+            *block_width_ptr = static_cast<uint16_t>(format_info.block_extent.width);
         }
 
         if (block_height_ptr != nullptr)
         {
-            *block_height_ptr = format_info.block_extent.height;
+            *block_height_ptr = static_cast<uint16_t>(format_info.block_extent.height);
         }
 
         return true;
@@ -435,7 +435,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
 
     if ((arrayLayers > 1) && (subresource_layout.arrayPitch != 0))
     {
-        layer          = current_offset / subresource_layout.arrayPitch;
+        layer          = static_cast<uint32_t>(current_offset / subresource_layout.arrayPitch);
         current_offset = current_offset % subresource_layout.arrayPitch;
         if (layer >= arrayLayers)
         {
@@ -455,7 +455,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             GFXRECON_ASSERT((extent.depth > 0) && (extent.height > 0) && (extent.width > 0));
             GFXRECON_ASSERT((subresource_layout.depthPitch > 0) && (subresource_layout.rowPitch > 0));
 
-            z = current_offset / subresource_layout.depthPitch;
+            z = static_cast<uint32_t>(current_offset / subresource_layout.depthPitch);
 
             if (z >= extent.depth)
             {
@@ -468,11 +468,11 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             {
                 current_offset = current_offset % subresource_layout.depthPitch;
 
-                y = current_offset / subresource_layout.rowPitch;
+                y = static_cast<uint32_t>(current_offset / subresource_layout.rowPitch);
 
                 current_offset = current_offset % subresource_layout.rowPitch;
 
-                x = current_offset / texel_size;
+                x = static_cast<uint32_t>(current_offset / texel_size);
                 if (x >= extent.width)
                 {
                     x                          = extent.width - 1;
@@ -495,10 +495,10 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
 
             z = 0; // Doc states depthPitch is defined only for 3D images.
 
-            y              = current_offset / subresource_layout.rowPitch;
+            y              = static_cast<uint32_t>(current_offset / subresource_layout.rowPitch);
             current_offset = current_offset % subresource_layout.rowPitch;
 
-            x = current_offset / texel_size;
+            x = static_cast<uint32_t>(current_offset / texel_size);
 
             if (x >= extent.width)
             {
@@ -520,7 +520,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             z = 0;
             y = 0;
 
-            x = current_offset / texel_size;
+            x = static_cast<uint32_t>(current_offset / texel_size);
 
             if (x >= extent.width)
             {
@@ -1674,9 +1674,10 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     const bool use_blit = (format != dst_format && is_blit_supported) || (scale != 1.0f && scaling_supported);
 
-    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(extent.width * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max(extent.height * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max(extent.depth * scale, 1.0f)) };
+    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(static_cast<float>(extent.width) * scale, 1.0f)),
+                                       static_cast<uint32_t>(std::max(static_cast<float>(extent.height) * scale, 1.0f)),
+                                       static_cast<uint32_t>(
+                                           std::max(static_cast<float>(extent.depth) * scale, 1.0f)) };
 
     subresource_offsets.clear();
     subresource_sizes.clear();
@@ -1870,14 +1871,14 @@ void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                ima
                                                       std::vector<uint64_t>& subresource_offsets,
                                                       std::vector<uint64_t>& subresource_sizes)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-    assert(mapped_image_ptr);
+    GFXRECON_ASSERT(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    GFXRECON_ASSERT(mapped_image_ptr);
 
     subresource_offsets.clear();
     subresource_sizes.clear();
 
     const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
-    assert(texel_size == static_cast<uint64_t>(texel_size));
+    GFXRECON_ASSERT(texel_size == std::floor(texel_size));
 
     uint64_t offset = 0;
     for (uint32_t m = 0; m < mip_levels; ++m)
@@ -2143,8 +2144,8 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        if (dst_img_format_props.maxExtent.width < extent.width * scale ||
-            dst_img_format_props.maxExtent.height < extent.height * scale)
+        if (dst_img_format_props.maxExtent.width < static_cast<uint32_t>(static_cast<float>(extent.width) * scale) ||
+            dst_img_format_props.maxExtent.height < static_cast<uint32_t>(static_cast<float>(extent.height) * scale))
         {
             return false;
         }
@@ -2309,7 +2310,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                scaled_image,
                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                               blit_regions.size(),
+                               static_cast<uint32_t>(blit_regions.size()),
                                blit_regions.data(),
                                VK_FILTER_NEAREST);
 

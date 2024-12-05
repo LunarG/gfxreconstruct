@@ -37,13 +37,24 @@ set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
 
+option(USE_STRICT_COMPILER_WARNINGS "Use a stricter compiler-warning level" OFF)
+
+if (USE_STRICT_COMPILER_WARNINGS)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
+    else ()
+        message(WARNING "option 'USE_STRICT_COMPILER_WARNINGS' is set, but not implemented for this platform")
+    endif ()
+endif (USE_STRICT_COMPILER_WARNINGS)
+
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 5)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
-
 
 option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the tracer library)" OFF)
 
@@ -338,18 +349,18 @@ if(BUILD_WERROR)
 endif()
 
 add_library(vulkan_registry INTERFACE)
-target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
+target_include_directories(vulkan_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
-target_include_directories(spirv_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
+target_include_directories(spirv_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )
-target_include_directories(vulkan_memory_allocator INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
+target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
 
 # SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
 set(SPIRV_REFLECT_EXAMPLES OFF)
@@ -360,7 +371,7 @@ add_subdirectory(external/SPIRV-Reflect EXCLUDE_FROM_ALL)
 
 if (${RUN_TESTS})
     add_library(catch2 INTERFACE)
-    target_include_directories(catch2 INTERFACE external)
+    target_include_directories(catch2 SYSTEM INTERFACE external)
 endif()
 
 add_subdirectory(external/nlohmann)
