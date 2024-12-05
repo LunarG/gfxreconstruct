@@ -925,6 +925,23 @@ optional arguments:
               Print all block information.
   --pbis <index1,index2>
               Print block information between block index1 and block index2.
+  --save-pipeline-cache DEVICE_FILE
+                        If set, produces pipeline caches at replay time instead
+                        of using the one saved at capture time and save those
+                        caches in DEVICE_FILE.
+                        (forwarded to replay tool)
+  --load-pipeline-cache DEVICE_FILE
+                        If set, loads data created by the
+                        `--save-pipeline-cache` option in DEVICE_FILE
+                        and uses it to create the pipelines instead of the
+                        pipeline caches saved at capture time.
+                        (forwarded to replay tool)
+  --add-new-pipeline-caches
+                        If set, allows gfxreconstruct to create new
+                        vkPipelineCache objects when it encounters a pipeline
+                        created without cache. This option can be used in
+                        coordination with `--save-pipeline-cache` and
+                        `--load-pipeline-cache`. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

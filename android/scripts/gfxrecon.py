@@ -116,6 +116,9 @@ def CreateReplayParser():
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
+    parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
+    parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
+    parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     return parser
 
 def MakeExtrasString(args):
@@ -289,6 +292,17 @@ def MakeExtrasString(args):
     if args.pcj:
         arg_list.append('--pcj')
         arg_list.append('{}'.format(args.pcj))
+
+    if args.save_pipeline_cache:
+        arg_list.append('--save-pipeline-cache')
+        arg_list.append('{}'.format(args.save_pipeline_cache))
+
+    if args.load_pipeline_cache:
+        arg_list.append('--load-pipeline-cache')
+        arg_list.append('{}'.format(args.load_pipeline_cache))
+
+    if args.add_new_pipeline_caches:
+        arg_list.append('--add-new-pipeline-caches')
 
     if args.file:
         arg_list.append(args.file)
