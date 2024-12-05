@@ -30,6 +30,7 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
+#include <map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -165,6 +166,8 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
+    void SetCallbacks(const std::map<PFN_vkDebugReportCallbackEXT, void*>& callbacks) { callbacks_ = callbacks; }
+
   private:
     VkResult CreateCommandPool(uint32_t queue_family_index);
 
@@ -255,15 +258,16 @@ class VulkanResourcesUtil
         void*                 mapped_ptr            = nullptr;
     };
 
-    VkDevice                                device_;
-    const encode::VulkanDeviceTable&        device_table_;
-    VkPhysicalDevice                        physical_device_;
-    const encode::VulkanInstanceTable&      instance_table_;
-    const VkPhysicalDeviceMemoryProperties& memory_properties_;
-    uint32_t                                queue_family_index_;
-    VkCommandPool                           command_pool_;
-    VkCommandBuffer                         command_buffer_;
-    StagingBufferContext                    staging_buffer_;
+    VkDevice                                      device_;
+    const encode::VulkanDeviceTable&              device_table_;
+    VkPhysicalDevice                              physical_device_;
+    const encode::VulkanInstanceTable&            instance_table_;
+    const VkPhysicalDeviceMemoryProperties&       memory_properties_;
+    uint32_t                                      queue_family_index_;
+    VkCommandPool                                 command_pool_;
+    VkCommandBuffer                               command_buffer_;
+    StagingBufferContext                          staging_buffer_;
+    std::map<PFN_vkDebugReportCallbackEXT, void*> callbacks_;
 };
 
 void GetFormatAspects(VkFormat                            format,
