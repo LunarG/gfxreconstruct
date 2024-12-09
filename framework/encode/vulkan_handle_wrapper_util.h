@@ -49,11 +49,11 @@ GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)
 #endif
 
 // Temporary resource IDs for state processing.
-static const format::HandleId kTempQueueId = std::numeric_limits<format::HandleId>::max() - 1;
+static const format::HandleId kTempQueueId = (std::numeric_limits<format::HandleId>::max() >> 1) - 1;
 static const VkCommandPool    kTempCommandPool =
-    UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
-static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
-static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
+    UINT64_TO_VK_HANDLE(VkCommandPool, (std::numeric_limits<uint64_t>::max() >> 1) - 2);
+static const format::HandleId kTempCommandPoolId   = (std::numeric_limits<format::HandleId>::max() >> 1) - 2;
+static const format::HandleId kTempCommandBufferId = (std::numeric_limits<format::HandleId>::max() >> 1) - 3;
 typedef format::HandleId (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
