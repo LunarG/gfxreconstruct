@@ -112,7 +112,7 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const util::JsonOptions&                     options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&                                     jdata,
-                 const Decoded_VkPushDescriptorSetWithTemplateInfoKHR* const pData,
+                 const Decoded_VkPushDescriptorSetWithTemplateInfo* const pData,
                  const util::JsonOptions&                                    options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&                                  jdata,

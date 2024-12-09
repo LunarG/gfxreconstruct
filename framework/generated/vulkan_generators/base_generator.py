@@ -525,7 +525,9 @@ class BaseGenerator(OutputGenerator):
             enumerants = dict()
             for elem in element.findall('enum'):
                 name = elem.get('name')
-                enumerants[name] = elem.get('value')
+                value = elem.get('value')
+                if value:
+                    enumerants[name] = value
             self.enumEnumerants[group_name] = enumerants
 
     def endFeature(self):
