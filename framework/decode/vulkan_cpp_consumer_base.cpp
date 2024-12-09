@@ -3748,12 +3748,12 @@ void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const A
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                                                    call_info,
     format::HandleId                                                      commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
     FILE*       file = GetFrameFile();
     std::string var_name;
 
-    Decoded_VkPushDescriptorSetWithTemplateInfoKHR* decoded_info =
+    Decoded_VkPushDescriptorSetWithTemplateInfo* decoded_info =
         pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
 
     fprintf(file, "\t{\n");

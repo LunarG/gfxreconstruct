@@ -9508,9 +9508,9 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(con
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                                                    call_info,
     format::HandleId                                                      commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
-    Decoded_VkPushDescriptorSetWithTemplateInfoKHR* in_info =
+    Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
         pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
     VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
     VulkanDescriptorUpdateTemplateInfo*     update_template_info =

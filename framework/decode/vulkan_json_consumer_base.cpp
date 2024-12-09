@@ -252,13 +252,13 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR
 void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                                                    call_info,
     format::HandleId                                                      commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
     const JsonOptions& json_options = GetJsonOptions();
 
     auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2KHR");
     auto& args     = function[NameArgs()];
-    const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* info =
+    const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* info =
         pPushDescriptorSetWithTemplateInfo;
 
     HandleToJson(args["commandBuffer"], commandBuffer, json_options);

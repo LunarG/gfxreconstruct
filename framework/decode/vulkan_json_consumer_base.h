@@ -129,7 +129,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     virtual void
     Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
                                                    format::HandleId   commandBuffer,
-                                                   StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>*
+                                                   StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>*
                                                        pPushDescriptorSetWithTemplateInfo) override;
 
     const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }

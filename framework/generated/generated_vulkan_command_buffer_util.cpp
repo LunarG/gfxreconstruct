@@ -620,6 +620,299 @@ void TrackCmdBindVertexBuffers2Handles(vulkan_wrappers::CommandBufferWrapper* wr
     }
 }
 
+void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
+}
+
+void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
+{
+    assert(wrapper != nullptr);
+
+    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+
+    if (pDescriptorWrites != nullptr)
+    {
+        for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount; ++pDescriptorWrites_index)
+        {
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
+            while (pnext_header)
+            {
+                switch (pnext_header->sType)
+                {
+                    default:
+                        break;
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                        if (pnext_value->pAccelerationStructures != nullptr)
+                        {
+                            for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                            {
+                                if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                            }
+                        }
+                        break;
+                    }
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                    {
+                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                        if (pnext_value->pAccelerationStructures != nullptr)
+                        {
+                            for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                            {
+                                if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureNVHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureNVWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                            }
+                        }
+                        break;
+                    }
+                }
+                pnext_header = pnext_header->pNext;
+            }
+            if(pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorWrites[pDescriptorWrites_index].dstSet));
+
+            if (pDescriptorWrites[pDescriptorWrites_index].pImageInfo != nullptr)
+            {
+                for (uint32_t pImageInfo_index = 0; pImageInfo_index < pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pImageInfo_index)
+                {
+                    if(pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::SamplerHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler));
+                    if(pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView));
+                }
+            }
+
+            if (pDescriptorWrites[pDescriptorWrites_index].pBufferInfo != nullptr)
+            {
+                for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pBufferInfo_index)
+                {
+                    if(pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer));
+                }
+            }
+
+            if (pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView != nullptr)
+            {
+                for (uint32_t pTexelBufferView_index = 0; pTexelBufferView_index < pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pTexelBufferView_index)
+                {
+                    if(pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index]));
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdPushDescriptorSetWithTemplateHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout)
+{
+    assert(wrapper != nullptr);
+
+    if(descriptorUpdateTemplate != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorUpdateTemplateHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate));
+    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+}
+
+void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBindDescriptorSetsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pBindDescriptorSetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pBindDescriptorSetsInfo->layout));
+
+        if (pBindDescriptorSetsInfo->pDescriptorSets != nullptr)
+        {
+            for (uint32_t pDescriptorSets_index = 0; pDescriptorSets_index < pBindDescriptorSetsInfo->descriptorSetCount; ++pDescriptorSets_index)
+            {
+                if(pBindDescriptorSetsInfo->pDescriptorSets[pDescriptorSets_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pBindDescriptorSetsInfo->pDescriptorSets[pDescriptorSets_index]));
+            }
+        }
+    }
+}
+
+void TrackCmdPushConstants2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushConstantsInfo* pPushConstantsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushConstantsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushConstantsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushConstantsInfo->layout));
+    }
+}
+
+void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfo* pPushDescriptorSetInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushDescriptorSetInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushDescriptorSetInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushDescriptorSetInfo->layout));
+
+        if (pPushDescriptorSetInfo->pDescriptorWrites != nullptr)
+        {
+            for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
+            {
+                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                while (pnext_header)
+                {
+                    switch (pnext_header->sType)
+                    {
+                        default:
+                            break;
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                        {
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                            if (pnext_value->pAccelerationStructures != nullptr)
+                            {
+                                for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                                {
+                                    if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                }
+                            }
+                            break;
+                        }
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                        {
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                            if (pnext_value->pAccelerationStructures != nullptr)
+                            {
+                                for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                                {
+                                    if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureNVHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureNVWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    pnext_header = pnext_header->pNext;
+                }
+                if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet));
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo != nullptr)
+                {
+                    for (uint32_t pImageInfo_index = 0; pImageInfo_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pImageInfo_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::SamplerHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler));
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView));
+                    }
+                }
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo != nullptr)
+                {
+                    for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pBufferInfo_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer));
+                    }
+                }
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView != nullptr)
+                {
+                    for (uint32_t pTexelBufferView_index = 0; pTexelBufferView_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pTexelBufferView_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index]));
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdPushDescriptorSetWithTemplate2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfo* pPushDescriptorSetWithTemplateInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushDescriptorSetWithTemplateInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetWithTemplateInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorUpdateTemplateHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate));
+        if(pPushDescriptorSetWithTemplateInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushDescriptorSetWithTemplateInfo->layout));
+    }
+}
+
 void TrackCmdBeginVideoCodingKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo)
 {
     assert(wrapper != nullptr);
@@ -802,6 +1095,12 @@ void TrackCmdEncodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(pnext_header);
+                    if(pnext_value->quantizationMap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->quantizationMap));
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
                 {
                     auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
@@ -934,13 +1233,6 @@ void TrackCmdWriteTimestamp2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wr
     if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::QueryPoolHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::QueryPoolWrapper>(queryPool));
 }
 
-void TrackCmdWriteBufferMarker2AMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer dstBuffer)
-{
-    assert(wrapper != nullptr);
-
-    if(dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(dstBuffer));
-}
-
 void TrackCmdCopyBuffer2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
     assert(wrapper != nullptr);
@@ -1014,7 +1306,7 @@ void TrackCmdBindIndexBuffer2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
     if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
 }
 
-void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo)
 {
     assert(wrapper != nullptr);
 
@@ -1054,7 +1346,7 @@ void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper
     }
 }
 
-void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo)
+void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushConstantsInfo* pPushConstantsInfo)
 {
     assert(wrapper != nullptr);
 
@@ -1086,7 +1378,7 @@ void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
     }
 }
 
-void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo)
+void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfo* pPushDescriptorSetInfo)
 {
     assert(wrapper != nullptr);
 
@@ -1398,6 +1690,13 @@ void TrackCmdWriteAccelerationStructuresPropertiesNVHandles(vulkan_wrappers::Com
 }
 
 void TrackCmdWriteBufferMarkerAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer dstBuffer)
+{
+    assert(wrapper != nullptr);
+
+    if(dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(dstBuffer));
+}
+
+void TrackCmdWriteBufferMarker2AMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer dstBuffer)
 {
     assert(wrapper != nullptr);
 
