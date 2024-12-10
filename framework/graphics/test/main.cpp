@@ -25,3 +25,35 @@
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
+
+#include "graphics/vulkan_shader_group_handle.h"
+
+TEST_CASE("vulkan_shader_group_handle - create empty handles", "[]")
+{
+    gfxrecon::graphics::shader_group_handle_t one, two;
+
+    // check for all zeros
+    uint8_t data[gfxrecon::graphics::shader_group_handle_t::MAX_HANDLE_SIZE] = {};
+    REQUIRE(memcmp(one.data, data, gfxrecon::graphics::shader_group_handle_t::MAX_HANDLE_SIZE) == 0);
+
+    REQUIRE(one == two);
+    REQUIRE_FALSE(one != two);
+
+    auto three = one;
+    REQUIRE(one == three);
+}
+
+TEST_CASE("vulkan_shader_group_handle - create handles", "[]")
+{
+    std::vector<uint8_t> data(32);
+    std::iota(data.begin(), data.end(), 0);
+    gfxrecon::graphics::shader_group_handle_t one(data.data(), data.size());
+
+    data[31] = 99;
+    gfxrecon::graphics::shader_group_handle_t two(data.data(), data.size());
+    REQUIRE(one != two);
+
+    // check hashing via std::hash
+    std::hash<gfxrecon::graphics::shader_group_handle_t> hasher;
+    REQUIRE(hasher(one) != hasher(two));
+}

@@ -35,6 +35,7 @@ void decode::VulkanDeviceAddressTracker::TrackBuffer(const decode::VulkanBufferI
     if (buffer_info != nullptr && buffer_info->capture_address != 0)
     {
         _buffer_capture_addresses[buffer_info->capture_address] = buffer_info->capture_id;
+        _buffer_handles[buffer_info->handle]                    = buffer_info->capture_id;
     }
 }
 
@@ -51,8 +52,12 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
 {
     if (acceleration_structure_info != nullptr && acceleration_structure_info->capture_address != 0)
     {
+        // track device address
         _acceleration_structure_capture_addresses[acceleration_structure_info->capture_address] =
             acceleration_structure_info->capture_id;
+
+        // track vulkan-handle
+        _acceleration_structure_handles[acceleration_structure_info->handle] = acceleration_structure_info->capture_id;
     }
 }
 
@@ -69,6 +74,22 @@ const decode::VulkanBufferInfo*
 decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const
 {
     return GetBufferInfo(capture_address, _buffer_capture_addresses);
+}
+
+const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle) const
+{
+    auto handle_it = _buffer_handles.find(handle);
+    if (handle_it != _buffer_handles.end())
+    {
+        const auto& [h, handle_id]                = *handle_it;
+        const VulkanBufferInfo* found_buffer_info = _object_info_table.GetVkBufferInfo(handle_id);
+
+        if (found_buffer_info != nullptr)
+        {
+            return found_buffer_info;
+        }
+    }
+    return nullptr;
 }
 
 const VulkanBufferInfo*
@@ -123,6 +144,25 @@ VulkanDeviceAddressTracker::GetAccelerationStructureByCaptureDeviceAddress(VkDev
     }
     return nullptr;
 }
+
+[[nodiscard]] const VulkanAccelerationStructureKHRInfo*
+VulkanDeviceAddressTracker::GetAccelerationStructureByHandle(VkAccelerationStructureKHR handle) const
+{
+    auto handle_it = _acceleration_structure_handles.find(handle);
+    if (handle_it != _acceleration_structure_handles.end())
+    {
+        const auto& [h, handle_id] = *handle_it;
+        const VulkanAccelerationStructureKHRInfo* found_acceleration_structure_info =
+            _object_info_table.GetVkAccelerationStructureKHRInfo(handle_id);
+
+        if (found_acceleration_structure_info != nullptr)
+        {
+            return found_acceleration_structure_info;
+        }
+    }
+    return nullptr;
+}
+
 std::unordered_map<VkDeviceAddress, VkDeviceAddress>
 VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
 {

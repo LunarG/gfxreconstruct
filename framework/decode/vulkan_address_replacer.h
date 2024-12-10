@@ -137,30 +137,33 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
 
-    const encode::VulkanDeviceTable*                device_table_      = nullptr;
-    VkPhysicalDeviceMemoryProperties                memory_properties_ = {};
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR capture_ray_properties_{}, replay_ray_properties_{};
-    bool                                            valid_sbt_alignment_ = true;
+    const encode::VulkanDeviceTable*                _device_table      = nullptr;
+    VkPhysicalDeviceMemoryProperties                _memory_properties = {};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR _capture_ray_properties{}, _replay_ray_properties{};
+    bool                                            _valid_sbt_alignment = true;
 
-    VkDevice                         device_                = VK_NULL_HANDLE;
-    PFN_vkGetBufferDeviceAddress     get_device_address_fn_ = nullptr;
-    decode::VulkanResourceAllocator* resource_allocator_    = nullptr;
+    VkDevice                         _device             = VK_NULL_HANDLE;
+    decode::VulkanResourceAllocator* _resource_allocator = nullptr;
 
     // common layout used for all pipelines
-    VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
+    VkPipelineLayout _pipeline_layout = VK_NULL_HANDLE;
 
     // pipeline dealing with shader-binding-table (SBT), replacing group-handles
-    VkPipeline pipeline_sbt_ = VK_NULL_HANDLE;
+    VkPipeline _pipeline_sbt = VK_NULL_HANDLE;
 
     // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
-    VkPipeline pipeline_bda_ = VK_NULL_HANDLE;
+    VkPipeline _pipeline_bda = VK_NULL_HANDLE;
 
-    pipeline_context_t pipeline_context_sbt_;
-    pipeline_context_t pipeline_context_bda_;
+    pipeline_context_t _pipeline_context_sbt;
+    pipeline_context_t _pipeline_context_bda;
 
-    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap_sbt_;
-    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 hashmap_bda_;
-    std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
+    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
+    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
+    std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
+
+    // acquired function pointers
+    PFN_vkGetBufferDeviceAddress                _get_device_address_fn_          = nullptr;
+    PFN_vkGetAccelerationStructureBuildSizesKHR _get_acceleration_build_sizes_fn = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

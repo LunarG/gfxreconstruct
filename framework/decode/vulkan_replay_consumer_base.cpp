@@ -7797,6 +7797,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto     replay_create_info  = pCreateInfo->GetPointer();
     VkDevice device              = device_info->handle;
 
+    // keep track of associated buffer
+    auto* acceleration_structure_info =
+        reinterpret_cast<VulkanAccelerationStructureKHRInfo*>(pAccelerationStructureKHR->GetConsumerData(0));
+    GFXRECON_ASSERT(acceleration_structure_info);
+    acceleration_structure_info->buffer = replay_create_info->buffer;
+
     if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
     {
         // Set opaque device address
@@ -7860,7 +7866,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
 
-    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+//    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         auto& address_tracker  = GetDeviceAddressTracker(device_info);
         auto& address_replacer = GetDeviceAddressReplacer(device_info);

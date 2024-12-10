@@ -707,6 +707,9 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
 {
     VkDeviceAddress capture_address = 0;
     VkDeviceAddress replay_address  = 0;
+
+    //! associated buffer
+    VkBuffer buffer = VK_NULL_HANDLE;
 };
 
 //

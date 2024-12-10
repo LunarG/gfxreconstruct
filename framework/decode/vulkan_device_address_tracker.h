@@ -82,6 +82,14 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
     /**
+     * @brief   Retrieve a buffer info-struct by providing its vulkan-handle.
+     *
+     * @param   handle  a capture-time VkBuffer handle.
+     * @return  a const-pointer to a found BufferInfo or nullptr.
+     */
+    [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
+
+    /**
      * @brief   Retrieve an acceleration-structure by providing a capture-time VkDeviceAddress.
      *
      * @param   capture_address  a capture-time VkDeviceAddress for an acceleration-structure.
@@ -89,6 +97,15 @@ class VulkanDeviceAddressTracker
      */
     [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
     GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
+
+    /**
+     * @brief   Retrieve an acceleration-structure info-struct by providing its vulkan-handle.
+     *
+     * @param   handle  a replay-time VkAccelerationStructureKHR handle.
+     * @return  a const-pointer to a found AccelerationStructureKHRInfo or nullptr.
+     */
+    [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
+    GetAccelerationStructureByHandle(VkAccelerationStructureKHR handle) const;
 
     /**
      * @brief   Create and return a lookup-table containing all internally stored acceleration-structure addresses.
@@ -107,6 +124,9 @@ class VulkanDeviceAddressTracker
     const VulkanObjectInfoTable&                          _object_info_table;
     buffer_address_map_t                                  _buffer_capture_addresses;
     std::unordered_map<VkDeviceAddress, format::HandleId> _acceleration_structure_capture_addresses;
+
+    std::unordered_map<VkBuffer, format::HandleId>                   _buffer_handles;
+    std::unordered_map<VkAccelerationStructureKHR, format::HandleId> _acceleration_structure_handles;
 };
 
 GFXRECON_END_NAMESPACE(decode)
