@@ -4854,24 +4854,6 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet2(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCmdPushDescriptorSetWithTemplate2(call_info, commandBuffer, &pPushDescriptorSetWithTemplateInfo);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkCopyMemoryToImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -14975,9 +14957,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2:
         Decode_vkCmdPushDescriptorSet2(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2:
-        Decode_vkCmdPushDescriptorSetWithTemplate2(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCopyMemoryToImage:
         Decode_vkCopyMemoryToImage(call_info, parameter_buffer, buffer_size);

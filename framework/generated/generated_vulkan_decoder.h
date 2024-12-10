@@ -500,8 +500,6 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdPushDescriptorSet2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkCopyMemoryToImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCopyImageToMemory(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

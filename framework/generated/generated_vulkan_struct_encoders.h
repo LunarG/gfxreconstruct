@@ -454,7 +454,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatus& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorSetsInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantsInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineProtectedAccessFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineRobustnessFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineRobustnessProperties& value);

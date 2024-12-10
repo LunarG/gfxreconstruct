@@ -3758,23 +3758,6 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2(
     }
 }
 
-void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplate2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkPushDescriptorSetWithTemplateInfo* in_pPushDescriptorSetWithTemplateInfo = pPushDescriptorSetWithTemplateInfo->GetPointer();
-    MapStructHandles(pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-
-    GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2(in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate2(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2, in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
-    }
-}
-
 void VulkanReplayConsumer::Process_vkCopyMemoryToImage(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

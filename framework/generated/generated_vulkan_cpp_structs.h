@@ -843,8 +843,6 @@ std::string GenerateStruct_VkPushConstantsInfo(std::ostream &out, const VkPushCo
 
 std::string GenerateStruct_VkPushDescriptorSetInfo(std::ostream &out, const VkPushDescriptorSetInfo* structInfo, Decoded_VkPushDescriptorSetInfo* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPushDescriptorSetWithTemplateInfo(std::ostream &out, const VkPushDescriptorSetWithTemplateInfo* structInfo, Decoded_VkPushDescriptorSetWithTemplateInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkQueueFamilyGlobalPriorityProperties(std::ostream &out, const VkQueueFamilyGlobalPriorityProperties* structInfo, Decoded_VkQueueFamilyGlobalPriorityProperties* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkRenderingAreaInfo(std::ostream &out, const VkRenderingAreaInfo* structInfo, Decoded_VkRenderingAreaInfo* metaInfo, VulkanCppConsumerBase &consumer);

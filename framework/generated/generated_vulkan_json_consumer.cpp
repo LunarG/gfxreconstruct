@@ -3752,20 +3752,6 @@ void VulkanExportJsonConsumer::Process_vkCmdPushDescriptorSet2(
     WriteBlockEnd();
 }
 
-void VulkanExportJsonConsumer::Process_vkCmdPushDescriptorSetWithTemplate2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
-    auto& args = jdata[NameArgs()];
-        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        FieldToJson(args["pPushDescriptorSetWithTemplateInfo"], pPushDescriptorSetWithTemplateInfo, json_options);
-    WriteBlockEnd();
-}
-
 void VulkanExportJsonConsumer::Process_vkCopyMemoryToImage(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

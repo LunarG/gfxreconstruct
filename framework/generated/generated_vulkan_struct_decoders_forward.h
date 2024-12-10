@@ -818,7 +818,6 @@ struct Decoded_VkBindMemoryStatus;
 struct Decoded_VkBindDescriptorSetsInfo;
 struct Decoded_VkPushConstantsInfo;
 struct Decoded_VkPushDescriptorSetInfo;
-struct Decoded_VkPushDescriptorSetWithTemplateInfo;
 struct Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures;
 struct Decoded_VkPhysicalDevicePipelineRobustnessFeatures;
 struct Decoded_VkPhysicalDevicePipelineRobustnessProperties;
@@ -870,7 +869,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBindDescriptorSetsInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushConstantsInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushDescriptorSetInfo* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineRobustnessFeatures* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineRobustnessProperties* wrapper);

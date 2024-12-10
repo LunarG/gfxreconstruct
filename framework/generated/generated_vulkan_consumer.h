@@ -1569,11 +1569,6 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo) {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) {}
-
     virtual void Process_vkCopyMemoryToImage(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

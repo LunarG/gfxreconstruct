@@ -1043,19 +1043,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2(
     }
 }
 
-void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetWithTemplate2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
-{
-    assert(pPushDescriptorSetWithTemplateInfo != nullptr);
-
-    if (!pPushDescriptorSetWithTemplateInfo->IsNull() && (pPushDescriptorSetWithTemplateInfo->HasData()))
-    {
-        auto pPushDescriptorSetWithTemplateInfo_ptr = pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
-    }
-}
-
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
