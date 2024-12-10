@@ -1516,11 +1516,6 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         uint32_t                                    set,
         uint64_t                                    pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
-
     virtual void Process_vkCmdSetLineStipple(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

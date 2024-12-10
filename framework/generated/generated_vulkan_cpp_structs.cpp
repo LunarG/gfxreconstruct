@@ -9209,23 +9209,6 @@ std::string GenerateStruct_VkPushDescriptorSetInfo(std::ostream &out, const VkPu
 }
 
 
-std::string GenerateStruct_VkPushDescriptorSetWithTemplateInfo(std::ostream &out, const VkPushDescriptorSetWithTemplateInfo* structInfo, Decoded_VkPushDescriptorSetWithTemplateInfo* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->descriptorUpdateTemplate) << "," << std::endl;
-    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->layout) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->set << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pData << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "pushDescriptorSetWithTemplateInfo");
-    out << "\t\t" << "VkPushDescriptorSetWithTemplateInfo " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkQueueFamilyGlobalPriorityProperties(std::ostream &out, const VkQueueFamilyGlobalPriorityProperties* structInfo, Decoded_VkQueueFamilyGlobalPriorityProperties* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

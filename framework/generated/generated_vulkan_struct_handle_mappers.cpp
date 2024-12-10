@@ -838,23 +838,6 @@ void MapStructHandles(Decoded_VkPushDescriptorSetInfo* wrapper, const CommonObje
     }
 }
 
-void MapStructHandles(Decoded_VkPushDescriptorSetWithTemplateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkPushDescriptorSetWithTemplateInfo* value = wrapper->decoded_value;
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
-        }
-
-        value->descriptorUpdateTemplate = handle_mapping::MapHandle<VulkanDescriptorUpdateTemplateInfo>(wrapper->descriptorUpdateTemplate, object_info_table, &CommonObjectInfoTable::GetVkDescriptorUpdateTemplateInfo);
-
-        value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    }
-}
-
 void MapStructHandles(Decoded_VkCopyMemoryToImageInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

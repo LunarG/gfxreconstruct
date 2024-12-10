@@ -5139,27 +5139,6 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSetWithTemplate(
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
 }
 
-void VulkanCppConsumer::Process_vkCmdPushDescriptorSetWithTemplate2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::stringstream stream_ppush_descriptor_set_with_template_info;
-    std::string ppush_descriptor_set_with_template_info_struct = GenerateStruct_VkPushDescriptorSetWithTemplateInfo(stream_ppush_descriptor_set_with_template_info,
-                                                                                                                    pPushDescriptorSetWithTemplateInfo->GetPointer(),
-                                                                                                                    pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer(),
-                                                                                                                    *this);
-    fprintf(file, "%s", stream_ppush_descriptor_set_with_template_info.str().c_str());
-    fprintf(file,
-            "\t\tvkCmdPushDescriptorSetWithTemplate2(%s, &%s);\n",
-            this->GetHandle(commandBuffer).c_str(),
-            ppush_descriptor_set_with_template_info_struct.c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
-}
-
 void VulkanCppConsumer::Process_vkCmdSetLineStipple(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

@@ -10,6 +10,7 @@
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplateKHR",
+    "vkCmdPushDescriptorSetWithTemplate2",
     "vkCmdPushDescriptorSetWithTemplate2KHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",

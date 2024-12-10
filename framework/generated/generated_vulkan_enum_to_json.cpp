@@ -94,9 +94,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ColorPrimaries&
         case STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED:
             jdata = "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED";
             break;
-        case STD_VIDEO_AV1_COLOR_PRIMARIES_BT_UNSPECIFIED:
-            jdata = "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_UNSPECIFIED";
-            break;
         case STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M:
             jdata = "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M";
             break;
