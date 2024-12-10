@@ -55,25 +55,6 @@ inline uint32_t div_up(uint32_t nom, uint32_t denom)
     return (nom + denom - 1) / denom;
 }
 
-uint32_t get_memory_type_index(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                               uint32_t                                type_bits,
-                               VkMemoryPropertyFlags                   property_flags)
-{
-    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
-
-    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-    {
-        if ((type_bits & (1 << i)) &&
-            ((memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags))
-        {
-            memory_type_index = i;
-            break;
-        }
-    }
-
-    return memory_type_index;
-}
-
 struct hashmap_t
 {
     VkDeviceAddress storage;
@@ -138,11 +119,6 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
         GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
         _memory_properties = *physical_device_info->replay_device_info->memory_properties;
     }
-}
-
-VulkanAddressReplacer::VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept : VulkanAddressReplacer()
-{
-    swap(*this, other);
 }
 
 VulkanAddressReplacer::~VulkanAddressReplacer()
@@ -474,6 +450,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                      "too small (%d < %d)",
                                      buffer_info->size,
                                      build_size_info.accelerationStructureSize);
+
+                // TODO: create replacement AS
             }
         }
 
@@ -735,17 +713,17 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
     _device_table->GetBufferMemoryRequirements(_device, buffer_context.buffer, &memory_requirements);
 
     uint32_t memory_type_index =
-        get_memory_type_index(_memory_properties,
-                              memory_requirements.memoryTypeBits,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+        graphics::GetMemoryTypeIndex(_memory_properties,
+                                     memory_requirements.memoryTypeBits,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
 
     if (memory_type_index == std::numeric_limits<uint32_t>::max())
     {
         /* fallback to coherent */
         memory_type_index =
-            get_memory_type_index(_memory_properties,
-                                  memory_requirements.memoryTypeBits,
-                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            graphics::GetMemoryTypeIndex(_memory_properties,
+                                         memory_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
@@ -792,6 +770,14 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
     return result == VK_SUCCESS;
 }
 
+std::optional<VulkanAddressReplacer::acceleration_structure_asset_t>
+VulkanAddressReplacer::retrieve_acceleration_structure_asset(VkAccelerationStructureKHR)
+{
+
+    // TODO: implement
+    return {};
+}
+
 void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
                                     VkBuffer             buffer,
                                     VkPipelineStageFlags src_stage,
@@ -810,27 +796,6 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 
     _device_table->CmdPipelineBarrier(
         command_buffer, src_stage, dst_stage, VkDependencyFlags(0), 0, nullptr, 1, &barrier, 0, nullptr);
-}
-
-void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept
-{
-    std::swap(lhs._device_table, rhs._device_table);
-    std::swap(lhs._memory_properties, rhs._memory_properties);
-    std::swap(lhs._capture_ray_properties, rhs._capture_ray_properties);
-    std::swap(lhs._replay_ray_properties, rhs._replay_ray_properties);
-    std::swap(lhs._valid_sbt_alignment, rhs._valid_sbt_alignment);
-    std::swap(lhs._device, rhs._device);
-    std::swap(lhs._resource_allocator, rhs._resource_allocator);
-    std::swap(lhs._pipeline_layout, rhs._pipeline_layout);
-    std::swap(lhs._pipeline_sbt, rhs._pipeline_sbt);
-    std::swap(lhs._pipeline_bda, rhs._pipeline_bda);
-    std::swap(lhs._pipeline_context_sbt, rhs._pipeline_context_sbt);
-    std::swap(lhs._pipeline_context_bda, rhs._pipeline_context_bda);
-    std::swap(lhs._hashmap_sbt, rhs._hashmap_sbt);
-    std::swap(lhs._hashmap_bda, rhs._hashmap_bda);
-    std::swap(lhs._shadow_sbt_map, rhs._shadow_sbt_map);
-    std::swap(lhs._get_device_address_fn_, rhs._get_device_address_fn_);
-    std::swap(lhs._get_acceleration_build_sizes_fn, rhs._get_acceleration_build_sizes_fn);
 }
 
 GFXRECON_END_NAMESPACE(decode)

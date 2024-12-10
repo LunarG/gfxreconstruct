@@ -51,12 +51,12 @@ class VulkanAddressReplacer
     VulkanAddressReplacer(const VulkanAddressReplacer&) = delete;
 
     //! allow moving
-    VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept;
+    VulkanAddressReplacer(VulkanAddressReplacer&& other) noexcept = default;
 
     ~VulkanAddressReplacer();
 
     /**
-     * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'VkCmdTraceRays',
+     * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
      *          like buffer-device-addresses and shader-group-handles.
      *
      * Depending on capture- and replay-device-properties one of the following strategies will be used:
@@ -89,7 +89,7 @@ class VulkanAddressReplacer
 
     /**
      * @brief   ProcessCmdBuildAccelerationStructuresKHR will check
-     *          and potentially correct input-parameters to 'VkCmdBuildAccelerationStructuresKHR'
+     *          and potentially correct input-parameters to 'vkCmdBuildAccelerationStructuresKHR'
      *
      * @param command_buffer_info   a provided VulkanCommandBufferInfo
      * @param info_count            number of elements in 'build_geometry_infos'
@@ -102,8 +102,6 @@ class VulkanAddressReplacer
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
-
-    friend void swap(VulkanAddressReplacer& lhs, VulkanAddressReplacer& rhs) noexcept;
 
   private:
     struct buffer_context_t
@@ -126,9 +124,19 @@ class VulkanAddressReplacer
         buffer_context_t hashmap_storage      = {};
     };
 
+    struct acceleration_structure_asset_t
+    {
+        VkAccelerationStructureKHR handle  = VK_NULL_HANDLE;
+        VkDeviceAddress            address = 0;
+        buffer_context_t           buffer  = {};
+    };
+
     [[nodiscard]] bool init_pipeline();
 
     [[nodiscard]] bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context, uint32_t usage_flags = 0);
+
+    [[nodiscard]] std::optional<acceleration_structure_asset_t>
+    retrieve_acceleration_structure_asset(VkAccelerationStructureKHR handle);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -154,6 +162,7 @@ class VulkanAddressReplacer
     // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
     VkPipeline _pipeline_bda = VK_NULL_HANDLE;
 
+    // TODO: need to provide per VkCommandBuffer
     pipeline_context_t _pipeline_context_sbt;
     pipeline_context_t _pipeline_context_bda;
 
@@ -161,7 +170,7 @@ class VulkanAddressReplacer
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
 
-    // acquired function pointers
+    // required function pointers
     PFN_vkGetBufferDeviceAddress                _get_device_address_fn_          = nullptr;
     PFN_vkGetAccelerationStructureBuildSizesKHR _get_acceleration_build_sizes_fn = nullptr;
 };

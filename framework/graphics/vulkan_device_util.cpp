@@ -28,6 +28,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                            uint32_t                                type_bits,
+                            VkMemoryPropertyFlags                   property_flags)
+{
+    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
+
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        if ((type_bits & (1 << i)) &&
+            ((memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags))
+        {
+            memory_type_index = i;
+            break;
+        }
+    }
+
+    return memory_type_index;
+}
+
 // Query specific physical device features struct
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // feature_struct sType must be set, pNext must be nullptr
