@@ -253,9 +253,20 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
+    auto aligned_size = [](uint32_t size, uint32_t alignment) -> uint32_t
+    {
+        return (size + alignment - 1) & ~(alignment - 1);
+    };
+
+    // define a general minimum aligned-size for buffers, as certain vulkan resources will require this
+    // e.g. buffers containing shader-binding-tables or scratch-buffers for acceleration-structure build-operations
+    constexpr uint32_t min_alignment = 64;
+
     if ((create_info != nullptr) && (buffer != nullptr) && (allocator_data != nullptr))
     {
-        result = functions_.create_buffer(device_, create_info, nullptr, buffer);
+        auto modified_info = *create_info;
+        modified_info.size = aligned_size(create_info->size, min_alignment);
+        result = functions_.create_buffer(device_, &modified_info, nullptr, buffer);
 
         if (result >= 0)
         {
@@ -576,6 +587,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
 
         VkMemoryRequirements requirements;
         functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+        requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
 
         VmaAllocationCreateInfo create_info;
         create_info.flags = 0;
@@ -665,6 +677,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
 
                 VkMemoryRequirements requirements;
                 functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+                requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
 
                 VmaAllocationCreateInfo create_info;
                 create_info.flags = 0;

@@ -103,7 +103,21 @@ class VulkanAddressReplacer
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
 
+    /**
+     * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
+     *          allowing this class to free potential resources associated with it.
+     *
+     * @param   handle  a provided VkAccelerationStructureKHR handle
+     */
     void DestroyShadowResources(VkAccelerationStructureKHR handle);
+
+    /**
+     * @brief   DestroyShadowResources should be called upon destruction of provided command_buffer_info,
+     *          allowing this class to free potential resources associated with it.
+     *
+     * @param   handle  a provided VulkanCommandBufferInfo
+     */
+    void DestroyShadowResources(const VulkanCommandBufferInfo* command_buffer_info);
 
   private:
     struct buffer_context_t
@@ -132,14 +146,19 @@ class VulkanAddressReplacer
         VkDeviceAddress            address = 0;
         buffer_context_t           storage = {};
         buffer_context_t           scratch = {};
+
+        VkDevice                              device     = VK_NULL_HANDLE;
+        PFN_vkDestroyAccelerationStructureKHR destroy_fn = nullptr;
+        ~acceleration_structure_asset_t();
     };
 
     [[nodiscard]] bool init_pipeline();
 
     [[nodiscard]] bool create_buffer(size_t            num_bytes,
                                      buffer_context_t& buffer_context,
-                                     uint32_t          usage_flags  = 0,
-                                     bool              use_host_mem = true);
+                                     uint32_t          usage_flags   = 0,
+                                     uint32_t          min_alignment = 0,
+                                     bool              use_host_mem  = true);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -148,10 +167,11 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
 
-    const encode::VulkanDeviceTable*                _device_table      = nullptr;
-    VkPhysicalDeviceMemoryProperties                _memory_properties = {};
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR _capture_ray_properties{}, _replay_ray_properties{};
-    bool                                            _valid_sbt_alignment = true;
+    const encode::VulkanDeviceTable*                   _device_table      = nullptr;
+    VkPhysicalDeviceMemoryProperties                   _memory_properties = {};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR    _capture_ray_properties{}, _replay_ray_properties{};
+    VkPhysicalDeviceAccelerationStructurePropertiesKHR _replay_acceleration_structure_properties{};
+    bool                                               _valid_sbt_alignment = true;
 
     VkDevice                         _device             = VK_NULL_HANDLE;
     decode::VulkanResourceAllocator* _resource_allocator = nullptr;
@@ -165,20 +185,21 @@ class VulkanAddressReplacer
     // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
     VkPipeline _pipeline_bda = VK_NULL_HANDLE;
 
-    // TODO: need to provide per VkCommandBuffer
-    pipeline_context_t _pipeline_context_sbt;
-    pipeline_context_t _pipeline_context_bda;
-
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
-    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t>         _shadow_as_map;
+
+    // TODO: check if this is sufficient
+    std::unordered_map<VkCommandBuffer, pipeline_context_t> _pipeline_sbt_context_map;
+
+    // resources related to acceleration-structures
+    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> _shadow_as_map;
+
+    // TODO: check if this is sufficient
+    std::unordered_map<VkCommandBuffer, pipeline_context_t> _build_as_context_map;
 
     // required function pointers
-    PFN_vkGetBufferDeviceAddress                   _get_device_address_fn_                       = nullptr;
-    PFN_vkGetAccelerationStructureBuildSizesKHR    _get_acceleration_build_sizes_fn              = nullptr;
-    PFN_vkCreateAccelerationStructureKHR           _create_acceleration_structure_fn             = nullptr;
-    PFN_vkGetAccelerationStructureDeviceAddressKHR _get_acceleration_structure_device_address_fn = nullptr;
+    PFN_vkGetBufferDeviceAddress _get_device_address_fn_ = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

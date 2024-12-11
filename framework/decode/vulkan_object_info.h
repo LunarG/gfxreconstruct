@@ -166,7 +166,8 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties;
 
     // extensions
-    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> raytracing_properties;
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
+    std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
 };
 
 template <typename T>
