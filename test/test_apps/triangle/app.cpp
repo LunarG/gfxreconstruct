@@ -206,7 +206,6 @@ void App::create_graphics_pipeline()
     pipeline_info.pDynamicState                = &dynamic_info;
     pipeline_info.layout                       = pipeline_layout_;
     pipeline_info.renderPass                   = render_pass_;
-
     pipeline_info.subpass                      = 0;
     pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
 
@@ -396,8 +395,7 @@ bool App::frame(const int frame_num)
 
     init.disp.resetFences(1, &sync_.in_flight_fences[current_frame_]);
 
-    result =
-        init.disp.queueSubmit(graphics_queue_, 1, &submitInfo, sync_.in_flight_fences[current_frame_]);
+    result = init.disp.queueSubmit(graphics_queue_, 1, &submitInfo, sync_.in_flight_fences[current_frame_]);
     VERIFY_VK_RESULT("failed to submit queue", result);
 
     VkPresentInfoKHR present_info = {};
