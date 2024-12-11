@@ -921,7 +921,7 @@ class SwapchainBuilder
     // Convenient named constants for passing to set_desired_min_image_count().
     // Note that it is not an `enum class`, so its constants can be passed as an integer value without casting
     // In other words, these might as well be `static const int`, but they benefit from being grouped together this way.
-    enum BufferMode
+    enum class BufferMode
     {
         SINGLE_BUFFERING = 1,
         DOUBLE_BUFFERING = 2,

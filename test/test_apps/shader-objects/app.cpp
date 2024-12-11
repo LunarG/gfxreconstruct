@@ -43,21 +43,21 @@ class App : public gfxrecon::test::TestAppBase
     App() = default;
 
   private:
-    VkQueue graphics_queue;
-    VkQueue present_queue;
+    VkQueue graphics_queue_;
+    VkQueue present_queue_;
 
-    VkCommandPool   command_pool;
-    VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
+    VkCommandPool   command_pool_;
+    VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
 
-    VkShaderEXT shaders[5];
+    VkShaderEXT shaders_[5];
 
-    size_t current_frame = 0;
+    size_t current_frame_ = 0;
 
-    gfxrecon::test::Sync sync;
+    gfxrecon::test::Sync sync_;
 
-    VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_features;
-    VkPhysicalDeviceShaderObjectFeaturesEXT  shader_object_features;
-    VkPhysicalDeviceFeatures2                features2;
+    VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_features_;
+    VkPhysicalDeviceShaderObjectFeaturesEXT  shader_object_features_;
+    VkPhysicalDeviceFeatures2                features2_;
 
     void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
 
@@ -82,21 +82,21 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
 
 void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
 {
-    dynamic_rendering_features.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-    dynamic_rendering_features.pNext            = nullptr;
-    dynamic_rendering_features.dynamicRendering = VK_TRUE;
-    device_builder.add_pNext(&dynamic_rendering_features);
+    dynamic_rendering_features_.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamic_rendering_features_.pNext            = nullptr;
+    dynamic_rendering_features_.dynamicRendering = VK_TRUE;
+    device_builder.add_pNext(&dynamic_rendering_features_);
 
-    shader_object_features.sType        = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT;
-    shader_object_features.pNext        = nullptr;
-    shader_object_features.shaderObject = VK_TRUE;
-    device_builder.add_pNext(&shader_object_features);
+    shader_object_features_.sType        = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT;
+    shader_object_features_.pNext        = nullptr;
+    shader_object_features_.shaderObject = VK_TRUE;
+    device_builder.add_pNext(&shader_object_features_);
 
-    features2.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features2.pNext                       = nullptr;
-    features2.features.tessellationShader = VK_TRUE;
-    features2.features.geometryShader     = VK_TRUE;
-    device_builder.add_pNext(&features2);
+    features2_.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features2_.pNext                       = nullptr;
+    features2_.features.tessellationShader = VK_TRUE;
+    features2_.features.geometryShader     = VK_TRUE;
+    device_builder.add_pNext(&features2_);
 }
 
 void App::create_shader_objects()
@@ -182,7 +182,7 @@ void App::create_shader_objects()
     shader_create_infos[4].pushConstantRangeCount = 0u;
     shader_create_infos[4].pPushConstantRanges    = nullptr;
     shader_create_infos[4].pSpecializationInfo    = nullptr;
-    init.disp.createShadersEXT(5u, shader_create_infos, nullptr, shaders);
+    init.disp.createShadersEXT(5u, shader_create_infos, nullptr, shaders_);
 }
 
 const int NUM_FRAMES = 20;
@@ -190,11 +190,11 @@ const int NUM_FRAMES = 20;
 
 bool App::frame(const int frame_num)
 {
-    init.disp.waitForFences(1, &this->sync.in_flight_fences[this->current_frame], VK_TRUE, UINT64_MAX);
+    init.disp.waitForFences(1, &sync_.in_flight_fences[current_frame_], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
     VkResult result      = init.disp.acquireNextImageKHR(
-        init.swapchain, UINT64_MAX, this->sync.available_semaphores[this->current_frame], VK_NULL_HANDLE, &image_index);
+        init.swapchain, UINT64_MAX, sync_.available_semaphores[current_frame_], VK_NULL_HANDLE, &image_index);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -206,13 +206,13 @@ bool App::frame(const int frame_num)
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (this->sync.image_in_flight[image_index] != VK_NULL_HANDLE)
+    if (sync_.image_in_flight[image_index] != VK_NULL_HANDLE)
     {
-        init.disp.waitForFences(1, &this->sync.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+        init.disp.waitForFences(1, &sync_.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    this->sync.image_in_flight[image_index] = this->sync.in_flight_fences[this->current_frame];
+    sync_.image_in_flight[image_index] = sync_.in_flight_fences[current_frame_];
 
-    VkCommandBuffer command_buffer = command_buffers[this->current_frame];
+    VkCommandBuffer command_buffer = command_buffers_[current_frame_];
 
     init.disp.resetCommandBuffer(command_buffer, 0u);
 
@@ -298,7 +298,7 @@ bool App::frame(const int frame_num)
         VK_SHADER_STAGE_GEOMETRY_BIT,
         VK_SHADER_STAGE_FRAGMENT_BIT,
     };
-    init.disp.cmdBindShadersEXT(command_buffer, 5u, stages, shaders);
+    init.disp.cmdBindShadersEXT(command_buffer, 5u, stages, shaders_);
 
     VkClearValue clear_value;
     clear_value.color.float32[0] = 0.0f;
@@ -366,7 +366,7 @@ bool App::frame(const int frame_num)
     VkSubmitInfo submitInfo = {};
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore          wait_semaphores[] = { this->sync.available_semaphores[this->current_frame] };
+    VkSemaphore          wait_semaphores[] = { sync_.available_semaphores[current_frame_] };
     VkPipelineStageFlags wait_stages[]     = { VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT };
     submitInfo.waitSemaphoreCount          = 1;
     submitInfo.pWaitSemaphores             = wait_semaphores;
@@ -375,14 +375,14 @@ bool App::frame(const int frame_num)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &command_buffer;
 
-    VkSemaphore signal_semaphores[] = { this->sync.finished_semaphore[this->current_frame] };
+    VkSemaphore signal_semaphores[] = { sync_.finished_semaphore[current_frame_] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signal_semaphores;
 
-    init.disp.resetFences(1, &this->sync.in_flight_fences[this->current_frame]);
+    init.disp.resetFences(1, &sync_.in_flight_fences[current_frame_]);
 
     result =
-        init.disp.queueSubmit(this->graphics_queue, 1, &submitInfo, this->sync.in_flight_fences[this->current_frame]);
+        init.disp.queueSubmit(graphics_queue_, 1, &submitInfo, sync_.in_flight_fences[current_frame_]);
     VERIFY_VK_RESULT("failed to submit queue", result);
 
     VkPresentInfoKHR present_info = {};
@@ -397,7 +397,7 @@ bool App::frame(const int frame_num)
 
     present_info.pImageIndices = &image_index;
 
-    result = init.disp.queuePresentKHR(this->present_queue, &present_info);
+    result = init.disp.queuePresentKHR(present_queue_, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
         recreate_swapchain(true);
@@ -405,7 +405,7 @@ bool App::frame(const int frame_num)
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
-    this->current_frame = (this->current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     return IS_RUNNING(frame_num);
 }
@@ -414,15 +414,15 @@ void App::cleanup()
 {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        init.disp.destroySemaphore(this->sync.finished_semaphore[i], nullptr);
-        init.disp.destroySemaphore(this->sync.available_semaphores[i], nullptr);
-        init.disp.destroyFence(this->sync.in_flight_fences[i], nullptr);
+        init.disp.destroySemaphore(sync_.finished_semaphore[i], nullptr);
+        init.disp.destroySemaphore(sync_.available_semaphores[i], nullptr);
+        init.disp.destroyFence(sync_.in_flight_fences[i], nullptr);
     }
 
-    init.disp.destroyCommandPool(command_pool, nullptr);
+    init.disp.destroyCommandPool(command_pool_, nullptr);
     for (uint32_t i = 0; i < 5; ++i)
     {
-        init.disp.destroyShaderEXT(shaders[i], nullptr);
+        init.disp.destroyShaderEXT(shaders_[i], nullptr);
     }
 }
 
@@ -431,12 +431,12 @@ void App::setup()
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
-    this->graphics_queue = *graphics_queue;
+    graphics_queue_ = *graphics_queue;
 
     auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
     if (!present_queue.has_value())
         throw std::runtime_error("could not get present queue");
-    this->present_queue = *present_queue;
+    present_queue_ = *present_queue;
 
     create_shader_objects();
 
@@ -444,22 +444,22 @@ void App::setup()
     if (!queue_family_index)
         throw std::runtime_error("could not find graphics queue");
 
-    this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
+    sync_ = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 
     VkCommandPoolCreateInfo command_pool_create_info;
     command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     command_pool_create_info.pNext            = nullptr;
     command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     command_pool_create_info.queueFamilyIndex = queue_family_index.value();
-    init.disp.createCommandPool(&command_pool_create_info, nullptr, &command_pool);
+    init.disp.createCommandPool(&command_pool_create_info, nullptr, &command_pool_);
 
     VkCommandBufferAllocateInfo command_buffer_allocate_info;
     command_buffer_allocate_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     command_buffer_allocate_info.pNext              = nullptr;
-    command_buffer_allocate_info.commandPool        = command_pool;
+    command_buffer_allocate_info.commandPool        = command_pool_;
     command_buffer_allocate_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     command_buffer_allocate_info.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
-    init.disp.allocateCommandBuffers(&command_buffer_allocate_info, command_buffers);
+    init.disp.allocateCommandBuffers(&command_buffer_allocate_info, command_buffers_);
 }
 
 GFXRECON_END_NAMESPACE(shader_objects)
