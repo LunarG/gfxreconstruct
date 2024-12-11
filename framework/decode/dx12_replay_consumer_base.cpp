@@ -1033,6 +1033,21 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChainForComposition(DxObjectInfo* repl
         replay_object_info, original_result, device_info, 0, desc, nullptr, restrict_to_output_info, swapchain);
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideEnumAdapterByLuid(DxObjectInfo*                replay_object_info,
+                                                          HRESULT                      original_result,
+                                                          Decoded_LUID                 adapter_luid,
+                                                          Decoded_GUID                 riid,
+                                                          HandlePointerDecoder<void*>* adapter)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+                    (adapter_luid.decoded_value != nullptr) && (riid.decoded_value != nullptr) && (adapter != nullptr));
+
+    auto luid = GetAdapterLuid(*adapter_luid.decoded_value);
+
+    return reinterpret_cast<IDXGIFactory4*>(replay_object_info->object)
+        ->EnumAdapterByLuid(luid, *riid.decoded_value, adapter->GetHandlePointer());
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateDXGIFactory2(HRESULT                      original_result,
                                                            UINT                         flags,
                                                            Decoded_GUID                 riid,
@@ -1225,6 +1240,33 @@ void Dx12ReplayConsumerBase::DetectAdapters()
 
         factory1->Release();
     }
+}
+
+void Dx12ReplayConsumerBase::AddAdapterLuid(const LUID& capture_luid, const LUID& replay_luid)
+{
+    auto key = ((static_cast<uint64_t>(capture_luid.HighPart) << 32) & 0xFFFFFFFF00000000) |
+               (static_cast<uint64_t>(capture_luid.LowPart) & 0xFFFFFFFF);
+
+    if (key != 0)
+    {
+        adapter_luid_map_.insert(std::make_pair(key, replay_luid));
+    }
+}
+
+LUID Dx12ReplayConsumerBase::GetAdapterLuid(const LUID& capture_luid)
+{
+    auto key = ((static_cast<uint64_t>(capture_luid.HighPart) << 32) & 0xFFFFFFFF00000000) |
+               (static_cast<uint64_t>(capture_luid.LowPart) & 0xFFFFFFFF);
+    auto value = adapter_luid_map_.find(key);
+
+    if (value != adapter_luid_map_.end())
+    {
+        return value->second;
+    }
+
+    GFXRECON_LOG_DEBUG("Failed to map LUID for capture value %" PRIx64, key);
+
+    return capture_luid;
 }
 
 void Dx12ReplayConsumerBase::InitCommandQueueExtraInfo(ID3D12Device*                device,
@@ -4426,6 +4468,55 @@ std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId captur
     constructed_name.append(L" (" + object_creator + L")");
 
     return constructed_name;
+}
+
+void Dx12ReplayConsumerBase::PostCall_IDXGIFactory2_GetSharedResourceAdapterLuid(
+    const ApiCallInfo&                  call_info,
+    DxObjectInfo*                       object_info,
+    HRESULT                             capture_return_value,
+    HRESULT                             replay_return_value,
+    uint64_t                            hResource,
+    StructPointerDecoder<Decoded_LUID>* pLuid)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(hResource);
+
+    if (SUCCEEDED(capture_return_value) && SUCCEEDED(replay_return_value))
+    {
+        auto capture_luid = pLuid->GetPointer();
+        auto replay_luid  = pLuid->GetOutputPointer();
+
+        GFXRECON_ASSERT((capture_luid != nullptr) && (replay_luid != nullptr));
+
+        AddAdapterLuid(*capture_luid, *replay_luid);
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_GetAdapterLuid(const ApiCallInfo&  call_info,
+                                                                  DxObjectInfo*       object_info,
+                                                                  const Decoded_LUID& capture_return_value,
+                                                                  const LUID&         replay_return_value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(object_info);
+
+    GFXRECON_ASSERT(capture_return_value.decoded_value != nullptr);
+
+    AddAdapterLuid(*capture_return_value.decoded_value, replay_return_value);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ApiCall_ID3D12SwapChainAssistant_GetLUID(const ApiCallInfo&  call_info,
+                                                                               DxObjectInfo*       object_info,
+                                                                               const Decoded_LUID& capture_return_value,
+                                                                               const LUID&         replay_return_value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(object_info);
+
+    GFXRECON_ASSERT(capture_return_value.decoded_value != nullptr);
+
+    AddAdapterLuid(*capture_return_value.decoded_value, replay_return_value);
 }
 
 void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(

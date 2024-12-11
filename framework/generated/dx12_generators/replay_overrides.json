@@ -126,6 +126,9 @@
       "CreateSwapChainForComposition": "OverrideCreateSwapChainForComposition",
       "CreateSwapChainForCoreWindow": "OverrideCreateSwapChainForCoreWindow"
     },
+    "IDXGIFactory4": {
+      "EnumAdapterByLuid": "OverrideEnumAdapterByLuid"
+    },
     "IDXGISwapChain": {
       "GetBuffer": "OverrideGetBuffer",
       "ResizeBuffers": "OverrideResizeBuffers",
