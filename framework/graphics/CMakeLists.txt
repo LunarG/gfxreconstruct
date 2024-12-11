@@ -59,6 +59,7 @@ target_sources(gfxrecon_graphics
 
 target_include_directories(gfxrecon_graphics
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR}/build
                                ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
