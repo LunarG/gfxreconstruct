@@ -36,7 +36,7 @@ const char kOptions[] =
     "--dump-resources-dump-depth-attachment,--dump-"
     "resources-dump-vertex-index-buffers,--dump-resources-json-output-per-command,--dump-resources-dump-immutable-"
     "resources,--dump-resources-dump-all-image-subresources,--dump-resources-dump-raw-images,--dump-resources-dump-"
-    "separate-alpha,--pbi-all,--preload-measurement-range";
+    "separate-alpha,--pbi-all,--preload-measurement-range, --add-new-pipeline-caches";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -44,7 +44,8 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
-    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs";
+    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
+    "pipeline-cache";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -332,6 +333,18 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault: 0 (do not use asynchronous operations).");
     GFXRECON_WRITE_CONSOLE("          \t\tSame as --pcj <num_jobs>");
+    GFXRECON_WRITE_CONSOLE("  --save-pipeline-cache <cache-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, produces pipeline caches at replay time instead of using");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe one saved at capture time and save those caches in <cache-file>.");
+    GFXRECON_WRITE_CONSOLE("  --load-pipeline-cache <cache-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, loads data created by the `--save-pipeline-cache`");
+    GFXRECON_WRITE_CONSOLE("          \t\toption in <cache-file> and uses it to create the pipelines instead");
+    GFXRECON_WRITE_CONSOLE("          \t\tof the pipeline caches saved at capture time.");
+    GFXRECON_WRITE_CONSOLE("  --add-new-pipeline-caches");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, allows gfxreconstruct to create new vkPipelineCache objects");
+    GFXRECON_WRITE_CONSOLE("          \t\twhen it encounters a pipeline created without cache. This option can");
+    GFXRECON_WRITE_CONSOLE("          \t\tbe used in coordination with `--save-pipeline-cache` and");
+    GFXRECON_WRITE_CONSOLE("          \t\t`--load-pipeline-cache`.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")

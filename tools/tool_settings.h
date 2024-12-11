@@ -124,6 +124,9 @@ const char kPrintBlockInfoAllOption[]             = "--pbi-all";
 const char kPrintBlockInfosArgument[]             = "--pbis";
 const char kNumPipelineCreationJobs[]             = "--pipeline-creation-jobs";
 const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range";
+const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
+const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
+const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
@@ -1108,6 +1111,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     {
         replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
     }
+
+    replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
+    replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
+    replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
 
     return replay_options;
 }
