@@ -43,29 +43,29 @@ class App : public gfxrecon::test::TestAppBase
     App() = default;
 
   private:
-    VkQueue graphics_queue;
-    VkQueue present_queue;
+    VkQueue graphics_queue_;
+    VkQueue present_queue_;
 
-    std::vector<VkImage>       depth_images;
-    std::vector<VmaAllocation> depth_image_allocations;
-    std::vector<VkImageView>   depth_image_views;
+    std::vector<VkImage>       depth_images_;
+    std::vector<VmaAllocation> depth_image_allocations_;
+    std::vector<VkImageView>   depth_image_views_;
 
-    std::vector<VkImage>       render_targets;
-    std::vector<VmaAllocation> render_target_allocations;
-    std::vector<VkImageView>   render_target_views;
+    std::vector<VkImage>       render_targets_;
+    std::vector<VmaAllocation> render_target_allocations_;
+    std::vector<VkImageView>   render_target_views_;
 
-    std::vector<VkFramebuffer> framebuffers;
+    std::vector<VkFramebuffer> framebuffers_;
 
-    VkRenderPass     render_pass;
-    VkPipelineLayout pipeline_layout;
-    VkPipeline       graphics_pipeline;
+    VkRenderPass     render_pass_;
+    VkPipelineLayout pipeline_layout_;
+    VkPipeline       graphics_pipeline_;
 
-    VkCommandPool command_pools[MAX_FRAMES_IN_FLIGHT];
+    VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
 
-    size_t current_frame = 0;
+    size_t current_frame_ = 0;
 
-    gfxrecon::test::Sync sync;
-    VmaAllocator         allocator;
+    gfxrecon::test::Sync sync_;
+    VmaAllocator         allocator_;
 
     void create_allocator();
     void create_render_targets();
@@ -96,14 +96,14 @@ void App::create_allocator()
     allocator_create_info.device                 = init.device;
     allocator_create_info.instance               = init.instance;
     allocator_create_info.pVulkanFunctions       = &vulkan_functions;
-    vmaCreateAllocator(&allocator_create_info, &this->allocator);
+    vmaCreateAllocator(&allocator_create_info, &allocator_);
 }
 
 void App::create_render_targets()
 {
-    render_targets.resize(init.swapchain_image_views.size());
-    render_target_allocations.resize(init.swapchain_image_views.size());
-    render_target_views.resize(init.swapchain_image_views.size());
+    render_targets_.resize(init.swapchain_image_views.size());
+    render_target_allocations_.resize(init.swapchain_image_views.size());
+    render_target_views_.resize(init.swapchain_image_views.size());
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
     {
@@ -125,32 +125,32 @@ void App::create_render_targets()
         VmaAllocationCreateInfo allocation_info = {};
         allocation_info.usage                   = VMA_MEMORY_USAGE_AUTO;
 
-        result = vmaCreateImage(allocator,
+        result = vmaCreateImage(allocator_,
                                 &image_create_info,
                                 &allocation_info,
-                                &render_targets[i],
-                                &render_target_allocations[i],
+                                &render_targets_[i],
+                                &render_target_allocations_[i],
                                 nullptr);
         VERIFY_VK_RESULT("failed to create render target", result);
 
         VkImageViewCreateInfo image_view_create_info       = {};
         image_view_create_info.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.image                       = this->render_targets[i];
+        image_view_create_info.image                       = render_targets_[i];
         image_view_create_info.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
         image_view_create_info.format                      = image_create_info.format;
         image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         image_view_create_info.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         image_view_create_info.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-        result = init.disp.createImageView(&image_view_create_info, nullptr, &this->render_target_views[i]);
+        result = init.disp.createImageView(&image_view_create_info, nullptr, &render_target_views_[i]);
         VERIFY_VK_RESULT("failed to create render target view", result);
     }
 }
 
 void App::create_depth_buffers()
 {
-    depth_images.resize(init.swapchain_image_views.size());
-    depth_image_allocations.resize(init.swapchain_image_views.size());
-    depth_image_views.resize(init.swapchain_image_views.size());
+    depth_images_.resize(init.swapchain_image_views.size());
+    depth_image_allocations_.resize(init.swapchain_image_views.size());
+    depth_image_views_.resize(init.swapchain_image_views.size());
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
     {
@@ -173,18 +173,18 @@ void App::create_depth_buffers()
         allocation_info.usage                   = VMA_MEMORY_USAGE_AUTO;
 
         result = vmaCreateImage(
-            allocator, &image_create_info, &allocation_info, &depth_images[i], &depth_image_allocations[i], nullptr);
+            allocator_, &image_create_info, &allocation_info, &depth_images_[i], &depth_image_allocations_[i], nullptr);
         VERIFY_VK_RESULT("failed to create depth buffer image", result);
 
         VkImageViewCreateInfo image_view_create_info       = {};
         image_view_create_info.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.image                       = this->depth_images[i];
+        image_view_create_info.image                       = depth_images_[i];
         image_view_create_info.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
         image_view_create_info.format                      = image_create_info.format;
         image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         image_view_create_info.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         image_view_create_info.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-        result = init.disp.createImageView(&image_view_create_info, nullptr, &this->depth_image_views[i]);
+        result = init.disp.createImageView(&image_view_create_info, nullptr, &depth_image_views_[i]);
         VERIFY_VK_RESULT("failed to create depth buffer image view", result);
     }
 }
@@ -232,7 +232,7 @@ void App::create_render_pass()
     render_pass_info.subpassCount           = 1;
     render_pass_info.pSubpasses             = &subpass;
 
-    auto result = init.disp.createRenderPass(&render_pass_info, nullptr, &this->render_pass);
+    auto result = init.disp.createRenderPass(&render_pass_info, nullptr, &render_pass_);
     VERIFY_VK_RESULT("failed to create render pass", result);
 }
 
@@ -320,7 +320,7 @@ void App::create_graphics_pipeline()
     pipeline_layout_info.setLayoutCount             = 0;
     pipeline_layout_info.pushConstantRangeCount     = 0;
 
-    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &this->pipeline_layout);
+    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &pipeline_layout_);
     VERIFY_VK_RESULT("failed to create pipeline layout", result);
 
     std::vector<VkDynamicState> dynamic_states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
@@ -347,11 +347,11 @@ void App::create_graphics_pipeline()
     pipeline_info.pMultisampleState            = &multisampling;
     pipeline_info.pColorBlendState             = &color_blending;
     pipeline_info.pDynamicState                = &dynamic_info;
-    pipeline_info.layout                       = this->pipeline_layout;
-    pipeline_info.renderPass                   = this->render_pass;
+    pipeline_info.layout                       = pipeline_layout_;
+    pipeline_info.renderPass                   = render_pass_;
     pipeline_info.pDepthStencilState           = &depth_stencil;
 
-    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &this->graphics_pipeline);
+    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline_);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
     init.disp.destroyShaderModule(frag_module, nullptr);
@@ -360,22 +360,22 @@ void App::create_graphics_pipeline()
 
 void App::create_framebuffers()
 {
-    this->framebuffers.resize(init.swapchain_image_views.size());
+    framebuffers_.resize(init.swapchain_image_views.size());
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
     {
-        VkImageView attachments[] = { render_target_views[i], depth_image_views[i] };
+        VkImageView attachments[] = { render_target_views_[i], depth_image_views_[i] };
 
         VkFramebufferCreateInfo framebuffer_info = {};
         framebuffer_info.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass              = this->render_pass;
+        framebuffer_info.renderPass              = render_pass_;
         framebuffer_info.attachmentCount         = 2;
         framebuffer_info.pAttachments            = attachments;
         framebuffer_info.width                   = init.swapchain.extent.width;
         framebuffer_info.height                  = init.swapchain.extent.height;
         framebuffer_info.layers                  = 1;
 
-        auto result = init.disp.createFramebuffer(&framebuffer_info, nullptr, &this->framebuffers[i]);
+        auto result = init.disp.createFramebuffer(&framebuffer_info, nullptr, &framebuffers_[i]);
         VERIFY_VK_RESULT("failed to create framebuffer", result);
     }
 }
@@ -386,11 +386,11 @@ void App::recreate_swapchain()
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
     {
-        init.disp.destroyFramebuffer(framebuffers[i], nullptr);
-        init.disp.destroyImageView(depth_image_views[i], nullptr);
-        vmaDestroyImage(allocator, depth_images[i], depth_image_allocations[i]);
-        init.disp.destroyImageView(render_target_views[i], nullptr);
-        vmaDestroyImage(allocator, render_targets[i], render_target_allocations[i]);
+        init.disp.destroyFramebuffer(framebuffers_[i], nullptr);
+        init.disp.destroyImageView(depth_image_views_[i], nullptr);
+        vmaDestroyImage(allocator_, depth_images_[i], depth_image_allocations_[i]);
+        init.disp.destroyImageView(render_target_views_[i], nullptr);
+        vmaDestroyImage(allocator_, render_targets_[i], render_target_allocations_[i]);
     }
 
     TestAppBase::recreate_swapchain(false);
@@ -405,11 +405,11 @@ const int NUM_FRAMES = 10;
 
 bool App::frame(const int frame_num)
 {
-    init.disp.waitForFences(1, &this->sync.in_flight_fences[this->current_frame], VK_TRUE, UINT64_MAX);
+    init.disp.waitForFences(1, &sync_.in_flight_fences[current_frame_], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
     VkResult result      = init.disp.acquireNextImageKHR(
-        init.swapchain, UINT64_MAX, this->sync.available_semaphores[this->current_frame], VK_NULL_HANDLE, &image_index);
+        init.swapchain, UINT64_MAX, sync_.available_semaphores[current_frame_], VK_NULL_HANDLE, &image_index);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -421,17 +421,17 @@ bool App::frame(const int frame_num)
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (this->sync.image_in_flight[image_index] != VK_NULL_HANDLE)
+    if (sync_.image_in_flight[image_index] != VK_NULL_HANDLE)
     {
-        init.disp.waitForFences(1, &this->sync.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+        init.disp.waitForFences(1, &sync_.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
     }
-    this->sync.image_in_flight[image_index] = this->sync.in_flight_fences[this->current_frame];
+    sync_.image_in_flight[image_index] = sync_.in_flight_fences[current_frame_];
 
-    init.disp.resetCommandPool(this->command_pools[current_frame], 0);
+    init.disp.resetCommandPool(command_pools_[current_frame_], 0);
     VkCommandBufferAllocateInfo allocate_info = {};
     allocate_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocate_info.commandBufferCount          = 1;
-    allocate_info.commandPool                 = this->command_pools[current_frame];
+    allocate_info.commandPool                 = command_pools_[current_frame_];
     VkCommandBuffer command_buffer;
     result = init.disp.allocateCommandBuffers(&allocate_info, &command_buffer);
     VERIFY_VK_RESULT("failed to allocate command buffer", result);
@@ -446,7 +446,7 @@ bool App::frame(const int frame_num)
             VkImageMemoryBarrier image_barriers[2];
             image_barriers[0]                             = {};
             image_barriers[0].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            image_barriers[0].image                       = render_targets[image_index];
+            image_barriers[0].image                       = render_targets_[image_index];
             image_barriers[0].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
             image_barriers[0].newLayout                   = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             image_barriers[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -456,7 +456,7 @@ bool App::frame(const int frame_num)
             image_barriers[0].dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
             image_barriers[1]                             = {};
             image_barriers[1].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            image_barriers[1].image                       = depth_images[image_index];
+            image_barriers[1].image                       = depth_images_[image_index];
             image_barriers[1].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
             image_barriers[1].newLayout                   = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             image_barriers[1].subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -481,8 +481,8 @@ bool App::frame(const int frame_num)
 
         VkRenderPassBeginInfo render_pass_info = {};
         render_pass_info.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        render_pass_info.renderPass            = this->render_pass;
-        render_pass_info.framebuffer           = this->framebuffers[image_index];
+        render_pass_info.renderPass            = render_pass_;
+        render_pass_info.framebuffer           = framebuffers_[image_index];
         render_pass_info.renderArea.offset     = { 0, 0 };
         render_pass_info.renderArea.extent     = init.swapchain.extent;
         VkClearValue clearColors[]             = { { { { 0.0f, 0.0f, 0.0f, 1.0f } } }, { { 1.0f } } };
@@ -506,7 +506,7 @@ bool App::frame(const int frame_num)
 
         init.disp.cmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-        init.disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphics_pipeline);
+        init.disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_);
 
         init.disp.cmdDraw(command_buffer, 3, 1, 0, 0);
 
@@ -550,7 +550,7 @@ bool App::frame(const int frame_num)
     VkSubmitInfo submitInfo = {};
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore          wait_semaphores[] = { this->sync.available_semaphores[this->current_frame] };
+    VkSemaphore          wait_semaphores[] = { sync_.available_semaphores[current_frame_] };
     VkPipelineStageFlags wait_stages[]     = { VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT };
     submitInfo.waitSemaphoreCount          = 1;
     submitInfo.pWaitSemaphores             = wait_semaphores;
@@ -559,14 +559,14 @@ bool App::frame(const int frame_num)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &command_buffer;
 
-    VkSemaphore signal_semaphores[] = { this->sync.finished_semaphore[this->current_frame] };
+    VkSemaphore signal_semaphores[] = { sync_.finished_semaphore[current_frame_] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signal_semaphores;
 
-    init.disp.resetFences(1, &this->sync.in_flight_fences[this->current_frame]);
+    init.disp.resetFences(1, &sync_.in_flight_fences[current_frame_]);
 
     result =
-        init.disp.queueSubmit(this->graphics_queue, 1, &submitInfo, this->sync.in_flight_fences[this->current_frame]);
+        init.disp.queueSubmit(graphics_queue_, 1, &submitInfo, sync_.in_flight_fences[current_frame_]);
     VERIFY_VK_RESULT("failed to submit queue", result);
 
     VkPresentInfoKHR present_info = {};
@@ -581,7 +581,7 @@ bool App::frame(const int frame_num)
 
     present_info.pImageIndices = &image_index;
 
-    result = init.disp.queuePresentKHR(this->present_queue, &present_info);
+    result = init.disp.queuePresentKHR(present_queue_, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
         recreate_swapchain();
@@ -589,7 +589,7 @@ bool App::frame(const int frame_num)
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
-    this->current_frame = (this->current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     return IS_RUNNING(frame_num);
 }
@@ -598,30 +598,30 @@ void App::cleanup()
 {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        init.disp.destroySemaphore(this->sync.finished_semaphore[i], nullptr);
-        init.disp.destroySemaphore(this->sync.available_semaphores[i], nullptr);
-        init.disp.destroyFence(this->sync.in_flight_fences[i], nullptr);
+        init.disp.destroySemaphore(sync_.finished_semaphore[i], nullptr);
+        init.disp.destroySemaphore(sync_.available_semaphores[i], nullptr);
+        init.disp.destroyFence(sync_.in_flight_fences[i], nullptr);
     }
 
-    for (auto command_pool : command_pools)
+    for (auto command_pool : command_pools_)
     {
         init.disp.destroyCommandPool(command_pool, nullptr);
     }
 
     for (size_t i = 0; i < init.swapchain_image_views.size(); i++)
     {
-        init.disp.destroyFramebuffer(framebuffers[i], nullptr);
-        init.disp.destroyImageView(depth_image_views[i], nullptr);
-        vmaDestroyImage(allocator, depth_images[i], depth_image_allocations[i]);
-        init.disp.destroyImageView(render_target_views[i], nullptr);
-        vmaDestroyImage(allocator, render_targets[i], render_target_allocations[i]);
+        init.disp.destroyFramebuffer(framebuffers_[i], nullptr);
+        init.disp.destroyImageView(depth_image_views_[i], nullptr);
+        vmaDestroyImage(allocator_, depth_images_[i], depth_image_allocations_[i]);
+        init.disp.destroyImageView(render_target_views_[i], nullptr);
+        vmaDestroyImage(allocator_, render_targets_[i], render_target_allocations_[i]);
     }
 
-    init.disp.destroyPipeline(this->graphics_pipeline, nullptr);
-    init.disp.destroyPipelineLayout(this->pipeline_layout, nullptr);
-    init.disp.destroyRenderPass(this->render_pass, nullptr);
+    init.disp.destroyPipeline(graphics_pipeline_, nullptr);
+    init.disp.destroyPipelineLayout(pipeline_layout_, nullptr);
+    init.disp.destroyRenderPass(render_pass_, nullptr);
 
-    vmaDestroyAllocator(this->allocator);
+    vmaDestroyAllocator(allocator_);
 }
 
 void App::setup()
@@ -631,12 +631,12 @@ void App::setup()
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
-    this->graphics_queue = *graphics_queue;
+    graphics_queue_ = *graphics_queue;
 
     auto present_queue = init.device.get_queue(gfxrecon::test::QueueType::present);
     if (!present_queue.has_value())
         throw std::runtime_error("could not get present queue");
-    this->present_queue = *present_queue;
+    present_queue_ = *present_queue;
 
     create_render_targets();
     create_depth_buffers();
@@ -649,12 +649,12 @@ void App::setup()
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index)
         throw std::runtime_error("could not find graphics queue");
-    for (auto& command_pool : command_pools)
+    for (auto& command_pool : command_pools_)
     {
         command_pool = gfxrecon::test::create_command_pool(init.disp, *queue_family_index);
     }
 
-    this->sync = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
+    sync_ = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 }
 
 GFXRECON_END_NAMESPACE(multisample_depth)

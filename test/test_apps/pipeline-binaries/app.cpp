@@ -41,13 +41,13 @@ class App : public gfxrecon::test::TestAppBase
     App() = default;
 
   private:
-    VkPhysicalDeviceDynamicRenderingFeatures  dynamic_rendering_features;
-    VkPhysicalDevicePipelineBinaryFeaturesKHR pipeline_binary_features;
+    VkPhysicalDeviceDynamicRenderingFeatures  dynamic_rendering_features_;
+    VkPhysicalDevicePipelineBinaryFeaturesKHR pipeline_binary_features_;
 
-    VkQueue graphics_queue;
+    VkQueue graphics_queue_;
 
-    VkPipelineLayout pipeline_layout;
-    VkPipeline       graphics_pipeline;
+    VkPipelineLayout pipeline_layout_;
+    VkPipeline       graphics_pipeline_;
 
     void configure_instance_builder(test::InstanceBuilder& instance_builder) override;
     void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
@@ -78,15 +78,15 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
 
 void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
 {
-    dynamic_rendering_features.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-    dynamic_rendering_features.pNext            = nullptr;
-    dynamic_rendering_features.dynamicRendering = VK_TRUE;
-    device_builder.add_pNext(&dynamic_rendering_features);
+    dynamic_rendering_features_.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamic_rendering_features_.pNext            = nullptr;
+    dynamic_rendering_features_.dynamicRendering = VK_TRUE;
+    device_builder.add_pNext(&dynamic_rendering_features_);
 
-    pipeline_binary_features.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR;
-    pipeline_binary_features.pNext            = nullptr;
-    pipeline_binary_features.pipelineBinaries = VK_TRUE;
-    device_builder.add_pNext(&pipeline_binary_features);
+    pipeline_binary_features_.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR;
+    pipeline_binary_features_.pNext            = nullptr;
+    pipeline_binary_features_.pipelineBinaries = VK_TRUE;
+    device_builder.add_pNext(&pipeline_binary_features_);
 }
 
 void App::create_graphics_pipeline()
@@ -173,7 +173,7 @@ void App::create_graphics_pipeline()
     pipeline_layout_info.setLayoutCount             = 0;
     pipeline_layout_info.pushConstantRangeCount     = 0;
 
-    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &this->pipeline_layout);
+    auto result = init.disp.createPipelineLayout(&pipeline_layout_info, nullptr, &pipeline_layout_);
     VERIFY_VK_RESULT("failed to create pipeline layout", result);
 
     std::vector<VkDynamicState> dynamic_states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
@@ -208,12 +208,12 @@ void App::create_graphics_pipeline()
     pipeline_info.pMultisampleState            = &multisampling;
     pipeline_info.pColorBlendState             = &color_blending;
     pipeline_info.pDynamicState                = &dynamic_info;
-    pipeline_info.layout                       = this->pipeline_layout;
+    pipeline_info.layout                       = pipeline_layout_;
     pipeline_info.renderPass                   = VK_NULL_HANDLE;
     pipeline_info.subpass                      = 0;
     pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
 
-    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &this->graphics_pipeline);
+    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline_);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
     init.disp.destroyShaderModule(frag_module, nullptr);
@@ -228,7 +228,7 @@ bool App::frame(const int frame_num)
     pipeline_binary_create_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR;
     pipeline_binary_create_info.pNext               = nullptr;
     pipeline_binary_create_info.pKeysAndDataInfo    = nullptr;
-    pipeline_binary_create_info.pipeline            = graphics_pipeline;
+    pipeline_binary_create_info.pipeline            = graphics_pipeline_;
     pipeline_binary_create_info.pPipelineCreateInfo = nullptr;
 
     VkPipelineBinaryHandlesInfoKHR pipeline_binary_handles_info;
@@ -270,7 +270,7 @@ bool App::frame(const int frame_num)
     VkReleaseCapturedPipelineDataInfoKHR release_captured_pipeline_data_info;
     release_captured_pipeline_data_info.sType    = VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR;
     release_captured_pipeline_data_info.pNext    = NULL;
-    release_captured_pipeline_data_info.pipeline = graphics_pipeline;
+    release_captured_pipeline_data_info.pipeline = graphics_pipeline_;
     result = init.disp.releaseCapturedPipelineDataKHR(&release_captured_pipeline_data_info, nullptr);
 
     for (uint32_t i = 0; i < pipeline_binary_handles_info.pipelineBinaryCount; ++i)
@@ -283,8 +283,8 @@ bool App::frame(const int frame_num)
 
 void App::cleanup()
 {
-    init.disp.destroyPipeline(this->graphics_pipeline, nullptr);
-    init.disp.destroyPipelineLayout(this->pipeline_layout, nullptr);
+    init.disp.destroyPipeline(graphics_pipeline_, nullptr);
+    init.disp.destroyPipelineLayout(pipeline_layout_, nullptr);
 }
 
 void App::setup()
@@ -292,7 +292,7 @@ void App::setup()
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
-    this->graphics_queue = *graphics_queue;
+    graphics_queue_ = *graphics_queue;
 
     create_graphics_pipeline();
 }

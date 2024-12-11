@@ -41,27 +41,27 @@ class App : public gfxrecon::test::TestAppBase
     App() = default;
 
   private:
-    VkPhysicalDeviceHostImageCopyFeaturesEXT host_image_copy_features;
+    VkPhysicalDeviceHostImageCopyFeaturesEXT host_image_copy_features_;
 
-    VkQueue  queue;
-    uint32_t queue_index;
+    VkQueue  queue_;
+    uint32_t queue_index_;
 
-    const uint32_t image_width  = 256u;
-    const uint32_t image_height = 256u;
-    const uint32_t buffer_size  = image_width * image_height * 4u;
+    const uint32_t image_width_  = 256u;
+    const uint32_t image_height_ = 256u;
+    const uint32_t buffer_size_  = image_width_ * image_height_ * 4u;
 
-    VkBuffer       src_buffer;
-    VkDeviceMemory src_buffer_memory;
-    VkBuffer       dst_buffer;
-    VkDeviceMemory dst_buffer_memory;
-    VkImage        src_image;
-    VkDeviceMemory src_image_memory;
-    VkImage        dst_image;
-    VkDeviceMemory dst_image_memory;
+    VkBuffer       src_buffer_;
+    VkDeviceMemory src_buffer_memory_;
+    VkBuffer       dst_buffer_;
+    VkDeviceMemory dst_buffer_memory_;
+    VkImage        src_image_;
+    VkDeviceMemory src_image_memory_;
+    VkImage        dst_image_;
+    VkDeviceMemory dst_image_memory_;
 
-    VkCommandPool   command_pool;
-    VkCommandBuffer command_buffer;
-    VkFence         fence;
+    VkCommandPool   command_pool_;
+    VkCommandBuffer command_buffer_;
+    VkFence         fence_;
 
     void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
 
@@ -85,10 +85,10 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
 
 void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
 {
-    host_image_copy_features.sType         = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT;
-    host_image_copy_features.pNext         = nullptr;
-    host_image_copy_features.hostImageCopy = VK_TRUE;
-    device_builder.add_pNext(&host_image_copy_features);
+    host_image_copy_features_.sType         = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT;
+    host_image_copy_features_.pNext         = nullptr;
+    host_image_copy_features_.hostImageCopy = VK_TRUE;
+    device_builder.add_pNext(&host_image_copy_features_);
 }
 
 uint32_t App::find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags)
@@ -114,15 +114,15 @@ void App::create_buffers_and_images()
     buffer_create_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     buffer_create_info.pNext                 = nullptr;
     buffer_create_info.flags                 = 0u;
-    buffer_create_info.size                  = buffer_size;
+    buffer_create_info.size                  = buffer_size_;
     buffer_create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     buffer_create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     buffer_create_info.queueFamilyIndexCount = 0u;
     buffer_create_info.pQueueFamilyIndices   = nullptr;
-    init.disp.createBuffer(&buffer_create_info, nullptr, &src_buffer);
+    init.disp.createBuffer(&buffer_create_info, nullptr, &src_buffer_);
 
     VkMemoryRequirements src_buffer_memory_requirements;
-    init.disp.getBufferMemoryRequirements(src_buffer, &src_buffer_memory_requirements);
+    init.disp.getBufferMemoryRequirements(src_buffer_, &src_buffer_memory_requirements);
 
     VkMemoryAllocateInfo src_buffer_memory_allocate_info;
     src_buffer_memory_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -131,14 +131,14 @@ void App::create_buffers_and_images()
     src_buffer_memory_allocate_info.memoryTypeIndex =
         find_memory_type(src_buffer_memory_requirements.memoryTypeBits,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    init.disp.allocateMemory(&src_buffer_memory_allocate_info, nullptr, &src_buffer_memory);
-    init.disp.bindBufferMemory(src_buffer, src_buffer_memory, 0u);
+    init.disp.allocateMemory(&src_buffer_memory_allocate_info, nullptr, &src_buffer_memory_);
+    init.disp.bindBufferMemory(src_buffer_, src_buffer_memory_, 0u);
 
     buffer_create_info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-    init.disp.createBuffer(&buffer_create_info, nullptr, &dst_buffer);
+    init.disp.createBuffer(&buffer_create_info, nullptr, &dst_buffer_);
 
     VkMemoryRequirements dst_buffer_memory_requirements;
-    init.disp.getBufferMemoryRequirements(dst_buffer, &dst_buffer_memory_requirements);
+    init.disp.getBufferMemoryRequirements(dst_buffer_, &dst_buffer_memory_requirements);
 
     VkMemoryAllocateInfo dst_buffer_memory_allocate_info;
     dst_buffer_memory_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -147,8 +147,8 @@ void App::create_buffers_and_images()
     dst_buffer_memory_allocate_info.memoryTypeIndex =
         find_memory_type(dst_buffer_memory_requirements.memoryTypeBits,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    init.disp.allocateMemory(&dst_buffer_memory_allocate_info, nullptr, &dst_buffer_memory);
-    init.disp.bindBufferMemory(dst_buffer, dst_buffer_memory, 0u);
+    init.disp.allocateMemory(&dst_buffer_memory_allocate_info, nullptr, &dst_buffer_memory_);
+    init.disp.bindBufferMemory(dst_buffer_, dst_buffer_memory_, 0u);
 
     VkImageCreateInfo image_create_info;
     image_create_info.sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -156,7 +156,7 @@ void App::create_buffers_and_images()
     image_create_info.flags       = 0u;
     image_create_info.imageType   = VK_IMAGE_TYPE_2D;
     image_create_info.format      = VK_FORMAT_R8G8B8A8_UNORM;
-    image_create_info.extent      = { image_width, image_height, 1u };
+    image_create_info.extent      = { image_width_, image_height_, 1u };
     image_create_info.mipLevels   = 1u;
     image_create_info.arrayLayers = 1u;
     image_create_info.samples     = VK_SAMPLE_COUNT_1_BIT;
@@ -167,10 +167,10 @@ void App::create_buffers_and_images()
     image_create_info.queueFamilyIndexCount = 0u;
     image_create_info.pQueueFamilyIndices   = nullptr;
     image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-    init.disp.createImage(&image_create_info, nullptr, &src_image);
+    init.disp.createImage(&image_create_info, nullptr, &src_image_);
 
     VkMemoryRequirements src_image_memory_requirements;
-    init.disp.getImageMemoryRequirements(src_image, &src_image_memory_requirements);
+    init.disp.getImageMemoryRequirements(src_image_, &src_image_memory_requirements);
 
     VkMemoryAllocateInfo src_image_memory_allocate_info;
     src_image_memory_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -178,13 +178,13 @@ void App::create_buffers_and_images()
     src_image_memory_allocate_info.allocationSize = src_image_memory_requirements.size;
     src_image_memory_allocate_info.memoryTypeIndex =
         find_memory_type(src_image_memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    init.disp.allocateMemory(&src_image_memory_allocate_info, nullptr, &src_image_memory);
-    init.disp.bindImageMemory(src_image, src_image_memory, 0u);
+    init.disp.allocateMemory(&src_image_memory_allocate_info, nullptr, &src_image_memory_);
+    init.disp.bindImageMemory(src_image_, src_image_memory_, 0u);
 
-    init.disp.createImage(&image_create_info, nullptr, &dst_image);
+    init.disp.createImage(&image_create_info, nullptr, &dst_image_);
 
     VkMemoryRequirements dst_image_memory_requirements;
-    init.disp.getImageMemoryRequirements(src_image, &dst_image_memory_requirements);
+    init.disp.getImageMemoryRequirements(src_image_, &dst_image_memory_requirements);
 
     VkMemoryAllocateInfo dst_image_memory_allocate_info;
     dst_image_memory_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -192,8 +192,8 @@ void App::create_buffers_and_images()
     dst_image_memory_allocate_info.allocationSize = dst_image_memory_requirements.size;
     dst_image_memory_allocate_info.memoryTypeIndex =
         find_memory_type(dst_image_memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    init.disp.allocateMemory(&dst_image_memory_allocate_info, nullptr, &dst_image_memory);
-    init.disp.bindImageMemory(dst_image, dst_image_memory, 0u);
+    init.disp.allocateMemory(&dst_image_memory_allocate_info, nullptr, &dst_image_memory_);
+    init.disp.bindImageMemory(dst_image_, dst_image_memory_, 0u);
 }
 
 void App::allocate_command_buffer()
@@ -202,16 +202,16 @@ void App::allocate_command_buffer()
     command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     command_pool_create_info.pNext            = nullptr;
     command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    command_pool_create_info.queueFamilyIndex = queue_index;
-    init.disp.createCommandPool(&command_pool_create_info, nullptr, &command_pool);
+    command_pool_create_info.queueFamilyIndex = queue_index_;
+    init.disp.createCommandPool(&command_pool_create_info, nullptr, &command_pool_);
 
     VkCommandBufferAllocateInfo command_buffer_allocate_info;
     command_buffer_allocate_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     command_buffer_allocate_info.pNext              = nullptr;
-    command_buffer_allocate_info.commandPool        = command_pool;
+    command_buffer_allocate_info.commandPool        = command_pool_;
     command_buffer_allocate_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     command_buffer_allocate_info.commandBufferCount = 1u;
-    init.disp.allocateCommandBuffers(&command_buffer_allocate_info, &command_buffer);
+    init.disp.allocateCommandBuffers(&command_buffer_allocate_info, &command_buffer_);
 }
 
 bool App::frame(const int frame_num)
@@ -223,7 +223,7 @@ bool App::frame(const int frame_num)
     VkHostImageLayoutTransitionInfoEXT host_image_layout_transition_infos[2];
     host_image_layout_transition_infos[0].sType     = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT;
     host_image_layout_transition_infos[0].pNext     = nullptr;
-    host_image_layout_transition_infos[0].image     = src_image;
+    host_image_layout_transition_infos[0].image     = src_image_;
     host_image_layout_transition_infos[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     host_image_layout_transition_infos[0].newLayout = VK_IMAGE_LAYOUT_GENERAL;
     host_image_layout_transition_infos[0].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -233,7 +233,7 @@ bool App::frame(const int frame_num)
     host_image_layout_transition_infos[0].subresourceRange.layerCount     = 1u;
     host_image_layout_transition_infos[1].sType     = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT;
     host_image_layout_transition_infos[1].pNext     = nullptr;
-    host_image_layout_transition_infos[1].image     = dst_image;
+    host_image_layout_transition_infos[1].image     = dst_image_;
     host_image_layout_transition_infos[1].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     host_image_layout_transition_infos[1].newLayout = VK_IMAGE_LAYOUT_GENERAL;
     host_image_layout_transition_infos[1].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -245,15 +245,15 @@ bool App::frame(const int frame_num)
     VERIFY_VK_RESULT("failed to transition image layouts", result);
 
     uint32_t* src_data;
-    result = init.disp.mapMemory(src_buffer_memory, 0u, buffer_size, 0u, (void**)&src_data);
+    result = init.disp.mapMemory(src_buffer_memory_, 0u, buffer_size_, 0u, (void**)&src_data);
     VERIFY_VK_RESULT("failed to map src buffer memory", result);
-    for (uint32_t i = 0; i < buffer_size / sizeof(uint32_t); ++i)
+    for (uint32_t i = 0; i < buffer_size_ / sizeof(uint32_t); ++i)
     {
         src_data[i] = i + 1;
     }
 
     uint32_t* dst_data;
-    result = init.disp.mapMemory(dst_buffer_memory, 0u, buffer_size, 0u, (void**)&dst_data);
+    result = init.disp.mapMemory(dst_buffer_memory_, 0u, buffer_size_, 0u, (void**)&dst_data);
     VERIFY_VK_RESULT("failed to map memory", result);
 
     if (memory_to_image)
@@ -269,13 +269,13 @@ bool App::frame(const int frame_num)
         memory_to_image_copy.imageSubresource.baseArrayLayer = 0u;
         memory_to_image_copy.imageSubresource.layerCount     = 1u;
         memory_to_image_copy.imageOffset                     = { 0, 0, 0 };
-        memory_to_image_copy.imageExtent                     = { image_width, image_height, 1u };
+        memory_to_image_copy.imageExtent                     = { image_width_, image_height_, 1u };
 
         VkCopyMemoryToImageInfoEXT copy_memory_to_image_info;
         copy_memory_to_image_info.sType          = VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT;
         copy_memory_to_image_info.pNext          = nullptr;
         copy_memory_to_image_info.flags          = 0u;
-        copy_memory_to_image_info.dstImage       = src_image;
+        copy_memory_to_image_info.dstImage       = src_image_;
         copy_memory_to_image_info.dstImageLayout = VK_IMAGE_LAYOUT_GENERAL;
         copy_memory_to_image_info.regionCount    = 1u;
         copy_memory_to_image_info.pRegions       = &memory_to_image_copy;
@@ -289,7 +289,7 @@ bool App::frame(const int frame_num)
         command_buffer_begin_info.pNext            = nullptr;
         command_buffer_begin_info.flags            = 0u;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
-        result = init.disp.beginCommandBuffer(command_buffer, &command_buffer_begin_info);
+        result = init.disp.beginCommandBuffer(command_buffer_, &command_buffer_begin_info);
         VERIFY_VK_RESULT("failed to begin command buffer", result);
 
         VkBufferImageCopy buffer_image_copy;
@@ -301,14 +301,14 @@ bool App::frame(const int frame_num)
         buffer_image_copy.imageSubresource.baseArrayLayer = 0u;
         buffer_image_copy.imageSubresource.layerCount     = 1u;
         buffer_image_copy.imageOffset                     = { 0, 0, 0 };
-        buffer_image_copy.imageExtent                     = { image_width, image_height, 1u };
+        buffer_image_copy.imageExtent                     = { image_width_, image_height_, 1u };
         init.disp.cmdCopyBufferToImage(
-            command_buffer, src_buffer, src_image, VK_IMAGE_LAYOUT_GENERAL, 1u, &buffer_image_copy);
+            command_buffer_, src_buffer_, src_image_, VK_IMAGE_LAYOUT_GENERAL, 1u, &buffer_image_copy);
 
-        result = init.disp.endCommandBuffer(command_buffer);
+        result = init.disp.endCommandBuffer(command_buffer_);
         VERIFY_VK_RESULT("failed to end command buffer", result);
 
-        result = init.disp.resetFences(1u, &fence);
+        result = init.disp.resetFences(1u, &fence_);
         VERIFY_VK_RESULT("failed to reset fence", result);
 
         VkSubmitInfo submit_info;
@@ -318,12 +318,12 @@ bool App::frame(const int frame_num)
         submit_info.pWaitSemaphores      = nullptr;
         submit_info.pWaitDstStageMask    = nullptr;
         submit_info.commandBufferCount   = 1u;
-        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.pCommandBuffers      = &command_buffer_;
         submit_info.signalSemaphoreCount = 0u;
         submit_info.pSignalSemaphores    = nullptr;
-        result                           = init.disp.queueSubmit(queue, 1u, &submit_info, fence);
+        result                           = init.disp.queueSubmit(queue_, 1u, &submit_info, fence_);
         VERIFY_VK_RESULT("failed to submit command buffer", result);
-        result = init.disp.waitForFences(1u, &fence, VK_TRUE, UINT64_MAX);
+        result = init.disp.waitForFences(1u, &fence_, VK_TRUE, UINT64_MAX);
         VERIFY_VK_RESULT("failed to wait for fences", result);
     }
 
@@ -340,15 +340,15 @@ bool App::frame(const int frame_num)
     image_copy.dstSubresource.baseArrayLayer = 0u;
     image_copy.dstSubresource.layerCount     = 1u;
     image_copy.dstOffset                     = { 0, 0, 0 };
-    image_copy.extent                        = { image_width, image_height, 1u };
+    image_copy.extent                        = { image_width_, image_height_, 1u };
 
     VkCopyImageToImageInfoEXT copy_image_to_image_info;
     copy_image_to_image_info.sType          = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO_EXT;
     copy_image_to_image_info.pNext          = nullptr;
     copy_image_to_image_info.flags          = 0u;
-    copy_image_to_image_info.srcImage       = src_image;
+    copy_image_to_image_info.srcImage       = src_image_;
     copy_image_to_image_info.srcImageLayout = VK_IMAGE_LAYOUT_GENERAL;
-    copy_image_to_image_info.dstImage       = dst_image;
+    copy_image_to_image_info.dstImage       = dst_image_;
     copy_image_to_image_info.dstImageLayout = VK_IMAGE_LAYOUT_GENERAL;
     copy_image_to_image_info.regionCount    = 1u;
     copy_image_to_image_info.pRegions       = &image_copy;
@@ -368,13 +368,13 @@ bool App::frame(const int frame_num)
         image_to_memory_copy.imageSubresource.baseArrayLayer = 0u;
         image_to_memory_copy.imageSubresource.layerCount     = 1u;
         image_to_memory_copy.imageOffset                     = { 0, 0, 0 };
-        image_to_memory_copy.imageExtent                     = { image_width, image_height, 1u };
+        image_to_memory_copy.imageExtent                     = { image_width_, image_height_, 1u };
 
         VkCopyImageToMemoryInfoEXT copy_image_to_memory_info;
         copy_image_to_memory_info.sType          = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO_EXT;
         copy_image_to_memory_info.pNext          = nullptr;
         copy_image_to_memory_info.flags          = 0u;
-        copy_image_to_memory_info.srcImage       = dst_image;
+        copy_image_to_memory_info.srcImage       = dst_image_;
         copy_image_to_memory_info.srcImageLayout = VK_IMAGE_LAYOUT_GENERAL;
         copy_image_to_memory_info.regionCount    = 1u;
         copy_image_to_memory_info.pRegions       = &image_to_memory_copy;
@@ -387,7 +387,7 @@ bool App::frame(const int frame_num)
         command_buffer_begin_info.pNext            = nullptr;
         command_buffer_begin_info.flags            = 0u;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
-        result = init.disp.beginCommandBuffer(command_buffer, &command_buffer_begin_info);
+        result = init.disp.beginCommandBuffer(command_buffer_, &command_buffer_begin_info);
         VERIFY_VK_RESULT("failed to begin command buffer", result);
 
         VkBufferImageCopy buffer_image_copy;
@@ -399,14 +399,14 @@ bool App::frame(const int frame_num)
         buffer_image_copy.imageSubresource.baseArrayLayer = 0u;
         buffer_image_copy.imageSubresource.layerCount     = 1u;
         buffer_image_copy.imageOffset                     = { 0, 0, 0 };
-        buffer_image_copy.imageExtent                     = { image_width, image_height, 1u };
+        buffer_image_copy.imageExtent                     = { image_width_, image_height_, 1u };
         init.disp.cmdCopyImageToBuffer(
-            command_buffer, dst_image, VK_IMAGE_LAYOUT_GENERAL, dst_buffer, 1u, &buffer_image_copy);
+            command_buffer_, dst_image_, VK_IMAGE_LAYOUT_GENERAL, dst_buffer_, 1u, &buffer_image_copy);
 
-        result = init.disp.endCommandBuffer(command_buffer);
+        result = init.disp.endCommandBuffer(command_buffer_);
         VERIFY_VK_RESULT("failed to end command buffer", result);
 
-        result = init.disp.resetFences(1u, &fence);
+        result = init.disp.resetFences(1u, &fence_);
         VERIFY_VK_RESULT("failed to reset fence", result);
 
         VkSubmitInfo submit_info;
@@ -416,39 +416,39 @@ bool App::frame(const int frame_num)
         submit_info.pWaitSemaphores      = nullptr;
         submit_info.pWaitDstStageMask    = nullptr;
         submit_info.commandBufferCount   = 1u;
-        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.pCommandBuffers      = &command_buffer_;
         submit_info.signalSemaphoreCount = 0u;
         submit_info.pSignalSemaphores    = nullptr;
-        result                           = init.disp.queueSubmit(queue, 1u, &submit_info, fence);
+        result                           = init.disp.queueSubmit(queue_, 1u, &submit_info, fence_);
         VERIFY_VK_RESULT("failed to submit command buffer", result);
-        result = init.disp.waitForFences(1u, &fence, VK_TRUE, UINT64_MAX);
+        result = init.disp.waitForFences(1u, &fence_, VK_TRUE, UINT64_MAX);
         VERIFY_VK_RESULT("failed to wait for fence", result);
     }
 
-    if (memcmp(src_data, dst_data, buffer_size) != 0)
+    if (memcmp(src_data, dst_data, buffer_size_) != 0)
     {
         throw std::runtime_error("memory does not match");
     }
 
-    init.disp.unmapMemory(src_buffer_memory);
-    init.disp.unmapMemory(dst_buffer_memory);
+    init.disp.unmapMemory(src_buffer_memory_);
+    init.disp.unmapMemory(dst_buffer_memory_);
 
     return frame_num < 1;
 }
 
 void App::cleanup()
 {
-    init.disp.destroyBuffer(src_buffer, nullptr);
-    init.disp.freeMemory(src_buffer_memory, nullptr);
-    init.disp.destroyBuffer(dst_buffer, nullptr);
-    init.disp.freeMemory(dst_buffer_memory, nullptr);
-    init.disp.destroyImage(src_image, nullptr);
-    init.disp.freeMemory(src_image_memory, nullptr);
-    init.disp.destroyImage(dst_image, nullptr);
-    init.disp.freeMemory(dst_image_memory, nullptr);
+    init.disp.destroyBuffer(src_buffer_, nullptr);
+    init.disp.freeMemory(src_buffer_memory_, nullptr);
+    init.disp.destroyBuffer(dst_buffer_, nullptr);
+    init.disp.freeMemory(dst_buffer_memory_, nullptr);
+    init.disp.destroyImage(src_image_, nullptr);
+    init.disp.freeMemory(src_image_memory_, nullptr);
+    init.disp.destroyImage(dst_image_, nullptr);
+    init.disp.freeMemory(dst_image_memory_, nullptr);
 
-    init.disp.destroyCommandPool(command_pool, nullptr);
-    init.disp.destroyFence(fence, nullptr);
+    init.disp.destroyCommandPool(command_pool_, nullptr);
+    init.disp.destroyFence(fence_, nullptr);
 }
 
 void App::setup()
@@ -456,8 +456,8 @@ void App::setup()
     auto transfer_queue = init.device.get_queue(gfxrecon::test::QueueType::transfer);
     if (!transfer_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
-    this->queue       = *transfer_queue;
-    this->queue_index = init.device.get_queue_index(gfxrecon::test::QueueType::transfer).value();
+    queue_       = *transfer_queue;
+    queue_index_ = init.device.get_queue_index(gfxrecon::test::QueueType::transfer).value();
 
     create_buffers_and_images();
     allocate_command_buffer();
@@ -466,7 +466,7 @@ void App::setup()
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fence_create_info.pNext = nullptr;
     fence_create_info.flags = 0u;
-    init.disp.createFence(&fence_create_info, nullptr, &fence);
+    init.disp.createFence(&fence_create_info, nullptr, &fence_);
 }
 
 GFXRECON_END_NAMESPACE(host_image_copy)
