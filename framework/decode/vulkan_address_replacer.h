@@ -103,6 +103,8 @@ class VulkanAddressReplacer
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
 
+    void DestroyShadowResources(VkAccelerationStructureKHR handle);
+
   private:
     struct buffer_context_t
     {
@@ -128,15 +130,16 @@ class VulkanAddressReplacer
     {
         VkAccelerationStructureKHR handle  = VK_NULL_HANDLE;
         VkDeviceAddress            address = 0;
-        buffer_context_t           buffer  = {};
+        buffer_context_t           storage = {};
+        buffer_context_t           scratch = {};
     };
 
     [[nodiscard]] bool init_pipeline();
 
-    [[nodiscard]] bool create_buffer(size_t num_bytes, buffer_context_t& buffer_context, uint32_t usage_flags = 0);
-
-    [[nodiscard]] std::optional<acceleration_structure_asset_t>
-    retrieve_acceleration_structure_asset(VkAccelerationStructureKHR handle);
+    [[nodiscard]] bool create_buffer(size_t            num_bytes,
+                                     buffer_context_t& buffer_context,
+                                     uint32_t          usage_flags  = 0,
+                                     bool              use_host_mem = true);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -169,10 +172,13 @@ class VulkanAddressReplacer
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
+    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t>         _shadow_as_map;
 
     // required function pointers
-    PFN_vkGetBufferDeviceAddress                _get_device_address_fn_          = nullptr;
-    PFN_vkGetAccelerationStructureBuildSizesKHR _get_acceleration_build_sizes_fn = nullptr;
+    PFN_vkGetBufferDeviceAddress                   _get_device_address_fn_                       = nullptr;
+    PFN_vkGetAccelerationStructureBuildSizesKHR    _get_acceleration_build_sizes_fn              = nullptr;
+    PFN_vkCreateAccelerationStructureKHR           _create_acceleration_structure_fn             = nullptr;
+    PFN_vkGetAccelerationStructureDeviceAddressKHR _get_acceleration_structure_device_address_fn = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

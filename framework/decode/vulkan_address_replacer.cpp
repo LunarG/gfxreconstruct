@@ -100,7 +100,9 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                   ? device_table->GetBufferDeviceAddress
                                   : device_table->GetBufferDeviceAddressKHR;
 
-    _get_acceleration_build_sizes_fn = device_table->GetAccelerationStructureBuildSizesKHR;
+    _get_acceleration_build_sizes_fn              = device_table->GetAccelerationStructureBuildSizesKHR;
+    _create_acceleration_structure_fn             = device_table->CreateAccelerationStructureKHR;
+    _get_acceleration_structure_device_address_fn = device_table->GetAccelerationStructureDeviceAddressKHR;
 
     if (physical_device_info != nullptr && physical_device_info->capture_raytracing_properties &&
         physical_device_info->replay_device_info->raytracing_properties)
@@ -444,6 +446,11 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
             GFXRECON_ASSERT(buffer_info != nullptr)
 
+            // fails on some!? captures
+            auto* scratch_buffer_info =
+                address_tracker.GetBufferByCaptureDeviceAddress(build_geometry_info.scratchData.deviceAddress);
+            //            GFXRECON_ASSERT(scratch_buffer_info != nullptr)
+
             if (buffer_info != nullptr && buffer_info->size < build_size_info.accelerationStructureSize)
             {
                 GFXRECON_LOG_WARNING("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: buffer-size is "
@@ -451,7 +458,67 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                      buffer_info->size,
                                      build_size_info.accelerationStructureSize);
 
-                // TODO: create replacement AS
+                auto& replacment_as = _shadow_as_map[build_geometry_info.dstAccelerationStructure];
+
+                if (replacment_as.handle == VK_NULL_HANDLE)
+                {
+                    // create a replacement acceleration-structure with proper sized buffer
+                    bool success = create_buffer(build_size_info.accelerationStructureSize,
+                                                 replacment_as.storage,
+                                                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
+                                                 false);
+
+                    if (!success)
+                    {
+                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: shadow-buffer creation failed");
+                        return;
+                    }
+
+                    VkAccelerationStructureCreateInfoKHR as_create_info = {};
+                    as_create_info.sType  = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+                    as_create_info.buffer = replacment_as.storage.buffer;
+                    as_create_info.size   = build_size_info.accelerationStructureSize;
+                    as_create_info.type   = build_geometry_info.type;
+
+                    VkResult res =
+                        _create_acceleration_structure_fn(_device, &as_create_info, nullptr, &replacment_as.handle);
+
+                    if (res != VK_SUCCESS || replacment_as.handle == VK_NULL_HANDLE)
+                    {
+                        GFXRECON_LOG_ERROR(
+                            "ProcessCmdBuildAccelerationStructuresKHR: shadow acceleration-structure creation failed");
+                        return;
+                    }
+                    VkAccelerationStructureDeviceAddressInfoKHR acceleration_address_info = {};
+                    acceleration_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+                    acceleration_address_info.accelerationStructure = replacment_as.handle;
+                    replacment_as.address =
+                        _get_acceleration_structure_device_address_fn(_device, &acceleration_address_info);
+                    GFXRECON_ASSERT(replacment_as.address != 0)
+
+                    // hot swap acceleration-structure handle
+                    build_geometry_info.dstAccelerationStructure = replacment_as.handle;
+                }
+
+                // determine required size of scratch-buffer
+                uint32_t scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
+                                            ? build_size_info.buildScratchSize
+                                            : build_size_info.updateScratchSize;
+
+                //                if (scratch_buffer_info != nullptr && scratch_buffer_info->size < scratch_size)
+                {
+                    // create a replacement scratch-buffer
+                    bool success = create_buffer(scratch_size, replacment_as.scratch, 0, false);
+
+                    if (!success)
+                    {
+                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
+                        return;
+                    }
+
+                    // hot swap scratch-buffer
+                    build_geometry_info.scratchData.deviceAddress = replacment_as.scratch.device_address;
+                }
             }
         }
 
@@ -681,7 +748,8 @@ bool VulkanAddressReplacer::init_pipeline()
 
 bool VulkanAddressReplacer::create_buffer(size_t                                   num_bytes,
                                           VulkanAddressReplacer::buffer_context_t& buffer_context,
-                                          uint32_t                                 usage_flags)
+                                          uint32_t                                 usage_flags,
+                                          bool                                     use_host_mem)
 {
     // nothing to do
     if (num_bytes <= buffer_context.num_bytes)
@@ -712,18 +780,18 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
     VkMemoryRequirements memory_requirements;
     _device_table->GetBufferMemoryRequirements(_device, buffer_context.buffer, &memory_requirements);
 
+    VkMemoryPropertyFlags memory_property_flags =
+        use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT
+                     : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
     uint32_t memory_type_index =
-        graphics::GetMemoryTypeIndex(_memory_properties,
-                                     memory_requirements.memoryTypeBits,
-                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+        graphics::GetMemoryTypeIndex(_memory_properties, memory_requirements.memoryTypeBits, memory_property_flags);
 
     if (memory_type_index == std::numeric_limits<uint32_t>::max())
     {
         /* fallback to coherent */
         memory_type_index =
-            graphics::GetMemoryTypeIndex(_memory_properties,
-                                         memory_requirements.memoryTypeBits,
-                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            graphics::GetMemoryTypeIndex(_memory_properties, memory_requirements.memoryTypeBits, memory_property_flags);
     }
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
@@ -763,19 +831,16 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     address_info.buffer                    = buffer_context.buffer;
     buffer_context.device_address          = _get_device_address_fn_(_device, &address_info);
+    GFXRECON_ASSERT(buffer_context.device_address != 0);
 
-    // map buffer
-    result = _resource_allocator->MapResourceMemoryDirect(
-        VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
-    return result == VK_SUCCESS;
-}
-
-std::optional<VulkanAddressReplacer::acceleration_structure_asset_t>
-VulkanAddressReplacer::retrieve_acceleration_structure_asset(VkAccelerationStructureKHR)
-{
-
-    // TODO: implement
-    return {};
+    if (use_host_mem)
+    {
+        // map buffer
+        result = _resource_allocator->MapResourceMemoryDirect(
+            VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
+        return result == VK_SUCCESS;
+    }
+    return true;
 }
 
 void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
@@ -796,6 +861,17 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 
     _device_table->CmdPipelineBarrier(
         command_buffer, src_stage, dst_stage, VkDependencyFlags(0), 0, nullptr, 1, &barrier, 0, nullptr);
+}
+
+void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR handle)
+{
+    auto remove_it = _shadow_as_map.find(handle);
+
+    if (remove_it != _shadow_as_map.end())
+    {
+        mark_injected_commands_helper_t mark_injected_commands_helper;
+        _shadow_as_map.erase(remove_it);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
