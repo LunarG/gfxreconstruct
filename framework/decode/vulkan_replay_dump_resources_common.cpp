@@ -447,8 +447,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          bool                               dump_all_subresources,
                          bool                               dump_image_raw,
                          bool                               dump_separate_alpha,
-                         VkImageLayout                      layout,
-                         const VkExtent3D*                  extent_p)
+                         VkImageLayout                      layout)
 {
     assert(image_info != nullptr);
     assert(device_info != nullptr);
@@ -472,10 +471,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    const VkExtent3D extent{ (extent_p != nullptr) ? extent_p->width : image_info->extent.width,
-                             (extent_p != nullptr) ? extent_p->height : image_info->extent.height,
-                             (extent_p != nullptr) ? extent_p->depth : image_info->extent.depth };
-
     const VkFormat dst_format = ChooseDestinationImageFormat(image_info->format);
 
     uint32_t f = 0;
@@ -492,7 +487,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
             image_info->handle,
             image_info->format,
             image_info->type,
-            extent,
+            image_info->extent,
             image_info->level_count,
             image_info->layer_count,
             image_info->tiling,
@@ -651,13 +646,13 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         VkExtent3D scaled_extent;
                         if (scale != 1.0f && scaled)
                         {
-                            scaled_extent.width  = extent.width * scale;
-                            scaled_extent.height = extent.height * scale;
-                            scaled_extent.depth  = extent.depth;
+                            scaled_extent.width  = image_info->extent.width * scale;
+                            scaled_extent.height = image_info->extent.height * scale;
+                            scaled_extent.depth  = image_info->extent.depth;
                         }
                         else
                         {
-                            scaled_extent = extent;
+                            scaled_extent = image_info->extent;
                         }
 
                         scaled_extent.width  = std::max(1u, scaled_extent.width >> mip);

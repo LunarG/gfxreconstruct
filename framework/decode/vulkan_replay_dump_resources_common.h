@@ -118,8 +118,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          bool                               dump_all_subresources = false,
                          bool                               dump_image_raw        = false,
                          bool                               dump_separate_alpha   = false,
-                         VkImageLayout                      layout                = VK_IMAGE_LAYOUT_MAX_ENUM,
-                         const VkExtent3D*                  extent_p              = nullptr);
+                         VkImageLayout                      layout                = VK_IMAGE_LAYOUT_MAX_ENUM);
 
 bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType desc_type_b);
 

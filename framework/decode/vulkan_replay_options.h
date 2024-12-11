@@ -78,7 +78,7 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
     std::vector<std::vector<uint64_t>>              Dispatch_Indices;
     std::vector<std::vector<uint64_t>>              TraceRays_Indices;
-    std::unordered_set<uint64_t>                    QueueSubmit_Indices;
+    std::vector<uint64_t>                           QueueSubmit_Indices;
     std::string                                     dump_resources;
     util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
 

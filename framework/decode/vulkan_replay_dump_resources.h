@@ -342,7 +342,7 @@ class VulkanReplayDumpResourcesBase
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
-    std::unordered_set<uint64_t> QueueSubmit_indices_;
+    std::vector<uint64_t> QueueSubmit_indices_;
 
     // One per BeginCommandBuffer index
     std::unordered_map<uint64_t, DrawCallsDumpingContext>         draw_call_contexts;

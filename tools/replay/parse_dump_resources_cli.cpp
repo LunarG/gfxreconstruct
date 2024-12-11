@@ -311,18 +311,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             for (int idx0 = 0; idx0 < jargs["QueueSubmit"].size(); idx0++)
             {
                 uint64_t qs = static_cast<uint64_t>(jargs["QueueSubmit"][idx0]);
-                if (vulkan_replay_options.QueueSubmit_Indices.find(qs) !=
-                    vulkan_replay_options.QueueSubmit_Indices.end())
-                {
-                    // QueueSubmit value can't be repeated
-                    parse_error_message =
-                        "Bad --dump-resources parameter: QueueSubmit value of " + std::to_string(qs) + " is repeated";
-                    parse_error = true;
-                }
-                else
-                {
-                    vulkan_replay_options.QueueSubmit_Indices.insert(static_cast<uint64_t>(jargs["QueueSubmit"][idx0]));
-                }
+                vulkan_replay_options.QueueSubmit_Indices.push_back(static_cast<uint64_t>(jargs["QueueSubmit"][idx0]));
             }
         }
         catch (...)
@@ -485,15 +474,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     vulkan_replay_options.TraceRays_Indices[i].push_back(TraceRays);
                 }
 
-                auto [itr, inserted] = vulkan_replay_options.QueueSubmit_Indices.insert(QueueSubmit);
-                if (!inserted)
-                {
-                    // QueueSubmit value can't be repeated
-                    parse_error         = true;
-                    parse_error_message = "Bad --dump-resources parameter: QueueSubmit value of " +
-                                          std::to_string(QueueSubmit) + " is repeated";
-                    break;
-                }
+                vulkan_replay_options.QueueSubmit_Indices.push_back(QueueSubmit);
             }
         }
 

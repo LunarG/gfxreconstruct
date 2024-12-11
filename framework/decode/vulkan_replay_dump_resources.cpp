@@ -1899,6 +1899,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
                 submitted = true;
             }
+
+            // In case we are dumping multiple command buffers from the same submission
+            modified_submit_infos[s].waitSemaphoreCount   = 0;
+            modified_submit_infos[s].signalSemaphoreCount = 0;
         }
     }
 
@@ -1922,9 +1926,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
     else
     {
-        auto index_it = QueueSubmit_indices_.find(index);
-        assert(index_it != QueueSubmit_indices_.end());
-        QueueSubmit_indices_.erase(index_it);
+        QueueSubmit_indices_.erase(std::remove_if(QueueSubmit_indices_.begin(),
+                                                  QueueSubmit_indices_.end(),
+                                                  [index](uint64_t i) { return i == index; }),
+                                   QueueSubmit_indices_.end());
 
         // Once all submissions are complete release resources
         if (QueueSubmit_indices_.empty())
@@ -1994,26 +1999,14 @@ bool VulkanReplayDumpResourcesBase::UpdateRecordingStatus(VkCommandBuffer origin
 {
     assert(recording_);
 
-    const DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context != nullptr && dc_context->IsRecording())
-    {
-        return true;
-    }
+    recording_ = !QueueSubmit_indices_.empty();
 
-    const DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(original_command_buffer);
-    if (dr_context != nullptr && dr_context->IsRecording())
-    {
-        return true;
-    }
-
-    recording_ = false;
-    return false;
+    return recording_;
 }
 
 bool VulkanReplayDumpResourcesBase::MustDumpQueueSubmitIndex(uint64_t index) const
 {
-    // Indices should be sorted
-    return QueueSubmit_indices_.find(index) != QueueSubmit_indices_.end();
+    return std::find(QueueSubmit_indices_.begin(), QueueSubmit_indices_.end(), index) != QueueSubmit_indices_.end();
 }
 
 bool VulkanReplayDumpResourcesBase::IsRecording(VkCommandBuffer original_command_buffer) const
