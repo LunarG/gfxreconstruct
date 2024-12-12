@@ -2365,12 +2365,13 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
-        // Store all (indexCount, firstIndex) pairs used by all associated with this index buffer.
-        // Latter we will parse the index buffer using all these pairs in order to detect the
-        // greatest index.
+        // Store all (indexCount, firstIndex) pairs used by all draw calls (in case of indirect)
+        // associated with this index buffer. Then we will parse the index buffer using all these pairs in order to
+        // detect the greatest index.
         std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs;
 
-        uint32_t abs_index_count = 0;
+        uint32_t abs_index_count        = 0;
+        int32_t  greatest_vertex_offset = 0;
 
         if (IsDrawCallIndirect(dc_params.type))
         {
@@ -2393,6 +2394,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         if (abs_index_count < indirect_index_count + indirect_first_index)
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
+                        }
+
+                        if (greatest_vertex_offset < ic_params.draw_indexed_params[d].vertexOffset)
+                        {
+                            greatest_vertex_offset = ic_params.draw_indexed_params[d].vertexOffset;
                         }
                     }
                 }
@@ -2417,6 +2423,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
                         }
+
+                        if (greatest_vertex_offset < i_params.draw_indexed_params[d].vertexOffset)
+                        {
+                            greatest_vertex_offset = i_params.draw_indexed_params[d].vertexOffset;
+                        }
                     }
                 }
             }
@@ -2427,7 +2438,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             const uint32_t first_index = dc_params.dc_params_union.draw_indexed.firstIndex;
 
             index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
-            abs_index_count = index_count + first_index;
+            abs_index_count        = index_count + first_index;
+            greatest_vertex_offset = dc_params.dc_params_union.draw_indexed.vertexOffset;
         }
 
         if (abs_index_count)
@@ -2468,9 +2480,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             std::string filename = GenerateIndexBufferFilename(qs_index, bcb_index, dc_index, index_type);
             util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
 
+            // Parse all indices in order to find the greatest index
             for (const auto& pairs : index_count_first_index_pairs)
             {
-                const uint32_t gvi = FindGreatestVertexIndex(index_data, pairs.first, pairs.second, index_type);
+                const uint32_t gvi =
+                    FindGreatestVertexIndex(index_data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
                 if (greatest_vertex_index < gvi)
                 {
                     greatest_vertex_index = gvi;
