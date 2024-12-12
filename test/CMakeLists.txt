@@ -37,13 +37,20 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     set(INSTALL_GTEST OFF)
     find_package(GoogleTest REQUIRED)
     include(GoogleTest)
-    add_executable(gfxrecon-testapp-runner
-            test_cases/triangle.cpp
-            test_cases/multisample-depth.cpp
-            test_cases/shader-objects.cpp
-            test_cases/pipeline-binaries.cpp
-            verify-gfxr.cpp
-    )
+
+    set(GFXRECON_TESTCASES
+        test_cases/triangle.cpp
+        test_cases/multisample-depth.cpp
+        test_cases/shader-objects.cpp
+        test_cases/pipeline-binaries.cpp
+        verify-gfxr.cpp)
+    
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
+        list(APPEND GFXRECON_TESTCASES test_cases/external-memory-fd.cpp)
+    endif()
+    
+    add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})
+
     add_dependencies(gfxrecon-testapp-runner gfxrecon-testapps VkICD_mock_icd gfxrecon-convert VkLayer_gfxreconstruct)
     target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     target_link_libraries(gfxrecon-testapp-runner

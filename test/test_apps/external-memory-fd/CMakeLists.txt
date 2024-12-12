@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2024 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,22 +21,8 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for test apps
+# Description: CMake script for VK_KHR_external_memory_fd tests
 ###############################################################################
 
-find_package(SDL3)
-
-add_custom_target(gfxrecon-testapps)
-
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
-
-add_subdirectory(common)
-add_subdirectory(triangle)
-add_subdirectory(multisample-depth)
-add_subdirectory(pipeline-binaries)
-add_subdirectory(host-image-copy)
-add_subdirectory(shader-objects)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd)
-endif()
+add_subdirectory(export)
+add_subdirectory(import)
