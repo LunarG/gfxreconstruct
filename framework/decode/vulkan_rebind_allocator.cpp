@@ -632,7 +632,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
                                                resource_alloc_info,
                                                allocation_info.deviceMemory,
                                                VK_OBJECT_TYPE_BUFFER,
-                                               reinterpret_cast<uint64_t>(buffer));
+                                               VK_HANDLE_TO_UINT64(buffer));
             }
         }
     }
@@ -724,7 +724,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                                                        resource_alloc_info,
                                                        allocation_info.deviceMemory,
                                                        VK_OBJECT_TYPE_BUFFER,
-                                                       reinterpret_cast<uint64_t>(buffer));
+                                                       VK_HANDLE_TO_UINT64(buffer));
                     }
                 }
             }
@@ -858,7 +858,7 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                                                    resource_alloc_info,
                                                    allocation_info.deviceMemory,
                                                    VK_OBJECT_TYPE_IMAGE,
-                                                   reinterpret_cast<uint64_t>(image));
+                                                   VK_HANDLE_TO_UINT64(image));
                 }
             }
         }
@@ -971,7 +971,7 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
                                                            resource_alloc_info,
                                                            allocation_info.deviceMemory,
                                                            VK_OBJECT_TYPE_IMAGE,
-                                                           reinterpret_cast<uint64_t>(image));
+                                                           VK_HANDLE_TO_UINT64(image));
                         }
                     }
                 }
