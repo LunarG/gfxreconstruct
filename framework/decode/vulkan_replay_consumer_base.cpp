@@ -6268,8 +6268,14 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
-    return allocator->SetDebugUtilsObjectNameEXT(
-        device_info->handle, info, GetObjectAllocatorData(info->objectType, meta_info->objectHandle));
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
+    {
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+    }
+    return func(device_info->handle, info);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
@@ -6290,8 +6296,14 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
     VkDebugUtilsObjectTagInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
-    return allocator->SetDebugUtilsObjectTagEXT(
-        device_info->handle, info, GetObjectAllocatorData(info->objectType, meta_info->objectHandle));
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
+    {
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectTagEXT(device_info->handle, info, allocator_data);
+    }
+    return func(device_info->handle, info);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
