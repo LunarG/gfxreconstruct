@@ -558,11 +558,11 @@ const char* to_string(SwapchainError err)
     }
 }
 
-std::exception to_exception(InstanceError error)
+std::runtime_error to_exception(InstanceError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(InstanceError error, VkResult result)
+std::runtime_error to_exception(InstanceError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
@@ -571,11 +571,11 @@ std::exception to_exception(InstanceError error, VkResult result)
     return std::runtime_error(message);
 }
 
-std::exception to_exception(PhysicalDeviceError error)
+std::runtime_error to_exception(PhysicalDeviceError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(PhysicalDeviceError error, VkResult result)
+std::runtime_error to_exception(PhysicalDeviceError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
@@ -584,11 +584,11 @@ std::exception to_exception(PhysicalDeviceError error, VkResult result)
     return std::runtime_error(message);
 }
 
-std::exception to_exception(QueueError error)
+std::runtime_error to_exception(QueueError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(QueueError error, VkResult result)
+std::runtime_error to_exception(QueueError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
@@ -597,11 +597,11 @@ std::exception to_exception(QueueError error, VkResult result)
     return std::runtime_error(message);
 }
 
-std::exception to_exception(DeviceError error)
+std::runtime_error to_exception(DeviceError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(DeviceError error, VkResult result)
+std::runtime_error to_exception(DeviceError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
@@ -610,11 +610,11 @@ std::exception to_exception(DeviceError error, VkResult result)
     return std::runtime_error(message);
 }
 
-std::exception to_exception(SwapchainError error)
+std::runtime_error to_exception(SwapchainError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(SwapchainError error, VkResult result)
+std::runtime_error to_exception(SwapchainError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
