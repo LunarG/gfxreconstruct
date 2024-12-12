@@ -107,7 +107,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              uint32_t         pre_transform) override;
 
     virtual void
-    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                       format::HandleId                                    queue_id,
+                                       format::HandleId                                    memory_id,
                                        uint64_t                                            buffer_id,
                                        uint32_t                                            format,
                                        uint32_t                                            width,
@@ -1590,6 +1592,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     struct HardwareBufferMemoryInfo
     {
         AHardwareBuffer*                     hardware_buffer;
+        format::HandleId                     device_id;
+        format::HandleId                     queue_id;
         bool                                 compatible_strides;
         std::vector<HardwareBufferPlaneInfo> plane_info;
     };

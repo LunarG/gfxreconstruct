@@ -1650,7 +1650,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     VkMemoryPropertyFlags GetMemoryProperties(vulkan_wrappers::DeviceWrapper* device_wrapper,
                                               uint32_t                        memory_type_index);
 
-    void ProcessHardwareBuffer(format::ThreadId thread_id, AHardwareBuffer* hardware_buffer, VkDevice device);
+    void ProcessHardwareBuffer(format::ThreadId thread_id,
+                               AHardwareBuffer* hardware_buffer,
+                               VkDevice         device);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
     bool CheckBindAlignment(VkDeviceSize memoryOffset);
