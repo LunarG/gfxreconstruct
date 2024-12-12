@@ -480,7 +480,7 @@ int main(int argc, char* argv[])
     try
     {
         gfxrecon::test_app::host_image_copy::App app{};
-        app.run("pipeline binaries");
+        app.run("host image copy");
         return 0;
     }
     catch (std::exception e)

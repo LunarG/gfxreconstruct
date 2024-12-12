@@ -29,6 +29,7 @@
 
 #include <optional>
 #include <exception>
+#include <stdexcept>
 #include <vector>
 #include <string>
 
@@ -176,17 +177,17 @@ const char* to_string(QueueError err);
 const char* to_string(DeviceError err);
 const char* to_string(SwapchainError err);
 
-std::exception to_exception(InstanceError err);
-std::exception to_exception(PhysicalDeviceError err);
-std::exception to_exception(QueueError err);
-std::exception to_exception(DeviceError err);
-std::exception to_exception(SwapchainError err);
+std::runtime_error to_exception(InstanceError err);
+std::runtime_error to_exception(PhysicalDeviceError err);
+std::runtime_error to_exception(QueueError err);
+std::runtime_error to_exception(DeviceError err);
+std::runtime_error to_exception(SwapchainError err);
 
-std::exception to_exception(InstanceError err, VkResult result);
-std::exception to_exception(PhysicalDeviceError err, VkResult result);
-std::exception to_exception(QueueError err, VkResult result);
-std::exception to_exception(DeviceError err, VkResult result);
-std::exception to_exception(SwapchainError err, VkResult result);
+std::runtime_error to_exception(InstanceError err, VkResult result);
+std::runtime_error to_exception(PhysicalDeviceError err, VkResult result);
+std::runtime_error to_exception(QueueError err, VkResult result);
+std::runtime_error to_exception(DeviceError err, VkResult result);
+std::runtime_error to_exception(SwapchainError err, VkResult result);
 
 // Gathers useful information about the available vulkan capabilities, like layers and instance
 // extensions. Use this for enabling features conditionally, ie if you would like an extension but

@@ -472,7 +472,7 @@ int main(int argc, char* argv[])
     try
     {
         gfxrecon::test_app::shader_objects::App app{};
-        app.run("triangle");
+        app.run("shader objects");
         return 0;
     }
     catch (std::exception e)
