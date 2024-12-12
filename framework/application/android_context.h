@@ -59,6 +59,10 @@ class AndroidContext : public WsiContext
 
     void SetOrientation(ScreenOrientation orientation);
 
+    void requestNativeWindow(int width, int height);
+
+    void destroyNativeWindow(int window_index);
+
   private:
     std::unique_ptr<AndroidWindow> window_{};
     struct android_app*            android_app_{};

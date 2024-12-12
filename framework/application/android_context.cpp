@@ -108,5 +108,43 @@ void AndroidContext::SetOrientation(ScreenOrientation orientation)
     }
 }
 
+void AndroidContext::requestNativeWindow(int width, int height)
+{
+    JavaVM* jni_vm       = nullptr;
+    jobject jni_activity = nullptr;
+    JNIEnv* env          = nullptr;
+    if ((android_app_ != nullptr) && (android_app_->activity != nullptr))
+    {
+        jni_vm       = android_app_->activity->vm;
+        jni_activity = android_app_->activity->clazz;
+    }
+    if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK))
+    {
+        jclass    object_class     = env->GetObjectClass(jni_activity);
+        jmethodID createsufaceview = env->GetMethodID(object_class, "addNewView", "(II)V");
+        env->CallVoidMethod(jni_activity, createsufaceview, width, height);
+        jni_vm->DetachCurrentThread();
+    }
+}
+
+void AndroidContext::destroyNativeWindow(int window_index)
+{
+    JavaVM* jni_vm       = nullptr;
+    jobject jni_activity = nullptr;
+    JNIEnv* env          = nullptr;
+    if ((android_app_ != nullptr) && (android_app_->activity != nullptr))
+    {
+        jni_vm       = android_app_->activity->vm;
+        jni_activity = android_app_->activity->clazz;
+    }
+    if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK))
+    {
+        jclass    object_class      = env->GetObjectClass(jni_activity);
+        jmethodID removesurfaceview = env->GetMethodID(object_class, "removeOneView", "(I)V");
+        env->CallVoidMethod(jni_activity, removesurfaceview, window_index);
+        jni_vm->DetachCurrentThread();
+    }
+}
+
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)

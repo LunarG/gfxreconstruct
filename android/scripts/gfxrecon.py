@@ -41,7 +41,7 @@ valid_commands = [
 
 # Application info
 app_name = 'com.lunarg.gfxreconstruct.replay'
-app_activity = '"com.lunarg.gfxreconstruct.replay/android.app.NativeActivity"'
+app_activity = '"com.lunarg.gfxreconstruct.replay/.ReplayActivity"'
 app_action = 'android.intent.action.MAIN'
 app_category = 'android.intent.category.LAUNCHER'
 
