@@ -258,6 +258,8 @@ struct Instance
     // Return a loaded instance dispatch table
     vkb::InstanceDispatchTable make_table() const;
 
+    bool is_headless() const { return headless; }
+
   private:
     bool     headless                = false;
     bool     properties2_ext_enabled = false;
