@@ -14,8 +14,8 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
         android:extractNativeLibs="true"
-        android:hasCode="false">
-        <activity android:name="android.app.NativeActivity"
+        android:hasCode="true">
+        <activity android:name=".ReplayActivity"
                   android:exported="true"
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout"
                   android:screenOrientation="unspecified">
