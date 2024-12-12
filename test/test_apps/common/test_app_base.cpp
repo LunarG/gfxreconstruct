@@ -173,7 +173,7 @@ class VulkanFunctions
         if (!library)
             library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 #elif defined(_WIN32)
-        library                = LoadLibrary(TEXT("vulkan-1.dll"));
+        library = LoadLibrary(TEXT("vulkan-1.dll"));
 #else
         assert(false && "Unsupported platform");
 #endif
@@ -2178,11 +2178,11 @@ const char* to_string(SurfaceSupportError err)
     }
 }
 
-std::exception to_exception(SurfaceSupportError error)
+std::runtime_error to_exception(SurfaceSupportError error)
 {
     return std::runtime_error(to_string(error));
 }
-std::exception to_exception(SurfaceSupportError error, VkResult result)
+std::runtime_error to_exception(SurfaceSupportError error, VkResult result)
 {
     std::string message{};
     message.append(to_string(error));
