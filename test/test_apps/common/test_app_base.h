@@ -250,8 +250,8 @@ struct Instance
     // Return a loaded instance dispatch table
     vkb::InstanceDispatchTable make_table() const;
 
-  private:
     bool     headless                = false;
+  private:
     bool     properties2_ext_enabled = false;
     uint32_t instance_version        = VKB_VK_API_VERSION_1_0;
     uint32_t api_version             = VKB_VK_API_VERSION_1_0;

@@ -2819,18 +2819,19 @@ std::exception sdl_exception()
     return std::runtime_error(SDL_GetError());
 }
 
-void device_initialization_phase_1(const std::string& window_name, InitInfo& init)
+void device_initialization_phase_2(const std::string& window_name, InitInfo& init)
 {
-    init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+    if (!init.instance.headless) {
+        init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+        init.surface = create_surface_sdl(init.instance, init.window);
+    }
 }
 
-void device_initialization_phase_2(InstanceBuilder const& instance_builder, InitInfo& init)
+void device_initialization_phase_1(InstanceBuilder const& instance_builder, InitInfo& init)
 {
     init.instance = instance_builder.build();
 
     init.inst_disp = init.instance.make_table();
-
-    init.surface = create_surface_sdl(init.instance, init.window);
 }
 
 PhysicalDevice device_initialization_phase_3(PhysicalDeviceSelector& phys_device_selector, InitInfo& init)
@@ -2857,10 +2858,10 @@ InitInfo device_initialization(const std::string& window_name)
 {
     InitInfo init;
 
-    device_initialization_phase_1(window_name, init);
-
     InstanceBuilder instance_builder;
-    device_initialization_phase_2(instance_builder, init);
+    device_initialization_phase_1(instance_builder, init);
+
+    device_initialization_phase_2(window_name, init);
 
     PhysicalDeviceSelector phys_device_selector(init.instance);
     init.physical_device = device_initialization_phase_3(phys_device_selector, init);
@@ -2900,11 +2901,11 @@ void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init
 
 void TestAppBase::run(const std::string& window_name)
 {
-    device_initialization_phase_1(window_name, init);
-
     InstanceBuilder instance_builder;
     configure_instance_builder(instance_builder);
-    device_initialization_phase_2(instance_builder, init);
+    device_initialization_phase_1(instance_builder, init);
+
+    device_initialization_phase_2(window_name, init);
 
     PhysicalDeviceSelector phys_device_selector(init.instance);
     configure_physical_device_selector(phys_device_selector);
@@ -2914,9 +2915,11 @@ void TestAppBase::run(const std::string& window_name)
     configure_device_builder(device_builder, init.physical_device);
     device_initialization_phase_4(device_builder, init);
 
-    SwapchainBuilder swapchain_builder{ init.device };
-    configure_swapchain_builder(swapchain_builder);
-    device_initialization_phase_5(swapchain_builder, init);
+    if (!init.instance.headless) {
+        SwapchainBuilder swapchain_builder{ init.device };
+        configure_swapchain_builder(swapchain_builder);
+        device_initialization_phase_5(swapchain_builder, init);
+    }
 
     setup();
 
