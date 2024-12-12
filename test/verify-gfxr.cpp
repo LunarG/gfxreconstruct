@@ -99,6 +99,12 @@ int run_command(std::filesystem::path const& working_directory,
     return result;
 }
 
+void run_in_background(char const* app_directory, char const* app_executable)
+{
+    Paths paths{ app_directory, app_executable, "" };
+    run_command(paths.full_app_directory, paths.full_executable_path, { "&" });
+}
+
 void verify_gfxr(char const* app_directory, char const* app_executable, char const* known_gfxr_path)
 {
     Paths paths{ app_directory, app_executable, known_gfxr_path };

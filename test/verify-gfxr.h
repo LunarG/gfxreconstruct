@@ -1,6 +1,8 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
+void run_in_background(char const* app_directory, char const* app_executable);
+
 /*
  * Run an application with capture enabled, and compare the resulting gfxr file to a known good gfxr
  *
