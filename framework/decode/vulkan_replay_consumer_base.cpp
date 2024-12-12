@@ -4352,6 +4352,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool                uses_address           = false;
         bool                address_override_found = false;
         bool                uses_import_memory     = false;
+        bool                import_fd_found        = false;
         uint64_t            opaque_address         = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
 
@@ -4410,6 +4411,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             {
                 address_override_found = true;
             }
+            else if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR)
+            {
+                import_fd_found = true;
+            }
 
             current_struct = current_struct->pNext;
         }
@@ -4433,6 +4438,27 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                           opaque_address
             };
             modified_allocate_info.pNext = &address_info;
+
+            result = allocator->AllocateMemory(&modified_allocate_info,
+                                               GetAllocationCallbacks(pAllocator),
+                                               capture_id,
+                                               replay_memory,
+                                               &allocator_data);
+        }
+        else if (import_fd_found)
+        {
+            VkMemoryAllocateInfo modified_allocate_info = (*replay_allocate_info);
+
+            VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(&modified_allocate_info);
+            while (current_struct->pNext)
+            {
+                if (current_struct->pNext->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR)
+                {
+                    current_struct->pNext = current_struct->pNext->pNext;
+                    break;
+                }
+                current_struct = current_struct->pNext;
+            }
 
             result = allocator->AllocateMemory(&modified_allocate_info,
                                                GetAllocationCallbacks(pAllocator),
