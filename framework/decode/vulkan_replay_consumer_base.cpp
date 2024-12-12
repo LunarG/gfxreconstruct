@@ -173,10 +173,9 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const VulkanReplayOptions&                options) :
-    loader_handle_(nullptr),
-    get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
-    loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr),
-    omitted_pipeline_cache_data_(false)
+    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
+    application_(application), options_(options), loading_trim_state_(false), replaying_trimmed_capture_(false),
+    have_imported_semaphores_(false), fps_info_(nullptr), omitted_pipeline_cache_data_(false)
 {
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
     assert(object_info_table_);
@@ -2668,7 +2667,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 {
     const VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto     instance_table = GetInstanceTable(physical_device);
+    auto instance_table = GetInstanceTable(physical_device);
     assert(instance_table != nullptr);
 
     auto replay_create_info = pCreateInfo->GetPointer();
@@ -4352,6 +4351,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool                uses_address           = false;
         bool                address_override_found = false;
         bool                uses_import_memory     = false;
+        bool                import_fd_found        = false;
         uint64_t            opaque_address         = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
 
@@ -4410,6 +4410,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             {
                 address_override_found = true;
             }
+            else if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR)
+            {
+                import_fd_found = true;
+            }
 
             current_struct = current_struct->pNext;
         }
@@ -4428,11 +4432,32 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
-                          opaque_address
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info.pNext,
+                opaque_address
             };
             modified_allocate_info.pNext = &address_info;
+
+            result = allocator->AllocateMemory(&modified_allocate_info,
+                                               GetAllocationCallbacks(pAllocator),
+                                               capture_id,
+                                               replay_memory,
+                                               &allocator_data);
+        }
+        else if (import_fd_found)
+        {
+            VkMemoryAllocateInfo modified_allocate_info = (*replay_allocate_info);
+
+            VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(&modified_allocate_info);
+            while (current_struct->pNext)
+            {
+                if (current_struct->pNext->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR)
+                {
+                    current_struct->pNext = current_struct->pNext->pNext;
+                    break;
+                }
+                current_struct = current_struct->pNext;
+            }
 
             result = allocator->AllocateMemory(&modified_allocate_info,
                                                GetAllocationCallbacks(pAllocator),
