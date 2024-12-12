@@ -31,6 +31,7 @@
 #include "vulkan/vulkan.h"
 
 #include <string>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -110,6 +111,8 @@ class WindowFactory
     virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
                                                           VkPhysicalDevice                   physical_device,
                                                           uint32_t                           queue_family_index) = 0;
+
+    std::unordered_map<Window*, int32_t> created_window_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

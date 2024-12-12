@@ -96,6 +96,9 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
             return VK_ERROR_UNKNOWN;
         }
 
+        window_factory->created_window_.emplace(window, window_index_);
+        ++window_index_;
+
         result = window->CreateSurface(instance_table_, instance, flags, replay_surface);
 
         if ((result == VK_SUCCESS) && (replay_surface != nullptr))

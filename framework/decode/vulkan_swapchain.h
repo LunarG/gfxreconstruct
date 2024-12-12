@@ -182,6 +182,7 @@ class VulkanSwapchain
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;
     int32_t                   create_surface_count_{ 0 };
+    int32_t                   window_index_{ 0 };
     VulkanSwapchainOptions    swapchain_options_;
 };
 
