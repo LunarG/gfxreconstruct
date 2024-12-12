@@ -4359,7 +4359,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         assert(allocator != nullptr);
 
         VulkanResourceAllocator::MemoryData allocator_data;
-        auto                                replay_allocate_info = pAllocateInfo->GetPointer();
+
+        auto *modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(pAllocateInfo->GetPointer());
         auto                                replay_memory        = pMemory->GetHandlePointer();
         auto                                capture_id           = (*pMemory->GetPointer());
 
@@ -4372,7 +4373,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool                address_override_found = false;
         bool                uses_import_memory     = false;
         uint64_t            opaque_address         = 0;
-        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+
+        // FD is not available at replay time
+        graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
+
+        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(modified_allocate_info)->pNext;
 
         size_t                                            host_pointer_size = 0;
         std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
@@ -4403,9 +4408,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             {
                 auto import_info = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(current_struct);
 
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, replay_allocate_info->allocationSize);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, modified_allocate_info->allocationSize);
 
-                size_t allocation_size = static_cast<size_t>(replay_allocate_info->allocationSize);
+                size_t allocation_size = static_cast<size_t>(modified_allocate_info->allocationSize);
 
                 host_pointer_size =
                     util::platform::GetAlignedSize(allocation_size, util::platform::GetSystemPageSize());
@@ -4445,15 +4450,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 opaque_address = 0;
             }
 
-            VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
                           VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
+                          modified_allocate_info->pNext,
                           opaque_address
             };
-            modified_allocate_info.pNext = &address_info;
+            modified_allocate_info->pNext = &address_info;
 
-            result = allocator->AllocateMemory(&modified_allocate_info,
+            result = allocator->AllocateMemory(modified_allocate_info,
                                                GetAllocationCallbacks(pAllocator),
                                                capture_id,
                                                replay_memory,
@@ -4462,10 +4466,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         else
         {
             result = allocator->AllocateMemory(
-                replay_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
         }
 
-        if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
+        if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
             auto memory_info = reinterpret_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
@@ -4477,7 +4481,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         {
             // When memory allocation fails at replay, but succeeded at capture, check for memory incompatibilities and
             // recommend enabling memory translation.
-            allocator->ReportAllocateMemoryIncompatibility(replay_allocate_info);
+            allocator->ReportAllocateMemoryIncompatibility(modified_allocate_info);
         }
 
         if (result == VK_SUCCESS && uses_import_memory)
