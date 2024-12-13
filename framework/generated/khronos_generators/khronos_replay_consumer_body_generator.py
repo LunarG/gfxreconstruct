@@ -50,18 +50,178 @@ class KhronosReplayConsumerBodyGenerator():
         """Method may be overriden. """
         return None
 
+    def check_skip_offscreen(self, values, name):
+        """Method may be overriden. """
+        return ''
+
+    def handle_instance_device_items(self):
+        """Method may be overriden. """
+        return '', []
+
+    def is_custom_return_type(self, api_data, typename):
+        """Method may be overriden. """
+        return typename == api_data.return_type_enum
+
+    def handle_custom_return_type(self, name, dispatch_func, arg_list):
+        """Method may be overriden. """
+        return '{}({}, call_info.index, returnValue, {})'.format(
+            self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
+        )
+
+    def is_custom_dump_resource_type(self, is_dump_resources, is_override, name, value):
+        """Method may be overriden. """
+        return False
+
+    def handle_custom_dump_resource_type(self, is_dump_resources, is_override, name, value):
+        """Method may be overriden. """
+        return ''
+
     def make_consumer_func_body(self, api_data, return_type, name, values):
-        """ Method intended to be overridden. """
-        raise NotImplementedError
+        """
+        Method override.
+        Return ReplayConsumer class member function definition.
+        """
+        body = ''
+        is_override = name in self.REPLAY_OVERRIDES
+        is_dump_resources = self.is_dump_resources_api_call(name)
 
-    def generateReplayConsumerContent(self, api_data):
-        """Performs C++ code generation for the feature."""
-        platform_type = api_data.api_class_prefix
+        is_skip_offscreen = True
 
-        if not self.is_resource_dump_class():
-            self.newline()
-            write('template <typename T>', file=self.outFile)
-            write('void InitializeOutputStruct{}(StructPointerDecoder<T> *decoder);'.format(api_data.extended_struct_func_prefix), file=self.outFile)
+        # function 'can' use asynchronous control-flow
+        is_async = name in self.REPLAY_ASYNC_OVERRIDES
+
+        for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
+            if key in name:
+                is_skip_offscreen = False
+                break
+
+        if is_skip_offscreen:
+            body += self.check_skip_offscreen(values, name)
+
+        args, preexpr, postexpr = self.make_body_expression(
+            api_data, return_type, name, values, is_override
+        )
+        arglist = ', '.join(args)
+
+        dispatchfunc = ''
+        if not self.is_core_type(name):
+            object_name = args[0]
+            if self.use_instance_table(name, values[0].base_type):
+                dispatchfunc = 'GetInstanceTable'
+                if api_data.has_device and values[0].base_type == api_data.device_type:
+                    object_name, device_items = self.handle_instance_device_items()
+                    preexpr.extend(device_items)
+            else:
+                dispatchfunc = 'GetDeviceTable'
+
+            if is_override:
+                dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
+            else:
+                dispatchfunc += '({})->{}'.format(object_name, name[2:])
+
+        call_expr = ''
+        if is_override:
+            if self.is_core_create_command(name):
+                call_expr = '{}(returnValue, {})'.format(
+                    self.REPLAY_OVERRIDES[name], arglist
+                )
+            elif self.is_custom_return_type(api_data, return_type):
+                call_expr = self.handle_custom_return_type(name, dispatchfunc, arglist)
+            else:
+                call_expr = '{}({}, {})'.format(
+                    self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
+                )
+        else:
+            call_expr = '{}({})'.format(dispatchfunc, arglist)
+
+        if preexpr:
+            body += '\n'.join(
+                ['    ' + val if val else val for val in preexpr]
+            )
+            body += '\n'
+            body += '\n'
+        if return_type == api_data.return_type_enum:
+            if is_async:
+                body += '    if (UseAsyncOperations())\n'
+                body += '    {\n'
+                body += '        auto task = {}({}, returnValue, call_info, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], dispatchfunc, arglist)
+                body += '        if(task)\n'
+                body += '        {\n'
+                body += '           {}\n'.format(postexpr[0])
+                body += '           return;\n'
+                body += '        }\n'
+                body += '    }\n'
+                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
+
+            body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
+            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
+        else:
+            body += '    {};\n'.format(call_expr)
+
+        # Dump resources code generation
+        if is_dump_resources:
+            is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
+
+            dump_resource_arglist = ''
+            if is_override:
+                for val in values:
+                    if val.is_pointer and self.is_struct(val.base_type):
+                        if is_dr_override:
+                            dump_resource_arglist += val.name
+                        else:
+                            dump_resource_arglist += val.name + '->GetPointer()'
+                    elif self.is_handle(val.base_type):
+                        if val.is_pointer:
+                            dump_resource_arglist += val.name + '->GetHandlePointer()'
+                        elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
+                            dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
+                        else:
+                            dump_resource_arglist += 'in_' + val.name + '->handle'
+                    else:
+                        dump_resource_arglist += val.name
+                    dump_resource_arglist += ', '
+                dump_resource_arglist = dump_resource_arglist[:-2]
+            else:
+                if is_dr_override:
+                    for val in values:
+                        if val.is_pointer and not self.is_handle(val.base_type):
+                            if self.is_struct(val.base_type):
+                                dump_resource_arglist += val.name
+                            else:
+                                dump_resource_arglist += 'in_' + val.name
+                        elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
+                            dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
+                        elif self.is_handle(val.base_type) and not val.is_pointer:
+                            dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
+                        else:
+                            dump_resource_arglist += val.name
+                        dump_resource_arglist += ', '
+                    dump_resource_arglist = dump_resource_arglist[:-2]
+                else:
+                    dump_resource_arglist = arglist
+
+            body += '\n'
+            body += '    if (options_.dumping_resources)\n'
+            body += '    {\n'
+            if return_type == api_data.return_type_enum:
+                body += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            else:
+                body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+
+            body += '    }\n'
+
+        if postexpr:
+            body += '\n'
+            body += '\n'.join(
+                ['    ' + val if val else val for val in postexpr]
+            )
+            body += '\n'
+
+        cleanup_expr = self.generate_remove_handle_expression(name, values)
+        if cleanup_expr:
+            body += '    {}\n'.format(cleanup_expr)
+
+        return body
 
     def generate_replay_consumer_content(self, api_data):
         """Performs C++ code generation for the replay consumer."""

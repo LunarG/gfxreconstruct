@@ -172,191 +172,86 @@ class VulkanReplayConsumerBodyGenerator(
         return False
 
     def get_pool_allocation_type(self, value):
-        """Method may be overridden"""
+        """Method may be overriden"""
         if value.base_type in self.POOL_OBJECT_ASSOCIATIONS:
             return self.POOL_OBJECT_ASSOCIATIONS[value.base_type]
         return None
 
-    def make_consumer_func_body(self, api_data, return_type, name, values):
-        """
-        Method override.
-        Return VulkanReplayConsumer class member function definition.
-        """
+    def check_skip_offscreen(self, values, name):
+        """Method override. """
         body = ''
-        is_override = name in self.REPLAY_OVERRIDES
-        is_dump_resources = self.is_dump_resources_api_call(name)
-
-        is_skip_offscreen = True
-
-        # function 'can' use asynchronous control-flow
-        is_async = name in self.REPLAY_ASYNC_OVERRIDES
-
-        for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
-            if key in name:
-                is_skip_offscreen = False
-                break
-
-        if is_skip_offscreen:
-            is_print = False
-            for value in values:
-                for key in self.SKIP_FUNCTIONS_OFFSCREEN:
-                    if self.is_has_specific_key_word_in_type(value, key):
-                        if name == 'vkAcquireFullScreenExclusiveModeEXT':
-                            body += '    if ((options_.swapchain_option == util::SwapchainOption::kOffscreen) || (options_.force_windowed_origin == true) || (options_.force_windowed == true))\n'
-                        else:
-                            body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
-                        body += '    {\n'
-                        if name == 'vkAcquireFullScreenExclusiveModeEXT':
-                            body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen or force windowed mode.");\n'
-                        else:
-                            body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
-                        body += '        return;\n'
-                        body += '    }\n'
-                        is_print = True
-                        break
-                if is_print:
+        is_print = False
+        for value in values:
+            for key in self.SKIP_FUNCTIONS_OFFSCREEN:
+                if self.is_has_specific_key_word_in_type(value, key):
+                    if name == 'vkAcquireFullScreenExclusiveModeEXT':
+                        body += '    if ((options_.swapchain_option == util::SwapchainOption::kOffscreen) || (options_.force_windowed_origin == true) || (options_.force_windowed == true))\n'
+                    else:
+                        body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
+                    body += '    {\n'
+                    if name == 'vkAcquireFullScreenExclusiveModeEXT':
+                        body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen or force windowed mode.");\n'
+                    else:
+                        body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
+                    body += '        return;\n'
+                    body += '    }\n'
+                    is_print = True
                     break
+            if is_print:
+                break
+        return body
 
-        args, preexpr, postexpr = self.make_body_expression(
-            api_data, return_type, name, values, is_override
-        )
-        arglist = ', '.join(args)
+    def handle_instance_device_items(self):
+        """Method override."""
+        device_items = []
+        device_items.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
+        device_items.append("VkPhysicalDevice  physical_device = device_info->parent;")
+        return 'physical_device', device_items
 
-        dispatchfunc = ''
-        if not self.is_core_type(name):
-            object_name = args[0]
-            if self.use_instance_table(name, values[0].base_type):
-                dispatchfunc = 'GetInstanceTable'
-                if api_data.has_device and values[0].base_type == api_data.device_type:
-                    object_name = 'physical_device'
-                    preexpr.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
-                    preexpr.append("VkPhysicalDevice  physical_device = device_info->parent;")
-            else:
-                dispatchfunc = 'GetDeviceTable'
+    def is_custom_return_type(self, api_data, typename):
+        """Method override."""
+        return typename == api_data.return_type_enum or typename == 'VkDeviceAddress'
 
-            if is_override:
-                dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
-            else:
-                dispatchfunc += '({})->{}'.format(object_name, name[2:])
-
+    def handle_custom_return_type(self, name, dispatch_func, arg_list):
+        """Method override."""
+        # Override functions receive the decoded return value in addition to parameters.
         call_expr = ''
-        if is_override:
-            if self.is_core_create_command(name):
-                call_expr = '{}(returnValue, {})'.format(
-                    self.REPLAY_OVERRIDES[name], arglist
-                )
-            elif return_type == api_data.return_type_enum or return_type == 'VkDeviceAddress':
-                # Override functions receive the decoded return value in addition to parameters.
-                if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
-                    call_expr = '{}({}, returnValue, {})'.format(
-                        self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
-                    )
-                else:
-                    call_expr = '{}({}, call_info.index, returnValue, {})'.format(
-                        self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
-                    )
-            else:
-                call_expr = '{}({}, {})'.format(
-                    self.REPLAY_OVERRIDES[name], dispatchfunc, arglist
-                )
-        else:
-            call_expr = '{}({})'.format(dispatchfunc, arglist)
-
-        if preexpr:
-            body += '\n'.join(
-                ['    ' + val if val else val for val in preexpr]
+        if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
+            call_expr = '{}({}, returnValue, {})'.format(
+                self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
             )
-            body += '\n'
-            body += '\n'
-        if return_type == api_data.return_type_enum:
-            if is_async:
-                body += '    if (UseAsyncOperations())\n'
-                body += '    {\n'
-                body += '        auto task = {}({}, returnValue, call_info, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], dispatchfunc, arglist)
-                body += '        if(task)\n'
-                body += '        {\n'
-                body += '           {}\n'.format(postexpr[0])
-                body += '           return;\n'
-                body += '        }\n'
-                body += '    }\n'
-                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
-
-            body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
         else:
-            body += '    {};\n'.format(call_expr)
+            call_expr = '{}({}, call_info.index, returnValue, {})'.format(
+                self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
+            )
+        return call_expr
 
-        # Dump resources code generation
+    def is_custom_dump_resource_type(self, is_dump_resources, is_override, name, value):
         if is_dump_resources:
             is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
-
-            dump_resource_arglist = ''
             if is_override:
-                for val in values:
-                    if val.is_pointer and self.is_struct(val.base_type):
-                        if is_dr_override:
-                            dump_resource_arglist += val.name
-                        else:
-                            dump_resource_arglist += val.name + '->GetPointer()'
-                    elif self.is_handle(val.base_type):
-                        if val.is_pointer:
-                            dump_resource_arglist += val.name + '->GetHandlePointer()'
-                        elif val.base_type in ["VkPipeline"]:
-                            dump_resource_arglist += 'in_' + val.name
-                        else:
-                            dump_resource_arglist += 'in_' + val.name + '->handle'
-                    else:
-                        if val.is_pointer and val.base_type == "void":
-                            # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
-                            # -> dump-resource API expects raw void*
-                            dump_resource_arglist += val.name + '->GetPointer()'
-                        else:
-                            dump_resource_arglist += val.name
-                    dump_resource_arglist += ', '
-                dump_resource_arglist = dump_resource_arglist[:-2]
-            else:
-                if is_dr_override:
-                    for val in values:
-                        if val.is_pointer and not self.is_handle(val.base_type):
-                            if self.is_struct(val.base_type):
-                                dump_resource_arglist += val.name
-                            else:
-                                dump_resource_arglist += 'in_' + val.name
-                        elif val.base_type == 'VkPipeline':
-                            dump_resource_arglist += 'GetObjectInfoTable().GetVkPipelineInfo(pipeline)'
-                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type == 'VkCommandBuffer':
-                            dump_resource_arglist += 'in_' + val.name
-                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type != 'VkCommandBuffer':
-                            dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
-                        else:
-                            dump_resource_arglist += val.name
-                        dump_resource_arglist += ', '
-                    dump_resource_arglist = dump_resource_arglist[:-2]
-                else:
-                    dump_resource_arglist = arglist
+                if self.is_handle(value.base_type) and value.base_type in ["VkPipeline"]:
+                    return True
+            elif is_dr_override:
+                if value.base_type == 'VkPipeline':
+                    return True
+                elif self.is_handle(value.base_type) and not value.is_pointer and value.base_type == 'VkCommandBuffer':
+                    return True
+        return False
 
-            body += '\n'
-            body += '    if (options_.dumping_resources)\n'
-            body += '    {\n'
-            if return_type == api_data.return_type_enum:
-                body += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
-            else:
-                body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
-
-            body += '    }\n'
-
-        if postexpr:
-            body += '\n'
-            body += '\n'.join(
-                ['    ' + val if val else val for val in postexpr]
-            )
-            body += '\n'
-
-        cleanup_expr = self.generate_remove_handle_expression(name, values)
-        if cleanup_expr:
-            body += '    {}\n'.format(cleanup_expr)
-
-        return body
+    def handle_custom_dump_resource_type(self, is_dump_resources, is_override, name, value):
+        dump_resource_arglist = ''
+        if is_dump_resources:
+            is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
+            if is_override:
+                if self.is_handle(value.base_type) and value.base_type in ["VkPipeline"]:
+                    dump_resource_arglist += 'in_' + value.name
+            elif is_dr_override:
+                if value.base_type == 'VkPipeline':
+                    dump_resource_arglist += 'GetObjectInfoTable().GetVkPipelineInfo(pipeline)'
+                elif self.is_handle(value.base_type) and not value.is_pointer and value.base_type == 'VkCommandBuffer':
+                    dump_resource_arglist += 'in_' + value.name
+        return dump_resource_arglist
 
     def needs_remove_handle_expression(self, command):
         """Method override."""
