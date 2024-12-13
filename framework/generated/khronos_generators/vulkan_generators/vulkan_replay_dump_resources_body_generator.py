@@ -74,8 +74,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
-    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
-
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
 
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
@@ -94,9 +92,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        if gen_opts.dump_resources_overrides:
-            self.__load_replay_overrides(gen_opts.dump_resources_overrides)
-
         write(
             '#include "generated/generated_vulkan_replay_dump_resources.h"',
             file=self.outFile
@@ -111,7 +106,9 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self)
+        api_data = self.get_api_data()
+
+        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self, api_data)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -120,14 +117,11 @@ class VulkanReplayDumpResourcesBodyGenerator(
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def make_consumer_func_body(self, return_type, name, values):
-        """Return VulkanReplayConsumer class member function definition."""
+    def make_consumer_func_body(self, api_data, return_type, name, values):
+        """
+        Method override.
+        Return VulkanReplayConsumer class member function definition.
+        """
         body = ''
 
         is_override = name in self.DUMP_RESOURCES_OVERRIDES
@@ -182,7 +176,3 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
 
         return body
-
-    def __load_replay_overrides(self, filename):
-        overrides = json.loads(open(filename, 'r').read())
-        self.DUMP_RESOURCES_OVERRIDES = overrides['functions']

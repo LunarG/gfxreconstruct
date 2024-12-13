@@ -78,8 +78,6 @@ class VulkanReplayConsumerBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
-    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
-
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
 
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
@@ -123,14 +121,13 @@ class VulkanReplayConsumerBodyGenerator(
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);', file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self)
-        KhronosReplayConsumerBodyGenerator.generate_extended_struct_handling(self)
+        api_data = self.get_api_data()
+
+        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self, api_data)
+        KhronosReplayConsumerBodyGenerator.generate_extended_struct_handling(self, api_data)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -145,9 +142,16 @@ class VulkanReplayConsumerBodyGenerator(
             return True
         return False
 
+    def is_instance_type(self, typename):
+        ''' Method overide. '''
+        api_data = self.get_api_data()
+        if typename == api_data.instance_type or typename in ['VkPhysicalDevice']:
+            return True
+        return False
+
     def use_instance_table(self, name, typename):
-        """Check for dispatchable handle types associated with the instance dispatch table."""
-        if typename in ['VkInstance', 'VkPhysicalDevice']:
+        ''' Method overide. '''
+        if self.is_instance_type(typename):
             return True
         # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
         # need to be probed from GetInstanceProcAddress due to a loader issue.
@@ -157,12 +161,6 @@ class VulkanReplayConsumerBodyGenerator(
         if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
             return True
         return False
-
-    def get_parent_id(self, value, values):
-        """Get the ID of the parent object when creating a Vulkan handle.  VkInstance is does not have a parent object."""
-        if value.base_type != "VkInstance":
-            return values[0].name
-        return 'format::kNullHandleId'
 
     def is_pool_allocation(self, command):
         """
@@ -179,8 +177,11 @@ class VulkanReplayConsumerBodyGenerator(
             return self.POOL_OBJECT_ASSOCIATIONS[value.base_type]
         return None
 
-    def make_consumer_func_body(self, return_type, name, values):
-        """Return VulkanReplayConsumer class member function definition."""
+    def make_consumer_func_body(self, api_data, return_type, name, values):
+        """
+        Method override.
+        Return VulkanReplayConsumer class member function definition.
+        """
         body = ''
         is_override = name in self.REPLAY_OVERRIDES
         is_dump_resources = self.is_dump_resources_api_call(name)
@@ -217,16 +218,16 @@ class VulkanReplayConsumerBodyGenerator(
                     break
 
         args, preexpr, postexpr = self.make_body_expression(
-            return_type, name, values, is_override
+            api_data, return_type, name, values, is_override
         )
         arglist = ', '.join(args)
 
         dispatchfunc = ''
-        if name not in ['vkCreateInstance', 'vkCreateDevice']:
+        if not self.is_core_type(name):
             object_name = args[0]
             if self.use_instance_table(name, values[0].base_type):
                 dispatchfunc = 'GetInstanceTable'
-                if values[0].base_type == 'VkDevice':
+                if api_data.has_device and values[0].base_type == api_data.device_type:
                     object_name = 'physical_device'
                     preexpr.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
                     preexpr.append("VkPhysicalDevice  physical_device = device_info->parent;")
@@ -240,11 +241,11 @@ class VulkanReplayConsumerBodyGenerator(
 
         call_expr = ''
         if is_override:
-            if name in ['vkCreateInstance', 'vkCreateDevice']:
+            if self.is_core_create_command(name):
                 call_expr = '{}(returnValue, {})'.format(
                     self.REPLAY_OVERRIDES[name], arglist
                 )
-            elif return_type in ['VkResult', 'VkDeviceAddress']:
+            elif return_type == api_data.return_type_enum or return_type == 'VkDeviceAddress':
                 # Override functions receive the decoded return value in addition to parameters.
                 if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
                     call_expr = '{}({}, returnValue, {})'.format(
@@ -267,7 +268,7 @@ class VulkanReplayConsumerBodyGenerator(
             )
             body += '\n'
             body += '\n'
-        if return_type == 'VkResult':
+        if return_type == api_data.return_type_enum:
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
@@ -280,7 +281,7 @@ class VulkanReplayConsumerBodyGenerator(
                 body += '    }\n'
                 postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
 
-            body += '    VkResult replay_result = {};\n'.format(call_expr)
+            body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
             body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
         else:
             body += '    {};\n'.format(call_expr)
@@ -337,7 +338,7 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
-            if return_type == 'VkResult':
+            if return_type == api_data.return_type_enum:
                 body += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
             else:
                 body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
@@ -363,15 +364,6 @@ class VulkanReplayConsumerBodyGenerator(
             command == 'vkFreeMemory'):
             return True
         return False
-
-    def determine_handle_to_remove_value(self, command, values):
-        """Method override."""
-        # For functions starting with 'vkDestroy' and vkFreeMemory, the handle being destroyed/freed is the second parameter, except for.
-        # vkDestroyInstance and vkDestroyDevice, where there is no parent object and the handle being destroyed is the first parameter.
-        value = values[0] if command in [
-            'vkDestroyInstance', 'vkDestroyDevice'
-        ] else values[1]
-        return value
 
     def generate_remove_handle_expression(self, name, values):
         """Method override."""

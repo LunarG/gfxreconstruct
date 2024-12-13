@@ -94,9 +94,15 @@ class ApiData():
         return_type_success_value   - The value of a successs
         instance_type               - The name of the type used to store an instance
         get_instance_proc_addr      - The name of the function to get instance proc addresses
+        create_instance_app_func    - The name of the function to create an instance through an application
+        create_instance_layer_func  - The name of the function to create an instance through a layer
+        destroy_instance_func       - The name of the function to destroy an instance
         has_device                  - Boolean indicating if a device object is supported
         device_type                 - The name of the type used to store a device
         get_device_proc_addr        - The name of the function to get device proc addresses
+        create_device_func          - The name of the function to create a device
+        destroy_device_func         - The name of the function to destroy a device
+        has_pool_allocations        - Boolean indicating if pool allocations are supported
     """
     def __init__(
             self,
@@ -128,9 +134,15 @@ class ApiData():
             return_type_success_value,
             instance_type,
             get_instance_proc_addr,
+            create_instance_app_func,
+            create_instance_layer_func,
+            destroy_instance_func,
             has_device,
             device_type,
             get_device_proc_addr,
+            create_device_func,
+            destroy_device_func,
+            has_pool_allocations,
     ):
         self.api_name = api_name
         self.api_class_prefix = api_class_prefix
@@ -160,9 +172,15 @@ class ApiData():
         self.return_type_success_value  = return_type_success_value
         self.instance_type = instance_type
         self.get_instance_proc_addr = get_instance_proc_addr
+        self.create_instance_app_func = create_instance_app_func
+        self.create_instance_layer_func = create_instance_layer_func
+        self.destroy_instance_func = destroy_instance_func
         self.has_device = has_device
         self.device_type = device_type
         self.get_device_proc_addr = get_device_proc_addr
+        self.create_device_func = create_device_func
+        self.destroy_device_func = destroy_device_func
+        self.has_pool_allocations = has_pool_allocations
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -475,11 +493,18 @@ class KhronosBaseGenerator(OutputGenerator):
                 return_type_success_value='VK_SUCCESS',
                 instance_type='VkInstance',
                 get_instance_proc_addr='vkGetInstanceProcAddr',
+                create_instance_app_func='vkCreateInstance',
+                create_instance_layer_func='',
+                destroy_instance_func='vkDestroyInstance',
                 has_device=True,
                 device_type='VkDevice',
                 get_device_proc_addr='vkGetDeviceProcAddr',
+                create_device_func='vkCreateDevice',
+                destroy_device_func='vkDestroyDevice',
+                has_pool_allocations=True,
             )
         )
+
         self.valid_khronos_supported_api_data.append(
             ApiData(
                 api_name='OpenXR',
@@ -510,9 +535,15 @@ class KhronosBaseGenerator(OutputGenerator):
                 return_type_success_value='XR_SUCCESS',
                 instance_type='XrInstance',
                 get_instance_proc_addr='xrGetInstanceProcAddr',
+                create_instance_app_func='xrCreateInstance',
+                create_instance_layer_func='xrCreateApiLayerInstance',
+                destroy_instance_func='xrDestroyInstance',
                 has_device=False,
                 device_type='',
                 get_device_proc_addr='',
+                create_device_func='',
+                destroy_device_func='',
+                has_pool_allocations=False,
             )
         )
 
@@ -1740,6 +1771,59 @@ class KhronosBaseGenerator(OutputGenerator):
         if (value.name == self.get_extended_struct_var_name() and
             value.base_type == 'void' and
             value.is_pointer):
+            return True
+        return False
+
+    def is_instance_type(self, typename):
+        ''' May be overidden. '''
+        api_data = self.get_api_data()
+        if typename == api_data.instance_type:
+            return True
+        return False
+
+    def is_core_type(self, typename):
+        '''
+        Is this either an instance or device (if supported) type?
+        May be overidden.
+        '''
+        api_data = self.get_api_data()
+        if (
+            typename == api_data.instance_type
+            or (api_data.has_device and typename == api_data.device_type)
+        ):
+            return True
+        return False
+
+    def is_core_create_command(self, command_name):
+        '''
+        Is this either an instance or device (if supported) creation command?
+        May be overidden.
+        '''
+        api_data = self.get_api_data()
+        if (
+            len(command_name) > 0 and (
+                command_name == api_data.create_instance_app_func
+                or command_name == api_data.create_instance_layer_func or (
+                    api_data.has_device
+                    and command_name == api_data.create_device_func
+                )
+            )
+        ):
+            return True
+        return False
+
+    def is_core_destroy_command(self, command_name):
+        '''
+        Is this either an instance or device (if supported) destruction command?
+        May be overidden.
+        '''
+        api_data = self.get_api_data()
+        if (
+            command_name == api_data.destroy_instance_func or (
+                api_data.has_device
+                and command_name == api_data.destroy_device_func
+            )
+        ):
             return True
         return False
 

@@ -27,9 +27,50 @@ from khronos_base_generator import write
 class KhronosReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
-    def generate_replay_consumer_content(self):
+    def get_parent_id(self, api_data, value, values):
+        """Get the ID of the parent object when creating a handle.  The instance type is does not have a parent object."""
+        if value.base_type != api_data.instance_type:
+            return values[0].name
+        return 'format::kNullHandleId'
+
+    def use_instance_table(self, api_data, name, typename):
+        """
+        Check for dispatchable handle types associated with the instance dispatch table.
+        May be overridden.
+        """
+        if not api_data.has_device or self.is_instance_type(typename):
+            return True
+        return False
+
+    def is_pool_allocation(self, command):
+        """Method may be overriden. """
+        return False
+
+    def get_pool_allocation_type(self, value):
+        """Method may be overriden. """
+        return None
+
+    def make_consumer_func_body(self, api_data, return_type, name, values):
+        """ Method intended to be overridden. """
+        raise NotImplementedError
+
+    def generateReplayConsumerContent(self, api_data):
+        """Performs C++ code generation for the feature."""
+        platform_type = api_data.api_class_prefix
+
+        if not self.is_resource_dump_class():
+            self.newline()
+            write('template <typename T>', file=self.outFile)
+            write('void InitializeOutputStruct{}(StructPointerDecoder<T> *decoder);'.format(api_data.extended_struct_func_prefix), file=self.outFile)
+
+    def generate_replay_consumer_content(self, api_data):
         """Performs C++ code generation for the replay consumer."""
-        platform_type = self.get_api_prefix()
+        platform_type = api_data.api_class_prefix
+
+        if not self.is_resource_dump_class():
+            self.newline()
+            write('template <typename T>', file=self.outFile)
+            write('void InitializeOutputStruct{}(StructPointerDecoder<T> *decoder);'.format(api_data.extended_struct_func_prefix), file=self.outFile)
 
         for cmd in self.get_all_filtered_cmd_names():
 
@@ -55,13 +96,12 @@ class KhronosReplayConsumerBodyGenerator():
                     values
                 ) + '\n'
             cmddef += '{\n'
-            cmddef += self.make_consumer_func_body(return_type, cmd, values)
+            cmddef += self.make_consumer_func_body(api_data, return_type, cmd, values)
             cmddef += '}'
 
             write(cmddef, file=self.outFile)
 
-    def generate_extended_struct_handling(self):
-        api_data = self.get_api_data()
+    def generate_extended_struct_handling(self, api_data):
         var_name = 'in_' + api_data.extended_struct_variable.lower()
 
         self.newline()
@@ -179,8 +219,11 @@ class KhronosReplayConsumerBodyGenerator():
         return False
 
     def determine_handle_to_remove_value(self, command, values):
-        """ Method may be overridden. """
-        return values[0]
+        """Method may be overridden."""
+        if self.is_core_destroy_command(command):
+            return values[0]
+        else:
+            return values[1]
 
     def generate_remove_handle_expression(self, command, values):
         """ Method may be overridden. """
@@ -255,6 +298,10 @@ class KhronosReplayConsumerBodyGenerator():
             handle_value.name, index_id, value.name, array_name, info_func
         )
 
+    def is_allocation_callback_type(self, struct):
+        """ Method may be overridden. """
+        return False
+
     def is_special_case_value(self, value):
         """ Method may be overridden. """
         return False
@@ -275,14 +322,13 @@ class KhronosReplayConsumerBodyGenerator():
         """ Method may be overridden. """
         return ''
 
-    def make_body_expression(self, return_type, name, values, is_override):
+    def make_body_expression(self, api_data, return_type, name, values, is_override):
         """"
         Generating expressions for mapping decoded parameters to arguments used in the API call.
         For array lengths that are stored in pointers, this will map the original parameter name
         to the temporary parameter name that was created to store the value to be provided to the
         Khronos API call.
         """
-        api_data = self.get_api_data()
         array_lengths = dict()
         is_variable_length = False
 
@@ -301,7 +347,7 @@ class KhronosReplayConsumerBodyGenerator():
                 info_type = '{}{}Info'.format(
                     api_data.api_class_prefix, value.base_type[2:]
                 )
-                if self.is_pool_allocation(name):
+                if api_data.has_pool_allocations and self.is_pool_allocation(name):
                     pool_alloc_type = self.get_pool_allocation_type(values[-1])
                     pool_info_type = '{}{}Info'.format(
                         api_data.api_class_prefix, pool_alloc_type[2:]
@@ -464,11 +510,11 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
                                 )
-                                if self.is_pool_allocation(name):
+                                if api_data.has_pool_allocations and self.is_pool_allocation(name):
                                     postexpr.append(
                                         'AddPoolHandles<{pool_info_type}, {info_type}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             values[1].name,
                                             arg_name,
                                             length_name,
@@ -484,7 +530,7 @@ class KhronosReplayConsumerBodyGenerator():
                                         'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             info_type,
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             arg_name,
                                             length_name,
                                             paramname=value.name,
@@ -500,13 +546,13 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(
                                     length_name, value.name
                                 )
-                                if self.is_pool_allocation(name):
+                                if api_data.has_pool_allocations and self.is_pool_allocation(name):
                                     postexpr.append(
                                         'AddPoolHandles<{}, {}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             pool_info_type,
                                             info_type,
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             values[1].name,
                                             length_name,
                                             paramname=value.name,
@@ -522,7 +568,7 @@ class KhronosReplayConsumerBodyGenerator():
                                             .format(
                                                 info_type,
                                                 self.get_parent_id(
-                                                    value, values
+                                                    api_data, value, values
                                                 ),
                                                 arg_name,
                                                 length_name,
@@ -534,7 +580,7 @@ class KhronosReplayConsumerBodyGenerator():
                                         'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
                                             info_type,
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             length_name,
                                             paramname=value.name,
                                             basetype=value.base_type
@@ -573,7 +619,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     postexpr.append(
                                         'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, &GetObjectInfoTable());'
                                         .format(
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             arg_name,
                                             length_name,
                                             paramname=value.name,
@@ -597,7 +643,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     postexpr.append(
                                         'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, &GetObjectInfoTable());'
                                         .format(
-                                            self.get_parent_id(value, values),
+                                            self.get_parent_id(api_data, value, values),
                                             length_name,
                                             paramname=value.name,
                                             basetype=value.base_type
@@ -670,7 +716,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     'AddHandle<{}>({}, {}->GetPointer(), {}, &CommonObjectInfoTable::Add{}Info);'
                                     .format(
                                         info_type,
-                                        self.get_parent_id(value, values),
+                                        self.get_parent_id(api_data, value, values),
                                         value.name, arg_name, value.base_type
                                     )
                                 )
@@ -685,7 +731,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     'AddHandle<{}>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                     .format(
                                         info_type,
-                                        self.get_parent_id(value, values),
+                                        self.get_parent_id(api_data, value, values),
                                         paramname=value.name,
                                         basetype=value.base_type
                                     )
@@ -745,7 +791,7 @@ class KhronosReplayConsumerBodyGenerator():
                                             'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
-                                                    value, values
+                                                    api_data, value, values
                                                 ),
                                                 arg_name,
                                                 name=value.name,
@@ -765,7 +811,7 @@ class KhronosReplayConsumerBodyGenerator():
                                             'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
-                                                    value, values
+                                                    api_data, value, values
                                                 ),
                                                 name=value.name,
                                                 basetype=value.base_type
@@ -828,7 +874,7 @@ class KhronosReplayConsumerBodyGenerator():
 
             if len(need_initialize_output_pnext_struct) > 0:
                 preexpr.append(
-                    'InitializeOutputStructPNext({});'.
-                    format(need_initialize_output_pnext_struct)
+                    'InitializeOutputStruct{}({});'.
+                    format(api_data.extended_struct_func_prefix, need_initialize_output_pnext_struct)
                 )
         return args, preexpr, postexpr

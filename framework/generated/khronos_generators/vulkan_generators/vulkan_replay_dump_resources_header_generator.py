@@ -90,9 +90,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        if gen_opts.dump_resources_overrides:
-            self.__load_replay_overrides(gen_opts.dump_resources_overrides)
-
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
             file=self.outFile
@@ -176,6 +173,3 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
 
             write(cmddef, file=self.outFile)
 
-    def __load_replay_overrides(self, filename):
-        overrides = json.loads(open(filename, 'r').read())
-        self.DUMP_RESOURCES_OVERRIDES = overrides['functions']
