@@ -18,7 +18,7 @@
 
 import re
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
     makeGen, makeGenCall, makeGenCond, makeGenCastVar, makeGenSwitch
 
@@ -54,7 +54,7 @@ CPP_PREFIX_STRING = [
     ''
 ]
 
-class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
+class VulkanCppConsumerExtensionGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP structure generation"""
 
     def __init__(
@@ -68,7 +68,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -80,16 +80,30 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.is_header = self.filename.endswith(".h")
+
+        begin_end = self.begin_end_file_data
+        if not self.is_header:
+            begin_end.specific_headers.extend((
+                'generated/generated_vulkan_cpp_consumer_extension.h',
+                'generated/generated_vulkan_cpp_consumer.h',
+                'generated/generated_vulkan_cpp_structs.h',
+                'decode/vulkan_cpp_structs.h',))
+
+        begin_end.specific_headers.append('util/defines.h')
+        begin_end.system_headers.extend(('iostream', 'sstream'))
+        begin_end.namespaces.extend(('gfxrecon', 'decode'))
+
 1
-class VulkanCppConsumerExtensionGenerator(BaseGenerator):
-    """VulkanCppConsumerExtensionGenerator - subclass of BaseGenerator.
+class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
+    """VulkanCppConsumerExtensionGenerator - subclass of VulkanBaseGenerator.
     Generates a C++ function responsible for generating extensions from pNext void pointers.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
      ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -101,25 +115,9 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
     # Method override
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
 
-        self.is_header = genOpts.filename.endswith(".h")
-
-        if not self.is_header:
-            self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
-            self.writeout('#include "generated/generated_vulkan_cpp_consumer.h"')
-            self.writeout('#include "generated/generated_vulkan_cpp_structs.h"')
-            self.writeout('#include "decode/vulkan_cpp_structs.h"')
-        self.writeout('#include "util/defines.h"')
-        self.write_includes_of_common_api_headers(genOpts)
-        self.newline()
-        self.writeout('#include <iostream>')
-        self.writeout('#include <sstream>')
-        self.newline()
-        self.writeout('GFXRECON_BEGIN_NAMESPACE(gfxrecon)')
-        self.writeout('GFXRECON_BEGIN_NAMESPACE(decode)')
-        self.newline()
-
+        self.is_header = genOpts.is_header
         self.cases = []
         self.caseBodies = []
 
@@ -145,11 +143,9 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
 
         self.newline()
-        self.writeout('GFXRECON_END_NAMESPACE(decode)')
-        self.writeout('GFXRECON_END_NAMESPACE(gfxrecon)')
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         if self.struct_names:

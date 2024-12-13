@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import os, re, sys, inspect
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_enum_to_string_header_generator import KhronosEnumToStringHeaderGenerator
 
 
-class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToStringHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -50,17 +50,23 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
             protect_feature,
             extra_headers=extra_headers
         )
+            
+        self.begin_end_file_data.specific_headers.extend((
+            'format/platform_types.h',
+            'util/to_string.h',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'util'))
 
 
-# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeaderGenerator):
+class VulkanEnumToStringHeaderGenerator(VulkanBaseGenerator, KhronosEnumToStringHeaderGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -68,39 +74,11 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeader
         )
 
     # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        includes = inspect.cleandoc(
-            '''
-            #include "format/platform_types.h"
-            #include "util/to_string.h"
-            '''
-        )
-        write(includes, file=self.outFile)
-        self.write_includes_of_common_api_headers(genOpts)
-        namespace = inspect.cleandoc(
-            '''
-            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(util)
-            '''
-        )
-        write(namespace, file=self.outFile)
-    # yapf: enable
-
-    # Method override
-    # yapf: disable
     def endFile(self):
         KhronosEnumToStringHeaderGenerator.write_enum_to_string_header(self)
 
-        body = inspect.cleandoc('''
-            GFXRECON_END_NAMESPACE(util)
-            GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
-        write(body, file=self.outFile)
-
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #

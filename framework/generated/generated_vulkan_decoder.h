@@ -44,7 +44,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 class VulkanDecoder : public VulkanDecoderBase
 {
   public:
@@ -1388,7 +1387,6 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 };
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

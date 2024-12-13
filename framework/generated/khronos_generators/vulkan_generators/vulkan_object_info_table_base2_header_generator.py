@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import os, re, sys
-from base_generator import *
+from vulkan_base_generator import *
 
 
-class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanObjectInfoTableBase2HeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
     def __init__(
@@ -38,7 +38,7 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -50,14 +50,17 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.append('decode/vulkan_object_info_table_base.h')
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
 # Generates declarations for functions for Vulkan object info table
-class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
+class VulkanObjectInfoTableBase2HeaderGenerator(VulkanBaseGenerator):
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -65,24 +68,11 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         )
 
     # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        self.write_include()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-    # yapf: enable
-
-    # Method override
-    # yapf: disable
     def endFile(self):
         self.generate_all()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
-    # yapf: enable
+        VulkanBaseGenerator.endFile(self)
 
     # yapf: disable
     def generate_all(self):
@@ -129,10 +119,3 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         code += '};\n'
         write(code, file=self.outFile)
     # yapf: enable
-
-    def write_include(self):
-        write(
-            '#include "decode/vulkan_object_info_table_base.h"\n',
-            file=self.outFile
-        )
-        self.newline()

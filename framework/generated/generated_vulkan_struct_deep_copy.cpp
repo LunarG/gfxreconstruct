@@ -27,7 +27,6 @@
 **
 */
 
-
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "format/platform_types.h"
 #include "cstring"
@@ -24021,7 +24020,6 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceMeshShaderPropertiesEXT* st
     }
     return offset;
 }
-
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -31,6 +31,7 @@
 #define  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H
 
 #include "util/defines.h"
+
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
 #include "vk_video/vulkan_video_codec_h264std_decode.h"
@@ -45,7 +46,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 class VulkanCppConsumerBase;
 std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer);
 

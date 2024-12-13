@@ -49,7 +49,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-
 void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
 {
     assert(encoder != nullptr);

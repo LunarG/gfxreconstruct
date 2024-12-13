@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import os, re, sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_state_table_header_generator import KhronosStateTableHeaderGenerator
 
 
-class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStateTableHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -51,40 +51,31 @@ class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.append('encode/vulkan_state_table_base.h')
+        self.begin_end_file_data.namespaces.extend(('gfxrecon','encode'))
+
+        # Force off the common headers
+        self.begin_end_file_data.common_api_headers = []
+
 
 # Generates declarations for functions for Vulkan state table
-class VulkanStateTableHeaderGenerator(BaseGenerator, KhronosStateTableHeaderGenerator):
+class VulkanStateTableHeaderGenerator(VulkanBaseGenerator, KhronosStateTableHeaderGenerator):
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        write(
-            '#include "encode/vulkan_state_table_base.h"\n', file=self.outFile
-        )
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-    # yapf: enable
 
     # Method override
-    # yapf: disable
     def endFile(self):
         KhronosStateTableHeaderGenerator.generate_state_table_content(self)
 
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable

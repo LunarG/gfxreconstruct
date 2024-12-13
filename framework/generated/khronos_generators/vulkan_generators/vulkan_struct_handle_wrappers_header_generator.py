@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_handle_wrappers_header_generator import KhronosStructHandleWrappersHeaderGenerator
 
 
-class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructHandleWrappersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating function prototypes to wrap Vulkan struct member handles at API capture."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,9 +52,22 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'encode/custom_vulkan_struct_handle_wrappers.h',
+            'encode/handle_unwrap_memory.h',
+            'encode/vulkan_handle_wrapper_util.h',
+            'format/platform_types.h',
+            'util/defines.h',
+        ))
 
-class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHandleWrappersHeaderGenerator):
-    """VulkanStructHandleWrappersHeaderGenerator - subclass of BaseGenerator.
+        self.begin_end_file_data.namespaces.extend((
+            'gfxrecon',
+            'encode',
+            'vulkan_wrappers',
+        ))
+
+class VulkanStructHandleWrappersHeaderGenerator(VulkanBaseGenerator, KhronosStructHandleWrappersHeaderGenerator):
+    """VulkanStructHandleWrappersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function prototypes for wrapping struct member handles
     when recording Vulkan API call parameter data.
     Generate C++ functions for Vulkan struct member handle wrapping at API capture.
@@ -63,34 +76,12 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        write(
-            '#include "encode/custom_vulkan_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "encode/handle_unwrap_memory.h"', file=self.outFile)
-        write(
-            '#include "encode/vulkan_handle_wrapper_util.h"',
-            file=self.outFile
-        )
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -98,12 +89,9 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
         KhronosStructHandleWrappersHeaderGenerator.write_struct_handle_wrapper_content(self)
 
         self.newline()
-        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Method override. Indicates that the current feature has C++ code to generate."""

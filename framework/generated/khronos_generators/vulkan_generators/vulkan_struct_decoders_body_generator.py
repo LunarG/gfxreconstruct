@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_body_generator import KhronosStructDecodersBodyGenerator
 
 
-class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructDecodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan struct decoding."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,54 +52,41 @@ class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'generated/generated_vulkan_struct_decoders.h',
+            '',
+            'decode/custom_vulkan_struct_decoders.h',
+            'decode/decode_allocator.h',
+        ))
+        self.begin_end_file_data.system_headers.append( 'cassert')
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
+
 
 class VulkanStructDecodersBodyGenerator(
-    KhronosStructDecodersBodyGenerator, BaseGenerator
+    KhronosStructDecodersBodyGenerator, VulkanBaseGenerator
 ):
-    """VulkanStructDecodersBodyGenerator - subclass of BaseGenerator.
+    """VulkanStructDecodersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions for decoding Vulkan API structures.
     Generate C++ functions for Vulkan struct decoding."""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        write(
-            '#include "generated/generated_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '#include "decode/custom_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
-        write('#include "decode/decode_allocator.h"', file=self.outFile)
-        self.newline()
-        write('#include <cassert>', file=self.outFile)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-
     def endFile(self):
         """Method override."""
         KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

@@ -22,10 +22,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanCommandBufferUtilHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -50,10 +50,15 @@ class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
             protect_feature,
             extra_headers=extra_headers
         )
+        self.begin_end_file_data.specific_headers.extend((
+            'encode/vulkan_handle_wrappers.h',
+            'util/defines.h',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
 
 
-class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
-    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+class VulkanCommandBufferUtilHeaderGenerator(VulkanBaseGenerator):
+    """VulkanCommandBufferUtilBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
     replaying decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file replay.
@@ -62,24 +67,13 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -102,11 +96,9 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                     write(cmddef, file=self.outFile)
 
         self.newline()
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

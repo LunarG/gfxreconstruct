@@ -45,7 +45,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 struct Decoded_StdVideoH264SpsVuiFlags;
 struct Decoded_StdVideoH264HrdParameters;
 struct Decoded_StdVideoH264SequenceParameterSetVui;

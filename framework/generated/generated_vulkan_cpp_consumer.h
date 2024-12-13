@@ -4388,8 +4388,6 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         uint32_t                                    drawCount,
         uint32_t                                    stride) override;
 };
-
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

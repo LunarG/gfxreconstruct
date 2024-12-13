@@ -32,6 +32,7 @@
 #include "generated/generated_vulkan_cpp_structs.h"
 #include "decode/vulkan_cpp_structs.h"
 #include "util/defines.h"
+
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
 #include "vk_video/vulkan_video_codec_h264std_decode.h"
@@ -46,7 +47,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer) {
     std::string next_var_name = "NULL";
     if (struct_info != nullptr && meta_info != nullptr) {
