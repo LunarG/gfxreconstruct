@@ -47,7 +47,7 @@ using Dx12JsonConsumer =
 #endif
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
-const char kArguments[] = "--output,--format";
+const char kArguments[] = "--output,--format,--log-level";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -161,6 +161,12 @@ int main(int argc, const char** argv)
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
     }
 #endif
+
+    // Reinitialize logging with values retrieved from command line arguments
+    gfxrecon::util::Log::Settings log_settings;
+    GetLogSettings(arg_parser, log_settings);
+    gfxrecon::util::Log::Release();
+    gfxrecon::util::Log::Init(log_settings);
 
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     std::string input_filename       = positional_arguments[0];
