@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-
+from khronos_dispatch_table_generator import KhronosDispatchTableGenerator
 
 class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a dispatch table for Vulkan API calls."""
@@ -52,7 +52,7 @@ class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanDispatchTableGenerator(BaseGenerator):
+class VulkanDispatchTableGenerator(BaseGenerator, KhronosDispatchTableGenerator):
     """VulkanDispatchTableGenerator - subclass of BaseGenerator.
     Generates a dispatch table for Vulkan API calls.
     Generate dispatch table for Vulkan API calls.
@@ -106,58 +106,19 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    def endFile(self):
-        """Method override."""
-        for name in self.all_cmd_params:
-            # Ignore vkCreateInstance and vkCreateDevice, which are provided by the layer due to special handling requirements
-            if name not in ['vkCreateInstance', 'vkCreateDevice']:
-                info = self.all_cmd_params[name]
-                values = info[2]
+    def is_instance_command(self, api_data, command, first_value):
+        """ Method override """
+        if ((command in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']) or
+            (first_value.base_type in ['VkInstance', 'VkPhysicalDevice'])):
+            return True
+        return False
 
-                if values and values[0]:
-                    first_param = values[0]
-                    if self.is_handle(first_param.base_type):
-                        return_type = info[0]
-                        proto = info[1]
+    def is_device_command(self, api_data, command, first_value):
+        """ Method may be overridden. """
+        return not self.is_instance_command(api_data, command,first_value)
 
-                        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
-                        # need to be probed from GetInstanceProcAddress due to a loader issue.
-                        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
-                        # TODO : When loader with fix for issue is widely available, remove this
-                        # special case.
-                        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
-                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
-                        elif first_param.base_type not in ['VkInstance', 'VkPhysicalDevice']:
-                            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
-                        else:
-                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
-        self.newline()
-
-        write('typedef const void* VulkanDispatchKey;', file=self.outFile)
-        self.newline()
-
-        write(
-            '// Retrieve a dispatch key from a dispatchable handle',
-            file=self.outFile
-        )
-        write(
-            'static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    const VulkanDispatchKey* dispatch_key = reinterpret_cast<const VulkanDispatchKey*>(handle);',
-            file=self.outFile
-        )
-        write('    return (*dispatch_key);', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
-        self.generate_no_op_funcs()
-        self.newline()
-
-        write('struct VulkanLayerTable', file=self.outFile)
-        write('{', file=self.outFile)
+    def write_layer_table_manual_entries(self):
+        """ Method must overridden. """
         write(
             '    PFN_vkCreateInstance CreateInstance{ nullptr };',
             file=self.outFile
@@ -166,38 +127,10 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             '    PFN_vkCreateDevice CreateDevice{ nullptr };',
             file=self.outFile
         )
-        write('};', file=self.outFile)
 
-        self.newline()
-        self.generate_instance_cmd_table()
-        self.newline()
-        self.generate_device_cmd_table()
-        self.newline()
-
-        write(
-            'template <typename GetProcAddr, typename Handle, typename FuncP>',
-            file=self.outFile
-        )
-        write(
-            'static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));',
-            file=self.outFile
-        )
-        write('    if (result != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        (*funcp) = result;', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
-        self.generate_load_instance_table_func()
-        self.newline()
-        self.generate_load_device_table_func()
-        self.newline()
+    def endFile(self):
+        """Method override."""
+        KhronosDispatchTableGenerator.generateDispatchTable(self)
 
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -210,117 +143,3 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_instance_cmd_table(self):
-        """Generate instance dispatch table structure."""
-        write('struct VulkanInstanceTable', file=self.outFile)
-        write('{', file=self.outFile)
-
-        for name in self.instance_cmd_names:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name
-            )
-            write(decl, file=self.outFile)
-
-        write('};', file=self.outFile)
-
-    def generate_device_cmd_table(self):
-        """Generate device dispatch table structure."""
-        write('struct VulkanDeviceTable', file=self.outFile)
-        write('{', file=self.outFile)
-
-        for name in self.device_cmd_names:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name
-            )
-            write(decl, file=self.outFile)
-
-        write('};', file=self.outFile)
-
-    def generate_no_op_funcs(self):
-        """Generate no-op function definitions."""
-        write('GFXRECON_BEGIN_NAMESPACE(noop)', file=self.outFile)
-        write('// clang-format off', file=self.outFile)
-
-        for name in self.instance_cmd_names:
-            write(self.instance_cmd_names[name], file=self.outFile)
-
-        for name in self.device_cmd_names:
-            write(self.device_cmd_names[name], file=self.outFile)
-
-        write('// clang-format on', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(noop)', file=self.outFile)
-
-    def generate_load_instance_table_func(self):
-        """Generate function to set the instance table's functions with a getprocaddress routine."""
-        write(
-            'static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(table != nullptr);', file=self.outFile)
-        self.newline()
-
-        for name in self.instance_cmd_names:
-            if name == 'vkGetInstanceProcAddr':
-                write(
-                    '    table->GetInstanceProcAddr = gpa;', file=self.outFile
-                )
-            else:
-                expr = '    LoadVulkanFunction(gpa, instance, "{}", &table->{});'.format(
-                    name, name[2:]
-                )
-                write(expr, file=self.outFile)
-
-        write('}', file=self.outFile)
-
-    def generate_load_device_table_func(self):
-        """Generate function to set the device table's functions with a getprocaddress routine."""
-        write(
-            'static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(table != nullptr);', file=self.outFile)
-        self.newline()
-
-        for name in self.device_cmd_names:
-            if name == 'vkGetDeviceProcAddr':
-                write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
-            else:
-                expr = '    LoadVulkanFunction(gpa, device, "{}", &table->{});'.format(
-                    name, name[2:]
-                )
-                write(expr, file=self.outFile)
-
-        write('}', file=self.outFile)
-
-    def make_full_typename(self, value):
-        """Generate the full typename for the NoOp function parameters; the array types need the [] moved from the parameter name to the parameter typename."""
-        if value.is_array and not value.is_dynamic:
-            return '{}[{}]'.format(value.full_type, value.array_capacity)
-        else:
-            return value.full_type
-
-    def make_cmd_decl(self, return_type, proto, values, name):
-        """Generate a function prototype for the NoOp functions, with a parameter list that only includes types."""
-        params = ', '.join(
-            [self.make_full_typename(value) for value in values]
-        )
-        if return_type == 'void':
-            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
-                proto, params, name
-            )
-        else:
-            return_value = ''
-            if return_type in self.RETURN_DEFAULTS:
-                return_value = self.RETURN_DEFAULTS[return_type]
-            else:
-                print(
-                    'Unrecognized return type {} for no-op function generation; returning a zero initialized value'
-                    .format(return_type)
-                )
-                return_value = '{}{{}}'.format(return_type)
-            return 'inline {}({}) {{ GFXRECON_LOG_WARNING_ONCE("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
-                proto, params, name, return_value
-            )

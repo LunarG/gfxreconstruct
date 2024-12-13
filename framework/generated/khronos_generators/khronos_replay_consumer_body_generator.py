@@ -121,7 +121,7 @@ class KhronosReplayConsumerBodyGenerator():
 
         call_expr = ''
         if is_override:
-            if self.is_core_create_command(name):
+            if self.is_core_create_command(name, True):
                 call_expr = '{}(returnValue, {})'.format(
                     self.REPLAY_OVERRIDES[name], arglist
                 )

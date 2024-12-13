@@ -1794,7 +1794,7 @@ class KhronosBaseGenerator(OutputGenerator):
             return True
         return False
 
-    def is_core_create_command(self, command_name):
+    def is_core_create_command(self, command_name, count_layer_func = False):
         '''
         Is this either an instance or device (if supported) creation command?
         May be overidden.
@@ -1803,7 +1803,7 @@ class KhronosBaseGenerator(OutputGenerator):
         if (
             len(command_name) > 0 and (
                 command_name == api_data.create_instance_app_func
-                or command_name == api_data.create_instance_layer_func or (
+                or (count_layer_func and command_name == api_data.create_instance_layer_func) or (
                     api_data.has_device
                     and command_name == api_data.create_device_func
                 )
