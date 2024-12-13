@@ -35,6 +35,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
 #include "util/defines.h"
+
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
 #include "vk_video/vulkan_video_codec_h264std_decode.h"
@@ -49,7 +50,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -16677,6 +16677,5 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectEXT);
 }
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

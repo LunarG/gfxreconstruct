@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_handle_mappers_header_generator import KhronosStructHandleMappersHeaderGenerator
 
 
-class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructHandleMappersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating function prototypes to map Vulkan struct member handles at file replay."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,11 +52,23 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'decode/common_object_info_table.h',
+            'decode/vulkan_pnext_node.h',
+            'format/platform_types.h',
+            'decode/custom_vulkan_struct_handle_mappers.h',
+            'generated/generated_vulkan_struct_decoders_forward.h',
+            'util/defines.h',
+        ))
+        self.begin_end_file_data.namespaces.extend((
+            'gfxrecon', 'decode'
+        ))
+
 
 class VulkanStructHandleMappersHeaderGenerator(
-    KhronosStructHandleMappersHeaderGenerator, BaseGenerator
+    KhronosStructHandleMappersHeaderGenerator, VulkanBaseGenerator
 ):
-    """VulkanStructHandleMappersHeaderGenerator - subclass of BaseGenerator.
+    """VulkanStructHandleMappersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function prototypes for mapping struct member handles
     when replaying decoded Vulkan API call parameter data.
     Generate C++ functions for Vulkan struct member handle mapping at file replay.
@@ -65,46 +77,19 @@ class VulkanStructHandleMappersHeaderGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        write(
-            '#include "decode/common_object_info_table.h"', file=self.outFile
-        )
-        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write(
-            '#include "decode/custom_vulkan_struct_handle_mappers.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
-            file=self.outFile
-        )
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-
     def endFile(self):
         """Method override."""
         KhronosStructHandleMappersHeaderGenerator.write_struct_handle_mapper_header(self)
 
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

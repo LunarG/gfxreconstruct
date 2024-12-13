@@ -20,29 +20,30 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_type_util_generator import KhronosStructTypeUtilGenerator
 from reformat_code import format_cpp_code
 
-VulkanSTypeUtilGeneratorOptions = BaseGeneratorOptions
+VulkanSTypeUtilGeneratorOptions = VulkanBaseGeneratorOptions
 
-class VulkanSTypeUtilGenerator(BaseGenerator, KhronosStructTypeUtilGenerator):
-    """VulkanSTypeUtilGenerator - subclass of BaseGenerator.
+class VulkanSTypeUtilGenerator(VulkanBaseGenerator, KhronosStructTypeUtilGenerator):
+    """VulkanSTypeUtilGenerator - subclass of VulkanBaseGenerator.
     Generates C++ utility header to do compile-time lookups between Vulkan
     structure types and their corresponding VkStructureType values
     """
     def __init__(self, **kwargs):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             **kwargs
         )
 
     def beginFile(self, gen_opts):
-        BaseGenerator.beginFile(self, gen_opts)
+        KhronosStructTypeUtilGenerator.update_begin_end_file_data(gen_opts.begin_end_file_data)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
         KhronosStructTypeUtilGenerator.write_struct_type_prefix(self, gen_opts)
 
     def endFile(self):
         KhronosStructTypeUtilGenerator.write_struct_type_data(self)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)

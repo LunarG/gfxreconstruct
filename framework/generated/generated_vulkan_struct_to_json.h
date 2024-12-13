@@ -34,7 +34,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsVuiFlags* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264HrdParameters* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SequenceParameterSetVui* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1192,7 +1191,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksInd
 /// Works out the type of the struct at the end of a pNext pointer and dispatches
 /// recursively to the FieldToJson for that.
 void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const util::JsonOptions& options = util::JsonOptions());
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

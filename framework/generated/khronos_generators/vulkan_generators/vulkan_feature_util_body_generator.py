@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ code to alter Vulkan device createtion features."""
 
     def __init__(
@@ -37,7 +37,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             platform_types=platform_types,
             filename=filename,
@@ -48,9 +48,22 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'decode/vulkan_feature_util.h',
+            '',
+            'util/logging.h',
+            '',
+            'format/platform_types.h',
+        ))
+        self.begin_end_file_data.namespaces.extend((
+            'gfxrecon',
+            'decode',
+            'feature_util',
+        ))
+        self.begin_end_file_data.common_api_headers = []
 
-class VulkanFeatureUtilBodyGenerator(BaseGenerator):
-    """VulkanFeatureUtilBodyGenerator - subclass of BaseGenerator.
+class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
+    """VulkanFeatureUtilBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions to alter Vulkan device creation features.
     Generate C++ code to alter Vulkan device creation features.
     """
@@ -58,7 +71,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -69,35 +82,18 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         # List of 1.0 features
         self.physical_device_features = []
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        write('#include "decode/vulkan_feature_util.h"', file=self.outFile)
-        self.newline()
-        write('#include "util/logging.h"', file=self.outFile)
-        self.newline()
-        write('#include "format/platform_types.h"', file=self.outFile)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(feature_util)', file=self.outFile)
-
     def endFile(self):
         """Method override."""
         self.newline()
         write(self.make_feature_helper(), file=self.outFile)
         self.newline()
-        write('GFXRECON_END_NAMESPACE(feature_util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
             # Track this struct if it can be present in a pNext chain for features

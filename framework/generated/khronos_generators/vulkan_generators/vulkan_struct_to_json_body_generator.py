@@ -22,12 +22,12 @@
 #
 
 import sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_struct_to_json_body_generator import KhronosStructToJsonBodyGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
 
-class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructToJsonBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
 
     def __init__(
@@ -41,7 +41,7 @@ class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,17 +52,23 @@ class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
             protect_feature,
             extra_headers=extra_headers
         )
+        self.begin_end_file_data.specific_headers.extend((
+            'generated_vulkan_struct_to_json.h',
+            'generated_vulkan_enum_to_json.h',
+            'util/to_string.h',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
-
-# VulkanStructToJsonBodyGenerator - subclass of BaseGenerator.
+# VulkanStructToJsonBodyGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for serializing Vulkan API structures to JSON.
-class VulkanStructToJsonBodyGenerator(BaseGenerator, KhronosStructToJsonBodyGenerator):
+class VulkanStructToJsonBodyGenerator(VulkanBaseGenerator, KhronosStructToJsonBodyGenerator):
     """Generate C++ functions for Vulkan FieldToJson(...) functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -106,34 +112,11 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator, KhronosStructToJsonBodyGene
         )
 
     # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        body = format_cpp_code('''
-            #include "generated_vulkan_struct_to_json.h"
-            #include "generated_vulkan_enum_to_json.h"
-            #include "util/to_string.h"
-
-            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(decode)
-        ''')
-        write(body, file=self.outFile)
-    # yapf: enable
-
-    # Method override
-    # yapf: disable
     def endFile(self):
         KhronosStructToJsonBodyGenerator.write_body_contents(self)
 
-        body = format_cpp_code('''
-            GFXRECON_END_NAMESPACE(decode)
-            GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
-        write(body, file=self.outFile)
-
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
-    # yapf: enable
+        VulkanBaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.

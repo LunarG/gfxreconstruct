@@ -23,10 +23,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, json, write
 
 
-class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanApiCallEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding."""
 
     def __init__(
@@ -41,7 +41,7 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -54,9 +54,27 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         )
         self.capture_overrides = capture_overrides
 
+        begin_end = self.begin_end_file_data
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_api_call_encoders.h',
+            '',
+            'encode/custom_vulkan_encoder_commands.h',
+            'encode/custom_vulkan_array_size_2d.h',
+            'encode/parameter_encoder.h',
+            'encode/struct_pointer_encoder.h',
+            'encode/vulkan_capture_manager.h',
+            'encode/vulkan_handle_wrapper_util.h',
+            'encode/vulkan_handle_wrappers.h',
+            'format/api_call_id.h',
+            'generated/generated_vulkan_command_buffer_util.h',
+            'generated/generated_vulkan_struct_handle_wrappers.h',
+            'util/defines.h',
+        ))
+        begin_end.namespaces.extend(('gfxrecon', 'encode'))
 
-class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
-    """VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
+
+class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
+    """VulkanApiCallEncodersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call
     parameter data.
     Generate C++ functions for Vulkan API parameter encoding.
@@ -75,7 +93,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -84,47 +102,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.capture_overrides:
             self.__load_capture_overrides(gen_opts.capture_overrides)
-
-        write(
-            '#include "generated/generated_vulkan_api_call_encoders.h"',
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '#include "encode/custom_vulkan_encoder_commands.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "encode/custom_vulkan_array_size_2d.h"',
-            file=self.outFile
-        )
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/vulkan_capture_manager.h"', file=self.outFile)
-        write(
-            '#include "encode/vulkan_handle_wrapper_util.h"',
-            file=self.outFile
-        )
-        write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
-        write('#include "format/api_call_id.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_vulkan_command_buffer_util.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -143,11 +124,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             write(cmddef, file=self.outFile)
 
         self.newline()
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

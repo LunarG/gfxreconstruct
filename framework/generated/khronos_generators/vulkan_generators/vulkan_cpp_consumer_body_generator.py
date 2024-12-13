@@ -17,7 +17,7 @@
 # limitations under the License.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 # Copyright text prefixing all headers (list of strings).
 CPP_PREFIX_STRING = [
@@ -51,7 +51,7 @@ CPP_PREFIX_STRING = [
     ''
 ]
 
-# TODO: Copied from base_generator.py.
+# TODO: Copied from vulkan_base_generator.py.
 def makeREstring(argList, defaultValue = None):
     if (len(argList) > 0) or (defaultValue is None):
         return '^(' + '|'.join(argList) + ')$'
@@ -522,7 +522,7 @@ def makeParamList(cmdInfo, additionalParams):
     return ', '.join(paramList)
 
 
-class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanCppConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP source generation"""
 
     def __init__(
@@ -536,7 +536,7 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -548,9 +548,25 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'generated/generated_vulkan_cpp_consumer.h',
+            '',
+            'decode/vulkan_cpp_consumer_base.h',
+            'decode/vulkan_cpp_structs.h',
+            'generated/generated_vulkan_cpp_structs.h',
+            'generated/generated_vulkan_enum_to_string.h',
+            'generated/generated_vulkan_cpp_consumer_extension.h',
+            'util/defines.h',
+        ))
+        self.begin_end_file_data.system_headers.extend((
+            'iostream',
+            'sstream',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
-class VulkanCppConsumerBodyGenerator(BaseGenerator):
-    """VulkanCppConsumerBodyGenerator - subclass of BaseGenerator.
+
+class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
+    """VulkanCppConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanCppConsumer class responsible for
     generating a textfile containing decoded Vulkan API call parameter data.
     """
@@ -558,7 +574,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
      ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -580,36 +596,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
-
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        self.writeout('#include "generated/generated_vulkan_cpp_consumer.h"')
-        self.newline()
-        self.writeout('#include "decode/vulkan_cpp_consumer_base.h"')
-        self.writeout('#include "decode/vulkan_cpp_structs.h"')
-        self.writeout('#include "generated/generated_vulkan_cpp_structs.h"')
-        self.writeout('#include "generated/generated_vulkan_enum_to_string.h"')
-        self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
-        self.writeout('#include "util/defines.h"')
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
-        self.writeout('#include <iostream>')
-        self.writeout('#include <sstream>')
-        self.newline()
-        self.writeout('GFXRECON_BEGIN_NAMESPACE(gfxrecon)')
-        self.writeout('GFXRECON_BEGIN_NAMESPACE(decode)')
-        self.newline()
-
-    def endFile(self):
-        """Method override."""
-        self.newline()
-        self.writeout('GFXRECON_END_NAMESPACE(decode)')
-        self.writeout('GFXRECON_END_NAMESPACE(gfxrecon)')
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.

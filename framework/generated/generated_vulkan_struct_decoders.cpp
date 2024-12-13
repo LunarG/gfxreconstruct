@@ -36,7 +36,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
 size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH264SpsVuiFlags* wrapper)

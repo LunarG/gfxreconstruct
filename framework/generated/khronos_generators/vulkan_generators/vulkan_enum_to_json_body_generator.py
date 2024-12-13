@@ -21,12 +21,12 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_enum_to_json_body_generator import KhronosEnumToJsonBodyGenerator
 from reformat_code import format_cpp_code
 
 
-class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToJsonBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan FieldToJson() functions"""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
         protectFeature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,10 +52,17 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'generated_vulkan_enum_to_json.h',
+            'util/to_string.h',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
-# VulkanEnumToStringBodyGenerator - subclass of BaseGenerator.
+
+# VulkanEnumToStringBodyGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToJsonBodyGenerator(BaseGenerator, KhronosEnumToJsonBodyGenerator):
+class VulkanEnumToJsonBodyGenerator(VulkanBaseGenerator, KhronosEnumToJsonBodyGenerator):
     """Generate C++ functions for Vulkan FieldToJson() functions"""
 
     SKIP_ENUM = [
@@ -64,7 +71,7 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator, KhronosEnumToJsonBodyGenerato
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -76,34 +83,13 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator, KhronosEnumToJsonBodyGenerato
         #   enums that should be skipped.
         self.processedEnums = set()
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        body = format_cpp_code('''
-            #include "generated_vulkan_enum_to_json.h"
-            #include "util/to_string.h"
-
-            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(decode)
-        ''')
-        write(body, file=self.outFile)
-        self.newline()
-    # yapf: enable
 
     # Method override
-    # yapf: disable
     def endFile(self):
         KhronosEnumToJsonBodyGenerator.make_decls(self)
-        body = format_cpp_code('''
-            GFXRECON_END_NAMESPACE(decode)
-            GFXRECON_END_NAMESPACE(gfxrecon)
-        ''')
-        write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
-    # yapf: enable
+        VulkanBaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.

@@ -47,7 +47,6 @@
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-
 const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
     { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateInstance) },
     { "vkDestroyInstance",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::vkDestroyInstance) },

@@ -31,6 +31,7 @@
 #define  GFXRECON_GENERATED_VULKAN_CPP_STRUCTS_H
 
 #include "util/defines.h"
+
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
 #include "vk_video/vulkan_video_codec_h264std_decode.h"
@@ -2333,6 +2334,5 @@ std::string GenerateStruct_VkPhysicalDeviceMeshShaderPropertiesEXT(std::ostream 
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
 
 #endif

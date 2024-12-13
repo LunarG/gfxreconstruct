@@ -29,15 +29,18 @@ class KhronosStructTypeUtilGenerator():
     structure types and their corresponding enum values
     """
 
-    def write_struct_type_prefix(self, gen_opts):
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.write_includes_of_common_api_headers(gen_opts)
-        self.newline()
+    @staticmethod
+    def update_begin_end_file_data(begin_end):
+        begin_end.specific_headers.extend((
+        'format/platform_types.h',
+        'util/defines.h',
+        ))
 
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        begin_end.namespaces.extend((
+        'gfxrecon', 'util'
+        ))
+
+    def write_struct_type_prefix(self, gen_opts):
         self.newline()
 
         current_api_data = self.get_api_data()
@@ -75,5 +78,3 @@ class KhronosStructTypeUtilGenerator():
                 )
 
         self.newline()
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

@@ -21,12 +21,12 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_json_consumer_body_generator import KhronosExportJsonConsumerBodyGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
-class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, KhronosExportJsonConsumerBodyGenerator):
+class VulkanExportJsonConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions, KhronosExportJsonConsumerBodyGenerator):
     """Options for generating a C++ class for Vulkan capture file to JSON file generation."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, Khronos
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,9 +52,16 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, Khronos
             extra_headers=extra_headers
         )
 
+        self.begin_end_file_data.specific_headers.extend((
+            'util/defines.h',
+            'generated/generated_vulkan_json_consumer.h',
+            'decode/custom_vulkan_struct_to_json.h',
+        ))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
-class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonConsumerBodyGenerator):
-    """VulkanExportJsonConsumerBodyGenerator - subclass of BaseGenerator.
+
+class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJsonConsumerBodyGenerator):
+    """VulkanExportJsonConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanExportJsonConsumer class responsible for
     generating a textfile containing decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file to JSON file generation.
@@ -63,7 +70,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -94,24 +101,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
             "vkQueueSubmit2KHR",
             }
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        includes = format_cpp_code('''
-            #include "util/defines.h"
-            #include "generated/generated_vulkan_json_consumer.h"
-            #include "decode/custom_vulkan_struct_to_json.h"
-        ''')
-        write(includes, file=self.outFile)
-        self.write_includes_of_common_api_headers(gen_opts)
-        namespace = remove_trailing_newlines(indent_cpp_code('''
-            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(decode)
-
-        '''))
-        write(namespace, file=self.outFile)
-
     def endFile(self):
         """Method override."""
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
@@ -122,14 +111,8 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
 
         KhronosExportJsonConsumerBodyGenerator.generate_json_content(self)
 
-        body = format_cpp_code('''
-            GFXRECON_END_NAMESPACE(decode)
-            GFXRECON_END_NAMESPACE(gfxrecon)
-        ''')
-        write(body, file=self.outFile)
-
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

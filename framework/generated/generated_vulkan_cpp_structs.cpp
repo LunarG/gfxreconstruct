@@ -32,6 +32,7 @@
 #include "generated/generated_vulkan_cpp_consumer.h"
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -23464,4 +23465,3 @@ std::string GenerateStruct_VkPhysicalDeviceMeshShaderPropertiesEXT(std::ostream 
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
