@@ -48,7 +48,7 @@ class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -59,7 +59,7 @@ class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
         self.class_name = class_name
         self.base_class_header = base_class_header
@@ -81,9 +81,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -103,7 +100,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -140,6 +137,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             '    ~{}() {{ }}'.format(gen_opts.class_name),
             file=self.outFile
         )
+        self.newline()
 
     def endFile(self):
         """Method override."""
@@ -159,7 +157,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
@@ -175,7 +172,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             cmddef = decl + ';\n'
 
             write(cmddef, file=self.outFile)
-            first = False
 
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())

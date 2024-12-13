@@ -31,7 +31,6 @@ class KhronosBaseReplayConsumerBodyGenerator():
         """Performs C++ code generation for the feature."""
         platform_type = self.get_api_prefix()
 
-        first = True
         for cmd in self.get_filtered_cmd_names():
 
             if self.is_resource_dump_class() and self.is_dump_resources_api_call(cmd) == False:
@@ -41,7 +40,7 @@ class KhronosBaseReplayConsumerBodyGenerator():
             return_type = info[0]
             values = info[2]
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             if self.is_resource_dump_class():
                 cmddef += self.make_dump_resources_func_decl(
                     return_type,
@@ -59,4 +58,3 @@ class KhronosBaseReplayConsumerBodyGenerator():
             cmddef += '}'
 
             write(cmddef, file=self.outFile)
-            first = False

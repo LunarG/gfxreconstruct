@@ -38,7 +38,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
         prefixText='',
         protectFile=False,
         protectFeature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -49,7 +49,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
             prefixText,
             protectFile,
             protectFeature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -66,9 +66,6 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -141,7 +138,6 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
-        self.feature_break = False
         if self.feature_struct_members:
             return True
         return False

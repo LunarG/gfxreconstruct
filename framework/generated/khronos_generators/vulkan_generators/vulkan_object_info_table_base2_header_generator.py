@@ -36,7 +36,7 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -47,7 +47,7 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -59,9 +59,6 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file

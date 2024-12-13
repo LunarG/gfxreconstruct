@@ -37,7 +37,7 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -48,7 +48,7 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -63,9 +63,6 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -78,13 +75,23 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
+            proto = info[1]
+            values = info[2]
+
+            cmddef = '\n'
+            cmddef += self.make_cmd_decl(proto, values)
+
+            write(cmddef, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -97,20 +104,6 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            proto = info[1]
-            values = info[2]
-
-            cmddef = '' if first else '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-
-            write(cmddef, file=self.outFile)
-            first = False
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""

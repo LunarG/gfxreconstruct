@@ -141,14 +141,14 @@ def _getExtraVulkanHeaders(extraHeadersDir):
     Recursively get a list of extra Vulkan headers used in the generated code,
     that are included after vulkan/vulkan.h is included
     '''
-    extraVulkanHeaders = []
+    extra_headers = []
     for child in os.listdir(extraHeadersDir):
         childPath = os.path.join(extraHeadersDir, child)
         if os.path.isdir(childPath):
-            extraVulkanHeaders.extend(_getExtraVulkanHeaders(childPath))
+            extra_headers.extend(_getExtraVulkanHeaders(childPath))
         else:
-            extraVulkanHeaders.append(childPath)
-    return extraVulkanHeaders
+            extra_headers.append(childPath)
+    return extra_headers
 
 
 def getExtraVulkanHeaders(extraHeadersDir):
@@ -231,9 +231,9 @@ def make_gen_opts(args):
         '**', '*/', ''
     ]
 
-    extraVulkanHeaders = []
+    extra_headers = []
     if args.headers_dir is not None:
-        extraVulkanHeaders = getExtraVulkanHeaders(args.headers_dir)
+        extra_headers = getExtraVulkanHeaders(args.headers_dir)
 
     #
     # API call decoder generators
@@ -247,7 +247,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -261,7 +261,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -277,7 +277,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -291,7 +291,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -305,7 +305,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -317,7 +317,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -336,7 +336,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -365,7 +365,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -384,7 +384,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -413,7 +413,7 @@ def make_gen_opts(args):
             prefix_text        = prefix_strings + vk_prefix_strings,
             protect_file       = False,
             protect_feature    = False,
-            extraVulkanHeaders=extraVulkanHeaders)
+            extra_headers=extra_headers)
     ]
 
     gen_opts['generated_vulkan_cpp_structs.h'] = [
@@ -477,7 +477,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -492,7 +492,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -512,7 +512,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -526,7 +526,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -539,7 +539,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -552,7 +552,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -565,7 +565,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -581,7 +581,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -596,7 +596,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -610,7 +610,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -624,7 +624,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -636,7 +636,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -648,7 +648,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -664,7 +664,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -678,7 +678,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -690,7 +690,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -703,7 +703,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -716,7 +716,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -732,7 +732,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -746,7 +746,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -760,7 +760,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -774,7 +774,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -791,7 +791,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -805,7 +805,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -819,7 +819,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -833,7 +833,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -847,7 +847,7 @@ def make_gen_opts(args):
             prefixText=prefix_strings + vk_prefix_strings,
             protectFile=True,
             protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -861,7 +861,7 @@ def make_gen_opts(args):
             prefixText=prefix_strings + vk_prefix_strings,
             protectFile=False,
             protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -875,7 +875,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -889,7 +889,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -903,7 +903,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 
@@ -917,7 +917,7 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
     ]
 

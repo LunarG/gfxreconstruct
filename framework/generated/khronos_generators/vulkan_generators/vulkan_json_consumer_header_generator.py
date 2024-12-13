@@ -40,7 +40,7 @@ class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         VulkanConsumerHeaderGeneratorOptions.__init__(
             self,
@@ -55,7 +55,7 @@ class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -85,8 +85,6 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
-
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
         # of functions and structures not to generate code for. Once the feature is implemented, the following can be
         # replaced with adding vkCreateRayTracingPipelinesKHR in corresponding blacklist.
@@ -103,7 +101,7 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
                     return_type, 'Process_' + cmd, values
                 )
 
-                cmddef = '' if first else '\n'
+                cmddef = '\n'
                 if self.genOpts.is_override:
                     cmddef += self.indent(
                         'virtual ' + decl + ' override;', self.INDENT_SIZE
@@ -114,4 +112,3 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
                     )
 
                 write(cmddef, file=self.outFile)
-                first = False

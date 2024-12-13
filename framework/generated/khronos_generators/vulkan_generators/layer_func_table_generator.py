@@ -38,7 +38,7 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -49,7 +49,7 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -64,9 +64,6 @@ class LayerFuncTableGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -99,7 +96,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
@@ -112,6 +109,18 @@ class LayerFuncTableGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            align = 100 - len(cmd)
+            if (cmd in self.LAYER_FUNCTIONS):
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
+            else:
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
+            write(body, file=self.outFile)
+
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by self.LAYER_FUNCTIONS:
         align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
@@ -129,17 +138,3 @@ class LayerFuncTableGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            align = 100 - len(cmd)
-            if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            write(body, file=self.outFile)
