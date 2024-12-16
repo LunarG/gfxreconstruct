@@ -9506,14 +9506,13 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(con
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                                                    call_info,
-    format::HandleId                                                      commandBuffer,
+    const ApiCallInfo&                                                 call_info,
+    format::HandleId                                                   commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
-    Decoded_VkPushDescriptorSetWithTemplateInfo* in_info =
-        pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
-    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
-    VulkanDescriptorUpdateTemplateInfo*     update_template_info =
+    Decoded_VkPushDescriptorSetWithTemplateInfo* in_info = pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
+    VkPushDescriptorSetWithTemplateInfoKHR*      value   = in_info->decoded_value;
+    VulkanDescriptorUpdateTemplateInfo*          update_template_info =
         object_info_table_->GetVkDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
 
     VkCommandBuffer in_commandBuffer =

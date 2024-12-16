@@ -3746,8 +3746,8 @@ void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const A
 }
 
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                                                    call_info,
-    format::HandleId                                                      commandBuffer,
+    const ApiCallInfo&                                                 call_info,
+    format::HandleId                                                   commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
     FILE*       file = GetFrameFile();
@@ -3767,12 +3767,12 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 
     fprintf(file,
             "\t\tVkPushDescriptorSetWithTemplateInfoKHR info;\n\
-		             \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR;\n\
-		             \t\tinfo.pNext = nullptr;\n\
-		             \t\tinfo.descriptorUpdateTemplate = %s;\n\
-		             \t\tinfo.layout = %s\n\
-		             \t\tinfo.set = %u\n\
-		             \t\tinfo.pData = %s\n",
+                        \t\tinfo.sType = VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR;\n\
+                        \t\tinfo.pNext = nullptr;\n\
+                        \t\tinfo.descriptorUpdateTemplate = %s;\n\
+                        \t\tinfo.layout = %s\n\
+                        \t\tinfo.set = %u\n\
+                        \t\tinfo.pData = %s\n",
             this->GetHandle(decoded_info->descriptorUpdateTemplate).c_str(),
             this->GetHandle(decoded_info->layout).c_str(),
             decoded_info->decoded_value->set,

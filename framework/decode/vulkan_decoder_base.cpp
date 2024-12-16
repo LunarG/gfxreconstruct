@@ -378,7 +378,7 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const Ap
 {
     size_t bytes_read = 0;
 
-    format::HandleId                                                     commandBuffer;
+    format::HandleId                                                  commandBuffer;
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
 
     bytes_read +=
