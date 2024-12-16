@@ -1124,6 +1124,14 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
             }
         }
 #endif
+
+        if (auto import_memfd = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(pAllocateInfo_unwrapped))
+        {
+            if (import_memfd->fd >= 0)
+            {
+                memory_wrapper->imported_fd = import_memfd->fd;
+            }
+        }
     }
     else if (external_memory != nullptr)
     {
@@ -1829,6 +1837,108 @@ void VulkanCaptureManager::PostProcess_vkEnumeratePhysicalDeviceGroups(
         std::vector<VkPhysicalDevice> devices(unique_handles.begin(), unique_handles.end());
 
         ProcessEnumeratePhysicalDevices(result, instance, static_cast<uint32_t>(devices.size()), devices.data());
+    }
+}
+
+void VulkanCaptureManager::ProcessImportFd(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset)
+{
+    auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+
+    // create staging buffer, bind this memory, write init buffer command
+    graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
+                                                device_wrapper->physical_device->handle,
+                                                device_wrapper->layer_table,
+                                                *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->physical_device->memory_properties);
+
+    VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
+    if (result == VK_SUCCESS)
+    {
+        std::vector<uint8_t> data;
+        result = resource_util.ReadFromBufferResource(
+            buffer, buffer_wrapper->size, memoryOffset, buffer_wrapper->queue_family_index, data);
+        if (result == VK_SUCCESS)
+        {
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size);
+            WriteInitBufferCmd(
+                device_wrapper->handle_id, buffer_wrapper->handle_id, memoryOffset, buffer_wrapper->size, data.data());
+            WriteEndResourceInitCmd(device_wrapper->handle_id);
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkBindBufferMemory(
+    VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+{
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+    }
+    else if (IsCaptureModeWrite() && (result == VK_SUCCESS))
+    {
+        auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+        if (memory_wrapper->imported_fd >= 0)
+        {
+            ProcessImportFd(device, buffer, memoryOffset);
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult                      result,
+                                                           VkDevice                      device,
+                                                           uint32_t                      bindInfoCount,
+                                                           const VkBindBufferMemoryInfo* pBindInfos)
+{
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            state_tracker_->TrackBufferMemoryBinding(
+                device, pBindInfos[i].buffer, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
+        }
+    }
+    else if (IsCaptureModeWrite() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+    {
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            auto* memory_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
+            if (memory_wrapper->imported_fd >= 0)
+            {
+                ProcessImportFd(device, pBindInfos[i].buffer, pBindInfos[i].memoryOffset);
+            }
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkBindImageMemory(
+    VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+{
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkBindImageMemory2(VkResult                     result,
+                                                          VkDevice                     device,
+                                                          uint32_t                     bindInfoCount,
+                                                          const VkBindImageMemoryInfo* pBindInfos)
+{
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            state_tracker_->TrackImageMemoryBinding(
+                device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
+        }
     }
 }
 

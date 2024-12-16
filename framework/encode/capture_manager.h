@@ -302,6 +302,18 @@ class CommonCaptureManager
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
+    void
+    WriteBeginResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id, uint64_t max_resource_size);
+
+    void WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id);
+
+    void WriteInitBufferCmd(format::ApiFamilyId api_family,
+                            format::HandleId    device_id,
+                            format::HandleId    buffer_id,
+                            uint64_t            offset,
+                            uint64_t            size,
+                            const void*         data);
+
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
     void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
