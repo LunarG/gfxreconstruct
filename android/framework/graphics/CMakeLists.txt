@@ -22,6 +22,7 @@ target_sources(gfxrecon_graphics
 
 target_include_directories(gfxrecon_graphics
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/external
                                ${GFXRECON_SOURCE_DIR}/framework)
