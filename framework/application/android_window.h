@@ -31,9 +31,11 @@
 #include "util/platform.h"
 
 #include <android_native_app_glue.h>
+#include <jni.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
+extern ANativeWindow* tmp_window;
 
 class AndroidWindow : public decode::Window
 {

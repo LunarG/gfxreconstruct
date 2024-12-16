@@ -1,7 +1,7 @@
 add_library(gfxrecon_application STATIC "")
 
 target_sources(gfxrecon_application
-               PRIVATE
+               PUBLIC
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_context.h
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_context.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_window.h
@@ -10,6 +10,7 @@ target_sources(gfxrecon_application
                    ${GFXRECON_SOURCE_DIR}/framework/application/application.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.h
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/application/android_jni.cpp
               )
 
 target_include_directories(gfxrecon_application
