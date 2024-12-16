@@ -777,6 +777,39 @@ class VulkanCaptureManager : public ApiCaptureManager
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
         }
+        else if (IsCaptureModeWrite() && (result == VK_SUCCESS))
+        {
+            auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+            auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+            auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+
+            if (memory_wrapper->imported_fd >= 0)
+            {
+                // create staging buffer, bind this memory, write init buffer command
+                graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
+                                                            device_wrapper->physical_device->handle,
+                                                            device_wrapper->layer_table,
+                                                            *device_wrapper->physical_device->layer_table_ref,
+                                                            device_wrapper->physical_device->memory_properties);
+                VkResult                      staging_result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
+                if (staging_result == VK_SUCCESS)
+                {
+                    std::vector<uint8_t> data;
+                    staging_result = resource_util.ReadFromBufferResource(
+                        buffer, buffer_wrapper->size, memoryOffset, buffer_wrapper->queue_family_index, data);
+                    if (staging_result == VK_SUCCESS)
+                    {
+                        WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size);
+                        WriteInitBufferCmd(device_wrapper->handle_id,
+                                           buffer_wrapper->handle_id,
+                                           memoryOffset,
+                                           buffer_wrapper->size,
+                                           data.data());
+                        WriteEndResourceInitCmd(device_wrapper->handle_id);
+                    }
+                }
+            }
+        }
     }
 
     void PostProcess_vkBindBufferMemory2(VkResult                      result,
