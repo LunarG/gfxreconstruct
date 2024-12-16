@@ -1457,6 +1457,119 @@ void CommonCaptureManager::WriteFillMemoryCmd(
     }
 }
 
+void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
+                                                     format::HandleId    device_id,
+                                                     uint64_t            max_resource_size)
+{
+    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    {
+        return;
+    }
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
+
+    format::BeginResourceInitCommand init_cmd;
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    init_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
+    init_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family, format::MetaDataType::kBeginResourceInitCommand);
+    init_cmd.thread_id         = thread_data->thread_id_;
+    init_cmd.device_id         = device_id;
+    init_cmd.max_resource_size = max_resource_size;
+    init_cmd.max_copy_size     = max_resource_size;
+
+    WriteToFile(&init_cmd, sizeof(init_cmd));
+}
+
+void CommonCaptureManager::WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id)
+{
+    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    {
+        return;
+    }
+
+    format::EndResourceInitCommand init_cmd;
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    init_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
+    init_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family, format::MetaDataType::kEndResourceInitCommand);
+    init_cmd.thread_id = thread_data->thread_id_;
+    init_cmd.device_id = device_id;
+
+    WriteToFile(&init_cmd, sizeof(init_cmd));
+}
+
+void CommonCaptureManager::WriteInitBufferCmd(format::ApiFamilyId api_family,
+                                              format::HandleId    device_id,
+                                              format::HandleId    buffer_id,
+                                              uint64_t            offset,
+                                              uint64_t            size,
+                                              const void*         data)
+{
+    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    {
+        return;
+    }
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+    format::InitBufferCommandHeader init_cmd;
+    size_t                          header_size       = sizeof(format::InitBufferCommandHeader);
+    const uint8_t*                  uncompressed_data = (static_cast<const uint8_t*>(data) + offset);
+    size_t                          uncompressed_size = static_cast<size_t>(size);
+
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    init_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    init_cmd.meta_header.meta_data_id = format::MakeMetaDataId(api_family, format::MetaDataType::kInitBufferCommand);
+    init_cmd.thread_id                = thread_data->thread_id_;
+    init_cmd.device_id                = device_id;
+    init_cmd.buffer_id                = buffer_id;
+    init_cmd.data_size                = size;
+
+    bool not_compressed = true;
+
+    if (compressor_ != nullptr)
+    {
+        size_t compressed_size =
+            compressor_->Compress(uncompressed_size, uncompressed_data, &thread_data->compressed_buffer_, header_size);
+
+        if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+        {
+            not_compressed = false;
+
+            // We don't have a special header for compressed fill commands because the header always includes
+            // the uncompressed size, so we just change the type to indicate the data is compressed.
+            init_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+            // Calculate size of packet with uncompressed data size.
+            init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + compressed_size;
+
+            // Copy header to beginning of compressed_buffer_
+            util::platform::MemoryCopy(thread_data->compressed_buffer_.data(), header_size, &init_cmd, header_size);
+
+            WriteToFile(thread_data->compressed_buffer_.data(), header_size + compressed_size);
+        }
+    }
+
+    if (not_compressed)
+    {
+        // Calculate size of packet with compressed data size.
+        init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + uncompressed_size;
+
+        CombineAndWriteToFile({ { &init_cmd, header_size }, { uncompressed_data, uncompressed_size } });
+    }
+}
+
 void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family,
                                                         uint64_t            allocation_id,
                                                         uint64_t            allocation_size)
