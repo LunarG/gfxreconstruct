@@ -23,11 +23,11 @@
 
 import json
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
-class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanReplayDumpResourcesBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -40,9 +40,9 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -51,15 +51,15 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
         self.dump_resources_overrides = dump_resources_overrides
 
 
 class VulkanReplayDumpResourcesBodyGenerator(
-    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, VulkanBaseGenerator
 ):
-    """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
+    """VulkanReplayDumpResourcesBodyGenerator - subclass of VulkanBaseGenerator.
     """
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
@@ -74,8 +74,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
-    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
-
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
 
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
@@ -83,30 +81,16 @@ class VulkanReplayDumpResourcesBodyGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # Map of struct types to associated VkStructureType.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
-
-        if gen_opts.dump_resources_overrides:
-            self.__load_replay_overrides(gen_opts.dump_resources_overrides)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "generated/generated_vulkan_replay_dump_resources.h"',
@@ -122,26 +106,22 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        api_data = self.get_api_data()
+
+        KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self, api_data)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
-
-    def make_consumer_func_body(self, return_type, name, values):
-        """Return VulkanReplayConsumer class member function definition."""
+    def make_consumer_func_body(self, api_data, return_type, name, values):
+        """
+        Method override.
+        Return VulkanReplayConsumer class member function definition.
+        """
         body = ''
 
         is_override = name in self.DUMP_RESOURCES_OVERRIDES
@@ -196,7 +176,3 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
 
         return body
-
-    def __load_replay_overrides(self, filename):
-        overrides = json.loads(open(filename, 'r').read())
-        self.DUMP_RESOURCES_OVERRIDES = overrides['functions']

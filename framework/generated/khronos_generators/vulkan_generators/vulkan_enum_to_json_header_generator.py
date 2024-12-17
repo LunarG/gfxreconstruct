@@ -21,10 +21,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import *
+from vulkan_base_generator import *
+from khronos_enum_to_json_header_generator import KhronosEnumToJsonHeaderGenerator
 from reformat_code import format_cpp_code
 
-class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -36,9 +37,9 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         prefixText='',
         protectFile=False,
         protectFeature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -47,13 +48,13 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
             prefixText,
             protectFile,
             protectFeature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
+class VulkanEnumToJsonHeaderGenerator(VulkanBaseGenerator, KhronosEnumToJsonHeaderGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
 
     SKIP_ENUM = [
@@ -62,29 +63,17 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = set()
-
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagBitsType = dict()
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         includes = format_cpp_code('''
             #include "format/platform_types.h"
             #include "util/json_util.h"
@@ -93,7 +82,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         )
 
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         write("", file=self.outFile)
         namespace = format_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -106,7 +95,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
     # yapf: disable
     def endFile(self):
         self.newline()
-        self.make_decls()
+        KhronosEnumToJsonHeaderGenerator.make_decls(self)
 
         self.newline()
         body = format_cpp_code('''
@@ -116,59 +105,12 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
-        self.feature_break = False
         if self.feature_struct_members:
             return True
         return False
-
-
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagBitsType[bittype] = name
-
-    def make_decls(self):
-        for flag in sorted(self.flagsType):
-            body = 'struct {0}_t {{ }};'
-            write(body.format(flag), file=self.outFile)
-
-
-        for enum in sorted(self.enum_names):
-            if not enum in self.enumAliases:
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                    body = 'struct {0}_t {{ }};'
-                    write(body.format(enum), file=self.outFile)
-
-        self.newline()
-        for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    else:
-                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    write(body.format(enum), file=self.outFile)
-
-        for flag in sorted(self.flagsType):
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flagsType[flag]), file=self.outFile)

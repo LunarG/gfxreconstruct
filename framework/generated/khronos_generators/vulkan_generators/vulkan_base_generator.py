@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018-2021 Valve Corporation
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -43,7 +43,7 @@
 
 import os,re,sys,json
 from collections import OrderedDict
-from khronos_base_generator import (KhronosBaseGeneratorOptions, KhronosBaseGenerator, BitsEnumToFlagsTypedef, make_re_string, remove_suffix, ValueInfo, write)
+from khronos_base_generator import (KhronosBaseGeneratorOptions, KhronosBaseGenerator, make_re_string, ValueInfo, write)
 from generator import (OutputGenerator, noneStr, regSortFeatures)
 from vkconventions import VulkanConventions
 
@@ -86,8 +86,8 @@ _emit_extensions_pat = make_re_string(_emit_extensions, '.*')
 _features_pat = make_re_string(_features, '.*')
 
 
-class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
-    """BaseGeneratorOptions - subclass of KhronosGeneratorOptions.
+class VulkanBaseGeneratorOptions(KhronosBaseGeneratorOptions):
+    """VulkanBaseGeneratorOptions - subclass of KhronosGeneratorOptions.
     Options for Vulkan API parameter encoding and decoding C++ code generation.
 
     Adds options used by FrameworkGenerator objects during C++ language
@@ -115,12 +115,19 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         parameter on a separate line
       align_func_param - if nonzero and parameters are being put on a
         separate line, align parameter names at the specified column
+      replay_overrides - Path to JSON file listing Vulkan API calls to
+        override on replay.
+      dump_resources_overrides - Path to JSON file listing Vulkan API
+        calls to override on replay.
+      replay_async_overrides - Path to JSON file listing Vulkan API calls
+        to override on replay.
+      extra_headers - headers to include in addition to the standard Khronos API
     """
 
     def __init__(
         self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        blacklists=None,
+        platform_types=None,
         # Khronos CGeneratorOptions
         filename=None,
         directory='.',
@@ -142,7 +149,10 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         add_extensions=_add_extensions_pat,
         remove_extensions=_remove_extensions_pat,
         emit_extensions=_emit_extensions_pat,
-        extraVulkanHeaders=[]
+        replay_overrides=None,
+        dump_resources_overrides=None,
+        replay_async_overrides=None,
+        extra_headers=[]
     ):
         KhronosBaseGeneratorOptions.__init__(
             self,
@@ -168,12 +178,15 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
             add_extensions=add_extensions,
             remove_extensions=remove_extensions,
             emit_extensions=emit_extensions,
-            extraVulkanHeaders=extraVulkanHeaders
+            replay_overrides=replay_overrides,
+            dump_resources_overrides=dump_resources_overrides,
+            replay_async_overrides=replay_async_overrides,
+            extra_headers=extra_headers
         )
 
 
-class BaseGenerator(KhronosBaseGenerator):
-    """BaseGenerator - subclass of KhronosBaseGenerator.
+class VulkanBaseGenerator(KhronosBaseGenerator):
+    """VulkanBaseGenerator - subclass of KhronosBaseGenerator.
     Base class providing common operations used to generate C++-language code for framework
       components that encode and decode Vulkan API parameters.
     Base class for Vulkan API parameter encoding and decoding generators.
@@ -181,18 +194,12 @@ class BaseGenerator(KhronosBaseGenerator):
 
     def __init__(
         self,
-        process_cmds=False,
-        process_structs=False,
-        feature_break=True,
         err_file=sys.stderr,
         warn_file=sys.stderr,
         diag_file=sys.stdout
     ):
         KhronosBaseGenerator.__init__(
             self,
-            process_cmds=process_cmds,
-            process_structs=process_structs,
-            feature_break=feature_break,
             err_file = err_file,
             warn_file = warn_file,
             diag_file = diag_file)
@@ -251,10 +258,6 @@ class BaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
-        self.DUPLICATE_HANDLE_TYPES = [
-            'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
-        ]
-
         self.VIDEO_TREE = None
 
         self.generate_video = False
@@ -263,8 +266,8 @@ class BaseGenerator(KhronosBaseGenerator):
         """Method override."""
         KhronosBaseGenerator.beginFile(self, gen_opts)
 
-    def includeVulkanHeaders(self, gen_opts):
-        """Write Vulkan header include statements
+    def write_includes_of_common_api_headers(self, gen_opts):
+        """Method override. Write Vulkan header include statements
         """
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         write('#include "vk_video/vulkan_video_codec_h264std.h"', file=self.outFile)
@@ -297,17 +300,14 @@ class BaseGenerator(KhronosBaseGenerator):
         if not self.VIDEO_TREE:
             return
 
-        if self.process_structs:
-            types = self.VIDEO_TREE.find('types')
-            for element in types.iter('type'):
-                name = element.get('name')
-                category = element.get('category')
-                if name and category and (category == 'struct' or category == 'union'):
-                    self.struct_names.add(name)
-                    if category == 'struct':
-                        self.feature_struct_members[name] = self.make_value_info(
-                            element.findall('member')
-                        )
+        types = self.VIDEO_TREE.find('types')
+        for element in types.iter('type'):
+            name = element.get('name')
+            category = element.get('category')
+            if name and category and (category == 'struct' or category == 'union'):
+                self.struct_names.add(name)
+                if category == 'struct':
+                    self.process_struct(element, name, None)
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
@@ -398,7 +398,7 @@ class BaseGenerator(KhronosBaseGenerator):
         has_handle_pointer = False
         map_data = []
         for value in self.feature_struct_members[typename]:
-            if self.is_handle(value.base_type) or self.is_class(value) or (
+            if self.is_handle(value.base_type) or (
                 extra_types and value.base_type in extra_types
             ):
                 # The member is a handle.
@@ -494,11 +494,6 @@ class BaseGenerator(KhronosBaseGenerator):
                     type_name = 'StructPointerDecoder<Decoded_{}>'.format(
                         type_name
                     )
-            elif self.is_class(value):
-                if count == 1:
-                    type_name = 'format::HandleId'
-                else:
-                    type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
             elif type_name == 'wchar_t':
                 if count > 1:
                     type_name = 'WStringArrayDecoder'
@@ -613,7 +608,7 @@ class BaseGenerator(KhronosBaseGenerator):
             type_name = value.base_type
 
             if is_override:
-                prefix_from_type = self.get_prefix_from_type(value.base_type)
+                prefix_from_type = self.get_api_prefix_from_type(value.base_type)
                 info_type = prefix_from_type + value.base_type[2:] + 'Info'
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count
@@ -622,11 +617,6 @@ class BaseGenerator(KhronosBaseGenerator):
                         param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
                             type_name
                         )
-                    elif self.is_class(value):
-                        if count == 1:
-                            param_type = info_type + '*'
-                        else:
-                            param_type = 'HandlePointerDecoder<{}*>'.format(type_name)
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
                         param_type = 'HandlePointerDecoder<{}>*'.format(type_name)
                     else:
@@ -722,18 +712,6 @@ class BaseGenerator(KhronosBaseGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def get_api_prefix(self):
-        """Method override. Start processing in superclass."""
-        return 'Vulkan'
-
-    def get_prefix_from_type(self, type):
-        """Method override. Start processing in superclass."""
-        return self.get_api_prefix()
-
-    def get_wrapper_prefix_from_type(self):
-        """Method override. Start processing in superclass."""
-        return 'vulkan_wrappers'
-
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
     ):
@@ -751,7 +729,7 @@ class BaseGenerator(KhronosBaseGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            wrapper = self.get_wrapper_prefix_from_type()
+            wrapper = self.get_wrapper_prefix_from_type(name)
             arg_name = '{}::GetWrappedId({}, {})'.format(
                 wrapper, arg_name, handle_type_name
             )
@@ -811,7 +789,7 @@ class BaseGenerator(KhronosBaseGenerator):
                 method_call += 'Value'
 
         if is_handle:
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:
@@ -852,27 +830,3 @@ class BaseGenerator(KhronosBaseGenerator):
         if platform and platform in platform_dict:
             return platform_dict[platform]
         return None
-
-    def get_base_input_structure_name(self):
-        """Method override"""
-        return 'VkBaseInStructure'
-
-    def get_base_output_structure_name(self):
-        """Method override"""
-        return 'VkBaseOutStructure'
-
-    def get_struct_type_var_name(self):
-        """Method override"""
-        return 'sType'
-
-    def get_struct_type_func_prefix(self):
-        """Method override"""
-        return 'SType'
-
-    def get_extended_struct_var_name(self):
-        """Method override"""
-        return 'pNext'
-
-    def get_extended_struct_func_prefix(self):
-        """Method override"""
-        return 'PNext'

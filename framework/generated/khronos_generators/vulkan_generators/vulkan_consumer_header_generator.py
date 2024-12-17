@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,10 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_consumer_header_generator import KhronosConsumerHeaderGenerator
 
 
-class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Adds the following new option:
     is_override - Specify whether the member function declarations are
                   virtual function overrides or pure virtual functions.
@@ -45,9 +46,9 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -56,7 +57,7 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
         self.class_name = class_name
         self.base_class_header = base_class_header
@@ -64,8 +65,8 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         self.constructor_args = constructor_args
 
 
-class VulkanConsumerHeaderGenerator(BaseGenerator):
-    """VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
+class VulkanConsumerHeaderGenerator(VulkanBaseGenerator, KhronosConsumerHeaderGenerator):
+    """VulkanConsumerHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member declarations for the VulkanConsumer class responsible for processing
     Vulkan API call parameter data.
     Generate C++ class declarations for Vulkan parameter processing.
@@ -74,11 +75,8 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -86,7 +84,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
@@ -94,53 +92,23 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write(
-            'class {class_name} : public {class_name}Base'.format(
-                class_name=gen_opts.class_name
-            ),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        if gen_opts.constructor_args:
-            arg_list = ', '.join(
-                [
-                    arg.split(' ')[-1]
-                    for arg in gen_opts.constructor_args.split(',')
-                ]
-            )
-            write(
-                '    {class_name}({}) : {class_name}Base({}) {{ }}\n'.format(
-                    gen_opts.constructor_args,
-                    arg_list,
-                    class_name=gen_opts.class_name
-                ),
-                file=self.outFile
-            )
-        else:
-            write(
-                '    {}() {{ }}\n'.format(gen_opts.class_name),
-                file=self.outFile
-            )
-        write(
-            '    virtual ~{}() override {{ }}'.format(gen_opts.class_name),
-            file=self.outFile
-        )
 
     def endFile(self):
         """Method override."""
-        write('};', file=self.outFile)
+        KhronosConsumerHeaderGenerator.output_header_contents(
+            self, self.genOpts.class_name, self.genOpts.constructor_args)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -148,28 +116,3 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            values = info[2]
-
-            decl = self.make_consumer_func_decl(
-                return_type, 'Process_' + cmd, values
-            )
-
-            cmddef = '' if first else '\n'
-            if self.genOpts.is_override:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' override;', self.INDENT_SIZE
-                )
-            else:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' {}', self.INDENT_SIZE
-                )
-
-            write(cmddef, file=self.outFile)
-            first = False

@@ -21,10 +21,11 @@
 # IN THE SOFTWARE.
 
 import os, re, sys, inspect
-from base_generator import *
+from vulkan_base_generator import *
+from khronos_enum_to_string_header_generator import KhronosEnumToStringHeaderGenerator
 
 
-class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToStringHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -36,9 +37,9 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -47,40 +48,29 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToStringHeaderGenerator(BaseGenerator):
+class VulkanEnumToStringHeaderGenerator(VulkanBaseGenerator, KhronosEnumToStringHeaderGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = {
-            'VkAccessFlagBits2KHR',
-            'VkPipelineStageFlagBits2KHR',
-        }
-
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         includes = inspect.cleandoc(
             '''
             #include "format/platform_types.h"
@@ -88,7 +78,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
             '''
         )
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         namespace = inspect.cleandoc(
             '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -101,6 +91,8 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
+        KhronosEnumToStringHeaderGenerator.write_enum_to_string_header(self)
+
         body = inspect.cleandoc('''
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_END_NAMESPACE(gfxrecon)
@@ -108,32 +100,12 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
-        self.feature_break = False
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
-        for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if self.is_flags_enum_64bit(enum):
-                        body = 'std::string {0}ToString(const {0} value);'
-                        body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
-                    else:
-                        body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                        if 'Bits' in enum:
-                            body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
-                          file=self.outFile)
-    # yapf: enable

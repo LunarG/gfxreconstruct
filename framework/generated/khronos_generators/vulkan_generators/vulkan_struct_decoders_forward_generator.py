@@ -22,10 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_struct_decoders_forward_generator import KhronosStructDecodersForwardGenerator
 
 
-class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructDecodersForwardGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function and forward type declarations for Vulkan struct decoding."""
 
     def __init__(
@@ -37,9 +38,9 @@ class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -48,12 +49,12 @@ class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class VulkanStructDecodersForwardGenerator(BaseGenerator):
-    """VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
+class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDecodersForwardGenerator):
+    """VulkanStructDecodersForwardGenerator - subclass of VulkanBaseGenerator.
     Generates C++ type and function declarations for decoding Vulkan API structures.
     Generate C++ function and forward type declarations for Vulkan struct decoding.
     """
@@ -61,11 +62,8 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -73,42 +71,31 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <cstdint>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
 
     def endFile(self):
         """Method override."""
+        KhronosStructDecodersForwardGenerator.write_struct_decoder_forward_prototypes(self)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_struct_members:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            write('struct Decoded_{};'.format(struct), file=self.outFile)
-
-        self.newline()
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )

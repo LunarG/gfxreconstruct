@@ -20,53 +20,29 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_struct_type_util_generator import KhronosStructTypeUtilGenerator
 from reformat_code import format_cpp_code
 
-VulkanSTypeUtilGeneratorOptions = BaseGeneratorOptions
+VulkanSTypeUtilGeneratorOptions = VulkanBaseGeneratorOptions
 
-class VulkanSTypeUtilGenerator(BaseGenerator):
-    """VulkanSTypeUtilGenerator - subclass of BaseGenerator.
+class VulkanSTypeUtilGenerator(VulkanBaseGenerator, KhronosStructTypeUtilGenerator):
+    """VulkanSTypeUtilGenerator - subclass of VulkanBaseGenerator.
     Generates C++ utility header to do compile-time lookups between Vulkan
     structure types and their corresponding VkStructureType values
     """
     def __init__(self, **kwargs):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=False,
-            feature_break=False,
             **kwargs
         )
-        # These are dummy structures that do not have their own VkStructureType values
-        self.missing_stypes = ['VkBaseInStructure', 'VkBaseOutStructure']
 
     def beginFile(self, gen_opts):
-        BaseGenerator.beginFile(self, gen_opts)
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.includeVulkanHeaders(gen_opts)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
-        self.newline()
-        write(format_cpp_code('''
-            // Instantiating the primary template indicates that either the template was
-            // called with an invalid Vulkan struct type or that the code generation is out
-            // of date, both of which are errors
-            template <typename T> VkStructureType GetSType() = delete;'''), file=self.outFile)
-        self.newline()
-
-    def genStruct(self, typeinfo, typename, alias):
-        if not alias and typename not in self.missing_stypes:
-            stype = self.make_structure_type_enum(typeinfo, typename)
-            if stype:
-                write(f'template <> constexpr VkStructureType GetSType<{typename}>(){{ return {stype}; }}', file=self.outFile)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
+        KhronosStructTypeUtilGenerator.write_struct_type_prefix(self, gen_opts)
 
     def endFile(self):
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        KhronosStructTypeUtilGenerator.write_struct_type_data(self)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)

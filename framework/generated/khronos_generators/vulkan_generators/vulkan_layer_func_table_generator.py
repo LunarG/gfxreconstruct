@@ -22,10 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_layer_func_table_generator import KhronosLayerFuncTableGenerator
 
 
-class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
+class VulkanLayerFuncTableGeneratorOptions(VulkanBaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     function table generation.
     Options for Vulkan layer function table C++ code generation.
@@ -38,9 +39,9 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             None,
             None,
@@ -49,12 +50,12 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class LayerFuncTableGenerator(BaseGenerator):
-    """LayerFuncTableGenerator - subclass of BaseGenerator.
+class VulkanLayerFuncTableGenerator(VulkanBaseGenerator, KhronosLayerFuncTableGenerator):
+    """LayerFuncTableGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function table for the Vulkan API calls exported by the layer.
     Generate Vulkan layer function table C++ type declarations.
     """
@@ -62,11 +63,8 @@ class LayerFuncTableGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -86,7 +84,7 @@ class LayerFuncTableGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "encode/custom_vulkan_api_call_encoders.h"',
@@ -99,47 +97,34 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
-        write(
-            'const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {',
-            file=self.outFile
-        )
 
     def endFile(self):
         """Method override."""
-        # Manually output the physical device proc address function as its name doesn't
-        # match the scheme used by self.LAYER_FUNCTIONS:
-        align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
-        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
 
-        write('};', file=self.outFile)
+        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
+
+    def write_custom_layer_func_table_contents(self, api_data, align_col):
+        """ Method override """
+        # Manually output the physical device proc address function as its name doesn't
+        # match the scheme used by skip_func_list:
+        align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
+        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            align = 100 - len(cmd)
-            if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(vulkan_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            write(body, file=self.outFile)

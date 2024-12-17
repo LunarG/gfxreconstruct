@@ -50,8 +50,8 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/encode/custom_layer_func_table.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
+                   ${CMAKE_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
                    $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )

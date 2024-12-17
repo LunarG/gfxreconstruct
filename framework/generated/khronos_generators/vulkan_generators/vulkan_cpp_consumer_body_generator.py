@@ -17,7 +17,7 @@
 # limitations under the License.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 # Copyright text prefixing all headers (list of strings).
 CPP_PREFIX_STRING = [
@@ -51,7 +51,7 @@ CPP_PREFIX_STRING = [
     ''
 ]
 
-# TODO: Copied from base_generator.py.
+# TODO: Copied from vulkan_base_generator.py.
 def makeREstring(argList, defaultValue = None):
     if (len(argList) > 0) or (defaultValue is None):
         return '^(' + '|'.join(argList) + ')$'
@@ -522,7 +522,7 @@ def makeParamList(cmdInfo, additionalParams):
     return ', '.join(paramList)
 
 
-class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanCppConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP source generation"""
 
     def __init__(
@@ -534,9 +534,9 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -545,12 +545,12 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class VulkanCppConsumerBodyGenerator(BaseGenerator):
-    """VulkanCppConsumerBodyGenerator - subclass of BaseGenerator.
+class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
+    """VulkanCppConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanCppConsumer class responsible for
     generating a textfile containing decoded Vulkan API call parameter data.
     """
@@ -558,11 +558,8 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
      ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -581,34 +578,12 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             'vkCreateAccelerationStructureNV'
         ]
 
-        self.stype_values = dict()
-        self.structs_with_handle_ptrs = []
-        self.structs_with_handles = dict()
-
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """
-        Process struct information
-
-        Note: Using method from replay consumer generator
-        """
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            )
-
-            stype = self.make_structure_type_enum(typeinfo, typename)
-            if stype:
-                self.stype_values[typename] = stype
-
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         self.writeout('#include "generated/generated_vulkan_cpp_consumer.h"')
         self.newline()
@@ -618,7 +593,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         self.writeout('#include "generated/generated_vulkan_enum_to_string.h"')
         self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
         self.writeout('#include "util/defines.h"')
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         self.writeout('#include <iostream>')
         self.writeout('#include <sstream>')
@@ -634,7 +609,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         self.writeout('GFXRECON_END_NAMESPACE(gfxrecon)')
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.

@@ -23,10 +23,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, json, write
 
 
-class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanApiCallEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding."""
 
     def __init__(
@@ -39,9 +39,9 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -50,13 +50,13 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
         self.capture_overrides = capture_overrides
 
 
-class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
-    """VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
+class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
+    """VulkanApiCallEncodersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call
     parameter data.
     Generate C++ functions for Vulkan API parameter encoding.
@@ -75,24 +75,16 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.capture_overrides:
             self.__load_capture_overrides(gen_opts.capture_overrides)
@@ -129,52 +121,39 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             proto = info[1]
             values = info[2]
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             cmddef += self.make_cmd_decl(proto, values)
             cmddef += '{\n'
             cmddef += self.make_cmd_body(return_type, cmd, values)
             cmddef += '}'
 
             write(cmddef, file=self.outFile)
-            first = False
+
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
+        # Finish processing in superclass
+        VulkanBaseGenerator.endFile(self)
+
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
+            return True
+        return False
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""
@@ -215,15 +194,15 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         """Generate the layer dispatch call invocation."""
         call_setup_expr = []
         object_name = values[0].name
+        wrapper_prefix = self.get_wrapper_prefix_from_command(name)
         if self.use_instance_table(name, values[0].base_type):
-            dispatchfunc = 'vulkan_wrappers::GetInstanceTable'
+            dispatchfunc = '{}::GetInstanceTable'.format(wrapper_prefix)
             if values[0].base_type == 'VkDevice':
                 object_name = 'physical_device'
-                wrapper_prefix = self.get_wrapper_prefix_from_type()
-                call_setup_expr.append("auto device_wrapper = vulkan_wrappers::GetWrapper<{}::DeviceWrapper>({});".format(wrapper_prefix, values[0].name))
+                call_setup_expr.append("auto device_wrapper = {0}::GetWrapper<{0}::DeviceWrapper>({1});".format(wrapper_prefix, values[0].name))
                 call_setup_expr.append("auto physical_device = device_wrapper->physical_device->handle;")
         else:
-            dispatchfunc = 'vulkan_wrappers::GetDeviceTable'
+            dispatchfunc = '{}::GetDeviceTable'.format(wrapper_prefix)
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
 
@@ -463,7 +442,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name == 'vkCreateInstance':
             decl = 'VulkanCaptureManager::Get()->'
 
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
+        wrapper_prefix = self.get_wrapper_prefix_from_command(name)
 
         if name.startswith('vkCreate') or name.startswith(
             'vkAllocate'
@@ -569,7 +548,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             else:
                 if handle.base_type in self.struct_names:
                     length_name = None
-                    for mem in self.feature_struct_members[handle.base_type]:
+                    for mem in self.all_struct_members[handle.base_type]:
                         # Assuming only one member is_array
                         if mem.is_array:
                             length_name = '{}->{}'.format(handle.name, mem.array_length)
@@ -668,9 +647,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_handle_wrapping(self, values, indent):
         expr = ''
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
 
         for value in values:
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             if self.is_output_parameter(value) and (
                 self.is_handle(value.base_type) or (
                     self.is_struct(value.base_type) and
@@ -747,7 +726,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         expr = ''
         need_unwrap_memory = False
         for value in values:
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
@@ -793,7 +772,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if ("Pool" in handle.base_type) and name.startswith('vkFree'):
                     handle = values[3]
 
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_command(name)
 
             if handle.is_array:
                 expr += indent + '{}::DestroyWrappedHandles<{}::{}Wrapper>({}, {});\n'.format(

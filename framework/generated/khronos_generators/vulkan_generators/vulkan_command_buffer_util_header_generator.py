@@ -22,10 +22,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanCommandBufferUtilHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -37,9 +37,9 @@ class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -48,12 +48,12 @@ class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
-    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+class VulkanCommandBufferUtilHeaderGenerator(VulkanBaseGenerator):
+    """VulkanCommandBufferUtilBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
     replaying decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file replay.
@@ -62,62 +62,30 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
+        for cmd in self.get_all_filtered_cmd_names():
+            wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
+            info = self.all_cmd_params[cmd]
             values = info[2]
 
             if values and (len(values) >
@@ -132,6 +100,19 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                         cmd[2:], wrapper_prefix, self.get_arg_list(handles)
                     )
                     write(cmddef, file=self.outFile)
+
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
+        # Finish processing in superclass
+        VulkanBaseGenerator.endFile(self)
+
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
+            return True
+        return False
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""

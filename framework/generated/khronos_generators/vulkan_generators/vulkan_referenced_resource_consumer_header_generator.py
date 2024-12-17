@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating the header to a C++ class for detecting unreferenced resource handles in a capture file."""
 
     def __init__(
@@ -36,9 +36,9 @@ class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -47,12 +47,12 @@ class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
-    """VulkanReferencedResourceHeaderGenerator - subclass of BaseGenerator.
+class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
+    """VulkanReferencedResourceHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanReferencedResource class responsible for
     determining which resource handles are used or unused in a capture file.
     Generate the header to a C++ class for detecting unreferenced resource handles in a capture file.
@@ -67,25 +67,17 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         class_name = 'VulkanReferencedResourceConsumer'
 
@@ -95,7 +87,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -114,7 +106,10 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
+            if self.is_cmd_black_listed(cmd):
+                continue
+
             return_type = info[0]
             params = info[2]
             if params and params[0].base_type == 'VkCommandBuffer':
@@ -143,27 +138,13 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""
@@ -172,7 +153,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
                 return True
             return False
         else:
-            return BaseGenerator.is_handle(self, base_type)
+            return VulkanBaseGenerator.is_handle(self, base_type)
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""

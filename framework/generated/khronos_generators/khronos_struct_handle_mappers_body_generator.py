@@ -25,10 +25,100 @@ import sys
 from khronos_base_generator import write
 
 
-class KhronosBaseStructHandleMappersBodyGenerator():
+class KhronosStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
-    def endFile(self):
+    # Recursively search a structs members to see if they too belong in the
+    # output struct list.  This could be because an including struct is an
+    # output struct.
+    def process_struct_members_to_output_struct(self, value):
+        for member in self.all_struct_members[value.base_type]:
+            if (
+                self.is_struct(member.base_type)
+                and not self.is_struct_black_listed(member.base_type)
+                and (member.base_type in self.structs_with_handles)
+                and (member.base_type not in self.output_structs)
+            ):
+                self.output_structs.append(member.base_type)
+                self.process_struct_members_to_output_struct(member)
+
+    def write_struct_handle_wrapper_content(self):
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                handle_members = list()
+                generic_handle_members = dict()
+
+                if struct in self.structs_with_handles:
+                    handle_members = self.structs_with_handles[struct].copy()
+
+                if struct in self.GENERIC_HANDLE_STRUCTS:
+                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
+                                                                         ]
+
+                # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
+                # and does not need a temporary variable referencing the struct value.
+                needs_value_ptr = False
+                if generic_handle_members:
+                    needs_value_ptr = True
+                else:
+                    for member in handle_members:
+                        if (
+                            (self.is_handle_like(member.base_type)) and
+                            not (member.is_array and not member.is_dynamic)
+                        ) or (member.base_type in self.MAP_STRUCT_TYPE):
+                            needs_value_ptr = True
+                            break
+
+                body = '\n'
+                body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table)\n'.format(
+                    struct
+                )
+                body += '{\n'
+
+                if not needs_value_ptr:
+                    body += '    if (wrapper != nullptr)\n'
+                    body += '    {'
+                else:
+                    body += '    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))\n'
+                    body += '    {\n'
+                    body += '        {}* value = wrapper->decoded_value;\n'.format(
+                        struct
+                    )
+
+                    # Add handling for parent/child structs since this actually might be one of the children.
+                    if struct in self.children_structs.keys():
+                        type_var = self.getStructTypeMemberName()
+                        body += '\n'
+                        body += f'        switch (value->{type_var})\n'
+                        body += '        {\n'
+                        body += '            default:\n'
+                        body += '                // Handle as base-type below\n'
+                        body += '                break;\n'
+
+                        for child in self.children_structs[struct]:
+                            if child not in self.struct_type_names:
+                                continue
+                            switch_type = self.struct_type_names[child]
+
+                            body += f'            case {switch_type}:\n'
+                            body += f'                MapStructHandles(reinterpret_cast<Decoded_{child}*>(wrapper),\n'
+                            body += f'                                 object_info_table);\n'
+                            body += '                // Return here because we processed the appropriate data in\n'
+                            body += '                // the correct structure type\n'
+                            body += '                return;\n'
+                        body += '        }\n'
+
+                body += self.make_struct_handle_mappings(
+                    struct, handle_members, generic_handle_members
+                )
+                body += '    }\n'
+                body += '}'
+
+                write(body, file=self.outFile)
+
         # Print out a function to handle mapping the extended struct types
         extended_struct_func_name = self.get_extended_struct_func_prefix()
         self.newline()
@@ -56,10 +146,16 @@ class KhronosBaseStructHandleMappersBodyGenerator():
         )
         write('            break;', file=self.outFile)
 
-        for base_type in self.pnext_structs:
+        extended_list = []
+        for struct in self.all_extended_structs:
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for base_type in sorted(extended_list):
             if base_type in self.structs_with_handles:
                 write(
-                    '        case {}:'.format(self.pnext_structs[base_type]),
+                    '        case {}:'.format(self.struct_type_names[base_type]),
                     file=self.outFile
                 )
                 write(
@@ -73,8 +169,21 @@ class KhronosBaseStructHandleMappersBodyGenerator():
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
+        # List of structs containing handles that are also used as output parameters for a command
+        self.output_structs = []
+
+        # Look for output structs that contain handles and add to list
+        for cmd in self.get_all_filtered_cmd_names():
+            for value_info in self.all_cmd_params[cmd][2]:
+                if self.is_output_parameter(value_info) and self.is_struct(
+                    value_info.base_type
+                ) and (value_info.base_type in self.structs_with_handles
+                       ) and (value_info.base_type not in self.output_structs):
+                    self.output_structs.append(value_info.base_type)
+                    self.process_struct_members_to_output_struct(value_info)
+
         # Generate handle adding functions for output structs with handles
-        for struct in self.output_structs_with_handles:
+        for struct in self.output_structs:
             self.newline()
             write(
                 self.make_struct_handle_additions(
@@ -84,7 +193,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
             )
 
         # Generate handle memory allocation functions for output structs with handles
-        for struct in self.output_structs_with_handles:
+        for struct in self.output_structs:
             if struct in self.structs_with_handle_ptrs:
                 self.newline()
                 write(
@@ -94,76 +203,11 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                     file=self.outFile
                 )
 
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-                or (struct in self.structs_with_map_data)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                handle_members = list()
-                generic_handle_members = dict()
-
-                if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct].copy()
-
-                if struct in self.structs_with_map_data:
-                    handle_members.extend(
-                        self.structs_with_map_data[struct].copy()
-                    )
-
-                if struct in self.GENERIC_HANDLE_STRUCTS:
-                    generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
-                                                                         ]
-
-                # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
-                # and does not need a temporary variable referencing the struct value.
-                needs_value_ptr = False
-                if generic_handle_members:
-                    needs_value_ptr = True
-                else:
-                    for member in handle_members:
-                        if (
-                            (self.is_handle(member.base_type) or self.is_atom(member.base_type) or self.is_class(member)) and
-                            not (member.is_array and not member.is_dynamic)
-                        ) or (member.base_type in self.MAP_STRUCT_TYPE):
-                            needs_value_ptr = True
-                            break
-
-                body = '\n'
-                body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table)\n'.format(
-                    struct
-                )
-                body += '{\n'
-
-                if not needs_value_ptr:
-                    body += '    if (wrapper != nullptr)\n'
-                    body += '    {'
-                else:
-                    body += '    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))\n'
-                    body += '    {\n'
-                    body += '        {}* value = wrapper->decoded_value;\n'.format(
-                        struct
-                    )
-
-                body += self.make_struct_handle_mappings(
-                    struct, handle_members, generic_handle_members
-                )
-                body += '    }\n'
-                body += '}'
-
-                write(body, file=self.outFile)
-
     def make_struct_handle_mappings(
         self, name, handle_members, generic_handle_members
     ):
         """Generating expressions for mapping struct handles read from the capture file to handles created at replay."""
-        prefix_from_type = self.get_prefix_from_type(name)
+        prefix_from_type = self.get_api_prefix_from_type(name)
 
         body = ''
         for member in handle_members:
@@ -213,7 +257,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                     )
             else:
                 type = member.base_type
-                prefix_from_type = self.get_prefix_from_type(member.base_type)
+                prefix_from_type = self.get_api_prefix_from_type(member.base_type)
                 func_id = member.base_type + 'Info'
                 type = prefix_from_type + member.base_type[2:] + 'Info'
                 object_info_table_get = ', &CommonObjectInfoTable::Get{}'.format(

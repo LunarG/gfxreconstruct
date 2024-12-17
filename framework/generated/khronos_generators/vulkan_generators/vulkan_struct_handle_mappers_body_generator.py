@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_struct_handle_mappers_body_generator import KhronosBaseStructHandleMappersBodyGenerator
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_struct_handle_mappers_body_generator import KhronosStructHandleMappersBodyGenerator
 
 
-class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructHandleMappersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating functions to map Vulkan struct member handles at file replay."""
 
     def __init__(
@@ -38,9 +38,9 @@ class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -49,14 +49,14 @@ class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
 class VulkanStructHandleMappersBodyGenerator(
-    KhronosBaseStructHandleMappersBodyGenerator, BaseGenerator
+    KhronosStructHandleMappersBodyGenerator, VulkanBaseGenerator
 ):
-    """VulkanStructHandleMappersBodyGenerator - subclass of BaseGenerator.
+    """VulkanStructHandleMappersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for mapping struct member handles
     when replaying decoded Vulkan API call parameter data.
     Generate C++ functions for Vulkan struct member handle mapping at file replay.
@@ -65,30 +65,16 @@ class VulkanStructHandleMappersBodyGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        self.pnext_structs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "generated/generated_vulkan_struct_handle_mappers.h"',
@@ -117,49 +103,17 @@ class VulkanStructHandleMappersBodyGenerator(
 
     def endFile(self):
         """Method override."""
-        KhronosBaseStructHandleMappersBodyGenerator.endFile(self)
+        KhronosStructHandleMappersBodyGenerator.write_struct_handle_wrapper_content(self)
+
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            if self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            ):
-                # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
-                parent_structs = typeinfo.elem.get('structextends')
-                if parent_structs:
-                    stype = self.make_structure_type_enum(typeinfo, typename)
-                    if stype:
-                        self.pnext_structs[typename] = stype
-
-    def genCmd(self, cmdinfo, name, alias):
-        """Method override."""
-        BaseGenerator.genCmd(self, cmdinfo, name, alias)
-
-        # Look for output structs that contain handles and add to list
-        if not alias:
-            for value_info in self.feature_cmd_params[name][2]:
-                if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_filtered_struct_names()
-                ) and (value_info.base_type in self.structs_with_handles) and (
-                    value_info.base_type
-                    not in self.output_structs_with_handles
-                ):
-                    self.output_structs_with_handles.append(
-                        value_info.base_type
-                    )
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_struct_members:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseStructHandleMappersBodyGenerator.generate_feature(self)

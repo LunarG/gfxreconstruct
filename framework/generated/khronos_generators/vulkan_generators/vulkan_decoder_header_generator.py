@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,10 +22,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_decoder_header_generator import KhronosDecoderHeaderGenerator
 
-
-class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanDecoderHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class declaration for Vulkan API parameter decoding."""
 
     def __init__(
@@ -37,9 +37,9 @@ class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -48,12 +48,12 @@ class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class VulkanDecoderHeaderGenerator(BaseGenerator):
-    """VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
+class VulkanDecoderHeaderGenerator(VulkanBaseGenerator, KhronosDecoderHeaderGenerator):
+    """VulkanDecoderHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member declarations for the VulkanDecoder class responsible for decoding
     Vulkan API call parameter data.
     Generate a C++ class declaration for Vulkan API parameter decoding.
@@ -62,11 +62,8 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -74,65 +71,30 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/vulkan_decoder_base.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write(
-            'class VulkanDecoder : public VulkanDecoderBase',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        write('    VulkanDecoder() { }\n', file=self.outFile)
-        write('    virtual ~VulkanDecoder() override { }\n', file=self.outFile)
-        write(
-            '    virtual void DecodeFunctionCall(format::ApiCallId             call_id,',
-            file=self.outFile
-        )
-        write(
-            '                                    const ApiCallInfo&            call_info,',
-            file=self.outFile
-        )
-        write(
-            '                                    const uint8_t*                parameter_buffer,',
-            file=self.outFile
-        )
-        write(
-            '                                    size_t                        buffer_size) override;\n',
-            file=self.outFile
-        )
-        write('  private:', end='', file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        write('};', file=self.outFile)
+        KhronosDecoderHeaderGenerator.write_decoder_header_content(self)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
-                cmd
-            )
-            write(cmddef, file=self.outFile)
-            first = False
