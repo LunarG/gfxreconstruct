@@ -7901,17 +7901,20 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
     VulkanCommandBufferInfo*                                          command_buffer_info,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr && pInfo != nullptr)
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
-    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    GFXRECON_ASSERT(device_info != nullptr)
+
+    VkCommandBuffer                     command_buffer = command_buffer_info->handle;
+    VkCopyAccelerationStructureInfoKHR* info           = pInfo->GetPointer();
+
     {
-        VkCommandBuffer                     command_buffer = command_buffer_info->handle;
-        VkCopyAccelerationStructureInfoKHR* info           = pInfo->GetPointer();
-        func(command_buffer, info);
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+
+        address_replacer.ProcessCmdCopyAccelerationStructuresKHR(command_buffer_info, info, address_tracker);
     }
-    else if (!loading_trim_state_)
-    {
-        // TODO: raytracing delegate-hook (issue #1526)
-    }
+    func(command_buffer, info);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
@@ -7923,18 +7926,22 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
     gfxrecon::decode::VulkanQueryPoolInfo*            query_pool_info,
     uint32_t                                          firstQuery)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr)
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
-    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    GFXRECON_ASSERT(device_info != nullptr)
+
+    VkCommandBuffer             command_buffer       = command_buffer_info->handle;
+    VkAccelerationStructureKHR* acceleration_structs = pAccelerationStructures->GetHandlePointer();
+    VkQueryPool                 query_pool           = query_pool_info->handle;
+
     {
-        VkCommandBuffer                   command_buffer       = command_buffer_info->handle;
-        const VkAccelerationStructureKHR* acceleration_structs = pAccelerationStructures->GetHandlePointer();
-        VkQueryPool                       query_pool           = query_pool_info->handle;
-        func(command_buffer, count, acceleration_structs, queryType, query_pool, firstQuery);
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+
+        address_replacer.ProcessCmdWriteAccelerationStructuresPropertiesKHR(
+            command_buffer_info, count, acceleration_structs, address_tracker);
     }
-    else if (!loading_trim_state_)
-    {
-        // TODO: raytracing delegate-hook (issue #1526)
-    }
+    func(command_buffer, count, acceleration_structs, queryType, query_pool, firstQuery);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(

@@ -416,7 +416,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     GFXRECON_ASSERT(_device_table != nullptr);
 
     // TODO: testing only -> remove when closing issue #1526
-    constexpr bool force_replace = true;
+    bool force_replace = false;
 
     std::unordered_set<VkBuffer> buffer_set;
     auto                         address_remap = [&address_tracker, &buffer_set](VkDeviceAddress& capture_address) {
@@ -459,11 +459,15 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             {
                 primitive_counts[j] = range_info->primitiveCount;
             }
-            _device_table->GetAccelerationStructureBuildSizesKHR(_device,
-                                                                 VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-                                                                 &build_geometry_info,
-                                                                 primitive_counts.data(),
-                                                                 &build_size_info);
+
+            {
+                mark_injected_commands_helper_t mark_injected_commands_helper;
+                _device_table->GetAccelerationStructureBuildSizesKHR(_device,
+                                                                     VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                                     &build_geometry_info,
+                                                                     primitive_counts.data(),
+                                                                     &build_size_info);
+            }
 
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
@@ -479,10 +483,16 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
             if (buffer_info != nullptr && buffer_info->size < build_size_info.accelerationStructureSize)
             {
-                GFXRECON_LOG_WARNING("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: buffer-size is "
-                                     "too small (%d < %d)",
-                                     buffer_info->size,
-                                     build_size_info.accelerationStructureSize);
+                //                GFXRECON_LOG_WARNING("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR:
+                //                buffer-size is "
+                //                                     "too small (%d < %d)",
+                //                                     buffer_info->size,
+                //                                     build_size_info.accelerationStructureSize);
+                GFXRECON_LOG_INFO_ONCE(
+                    "Replay adjusted mismatching acceleration-structures using shadow-structures and -buffers")
+
+                // now definitely requiring address-replaced
+                force_replace = true;
 
                 auto& replacment_as = _shadow_as_map[build_geometry_info.dstAccelerationStructure];
 
@@ -613,8 +623,17 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
             if (force_replace || capture_address != replay_address)
             {
-                // TODO: extra look-up required for replaced AS
                 auto new_address = replay_address;
+
+                // extra look-up required for potentially replaced AS
+                if (accel_info != nullptr)
+                {
+                    auto shadow_as_it = _shadow_as_map.find(accel_info->handle);
+                    if (shadow_as_it != _shadow_as_map.end())
+                    {
+                        new_address = shadow_as_it->second.address;
+                    }
+                }
 
                 // store addresses we will need to replace
                 _hashmap_bda.put(capture_address, new_address);
@@ -698,6 +717,47 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                                 command_buffer_info->push_constant_data.data());
             }
         } // !hashmap_bda_.empty()
+    }
+}
+
+void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(const VulkanCommandBufferInfo* command_buffer_info,
+                                                                    VkCopyAccelerationStructureInfoKHR* info,
+                                                                    const VulkanDeviceAddressTracker&   address_tracker)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(command_buffer_info);
+    GFXRECON_UNREFERENCED_PARAMETER(address_tracker);
+
+    if (info != nullptr)
+    {
+        auto swap_acceleration_structure = [this](VkAccelerationStructureKHR& as) {
+            auto shadow_as_it = _shadow_as_map.find(as);
+            if (shadow_as_it != _shadow_as_map.end())
+            {
+                as = shadow_as_it->second.handle;
+            }
+        };
+
+        // correct in-place
+        swap_acceleration_structure(info->src);
+        swap_acceleration_structure(info->dst);
+    }
+}
+
+void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
+    const VulkanCommandBufferInfo*    command_buffer_info,
+    uint32_t                          count,
+    VkAccelerationStructureKHR*       acceleration_structures,
+    const VulkanDeviceAddressTracker& address_tracker)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(command_buffer_info);
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        auto shadow_as_it = _shadow_as_map.find(acceleration_structures[i]);
+        if (shadow_as_it != _shadow_as_map.end())
+        {
+            acceleration_structures[i] = shadow_as_it->second.handle;
+        }
     }
 }
 
@@ -797,7 +857,7 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
 {
     // 4kB min-size
     constexpr uint32_t min_buffer_size = 1 << 12;
-    num_bytes                          = aligned_size(std::max<uint32_t>(num_bytes, min_buffer_size), min_alignment);
+    num_bytes                          = std::max<uint32_t>(num_bytes + min_alignment, min_buffer_size);
 
     // nothing to do
     if (num_bytes <= buffer_context.num_bytes)

@@ -253,19 +253,15 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    auto aligned_size = [](uint32_t size, uint32_t alignment) -> uint32_t
-    {
-        return (size + alignment - 1) & ~(alignment - 1);
-    };
-
-    // define a general minimum aligned-size for buffers, as certain vulkan resources will require this
-    // e.g. buffers containing shader-binding-tables or scratch-buffers for acceleration-structure build-operations
-    constexpr uint32_t min_alignment = 64;
-
     if ((create_info != nullptr) && (buffer != nullptr) && (allocator_data != nullptr))
     {
+        auto aligned_size = [](uint32_t size, uint32_t alignment) -> uint32_t
+        {
+            return (size + alignment - 1) & ~(alignment - 1);
+        };
+
         auto modified_info = *create_info;
-        modified_info.size = aligned_size(create_info->size, min_alignment);
+        modified_info.size = aligned_size(create_info->size, min_buffer_alignment_);
         result = functions_.create_buffer(device_, &modified_info, nullptr, buffer);
 
         if (result >= 0)

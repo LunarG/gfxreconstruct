@@ -103,6 +103,15 @@ class VulkanAddressReplacer
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
 
+    void ProcessCmdCopyAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
+                                                  VkCopyAccelerationStructureInfoKHR *info,
+                                                  const decode::VulkanDeviceAddressTracker&    address_tracker);
+
+    void ProcessCmdWriteAccelerationStructuresPropertiesKHR(const VulkanCommandBufferInfo* command_buffer_info,
+                                                            uint32_t                       count,
+                                                            VkAccelerationStructureKHR*    acceleration_structures,
+                                                            const decode::VulkanDeviceAddressTracker& address_tracker);
+
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
      *          allowing this class to free potential resources associated with it.
