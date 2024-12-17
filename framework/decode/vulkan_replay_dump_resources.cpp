@@ -1994,25 +1994,13 @@ bool VulkanReplayDumpResourcesBase::UpdateRecordingStatus(VkCommandBuffer origin
 {
     assert(recording_);
 
-    const DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context != nullptr && dc_context->IsRecording())
-    {
-        return true;
-    }
+    recording_ = !QueueSubmit_indices_.empty();
 
-    const DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(original_command_buffer);
-    if (dr_context != nullptr && dr_context->IsRecording())
-    {
-        return true;
-    }
-
-    recording_ = false;
-    return false;
+    return recording_;
 }
 
 bool VulkanReplayDumpResourcesBase::MustDumpQueueSubmitIndex(uint64_t index) const
 {
-    // Indices should be sorted
     return QueueSubmit_indices_.find(index) != QueueSubmit_indices_.end();
 }
 

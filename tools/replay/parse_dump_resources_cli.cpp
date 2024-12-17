@@ -152,19 +152,15 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         }
     }
 
-    // The number of BeginCommandBuffer and QueueSubmit entries must be more than
-    // zero, and there must be the same number of them.
+    // At least one BeginCommandBuffer and one QueueSubmit indices must be provided
     if ((vulkan_replay_options.BeginCommandBuffer_Indices.size() == 0 &&
-         vulkan_replay_options.QueueSubmit_Indices.size() == 0) ||
-        ((vulkan_replay_options.BeginCommandBuffer_Indices.size() ||
-          vulkan_replay_options.QueueSubmit_Indices.size()) &&
-         (vulkan_replay_options.BeginCommandBuffer_Indices.size() != vulkan_replay_options.QueueSubmit_Indices.size())))
+         vulkan_replay_options.QueueSubmit_Indices.size() == 0))
     {
         GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-        GFXRECON_LOG_ERROR("Number of BeginCommandBuffer and QueueSubmit indices must be equal and greater than "
-                           "zero (%zu and %zu respectively)",
-                           vulkan_replay_options.BeginCommandBuffer_Indices.size(),
-                           vulkan_replay_options.QueueSubmit_Indices.size())
+        GFXRECON_LOG_ERROR(
+            "At least one BeginCommandBuffer and one QueueSubmit indices must be provided (%zu and %zu respectively)",
+            vulkan_replay_options.BeginCommandBuffer_Indices.size(),
+            vulkan_replay_options.QueueSubmit_Indices.size())
         return true;
     }
 
