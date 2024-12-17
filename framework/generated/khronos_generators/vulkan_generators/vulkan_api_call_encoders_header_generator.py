@@ -22,10 +22,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,8 +52,8 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
-    """VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
+class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator):
+    """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call parameter data.
     Generate C++ function declarations for Vulkan API parameter encoding
     """
@@ -61,7 +61,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -70,7 +70,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -97,7 +97,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

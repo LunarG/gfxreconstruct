@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import os, re, sys
-from base_generator import *
+from vulkan_base_generator import *
 
 
-class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanObjectInfoTableBase2HeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
     def __init__(
@@ -38,7 +38,7 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,12 +52,12 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 # Generates declarations for functions for Vulkan object info table
-class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
+class VulkanObjectInfoTableBase2HeaderGenerator(VulkanBaseGenerator):
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -67,7 +67,7 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -81,7 +81,7 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     # yapf: disable

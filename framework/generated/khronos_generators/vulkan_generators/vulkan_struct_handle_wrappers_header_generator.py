@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_handle_wrappers_header_generator import KhronosStructHandleWrappersHeaderGenerator
 
 
-class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructHandleWrappersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating function prototypes to wrap Vulkan struct member handles at API capture."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -53,8 +53,8 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHandleWrappersHeaderGenerator):
-    """VulkanStructHandleWrappersHeaderGenerator - subclass of BaseGenerator.
+class VulkanStructHandleWrappersHeaderGenerator(VulkanBaseGenerator, KhronosStructHandleWrappersHeaderGenerator):
+    """VulkanStructHandleWrappersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function prototypes for wrapping struct member handles
     when recording Vulkan API call parameter data.
     Generate C++ functions for Vulkan struct member handle wrapping at API capture.
@@ -63,7 +63,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -72,7 +72,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "encode/custom_vulkan_struct_handle_wrappers.h"',
@@ -103,7 +103,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator, KhronosStructHand
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Method override. Indicates that the current feature has C++ code to generate."""

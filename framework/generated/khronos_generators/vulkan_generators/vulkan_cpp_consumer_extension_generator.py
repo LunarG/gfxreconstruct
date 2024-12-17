@@ -18,7 +18,7 @@
 
 import re
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
     makeGen, makeGenCall, makeGenCond, makeGenCastVar, makeGenSwitch
 
@@ -54,7 +54,7 @@ CPP_PREFIX_STRING = [
     ''
 ]
 
-class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
+class VulkanCppConsumerExtensionGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP structure generation"""
 
     def __init__(
@@ -68,7 +68,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -81,15 +81,15 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
         )
 
 1
-class VulkanCppConsumerExtensionGenerator(BaseGenerator):
-    """VulkanCppConsumerExtensionGenerator - subclass of BaseGenerator.
+class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
+    """VulkanCppConsumerExtensionGenerator - subclass of VulkanBaseGenerator.
     Generates a C++ function responsible for generating extensions from pNext void pointers.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
      ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -101,7 +101,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
     # Method override
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
 
         self.is_header = genOpts.filename.endswith(".h")
 
@@ -149,7 +149,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
         self.writeout('GFXRECON_END_NAMESPACE(gfxrecon)')
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         if self.struct_names:

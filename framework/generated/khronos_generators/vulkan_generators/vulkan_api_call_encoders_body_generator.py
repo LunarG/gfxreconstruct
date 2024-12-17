@@ -23,10 +23,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, json, write
 
 
-class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanApiCallEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding."""
 
     def __init__(
@@ -41,7 +41,7 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -55,8 +55,8 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         self.capture_overrides = capture_overrides
 
 
-class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
-    """VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
+class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
+    """VulkanApiCallEncodersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call
     parameter data.
     Generate C++ functions for Vulkan API parameter encoding.
@@ -75,7 +75,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -84,7 +84,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.capture_overrides:
             self.__load_capture_overrides(gen_opts.capture_overrides)
@@ -147,7 +147,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

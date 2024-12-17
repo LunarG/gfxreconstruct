@@ -22,12 +22,12 @@
 #
 
 import sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_struct_to_json_header_generator import KhronosStructToJsonHeaderGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
-class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for to_json functions"""
 
     def __init__(
@@ -41,7 +41,7 @@ class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -54,17 +54,17 @@ class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanStructToJsonHeaderGenerator - subclass of BaseGenerator.
+# VulkanStructToJsonHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
 class VulkanStructToJsonHeaderGenerator(
-    BaseGenerator, KhronosStructToJsonHeaderGenerator
+    VulkanBaseGenerator, KhronosStructToJsonHeaderGenerator
 ):
     """Generate C++ functions to serialize Vulkan structures to JSON"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self, err_file=err_file, warn_file=warn_file, diag_file=diag_file
         )
 
@@ -81,7 +81,7 @@ class VulkanStructToJsonHeaderGenerator(
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         body = format_cpp_code('''
             #include "decode/custom_vulkan_struct_to_json.h"
 
@@ -103,7 +103,7 @@ class VulkanStructToJsonHeaderGenerator(
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #

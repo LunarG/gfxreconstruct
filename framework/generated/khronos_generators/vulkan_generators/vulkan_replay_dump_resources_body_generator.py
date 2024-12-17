@@ -23,11 +23,11 @@
 
 import json
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
-class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanReplayDumpResourcesBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -42,7 +42,7 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -57,9 +57,9 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayDumpResourcesBodyGenerator(
-    KhronosReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, VulkanBaseGenerator
 ):
-    """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
+    """VulkanReplayDumpResourcesBodyGenerator - subclass of VulkanBaseGenerator.
     """
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
@@ -81,7 +81,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -90,7 +90,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "generated/generated_vulkan_replay_dump_resources.h"',
@@ -115,7 +115,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def make_consumer_func_body(self, api_data, return_type, name, values):
         """

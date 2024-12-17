@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating the header to a C++ class for detecting unreferenced resource handles in a capture file."""
 
     def __init__(
@@ -38,7 +38,7 @@ class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -51,8 +51,8 @@ class VulkanReferencedResourceHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
-    """VulkanReferencedResourceHeaderGenerator - subclass of BaseGenerator.
+class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
+    """VulkanReferencedResourceHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanReferencedResource class responsible for
     determining which resource handles are used or unused in a capture file.
     Generate the header to a C++ class for detecting unreferenced resource handles in a capture file.
@@ -67,7 +67,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -77,7 +77,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         class_name = 'VulkanReferencedResourceConsumer'
 
@@ -138,7 +138,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
@@ -153,7 +153,7 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
                 return True
             return False
         else:
-            return BaseGenerator.is_handle(self, base_type)
+            return VulkanBaseGenerator.is_handle(self, base_type)
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""

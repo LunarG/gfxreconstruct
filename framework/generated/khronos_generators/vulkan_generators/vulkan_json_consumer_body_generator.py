@@ -21,12 +21,12 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_json_consumer_body_generator import KhronosExportJsonConsumerBodyGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
-class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, KhronosExportJsonConsumerBodyGenerator):
+class VulkanExportJsonConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions, KhronosExportJsonConsumerBodyGenerator):
     """Options for generating a C++ class for Vulkan capture file to JSON file generation."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, Khronos
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -53,8 +53,8 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions, Khronos
         )
 
 
-class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonConsumerBodyGenerator):
-    """VulkanExportJsonConsumerBodyGenerator - subclass of BaseGenerator.
+class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJsonConsumerBodyGenerator):
+    """VulkanExportJsonConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanExportJsonConsumer class responsible for
     generating a textfile containing decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file to JSON file generation.
@@ -63,7 +63,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -96,7 +96,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         includes = format_cpp_code('''
             #include "util/defines.h"
@@ -129,7 +129,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator, KhronosExportJsonCons
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

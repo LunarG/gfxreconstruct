@@ -18,7 +18,7 @@
 
 import re
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
     makeSnakeCaseName, makeGen, makeGenVar, makeGenVarCall, makeGenCond, makeGenConditions, \
     makeGenLoop, makeObjectType, makeOutStructSet, printOutStream
@@ -70,7 +70,7 @@ BasicStringConversionHandledTypes = [
     'VkDeviceAddress'
 ]
 
-class VulkanCppStructGeneratorOptions(BaseGeneratorOptions):
+class VulkanCppStructGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP structure generation"""
 
     def __init__(
@@ -84,7 +84,7 @@ class VulkanCppStructGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -96,15 +96,15 @@ class VulkanCppStructGeneratorOptions(BaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
-class VulkanCppStructGenerator(BaseGenerator):
-    """VulkanCppStructGenerator - subclass of BaseGenerator.
+class VulkanCppStructGenerator(VulkanBaseGenerator):
+    """VulkanCppStructGenerator - subclass of VulkanBaseGenerator.
     Generates vulkan struct generating functions.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
      ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -171,7 +171,7 @@ class VulkanCppStructGenerator(BaseGenerator):
 
     # Method override
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         self.is_header = genOpts.filename.endswith(".h")
 
         if self.is_header:
@@ -196,7 +196,7 @@ class VulkanCppStructGenerator(BaseGenerator):
         self.newline()
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         if self.struct_names:

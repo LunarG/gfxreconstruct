@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_consumer_header_generator import KhronosConsumerHeaderGenerator
 
 
-class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Adds the following new option:
     is_override - Specify whether the member function declarations are
                   virtual function overrides or pure virtual functions.
@@ -48,7 +48,7 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -65,8 +65,8 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         self.constructor_args = constructor_args
 
 
-class VulkanConsumerHeaderGenerator(BaseGenerator, KhronosConsumerHeaderGenerator):
-    """VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
+class VulkanConsumerHeaderGenerator(VulkanBaseGenerator, KhronosConsumerHeaderGenerator):
+    """VulkanConsumerHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member declarations for the VulkanConsumer class responsible for processing
     Vulkan API call parameter data.
     Generate C++ class declarations for Vulkan parameter processing.
@@ -75,7 +75,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator, KhronosConsumerHeaderGenerato
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -84,7 +84,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator, KhronosConsumerHeaderGenerato
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
@@ -108,7 +108,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator, KhronosConsumerHeaderGenerato
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.

@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_layer_func_table_generator import KhronosLayerFuncTableGenerator
 
 
-class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
+class VulkanLayerFuncTableGeneratorOptions(VulkanBaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     function table generation.
     Options for Vulkan layer function table C++ code generation.
@@ -41,7 +41,7 @@ class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             None,
             None,
@@ -54,8 +54,8 @@ class VulkanLayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanLayerFuncTableGenerator(BaseGenerator, KhronosLayerFuncTableGenerator):
-    """LayerFuncTableGenerator - subclass of BaseGenerator.
+class VulkanLayerFuncTableGenerator(VulkanBaseGenerator, KhronosLayerFuncTableGenerator):
+    """LayerFuncTableGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function table for the Vulkan API calls exported by the layer.
     Generate Vulkan layer function table C++ type declarations.
     """
@@ -63,7 +63,7 @@ class VulkanLayerFuncTableGenerator(BaseGenerator, KhronosLayerFuncTableGenerato
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -84,7 +84,7 @@ class VulkanLayerFuncTableGenerator(BaseGenerator, KhronosLayerFuncTableGenerato
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "encode/custom_vulkan_api_call_encoders.h"',
@@ -113,7 +113,7 @@ class VulkanLayerFuncTableGenerator(BaseGenerator, KhronosLayerFuncTableGenerato
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def write_custom_layer_func_table_contents(self, api_data, align_col):
         """ Method override """

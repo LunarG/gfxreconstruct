@@ -22,11 +22,11 @@
 
 import sys
 import inspect
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_enum_to_string_body_generator import KhronosEnumToStringBodyGenerator
 
 
-class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToStringBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -42,7 +42,7 @@ class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -55,15 +55,15 @@ class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanEnumToStringBodyGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringBodyGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToStringBodyGenerator(BaseGenerator, KhronosEnumToStringBodyGenerator):
+class VulkanEnumToStringBodyGenerator(VulkanBaseGenerator, KhronosEnumToStringBodyGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -73,7 +73,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator, KhronosEnumToStringBodyGene
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         body = inspect.cleandoc('''
             #include "generated_vulkan_enum_to_string.h"
 
@@ -95,7 +95,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator, KhronosEnumToStringBodyGene
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #

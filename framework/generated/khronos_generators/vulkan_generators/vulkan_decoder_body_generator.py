@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_decoder_body_generator import KhronosDecoderBodyGenerator
 
 
-class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan API parameter decoding."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -53,8 +53,8 @@ class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanDecoderBodyGenerator(BaseGenerator, KhronosDecoderBodyGenerator):
-    """VulkanDecoderBodyGenerator - subclass of BaseGenerator.
+class VulkanDecoderBodyGenerator(VulkanBaseGenerator, KhronosDecoderBodyGenerator):
+    """VulkanDecoderBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member functions for the VulkanDecoder class responsible for decoding
     Vulkan API call parameter data.
     Generate a C++ class for Vulkan API parameter decoding.
@@ -65,7 +65,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator, KhronosDecoderBodyGenerator):
     ):
         KhronosDecoderBodyGenerator.__init__(self)
 
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -74,7 +74,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator, KhronosDecoderBodyGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
@@ -113,7 +113,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator, KhronosDecoderBodyGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

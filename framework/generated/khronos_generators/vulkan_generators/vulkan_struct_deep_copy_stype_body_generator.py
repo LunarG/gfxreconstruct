@@ -22,10 +22,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanStructDeepCopySTypeBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructDeepCopySTypeBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating function definitions to track (deepcopy) Vulkan structs at API capture for trimming."""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanStructDeepCopySTypeBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,8 +52,8 @@ class VulkanStructDeepCopySTypeBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
-    """VulkanStructTrackersHeaderGenerator - subclass of BaseGenerator.
+class VulkanStructDeepCopySTypeBodyGenerator(VulkanBaseGenerator):
+    """VulkanStructTrackersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ function definitions to track (deepcopy) Vulkan structs
     at API capture for trimming.
     """
@@ -61,7 +61,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -73,7 +73,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "graphics/vulkan_struct_deep_copy.h"',
@@ -111,7 +111,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def checkType(self, typeinfo, typename):
         if typename in ['VkBaseInStructure',
@@ -130,7 +130,7 @@ class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
         return True
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if alias:
             return

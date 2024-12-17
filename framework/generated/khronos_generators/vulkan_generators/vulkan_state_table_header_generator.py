@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import os, re, sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_state_table_header_generator import KhronosStateTableHeaderGenerator
 
 
-class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStateTableHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -53,12 +53,12 @@ class VulkanStateTableHeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 # Generates declarations for functions for Vulkan state table
-class VulkanStateTableHeaderGenerator(BaseGenerator, KhronosStateTableHeaderGenerator):
+class VulkanStateTableHeaderGenerator(VulkanBaseGenerator, KhronosStateTableHeaderGenerator):
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -68,7 +68,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator, KhronosStateTableHeaderGene
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         write(
             '#include "encode/vulkan_state_table_base.h"\n', file=self.outFile
         )
@@ -86,5 +86,5 @@ class VulkanStateTableHeaderGenerator(BaseGenerator, KhronosStateTableHeaderGene
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable

@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_enum_to_json_header_generator import KhronosEnumToJsonHeaderGenerator
 from reformat_code import format_cpp_code
 
-class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         protectFeature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,9 +52,9 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToJsonHeaderGenerator(BaseGenerator, KhronosEnumToJsonHeaderGenerator):
+class VulkanEnumToJsonHeaderGenerator(VulkanBaseGenerator, KhronosEnumToJsonHeaderGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
 
     SKIP_ENUM = [
@@ -63,7 +63,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator, KhronosEnumToJsonHeaderGene
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -73,7 +73,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator, KhronosEnumToJsonHeaderGene
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         includes = format_cpp_code('''
             #include "format/platform_types.h"
             #include "util/json_util.h"
@@ -105,7 +105,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator, KhronosEnumToJsonHeaderGene
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #

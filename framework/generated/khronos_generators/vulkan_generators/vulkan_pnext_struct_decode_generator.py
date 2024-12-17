@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_decode_extended_struct_generator import KhronosDecodeExtendedStructGenerator
 
 
-class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
+class DecodePNextStructGeneratorOptions(VulkanBaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     pNext switch statement generation.
     Options for Vulkan API pNext structure decoding C++ code generation.
@@ -41,7 +41,7 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             None,
             None,
@@ -54,8 +54,8 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class DecodePNextStructGenerator(BaseGenerator, KhronosDecodeExtendedStructGenerator):
-    """DecodePNextStructGenerator - subclass of BaseGenerator.
+class DecodePNextStructGenerator(VulkanBaseGenerator, KhronosDecodeExtendedStructGenerator):
+    """DecodePNextStructGenerator - subclass of VulkanBaseGenerator.
     Generates C++ code for Vulkan API pNext structure decoding.
     Generate pNext structure decoding C++ code.
     """
@@ -63,7 +63,7 @@ class DecodePNextStructGenerator(BaseGenerator, KhronosDecodeExtendedStructGener
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -72,7 +72,7 @@ class DecodePNextStructGenerator(BaseGenerator, KhronosDecodeExtendedStructGener
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         KhronosDecodeExtendedStructGenerator.write_common_headers(self, gen_opts)
 
@@ -92,7 +92,7 @@ class DecodePNextStructGenerator(BaseGenerator, KhronosDecodeExtendedStructGener
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

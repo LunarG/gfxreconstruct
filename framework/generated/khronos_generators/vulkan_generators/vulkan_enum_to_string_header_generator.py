@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import os, re, sys, inspect
-from base_generator import *
+from vulkan_base_generator import *
 from khronos_enum_to_string_header_generator import KhronosEnumToStringHeaderGenerator
 
 
-class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToStringHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -39,7 +39,7 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -52,15 +52,15 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# VulkanEnumToStringHeaderGenerator - subclass of VulkanBaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeaderGenerator):
+class VulkanEnumToStringHeaderGenerator(VulkanBaseGenerator, KhronosEnumToStringHeaderGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -70,7 +70,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeader
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+        VulkanBaseGenerator.beginFile(self, genOpts)
         includes = inspect.cleandoc(
             '''
             #include "format/platform_types.h"
@@ -100,7 +100,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator, KhronosEnumToStringHeader
         write(body, file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
     # yapf: enable
 
     #

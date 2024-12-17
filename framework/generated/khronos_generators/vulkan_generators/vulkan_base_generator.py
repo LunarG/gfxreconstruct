@@ -86,8 +86,8 @@ _emit_extensions_pat = make_re_string(_emit_extensions, '.*')
 _features_pat = make_re_string(_features, '.*')
 
 
-class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
-    """BaseGeneratorOptions - subclass of KhronosGeneratorOptions.
+class VulkanBaseGeneratorOptions(KhronosBaseGeneratorOptions):
+    """VulkanBaseGeneratorOptions - subclass of KhronosGeneratorOptions.
     Options for Vulkan API parameter encoding and decoding C++ code generation.
 
     Adds options used by FrameworkGenerator objects during C++ language
@@ -185,8 +185,8 @@ class BaseGeneratorOptions(KhronosBaseGeneratorOptions):
         )
 
 
-class BaseGenerator(KhronosBaseGenerator):
-    """BaseGenerator - subclass of KhronosBaseGenerator.
+class VulkanBaseGenerator(KhronosBaseGenerator):
+    """VulkanBaseGenerator - subclass of KhronosBaseGenerator.
     Base class providing common operations used to generate C++-language code for framework
       components that encode and decode Vulkan API parameters.
     Base class for Vulkan API parameter encoding and decoding generators.

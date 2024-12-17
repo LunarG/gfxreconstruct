@@ -23,11 +23,11 @@
 
 import json
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-# class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
-class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
+# class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
+class VulkanReplayDumpResourcesHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Adds the following new option:
     is_override - Specify whether the member function declarations are
                   virtual function overrides or pure virtual functions.
@@ -50,7 +50,7 @@ class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -68,8 +68,8 @@ class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
         self.dump_resources_overrides = dump_resources_overrides
 
 
-class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
-    """VulkanReplayDumpResourcesHeaderGenerator - subclass of BaseGenerator.
+class VulkanReplayDumpResourcesHeaderGenerator(VulkanBaseGenerator):
+    """VulkanReplayDumpResourcesHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member declarations for the VulkanConsumer class responsible for processing
     Vulkan API call parameter data.
     Generate C++ class declarations for Vulkan parameter processing.
@@ -79,7 +79,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -88,7 +88,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
@@ -147,7 +147,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

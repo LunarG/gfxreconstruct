@@ -22,11 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_struct_decoders_header_generator import KhronosStructDecodersHeaderGenerator
 
 
-class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructDecodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ type declarations for Vulkan struct decoding."""
 
     def __init__(
@@ -40,7 +40,7 @@ class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -54,9 +54,9 @@ class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructDecodersHeaderGenerator(
-    KhronosStructDecodersHeaderGenerator, BaseGenerator
+    KhronosStructDecodersHeaderGenerator, VulkanBaseGenerator
 ):
-    """VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
+    """VulkanStructDecodersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ type declarations for the decoded Vulkan API structure wrappers.
     Generate C++ type declarations for Vulkan struct decoding.
     """
@@ -64,7 +64,7 @@ class VulkanStructDecodersHeaderGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -73,7 +73,7 @@ class VulkanStructDecodersHeaderGenerator(
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "decode/custom_vulkan_struct_decoders_forward.h"',
@@ -108,7 +108,7 @@ class VulkanStructDecodersHeaderGenerator(
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

@@ -60,7 +60,7 @@ class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
 
 
 class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
-    """VulkanExportJsonConsumerHeaderGenerator - subclass of BaseGenerator.
+    """VulkanExportJsonConsumerHeaderGenerator - subclass of VulkanConsumerHeaderGenerator.
     Generate a C++ class for Vulkan capture file to JSON file generation.
     """
 

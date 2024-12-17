@@ -24,11 +24,11 @@
 
 import json
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
-class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanReplayConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -45,7 +45,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        BaseGeneratorOptions.__init__(
+        VulkanBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -62,9 +62,9 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayConsumerBodyGenerator(
-    KhronosReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, VulkanBaseGenerator
 ):
-    """VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
+    """VulkanReplayConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
     replaying decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file replay.
@@ -85,7 +85,7 @@ class VulkanReplayConsumerBodyGenerator(
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        BaseGenerator.__init__(
+        VulkanBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
@@ -94,7 +94,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        VulkanBaseGenerator.beginFile(self, gen_opts)
 
         write(
             '#include "generated/generated_vulkan_replay_consumer.h"',
@@ -134,7 +134,7 @@ class VulkanReplayConsumerBodyGenerator(
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        VulkanBaseGenerator.endFile(self)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
