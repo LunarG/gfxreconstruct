@@ -284,6 +284,17 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
 
+        if name == 'vkBeginCommandBuffer':
+            body += indent + 'const auto command_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);\n'
+            body += indent + 'VkCommandBufferBeginInfo begin_info_copy = *pBeginInfo;\n'
+            body += indent + '// If command buffer level is primary, pInheritanceInfo must be ignored\n'
+            body += indent + 'if (command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && begin_info_copy.pInheritanceInfo != nullptr)\n'
+            body += indent + '{\n'
+            body += indent + '    pBeginInfo = &begin_info_copy;\n'
+            body += indent + '    begin_info_copy.pInheritanceInfo = nullptr;\n'
+            body += indent + '}\n'
+            body += '\n'
+
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
             # Construct the function call to dispatch to the next layer.
