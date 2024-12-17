@@ -136,8 +136,9 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                 if len(enumerants):
                     body += '    switch (value) {{\n'
                     for enumerant in enumerants:
-                        body += '    case {0}: return "{0}";\n'.format(
-                            enumerant)
+                        if enumerants[enumerant]:
+                            body += '    case {0}: return "{0}";\n'.format(
+                                enumerant)
                     body += '    default: break;\n'
                     body += '    }}\n'
                 body += '    return "Unhandled {0}";\n'
