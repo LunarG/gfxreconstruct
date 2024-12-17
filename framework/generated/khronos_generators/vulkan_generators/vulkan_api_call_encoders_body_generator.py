@@ -90,6 +90,9 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
     # Functions that can activate trimming from a post call command.
     POSTCALL_TRIM_TRIGGERS = ['vkQueueSubmit', 'vkQueueSubmit2', 'vkQueueSubmit2KHR', 'vkQueuePresentKHR', 'vkFrameBoundaryANDROID']
 
+    # Functions that need to sanitize parameters
+    SANITIZE_PARAMETERS = ['vkBeginCommandBuffer']
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -142,6 +145,20 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             dispatchfunc = '{}::GetDeviceTable'.format(wrapper_prefix)
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
+
+    def sanitize_parameters(self, name, indent):
+        body = ''
+        if name == 'vkBeginCommandBuffer':
+            body += indent + 'const auto command_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);\n'
+            body += indent + 'VkCommandBufferBeginInfo begin_info_copy = *pBeginInfo;\n'
+            body += indent + '// If command buffer level is primary, pInheritanceInfo must be ignored\n'
+            body += indent + 'if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && begin_info_copy.pInheritanceInfo != nullptr)\n'
+            body += indent + '{\n'
+            body += indent + '    pBeginInfo = &begin_info_copy;\n'
+            body += indent + '    begin_info_copy.pInheritanceInfo = nullptr;\n'
+            body += indent + '}\n'
+            body += '\n'
+        return body
 
     def make_cmd_body(self, return_type, name, values):
         """Command definition."""
@@ -199,6 +216,9 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             )
 
         body += '\n'
+
+        if name in self.SANITIZE_PARAMETERS:
+            body += self.sanitize_parameters(name, indent)
 
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
