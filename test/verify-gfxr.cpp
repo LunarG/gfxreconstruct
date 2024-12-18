@@ -48,6 +48,7 @@ void verify_gfxr(char const* app_directory, char const* app_executable, char con
     full_executable_path.append(app_executable);
 
     std::filesystem::current_path(full_app_directory);
+    std::cout << "running: " << full_executable_path;
     auto app_result = std::system(full_executable_path.string().c_str());
     std::filesystem::current_path(base_path);
     ASSERT_EQ(app_result, 0) << "command failed " << app_executable << " in path " << full_app_directory;
@@ -64,6 +65,7 @@ void verify_gfxr(char const* app_directory, char const* app_executable, char con
     app_convert_command += convert_path.string();
     app_convert_command += " ";
     app_convert_command += capture_path.string();
+    std::cout << "running: " << app_convert_command;
     auto app_convert_result = std::system(app_convert_command.c_str());
     ASSERT_EQ(app_convert_result, 0) << "command failed " << app_convert_command;
 
@@ -75,6 +77,7 @@ void verify_gfxr(char const* app_directory, char const* app_executable, char con
     known_good_convert_command += convert_path.string();
     known_good_convert_command += " ";
     known_good_convert_command += known_good_path.string();
+    std::cout << "running: " << known_good_convert_command;
     auto known_good_convert_result = std::system(known_good_convert_command.c_str());
     ASSERT_EQ(known_good_convert_result, 0) << "command failed " << known_good_convert_command;
 
