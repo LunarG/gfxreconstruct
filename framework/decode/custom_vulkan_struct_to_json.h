@@ -123,6 +123,26 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
                  const util::JsonOptions&                              options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json&         jdata,
+                 const format::DeviceMemoryType& data,
+                 const util::JsonOptions&        options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&         jdata,
+                 const format::DeviceMemoryHeap& data,
+                 const util::JsonOptions&        options = util::JsonOptions());
+
+template <typename T>
+void FieldToJson(nlohmann::ordered_json&  jdata,
+                 const std::vector<T>&    data,
+                 const util::JsonOptions& options = util::JsonOptions())
+{
+    int i = 0;
+    for (const auto& item : data)
+    {
+        FieldToJson(jdata[i++], item, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
