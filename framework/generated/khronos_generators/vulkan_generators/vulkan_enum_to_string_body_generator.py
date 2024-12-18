@@ -123,14 +123,12 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
         for enum in sorted(self.enum_names):
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
-                check_enum_has_value = True
                 if self.is_flags_enum_64bit(enum):
                     # print(enum)
                     # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                     # Since every caller needs to know exactly what it is calling, we may as well
                     # dispense with the parameters that are always ignored:
                     body = 'std::string {0}ToString(const {0} value)\n'
-                    check_enum_has_value = False
                 else:
                     body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                 body += '{{\n'
@@ -138,9 +136,8 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                 if len(enumerants):
                     body += '    switch (value) {{\n'
                     for enumerant in enumerants:
-                        if check_enum_has_value and enumerants[enumerant]:
-                            body += '    case {0}: return "{0}";\n'.format(
-                                enumerant)
+                        body += '    case {0}: return "{0}";\n'.format(
+                            enumerant)
                     body += '    default: break;\n'
                     body += '    }}\n'
                 body += '    return "Unhandled {0}";\n'
