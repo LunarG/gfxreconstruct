@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_address_replacer_shaders.h"
 #include "decode/mark_injected_commands.h"
@@ -293,7 +294,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
         if (_valid_sbt_alignment)
         {
-            GFXRECON_LOG_INFO_ONCE("Replay adjusted mismatching raytracing shader-group-handles");
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay adjusted mismatching raytracing "
+                                   "shader-group-handles");
 
             // rewrite group-handles in-place
             replacer_params.output_handles = replacer_params.input_handles;
@@ -311,8 +313,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            GFXRECON_LOG_INFO_ONCE(
-                "Replay adjusted a mismatching raytracing shader-binding-table using a shadow-buffer");
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay adjusted a mismatching "
+                                   "raytracing shader-binding-table using a shadow-buffer");
 
             // output-handles
             if (!create_buffer(max_num_handles * sizeof(VkDeviceAddress), pipeline_context_sbt.output_handle_buffer))
@@ -476,20 +478,11 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
             GFXRECON_ASSERT(buffer_info != nullptr)
 
-            // TODO: fails on some!? captures
-            auto* scratch_buffer_info =
-                address_tracker.GetBufferByCaptureDeviceAddress(build_geometry_info.scratchData.deviceAddress);
-            //            GFXRECON_ASSERT(scratch_buffer_info != nullptr)
-
             if (buffer_info != nullptr && buffer_info->size < build_size_info.accelerationStructureSize)
             {
-                //                GFXRECON_LOG_WARNING("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR:
-                //                buffer-size is "
-                //                                     "too small (%d < %d)",
-                //                                     buffer_info->size,
-                //                                     build_size_info.accelerationStructureSize);
                 GFXRECON_LOG_INFO_ONCE(
-                    "Replay adjusted mismatching acceleration-structures using shadow-structures and -buffers")
+                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay adjusted mismatching "
+                    "acceleration-structures using shadow-structures and -buffers")
 
                 // now definitely requiring address-replaced
                 force_replace = true;
@@ -510,7 +503,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
                     if (!success)
                     {
-                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: shadow-buffer creation failed");
+                        GFXRECON_LOG_ERROR("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: "
+                                           "shadow-buffer creation failed");
                         return;
                     }
 
@@ -545,25 +539,20 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                             ? build_size_info.buildScratchSize
                                             : build_size_info.updateScratchSize;
 
-                //                if (scratch_buffer_info != nullptr && scratch_buffer_info->size < scratch_size)
-                {
-                    // create a replacement scratch-buffer
-                    bool success = create_buffer(
+                // create a replacement scratch-buffer
+                if (!create_buffer(
                         scratch_size,
                         replacment_as.scratch,
                         0,
                         _replay_acceleration_structure_properties.minAccelerationStructureScratchOffsetAlignment,
-                        false);
-
-                    if (!success)
-                    {
-                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
-                        return;
-                    }
-
-                    // hot swap scratch-buffer
-                    build_geometry_info.scratchData.deviceAddress = replacment_as.scratch.device_address;
+                        false))
+                {
+                    GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
+                    return;
                 }
+
+                // hot swap scratch-buffer
+                build_geometry_info.scratchData.deviceAddress = replacment_as.scratch.device_address;
             }
         }
 
@@ -720,13 +709,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     }
 }
 
-void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(const VulkanCommandBufferInfo* command_buffer_info,
-                                                                    VkCopyAccelerationStructureInfoKHR* info,
-                                                                    const VulkanDeviceAddressTracker&   address_tracker)
+void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(VkCopyAccelerationStructureInfoKHR* info)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(command_buffer_info);
-    GFXRECON_UNREFERENCED_PARAMETER(address_tracker);
-
     if (info != nullptr)
     {
         auto swap_acceleration_structure = [this](VkAccelerationStructureKHR& as) {
@@ -744,19 +728,50 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(const Vulkan
 }
 
 void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
-    const VulkanCommandBufferInfo*    command_buffer_info,
-    uint32_t                          count,
-    VkAccelerationStructureKHR*       acceleration_structures,
-    const VulkanDeviceAddressTracker& address_tracker)
+    uint32_t count, VkAccelerationStructureKHR* acceleration_structures)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(command_buffer_info);
-
     for (uint32_t i = 0; i < count; ++i)
     {
         auto shadow_as_it = _shadow_as_map.find(acceleration_structures[i]);
         if (shadow_as_it != _shadow_as_map.end())
         {
             acceleration_structures[i] = shadow_as_it->second.handle;
+        }
+    }
+}
+
+void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              descriptor_write_count,
+                                                        VkWriteDescriptorSet* descriptor_writes,
+                                                        uint32_t              descriptor_copy_count,
+                                                        VkCopyDescriptorSet*  descriptor_copies)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(descriptor_copy_count);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptor_copies);
+
+    for (uint32_t i = 0; i < descriptor_write_count; ++i)
+    {
+        VkWriteDescriptorSet& write = descriptor_writes[i];
+
+        if (write.descriptorType != VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+        {
+            continue;
+        }
+
+        if (auto write_as = graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(&write))
+        {
+            for (uint32_t j = 0; j < write_as->accelerationStructureCount; ++j)
+            {
+                auto acceleration_structure_it = _shadow_as_map.find(write_as->pAccelerationStructures[j]);
+                if (acceleration_structure_it != _shadow_as_map.end())
+                {
+                    // we found an existing replacement-structure -> swap
+                    auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
+                    out_array[j]    = acceleration_structure_it->second.handle;
+
+                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessUpdateDescriptorSets: Replay adjusted "
+                                           "AccelerationStructure handles")
+                }
+            }
         }
     }
 }
@@ -855,6 +870,8 @@ bool VulkanAddressReplacer::create_buffer(size_t                                
                                           uint32_t                                 min_alignment,
                                           bool                                     use_host_mem)
 {
+    GFXRECON_ASSERT(util::is_pow_2(min_alignment));
+
     // 4kB min-size
     constexpr uint32_t min_buffer_size = 1 << 12;
     num_bytes                          = std::max<uint32_t>(num_bytes + min_alignment, min_buffer_size);

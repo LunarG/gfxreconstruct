@@ -103,14 +103,37 @@ class VulkanAddressReplacer
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
                                                   const decode::VulkanDeviceAddressTracker&    address_tracker);
 
-    void ProcessCmdCopyAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
-                                                  VkCopyAccelerationStructureInfoKHR *info,
-                                                  const decode::VulkanDeviceAddressTracker&    address_tracker);
+    /**
+     * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
+     *          and potentially correct input-parameters to 'vkCmdCopyAccelerationStructuresKHR'
+     *
+     * @param   info    a provided VkCopyAccelerationStructureInfoKHR*
+     */
+    void ProcessCmdCopyAccelerationStructuresKHR(VkCopyAccelerationStructureInfoKHR* info);
 
-    void ProcessCmdWriteAccelerationStructuresPropertiesKHR(const VulkanCommandBufferInfo* command_buffer_info,
-                                                            uint32_t                       count,
-                                                            VkAccelerationStructureKHR*    acceleration_structures,
-                                                            const decode::VulkanDeviceAddressTracker& address_tracker);
+    /**
+     * @brief   ProcessCmdWriteAccelerationStructuresPropertiesKHR will check
+     *          and potentially correct input-parameters to 'vkCmdWriteAccelerationStructuresPropertiesKHR'
+     *
+     * @param   count                   element count in acceleration_structures
+     * @param   acceleration_structures provided array of VkAccelerationStructureKHR-handles
+     */
+    void ProcessCmdWriteAccelerationStructuresPropertiesKHR(uint32_t                    count,
+                                                            VkAccelerationStructureKHR* acceleration_structures);
+
+    /**
+     * @brief   ProcessUpdateDescriptorSets will check
+     *          and potentially correct input-parameters to 'vkUpdateDescriptorSets'
+     *
+     * @param   descriptor_write_count  element count in descriptor_writes
+     * @param   descriptor_writes       provided array of VkWriteDescriptorSet
+     * @param   descriptor_copy_count   element count in descriptor_copies
+     * @param   descriptor_copies       provided array of VkCopyDescriptorSet
+     */
+    void ProcessUpdateDescriptorSets(uint32_t              descriptor_write_count,
+                                     VkWriteDescriptorSet* descriptor_writes,
+                                     uint32_t              descriptor_copy_count,
+                                     VkCopyDescriptorSet*  descriptor_copies);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
