@@ -2209,7 +2209,6 @@ template <> std::string ToString<VkShaderFloatControlsIndependence>(const VkShad
 std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value)
 {
     switch (value) {
-    case VK_ACCESS_2_NONE: return "VK_ACCESS_2_NONE";
     default: break;
     }
     return "Unhandled VkAccessFlagBits2";
@@ -2287,7 +2286,6 @@ template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(VkFlags vkF
 std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 value)
 {
     switch (value) {
-    case VK_PIPELINE_STAGE_2_NONE: return "VK_PIPELINE_STAGE_2_NONE";
     default: break;
     }
     return "Unhandled VkPipelineStageFlagBits2";
