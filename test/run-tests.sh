@@ -5,6 +5,6 @@ export GFXRECON_CAPTURE_FILE_TIMESTAMP=false
 export GFXRECON_CAPTURE_FILE=actual.gfxr
 export VK_LOADER_LAYERS_DISABLE=~all~
 export VK_LOADER_LAYERS_ENABLE=*gfxreconstruct*
-# export GFXRECON_LOG_LEVEL=info
-# export VK_LOADER_DEBUG=layer
+export GFXRECON_LOG_LEVEL=info
+export VK_LOADER_DEBUG=layer
 ./gfxrecon-testapp-runner
