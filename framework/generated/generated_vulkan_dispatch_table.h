@@ -173,6 +173,7 @@ inline VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSuppo
 inline VKAPI_ATTR VkResult VKAPI_CALL CreateScreenSurfaceQNX(VkInstance, const VkScreenSurfaceCreateInfoQNX*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateScreenSurfaceQNX was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceScreenPresentationSupportQNX(VkPhysicalDevice, uint32_t, struct _screen_window*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceScreenPresentationSupportQNX was called, resulting in no-op behavior."); return VK_TRUE; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceOpticalFlowImageFormatsNV(VkPhysicalDevice, const VkOpticalFlowImageFormatInfoNV*, uint32_t*, VkOpticalFlowImageFormatPropertiesNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceOpticalFlowImageFormatsNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixFlexibleDimensionsPropertiesNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceProcAddr was called, resulting in no-op behavior."); return nullptr; }
 inline VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDevice was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceQueue was called, resulting in no-op behavior."); }
@@ -359,6 +360,25 @@ inline VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveRestartEnable(VkCommandBuffer, 
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirements(VkDevice, const VkDeviceBufferMemoryRequirements*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceBufferMemoryRequirements was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirements(VkDevice, const VkDeviceImageMemoryRequirements*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageMemoryRequirements was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirements(VkDevice, const VkDeviceImageMemoryRequirements*, uint32_t*, VkSparseImageMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSparseMemoryRequirements was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdSetLineStipple(VkCommandBuffer, uint32_t, uint16_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetLineStipple was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL MapMemory2(VkDevice, const VkMemoryMapInfo*, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkMapMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2(VkDevice, const VkMemoryUnmapInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUnmapMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer2(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, VkIndexType) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindIndexBuffer2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularity(VkDevice, const VkRenderingAreaInfo*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularity was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayout(VkDevice, const VkDeviceImageSubresourceInfo*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayout was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2(VkDevice, VkImage, const VkImageSubresource2*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet(VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, const VkWriteDescriptorSet*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSet was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer, VkDescriptorUpdateTemplate, VkPipelineLayout, uint32_t, const void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSetWithTemplate was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocations(VkCommandBuffer, const VkRenderingAttachmentLocationInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingAttachmentLocations was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndices(VkCommandBuffer, const VkRenderingInputAttachmentIndexInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingInputAttachmentIndices was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets2(VkCommandBuffer, const VkBindDescriptorSetsInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorSets2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushConstants2(VkCommandBuffer, const VkPushConstantsInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushConstants2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2(VkCommandBuffer, const VkPushDescriptorSetInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSet2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(VkCommandBuffer, const VkPushDescriptorSetWithTemplateInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSetWithTemplate2 was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToImage(VkDevice, const VkCopyMemoryToImageInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyMemoryToImage was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToMemory(VkDevice, const VkCopyImageToMemoryInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToMemory was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToImage(VkDevice, const VkCopyImageToImageInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToImage was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL TransitionImageLayout(VkDevice, uint32_t, const VkHostImageLayoutTransitionInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkTransitionImageLayout was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateSwapchainKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice, VkSwapchainKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroySwapchainKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice, VkSwapchainKHR, uint32_t*, VkImage*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetSwapchainImagesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -423,8 +443,8 @@ inline VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSe
 inline VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWaitSemaphoresKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSignalSemaphoreKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(VkCommandBuffer, const VkExtent2D*, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetFragmentShadingRateKHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocationsKHR(VkCommandBuffer, const VkRenderingAttachmentLocationInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingAttachmentLocationsKHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndicesKHR(VkCommandBuffer, const VkRenderingInputAttachmentIndexInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingInputAttachmentIndicesKHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocationsKHR(VkCommandBuffer, const VkRenderingAttachmentLocationInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingAttachmentLocationsKHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndicesKHR(VkCommandBuffer, const VkRenderingInputAttachmentIndexInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingInputAttachmentIndicesKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL WaitForPresentKHR(VkDevice, VkSwapchainKHR, uint64_t, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWaitForPresentKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetBufferDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetBufferOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
@@ -437,8 +457,8 @@ inline VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDefer
 inline VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineExecutablePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineExecutableStatisticsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineExecutableInternalRepresentationsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL MapMemory2KHR(VkDevice, const VkMemoryMapInfoKHR*, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkMapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2KHR(VkDevice, const VkMemoryUnmapInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUnmapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL MapMemory2KHR(VkDevice, const VkMemoryMapInfo*, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkMapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2KHR(VkDevice, const VkMemoryUnmapInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUnmapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetEncodedVideoSessionParametersKHR(VkDevice, const VkVideoEncodeSessionParametersGetInfoKHR*, VkVideoEncodeSessionParametersFeedbackInfoKHR*, size_t*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetEncodedVideoSessionParametersKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR(VkCommandBuffer, const VkVideoEncodeInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEncodeVideoKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(VkCommandBuffer, VkEvent, const VkDependencyInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetEvent2KHR was called, resulting in no-op behavior."); }
@@ -447,8 +467,6 @@ inline VKAPI_ATTR void VKAPI_CALL CmdWaitEvents2KHR(VkCommandBuffer, uint32_t, c
 inline VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier2KHR(VkCommandBuffer, const VkDependencyInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPipelineBarrier2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp2KHR(VkCommandBuffer, VkPipelineStageFlags2, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdWriteTimestamp2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(VkQueue, uint32_t, const VkSubmitInfo2*, VkFence) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkQueueSubmit2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarker2AMD(VkCommandBuffer, VkPipelineStageFlags2, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdWriteBufferMarker2AMD was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointData2NV(VkQueue, uint32_t*, VkCheckpointData2NV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueCheckpointData2NV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(VkCommandBuffer, const VkCopyBufferInfo2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyBuffer2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(VkCommandBuffer, const VkCopyImageInfo2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyImage2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(VkCommandBuffer, const VkCopyBufferToImageInfo2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyBufferToImage2KHR was called, resulting in no-op behavior."); }
@@ -460,9 +478,9 @@ inline VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirementsKHR(VkDevice,
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirementsKHR(VkDevice, const VkDeviceImageMemoryRequirements*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageMemoryRequirementsKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(VkDevice, const VkDeviceImageMemoryRequirements*, uint32_t*, VkSparseImageMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSparseMemoryRequirementsKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer2KHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, VkIndexType) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindIndexBuffer2KHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularityKHR(VkDevice, const VkRenderingAreaInfoKHR*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularityKHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayoutKHR(VkDevice, const VkDeviceImageSubresourceInfoKHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayoutKHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(VkDevice, VkImage, const VkImageSubresource2KHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularityKHR(VkDevice, const VkRenderingAreaInfo*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularityKHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayoutKHR(VkDevice, const VkDeviceImageSubresourceInfo*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayoutKHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(VkDevice, VkImage, const VkImageSubresource2*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineBinariesKHR(VkDevice, const VkPipelineBinaryCreateInfoKHR*, const VkAllocationCallbacks*, VkPipelineBinaryHandlesInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreatePipelineBinariesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL DestroyPipelineBinaryKHR(VkDevice, VkPipelineBinaryKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyPipelineBinaryKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetPipelineKeyKHR(VkDevice, const VkPipelineCreateInfoKHR*, VkPipelineBinaryKeyKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineKeyKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -470,10 +488,10 @@ inline VKAPI_ATTR VkResult VKAPI_CALL GetPipelineBinaryDataKHR(VkDevice, const V
 inline VKAPI_ATTR VkResult VKAPI_CALL ReleaseCapturedPipelineDataKHR(VkDevice, const VkReleaseCapturedPipelineDataInfoKHR*, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseCapturedPipelineDataKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleKHR(VkCommandBuffer, uint32_t, uint16_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetLineStippleKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsKHR(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets2KHR(VkCommandBuffer, const VkBindDescriptorSetsInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorSets2KHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL CmdPushConstants2KHR(VkCommandBuffer, const VkPushConstantsInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushConstants2KHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2KHR(VkCommandBuffer, const VkPushDescriptorSetInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSet2KHR was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffer, const VkPushDescriptorSetWithTemplateInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSetWithTemplate2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets2KHR(VkCommandBuffer, const VkBindDescriptorSetsInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorSets2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushConstants2KHR(VkCommandBuffer, const VkPushConstantsInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushConstants2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2KHR(VkCommandBuffer, const VkPushDescriptorSetInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSet2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffer, const VkPushDescriptorSetWithTemplateInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSetWithTemplate2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetDescriptorBufferOffsets2EXT(VkCommandBuffer, const VkSetDescriptorBufferOffsetsInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDescriptorBufferOffsets2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorBufferEmbeddedSamplers2EXT(VkCommandBuffer, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorBufferEmbeddedSamplers2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(VkDevice, VkSemaphore, VkImage) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkFrameBoundaryANDROID was called, resulting in no-op behavior."); }
@@ -489,6 +507,7 @@ inline VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(VkCommandBuffer, VkQue
 inline VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndQueryIndexedEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(VkCommandBuffer, uint32_t, uint32_t, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawIndirectByteCountEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(VkDevice, const VkImageViewHandleInfoNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewHandleNVX was called, resulting in no-op behavior."); return 0; }
+inline VKAPI_ATTR uint64_t VKAPI_CALL GetImageViewHandle64NVX(VkDevice, const VkImageViewHandleInfoNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewHandle64NVX was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(VkDevice, VkImageView, VkImageViewAddressPropertiesNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewAddressNVX was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawIndirectCountAMD was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawIndexedIndirectCountAMD was called, resulting in no-op behavior."); }
@@ -539,6 +558,7 @@ inline VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkC
 inline VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(VkDevice, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCompileDeferredNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryHostPointerPropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryHostPointerPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(VkCommandBuffer, VkPipelineStageFlagBits, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdWriteBufferMarkerAMD was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarker2AMD(VkCommandBuffer, VkPipelineStageFlags2, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdWriteBufferMarker2AMD was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(VkCommandBuffer, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMeshTasksNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMeshTasksIndirectNV was called, resulting in no-op behavior."); }
@@ -547,6 +567,7 @@ inline VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorEnableNV(VkCommandBuffer
 inline VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetExclusiveScissorNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(VkCommandBuffer, const void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetCheckpointNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueCheckpointDataNV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointData2NV(VkQueue, uint32_t*, VkCheckpointData2NV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueCheckpointData2NV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(VkDevice, const VkInitializePerformanceApiInfoINTEL*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkInitializePerformanceApiINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(VkDevice) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUninitializePerformanceApiINTEL was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(VkCommandBuffer, const VkPerformanceMarkerInfoINTEL*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPerformanceMarkerINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -575,11 +596,11 @@ inline VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(VkCommandBuffer, VkCom
 inline VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthBoundsTestEnableEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetStencilTestEnableEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(VkCommandBuffer, VkStencilFaceFlags, VkStencilOp, VkStencilOp, VkStencilOp, VkCompareOp) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetStencilOpEXT was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToImageEXT(VkDevice, const VkCopyMemoryToImageInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyMemoryToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToMemoryEXT(VkDevice, const VkCopyImageToMemoryInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToMemoryEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToImageEXT(VkDevice, const VkCopyImageToImageInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR VkResult VKAPI_CALL TransitionImageLayoutEXT(VkDevice, uint32_t, const VkHostImageLayoutTransitionInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkTransitionImageLayoutEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
-inline VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(VkDevice, VkImage, const VkImageSubresource2KHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2EXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToImageEXT(VkDevice, const VkCopyMemoryToImageInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyMemoryToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToMemoryEXT(VkDevice, const VkCopyImageToMemoryInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToMemoryEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL CopyImageToImageEXT(VkDevice, const VkCopyImageToImageInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL TransitionImageLayoutEXT(VkDevice, uint32_t, const VkHostImageLayoutTransitionInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkTransitionImageLayoutEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(VkDevice, VkImage, const VkImageSubresource2*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL ReleaseSwapchainImagesEXT(VkDevice, const VkReleaseSwapchainImagesInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseSwapchainImagesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGeneratedCommandsMemoryRequirementsNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPreprocessGeneratedCommandsNV was called, resulting in no-op behavior."); }
@@ -833,6 +854,7 @@ struct VulkanInstanceTable
     PFN_vkCreateScreenSurfaceQNX CreateScreenSurfaceQNX{ noop::CreateScreenSurfaceQNX };
     PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX GetPhysicalDeviceScreenPresentationSupportQNX{ noop::GetPhysicalDeviceScreenPresentationSupportQNX };
     PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV GetPhysicalDeviceOpticalFlowImageFormatsNV{ noop::GetPhysicalDeviceOpticalFlowImageFormatsNV };
+    PFN_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV{ noop::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV };
 };
 
 struct VulkanDeviceTable
@@ -1023,6 +1045,25 @@ struct VulkanDeviceTable
     PFN_vkGetDeviceBufferMemoryRequirements GetDeviceBufferMemoryRequirements{ noop::GetDeviceBufferMemoryRequirements };
     PFN_vkGetDeviceImageMemoryRequirements GetDeviceImageMemoryRequirements{ noop::GetDeviceImageMemoryRequirements };
     PFN_vkGetDeviceImageSparseMemoryRequirements GetDeviceImageSparseMemoryRequirements{ noop::GetDeviceImageSparseMemoryRequirements };
+    PFN_vkCmdSetLineStipple CmdSetLineStipple{ noop::CmdSetLineStipple };
+    PFN_vkMapMemory2 MapMemory2{ noop::MapMemory2 };
+    PFN_vkUnmapMemory2 UnmapMemory2{ noop::UnmapMemory2 };
+    PFN_vkCmdBindIndexBuffer2 CmdBindIndexBuffer2{ noop::CmdBindIndexBuffer2 };
+    PFN_vkGetRenderingAreaGranularity GetRenderingAreaGranularity{ noop::GetRenderingAreaGranularity };
+    PFN_vkGetDeviceImageSubresourceLayout GetDeviceImageSubresourceLayout{ noop::GetDeviceImageSubresourceLayout };
+    PFN_vkGetImageSubresourceLayout2 GetImageSubresourceLayout2{ noop::GetImageSubresourceLayout2 };
+    PFN_vkCmdPushDescriptorSet CmdPushDescriptorSet{ noop::CmdPushDescriptorSet };
+    PFN_vkCmdPushDescriptorSetWithTemplate CmdPushDescriptorSetWithTemplate{ noop::CmdPushDescriptorSetWithTemplate };
+    PFN_vkCmdSetRenderingAttachmentLocations CmdSetRenderingAttachmentLocations{ noop::CmdSetRenderingAttachmentLocations };
+    PFN_vkCmdSetRenderingInputAttachmentIndices CmdSetRenderingInputAttachmentIndices{ noop::CmdSetRenderingInputAttachmentIndices };
+    PFN_vkCmdBindDescriptorSets2 CmdBindDescriptorSets2{ noop::CmdBindDescriptorSets2 };
+    PFN_vkCmdPushConstants2 CmdPushConstants2{ noop::CmdPushConstants2 };
+    PFN_vkCmdPushDescriptorSet2 CmdPushDescriptorSet2{ noop::CmdPushDescriptorSet2 };
+    PFN_vkCmdPushDescriptorSetWithTemplate2 CmdPushDescriptorSetWithTemplate2{ noop::CmdPushDescriptorSetWithTemplate2 };
+    PFN_vkCopyMemoryToImage CopyMemoryToImage{ noop::CopyMemoryToImage };
+    PFN_vkCopyImageToMemory CopyImageToMemory{ noop::CopyImageToMemory };
+    PFN_vkCopyImageToImage CopyImageToImage{ noop::CopyImageToImage };
+    PFN_vkTransitionImageLayout TransitionImageLayout{ noop::TransitionImageLayout };
     PFN_vkCreateSwapchainKHR CreateSwapchainKHR{ noop::CreateSwapchainKHR };
     PFN_vkDestroySwapchainKHR DestroySwapchainKHR{ noop::DestroySwapchainKHR };
     PFN_vkGetSwapchainImagesKHR GetSwapchainImagesKHR{ noop::GetSwapchainImagesKHR };
@@ -1111,8 +1152,6 @@ struct VulkanDeviceTable
     PFN_vkCmdPipelineBarrier2KHR CmdPipelineBarrier2KHR{ noop::CmdPipelineBarrier2KHR };
     PFN_vkCmdWriteTimestamp2KHR CmdWriteTimestamp2KHR{ noop::CmdWriteTimestamp2KHR };
     PFN_vkQueueSubmit2KHR QueueSubmit2KHR{ noop::QueueSubmit2KHR };
-    PFN_vkCmdWriteBufferMarker2AMD CmdWriteBufferMarker2AMD{ noop::CmdWriteBufferMarker2AMD };
-    PFN_vkGetQueueCheckpointData2NV GetQueueCheckpointData2NV{ noop::GetQueueCheckpointData2NV };
     PFN_vkCmdCopyBuffer2KHR CmdCopyBuffer2KHR{ noop::CmdCopyBuffer2KHR };
     PFN_vkCmdCopyImage2KHR CmdCopyImage2KHR{ noop::CmdCopyImage2KHR };
     PFN_vkCmdCopyBufferToImage2KHR CmdCopyBufferToImage2KHR{ noop::CmdCopyBufferToImage2KHR };
@@ -1153,6 +1192,7 @@ struct VulkanDeviceTable
     PFN_vkCmdEndQueryIndexedEXT CmdEndQueryIndexedEXT{ noop::CmdEndQueryIndexedEXT };
     PFN_vkCmdDrawIndirectByteCountEXT CmdDrawIndirectByteCountEXT{ noop::CmdDrawIndirectByteCountEXT };
     PFN_vkGetImageViewHandleNVX GetImageViewHandleNVX{ noop::GetImageViewHandleNVX };
+    PFN_vkGetImageViewHandle64NVX GetImageViewHandle64NVX{ noop::GetImageViewHandle64NVX };
     PFN_vkGetImageViewAddressNVX GetImageViewAddressNVX{ noop::GetImageViewAddressNVX };
     PFN_vkCmdDrawIndirectCountAMD CmdDrawIndirectCountAMD{ noop::CmdDrawIndirectCountAMD };
     PFN_vkCmdDrawIndexedIndirectCountAMD CmdDrawIndexedIndirectCountAMD{ noop::CmdDrawIndexedIndirectCountAMD };
@@ -1203,6 +1243,7 @@ struct VulkanDeviceTable
     PFN_vkCompileDeferredNV CompileDeferredNV{ noop::CompileDeferredNV };
     PFN_vkGetMemoryHostPointerPropertiesEXT GetMemoryHostPointerPropertiesEXT{ noop::GetMemoryHostPointerPropertiesEXT };
     PFN_vkCmdWriteBufferMarkerAMD CmdWriteBufferMarkerAMD{ noop::CmdWriteBufferMarkerAMD };
+    PFN_vkCmdWriteBufferMarker2AMD CmdWriteBufferMarker2AMD{ noop::CmdWriteBufferMarker2AMD };
     PFN_vkGetCalibratedTimestampsEXT GetCalibratedTimestampsEXT{ noop::GetCalibratedTimestampsEXT };
     PFN_vkCmdDrawMeshTasksNV CmdDrawMeshTasksNV{ noop::CmdDrawMeshTasksNV };
     PFN_vkCmdDrawMeshTasksIndirectNV CmdDrawMeshTasksIndirectNV{ noop::CmdDrawMeshTasksIndirectNV };
@@ -1211,6 +1252,7 @@ struct VulkanDeviceTable
     PFN_vkCmdSetExclusiveScissorNV CmdSetExclusiveScissorNV{ noop::CmdSetExclusiveScissorNV };
     PFN_vkCmdSetCheckpointNV CmdSetCheckpointNV{ noop::CmdSetCheckpointNV };
     PFN_vkGetQueueCheckpointDataNV GetQueueCheckpointDataNV{ noop::GetQueueCheckpointDataNV };
+    PFN_vkGetQueueCheckpointData2NV GetQueueCheckpointData2NV{ noop::GetQueueCheckpointData2NV };
     PFN_vkInitializePerformanceApiINTEL InitializePerformanceApiINTEL{ noop::InitializePerformanceApiINTEL };
     PFN_vkUninitializePerformanceApiINTEL UninitializePerformanceApiINTEL{ noop::UninitializePerformanceApiINTEL };
     PFN_vkCmdSetPerformanceMarkerINTEL CmdSetPerformanceMarkerINTEL{ noop::CmdSetPerformanceMarkerINTEL };
@@ -1502,6 +1544,7 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkCreateScreenSurfaceQNX", &table->CreateScreenSurfaceQNX);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceScreenPresentationSupportQNX", &table->GetPhysicalDeviceScreenPresentationSupportQNX);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV", &table->GetPhysicalDeviceOpticalFlowImageFormatsNV);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV", &table->GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV);
 }
 
 static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
@@ -1694,6 +1737,25 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetDeviceBufferMemoryRequirements", &table->GetDeviceBufferMemoryRequirements);
     LoadVulkanFunction(gpa, device, "vkGetDeviceImageMemoryRequirements", &table->GetDeviceImageMemoryRequirements);
     LoadVulkanFunction(gpa, device, "vkGetDeviceImageSparseMemoryRequirements", &table->GetDeviceImageSparseMemoryRequirements);
+    LoadVulkanFunction(gpa, device, "vkCmdSetLineStipple", &table->CmdSetLineStipple);
+    LoadVulkanFunction(gpa, device, "vkMapMemory2", &table->MapMemory2);
+    LoadVulkanFunction(gpa, device, "vkUnmapMemory2", &table->UnmapMemory2);
+    LoadVulkanFunction(gpa, device, "vkCmdBindIndexBuffer2", &table->CmdBindIndexBuffer2);
+    LoadVulkanFunction(gpa, device, "vkGetRenderingAreaGranularity", &table->GetRenderingAreaGranularity);
+    LoadVulkanFunction(gpa, device, "vkGetDeviceImageSubresourceLayout", &table->GetDeviceImageSubresourceLayout);
+    LoadVulkanFunction(gpa, device, "vkGetImageSubresourceLayout2", &table->GetImageSubresourceLayout2);
+    LoadVulkanFunction(gpa, device, "vkCmdPushDescriptorSet", &table->CmdPushDescriptorSet);
+    LoadVulkanFunction(gpa, device, "vkCmdPushDescriptorSetWithTemplate", &table->CmdPushDescriptorSetWithTemplate);
+    LoadVulkanFunction(gpa, device, "vkCmdSetRenderingAttachmentLocations", &table->CmdSetRenderingAttachmentLocations);
+    LoadVulkanFunction(gpa, device, "vkCmdSetRenderingInputAttachmentIndices", &table->CmdSetRenderingInputAttachmentIndices);
+    LoadVulkanFunction(gpa, device, "vkCmdBindDescriptorSets2", &table->CmdBindDescriptorSets2);
+    LoadVulkanFunction(gpa, device, "vkCmdPushConstants2", &table->CmdPushConstants2);
+    LoadVulkanFunction(gpa, device, "vkCmdPushDescriptorSet2", &table->CmdPushDescriptorSet2);
+    LoadVulkanFunction(gpa, device, "vkCmdPushDescriptorSetWithTemplate2", &table->CmdPushDescriptorSetWithTemplate2);
+    LoadVulkanFunction(gpa, device, "vkCopyMemoryToImage", &table->CopyMemoryToImage);
+    LoadVulkanFunction(gpa, device, "vkCopyImageToMemory", &table->CopyImageToMemory);
+    LoadVulkanFunction(gpa, device, "vkCopyImageToImage", &table->CopyImageToImage);
+    LoadVulkanFunction(gpa, device, "vkTransitionImageLayout", &table->TransitionImageLayout);
     LoadVulkanFunction(gpa, device, "vkCreateSwapchainKHR", &table->CreateSwapchainKHR);
     LoadVulkanFunction(gpa, device, "vkDestroySwapchainKHR", &table->DestroySwapchainKHR);
     LoadVulkanFunction(gpa, device, "vkGetSwapchainImagesKHR", &table->GetSwapchainImagesKHR);
@@ -1782,8 +1844,6 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdPipelineBarrier2KHR", &table->CmdPipelineBarrier2KHR);
     LoadVulkanFunction(gpa, device, "vkCmdWriteTimestamp2KHR", &table->CmdWriteTimestamp2KHR);
     LoadVulkanFunction(gpa, device, "vkQueueSubmit2KHR", &table->QueueSubmit2KHR);
-    LoadVulkanFunction(gpa, device, "vkCmdWriteBufferMarker2AMD", &table->CmdWriteBufferMarker2AMD);
-    LoadVulkanFunction(gpa, device, "vkGetQueueCheckpointData2NV", &table->GetQueueCheckpointData2NV);
     LoadVulkanFunction(gpa, device, "vkCmdCopyBuffer2KHR", &table->CmdCopyBuffer2KHR);
     LoadVulkanFunction(gpa, device, "vkCmdCopyImage2KHR", &table->CmdCopyImage2KHR);
     LoadVulkanFunction(gpa, device, "vkCmdCopyBufferToImage2KHR", &table->CmdCopyBufferToImage2KHR);
@@ -1824,6 +1884,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdEndQueryIndexedEXT", &table->CmdEndQueryIndexedEXT);
     LoadVulkanFunction(gpa, device, "vkCmdDrawIndirectByteCountEXT", &table->CmdDrawIndirectByteCountEXT);
     LoadVulkanFunction(gpa, device, "vkGetImageViewHandleNVX", &table->GetImageViewHandleNVX);
+    LoadVulkanFunction(gpa, device, "vkGetImageViewHandle64NVX", &table->GetImageViewHandle64NVX);
     LoadVulkanFunction(gpa, device, "vkGetImageViewAddressNVX", &table->GetImageViewAddressNVX);
     LoadVulkanFunction(gpa, device, "vkCmdDrawIndirectCountAMD", &table->CmdDrawIndirectCountAMD);
     LoadVulkanFunction(gpa, device, "vkCmdDrawIndexedIndirectCountAMD", &table->CmdDrawIndexedIndirectCountAMD);
@@ -1874,6 +1935,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCompileDeferredNV", &table->CompileDeferredNV);
     LoadVulkanFunction(gpa, device, "vkGetMemoryHostPointerPropertiesEXT", &table->GetMemoryHostPointerPropertiesEXT);
     LoadVulkanFunction(gpa, device, "vkCmdWriteBufferMarkerAMD", &table->CmdWriteBufferMarkerAMD);
+    LoadVulkanFunction(gpa, device, "vkCmdWriteBufferMarker2AMD", &table->CmdWriteBufferMarker2AMD);
     LoadVulkanFunction(gpa, device, "vkGetCalibratedTimestampsEXT", &table->GetCalibratedTimestampsEXT);
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksNV", &table->CmdDrawMeshTasksNV);
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectNV", &table->CmdDrawMeshTasksIndirectNV);
@@ -1882,6 +1944,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdSetExclusiveScissorNV", &table->CmdSetExclusiveScissorNV);
     LoadVulkanFunction(gpa, device, "vkCmdSetCheckpointNV", &table->CmdSetCheckpointNV);
     LoadVulkanFunction(gpa, device, "vkGetQueueCheckpointDataNV", &table->GetQueueCheckpointDataNV);
+    LoadVulkanFunction(gpa, device, "vkGetQueueCheckpointData2NV", &table->GetQueueCheckpointData2NV);
     LoadVulkanFunction(gpa, device, "vkInitializePerformanceApiINTEL", &table->InitializePerformanceApiINTEL);
     LoadVulkanFunction(gpa, device, "vkUninitializePerformanceApiINTEL", &table->UninitializePerformanceApiINTEL);
     LoadVulkanFunction(gpa, device, "vkCmdSetPerformanceMarkerINTEL", &table->CmdSetPerformanceMarkerINTEL);
