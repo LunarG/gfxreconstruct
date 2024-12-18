@@ -136,6 +136,42 @@ class VulkanAddressReplacer
                                      VkCopyDescriptorSet*  descriptor_copies);
 
     /**
+     * @brief   Process information contained in a metadata-block in order to build acceleration-structures.
+     *
+     * Will use an internal command-pool, submit work to a VkQueue and perform a host-synchronization.
+     *
+     * @param   info_count              element count in 'geometry_infos'
+     * @param   geometry_infos          provided array of VkAccelerationStructureBuildGeometryInfoKHR
+     * @param   range_infos             provided array of pointers to VkAccelerationStructureBuildRangeInfoKHR
+     * @param   instance_buffers_data   an array of arrays of VkAccelerationStructureInstanceKHR
+     */
+    void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        uint32_t                                                      info_count,
+        VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
+        VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data);
+
+    /**
+     * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.
+     *
+     * Will use an internal command-pool, submit work to a VkQueue and perform a host-synchronization.
+     *
+     * @param   info_count  element count in 'copy_infos'
+     * @param   copy_infos  provided array of VkCopyAccelerationStructureInfoKHR
+     */
+    void ProcessCopyVulkanAccelerationStructuresMetaCommand(uint32_t                            info_count,
+                                                            VkCopyAccelerationStructureInfoKHR* copy_infos);
+    /**
+     * @brief   Process information contained in a metadata-block in order to write information in a query-pool.
+     *
+     * @param   query_type              element count in 'copy_infos'
+     * @param   acceleration_structure  provided acceleration-structure handle
+     */
+    void
+    ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(VkQueryType                query_type,
+                                                                  VkAccelerationStructureKHR acceleration_structure);
+
+    /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
      *          allowing this class to free potential resources associated with it.
      *
@@ -144,12 +180,12 @@ class VulkanAddressReplacer
     void DestroyShadowResources(VkAccelerationStructureKHR handle);
 
     /**
-     * @brief   DestroyShadowResources should be called upon destruction of provided command_buffer_info,
+     * @brief   DestroyShadowResources should be called upon destruction of provided VkCommandBuffer handle,
      *          allowing this class to free potential resources associated with it.
      *
-     * @param   handle  a provided VulkanCommandBufferInfo
+     * @param   handle  a provided VkCommandBuffer handle
      */
-    void DestroyShadowResources(const VulkanCommandBufferInfo* command_buffer_info);
+    void DestroyShadowResources(VkCommandBuffer handle);
 
   private:
     struct buffer_context_t

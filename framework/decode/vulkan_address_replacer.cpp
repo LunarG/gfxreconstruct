@@ -417,7 +417,6 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 {
     GFXRECON_ASSERT(_device_table != nullptr);
 
-    // TODO: testing only -> remove when closing issue #1526
     bool force_replace = false;
 
     std::unordered_set<VkBuffer> buffer_set;
@@ -649,6 +648,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             if (!create_buffer(_hashmap_bda.get_storage(nullptr), pipeline_context_bda.hashmap_storage))
             {
                 GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
+                return;
             }
             _hashmap_bda.get_storage(pipeline_context_bda.hashmap_storage.mapped_data);
 
@@ -657,6 +657,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             if (!create_buffer(num_bytes, pipeline_context_bda.input_handle_buffer))
             {
                 GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
+                return;
             }
             memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses_to_replace.data(), num_bytes);
 
@@ -757,7 +758,7 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
             continue;
         }
 
-        if (auto write_as = graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(&write))
+        if (auto* write_as = graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(&write))
         {
             for (uint32_t j = 0; j < write_as->accelerationStructureCount; ++j)
             {
@@ -774,6 +775,27 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
             }
         }
     }
+}
+
+void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
+    uint32_t                                                      info_count,
+    VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
+    VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
+    std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data)
+{
+    // TODO: command-pool/buffer
+}
+
+void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
+    uint32_t info_count, VkCopyAccelerationStructureInfoKHR* copy_infos)
+{
+    // TODO: command-pool/buffer
+}
+
+void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+    VkQueryType query_type, VkAccelerationStructureKHR acceleration_structure)
+{
+    // TODO: command-pool/buffer
 }
 
 bool VulkanAddressReplacer::init_pipeline()
@@ -993,20 +1015,23 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 
 void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR handle)
 {
-    auto remove_as_it = _shadow_as_map.find(handle);
-
-    if (remove_as_it != _shadow_as_map.end())
+    if (handle != VK_NULL_HANDLE)
     {
-        mark_injected_commands_helper_t mark_injected_commands_helper;
-        _shadow_as_map.erase(remove_as_it);
+        auto remove_as_it = _shadow_as_map.find(handle);
+
+        if (remove_as_it != _shadow_as_map.end())
+        {
+            mark_injected_commands_helper_t mark_injected_commands_helper;
+            _shadow_as_map.erase(remove_as_it);
+        }
     }
 }
 
-void VulkanAddressReplacer::DestroyShadowResources(const VulkanCommandBufferInfo* command_buffer_info)
+void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
 {
-    if (command_buffer_info != nullptr)
+    if (handle != VK_NULL_HANDLE)
     {
-        auto remove_context_it = _build_as_context_map.find(command_buffer_info->handle);
+        auto remove_context_it = _build_as_context_map.find(handle);
 
         if (remove_context_it != _build_as_context_map.end())
         {
@@ -1014,7 +1039,7 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanCommandBufferInfo
             _build_as_context_map.erase(remove_context_it);
         }
 
-        auto shadow_sbt_it = _shadow_sbt_map.find(command_buffer_info->handle);
+        auto shadow_sbt_it = _shadow_sbt_map.find(handle);
 
         if (shadow_sbt_it != _shadow_sbt_map.end())
         {
@@ -1022,7 +1047,7 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanCommandBufferInfo
             _shadow_sbt_map.erase(shadow_sbt_it);
         }
 
-        auto pipeline_sbt_it = _pipeline_sbt_context_map.find(command_buffer_info->handle);
+        auto pipeline_sbt_it = _pipeline_sbt_context_map.find(handle);
 
         if (pipeline_sbt_it != _pipeline_sbt_context_map.end())
         {
