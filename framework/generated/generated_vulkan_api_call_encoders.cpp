@@ -16701,7 +16701,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     auto physical_device = device_wrapper->physical_device->handle;
     VkResult result = vulkan_wrappers::GetInstanceTable(physical_device)->SetDebugUtilsObjectNameEXT(device, pNameInfo_unwrapped);
 
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
@@ -16742,7 +16742,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     auto physical_device = device_wrapper->physical_device->handle;
     VkResult result = vulkan_wrappers::GetInstanceTable(physical_device)->SetDebugUtilsObjectTagEXT(device, pTagInfo_unwrapped);
 
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
