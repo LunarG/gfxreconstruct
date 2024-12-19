@@ -843,13 +843,21 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream,
-                                   format::ThreadId        thread_id,
-                                   util::FileOutputStream* asset_file_stream = nullptr,
-                                   const std::string&      asset_file_name   = "") override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+
+    virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
+                                                format::ThreadId        thread_id,
+                                                util::FileOutputStream* asset_file_stream,
+                                                const std::string*      asset_file_name) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(file_stream);
+        GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+        GFXRECON_UNREFERENCED_PARAMETER(asset_file_stream);
+        GFXRECON_UNREFERENCED_PARAMETER(asset_file_name);
+    }
 
     virtual void WriteAssets(util::FileOutputStream* assert_file_stream,
-                             const std::string&      asset_file_name,
+                             const std::string*      asset_file_name,
                              format::ThreadId        thread_id) override
     {}
 
@@ -895,10 +903,10 @@ class D3D12CaptureManager : public ApiCaptureManager
     void                          EnableDRED();
     bool                          RvAnnotationActive();
 
-    void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
-                                                  IDXGISwapChain_Wrapper*                                wrapper,
-                                                  UINT                                                   flags);
+    void PrePresent(IDXGISwapChain_Wrapper* wrapper);
+    void PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                     IDXGISwapChain_Wrapper*                                wrapper,
+                     UINT                                                   flags);
 
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
