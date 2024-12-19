@@ -1944,7 +1944,8 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                     else if (IsPageGuardMemoryModeShadowPersistent() &&
                              (wrapper->shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                     {
-                        wrapper->shadow_allocation = manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                        wrapper->shadow_allocation =
+                            manager->AllocatePersistentShadowMemory(static_cast<size_t>(wrapper->allocation_size));
                     }
 
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
