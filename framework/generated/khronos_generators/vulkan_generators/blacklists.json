@@ -32,7 +32,6 @@
     "VkWriteDescriptorSet",
     "VkPerformanceValueINTEL",
     "VkPushDescriptorSetWithTemplateInfo",
-    "VkPushDescriptorSetWithTemplateInfoKHR",
     "VkAccelerationStructureGeometryKHR",
     "VkAccelerationStructureMotionInstanceNV",
     "VkIndirectExecutionSetInfoEXT",
