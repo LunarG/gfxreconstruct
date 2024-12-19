@@ -21,10 +21,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include PROJECT_VERSION_HEADER_FILE
 #include "vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/logging.h"
+#include "decode/mark_injected_commands.h"
 #include "vulkan/vulkan_core.h"
 
 #include <cinttypes>
@@ -1383,7 +1385,24 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkQueue queue)
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
+    for (const auto& callback : callbacks_)
+    {
+        PFN_vkDebugReportCallbackEXT callback_fp = callback.first;
+        if (callback_fp != nullptr)
+        {
+            callback_fp(VK_DEBUG_REPORT_INFORMATION_BIT_EXT,
+                        VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT,
+                        GFXRECON_PTR_TO_UINT64(queue),
+                        0,
+                        0,
+                        GFXRECON_PROJECT_VULKAN_LAYER_NAME,
+                        nullptr,
+                        callback.second);
+        }
+    }
+
     VkResult result = device_table_.QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to submit command buffer for execution while taking a resource memory snapshot");
