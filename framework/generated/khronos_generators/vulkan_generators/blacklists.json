@@ -9,6 +9,7 @@
     "vkEnumerateInstanceVersion",
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
+    "vkCmdPushDescriptorSetWithTemplate",
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplate2",
     "vkCmdPushDescriptorSetWithTemplate2KHR",
