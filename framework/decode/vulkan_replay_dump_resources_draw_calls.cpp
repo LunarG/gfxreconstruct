@@ -1852,7 +1852,7 @@ std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat   
                                                                        image_file_format,
                                                                        dump_images_raw);
 
-    if (output_image_format != KFormatRaw && output_image_format != KFormatAstc)
+    if (output_image_format != KFormatRaw)
     {
         base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp
                       << "_aspect_" << aspect_str;
