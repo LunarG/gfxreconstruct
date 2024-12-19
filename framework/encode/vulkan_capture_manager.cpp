@@ -3429,5 +3429,35 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectNameEXT(VkResult                             result,
+                                                                    VkDevice                             device,
+                                                                    const VkDebugUtilsObjectNameInfoEXT* pNameInfo)
+{
+    if (result == VK_SUCCESS)
+    {
+        if (IsCaptureModeTrack())
+        {
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+            state_tracker_->TrackSetDebugUtilsObjectNameEXT(device, pNameInfo, thread_data->parameter_buffer_.get());
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectTagEXT(VkResult                            result,
+                                                                   VkDevice                            device,
+                                                                   const VkDebugUtilsObjectTagInfoEXT* pTagInfo)
+{
+    if (result == VK_SUCCESS)
+    {
+        if (IsCaptureModeTrack())
+        {
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+            state_tracker_->TrackSetDebugUtilsObjectTagEXT(device, pTagInfo, thread_data->parameter_buffer_.get());
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -216,6 +216,8 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
 
+    WriteDebugUtilsState(state_table);
+
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 
@@ -4336,6 +4338,584 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     output_stream_->Write(relative_file.c_str(), filename_length);
 
     blocks_written_ += n_blocks + 1;
+}
+
+void VulkanStateWriter::WriteDebugUtilsState(const VulkanStateTable& state_table)
+{
+    // state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {})
+    state_table.VisitWrappers([&](const vulkan_wrappers::InstanceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::QueueWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::SemaphoreWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::FenceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceMemoryWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::EventWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::QueryPoolWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::ShaderModuleWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineCacheWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineLayoutWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::RenderPassWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetLayoutWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorPoolWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::FramebufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::CommandPoolWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerYcbcrConversionWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorUpdateTemplateWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::SurfaceKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::SwapchainKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayModeKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::IndirectCommandsLayoutNVWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::MicromapEXTWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::PrivateDataSlotEXTWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
+
+    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureNVWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    });
 }
 
 GFXRECON_END_NAMESPACE(encode)
