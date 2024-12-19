@@ -216,6 +216,8 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
 
+    WriteDebugUtilsState(state_table);
+
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 
@@ -726,7 +728,6 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                                                             wrapper->handle_id,
                                                             wrapper->shader_group_handle_data.size(),
                                                             wrapper->shader_group_handle_data.data());
-
             }
 
             if (processed_ray_tracing_pipelines_khr.find(wrapper->create_parameters.get()) ==
@@ -4336,6 +4337,67 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     output_stream_->Write(relative_file.c_str(), filename_length);
 
     blocks_written_ += n_blocks + 1;
+}
+
+void VulkanStateWriter::WriteDebugUtilsState(const VulkanStateTable& state_table)
+{
+    auto write_debug_utils_calls = [&](const auto* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->debug_name_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectNameEXT,
+                              wrapper->debug_name_create_parameters.get());
+        }
+
+        if (wrapper->debug_tag_create_parameters)
+        {
+            WriteFunctionCall(format::ApiCall_vkSetDebugUtilsObjectTagEXT, wrapper->debug_tag_create_parameters.get());
+        }
+    };
+
+    // clang-format off
+    state_table.VisitWrappers([&](const vulkan_wrappers::InstanceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::QueueWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::SemaphoreWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::FenceWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeviceMemoryWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::EventWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::QueryPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferViewWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageViewWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::ShaderModuleWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineCacheWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineLayoutWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::RenderPassWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetLayoutWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorSetWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::FramebufferWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::CommandPoolWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerYcbcrConversionWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DescriptorUpdateTemplateWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::SurfaceKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::SwapchainKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DisplayModeKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::ValidationCacheEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::IndirectCommandsLayoutNVWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::MicromapEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::PrivateDataSlotEXTWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureNVWrapper* wrapper) { write_debug_utils_calls(wrapper); });
+    // clang-format on
 }
 
 GFXRECON_END_NAMESPACE(encode)

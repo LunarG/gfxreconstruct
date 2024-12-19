@@ -724,6 +724,14 @@ class VulkanStateTracker
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
+    void TrackSetDebugUtilsObjectNameEXT(VkDevice                             device,
+                                         const VkDebugUtilsObjectNameInfoEXT* pNameInfo,
+                                         const util::MemoryOutputStream*      object_name_parameter_buffer);
+
+    void TrackSetDebugUtilsObjectTagEXT(VkDevice                            device,
+                                        const VkDebugUtilsObjectTagInfoEXT* pTagInfo,
+                                        const util::MemoryOutputStream*     object_tag_parameter_buffer);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,
