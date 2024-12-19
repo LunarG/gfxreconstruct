@@ -287,7 +287,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer     
     auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
     vulkan_wrappers::GetDeviceTable(commandBuffer)
-        ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData_unwrapped);
+        ->CmdPushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, layout, set, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
@@ -370,7 +370,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
         info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
 
     vulkan_wrappers::GetDeviceTable(commandBuffer)
-        ->CmdPushDescriptorSetWithTemplate2KHR(commandBuffer, pPushDescriptorSetWithTemplateInfo);
+        ->CmdPushDescriptorSetWithTemplate2(commandBuffer, pPushDescriptorSetWithTemplateInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
