@@ -141,6 +141,69 @@ enum CommandHandleType : uint32_t
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
 
+static const char* CommandHandleTypeToStr(CommandHandleType type)
+{
+    switch (type)
+    {
+        case BufferHandle:
+            return GFXRECON_STR(BufferHandle);
+        case BufferViewHandle:
+            return GFXRECON_STR(BufferViewHandle);
+        case CommandBufferHandle:
+            return GFXRECON_STR(CommandBufferHandle);
+        case DescriptorSetHandle:
+            return GFXRECON_STR(DescriptorSetHandle);
+        case EventHandle:
+            return GFXRECON_STR(EventHandle);
+        case FramebufferHandle:
+            return GFXRECON_STR(FramebufferHandle);
+        case ImageHandle:
+            return GFXRECON_STR(ImageHandle);
+        case ImageViewHandle:
+            return GFXRECON_STR(ImageViewHandle);
+        case PipelineHandle:
+            return GFXRECON_STR(PipelineHandle);
+        case PipelineLayoutHandle:
+            return GFXRECON_STR(PipelineLayoutHandle);
+        case QueryPoolHandle:
+            return GFXRECON_STR(QueryPoolHandle);
+        case RenderPassHandle:
+            return GFXRECON_STR(RenderPassHandle);
+        case SamplerHandle:
+            return GFXRECON_STR(SamplerHandle);
+        case AccelerationStructureKHRHandle:
+            return GFXRECON_STR(AccelerationStructureKHRHandle);
+        case AccelerationStructureNVHandle:
+            return GFXRECON_STR(AccelerationStructureNVHandle);
+        case IndirectCommandsLayoutNVHandle:
+            return GFXRECON_STR(IndirectCommandsLayoutNVHandle);
+        case DeferredOperationKHRHandle:
+            return GFXRECON_STR(DeferredOperationKHRHandle);
+        case MicromapEXTHandle:
+            return GFXRECON_STR(MicromapEXTHandle);
+        case OpticalFlowSessionNVHandle:
+            return GFXRECON_STR(OpticalFlowSessionNVHandle);
+        case VideoSessionKHRHandle:
+            return GFXRECON_STR(VideoSessionKHRHandle);
+        case VideoSessionParametersKHRHandle:
+            return GFXRECON_STR(VideoSessionParametersKHRHandle);
+        case ShaderEXTHandle:
+            return GFXRECON_STR(ShaderEXTHandle);
+        case DescriptorSetLayoutHandle:
+            return GFXRECON_STR(DescriptorSetLayoutHandle);
+        case DescriptorUpdateTemplateHandle:
+            return GFXRECON_STR(DescriptorUpdateTemplateHandle);
+        case IndirectCommandsLayoutEXTHandle:
+            return GFXRECON_STR(IndirectCommandsLayoutEXTHandle);
+        case IndirectExecutionSetEXTHandle:
+            return GFXRECON_STR(IndirectExecutionSetEXTHandle);
+        default:
+            return "XXXX";
+    }
+
+    return "XXXX";
+}
+
 struct ShaderReflectionDescriptorInfo
 {
     ShaderReflectionDescriptorInfo(

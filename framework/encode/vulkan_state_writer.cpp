@@ -31,6 +31,7 @@
 #include "format/format_util.h"
 #include "util/logging.h"
 #include "custom_vulkan_array_size_2d.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <array>
@@ -3395,6 +3396,11 @@ void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::Comman
 
         assert(offset == data_size);
     }
+    else
+    {
+        const char* level_str = wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY ? "Primary" : "Secondary";
+        GFXRECON_LOG_ERROR("%s command buffer % " PRIu64 " will not be dumped", level_str, wrapper->handle_id);
+    }
 }
 
 void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId                         device_id,
@@ -4057,6 +4063,10 @@ bool VulkanStateWriter::CheckCommandHandles(const vulkan_wrappers::CommandBuffer
         {
             if (!CheckCommandHandle(static_cast<vulkan_state_info::CommandHandleType>(i), id, state_table))
             {
+                GFXRECON_LOG_ERROR("%s(): Object %" PRIu64 " of type %s is invalid",
+                                   __func__,
+                                   id,
+                                   CommandHandleTypeToStr(static_cast<vulkan_state_info::CommandHandleType>(i)));
                 return false;
             }
         }
@@ -4072,9 +4082,9 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
     switch (handle_type)
     {
         case vulkan_state_info::CommandHandleType::BufferHandle:
-            return IsBufferValid(handle_id, state_table);
+            return (state_table.GetBufferWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::BufferViewHandle:
-            return IsBufferViewValid(handle_id, state_table);
+            return (state_table.GetBufferViewWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::CommandBufferHandle:
             return (state_table.GetCommandBufferWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::DescriptorSetHandle:
@@ -4082,11 +4092,11 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
         case vulkan_state_info::CommandHandleType::EventHandle:
             return (state_table.GetEventWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::FramebufferHandle:
-            return IsFramebufferValid(handle_id, state_table);
+            return (state_table.GetFramebufferWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::ImageHandle:
-            return IsImageValid(handle_id, state_table);
+            return (state_table.GetImageWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::ImageViewHandle:
-            return IsImageViewValid(handle_id, state_table);
+            return (state_table.GetImageViewWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::PipelineHandle:
             return (state_table.GetPipelineWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::PipelineLayoutHandle:
