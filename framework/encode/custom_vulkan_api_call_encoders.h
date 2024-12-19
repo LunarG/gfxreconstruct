@@ -37,11 +37,20 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            const void*                pData);
 
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer            commandBuffer,
+                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                            VkPipelineLayout           layout,
+                                                            uint32_t                   set,
+                                                            const void*                pData);
+
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
                                                                VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                                VkPipelineLayout           layout,
                                                                uint32_t                   set,
                                                                const void*                pData);
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
+    VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfo* pPushDescriptorSetWithTemplateInfo);
 
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
     VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);

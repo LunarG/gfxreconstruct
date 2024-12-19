@@ -184,11 +184,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                                                uint32_t           set,
                                                                DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void
-    Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
-                                                   format::HandleId   commandBuffer,
-                                                   StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>*
-                                                       pPushDescriptorSetWithTemplateInfo) override;
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+        const ApiCallInfo&                                                 call_info,
+        format::HandleId                                                   commandBuffer,
+        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
                                                               format::HandleId                 device,
