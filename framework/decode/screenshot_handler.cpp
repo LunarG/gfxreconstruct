@@ -25,6 +25,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "decode/decoder_util.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 #include <limits>
 
@@ -347,6 +348,11 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                 // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
                 // submissions.
                 result = device_table->DeviceWaitIdle(device);
+                if (result != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_ERROR("ScreenshotHandler: DeviceWaitIdle failed with %s",
+                                       util::ToString(result).c_str());
+                }
 
                 if (result == VK_SUCCESS)
                 {
@@ -360,11 +366,22 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                     submit_info.pSignalSemaphores    = nullptr;
 
                     result = device_table->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+                    if (result != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("ScreenshotHandler: Queue submission %sfailed with %s",
+                                           (copy_resource.convert_image != VK_NULL_HANDLE ? "(blit path) " : ""),
+                                           util::ToString(result).c_str());
+                    }
                 }
 
                 if (result == VK_SUCCESS)
                 {
                     result = device_table->QueueWaitIdle(queue);
+                    if (result != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("ScreenshotHandler: Queue wait failed with %s",
+                                           util::ToString(result).c_str());
+                    }
                 }
 
                 if (result == VK_SUCCESS)
