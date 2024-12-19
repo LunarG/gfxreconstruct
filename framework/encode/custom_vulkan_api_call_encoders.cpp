@@ -308,11 +308,11 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
         GFXRECON_LOG_DEBUG("Descriptor update template info not found");
     }
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 
     auto encoder =
-        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
+        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
@@ -330,7 +330,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplate2KHR(commandBuffer, pPushDescriptorSetWithTemplateInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 }
 
