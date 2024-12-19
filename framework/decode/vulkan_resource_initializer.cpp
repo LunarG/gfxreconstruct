@@ -77,9 +77,20 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
         resource_allocator_->FreeMemoryDirect(staging_memory_, nullptr, staging_memory_data_);
     }
 
-    device_table_->DestroySampler(device_, draw_sampler_, nullptr);
-    device_table_->DestroyDescriptorPool(device_, draw_pool_, nullptr);
-    device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+    if (draw_sampler_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroySampler(device_, draw_sampler_, nullptr);
+    }
+
+    if (draw_pool_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyDescriptorPool(device_, draw_pool_, nullptr);
+    }
+
+    if (draw_set_layout_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+    }
 }
 
 VkResult VulkanResourceInitializer::LoadData(VkDeviceSize                          size,

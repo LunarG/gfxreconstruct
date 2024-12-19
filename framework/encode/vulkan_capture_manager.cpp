@@ -1087,6 +1087,14 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
             }
         }
 #endif
+
+        if (auto import_memfd = graphics::vulkan_struct_get_pnext<VkImportMemoryFdInfoKHR>(pAllocateInfo_unwrapped))
+        {
+            if (import_memfd->fd >= 0)
+            {
+                memory_wrapper->imported_fd = import_memfd->fd;
+            }
+        }
     }
     else if (external_memory != nullptr)
     {
