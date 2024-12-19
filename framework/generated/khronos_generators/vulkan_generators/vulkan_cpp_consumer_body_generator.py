@@ -534,7 +534,7 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -545,7 +545,7 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -560,9 +560,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
      ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -618,7 +615,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         self.writeout('#include "generated/generated_vulkan_enum_to_string.h"')
         self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
         self.writeout('#include "util/defines.h"')
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         self.newline()
         self.writeout('#include <iostream>')
         self.writeout('#include <sstream>')

@@ -32,9 +32,8 @@ class KhronosBaseStructDecodersBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for struct in self.get_filtered_struct_names():
-            body = '' if first else '\n'
+            body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
             )
@@ -52,7 +51,6 @@ class KhronosBaseStructDecodersBodyGenerator():
             body += '}'
 
             write(body, file=self.outFile)
-            first = False
 
     def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
@@ -84,7 +82,6 @@ class KhronosBaseStructDecodersBodyGenerator():
         buffer_args = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
         is_struct = False
-        is_class = False
         is_string = False
         is_funcp = False
         is_handle = False
@@ -95,8 +92,6 @@ class KhronosBaseStructDecodersBodyGenerator():
 
         if self.is_struct(type_name):
             is_struct = True
-        elif self.is_class(value):
-            is_class = True
         elif type_name in ['String', 'WString']:
             is_string = True
         elif type_name == 'FunctionPtr':
@@ -122,7 +117,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                 ) else False
                 access_op = '.'
 
-                if value.base_type in self.base_header_structs.keys():
+                if value.base_type in self.children_structs.keys():
                     if value.pointer_count == 1:
                         main_body += f'    switch (wrapper->{value.name}->GetPointer()->type)\n'
                         main_body += '    {\n'
@@ -143,8 +138,8 @@ class KhronosBaseStructDecodersBodyGenerator():
                             value.name, buffer_args
                         )
                         main_body += '            break;\n'
-                        for child in self.base_header_structs[value.base_type]:
-                            type = self.generate_structure_type(child)
+                        for child in self.children_structs[value.base_type]:
+                            type = self.struct_type_names[child]
 
                             new_value = deepcopy(value)
                             new_value.base_type = child
@@ -184,15 +179,9 @@ class KhronosBaseStructDecodersBodyGenerator():
                             arraylen=value.array_capacity
                         )
 
-                    if is_struct or is_string or is_handle or is_atom or (
-                        is_class and value.pointer_count > 1
-                    ):
+                    if is_struct or is_string or is_handle or is_atom:
                         main_body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
                             value.name, access_op, buffer_args
-                        )
-                    elif is_class and value.pointer_count == 1:
-                        main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
-                            buffer_args, value.name
                         )
                     elif self.has_basetype(value.base_type):
                         base_type = self.get_basetype(value.base_type)
@@ -205,7 +194,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                         )
 
                     if not is_static_array:
-                        if is_handle or is_atom or is_class:
+                        if is_handle or is_atom:
                             # Point the real struct's member pointer to the handle pointer decoder's handle memory.
                             main_body += '    value->{} = nullptr;\n'.format(value.name)
                         else:
@@ -229,7 +218,7 @@ class KhronosBaseStructDecodersBodyGenerator():
                             )
         else:
             if is_struct:
-                if value.base_type in self.base_header_structs.keys():
+                if value.base_type in self.children_structs.keys():
                     main_body += f'        switch ({value.name}->GetPointer()->type)\n'
                     main_body += '        {\n'
                     main_body += '            default:\n'
@@ -243,8 +232,8 @@ class KhronosBaseStructDecodersBodyGenerator():
                         buffer_args, value.name
                     )
                     main_body += '                break;\n'
-                    for child in self.base_header_structs[value.base_type]:
-                        switch_type = self.generate_structure_type(child)
+                    for child in self.children_structs[value.base_type]:
+                        switch_type = self.struct_type_names[child]
 
                         new_value = deepcopy(value)
                         new_value.base_type = child

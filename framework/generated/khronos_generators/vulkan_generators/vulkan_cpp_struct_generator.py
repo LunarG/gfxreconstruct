@@ -82,7 +82,7 @@ class VulkanCppStructGeneratorOptions(BaseGeneratorOptions):
         prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -93,7 +93,7 @@ class VulkanCppStructGeneratorOptions(BaseGeneratorOptions):
             CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 class VulkanCppStructGenerator(BaseGenerator):
@@ -106,9 +106,6 @@ class VulkanCppStructGenerator(BaseGenerator):
      ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -179,7 +176,7 @@ class VulkanCppStructGenerator(BaseGenerator):
 
         if self.is_header:
             self.writeout('#include "util/defines.h"')
-            self.includeVulkanHeaders(genOpts)
+            self.write_includes_of_common_api_headers(genOpts)
             self.newline()
 
         if not self.is_header:

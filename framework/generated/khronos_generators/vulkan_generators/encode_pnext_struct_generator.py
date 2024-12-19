@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_encode_extended_struct_generator import KhronosEncodeExtendedStructGenerator
 
 
 class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
@@ -38,7 +39,7 @@ class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -49,11 +50,11 @@ class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class EncodePNextStructGenerator(BaseGenerator):
+class EncodePNextStructGenerator(BaseGenerator, KhronosEncodeExtendedStructGenerator):
     """EncodePNextStructGenerator - subclass of BaseGenerator.
     Generates C++ code for Vulkan API pNext structure encoding.
     Generate pNext structure encoding C++ code.
@@ -64,121 +65,28 @@ class EncodePNextStructGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=False,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write(
-            '#include "generated/generated_vulkan_struct_encoders.h"',
-            file=self.outFile
-        )
-        self.newline()
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/vulkan_capture_manager.h"', file=self.outFile)
-        write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.includeVulkanHeaders(gen_opts)
-        self.newline()
-        write('#include <cassert>', file=self.outFile)
-        write('#include <cstdio>', file=self.outFile)
-        write('#include <memory>', file=self.outFile)
+        KhronosEncodeExtendedStructGenerator.write_common_headers(self, gen_opts)
+
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(encoder != nullptr);', file=self.outFile)
-        self.newline()
-        write(
-            '    auto base = reinterpret_cast<const VkBaseInStructure*>(value);',
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '    // Ignore the structures added to the pnext chain by the loader.',
-            file=self.outFile
-        )
-        write(
-            '    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||',
-            file=self.outFile
-        )
-        write(
-            '                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))',
-            file=self.outFile
-        )
-        write('    {', file=self.outFile)
-        write('        base = base->pNext;', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    if (base != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        switch (base->sType)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('        default:', file=self.outFile)
-        write('            {', file=self.outFile)
-        write(
-            '                // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.',
-            file=self.outFile
-        )
-        write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
-            file=self.outFile
-        )
-        write(
-            '                std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.',
-            file=self.outFile
-        )
-        write(
-            '                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);',
-            file=self.outFile
-        )
-        write(
-            '                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());',
-            file=self.outFile
-        )
-        write(
-            '                GFXRECON_LOG_WARNING("%s", message.get());',
-            file=self.outFile
-        )
-        write(
-            '                EncodePNextStruct(encoder, base->pNext);',
-            file=self.outFile
-        )
-        write('            }', file=self.outFile)
-        write('            break;', file=self.outFile)
+
+        KhronosEncodeExtendedStructGenerator.write_encode_struct_definition_prefix(self)
 
     def endFile(self):
         """Method override."""
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('    else', file=self.outFile)
-        write('    {', file=self.outFile)
-        write(
-            '        // pNext was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.',
-            file=self.outFile
-        )
-        write(
-            '        encoder->EncodeStructPtrPreamble(nullptr);',
-            file=self.outFile
-        )
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
+        KhronosEncodeExtendedStructGenerator.write_encode_struct_definition_data(self)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -186,33 +94,19 @@ class EncodePNextStructGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    self.stype_values[typename] = stype
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.stype_values:
+        if self.feature_extended_structs:
             return True
         return False
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.stype_values:
-            write(
-                '        case {}:'.format(self.stype_values[struct]),
-                file=self.outFile
-            )
-            write(
-                '            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'
-                .format(struct),
-                file=self.outFile
-            )
-            write('            break;', file=self.outFile)
-        self.stype_values = dict()
+    def write_encode_struct_while_loop_statement(self, current_api_data):
+        """Method Override"""
+        write(
+            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
+            file=self.outFile
+        )
+        write(
+            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
+            file=self.outFile
+        )

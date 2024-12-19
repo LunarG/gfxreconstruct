@@ -66,7 +66,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
         prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -77,7 +77,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
             CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 1
@@ -91,9 +91,6 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
      ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -114,7 +111,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
             self.writeout('#include "generated/generated_vulkan_cpp_structs.h"')
             self.writeout('#include "decode/vulkan_cpp_structs.h"')
         self.writeout('#include "util/defines.h"')
-        self.includeVulkanHeaders(genOpts)
+        self.write_includes_of_common_api_headers(genOpts)
         self.newline()
         self.writeout('#include <iostream>')
         self.writeout('#include <sstream>')

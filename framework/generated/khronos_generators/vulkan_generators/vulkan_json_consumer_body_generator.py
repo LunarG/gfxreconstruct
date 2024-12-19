@@ -37,7 +37,7 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -48,7 +48,7 @@ class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -64,9 +64,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=False,
-            feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -111,7 +108,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             #include "decode/custom_vulkan_struct_to_json.h"
         ''')
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(gen_opts)
+        self.write_includes_of_common_api_headers(gen_opts)
         namespace = remove_trailing_newlines(indent_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
@@ -139,7 +136,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
 
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
         # of functions and structures not to generate code for. Once the feature is implemented, the following can be
@@ -153,7 +149,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                 return_type = info[0]
                 values = info[2]
 
-                cmddef = '' if first else '\n'
+                cmddef = '\n'
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanExportJsonConsumer::Process_' + cmd, values
                 ) + '\n'
@@ -172,7 +168,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                     }
                 ''', 1)
                 write(cmddef, file=self.outFile)
-                first = False
 
     def is_command_buffer_cmd(self, command):
         if 'vkCmd' in command:

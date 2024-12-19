@@ -37,7 +37,7 @@ class VulkanCommandBufferUtilBodyGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -48,7 +48,7 @@ class VulkanCommandBufferUtilBodyGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
@@ -64,9 +64,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -104,6 +101,9 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            self.command_info[cmd] = self.all_cmd_params[cmd]
+
         wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd, info in self.command_info.items():
             if not cmd[2:] in self.customImplementationRequired:
@@ -158,11 +158,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""

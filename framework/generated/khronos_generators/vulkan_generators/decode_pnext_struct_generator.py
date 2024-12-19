@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from khronos_decode_extended_struct_generator import KhronosDecodeExtendedStructGenerator
 
 
 class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
@@ -38,7 +39,7 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extra_headers=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -49,11 +50,11 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extra_headers=extra_headers
         )
 
 
-class DecodePNextStructGenerator(BaseGenerator):
+class DecodePNextStructGenerator(BaseGenerator, KhronosDecodeExtendedStructGenerator):
     """DecodePNextStructGenerator - subclass of BaseGenerator.
     Generates C++ code for Vulkan API pNext structure decoding.
     Generate pNext structure decoding C++ code.
@@ -64,136 +65,28 @@ class DecodePNextStructGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=False,
-            process_structs=False,
-            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write(
-            '#include "decode/custom_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
-        write('#include "decode/decode_allocator.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
-        write('#include "decode/vulkan_pnext_typed_node.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_vulkan_struct_decoders.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "generated/generated_vulkan_enum_to_string.h"',
-            file=self.outFile
-        )
-        write('#include "util/logging.h"', file=self.outFile)
-        self.newline()
-        write('#include <cassert>', file=self.outFile)
+        KhronosDecodeExtendedStructGenerator.write_common_headers(self, gen_opts)
+
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write(
-            'size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  PNextNode** pNext)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    assert(pNext != nullptr);', file=self.outFile)
-        self.newline()
-        write('    size_t bytes_read = 0;', file=self.outFile)
-        write('    uint32_t attrib = 0;', file=self.outFile)
-        self.newline()
-        write(
-            '    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(attrib)))',
-            file=self.outFile
-        )
-        write('    {', file=self.outFile)
-        write('        size_t stype_offset = 0;', file=self.outFile)
-        self.newline()
-        write(
-            '        // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.',
-            file=self.outFile
-        )
-        write(
-            '        attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));',
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '        if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)',
-            file=self.outFile
-        )
-        write('        {', file=self.outFile)
-        write(
-            '            // Offset to VkStructureType, after the pointer encoding preamble.',
-            file=self.outFile
-        )
-        write('            stype_offset = sizeof(attrib);', file=self.outFile)
-        self.newline()
-        write(
-            '            if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)',
-            file=self.outFile
-        )
-        write('            {', file=self.outFile)
-        write(
-            '                stype_offset += sizeof(format::AddressEncodeType);',
-            file=self.outFile
-        )
-        write('            }', file=self.outFile)
-        write('        }', file=self.outFile)
-        self.newline()
-        write(
-            '        if ((stype_offset != 0) && ((buffer_size - stype_offset) >= sizeof(VkStructureType)))',
-            file=self.outFile
-        )
-        write('        {', file=self.outFile)
-        write(
-            '            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer + stype_offset);',
-            file=self.outFile
-        )
-        self.newline()
-        write('            switch (*sType)', file=self.outFile)
-        write('            {', file=self.outFile)
-        write('            default:', file=self.outFile)
-        write(
-            '                // TODO: This may need to be a fatal error',
-            file=self.outFile
-        )
-        write(
-            '                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));',
-            file=self.outFile
-        )
-        write('                break;', file=self.outFile)
+
+        KhronosDecodeExtendedStructGenerator.write_decode_struct_definition_prefix(self)
 
     def endFile(self):
         """Method override."""
-        write('            }', file=self.outFile)
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    if ((bytes_read == 0) && (attrib != 0))', file=self.outFile)
-        write('    {', file=self.outFile)
-        write(
-            '        // The encoded pointer attribute mask included kIsNull, or the sType was unrecognized.',
-            file=self.outFile
-        )
-        write(
-            '        // We will report that we read the attribute mask, but nothing else was decoded.',
-            file=self.outFile
-        )
-        write('        bytes_read = sizeof(attrib);', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('    return bytes_read;', file=self.outFile)
-        write('}', file=self.outFile)
+        """Performs C++ code generation for the feature."""
+        KhronosDecodeExtendedStructGenerator.write_decode_struct_definition_data(self)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -201,37 +94,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    self.stype_values[typename] = stype
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.stype_values:
+        if self.feature_extended_structs:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.stype_values:
-            write(
-                '            case {}:'.format(self.stype_values[struct]),
-                file=self.outFile
-            )
-            write(
-                '                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'
-                .format(struct),
-                file=self.outFile
-            )
-            write(
-                '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
-                file=self.outFile
-            )
-            write('                break;', file=self.outFile)
-        self.stype_values = dict()
