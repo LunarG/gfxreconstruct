@@ -181,12 +181,11 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                 if len(self.enumEnumerants[enum]):
                     body += '    switch (value) {{\n'
                     for enumerant in self.enumEnumerants[enum]:
-                        if self.enumEnumerants[enum][enumerant]:
-                            body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
-                            case {0}:
-                                jdata = "{0}";
-                                break;
-                            '''.format(enumerant)))
+                        body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
+                        case {0}:
+                            jdata = "{0}";
+                            break;
+                        '''.format(enumerant)))
                     body += '        default:\n'
                     body += '            jdata = to_hex_fixed_width(value);\n'
                     body += '            break;\n'
