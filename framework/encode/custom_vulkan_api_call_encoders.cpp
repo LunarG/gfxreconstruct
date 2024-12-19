@@ -354,8 +354,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 
-    auto encoder =
-        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
