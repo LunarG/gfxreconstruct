@@ -141,8 +141,6 @@ void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
 
 void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
 
-void TrackCmdPushDescriptorSetWithTemplateHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout);
-
 void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
 void TrackCmdPushConstants2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushConstantsInfo* pPushConstantsInfo);

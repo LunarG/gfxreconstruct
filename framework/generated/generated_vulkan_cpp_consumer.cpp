@@ -5116,29 +5116,6 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSet2(
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2);
 }
 
-void VulkanCppConsumer::Process_vkCmdPushDescriptorSetWithTemplate(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            descriptorUpdateTemplate,
-    format::HandleId                            layout,
-    uint32_t                                    set,
-    uint64_t                                    pData)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tvoid* %s;\n", pdata_name.c_str());
-    fprintf(file,
-            "\t\tvkCmdPushDescriptorSetWithTemplate(%s, %s, %s, %u, %s);\n",
-            this->GetHandle(commandBuffer).c_str(),
-            this->GetHandle(descriptorUpdateTemplate).c_str(),
-            this->GetHandle(layout).c_str(),
-            set,
-            pdata_name.c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
-}
-
 void VulkanCppConsumer::Process_vkCmdSetLineStipple(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

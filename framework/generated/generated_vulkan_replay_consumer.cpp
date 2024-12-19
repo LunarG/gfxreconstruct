@@ -3652,27 +3652,6 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet(
     }
 }
 
-void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplate(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            descriptorUpdateTemplate,
-    format::HandleId                            layout,
-    uint32_t                                    set,
-    uint64_t                                    pData)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<VulkanDescriptorUpdateTemplateInfo>(descriptorUpdateTemplate, &CommonObjectInfoTable::GetVkDescriptorUpdateTemplateInfo);
-    VkPipelineLayout in_layout = MapHandle<VulkanPipelineLayoutInfo>(layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    const void* in_pData = PreProcessExternalObject(pData, format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate, "vkCmdPushDescriptorSetWithTemplate");
-
-    GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate(in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, in_pData);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper_->Process_vkCmdPushDescriptorSetWithTemplate(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate, in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, in_pData);
-    }
-}
-
 void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocations(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

@@ -701,14 +701,6 @@ void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wra
     }
 }
 
-void TrackCmdPushDescriptorSetWithTemplateHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout)
-{
-    assert(wrapper != nullptr);
-
-    if(descriptorUpdateTemplate != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorUpdateTemplateHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate));
-    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
-}
-
 void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo)
 {
     assert(wrapper != nullptr);

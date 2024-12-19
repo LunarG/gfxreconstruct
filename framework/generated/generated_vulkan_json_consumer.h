@@ -1503,14 +1503,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         uint32_t                                    descriptorWriteCount,
         StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            descriptorUpdateTemplate,
-        format::HandleId                            layout,
-        uint32_t                                    set,
-        uint64_t                                    pData) override;
-
     virtual void Process_vkCmdSetRenderingAttachmentLocations(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

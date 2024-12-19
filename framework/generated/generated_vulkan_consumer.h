@@ -1536,14 +1536,6 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    descriptorWriteCount,
         StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            descriptorUpdateTemplate,
-        format::HandleId                            layout,
-        uint32_t                                    set,
-        uint64_t                                    pData) {}
-
     virtual void Process_vkCmdSetRenderingAttachmentLocations(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

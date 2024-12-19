@@ -4740,30 +4740,6 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId commandBuffer;
-    format::HandleId descriptorUpdateTemplate;
-    format::HandleId layout;
-    uint32_t set;
-    uint64_t pData;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &set);
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pData);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCmdPushDescriptorSetWithTemplate(call_info, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkCmdSetRenderingAttachmentLocations(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -14939,9 +14915,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdPushDescriptorSet:
         Decode_vkCmdPushDescriptorSet(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate:
-        Decode_vkCmdPushDescriptorSetWithTemplate(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetRenderingAttachmentLocations:
         Decode_vkCmdSetRenderingAttachmentLocations(call_info, parameter_buffer, buffer_size);

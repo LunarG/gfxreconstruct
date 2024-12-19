@@ -1229,13 +1229,6 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet(
     uint32_t                                    descriptorWriteCount,
     const VkWriteDescriptorSet*                 pDescriptorWrites);
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(
-    VkCommandBuffer                             commandBuffer,
-    VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
-    VkPipelineLayout                            layout,
-    uint32_t                                    set,
-    const void*                                 pData);
-
 VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocations(
     VkCommandBuffer                             commandBuffer,
     const VkRenderingAttachmentLocationInfo*    pLocationInfo);
