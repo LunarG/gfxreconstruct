@@ -461,7 +461,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
-            self.featureExtraProtect = self.__get_feature_protect(interface)
+            self.featureExtraProtect = self.get_feature_protect(interface)
 
         if not self.generate_video:
             self.gen_video_type()
