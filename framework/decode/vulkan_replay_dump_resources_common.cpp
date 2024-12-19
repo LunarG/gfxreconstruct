@@ -320,6 +320,7 @@ uint32_t VkIndexTypeToBytes(VkIndexType type)
 uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                                  uint32_t                    index_count,
                                  uint32_t                    first_index,
+                                 int32_t                     vertex_offset,
                                  VkIndexType                 type)
 {
     switch (type)
@@ -354,7 +355,7 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 }
             }
 
-            return max;
+            return static_cast<uint32_t>(max) + vertex_offset;
         }
         break;
 
@@ -388,7 +389,7 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 }
             }
 
-            return max;
+            return static_cast<uint32_t>(max) + vertex_offset;
         }
         break;
 
@@ -422,7 +423,7 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 }
             }
 
-            return max;
+            return max + vertex_offset;
         }
         break;
 
