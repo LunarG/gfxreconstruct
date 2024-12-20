@@ -415,6 +415,8 @@ class VulkanStateWriter
 
     void WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset);
 
+    void WriteDebugUtilsState(const VulkanStateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

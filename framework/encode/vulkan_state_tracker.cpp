@@ -3231,5 +3231,688 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
     }
 }
 
+static void AssignDebugToObject(VkObjectType                        object_type,
+                                uint64_t                            object_handle,
+                                vulkan_state_info::CreateParameters object_name_parameter_buffer,
+                                vulkan_state_info::CreateParameters object_tag_parameter_buffer)
+{
+    switch (object_type)
+    {
+        case VK_OBJECT_TYPE_INSTANCE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(
+                    format::FromHandleId<VkInstance>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(
+                    format::FromHandleId<VkInstance>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PHYSICAL_DEVICE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(
+                    format::FromHandleId<VkPhysicalDevice>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(
+                    format::FromHandleId<VkPhysicalDevice>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DEVICE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(
+                    format::FromHandleId<VkDevice>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(
+                    format::FromHandleId<VkDevice>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_QUEUE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(format::FromHandleId<VkQueue>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(format::FromHandleId<VkQueue>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SEMAPHORE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(
+                    format::FromHandleId<VkSemaphore>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SemaphoreWrapper>(
+                    format::FromHandleId<VkSemaphore>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_COMMAND_BUFFER:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                    format::FromHandleId<VkCommandBuffer>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                    format::FromHandleId<VkCommandBuffer>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_FENCE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(format::FromHandleId<VkFence>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(format::FromHandleId<VkFence>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(
+                    format::FromHandleId<VkDeviceMemory>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(
+                    format::FromHandleId<VkDeviceMemory>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_BUFFER:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                    format::FromHandleId<VkBuffer>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                    format::FromHandleId<VkBuffer>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_IMAGE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(format::FromHandleId<VkImage>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(format::FromHandleId<VkImage>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_EVENT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::EventWrapper>(format::FromHandleId<VkEvent>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::EventWrapper>(format::FromHandleId<VkEvent>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_QUERY_POOL:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(
+                    format::FromHandleId<VkQueryPool>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(
+                    format::FromHandleId<VkQueryPool>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_BUFFER_VIEW:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                    format::FromHandleId<VkBufferView>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                    format::FromHandleId<VkBufferView>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_IMAGE_VIEW:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                    format::FromHandleId<VkImageView>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                    format::FromHandleId<VkImageView>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SHADER_MODULE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
+                    format::FromHandleId<VkShaderModule>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
+                    format::FromHandleId<VkShaderModule>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PIPELINE_CACHE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(
+                    format::FromHandleId<VkPipelineCache>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(
+                    format::FromHandleId<VkPipelineCache>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PIPELINE_LAYOUT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(
+                    format::FromHandleId<VkPipelineLayout>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(
+                    format::FromHandleId<VkPipelineLayout>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_RENDER_PASS:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(
+                    format::FromHandleId<VkRenderPass>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(
+                    format::FromHandleId<VkRenderPass>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PIPELINE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(
+                    format::FromHandleId<VkPipeline>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(
+                    format::FromHandleId<VkPipeline>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(
+                    format::FromHandleId<VkDescriptorSetLayout>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(
+                    format::FromHandleId<VkDescriptorSetLayout>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SAMPLER:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(
+                    format::FromHandleId<VkSampler>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(
+                    format::FromHandleId<VkSampler>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DESCRIPTOR_POOL:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(
+                    format::FromHandleId<VkDescriptorPool>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(
+                    format::FromHandleId<VkDescriptorPool>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(
+                    format::FromHandleId<VkDescriptorSet>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(
+                    format::FromHandleId<VkDescriptorSet>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_FRAMEBUFFER:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FramebufferWrapper>(
+                    format::FromHandleId<VkFramebuffer>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FramebufferWrapper>(
+                    format::FromHandleId<VkFramebuffer>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_COMMAND_POOL:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(
+                    format::FromHandleId<VkCommandPool>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(
+                    format::FromHandleId<VkCommandPool>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(
+                    format::FromHandleId<VkSamplerYcbcrConversion>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(
+                    format::FromHandleId<VkSamplerYcbcrConversion>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(
+                    format::FromHandleId<VkDescriptorUpdateTemplate>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(
+                    format::FromHandleId<VkDescriptorUpdateTemplate>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SURFACE_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(
+                    format::FromHandleId<VkSurfaceKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(
+                    format::FromHandleId<VkSurfaceKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_SWAPCHAIN_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(
+                    format::FromHandleId<VkSwapchainKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(
+                    format::FromHandleId<VkSwapchainKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DISPLAY_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(
+                    format::FromHandleId<VkDisplayKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(
+                    format::FromHandleId<VkDisplayKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DISPLAY_MODE_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(
+                    format::FromHandleId<VkDisplayModeKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(
+                    format::FromHandleId<VkDisplayModeKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(
+                    format::FromHandleId<VkDebugReportCallbackEXT>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(
+                    format::FromHandleId<VkDebugReportCallbackEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(
+                    format::FromHandleId<VkDebugUtilsMessengerEXT>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(
+                    format::FromHandleId<VkDebugUtilsMessengerEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                    format::FromHandleId<VkAccelerationStructureKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                    format::FromHandleId<VkAccelerationStructureKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(
+                    format::FromHandleId<VkValidationCacheEXT>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(
+                    format::FromHandleId<VkValidationCacheEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(
+                    format::FromHandleId<VkPerformanceConfigurationINTEL>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(
+                    format::FromHandleId<VkPerformanceConfigurationINTEL>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(
+                    format::FromHandleId<VkDeferredOperationKHR>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(
+                    format::FromHandleId<VkDeferredOperationKHR>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(
+                    format::FromHandleId<VkIndirectCommandsLayoutNV>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(
+                    format::FromHandleId<VkIndirectCommandsLayoutNV>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(
+                    format::FromHandleId<VkMicromapEXT>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(
+                    format::FromHandleId<VkMicromapEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PrivateDataSlotEXTWrapper>(
+                    format::FromHandleId<VkPrivateDataSlotEXT>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::PrivateDataSlotEXTWrapper>(
+                    format::FromHandleId<VkPrivateDataSlotEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(
+                    format::FromHandleId<VkAccelerationStructureNV>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(
+                    format::FromHandleId<VkAccelerationStructureNV>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_UNKNOWN:
+        default:
+            break;
+    }
+}
+
+void VulkanStateTracker::TrackSetDebugUtilsObjectNameEXT(VkDevice                             device,
+                                                         const VkDebugUtilsObjectNameInfoEXT* pNameInfo,
+                                                         const util::MemoryOutputStream* object_name_parameter_buffer)
+{
+    AssignDebugToObject(pNameInfo->objectType,
+                        pNameInfo->objectHandle,
+                        std::make_shared<util::MemoryOutputStream>(object_name_parameter_buffer->GetData(),
+                                                                   object_name_parameter_buffer->GetDataSize()),
+                        nullptr);
+}
+
+void VulkanStateTracker::TrackSetDebugUtilsObjectTagEXT(VkDevice                            device,
+                                                        const VkDebugUtilsObjectTagInfoEXT* pTagInfo,
+                                                        const util::MemoryOutputStream*     object_tag_parameter_buffer)
+{
+    AssignDebugToObject(pTagInfo->objectType,
+                        pTagInfo->objectHandle,
+                        nullptr,
+                        std::make_shared<util::MemoryOutputStream>(object_tag_parameter_buffer->GetData(),
+                                                                   object_tag_parameter_buffer->GetDataSize()));
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

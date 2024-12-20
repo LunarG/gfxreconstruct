@@ -424,6 +424,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             'vkAllocate'
         ) or name.startswith('vkDestroy') or name.startswith(
             'vkFree'
+        ) or name.startswith('vkSetDebugUtilsObject'
         ) or self.retrieves_handles(values) or (
             values[0].base_type == 'VkCommandBuffer'
         ) or (name == 'vkReleasePerformanceConfigurationINTEL'):
