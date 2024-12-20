@@ -65,13 +65,16 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  bool                   flush_measurement_range,
                  bool                   flush_inside_measurement_range,
                  bool                   preload_measurement_range,
-                 const std::string_view measurement_file_name) :
+                 const std::string_view measurement_file_name,
+                 bool                   quit_after_frame,
+                 uint64_t               quit_frame) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     has_measurement_range_(has_measurement_range), quit_after_range_(quit_after_range),
     flush_measurement_range_(flush_measurement_range), flush_inside_measurement_range_(flush_inside_measurement_range),
     started_measurement_(false), ended_measurement_(false), frame_start_time_(0), frame_durations_(),
-    measurement_file_name_(measurement_file_name), preload_measurement_range_(preload_measurement_range)
+    measurement_file_name_(measurement_file_name), preload_measurement_range_(preload_measurement_range),
+    quit_after_frame_(quit_after_frame), quit_frame_(quit_frame)
 {
     if (has_measurement_range_)
     {
@@ -93,7 +96,7 @@ bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
 
 bool FpsInfo::ShouldQuit(uint64_t frame)
 {
-    return quit_after_range_ && (frame > measurement_end_frame_);
+    return (quit_after_range_ && (frame > measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
 }
 
 void FpsInfo::BeginFrame(uint64_t frame)

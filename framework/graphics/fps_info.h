@@ -43,7 +43,9 @@ class FpsInfo
                      bool             flush_measurement_range        = false,
                      bool             flush_inside_measurement_range = false,
                      bool             preload_measurement_range      = false,
-                     std::string_view measurement_file_name          = "");
+                     std::string_view measurement_file_name          = "",
+                     bool             quit_after_frame               = false,
+                     uint64_t         quit_frame                     = std::numeric_limits<uint64_t>::max());
 
     void LogToConsole();
 
@@ -83,6 +85,9 @@ class FpsInfo
     std::string measurement_file_name_;
 
     bool preload_measurement_range_;
+
+    bool     quit_after_frame_;
+    uint64_t quit_frame_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

@@ -158,6 +158,15 @@ void android_main(struct android_app* app)
                     GetMeasurementFilename(arg_parser, measurement_file_name);
                 }
 
+                bool     quit_after_frame = false;
+                uint32_t quit_frame;
+
+                if (replay_options.quit_after_frame)
+                {
+                    quit_after_frame = true;
+                    GetQuitAfterFrame(arg_parser, quit_frame);
+                }
+
                 gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
                                                      static_cast<uint64_t>(end_frame),
                                                      has_mfr,
@@ -165,7 +174,9 @@ void android_main(struct android_app* app)
                                                      replay_options.flush_measurement_frame_range,
                                                      replay_options.flush_inside_measurement_range,
                                                      replay_options.preload_measurement_range,
-                                                     measurement_file_name);
+                                                     measurement_file_name,
+                                                     quit_after_frame,
+                                                     quit_frame);
 
                 vulkan_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
