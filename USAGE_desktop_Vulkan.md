@@ -812,7 +812,8 @@ Optional arguments:
                         when it encounters a pipeline created without cache. This option can
                         be used in coordination with `--save-pipeline-cache` and
                         `--load-pipeline-cache`.
-
+  --quit-after-frame
+              Specify a frame after which replay will terminate.
 ```
 
 ### Key Controls

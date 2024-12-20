@@ -45,7 +45,7 @@ const char kArguments[] =
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
     "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
-    "pipeline-cache";
+    "pipeline-cache,--quit-after-frame";
 
 static void PrintUsage(const char* exe_name)
 {
