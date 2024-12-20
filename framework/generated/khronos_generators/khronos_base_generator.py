@@ -463,37 +463,6 @@ class KhronosBaseGenerator(OutputGenerator):
         if self.genOpts.protect_feature:
             self.featureExtraProtect = self.get_feature_protect(interface)
 
-        if not self.generate_video:
-            self.gen_video_type()
-            self.generate_video = True
-
-    def gen_video_type(self):
-        if not self.VIDEO_TREE:
-            return
-
-        if self.process_structs:
-            types = self.VIDEO_TREE.find('types')
-            for element in types.iter('type'):
-                name = element.get('name')
-                category = element.get('category')
-                if name and category and (category == 'struct' or category == 'union'):
-                    self.struct_names.add(name)
-                    if category == 'struct':
-                        self.feature_struct_members[name] = self.make_value_info(
-                            element.findall('member')
-                        )
-
-        for element in self.VIDEO_TREE.iter('enums'):
-            group_name = element.get('name')
-            self.enum_names.add(group_name)
-            enumerants = dict()
-            for elem in element.findall('enum'):
-                name = elem.get('name')
-                value = elem.get('value')
-                if value:
-                    enumerants[name] = value
-            self.enumEnumerants[group_name] = enumerants
-
     def endFeature(self):
         """Method override. Generate code for the feature."""
         if self.emit and self.need_feature_generation():
