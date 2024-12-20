@@ -3372,8 +3372,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDriverId& value, const J
         case VK_DRIVER_ID_MESA_HONEYKRISP:
             jdata = "VK_DRIVER_ID_MESA_HONEYKRISP";
             break;
-        case VK_DRIVER_ID_RESERVED_27:
-            jdata = "VK_DRIVER_ID_RESERVED_27";
+        case VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN:
+            jdata = "VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN";
             break;
         default:
             jdata = to_hex_fixed_width(value);
