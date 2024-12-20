@@ -700,7 +700,7 @@ queryable permission to apply.
 The `gfxrecon.py replay` command has the following usage:
 
 ```text
-usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-frame N]
+usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--cpu-mask <binary-mask>] [--pause-frame N]
                           [--paused] [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
@@ -749,6 +749,13 @@ optional arguments:
   -p LOCAL_FILE, --push-file LOCAL_FILE
                         Local file to push to the location on device specified
                         by <file>
+  --cpu-mask <binary-mask>
+                        Set of CPU cores used by the replayer.
+                        `binary-mask` is a succession of '0' and '1' that specifies
+                        used/unused cores. For example '1010' activates the first and
+                        third cores and deactivate all other cores.
+                        If the option is not set, all cores can be used. If the option
+                        is set only for some cores, the other cores are not used.
   --screenshot-all      Generate screenshots for all frames. When this option
                         is specified, --screenshots is ignored (forwarded to
                         replay tool)
@@ -792,7 +799,7 @@ optional arguments:
                         See gfxrecon-extract.
   --opcd, --omit-pipeline-cache-data
                         Omit pipeline cache data from calls to
-                        vkCreatePipelineCache and skip calls to
+                        vkCreatePipelineCache and skip calls to--cpu-mask <binary-mask>
                         vkGetPipelineCacheData (forwarded to replay tool)
   --surface-index N     Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.
