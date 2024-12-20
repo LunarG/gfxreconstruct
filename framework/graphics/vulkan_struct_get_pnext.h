@@ -107,6 +107,42 @@ static T* vulkan_struct_get_pnext(Parent_T* parent)
     return nullptr;
 }
 
+/**
+ * @brief   vulkan_struct_remove_pnext can be used to remove elements in-place from a
+ *          provided structure's pNext-chain by their type.
+ *
+ * Searches through the parent's pNext-chain for the first struct with the requested struct_type.
+ * @p T and @p Parent_T must be Vulkan structure-types. Returns nullptr if no matching struct could be found.
+ *
+ * @tparam  T           the structure-type to remove from pNext-chain
+ * @tparam  Parent_T    implicit type of provided structure
+ * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
+ * @return  a typed pointer to a structure removed from the pNext-chain or nullptr.
+ */
+template <typename T, typename Parent_T>
+static T* vulkan_struct_remove_pnext(Parent_T* parent)
+{
+    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
+
+    if (parent != nullptr)
+    {
+        auto prev_struct    = reinterpret_cast<VkBaseOutStructure*>(parent);
+        auto current_struct = reinterpret_cast<VkBaseOutStructure*>(parent)->pNext;
+
+        while (current_struct != nullptr)
+        {
+            if (current_struct->sType == gfxrecon::util::GetSType<T>())
+            {
+                prev_struct->pNext = current_struct->pNext;
+                return reinterpret_cast<T*>(current_struct);
+            }
+            prev_struct    = current_struct;
+            current_struct = current_struct->pNext;
+        }
+    }
+    return nullptr;
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
