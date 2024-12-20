@@ -3728,7 +3728,7 @@ template <> std::string ToString<VkDriverId>(const VkDriverId& value, ToStringFl
     case VK_DRIVER_ID_MESA_NVK: return "VK_DRIVER_ID_MESA_NVK";
     case VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA: return "VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA";
     case VK_DRIVER_ID_MESA_HONEYKRISP: return "VK_DRIVER_ID_MESA_HONEYKRISP";
-    case VK_DRIVER_ID_RESERVED_27: return "VK_DRIVER_ID_RESERVED_27";
+    case VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN: return "VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN";
     default: break;
     }
     return "Unhandled VkDriverId";
