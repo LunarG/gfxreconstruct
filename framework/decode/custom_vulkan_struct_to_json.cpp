@@ -462,5 +462,17 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
     FieldToJson(jdata["offset"], pData->offset, options);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryType& data, const util::JsonOptions& options)
+{
+    FieldToJson(decode::VkMemoryPropertyFlags_t(), jdata["property_flags"], data.property_flags, options);
+    FieldToJson(jdata["heap_index"], data.heap_index, options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryHeap& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["size"], data.size, options);
+    FieldToJson(decode::VkMemoryHeapFlags_t(), jdata["flags"], data.flags, options);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
