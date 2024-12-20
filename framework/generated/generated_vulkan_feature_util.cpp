@@ -1335,6 +1335,405 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES:
+            {
+                const VkPhysicalDeviceVulkan14Features* currentNext = reinterpret_cast<const VkPhysicalDeviceVulkan14Features*>(next);
+                VkPhysicalDeviceVulkan14Features query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->globalPriorityQuery == VK_TRUE) && (query.globalPriorityQuery == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature globalPriorityQuery %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->globalPriorityQuery =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderSubgroupRotate == VK_TRUE) && (query.shaderSubgroupRotate == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotate %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->shaderSubgroupRotate =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderSubgroupRotateClustered == VK_TRUE) && (query.shaderSubgroupRotateClustered == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotateClustered %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->shaderSubgroupRotateClustered =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderFloatControls2 == VK_TRUE) && (query.shaderFloatControls2 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderFloatControls2 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->shaderFloatControls2 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderExpectAssume == VK_TRUE) && (query.shaderExpectAssume == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderExpectAssume %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->shaderExpectAssume =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->rectangularLines == VK_TRUE) && (query.rectangularLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rectangularLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->rectangularLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->bresenhamLines == VK_TRUE) && (query.bresenhamLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature bresenhamLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->bresenhamLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->smoothLines == VK_TRUE) && (query.smoothLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature smoothLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->smoothLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledRectangularLines == VK_TRUE) && (query.stippledRectangularLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledRectangularLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->stippledRectangularLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledBresenhamLines == VK_TRUE) && (query.stippledBresenhamLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledBresenhamLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->stippledBresenhamLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledSmoothLines == VK_TRUE) && (query.stippledSmoothLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledSmoothLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->stippledSmoothLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->vertexAttributeInstanceRateDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateDivisor == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateDivisor %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->vertexAttributeInstanceRateDivisor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->vertexAttributeInstanceRateZeroDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateZeroDivisor == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateZeroDivisor %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->vertexAttributeInstanceRateZeroDivisor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->indexTypeUint8 == VK_TRUE) && (query.indexTypeUint8 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature indexTypeUint8 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->indexTypeUint8 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->dynamicRenderingLocalRead == VK_TRUE) && (query.dynamicRenderingLocalRead == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dynamicRenderingLocalRead %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->dynamicRenderingLocalRead =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->maintenance5 == VK_TRUE) && (query.maintenance5 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance5 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->maintenance5 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->maintenance6 == VK_TRUE) && (query.maintenance6 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance6 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->maintenance6 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->pipelineProtectedAccess == VK_TRUE) && (query.pipelineProtectedAccess == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineProtectedAccess %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->pipelineProtectedAccess =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->pipelineRobustness == VK_TRUE) && (query.pipelineRobustness == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineRobustness %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->pipelineRobustness =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->hostImageCopy == VK_TRUE) && (query.hostImageCopy == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature hostImageCopy %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->hostImageCopy =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->pushDescriptor == VK_TRUE) && (query.pushDescriptor == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pushDescriptor %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVulkan14Features*>(currentNext)->pushDescriptor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
+            {
+                const VkPhysicalDeviceGlobalPriorityQueryFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeatures*>(next);
+                VkPhysicalDeviceGlobalPriorityQueryFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->globalPriorityQuery == VK_TRUE) && (query.globalPriorityQuery == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature globalPriorityQuery %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceGlobalPriorityQueryFeatures*>(currentNext)->globalPriorityQuery =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
+            {
+                const VkPhysicalDeviceShaderSubgroupRotateFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupRotateFeatures*>(next);
+                VkPhysicalDeviceShaderSubgroupRotateFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderSubgroupRotate == VK_TRUE) && (query.shaderSubgroupRotate == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotate %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderSubgroupRotateFeatures*>(currentNext)->shaderSubgroupRotate =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderSubgroupRotateClustered == VK_TRUE) && (query.shaderSubgroupRotateClustered == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotateClustered %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderSubgroupRotateFeatures*>(currentNext)->shaderSubgroupRotateClustered =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
+            {
+                const VkPhysicalDeviceShaderFloatControls2Features* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderFloatControls2Features*>(next);
+                VkPhysicalDeviceShaderFloatControls2Features query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderFloatControls2 == VK_TRUE) && (query.shaderFloatControls2 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderFloatControls2 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderFloatControls2Features*>(currentNext)->shaderFloatControls2 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
+            {
+                const VkPhysicalDeviceShaderExpectAssumeFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderExpectAssumeFeatures*>(next);
+                VkPhysicalDeviceShaderExpectAssumeFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderExpectAssume == VK_TRUE) && (query.shaderExpectAssume == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderExpectAssume %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderExpectAssumeFeatures*>(currentNext)->shaderExpectAssume =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
+            {
+                const VkPhysicalDeviceLineRasterizationFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeatures*>(next);
+                VkPhysicalDeviceLineRasterizationFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->rectangularLines == VK_TRUE) && (query.rectangularLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rectangularLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->rectangularLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->bresenhamLines == VK_TRUE) && (query.bresenhamLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature bresenhamLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->bresenhamLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->smoothLines == VK_TRUE) && (query.smoothLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature smoothLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->smoothLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledRectangularLines == VK_TRUE) && (query.stippledRectangularLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledRectangularLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->stippledRectangularLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledBresenhamLines == VK_TRUE) && (query.stippledBresenhamLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledBresenhamLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->stippledBresenhamLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->stippledSmoothLines == VK_TRUE) && (query.stippledSmoothLines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature stippledSmoothLines %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceLineRasterizationFeatures*>(currentNext)->stippledSmoothLines =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
+            {
+                const VkPhysicalDeviceVertexAttributeDivisorFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeatures*>(next);
+                VkPhysicalDeviceVertexAttributeDivisorFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->vertexAttributeInstanceRateDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateDivisor == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateDivisor %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVertexAttributeDivisorFeatures*>(currentNext)->vertexAttributeInstanceRateDivisor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->vertexAttributeInstanceRateZeroDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateZeroDivisor == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateZeroDivisor %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVertexAttributeDivisorFeatures*>(currentNext)->vertexAttributeInstanceRateZeroDivisor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
+            {
+                const VkPhysicalDeviceIndexTypeUint8Features* currentNext = reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8Features*>(next);
+                VkPhysicalDeviceIndexTypeUint8Features query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->indexTypeUint8 == VK_TRUE) && (query.indexTypeUint8 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature indexTypeUint8 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceIndexTypeUint8Features*>(currentNext)->indexTypeUint8 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
+            {
+                const VkPhysicalDeviceMaintenance5Features* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance5Features*>(next);
+                VkPhysicalDeviceMaintenance5Features query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->maintenance5 == VK_TRUE) && (query.maintenance5 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance5 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceMaintenance5Features*>(currentNext)->maintenance5 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
+            {
+                const VkPhysicalDeviceDynamicRenderingLocalReadFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(next);
+                VkPhysicalDeviceDynamicRenderingLocalReadFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dynamicRenderingLocalRead == VK_TRUE) && (query.dynamicRenderingLocalRead == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dynamicRenderingLocalRead %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(currentNext)->dynamicRenderingLocalRead =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
+            {
+                const VkPhysicalDeviceMaintenance6Features* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance6Features*>(next);
+                VkPhysicalDeviceMaintenance6Features query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->maintenance6 == VK_TRUE) && (query.maintenance6 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance6 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceMaintenance6Features*>(currentNext)->maintenance6 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
+            {
+                const VkPhysicalDevicePipelineProtectedAccessFeatures* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeatures*>(next);
+                VkPhysicalDevicePipelineProtectedAccessFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineProtectedAccess == VK_TRUE) && (query.pipelineProtectedAccess == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineProtectedAccess %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePipelineProtectedAccessFeatures*>(currentNext)->pipelineProtectedAccess =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
+            {
+                const VkPhysicalDevicePipelineRobustnessFeatures* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineRobustnessFeatures*>(next);
+                VkPhysicalDevicePipelineRobustnessFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineRobustness == VK_TRUE) && (query.pipelineRobustness == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineRobustness %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePipelineRobustnessFeatures*>(currentNext)->pipelineRobustness =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
+            {
+                const VkPhysicalDeviceHostImageCopyFeatures* currentNext = reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeatures*>(next);
+                VkPhysicalDeviceHostImageCopyFeatures query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->hostImageCopy == VK_TRUE) && (query.hostImageCopy == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature hostImageCopy %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceHostImageCopyFeatures*>(currentNext)->hostImageCopy =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
             {
                 const VkPhysicalDevicePerformanceQueryFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDevicePerformanceQueryFeaturesKHR*>(next);
@@ -1492,21 +1891,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR*>(next);
-                VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->globalPriorityQuery == VK_TRUE) && (query.globalPriorityQuery == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature globalPriorityQuery %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR*>(currentNext)->globalPriorityQuery =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
             {
                 const VkPhysicalDeviceFragmentShadingRateFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(next);
@@ -1532,21 +1916,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature attachmentFragmentShadingRate %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(currentNext)->attachmentFragmentShadingRate =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR*>(next);
-                VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->dynamicRenderingLocalRead == VK_TRUE) && (query.dynamicRenderingLocalRead == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature dynamicRenderingLocalRead %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR*>(currentNext)->dynamicRenderingLocalRead =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -1699,28 +2068,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR*>(next);
-                VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->shaderSubgroupRotate == VK_TRUE) && (query.shaderSubgroupRotate == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotate %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR*>(currentNext)->shaderSubgroupRotate =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->shaderSubgroupRotateClustered == VK_TRUE) && (query.shaderSubgroupRotateClustered == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature shaderSubgroupRotateClustered %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR*>(currentNext)->shaderSubgroupRotateClustered =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             {
                 const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(next);
@@ -1732,21 +2079,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature shaderMaximalReconvergence %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(currentNext)->shaderMaximalReconvergence =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceMaintenance5FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance5FeaturesKHR*>(next);
-                VkPhysicalDeviceMaintenance5FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->maintenance5 == VK_TRUE) && (query.maintenance5 == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature maintenance5 %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceMaintenance5FeaturesKHR*>(currentNext)->maintenance5 =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -1825,6 +2157,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(next);
+                VkPhysicalDeviceVideoEncodeAV1FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->videoEncodeAV1 == VK_TRUE) && (query.videoEncodeAV1 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature videoEncodeAV1 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(currentNext)->videoEncodeAV1 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             {
                 const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(next);
@@ -1840,134 +2187,17 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
             {
-                const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(next);
-                VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR, nullptr };
+                const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(next);
+                VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR, nullptr };
                 physicalDeviceFeatures2.pNext = &query;
                 GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->vertexAttributeInstanceRateDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateDivisor == VK_FALSE))
+                if ((currentNext->videoEncodeQuantizationMap == VK_TRUE) && (query.videoEncodeQuantizationMap == VK_FALSE))
                 {
-                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateDivisor %s", warn_message);
+                    GFXRECON_LOG_WARNING("Feature videoEncodeQuantizationMap %s", warn_message);
                     found_unsupported = true;
-                    const_cast<VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(currentNext)->vertexAttributeInstanceRateDivisor =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->vertexAttributeInstanceRateZeroDivisor == VK_TRUE) && (query.vertexAttributeInstanceRateZeroDivisor == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature vertexAttributeInstanceRateZeroDivisor %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(currentNext)->vertexAttributeInstanceRateZeroDivisor =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceShaderFloatControls2FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderFloatControls2FeaturesKHR*>(next);
-                VkPhysicalDeviceShaderFloatControls2FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->shaderFloatControls2 == VK_TRUE) && (query.shaderFloatControls2 == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature shaderFloatControls2 %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceShaderFloatControls2FeaturesKHR*>(currentNext)->shaderFloatControls2 =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceIndexTypeUint8FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8FeaturesKHR*>(next);
-                VkPhysicalDeviceIndexTypeUint8FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->indexTypeUint8 == VK_TRUE) && (query.indexTypeUint8 == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature indexTypeUint8 %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceIndexTypeUint8FeaturesKHR*>(currentNext)->indexTypeUint8 =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceLineRasterizationFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeaturesKHR*>(next);
-                VkPhysicalDeviceLineRasterizationFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->rectangularLines == VK_TRUE) && (query.rectangularLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature rectangularLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->rectangularLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->bresenhamLines == VK_TRUE) && (query.bresenhamLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature bresenhamLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->bresenhamLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->smoothLines == VK_TRUE) && (query.smoothLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature smoothLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->smoothLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->stippledRectangularLines == VK_TRUE) && (query.stippledRectangularLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature stippledRectangularLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->stippledRectangularLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->stippledBresenhamLines == VK_TRUE) && (query.stippledBresenhamLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature stippledBresenhamLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->stippledBresenhamLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                if ((currentNext->stippledSmoothLines == VK_TRUE) && (query.stippledSmoothLines == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature stippledSmoothLines %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceLineRasterizationFeaturesKHR*>(currentNext)->stippledSmoothLines =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR*>(next);
-                VkPhysicalDeviceShaderExpectAssumeFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->shaderExpectAssume == VK_TRUE) && (query.shaderExpectAssume == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature shaderExpectAssume %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceShaderExpectAssumeFeaturesKHR*>(currentNext)->shaderExpectAssume =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceMaintenance6FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance6FeaturesKHR*>(next);
-                VkPhysicalDeviceMaintenance6FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->maintenance6 == VK_TRUE) && (query.maintenance6 == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature maintenance6 %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceMaintenance6FeaturesKHR*>(currentNext)->maintenance6 =
+                    const_cast<VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(currentNext)->videoEncodeQuantizationMap =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -2050,21 +2280,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature decodeModeSharedExponent %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceASTCDecodeFeaturesEXT*>(currentNext)->decodeModeSharedExponent =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT:
-            {
-                const VkPhysicalDevicePipelineRobustnessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineRobustnessFeaturesEXT*>(next);
-                VkPhysicalDevicePipelineRobustnessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->pipelineRobustness == VK_TRUE) && (query.pipelineRobustness == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature pipelineRobustness %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDevicePipelineRobustnessFeaturesEXT*>(currentNext)->pipelineRobustness =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -2586,21 +2801,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature extendedDynamicState %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(currentNext)->extendedDynamicState =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT:
-            {
-                const VkPhysicalDeviceHostImageCopyFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeaturesEXT*>(next);
-                VkPhysicalDeviceHostImageCopyFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->hostImageCopy == VK_TRUE) && (query.hostImageCopy == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature hostImageCopy %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceHostImageCopyFeaturesEXT*>(currentNext)->hostImageCopy =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -3225,6 +3425,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature primitiveTopologyPatchListRestart %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(currentNext)->primitiveTopologyPatchListRestart =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
+            {
+                const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(next);
+                VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->presentModeFifoLatestReady == VK_TRUE) && (query.presentModeFifoLatestReady == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature presentModeFifoLatestReady %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(currentNext)->presentModeFifoLatestReady =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -4053,21 +4268,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
-            {
-                const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(next);
-                VkPhysicalDevicePipelineProtectedAccessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->pipelineProtectedAccess == VK_TRUE) && (query.pipelineProtectedAccess == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature pipelineProtectedAccess %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(currentNext)->pipelineProtectedAccess =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
             {
                 const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* currentNext = reinterpret_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(next);
@@ -4498,6 +4698,93 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature depthClampControl %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceDepthClampControlFeaturesEXT*>(currentNext)->depthClampControl =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
+            {
+                const VkPhysicalDeviceHdrVividFeaturesHUAWEI* currentNext = reinterpret_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(next);
+                VkPhysicalDeviceHdrVividFeaturesHUAWEI query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->hdrVivid == VK_TRUE) && (query.hdrVivid == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature hdrVivid %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(currentNext)->hdrVivid =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
+            {
+                const VkPhysicalDeviceCooperativeMatrix2FeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(next);
+                VkPhysicalDeviceCooperativeMatrix2FeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->cooperativeMatrixWorkgroupScope == VK_TRUE) && (query.cooperativeMatrixWorkgroupScope == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixWorkgroupScope %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixWorkgroupScope =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixFlexibleDimensions == VK_TRUE) && (query.cooperativeMatrixFlexibleDimensions == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixFlexibleDimensions %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixFlexibleDimensions =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixReductions == VK_TRUE) && (query.cooperativeMatrixReductions == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixReductions %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixReductions =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixConversions == VK_TRUE) && (query.cooperativeMatrixConversions == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixConversions %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixConversions =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixPerElementOperations == VK_TRUE) && (query.cooperativeMatrixPerElementOperations == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixPerElementOperations %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixPerElementOperations =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixTensorAddressing == VK_TRUE) && (query.cooperativeMatrixTensorAddressing == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixTensorAddressing %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixTensorAddressing =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->cooperativeMatrixBlockLoads == VK_TRUE) && (query.cooperativeMatrixBlockLoads == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixBlockLoads %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(currentNext)->cooperativeMatrixBlockLoads =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(next);
+                VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->vertexAttributeRobustness == VK_TRUE) && (query.vertexAttributeRobustness == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexAttributeRobustness %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(currentNext)->vertexAttributeRobustness =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

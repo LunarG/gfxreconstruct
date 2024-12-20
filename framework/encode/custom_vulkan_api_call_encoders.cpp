@@ -250,6 +250,49 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate(VkCommandBuffer            commandBuffer,
+                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                            VkPipelineLayout           layout,
+                                                            uint32_t                   set,
+                                                            const void*                pData)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    assert(manager != nullptr);
+
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+
+    const UpdateTemplateInfo* info = nullptr;
+    if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
+    {
+        GFXRECON_LOG_DEBUG("Descriptor update template info not found");
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate>::Dispatch(
+        manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(layout);
+        encoder->EncodeUInt32Value(set);
+
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
+
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)
+        ->CmdPushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, layout, set, pData_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate>::Dispatch(
+        manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+}
+
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
                                                                VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                                VkPipelineLayout           layout,
@@ -292,6 +335,45 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2(
+    VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfo* pPushDescriptorSetWithTemplateInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+
+    const UpdateTemplateInfo* info = nullptr;
+    if (!manager->GetDescriptorUpdateTemplateInfo(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate, &info))
+    {
+        GFXRECON_LOG_DEBUG("Descriptor update template info not found");
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
+        manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pPushDescriptorSetWithTemplateInfo);
+
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pPushDescriptorSetWithTemplateInfo->pData);
+
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(
+        info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)
+        ->CmdPushDescriptorSetWithTemplate2(commandBuffer, pPushDescriptorSetWithTemplateInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2>::Dispatch(
+        manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(

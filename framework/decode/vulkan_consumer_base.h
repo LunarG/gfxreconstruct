@@ -74,9 +74,9 @@ class VulkanConsumerBase : public CommonConsumerBase
     {}
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                    call_info,
-        format::HandleId                                                      commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+        const ApiCallInfo&                                                 call_info,
+        format::HandleId                                                   commandBuffer,
+        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
     {}
 
     virtual void Process_vkCreateRayTracingPipelinesKHR(

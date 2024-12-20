@@ -689,6 +689,78 @@ void Process_vkCmdSetPrimitiveRestartEnable(
     VkBool32                                    primitiveRestartEnable);
 
 
+void Process_vkCmdSetLineStipple(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetLineStipple                     func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern);
+
+void Process_vkCmdBindIndexBuffer2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindIndexBuffer2                   func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    buffer,
+    VkDeviceSize                                offset,
+    VkDeviceSize                                size,
+    VkIndexType                                 indexType);
+
+void Process_vkCmdPushDescriptorSet(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSet                  func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set,
+    uint32_t                                    descriptorWriteCount,
+    const VkWriteDescriptorSet*                 pDescriptorWrites);
+
+void Process_vkCmdPushDescriptorSetWithTemplate(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSetWithTemplate      func,
+    VkCommandBuffer                             commandBuffer,
+    VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set,
+    const void*                                 pData);
+
+void Process_vkCmdSetRenderingAttachmentLocations(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingAttachmentLocations    func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
+
+void Process_vkCmdSetRenderingInputAttachmentIndices(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingInputAttachmentIndices func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
+
+void Process_vkCmdBindDescriptorSets2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindDescriptorSets2                func,
+    VkCommandBuffer                             commandBuffer,
+    const VkBindDescriptorSetsInfo*             pBindDescriptorSetsInfo);
+
+void Process_vkCmdPushConstants2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushConstants2                     func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushConstantsInfo*                  pPushConstantsInfo);
+
+void Process_vkCmdPushDescriptorSet2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSet2                 func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
+
+void Process_vkCmdPushDescriptorSetWithTemplate2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSetWithTemplate2     func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
+
+
 
 
 
@@ -852,13 +924,13 @@ void Process_vkCmdSetRenderingAttachmentLocationsKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetRenderingAttachmentLocationsKHR func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfoKHR* pLocationInfo);
+    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
 
 void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetRenderingInputAttachmentIndicesKHR func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfoKHR* pInputAttachmentIndexInfo);
+    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
 
 
@@ -908,15 +980,6 @@ void Process_vkCmdWriteTimestamp2KHR(
     VkPipelineStageFlags2                       stage,
     VkQueryPool                                 queryPool,
     uint32_t                                    query);
-
-void Process_vkCmdWriteBufferMarker2AMD(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteBufferMarker2AMD              func,
-    VkCommandBuffer                             commandBuffer,
-    VkPipelineStageFlags2                       stage,
-    VkBuffer                                    dstBuffer,
-    VkDeviceSize                                dstOffset,
-    uint32_t                                    marker);
 
 
 void Process_vkCmdCopyBuffer2KHR(
@@ -989,25 +1052,25 @@ void Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindDescriptorSets2KHR             func,
     VkCommandBuffer                             commandBuffer,
-    const VkBindDescriptorSetsInfoKHR*          pBindDescriptorSetsInfo);
+    const VkBindDescriptorSetsInfo*             pBindDescriptorSetsInfo);
 
 void Process_vkCmdPushConstants2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushConstants2KHR                  func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushConstantsInfoKHR*               pPushConstantsInfo);
+    const VkPushConstantsInfo*                  pPushConstantsInfo);
 
 void Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfoKHR*           pPushDescriptorSetInfo);
+    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSetWithTemplate2KHR  func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
+    const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
 
 void Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
@@ -1287,6 +1350,15 @@ void Process_vkCmdWriteBufferMarkerAMD(
     PFN_vkCmdWriteBufferMarkerAMD               func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    uint32_t                                    marker);
+
+void Process_vkCmdWriteBufferMarker2AMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdWriteBufferMarker2AMD              func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlags2                       stage,
     VkBuffer                                    dstBuffer,
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker);
@@ -1905,6 +1977,7 @@ void Process_vkCmdExecuteGeneratedCommandsEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo);
+
 
 
 void Process_vkCmdBuildAccelerationStructuresKHR(

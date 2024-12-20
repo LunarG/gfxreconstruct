@@ -315,7 +315,9 @@ class BaseGenerator(KhronosBaseGenerator):
             enumerants = dict()
             for elem in element.findall('enum'):
                 name = elem.get('name')
-                enumerants[name] = elem.get('value')
+                value = elem.get('value')
+                if value:
+                    enumerants[name] = value
             self.enumEnumerants[group_name] = enumerants
 
     def get_default_handle_atom_value(self, base_type):
