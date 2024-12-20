@@ -4340,7 +4340,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         assert(allocator != nullptr);
 
         VulkanResourceAllocator::MemoryData allocator_data;
-        auto                                replay_allocate_info = pAllocateInfo->GetPointer();
+
+        auto *modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(pAllocateInfo->GetPointer());
         auto                                replay_memory        = pMemory->GetHandlePointer();
         auto                                capture_id           = (*pMemory->GetPointer());
 
@@ -4353,7 +4354,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool                address_override_found = false;
         bool                uses_import_memory     = false;
         uint64_t            opaque_address         = 0;
-        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+
+        // FD might not be available at replay time
+        graphics::vulkan_struct_remove_pnext<VkImportMemoryFdInfoKHR>(modified_allocate_info);
+
+        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(modified_allocate_info)->pNext;
 
         size_t                                            host_pointer_size = 0;
         std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
@@ -4384,9 +4389,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             {
                 auto import_info = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(current_struct);
 
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, replay_allocate_info->allocationSize);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, modified_allocate_info->allocationSize);
 
-                size_t allocation_size = static_cast<size_t>(replay_allocate_info->allocationSize);
+                size_t allocation_size = static_cast<size_t>(modified_allocate_info->allocationSize);
 
                 host_pointer_size =
                     util::platform::GetAlignedSize(allocation_size, util::platform::GetSystemPageSize());
@@ -4426,15 +4431,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 opaque_address = 0;
             }
 
-            VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
                           VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
+                          modified_allocate_info->pNext,
                           opaque_address
             };
-            modified_allocate_info.pNext = &address_info;
+            modified_allocate_info->pNext = &address_info;
 
-            result = allocator->AllocateMemory(&modified_allocate_info,
+            result = allocator->AllocateMemory(modified_allocate_info,
                                                GetAllocationCallbacks(pAllocator),
                                                capture_id,
                                                replay_memory,
@@ -4443,10 +4447,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         else
         {
             result = allocator->AllocateMemory(
-                replay_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
         }
 
-        if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
+        if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
             auto memory_info = reinterpret_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
@@ -4458,7 +4462,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         {
             // When memory allocation fails at replay, but succeeded at capture, check for memory incompatibilities and
             // recommend enabling memory translation.
-            allocator->ReportAllocateMemoryIncompatibility(replay_allocate_info);
+            allocator->ReportAllocateMemoryIncompatibility(modified_allocate_info);
         }
 
         if (result == VK_SUCCESS && uses_import_memory)
@@ -4932,15 +4936,18 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
 
+    auto modified_create_info = const_cast<VkBufferCreateInfo*>(replay_create_info);
     if (replaying_trimmed_capture_)
     {
         // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
         // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
         // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
         // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
-        auto modified_create_info = const_cast<VkBufferCreateInfo*>(replay_create_info);
         modified_create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
+
+    // External memory might not be available at replay time
+    graphics::vulkan_struct_remove_pnext<VkExternalMemoryBufferCreateInfo>(modified_create_info);
 
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
@@ -4961,8 +4968,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if (uses_address)
     {
-        VkBufferCreateInfo modified_create_info = (*replay_create_info);
-
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {
             VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
         };
@@ -4975,11 +4980,11 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
             // The shallow copy of VkBufferCreateInfo references the same pNext list from the copy source.  We insert
             // the buffer address extension struct at the start of the list to avoid modifying the original by appending
             // to the end.
-            address_info.pNext         = modified_create_info.pNext;
-            modified_create_info.pNext = &address_info;
+            address_info.pNext          = modified_create_info->pNext;
+            modified_create_info->pNext = &address_info;
 
-            modified_create_info.flags |= address_create_flags;
-            modified_create_info.usage |= address_usage_flags;
+            modified_create_info->flags |= address_create_flags;
+            modified_create_info->usage |= address_usage_flags;
         }
         else
         {
@@ -4988,12 +4993,12 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         }
 
         result = allocator->CreateBuffer(
-            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+            modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
     else
     {
         result = allocator->CreateBuffer(
-            replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+            modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
@@ -5069,6 +5074,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
 
+    auto modified_create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
     if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
         // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
@@ -5077,12 +5083,14 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
 
         // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
-        auto modified_create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
         modified_create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 
+    // External memory might not be available at replay time
+    graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(modified_create_info);
+
     VkResult result = allocator->CreateImage(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
+        modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
     auto replay_create_info = pCreateInfo->GetPointer();
 

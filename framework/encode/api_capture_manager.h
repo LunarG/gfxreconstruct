@@ -201,6 +201,23 @@ class ApiCaptureManager
     {
         common_manager_->WriteFillMemoryCmd(api_family_, memory_id, offset, size, data);
     }
+
+    void WriteBeginResourceInitCmd(format::HandleId device_id, uint64_t max_resource_size)
+    {
+        common_manager_->WriteBeginResourceInitCmd(api_family_, device_id, max_resource_size);
+    }
+
+    void WriteEndResourceInitCmd(format::HandleId device_id)
+    {
+        common_manager_->WriteEndResourceInitCmd(api_family_, device_id);
+    }
+
+    void WriteInitBufferCmd(
+        format::HandleId device_id, format::HandleId buffer_id, uint64_t offset, uint64_t size, const void* data)
+    {
+        common_manager_->WriteInitBufferCmd(api_family_, device_id, buffer_id, offset, size, data);
+    }
+
     void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size)
     {
         common_manager_->WriteCreateHeapAllocationCmd(api_family_, allocation_id, allocation_size);
