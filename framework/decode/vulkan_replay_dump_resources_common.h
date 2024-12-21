@@ -58,13 +58,10 @@ static bool IsInsideRange(const std::vector<T>& vec, T value)
 
 PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bind_point);
 
-bool IsFormatAstcCompressed(VkFormat format);
-
 enum DumpedImageFormat
 {
     kFormatBMP,
     KFormatPNG,
-    KFormatAstc,
     KFormatRaw
 };
 
