@@ -18,6 +18,9 @@
                 "entrypoints": [ "vkGetPhysicalDeviceToolPropertiesEXT" ]
             }
         ],
+        "disable_environment": {
+            "GFXRECON_DISABLE": ""
+        },
         "features": {
             "presets": [
                 {

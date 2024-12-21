@@ -380,6 +380,8 @@ if(NOT BUILD_STATIC)
     add_subdirectory(layer)
 endif()
 add_subdirectory(tools)
+add_subdirectory(external/Vulkan-Headers)
+add_subdirectory(test)
 
 if (${RUN_TESTS})
     add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)
