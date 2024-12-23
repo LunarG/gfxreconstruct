@@ -175,17 +175,6 @@ class MetadataJsonConsumer : public Base
     }
 
     virtual void
-    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
-                                            const std::vector<format::DeviceMemoryType>& memory_types,
-                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override
-    {
-        const util::JsonOptions& json_options = GetJsonOptions();
-        auto&                    jdata        = WriteMetaCommandStart("SetDeviceMemoryPropertiesCommand");
-        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
-        WriteBlockEnd();
-    }
-
-    virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override
     {
         const JsonOptions& json_options = GetJsonOptions();
