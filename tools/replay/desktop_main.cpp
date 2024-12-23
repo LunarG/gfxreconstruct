@@ -186,6 +186,9 @@ int main(int argc, const char** argv)
             uint32_t start_frame = 0;
             uint32_t end_frame   = 0;
 
+            bool     quit_after_frame = false;
+            uint32_t quit_frame;
+
             bool        has_mfr                            = false;
             bool        quit_after_measurement_frame_range = false;
             bool        flush_measurement_frame_range      = false;
@@ -200,6 +203,12 @@ int main(int argc, const char** argv)
                 flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
                 flush_inside_measurement_range     = vulkan_replay_options.flush_inside_measurement_range;
                 preload_measurement_frame_range    = vulkan_replay_options.preload_measurement_range;
+
+                if (vulkan_replay_options.quit_after_frame)
+                {
+                    quit_after_frame = true;
+                    GetQuitAfterFrame(arg_parser, quit_frame);
+                }
             }
 
             if (has_mfr)
@@ -214,7 +223,9 @@ int main(int argc, const char** argv)
                                                  flush_measurement_frame_range,
                                                  flush_inside_measurement_range,
                                                  preload_measurement_frame_range,
-                                                 measurement_file_name);
+                                                 measurement_file_name,
+                                                 quit_after_frame,
+                                                 quit_frame);
 
             gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
             gfxrecon::decode::VulkanDecoder        vulkan_decoder;

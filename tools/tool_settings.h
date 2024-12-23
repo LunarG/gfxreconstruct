@@ -104,6 +104,7 @@ const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
+const char kQuitAfterFrameArgument[]             = "--quit-after-frame";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
@@ -699,6 +700,25 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
+static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& quit_frame)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kQuitAfterFrameArgument);
+    if (!value.empty())
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid quit after frame \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            return false;
+        }
+
+        quit_frame = std::stoi(value);
+        return true;
+    }
+
+    return false;
+}
+
 static bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
@@ -938,6 +958,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (!override_gpu.empty())
     {
         options.override_gpu_index = std::stoi(override_gpu);
+    }
+
+    if (arg_parser.IsArgumentSet(kQuitAfterFrameArgument))
+    {
+        options.quit_after_frame = true;
     }
 
     IsForceWindowed(options, arg_parser);

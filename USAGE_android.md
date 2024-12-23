@@ -725,6 +725,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--dump-resources-dump-raw-images]
                           [--dump-resources-dump-all-image-subresources]
                           [--pbi-all] [--pbis <index1,index2>]
+                          [--quit-after-frame]
                           [file]
 
 Launch the replay tool.
@@ -942,6 +943,8 @@ optional arguments:
                         created without cache. This option can be used in
                         coordination with `--save-pipeline-cache` and
                         `--load-pipeline-cache`. (forwarded to replay tool)
+  --quit-after-frame
+              Specify a frame after which replay will terminate.
 ```
 
 The command will force-stop an active replay process before starting the replay
