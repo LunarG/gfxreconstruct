@@ -504,6 +504,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                for (uint32_t j = 0; j < createInfoCount; ++j)
+                {
+                    pPipelines[j] = VK_NULL_HANDLE;
+                }
                 VulkanCaptureManager::Get()->WriteAnnotation(
                     format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
@@ -595,6 +599,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                for (uint32_t j = 0; j < createInfoCount; ++j)
+                {
+                    pPipelines[j] = VK_NULL_HANDLE;
+                }
                 VulkanCaptureManager::Get()->WriteAnnotation(
                     format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
@@ -686,6 +694,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                for (uint32_t j = 0; j < createInfoCount; ++j)
+                {
+                    pPipelines[j] = VK_NULL_HANDLE;
+                }
                 VulkanCaptureManager::Get()->WriteAnnotation(
                     format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
@@ -780,6 +792,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
+                for (uint32_t j = 0; j < createInfoCount; ++j)
+                {
+                    pPipelines[j] = VK_NULL_HANDLE;
+                }
                 VulkanCaptureManager::Get()->WriteAnnotation(
                     format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
