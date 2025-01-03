@@ -187,7 +187,7 @@ int main(int argc, const char** argv)
             uint32_t end_frame   = 0;
 
             bool     quit_after_frame = false;
-            uint32_t quit_frame;
+            uint32_t quit_frame       = std::numeric_limits<uint32_t>::max();
 
             bool        has_mfr                            = false;
             bool        quit_after_measurement_frame_range = false;
