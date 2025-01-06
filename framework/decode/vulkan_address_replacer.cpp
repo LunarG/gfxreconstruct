@@ -486,7 +486,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     bool force_replace = false;
 
     std::unordered_set<VkBuffer> buffer_set;
-    auto                         address_remap = [&address_tracker, &buffer_set](VkDeviceAddress& capture_address) {
+    auto address_remap = [&address_tracker, &buffer_set](VkDeviceAddress& capture_address) -> bool {
         auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
 
         if (buffer_info != nullptr && buffer_info->replay_address != 0)
@@ -498,11 +498,13 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
             // in-place address-remap via const-cast
             capture_address = buffer_info->replay_address + offset;
+            return true;
         }
         else
         {
             GFXRECON_LOG_WARNING(
                 "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap failed");
+            return false;
         }
     };
 
@@ -514,7 +516,11 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         auto  range_info          = build_range_infos[i];
 
         // check/correct scratch-address
-        address_remap(build_geometry_info.scratchData.deviceAddress);
+        if(!address_remap(build_geometry_info.scratchData.deviceAddress))
+        {
+            GFXRECON_LOG_WARNING(
+                "ProcessCmdBuildAccelerationStructuresKHR: missing scratch-buffer");
+        }
 
         // check capture/replay acceleration-structure buffer-sizes
         {
@@ -850,6 +856,9 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data,
     const decode::VulkanDeviceAddressTracker&                     address_tracker)
 {
+    // TODO: figure out what to do
+    GFXRECON_UNREFERENCED_PARAMETER(instance_buffers_data);
+
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
@@ -866,9 +875,9 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
 void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
     uint32_t info_count, VkCopyAccelerationStructureInfoKHR* copy_infos)
 {
-    if (init_queue_assets())
+    for (uint32_t i = 0; i < info_count; ++i)
     {
-        // TODO: reset/submit/sync command-buffer
+        ProcessCmdCopyAccelerationStructuresKHR(copy_infos + i);
     }
 }
 

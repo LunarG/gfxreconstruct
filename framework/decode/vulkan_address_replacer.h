@@ -156,8 +156,6 @@ class VulkanAddressReplacer
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.
      *
-     * Will use an internal command-pool, submit work to a VkQueue and perform a host-synchronization.
-     *
      * @param   info_count  element count in 'copy_infos'
      * @param   copy_infos  provided array of VkCopyAccelerationStructureInfoKHR
      */

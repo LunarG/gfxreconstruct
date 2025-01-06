@@ -474,7 +474,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     uint32_t                         staging_queue_family_{};
 
     //! define a general minimum alignment for buffers
-    uint32_t min_buffer_alignment_ = 64;
+    uint32_t min_buffer_alignment_ = 128;
 };
 
 GFXRECON_END_NAMESPACE(decode)

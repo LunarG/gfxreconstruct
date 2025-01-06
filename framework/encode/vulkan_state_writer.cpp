@@ -1697,8 +1697,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         if (wrapper->latest_build_command_)
         {
             build_container->push_back(&wrapper->latest_build_command_.value());
-            for (const vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer :
-                 wrapper->latest_build_command_->input_buffers)
+            for (const auto& [handle_id, buffer] : wrapper->latest_build_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1707,8 +1706,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         if (wrapper->latest_update_command_)
         {
             update_container->push_back(&wrapper->latest_update_command_.value());
-            for (const vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer :
-                 wrapper->latest_update_command_->input_buffers)
+            for (const auto& [handle_id, buffer] : wrapper->latest_update_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1763,7 +1761,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&      device,
                                                              AccelerationStructureBuildCommandData& command)
 {
-    for (ASInputBuffer& buffer : command.input_buffers)
+    for (auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
@@ -1775,7 +1773,7 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
 
     UpdateAddresses(command);
     EncodeAccelerationStructureBuildMetaCommand(device, command);
-    for (ASInputBuffer& buffer : command.input_buffers)
+    for (auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
@@ -1825,7 +1823,7 @@ void VulkanStateWriter::UpdateAddresses(AccelerationStructureBuildCommandData& c
         }
     }
 
-    for (const ASInputBuffer& buffer : command.input_buffers)
+    for (const auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
