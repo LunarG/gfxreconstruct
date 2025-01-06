@@ -144,12 +144,14 @@ class VulkanAddressReplacer
      * @param   geometry_infos          provided array of VkAccelerationStructureBuildGeometryInfoKHR
      * @param   range_infos             provided array of pointers to VkAccelerationStructureBuildRangeInfoKHR
      * @param   instance_buffers_data   an array of arrays of VkAccelerationStructureInstanceKHR
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker
      */
     void ProcessBuildVulkanAccelerationStructuresMetaCommand(
         uint32_t                                                      info_count,
         VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
         VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
-        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data);
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data,
+        const decode::VulkanDeviceAddressTracker&                     address_tracker);
 
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.
@@ -222,6 +224,8 @@ class VulkanAddressReplacer
 
     [[nodiscard]] bool init_pipeline();
 
+    [[nodiscard]] bool init_queue_assets();
+
     [[nodiscard]] bool create_buffer(size_t            num_bytes,
                                      buffer_context_t& buffer_context,
                                      uint32_t          usage_flags   = 0,
@@ -252,6 +256,12 @@ class VulkanAddressReplacer
 
     // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
     VkPipeline _pipeline_bda = VK_NULL_HANDLE;
+
+    // required assets for submitting meta-commands
+    VkCommandPool   _command_pool   = VK_NULL_HANDLE;
+    VkCommandBuffer _command_buffer = VK_NULL_HANDLE;
+    VkFence         _fence          = VK_NULL_HANDLE;
+    VkQueue         _queue          = VK_NULL_HANDLE;
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;

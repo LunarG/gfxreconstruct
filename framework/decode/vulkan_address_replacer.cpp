@@ -45,6 +45,58 @@ struct mark_injected_commands_helper_t
     }
 };
 
+//! RAII helper submit a command-buffer to a queue and synchronize via fence
+struct queue_submit_helper_t
+{
+    const encode::VulkanDeviceTable* device_table   = nullptr;
+    VkDevice                         device         = VK_NULL_HANDLE;
+    VkCommandBuffer                  command_buffer = VK_NULL_HANDLE;
+    VkFence                          fence          = VK_NULL_HANDLE;
+    VkQueue                          queue          = VK_NULL_HANDLE;
+
+    queue_submit_helper_t(const encode::VulkanDeviceTable* device_table_,
+                          VkDevice                         device_,
+                          VkCommandBuffer                  command_buffer_,
+                          VkQueue                          queue_,
+                          VkFence                          fence_) :
+        device(device_), device_table(device_table_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
+    {
+        mark_injected_commands_helper_t mark_injected_commands_helper;
+
+        device_table->ResetFences(device, 1, &fence);
+
+        VkCommandBufferBeginInfo command_buffer_begin_info;
+        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        command_buffer_begin_info.pNext            = nullptr;
+        command_buffer_begin_info.flags            = 0;
+        command_buffer_begin_info.pInheritanceInfo = nullptr;
+        device_table->BeginCommandBuffer(command_buffer, &command_buffer_begin_info);
+    }
+
+    ~queue_submit_helper_t()
+    {
+        mark_injected_commands_helper_t mark_injected_commands_helper;
+
+        device_table->EndCommandBuffer(command_buffer);
+
+        VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.pNext                = nullptr;
+        submit_info.waitSemaphoreCount   = 0;
+        submit_info.pWaitSemaphores      = nullptr;
+        submit_info.pWaitDstStageMask    = nullptr;
+        submit_info.commandBufferCount   = 1;
+        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.signalSemaphoreCount = 0;
+        submit_info.pSignalSemaphores    = nullptr;
+
+        // submit
+        device_table->QueueSubmit(queue, 1, &submit_info, fence);
+
+        // sync
+        device_table->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    }
+};
+
 inline VkDeviceAddress aligned_address(VkDeviceAddress address, uint64_t alignment)
 {
     return alignment ? (address + alignment - 1) & ~(alignment - 1) : address;
@@ -168,6 +220,20 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     if (_pipeline_layout != VK_NULL_HANDLE)
     {
         _device_table->DestroyPipelineLayout(_device, _pipeline_layout, nullptr);
+    }
+
+    if (_fence != VK_NULL_HANDLE)
+    {
+        _device_table->DestroyFence(_device, _fence, nullptr);
+    }
+    if (_command_buffer != VK_NULL_HANDLE)
+    {
+        GFXRECON_ASSERT(_command_pool != VK_NULL_HANDLE)
+        _device_table->FreeCommandBuffers(_device, _command_pool, 1, &_command_buffer);
+    }
+    if (_command_pool != VK_NULL_HANDLE)
+    {
+        _device_table->DestroyCommandPool(_device, _command_pool, nullptr);
     }
 }
 
@@ -781,21 +847,38 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     uint32_t                                                      info_count,
     VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
-    std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data)
+    std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data,
+    const decode::VulkanDeviceAddressTracker&                     address_tracker)
 {
-    // TODO: command-pool/buffer
+    if (info_count > 0 && init_queue_assets())
+    {
+        // reset/submit/sync command-buffer
+        queue_submit_helper_t queue_submit_helper(_device_table, _device, _command_buffer, _queue, _fence);
+
+        // dummy-wrapper
+        VulkanCommandBufferInfo command_buffer_info = {};
+        command_buffer_info.handle                  = _command_buffer;
+        ProcessCmdBuildAccelerationStructuresKHR(
+            &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
+    }
 }
 
 void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
     uint32_t info_count, VkCopyAccelerationStructureInfoKHR* copy_infos)
 {
-    // TODO: command-pool/buffer
+    if (init_queue_assets())
+    {
+        // TODO: reset/submit/sync command-buffer
+    }
 }
 
 void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
     VkQueryType query_type, VkAccelerationStructureKHR acceleration_structure)
 {
-    // TODO: command-pool/buffer
+    if (init_queue_assets())
+    {
+        // TODO: reset/submit/sync command-buffer
+    }
 }
 
 bool VulkanAddressReplacer::init_pipeline()
@@ -884,6 +967,55 @@ bool VulkanAddressReplacer::init_pipeline()
         return false;
     }
     return true;
+}
+
+bool VulkanAddressReplacer::init_queue_assets()
+{
+    if (_queue != VK_NULL_HANDLE)
+    {
+        return true;
+    };
+
+    VkCommandPoolCreateInfo create_info = {};
+    create_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    create_info.pNext                   = nullptr;
+    create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    create_info.queueFamilyIndex        = 0;
+
+    VkResult result = _device_table->CreateCommandPool(_device, &create_info, nullptr, &_command_pool);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-pool creation failed");
+        return false;
+    }
+
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.pNext                       = nullptr;
+    alloc_info.commandPool                 = _command_pool;
+    alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount          = 1;
+    result = _device_table->AllocateCommandBuffers(_device, &alloc_info, &_command_buffer);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-buffer creation failed");
+        return false;
+    }
+
+    VkFenceCreateInfo fence_create_info;
+    fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_create_info.pNext = nullptr;
+    fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    result                  = _device_table->CreateFence(_device, &fence_create_info, nullptr, &_fence);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal fence creation failed");
+        return false;
+    }
+
+    _device_table->GetDeviceQueue(_device, 0, 0, &_queue);
+    GFXRECON_ASSERT(_queue != VK_NULL_HANDLE);
+    return _queue != VK_NULL_HANDLE;
 }
 
 bool VulkanAddressReplacer::create_buffer(size_t                                   num_bytes,

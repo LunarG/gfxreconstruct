@@ -9652,8 +9652,11 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
 
         GetDeviceAddressReplacer(device_info)
-            .ProcessBuildVulkanAccelerationStructuresMetaCommand(
-                info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), instance_buffers_data);
+            .ProcessBuildVulkanAccelerationStructuresMetaCommand(info_count,
+                                                                 pInfos->GetPointer(),
+                                                                 ppRangeInfos->GetPointer(),
+                                                                 instance_buffers_data,
+                                                                 GetDeviceAddressTracker(device_info));
     }
 }
 
