@@ -172,10 +172,9 @@ void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrap
     EndMethodCallCapture();
 }
 
-void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
-                                            format::ThreadId        thread_id)
+void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data)
 {
-    Dx12StateWriter state_writer(file_stream, GetCompressor(), thread_id);
+    Dx12StateWriter state_writer(file_stream, GetCompressor(), thread_data->thread_id_);
     state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }
 

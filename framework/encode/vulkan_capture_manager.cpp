@@ -1,6 +1,6 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
- ** Copyright (c) 2018-2023 LunarG, Inc.
+ ** Copyright (c) 2018-2025 LunarG, Inc.
  ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -102,22 +102,22 @@ void VulkanCaptureManager::DestroyInstance()
     singleton_->common_manager_->DestroyInstance(singleton_);
 }
 
-void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
+void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data)
 {
     uint64_t n_blocks = state_tracker_->WriteState(
-        file_stream, thread_id, [] { return GetUniqueId(); }, GetCompressor(), GetCurrentFrame(), nullptr, nullptr);
+        file_stream, thread_data, [] { return GetUniqueId(); }, GetCompressor(), GetCurrentFrame(), nullptr, nullptr);
 
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 
 void VulkanCaptureManager::WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                          format::ThreadId        thread_id,
+                                                          util::ThreadData*       thread_data,
                                                           util::FileOutputStream* asset_file_stream,
                                                           const std::string*      asset_file_name)
 {
     uint64_t n_blocks = state_tracker_->WriteState(
         file_stream,
-        thread_id,
+        thread_data,
         [] { return GetUniqueId(); },
         GetCompressor(),
         GetCurrentFrame(),
@@ -129,11 +129,11 @@ void VulkanCaptureManager::WriteTrackedStateWithAssetFile(util::FileOutputStream
 
 void VulkanCaptureManager::WriteAssets(util::FileOutputStream* asset_file_stream,
                                        const std::string*      asset_file_name,
-                                       format::ThreadId        thread_id)
+                                       util::ThreadData*       thread_data)
 {
     assert(state_tracker_ != nullptr);
     state_tracker_->WriteAssets(
-        asset_file_stream, asset_file_name, thread_id, [] { return GetUniqueId(); }, GetCompressor());
+        asset_file_stream, asset_file_name, thread_data, [] { return GetUniqueId(); }, GetCompressor());
 }
 
 void VulkanCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
@@ -879,6 +879,23 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
                                              vulkan_wrappers::NoParentWrapper,
                                              vulkan_wrappers::ImageWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
+
+        auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
+        GFXRECON_ASSERT(image_wrapper);
+        // These are required to generate a fill command in case external memory is bound to this image
+        image_wrapper->image_type     = modified_create_info.imageType;
+        image_wrapper->extent         = modified_create_info.extent;
+        image_wrapper->format         = modified_create_info.format;
+        image_wrapper->mip_levels     = modified_create_info.mipLevels;
+        image_wrapper->array_layers   = modified_create_info.arrayLayers;
+        image_wrapper->tiling         = modified_create_info.tiling;
+        image_wrapper->samples        = modified_create_info.samples;
+        image_wrapper->current_layout = modified_create_info.initialLayout;
+        // TODO: Do we need to track the queue family that the image is actually used with?
+        if ((modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
+        {
+            image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
+        }
     }
     return result;
 }
@@ -1840,7 +1857,7 @@ void VulkanCaptureManager::PostProcess_vkEnumeratePhysicalDeviceGroups(
     }
 }
 
-void VulkanCaptureManager::ProcessImportFd(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset)
+void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset)
 {
     auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
@@ -1861,8 +1878,83 @@ void VulkanCaptureManager::ProcessImportFd(VkDevice device, VkBuffer buffer, VkD
         if (result == VK_SUCCESS)
         {
             WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size);
-            WriteInitBufferCmd(
-                device_wrapper->handle_id, buffer_wrapper->handle_id, memoryOffset, buffer_wrapper->size, data.data());
+
+            GetCommandWriter()->WriteInitBufferCmd(api_family_,
+                                                   device_wrapper->handle_id,
+                                                   buffer_wrapper->handle_id,
+                                                   memoryOffset,
+                                                   buffer_wrapper->size,
+                                                   data.data());
+            WriteEndResourceInitCmd(device_wrapper->handle_id);
+        }
+    }
+}
+
+void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage image, VkDeviceSize memoryOffset)
+{
+    auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    auto* image_wrapper  = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+
+    // create staging buffer, bind this memory, write init image command
+    graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
+                                                device_wrapper->physical_device->handle,
+                                                device_wrapper->layer_table,
+                                                *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->physical_device->memory_properties);
+
+    std::vector<VkImageAspectFlagBits> aspects;
+    graphics::GetFormatAspects(image_wrapper->format, &aspects);
+
+    for (auto aspect : aspects)
+    {
+        std::vector<uint8_t>  data;
+        std::vector<uint64_t> subresource_offsets;
+        std::vector<uint64_t> subresource_sizes;
+        bool                  scaling_supported;
+
+        VkResult result = resource_util.ReadFromImageResourceStaging(image,
+                                                                     image_wrapper->format,
+                                                                     image_wrapper->image_type,
+                                                                     image_wrapper->extent,
+                                                                     image_wrapper->mip_levels,
+                                                                     image_wrapper->array_layers,
+                                                                     image_wrapper->tiling,
+                                                                     image_wrapper->samples,
+                                                                     image_wrapper->current_layout,
+                                                                     image_wrapper->queue_family_index,
+                                                                     aspect,
+                                                                     data,
+                                                                     subresource_offsets,
+                                                                     subresource_sizes,
+                                                                     scaling_supported,
+                                                                     true);
+        if (result == VK_SUCCESS)
+        {
+            // Combined size of all layers in a mip level.
+            std::vector<uint64_t> level_sizes;
+
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(image_wrapper->handle,
+                                                                                image_wrapper->format,
+                                                                                image_wrapper->image_type,
+                                                                                image_wrapper->extent,
+                                                                                image_wrapper->mip_levels,
+                                                                                image_wrapper->array_layers,
+                                                                                image_wrapper->tiling,
+                                                                                aspect,
+                                                                                nullptr,
+                                                                                &level_sizes,
+                                                                                true);
+
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
+            GetCommandWriter()->WriteInitImageCmd(api_family_,
+                                                  device_wrapper->handle_id,
+                                                  image_wrapper->handle_id,
+                                                  aspect,
+                                                  image_wrapper->current_layout,
+                                                  image_wrapper->mip_levels,
+                                                  level_sizes,
+                                                  resource_size,
+                                                  data.data());
             WriteEndResourceInitCmd(device_wrapper->handle_id);
         }
     }
@@ -1871,17 +1963,27 @@ void VulkanCaptureManager::ProcessImportFd(VkDevice device, VkBuffer buffer, VkD
 void VulkanCaptureManager::PostProcess_vkBindBufferMemory(
     VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
 {
-    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    if (result == VK_SUCCESS)
     {
-        GFXRECON_ASSERT(state_tracker_ != nullptr);
-        state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
-    }
-    else if (IsCaptureModeWrite() && (result == VK_SUCCESS))
-    {
-        auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
-        if (memory_wrapper->imported_fd >= 0)
+        if (IsCaptureModeTrack())
         {
-            ProcessImportFd(device, buffer, memoryOffset);
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+            state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+        }
+
+        if (IsCaptureModeWrite())
+        {
+            auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+            if (memory_wrapper->imported_fd >= 0)
+            {
+                // For this and the other PostProcess_vkBind*Memory* functions:
+                // When importing external memory in tracking mode, there is no need to generate a FillMemory command,
+                // as it gets generated when starting to capture by the WriteTrackedState function, which will
+                // effectively fill the memory with the right content. On the other hand, while capturing, there could
+                // be no other Vulkan commands affecting this memory, so we must initialize it by generating the
+                // FillMemory command immediately.
+                ProcessImportFdForBuffer(device, buffer, memoryOffset);
+            }
         }
     }
 }
@@ -1891,25 +1993,32 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult             
                                                            uint32_t                      bindInfoCount,
                                                            const VkBindBufferMemoryInfo* pBindInfos)
 {
-    if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+    if ((result == VK_SUCCESS) && (pBindInfos != nullptr))
     {
-        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        if (IsCaptureModeTrack())
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
 
-        for (uint32_t i = 0; i < bindInfoCount; ++i)
-        {
-            state_tracker_->TrackBufferMemoryBinding(
-                device, pBindInfos[i].buffer, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
-        }
-    }
-    else if (IsCaptureModeWrite() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
-    {
-        for (uint32_t i = 0; i < bindInfoCount; ++i)
-        {
-            auto* memory_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
-            if (memory_wrapper->imported_fd >= 0)
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
             {
-                ProcessImportFd(device, pBindInfos[i].buffer, pBindInfos[i].memoryOffset);
+                state_tracker_->TrackBufferMemoryBinding(device,
+                                                         pBindInfos[i].buffer,
+                                                         pBindInfos[i].memory,
+                                                         pBindInfos[i].memoryOffset,
+                                                         pBindInfos[i].pNext);
+            }
+        }
+
+        if (IsCaptureModeWrite())
+        {
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                auto* memory_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
+                if (memory_wrapper->imported_fd >= 0)
+                {
+                    ProcessImportFdForBuffer(device, pBindInfos[i].buffer, pBindInfos[i].memoryOffset);
+                }
             }
         }
     }
@@ -1918,10 +2027,22 @@ void VulkanCaptureManager::PostProcess_vkBindBufferMemory2(VkResult             
 void VulkanCaptureManager::PostProcess_vkBindImageMemory(
     VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
 {
-    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    if (result == VK_SUCCESS)
     {
-        GFXRECON_ASSERT(state_tracker_ != nullptr);
-        state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+        if (IsCaptureModeTrack())
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+            state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+        }
+
+        if (IsCaptureModeWrite())
+        {
+            auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+            if (memory_wrapper->imported_fd >= 0)
+            {
+                ProcessImportFdForImage(device, image, memoryOffset);
+            }
+        }
     }
 }
 
@@ -1930,14 +2051,30 @@ void VulkanCaptureManager::PostProcess_vkBindImageMemory2(VkResult              
                                                           uint32_t                     bindInfoCount,
                                                           const VkBindImageMemoryInfo* pBindInfos)
 {
-    if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+    if ((result == VK_SUCCESS) && (pBindInfos != nullptr))
     {
-        GFXRECON_ASSERT(state_tracker_ != nullptr);
-
-        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        if (IsCaptureModeTrack())
         {
-            state_tracker_->TrackImageMemoryBinding(
-                device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                state_tracker_->TrackImageMemoryBinding(
+                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
+            }
+        }
+
+        if (IsCaptureModeWrite())
+        {
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                auto* memory_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
+                if (memory_wrapper->imported_fd >= 0)
+                {
+                    ProcessImportFdForImage(device, pBindInfos[i].image, pBindInfos[i].memoryOffset);
+                }
+            }
         }
     }
 }

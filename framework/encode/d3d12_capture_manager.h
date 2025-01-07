@@ -848,22 +848,22 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
     virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                format::ThreadId        thread_id,
+                                                util::ThreadData*       thread_data,
                                                 util::FileOutputStream* asset_file_stream,
                                                 const std::string*      asset_file_name) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(file_stream);
-        GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+        GFXRECON_UNREFERENCED_PARAMETER(thread_data);
         GFXRECON_UNREFERENCED_PARAMETER(asset_file_stream);
         GFXRECON_UNREFERENCED_PARAMETER(asset_file_name);
     }
 
     virtual void WriteAssets(util::FileOutputStream* assert_file_stream,
                              const std::string*      asset_file_name,
-                             format::ThreadId        thread_id) override
+                             util::ThreadData*       thread_data) override
     {}
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,

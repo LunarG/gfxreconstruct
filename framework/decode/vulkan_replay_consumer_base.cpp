@@ -4360,9 +4360,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         VulkanResourceAllocator::MemoryData allocator_data;
 
-        auto *modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(pAllocateInfo->GetPointer());
-        auto                                replay_memory        = pMemory->GetHandlePointer();
-        auto                                capture_id           = (*pMemory->GetPointer());
+        auto* modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(pAllocateInfo->GetPointer());
+        auto  replay_memory          = pMemory->GetHandlePointer();
+        auto  capture_id             = (*pMemory->GetPointer());
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         ProcessImportAndroidHardwareBufferInfo(pAllocateInfo);
@@ -4450,18 +4450,15 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 opaque_address = 0;
             }
 
-            VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info->pNext,
-                          opaque_address
+            VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info->pNext,
+                opaque_address
             };
             modified_allocate_info->pNext = &address_info;
 
-            result = allocator->AllocateMemory(modified_allocate_info,
-                                               GetAllocationCallbacks(pAllocator),
-                                               capture_id,
-                                               replay_memory,
-                                               &allocator_data);
+            result = allocator->AllocateMemory(
+                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
         }
         else
         {

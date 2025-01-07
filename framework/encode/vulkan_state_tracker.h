@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -56,7 +56,7 @@ class VulkanStateTracker
     ~VulkanStateTracker();
 
     uint64_t WriteState(util::FileOutputStream*           file_stream,
-                        format::ThreadId                  thread_id,
+                        util::ThreadData*                 thread_data,
                         std::function<format::HandleId()> get_unique_id_fn,
                         util::Compressor*                 compressor,
                         uint64_t                          frame_number,
@@ -65,7 +65,7 @@ class VulkanStateTracker
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
-                                       thread_id,
+                                       thread_data,
                                        get_unique_id_fn,
                                        asset_file_stream,
                                        asset_file_name,
@@ -77,15 +77,20 @@ class VulkanStateTracker
 
     uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
                          const std::string*                asset_file_name,
-                         format::ThreadId                  thread_id,
+                         util::ThreadData*                 thread_data,
                          std::function<format::HandleId()> get_unique_id_fn,
                          util::Compressor*                 compressor)
     {
         assert(asset_file_stream != nullptr);
         assert(asset_file_name != nullptr);
 
-        VulkanStateWriter state_writer(
-            nullptr, compressor, thread_id, get_unique_id_fn, asset_file_stream, asset_file_name, &asset_file_offsets_);
+        VulkanStateWriter state_writer(nullptr,
+                                       compressor,
+                                       thread_data,
+                                       get_unique_id_fn,
+                                       asset_file_stream,
+                                       asset_file_name,
+                                       &asset_file_offsets_);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteAssets(state_table_);
