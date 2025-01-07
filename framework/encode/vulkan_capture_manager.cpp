@@ -1985,7 +1985,8 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
         assert(ahb_size);
 
         bool is_standard_format = false;
-        CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr, is_standard_format);
+        CommonProcessHardwareBuffer(
+            thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr, is_standard_format);
 
         ahb_info.isStandardFormat = is_standard_format;
         ahb_info.properties       = ahb_format_properties;
