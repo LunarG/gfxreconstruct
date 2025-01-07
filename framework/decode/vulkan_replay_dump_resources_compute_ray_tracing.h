@@ -28,7 +28,6 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
@@ -46,12 +45,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext
 {
   public:
-    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>&   dispatch_indices,
-                                    const std::vector<uint64_t>&   trace_rays_indices,
-                                    CommonObjectInfoTable&         object_info_table,
-                                    const VulkanReplayOptions&     options,
-                                    VulkanReplayDumpResourcesJson& dump_json,
-                                    std::string                    capture_filename);
+    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
+                                    const std::vector<uint64_t>& trace_rays_indices,
+                                    CommonObjectInfoTable&       object_info_table,
+                                    const VulkanReplayOptions&   options,
+                                    VulkanDumpResourcesDelegate& delegate);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -121,50 +119,6 @@ class DispatchTraceRaysDumpingContext
     void Release();
 
   private:
-    std::string GenerateDispatchTraceRaysImageFilename(VkFormat              format,
-                                                       uint32_t              mip,
-                                                       uint32_t              layer,
-                                                       VkImageAspectFlagBits aspect,
-                                                       VkImageTiling         tiling,
-                                                       VkImageType           type,
-                                                       bool                  is_dispatch,
-                                                       uint64_t              qs_index,
-                                                       uint64_t              bcb_index,
-                                                       uint64_t              cmd_index,
-                                                       uint32_t              desc_set,
-                                                       uint32_t              desc_binding,
-                                                       uint32_t              array_index,
-                                                       VkShaderStageFlagBits stage,
-                                                       bool                  before_cmd) const;
-
-    std::string GenerateDispatchTraceRaysBufferFilename(bool                  is_dispatch,
-                                                        uint64_t              qs_index,
-                                                        uint64_t              bcb_index,
-                                                        uint64_t              cmd_index,
-                                                        uint32_t              desc_set,
-                                                        uint32_t              desc_binding,
-                                                        uint32_t              array_index,
-                                                        VkShaderStageFlagBits stage,
-                                                        bool                  before_cmd) const;
-
-    std::string GenerateImageDescriptorFilename(VkFormat              format,
-                                                uint32_t              mip,
-                                                uint32_t              layer,
-                                                format::HandleId      image_id,
-                                                VkImageAspectFlagBits aspect,
-                                                VkImageTiling         tiling,
-                                                VkImageType           type,
-                                                uint64_t              bcb_index,
-                                                uint64_t              cmd_index) const;
-
-    std::string
-    GenerateBufferDescriptorFilename(uint64_t bcb_index, uint64_t cmd_index, format::HandleId buffer_id) const;
-
-    std::string GenerateInlineUniformBufferDescriptorFilename(uint64_t bcb_index,
-                                                              uint64_t cmd_index,
-                                                              uint32_t set,
-                                                              uint32_t binding) const;
-
     void CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image);
 
     void CopyBufferResource(const VulkanBufferInfo* src_buffer_info,
@@ -180,30 +134,20 @@ class DispatchTraceRaysDumpingContext
 
     VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
 
-    void GenerateOutputJsonDispatchInfo(uint64_t qs_index, uint64_t bcb_index, uint64_t disp_index) const;
-
-    void GenerateOutputJsonTraceRaysIndex(uint64_t qs_index, uint64_t bcb_index, uint64_t tr_index) const;
-
     const VulkanCommandBufferInfo* original_command_buffer_info;
     VkCommandBuffer                DR_command_buffer;
     std::vector<uint64_t>          dispatch_indices;
     std::vector<uint64_t>          trace_rays_indices;
     const VulkanPipelineInfo*      bound_pipelines[kBindPoint_count];
     bool                           dump_resources_before;
-    const std::string&             dump_resource_path;
-    util::ScreenshotFormat         image_file_format;
-    float                          dump_resources_scale;
-    VulkanReplayDumpResourcesJson& dump_json;
-    bool                           output_json_per_command;
+    VulkanDumpResourcesDelegate&   delegate_;
     bool                           dump_immutable_resources;
-    bool                           dump_all_image_subresources;
-    bool                           dump_images_raw;
-    bool                           dump_images_separate_alpha;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_compute;
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_ray_tracing;
 
+  public:
     // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
     // shaders/pipeline and the content of the original resources are copied into the clones
     struct MutableResourcesBackupContext
@@ -447,6 +391,7 @@ class DispatchTraceRaysDumpingContext
         MutableResourcesBackupContext mutable_resources_clones_before;
     };
 
+  private:
     VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
 
     void SnapshotBoundDescriptors(DispatchParameters& disp_params);
@@ -485,7 +430,6 @@ class DispatchTraceRaysDumpingContext
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     size_t                                  current_dispatch_index;
     size_t                                  current_trace_rays_index;
-    std::string                             capture_filename;
     bool                                    reached_end_command_buffer;
 };
 

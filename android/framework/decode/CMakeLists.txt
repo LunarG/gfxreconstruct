@@ -93,6 +93,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_draw_calls.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_compute_ray_tracing.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_compute_ray_tracing.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_delegate.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_delegate.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_json.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_json.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_allocator.h

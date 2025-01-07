@@ -22,7 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
-#include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
@@ -48,24 +48,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vector<uint64_t>&   dispatch_indices,
-                                                                 const std::vector<uint64_t>&   trace_rays_indices,
-                                                                 CommonObjectInfoTable&         object_info_table,
-                                                                 const VulkanReplayOptions&     options,
-                                                                 VulkanReplayDumpResourcesJson& dump_json,
-                                                                 std::string                    capture_filename) :
+DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
+                                                                 const std::vector<uint64_t>& trace_rays_indices,
+                                                                 CommonObjectInfoTable&       object_info_table,
+                                                                 const VulkanReplayOptions&   options,
+                                                                 VulkanDumpResourcesDelegate& delegate) :
     original_command_buffer_info(nullptr),
     DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices),
     trace_rays_indices(trace_rays_indices), bound_pipelines{ nullptr },
-    dump_resources_before(options.dump_resources_before), dump_resource_path(options.dump_resources_output_dir),
-    image_file_format(options.dump_resources_image_format), dump_resources_scale(options.dump_resources_scale),
-    device_table(nullptr), parent_device(VK_NULL_HANDLE), instance_table(nullptr), object_info_table(object_info_table),
-    replay_device_phys_mem_props(nullptr), current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
-    output_json_per_command(options.dump_resources_json_per_command),
-    dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename),
-    reached_end_command_buffer(false), dump_images_raw(options.dump_resources_dump_raw_images),
-    dump_images_separate_alpha(options.dump_resources_dump_separate_alpha)
+    dump_resources_before(options.dump_resources_before), device_table(nullptr), parent_device(VK_NULL_HANDLE),
+    instance_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
+    current_dispatch_index(0), current_trace_rays_index(0), delegate_(delegate),
+    dump_immutable_resources(options.dump_resources_dump_immutable_resources), reached_end_command_buffer(false)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -873,7 +867,23 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        GenerateOutputJsonDispatchInfo(qs_index, bcb_index, disp_index);
+        VulkanDumpDrawCallInfo draw_call_info{};
+        draw_call_info.type                         = DumpResourceType::kDispatchInfo;
+        draw_call_info.instance_table               = instance_table;
+        draw_call_info.device_table                 = device_table;
+        draw_call_info.object_info_table            = &object_info_table;
+        draw_call_info.device_info                  = device_info;
+        draw_call_info.original_command_buffer_info = original_command_buffer_info;
+        draw_call_info.bcb_index                    = bcb_index;
+        draw_call_info.cmd_buf_index                = i;
+        draw_call_info.qs_index                     = qs_index;
+        draw_call_info.disp_index                   = disp_index;
+
+        const auto& dispatch_param_entry = dispatch_params.find(disp_index);
+        GFXRECON_ASSERT(dispatch_param_entry != dispatch_params.end());
+        draw_call_info.disp_param = &dispatch_param_entry->second;
+
+        delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
     for (size_t i = 0; i < trace_rays_indices.size(); ++i)
@@ -900,7 +910,23 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        GenerateOutputJsonTraceRaysIndex(qs_index, bcb_index, tr_index);
+        VulkanDumpDrawCallInfo draw_call_info{};
+        draw_call_info.type                         = DumpResourceType::kTraceRaysIndex;
+        draw_call_info.instance_table               = instance_table;
+        draw_call_info.device_table                 = device_table;
+        draw_call_info.object_info_table            = &object_info_table;
+        draw_call_info.device_info                  = device_info;
+        draw_call_info.original_command_buffer_info = original_command_buffer_info;
+        draw_call_info.bcb_index                    = bcb_index;
+        draw_call_info.cmd_buf_index                = i;
+        draw_call_info.qs_index                     = qs_index;
+        draw_call_info.tr_index                     = tr_index;
+
+        const auto& trace_rays_param_entry = trace_rays_params.find(tr_index);
+        GFXRECON_ASSERT(trace_rays_param_entry != trace_rays_params.end());
+        draw_call_info.tr_param = &trace_rays_param_entry->second;
+
+        delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
@@ -914,110 +940,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
 
     assert(res == VK_SUCCESS);
     return VK_SUCCESS;
-}
-
-std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat              format,
-                                                                                    uint32_t              mip,
-                                                                                    uint32_t              layer,
-                                                                                    VkImageAspectFlagBits aspect,
-                                                                                    VkImageTiling         tiling,
-                                                                                    VkImageType           type,
-                                                                                    bool                  is_dispatch,
-                                                                                    uint64_t              qs_index,
-                                                                                    uint64_t              bcb_index,
-                                                                                    uint64_t              cmd_index,
-                                                                                    uint32_t              desc_set,
-                                                                                    uint32_t              desc_binding,
-                                                                                    uint32_t              array_index,
-                                                                                    VkShaderStageFlagBits stage,
-                                                                                    bool before_cmd) const
-{
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
-    assert(device_info);
-
-    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                       device_table,
-                                                                       instance_table,
-                                                                       object_info_table,
-                                                                       format,
-                                                                       tiling,
-                                                                       type,
-                                                                       image_file_format,
-                                                                       dump_images_raw);
-
-    const std::string shader_stage_name = ShaderStageToStr(stage);
-    const std::string aspect_str        = ImageAspectToStr(aspect);
-
-    std::stringstream filename;
-    filename << capture_filename << '_';
-
-    if (before_cmd)
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
-                 << bcb_index << "_before_stage_" << shader_stage_name << "_set_" << desc_set << "_binding_"
-                 << desc_binding << "_index_" << array_index;
-        if (output_image_format != KFormatRaw)
-        {
-            filename << "_" << util::ToString<VkFormat>(format).c_str();
-        }
-        filename << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
-                 << bcb_index << "_" << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name
-                 << "_set_" << desc_set << "_binding_" << desc_binding << "_index_" << array_index;
-        if (output_image_format != KFormatRaw)
-        {
-            filename << "_" << util::ToString<VkFormat>(format).c_str();
-        }
-        filename << "_aspect_" << aspect_str;
-    }
-
-    if (dump_all_image_subresources)
-    {
-        filename << "_mip_" << mip << "_layer_" << layer;
-    }
-
-    filename << ImageFileExtension(output_image_format);
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysBufferFilename(bool                  is_dispatch,
-                                                                                     uint64_t              qs_index,
-                                                                                     uint64_t              bcb_index,
-                                                                                     uint64_t              cmd_index,
-                                                                                     uint32_t              desc_set,
-                                                                                     uint32_t              desc_binding,
-                                                                                     uint32_t              array_index,
-                                                                                     VkShaderStageFlagBits stage,
-                                                                                     bool before_cmd) const
-{
-    std::stringstream filename;
-
-    filename << capture_filename << '_';
-
-    const std::string shader_stage_name = ShaderStageToStr(stage);
-
-    if (before_cmd)
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
-                 << bcb_index << "_before_stage_" << shader_stage_name << "_set_" << desc_set << "_binding_"
-                 << desc_binding << "_index_" << array_index << "_buffer.bin";
-    }
-    else
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
-                 << bcb_index << "_" << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name
-                 << "_set_" << desc_set << "_binding_" << desc_binding << "_index_" << array_index << "_buffer.bin";
-    }
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
 }
 
 VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_index,
@@ -1065,6 +987,15 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                                 *device_table,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
+    VulkanDumpResourceInfo        res_info_base{};
+    res_info_base.device_info                  = device_info;
+    res_info_base.device_table                 = device_table;
+    res_info_base.instance_table               = instance_table;
+    res_info_base.object_info_table            = &object_info_table;
+    res_info_base.original_command_buffer_info = original_command_buffer_info;
+    res_info_base.cmd_buf_index                = cmd_index;
+    res_info_base.qs_index                     = qs_index;
+    res_info_base.bcb_index                    = bcb_index;
 
     if (dump_resources_before)
     {
@@ -1077,83 +1008,19 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             VulkanImageInfo modified_image_info = *mutable_resources_clones_before.images[i].original_image;
             modified_image_info.handle          = mutable_resources_clones_before.images[i].image;
 
-            const uint32_t              desc_set    = mutable_resources_clones_before.images[i].desc_set;
-            const uint32_t              binding     = mutable_resources_clones_before.images[i].desc_binding;
-            const uint32_t              array_index = mutable_resources_clones_before.images[i].array_index;
-            const VkShaderStageFlagBits stage       = mutable_resources_clones_before.images[i].stage;
-
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(modified_image_info.format, aspects);
-
-            const size_t total_files =
-                dump_all_image_subresources
-                    ? (aspects.size() * modified_image_info.layer_count * modified_image_info.level_count)
-                    : aspects.size();
-
-            std::vector<std::string> filenames(total_files);
-            size_t                   f = 0;
-            for (auto aspect : aspects)
-            {
-                for (uint32_t mip = 0; mip < modified_image_info.level_count; ++mip)
-                {
-                    for (uint32_t layer = 0; layer < modified_image_info.layer_count; ++layer)
-                    {
-                        filenames[f++] = GenerateDispatchTraceRaysImageFilename(modified_image_info.format,
-                                                                                mip,
-                                                                                layer,
-                                                                                aspect,
-                                                                                modified_image_info.tiling,
-                                                                                modified_image_info.type,
-                                                                                is_dispatch,
-                                                                                qs_index,
-                                                                                bcb_index,
-                                                                                cmd_index,
-                                                                                desc_set,
-                                                                                binding,
-                                                                                array_index,
-                                                                                stage,
-                                                                                true);
-
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            std::vector<bool> scaling_supported(filenames.size());
-            VkResult          res = DumpImageToFile(&modified_image_info,
-                                           device_info,
-                                           device_table,
-                                           instance_table,
-                                           object_info_table,
-                                           filenames,
-                                           dump_resources_scale,
-                                           scaling_supported,
-                                           image_file_format,
-                                           false,
-                                           dump_images_raw,
-                                           dump_images_separate_alpha,
-                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            VulkanDumpResourceInfo res_info = res_info_base;
+            res_info.type                   = DumpResourceType::kDispatchTraceRaysImage;
+            res_info.is_dispatch            = is_dispatch;
+            res_info.before_cmd             = true;
+            res_info.image_info             = &modified_image_info;
+            res_info.set                    = mutable_resources_clones_before.images[i].desc_set;
+            res_info.binding                = mutable_resources_clones_before.images[i].desc_binding;
+            res_info.array_index            = mutable_resources_clones_before.images[i].array_index;
+            res_info.stage                  = mutable_resources_clones_before.images[i].stage;
+            auto res                        = delegate_.DumpResource(res_info);
             if (res != VK_SUCCESS)
             {
-                GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
                 return res;
-            }
-
-            // Keep track of images for which scaling failed
-            for (size_t i = 0; i < filenames.size(); ++i)
-            {
-                if (!scaling_supported[i])
-                {
-                    images_failed_scaling.insert(filenames[i]);
-                }
             }
         }
 
@@ -1164,27 +1031,30 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             assert(buffer_info != nullptr);
             assert(mutable_resources_clones_before.buffers[i].buffer != VK_NULL_HANDLE);
 
-            std::vector<uint8_t> data;
-
+            VulkanDumpResourceInfo res_info = res_info_base;
             VkResult res = resource_util.ReadFromBufferResource(mutable_resources_clones_before.buffers[i].buffer,
                                                                 buffer_info->size,
                                                                 0,
                                                                 buffer_info->queue_family_index,
-                                                                data);
+                                                                res_info.data);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
                 return res;
             }
 
-            const uint32_t              desc_set    = mutable_resources_clones_before.buffers[i].desc_set;
-            const uint32_t              binding     = mutable_resources_clones_before.buffers[i].desc_binding;
-            const uint32_t              array_index = mutable_resources_clones_before.buffers[i].array_index;
-            const VkShaderStageFlagBits stage       = mutable_resources_clones_before.buffers[i].stage;
-
-            std::string filename = GenerateDispatchTraceRaysBufferFilename(
-                is_dispatch, qs_index, bcb_index, cmd_index, desc_set, binding, array_index, stage, true);
-            util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+            res_info.type        = DumpResourceType::kDispatchTraceRaysBuffer;
+            res_info.is_dispatch = is_dispatch;
+            res_info.before_cmd  = true;
+            res_info.set         = mutable_resources_clones_before.buffers[i].desc_set;
+            res_info.binding     = mutable_resources_clones_before.buffers[i].desc_binding;
+            res_info.array_index = mutable_resources_clones_before.buffers[i].array_index;
+            res_info.stage       = mutable_resources_clones_before.buffers[i].stage;
+            res                  = delegate_.DumpResource(res_info);
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
         }
     }
 
@@ -1196,83 +1066,19 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         VulkanImageInfo modified_image_info = *mutable_resources_clones.images[i].original_image;
         modified_image_info.handle          = mutable_resources_clones.images[i].image;
 
-        const uint32_t              desc_set    = mutable_resources_clones.images[i].desc_set;
-        const uint32_t              binding     = mutable_resources_clones.images[i].desc_binding;
-        const uint32_t              array_index = mutable_resources_clones.images[i].array_index;
-        const VkShaderStageFlagBits stage       = mutable_resources_clones.images[i].stage;
-
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(modified_image_info.format, aspects);
-
-        const size_t total_files =
-            dump_all_image_subresources
-                ? (aspects.size() * modified_image_info.layer_count * modified_image_info.level_count)
-                : aspects.size();
-
-        std::vector<std::string> filenames(total_files);
-        size_t                   f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < modified_image_info.level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < modified_image_info.layer_count; ++layer)
-                {
-                    filenames[f++] = GenerateDispatchTraceRaysImageFilename(modified_image_info.format,
-                                                                            mip,
-                                                                            layer,
-                                                                            aspect,
-                                                                            modified_image_info.tiling,
-                                                                            modified_image_info.type,
-                                                                            is_dispatch,
-                                                                            qs_index,
-                                                                            bcb_index,
-                                                                            cmd_index,
-                                                                            desc_set,
-                                                                            binding,
-                                                                            array_index,
-                                                                            stage,
-                                                                            false);
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-
-        std::vector<bool> scaling_supported(filenames.size());
-        VkResult          res = DumpImageToFile(&modified_image_info,
-                                       device_info,
-                                       device_table,
-                                       instance_table,
-                                       object_info_table,
-                                       filenames,
-                                       dump_resources_scale,
-                                       scaling_supported,
-                                       image_file_format,
-                                       false,
-                                       dump_images_raw,
-                                       dump_images_separate_alpha,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kDispatchTraceRaysImage;
+        res_info.is_dispatch            = is_dispatch;
+        res_info.before_cmd             = false;
+        res_info.image_info             = &modified_image_info;
+        res_info.set                    = mutable_resources_clones.images[i].desc_set;
+        res_info.binding                = mutable_resources_clones.images[i].desc_binding;
+        res_info.array_index            = mutable_resources_clones.images[i].array_index;
+        res_info.stage                  = mutable_resources_clones.images[i].stage;
+        auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
-        }
-
-        // Keep track of images for which scaling failed
-        for (size_t i = 0; i < filenames.size(); ++i)
-        {
-            if (!scaling_supported[i])
-            {
-                images_failed_scaling.insert(filenames[i]);
-            }
         }
     }
 
@@ -1282,24 +1088,31 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         assert(mutable_resources_clones.buffers[i].original_buffer != nullptr);
         assert(mutable_resources_clones.buffers[i].buffer != VK_NULL_HANDLE);
         const VulkanBufferInfo* buffer_info = mutable_resources_clones.buffers[i].original_buffer;
-        std::vector<uint8_t>    data;
 
-        VkResult res = resource_util.ReadFromBufferResource(
-            mutable_resources_clones.buffers[i].buffer, buffer_info->size, 0, buffer_info->queue_family_index, data);
+        VulkanDumpResourceInfo res_info = res_info_base;
+        VkResult               res = resource_util.ReadFromBufferResource(mutable_resources_clones.buffers[i].buffer,
+                                                            buffer_info->size,
+                                                            0,
+                                                            buffer_info->queue_family_index,
+                                                            res_info.data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
-        const uint32_t              desc_set    = mutable_resources_clones.buffers[i].desc_set;
-        const uint32_t              binding     = mutable_resources_clones.buffers[i].desc_binding;
-        const uint32_t              array_index = mutable_resources_clones.buffers[i].array_index;
-        const VkShaderStageFlagBits stage       = mutable_resources_clones.buffers[i].stage;
-
-        std::string filename = GenerateDispatchTraceRaysBufferFilename(
-            is_dispatch, qs_index, bcb_index, cmd_index, desc_set, binding, array_index, stage, false);
-        util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+        res_info.type        = DumpResourceType::kDispatchTraceRaysBuffer;
+        res_info.is_dispatch = is_dispatch;
+        res_info.before_cmd  = false;
+        res_info.set         = mutable_resources_clones.buffers[i].desc_set;
+        res_info.binding     = mutable_resources_clones.buffers[i].desc_binding;
+        res_info.array_index = mutable_resources_clones.buffers[i].array_index;
+        res_info.stage       = mutable_resources_clones.buffers[i].stage;
+        res                  = delegate_.DumpResource(res_info);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
     }
 
     return VK_SUCCESS;
@@ -1400,90 +1213,6 @@ void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(TraceRaysParamete
             }
         }
     }
-}
-
-std::string DispatchTraceRaysDumpingContext::GenerateImageDescriptorFilename(VkFormat              format,
-                                                                             uint32_t              mip,
-                                                                             uint32_t              layer,
-                                                                             format::HandleId      image_id,
-                                                                             VkImageAspectFlagBits aspect,
-                                                                             VkImageTiling         tiling,
-                                                                             VkImageType           type,
-                                                                             uint64_t              qs_index,
-                                                                             uint64_t              bcb_index) const
-{
-    std::string       aspect_str = ImageAspectToStr(aspect);
-    std::stringstream base_filename;
-
-    base_filename << capture_filename << '_';
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
-    assert(device_info);
-
-    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                       device_table,
-                                                                       instance_table,
-                                                                       object_info_table,
-                                                                       format,
-                                                                       tiling,
-                                                                       type,
-                                                                       image_file_format,
-                                                                       dump_images_raw);
-
-    if (output_image_format != KFormatRaw)
-    {
-        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        std::string format_name = FormatToStr(format);
-        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_" << format_name
-                      << "_aspect_" << aspect_str;
-    }
-
-    if (dump_all_image_subresources)
-    {
-        std::stringstream sub_resources_str;
-        sub_resources_str << base_filename.str() << "_mip_" << mip << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(sub_resources_str.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        base_filename << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(base_filename.str());
-        return (filedirname / filebasename).string();
-    }
-}
-
-std::string DispatchTraceRaysDumpingContext::GenerateBufferDescriptorFilename(uint64_t         qs_index,
-                                                                              uint64_t         bcb_index,
-                                                                              format::HandleId buffer_id) const
-{
-    std::stringstream filename;
-
-    filename << capture_filename << "_buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DispatchTraceRaysDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
-                                                                                           uint64_t bcb_index,
-                                                                                           uint32_t set,
-                                                                                           uint32_t binding) const
-{
-    std::stringstream filename;
-    filename << capture_filename << '_' << "inlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_"
-             << qs_index << "_bcb_" << bcb_index << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
 }
 
 VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_index,
@@ -1699,72 +1428,25 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
+    VulkanDumpResourceInfo res_info_base{};
+    res_info_base.device_info                  = device_info;
+    res_info_base.device_table                 = device_table;
+    res_info_base.instance_table               = instance_table;
+    res_info_base.object_info_table            = &object_info_table;
+    res_info_base.original_command_buffer_info = original_command_buffer_info;
+    res_info_base.cmd_buf_index                = cmd_index;
+    res_info_base.qs_index                     = qs_index;
+    res_info_base.bcb_index                    = bcb_index;
+
     for (const auto& img_info : image_descriptors)
     {
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(img_info->format, aspects);
-
-        const size_t total_files = dump_all_image_subresources
-                                       ? (aspects.size() * img_info->layer_count * img_info->level_count)
-                                       : aspects.size();
-
-        std::vector<std::string> filenames(total_files);
-
-        size_t f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                {
-                    filenames[f++] = GenerateImageDescriptorFilename(img_info->format,
-                                                                     mip,
-                                                                     layer,
-                                                                     img_info->capture_id,
-                                                                     aspect,
-                                                                     img_info->tiling,
-                                                                     img_info->type,
-                                                                     qs_index,
-                                                                     bcb_index);
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-
-        std::vector<bool> scaling_supported(filenames.size());
-        VkResult          res = DumpImageToFile(img_info,
-                                       device_info,
-                                       device_table,
-                                       instance_table,
-                                       object_info_table,
-                                       filenames,
-                                       dump_resources_scale,
-                                       scaling_supported,
-                                       image_file_format,
-                                       dump_all_image_subresources,
-                                       dump_images_raw);
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kDispatchTraceRaysImageDescriptor;
+        res_info.image_info             = img_info;
+        auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
-        }
-
-        // Keep track of images for which scaling failed
-        for (size_t i = 0; i < filenames.size(); ++i)
-        {
-            if (!scaling_supported[i])
-            {
-                images_failed_scaling.insert(filenames[i]);
-            }
         }
     }
 
@@ -1779,29 +1461,40 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
 
     for (const auto& buf : buffer_descriptors)
     {
-        const VulkanBufferInfo* buffer_info = buf.first;
-        const VkDeviceSize      offset      = buf.second.offset;
-        const VkDeviceSize      range       = buf.second.range;
-        const VkDeviceSize      size        = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.buffer_info            = buf.first;
+        const VkDeviceSize offset       = buf.second.offset;
+        const VkDeviceSize range        = buf.second.range;
+        const VkDeviceSize size         = range == VK_WHOLE_SIZE ? res_info.buffer_info->size - offset : range;
 
-        std::vector<uint8_t> data;
-        VkResult             res = resource_util.ReadFromBufferResource(
-            buffer_info->handle, size, offset, buffer_info->queue_family_index, data);
+        VkResult res = resource_util.ReadFromBufferResource(
+            res_info.buffer_info->handle, size, offset, res_info.buffer_info->queue_family_index, res_info.data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
-        const std::string filename = GenerateBufferDescriptorFilename(qs_index, bcb_index, buffer_info->capture_id);
-        util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+        res_info.type = DumpResourceType::kDispatchTraceRaysBufferDescriptor;
+        res           = delegate_.DumpResource(res_info);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
     }
 
     for (const auto& iub : inline_uniform_blocks)
     {
-        std::string filename =
-            GenerateInlineUniformBufferDescriptorFilename(qs_index, bcb_index, iub.second.set, iub.second.binding);
-        util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor;
+        res_info.set                    = iub.second.set;
+        res_info.binding                = iub.second.binding;
+        res_info.data                   = *iub.second.data;
+        auto res                        = delegate_.DumpResource(res_info);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
     }
 
     return VK_SUCCESS;
@@ -2056,912 +1749,15 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
     return VK_SUCCESS;
 }
 
-void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs_index,
-                                                                     uint64_t bcb_index,
-                                                                     uint64_t disp_index) const
-{
-    if (dispatch_params.empty())
-    {
-        return;
-    }
-
-    if (output_json_per_command)
-    {
-        std::stringstream filename;
-        filename << "Dispatch_" << disp_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json.Open(full_filename);
-        dump_json.BlockStart();
-    }
-
-    auto& current_block         = dump_json.GetCurrentSubEntry();
-    auto& dispatch_json_entries = !output_json_per_command ? current_block["dispatchCommands"] : dump_json.GetData();
-
-    const uint32_t dispatch_json_entry_index = dump_json.FetchAndAddDispatchEntryIndex();
-    auto&          dispatch_json_entry =
-        !output_json_per_command ? dispatch_json_entries[dispatch_json_entry_index] : dump_json.GetData();
-
-    const auto& disp_params = dispatch_params.find(disp_index);
-
-    dispatch_json_entry["dispatchIndex"]           = disp_index;
-    dispatch_json_entry["beginCommandBufferIndex"] = bcb_index;
-    dispatch_json_entry["queueSubmitIndex"]        = qs_index;
-
-    auto& params_json_entries           = dispatch_json_entry["parameters"];
-    params_json_entries["dispatchType"] = DispatchTypeToStr(disp_params->second.type);
-    switch (disp_params->second.type)
-    {
-        case kDispatch:
-        {
-            const DispatchParameters::DispatchParamsUnion::DispatchParams& ds_params =
-                disp_params->second.dispatch_params_union.dispatch;
-
-            params_json_entries["groupCountX"] = ds_params.groupCountX;
-            params_json_entries["groupCountY"] = ds_params.groupCountY;
-            params_json_entries["groupCountZ"] = ds_params.groupCountZ;
-        }
-        break;
-
-        case kDispatchIndirect:
-        {
-            const DispatchParameters::DispatchParamsUnion::DispatchIndirect& ds_params =
-                disp_params->second.dispatch_params_union.dispatch_indirect;
-
-            assert(ds_params.dispatch_params != nullptr);
-            params_json_entries["groupCountX"] = ds_params.dispatch_params->groupCountX;
-            params_json_entries["groupCountY"] = ds_params.dispatch_params->groupCountY;
-            params_json_entries["groupCountZ"] = ds_params.dispatch_params->groupCountZ;
-        }
-        break;
-
-        case kDispatchBase:
-        {
-            const DispatchParameters::DispatchParamsUnion::DispatchBaseParams& ds_params =
-                disp_params->second.dispatch_params_union.dispatch_base;
-
-            params_json_entries["baseGroupX"]  = ds_params.baseGroupX;
-            params_json_entries["baseGroupY"]  = ds_params.baseGroupY;
-            params_json_entries["baseGroupZ"]  = ds_params.baseGroupZ;
-            params_json_entries["groupCountX"] = ds_params.groupCountX;
-            params_json_entries["groupCountY"] = ds_params.groupCountY;
-            params_json_entries["groupCountZ"] = ds_params.groupCountZ;
-        }
-        break;
-
-        default:
-            assert(0);
-    }
-
-    auto& outputs_json_entries = dispatch_json_entry["outputs"];
-
-    if (dump_resources_before)
-    {
-        const auto& mutable_resource_entry_before = disp_params->second.mutable_resources_clones_before;
-        if (!mutable_resource_entry_before.images.empty())
-        {
-            auto&    before_command_output_image_entries = outputs_json_entries["before"]["images"];
-            uint32_t output_image_index                  = 0;
-
-            for (const auto& image : mutable_resource_entry_before.images)
-            {
-                const uint32_t              desc_set    = image.desc_set;
-                const uint32_t              binding     = image.desc_binding;
-                const uint32_t              array_index = image.array_index;
-                const VkShaderStageFlagBits stage       = image.stage;
-                const VulkanImageInfo*      img_info    = image.original_image;
-                assert(img_info != nullptr);
-
-                auto& image_json_entry         = before_command_output_image_entries[output_image_index++];
-                image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
-                image_json_entry["set"]        = desc_set;
-                image_json_entry["binding"]    = binding;
-                image_json_entry["arrayIndex"] = array_index;
-                auto& image_json_entry_desc    = image_json_entry["images"];
-
-                std::vector<VkImageAspectFlagBits> aspects;
-                GetFormatAspects(img_info->format, aspects);
-
-                size_t f = 0;
-                for (auto aspect : aspects)
-                {
-                    for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                    {
-                        for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                        {
-                            std::string filename = GenerateDispatchTraceRaysImageFilename(img_info->format,
-                                                                                          mip,
-                                                                                          layer,
-                                                                                          aspect,
-                                                                                          img_info->tiling,
-                                                                                          img_info->type,
-                                                                                          true,
-                                                                                          qs_index,
-                                                                                          bcb_index,
-                                                                                          disp_index,
-                                                                                          desc_set,
-                                                                                          binding,
-                                                                                          array_index,
-                                                                                          stage,
-                                                                                          true);
-
-                            const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                        std::max(1u, img_info->extent.height >> mip),
-                                                        img_info->extent.depth };
-
-                            dump_json.InsertImageInfo(image_json_entry_desc[f++],
-                                                      img_info->format,
-                                                      img_info->type,
-                                                      img_info->capture_id,
-                                                      extent,
-                                                      filename,
-                                                      aspect,
-                                                      ImageFailedScaling(filename),
-                                                      mip,
-                                                      layer,
-                                                      dump_images_separate_alpha);
-
-                            if (!dump_all_image_subresources)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!mutable_resource_entry_before.buffers.empty())
-        {
-            auto&    before_command_output_buffer_entries = outputs_json_entries["before"]["buffers"];
-            uint32_t output_buffer_index                  = 0;
-
-            for (const auto& buffer : mutable_resource_entry_before.buffers)
-            {
-                const uint32_t              desc_set    = buffer.desc_set;
-                const uint32_t              binding     = buffer.desc_binding;
-                const uint32_t              array_index = buffer.array_index;
-                const VkShaderStageFlagBits stage       = buffer.stage;
-                const VulkanBufferInfo*     buffer_info = buffer.original_buffer;
-                assert(buffer_info != nullptr);
-
-                std::string filename = GenerateDispatchTraceRaysBufferFilename(
-                    true, qs_index, bcb_index, disp_index, desc_set, binding, array_index, stage, true);
-
-                auto& buffer_json_entry         = before_command_output_buffer_entries[output_buffer_index++];
-                buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
-                buffer_json_entry["set"]        = desc_set;
-                buffer_json_entry["binding"]    = binding;
-                buffer_json_entry["arrayIndex"] = array_index;
-                dump_json.InsertBufferInfo(buffer_json_entry, buffer_info, filename);
-            }
-        }
-    }
-
-    const auto& mutable_resource_entry = disp_params->second.mutable_resources_clones;
-    if (!mutable_resource_entry.images.empty())
-    {
-        auto& outputs_json_entries_after = dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
-        auto& image_outputs_json_entries = outputs_json_entries_after["images"];
-
-        uint32_t mutable_images_count = 0;
-        for (const auto& image : mutable_resource_entry.images)
-        {
-            const uint32_t              desc_set    = image.desc_set;
-            const uint32_t              binding     = image.desc_binding;
-            const uint32_t              array_index = image.array_index;
-            const VkShaderStageFlagBits stage       = image.stage;
-            const VulkanImageInfo*      img_info    = image.original_image;
-            assert(img_info != nullptr);
-
-            auto& image_json_entry         = image_outputs_json_entries[mutable_images_count++];
-            image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
-            image_json_entry["set"]        = desc_set;
-            image_json_entry["binding"]    = binding;
-            image_json_entry["arrayIndex"] = array_index;
-            auto& image_json_entry_desc    = image_json_entry["images"];
-
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(img_info->format, aspects);
-
-            size_t f = 0;
-            for (auto aspect : aspects)
-            {
-                for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                {
-                    for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                    {
-                        std::string filename = GenerateDispatchTraceRaysImageFilename(img_info->format,
-                                                                                      mip,
-                                                                                      layer,
-                                                                                      aspect,
-                                                                                      img_info->tiling,
-                                                                                      img_info->type,
-                                                                                      true,
-                                                                                      qs_index,
-                                                                                      bcb_index,
-                                                                                      disp_index,
-                                                                                      desc_set,
-                                                                                      binding,
-                                                                                      array_index,
-                                                                                      stage,
-                                                                                      false);
-
-                        const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                    std::max(1u, img_info->extent.height >> mip),
-                                                    img_info->extent.depth };
-
-                        dump_json.InsertImageInfo(image_json_entry_desc[f++],
-                                                  img_info->format,
-                                                  img_info->type,
-                                                  img_info->capture_id,
-                                                  extent,
-                                                  filename,
-                                                  aspect,
-                                                  ImageFailedScaling(filename),
-                                                  mip,
-                                                  layer,
-                                                  dump_images_separate_alpha);
-
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (!mutable_resource_entry.buffers.empty())
-    {
-        auto& outputs_json_entries_after = dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
-        auto& buffer_outputs_json_entries = outputs_json_entries_after["buffers"];
-
-        uint32_t mutable_buffers_count = 0;
-        for (const auto& buffer : mutable_resource_entry.buffers)
-        {
-            const uint32_t              desc_set    = buffer.desc_set;
-            const uint32_t              binding     = buffer.desc_binding;
-            const uint32_t              array_index = buffer.array_index;
-            const VkShaderStageFlagBits stage       = buffer.stage;
-            const VulkanBufferInfo*     buffer_info = buffer.original_buffer;
-            assert(buffer_info != nullptr);
-
-            std::string filename = GenerateDispatchTraceRaysBufferFilename(
-                true, qs_index, bcb_index, disp_index, desc_set, binding, array_index, stage, false);
-
-            auto& buffer_json_entry         = buffer_outputs_json_entries[mutable_buffers_count++];
-            buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
-            buffer_json_entry["set"]        = desc_set;
-            buffer_json_entry["binding"]    = binding;
-            buffer_json_entry["arrayIndex"] = array_index;
-            dump_json.InsertBufferInfo(buffer_json_entry, buffer_info, filename);
-        }
-    }
-
-    if (dump_immutable_resources)
-    {
-        uint32_t descriptor_entries_count = 0;
-        for (const auto& desc_set : disp_params->second.referenced_descriptors)
-        {
-            const uint32_t desc_set_index = desc_set.first;
-            for (const auto& desc_binding : desc_set.second)
-            {
-                const uint32_t desc_binding_index = desc_binding.first;
-                switch (desc_binding.second.desc_type)
-                {
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                    {
-                        for (size_t i = 0; i < desc_binding.second.image_info.size(); ++i)
-                        {
-                            if (desc_binding.second.image_info[i].image_view_info == nullptr)
-                            {
-                                continue;
-                            }
-
-                            auto& entry = dispatch_json_entry["descriptors"][descriptor_entries_count++];
-
-                            entry["type"]       = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                            entry["set"]        = desc_set_index;
-                            entry["binding"]    = desc_binding_index;
-                            entry["arrayIndex"] = i;
-
-                            const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                desc_binding.second.image_info[i].image_view_info->image_id);
-                            assert(img_info);
-
-                            std::vector<VkImageAspectFlagBits> aspects;
-                            GetFormatAspects(img_info->format, aspects);
-
-                            size_t f = 0;
-                            for (auto aspect : aspects)
-                            {
-                                for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                                {
-                                    for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                                    {
-                                        std::string filename = GenerateImageDescriptorFilename(img_info->format,
-                                                                                               mip,
-                                                                                               layer,
-                                                                                               img_info->capture_id,
-                                                                                               aspect,
-                                                                                               img_info->tiling,
-                                                                                               img_info->type,
-                                                                                               qs_index,
-                                                                                               bcb_index);
-
-                                        auto&            image_descriptor_json_entry = entry["descriptor"];
-                                        const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                                    std::max(1u, img_info->extent.height >> mip),
-                                                                    img_info->extent.depth };
-
-                                        dump_json.InsertImageInfo(image_descriptor_json_entry[f++],
-                                                                  img_info->format,
-                                                                  img_info->type,
-                                                                  img_info->capture_id,
-                                                                  extent,
-                                                                  filename,
-                                                                  aspect,
-                                                                  ImageFailedScaling(filename),
-                                                                  mip,
-                                                                  layer,
-                                                                  dump_images_separate_alpha);
-
-                                        if (!dump_all_image_subresources)
-                                        {
-                                            break;
-                                        }
-                                    }
-
-                                    if (!dump_all_image_subresources)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    {
-                        for (size_t i = 0; i < desc_binding.second.buffer_info.size(); ++i)
-                        {
-                            if (desc_binding.second.buffer_info[i].buffer_info != nullptr)
-                            {
-                                auto& entry = dispatch_json_entry["descriptors"][descriptor_entries_count++];
-
-                                entry["type"]       = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                entry["set"]        = desc_set_index;
-                                entry["binding"]    = desc_binding_index;
-                                entry["arrayIndex"] = i;
-
-                                auto& buffer_descriptor_json_entry = entry["descriptor"];
-
-                                const std::string filename = GenerateBufferDescriptorFilename(
-                                    qs_index, bcb_index, desc_binding.second.buffer_info[i].buffer_info->capture_id);
-                                dump_json.InsertBufferInfo(buffer_descriptor_json_entry,
-                                                           desc_binding.second.buffer_info[i].buffer_info,
-                                                           filename);
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        break;
-
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        auto& entry = dispatch_json_entry["descriptors"][descriptor_entries_count++];
-
-                        entry["type"]    = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                        entry["set"]     = desc_set_index;
-                        entry["binding"] = desc_binding_index;
-                        entry["size"]    = desc_binding.second.inline_uniform_block.size();
-
-                        const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
-                            qs_index, bcb_index, desc_set_index, desc_binding_index);
-                        entry["file"] = filename;
-                    }
-                    break;
-
-                    default:
-                        GFXRECON_LOG_WARNING_ONCE(
-                            "%s(): Descriptor type (%s) not handled",
-                            __func__,
-                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
-                        break;
-                }
-            }
-        }
-    }
-
-    if (output_json_per_command)
-    {
-        dump_json.BlockEnd();
-        dump_json.Close();
-    }
-}
-
-void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t qs_index,
-                                                                       uint64_t bcb_index,
-                                                                       uint64_t tr_index) const
-{
-    auto& current_block = dump_json.GetCurrentSubEntry();
-
-    auto& tr_json_entries = (!trace_rays_params.empty() && !output_json_per_command)
-                                ? current_block["traceRaysCommands"]
-                                : dump_json.GetData();
-
-    if (output_json_per_command)
-    {
-        std::stringstream filename;
-        filename << "TraceRays_" << tr_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json.Open(full_filename);
-        dump_json.BlockStart();
-    }
-    const auto& tr_params = trace_rays_params.find(tr_index);
-
-    const uint32_t trace_rays_json_entry_index = dump_json.FetchAndAddTraceRaysEntryIndex();
-    auto& tr_entry = !output_json_per_command ? tr_json_entries[trace_rays_json_entry_index] : dump_json.GetData();
-
-    tr_entry["traceRaysIndex"]          = tr_index;
-    tr_entry["beginCommandBufferIndex"] = bcb_index;
-    tr_entry["queueSubmitIndex"]        = qs_index;
-
-    auto& params_json_entries            = tr_entry["parameters"];
-    params_json_entries["traceRaysType"] = TraceRaysTypeToStr(tr_params->second.type);
-
-    switch (tr_params->second.type)
-    {
-        case kTraceRays:
-        {
-            const VkTraceRaysIndirectCommandKHR& params = tr_params->second.trace_rays_params_union.trace_rays;
-
-            params_json_entries["width"]  = params.width;
-            params_json_entries["height"] = params.height;
-            params_json_entries["depth"]  = params.depth;
-        }
-        break;
-
-        case kTraceRaysIndirect:
-        {
-            const TraceRaysParameters::TraceRaysParamsUnion::TraceRaysIndirect& params =
-                tr_params->second.trace_rays_params_union.trace_rays_indirect;
-
-            params_json_entries["width"]  = params.trace_rays_params.width;
-            params_json_entries["height"] = params.trace_rays_params.height;
-            params_json_entries["depth"]  = params.trace_rays_params.depth;
-        }
-        break;
-
-        case kTraceRaysIndirect2:
-        {
-            const TraceRaysParameters::TraceRaysParamsUnion::TraceRaysIndirect2& params =
-                tr_params->second.trace_rays_params_union.trace_rays_indirect2;
-
-            params_json_entries["width"]  = params.trace_rays_params.width;
-            params_json_entries["height"] = params.trace_rays_params.height;
-            params_json_entries["depth"]  = params.trace_rays_params.depth;
-        }
-        break;
-
-        default:
-            assert(0);
-    }
-
-    auto& outputs_json_entries = tr_entry["outputs"];
-
-    if (dump_resources_before)
-    {
-        const auto& mutable_resource_entry_before = tr_params->second.mutable_resources_clones_before;
-        if (!mutable_resource_entry_before.images.empty())
-        {
-            auto&    before_command_output_image_entries = outputs_json_entries["before"]["images"];
-            uint32_t output_image_index                  = 0;
-
-            for (const auto& image : mutable_resource_entry_before.images)
-            {
-                const uint32_t              desc_set    = image.desc_set;
-                const uint32_t              binding     = image.desc_binding;
-                const uint32_t              array_index = image.array_index;
-                const VkShaderStageFlagBits stage       = image.stage;
-                const VulkanImageInfo*      img_info    = image.original_image;
-                assert(img_info != nullptr);
-
-                std::vector<VkImageAspectFlagBits> aspects;
-                GetFormatAspects(img_info->format, aspects);
-
-                auto& image_json_entry         = before_command_output_image_entries[output_image_index++];
-                image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
-                image_json_entry["set"]        = desc_set;
-                image_json_entry["binding"]    = binding;
-                image_json_entry["arrayIndex"] = array_index;
-                auto& image_json_entry_desc    = image_json_entry["images"];
-
-                size_t f = 0;
-                for (auto aspect : aspects)
-                {
-                    for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                    {
-                        for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                        {
-                            std::string filename = GenerateDispatchTraceRaysImageFilename(img_info->format,
-                                                                                          mip,
-                                                                                          layer,
-                                                                                          aspect,
-                                                                                          img_info->tiling,
-                                                                                          img_info->type,
-                                                                                          false,
-                                                                                          qs_index,
-                                                                                          bcb_index,
-                                                                                          tr_index,
-                                                                                          desc_set,
-                                                                                          binding,
-                                                                                          array_index,
-                                                                                          stage,
-                                                                                          true);
-
-                            const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                        std::max(1u, img_info->extent.height >> mip),
-                                                        img_info->extent.depth };
-
-                            dump_json.InsertImageInfo(image_json_entry_desc[f++],
-                                                      img_info->format,
-                                                      img_info->type,
-                                                      img_info->capture_id,
-                                                      extent,
-                                                      filename,
-                                                      aspect,
-                                                      ImageFailedScaling(filename),
-                                                      mip,
-                                                      layer,
-                                                      dump_images_separate_alpha);
-
-                            if (!dump_all_image_subresources)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!mutable_resource_entry_before.buffers.empty())
-        {
-            auto&    before_command_output_buffer_entries = outputs_json_entries["before"]["buffers"];
-            uint32_t output_buffer_index                  = 0;
-
-            for (const auto& buffer : mutable_resource_entry_before.buffers)
-            {
-                const uint32_t              desc_set    = buffer.desc_set;
-                const uint32_t              binding     = buffer.desc_binding;
-                const uint32_t              array_index = buffer.array_index;
-                const VkShaderStageFlagBits stage       = buffer.stage;
-                const VulkanBufferInfo*     buffer_info = buffer.original_buffer;
-                assert(buffer_info != nullptr);
-
-                std::string filename = GenerateDispatchTraceRaysBufferFilename(
-                    false, qs_index, bcb_index, tr_index, desc_set, binding, array_index, stage, true);
-
-                auto& buffer_json_entry         = before_command_output_buffer_entries[output_buffer_index++];
-                buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
-                buffer_json_entry["set"]        = desc_set;
-                buffer_json_entry["binding"]    = binding;
-                buffer_json_entry["arrayIndex"] = array_index;
-                dump_json.InsertBufferInfo(buffer_json_entry, buffer_info, filename);
-            }
-        }
-    }
-
-    const auto& mutable_resource_entry = tr_params->second.mutable_resources_clones;
-    auto& outputs_json_entries_after   = dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
-
-    if (!mutable_resource_entry.images.empty())
-    {
-        uint32_t mutable_images_count = 0;
-        for (const auto& image : mutable_resource_entry.images)
-        {
-            const uint32_t              desc_set    = image.desc_set;
-            const uint32_t              binding     = image.desc_binding;
-            const uint32_t              array_index = image.array_index;
-            const VkShaderStageFlagBits stage       = image.stage;
-            const VulkanImageInfo*      img_info    = image.original_image;
-            assert(img_info != nullptr);
-
-            auto& image_json_entry         = outputs_json_entries_after["images"][mutable_images_count++];
-            image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
-            image_json_entry["set"]        = desc_set;
-            image_json_entry["binding"]    = binding;
-            image_json_entry["arrayIndex"] = array_index;
-            auto& image_json_entry_desc    = image_json_entry["image"];
-
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(img_info->format, aspects);
-
-            size_t f = 0;
-            for (auto aspect : aspects)
-            {
-                for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                {
-                    for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                    {
-                        std::string filename = GenerateDispatchTraceRaysImageFilename(img_info->format,
-                                                                                      mip,
-                                                                                      layer,
-                                                                                      aspect,
-                                                                                      img_info->tiling,
-                                                                                      img_info->type,
-                                                                                      false,
-                                                                                      qs_index,
-                                                                                      bcb_index,
-                                                                                      tr_index,
-                                                                                      desc_set,
-                                                                                      binding,
-                                                                                      array_index,
-                                                                                      stage,
-                                                                                      false);
-
-                        const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                    std::max(1u, img_info->extent.height >> mip),
-                                                    img_info->extent.depth };
-
-                        dump_json.InsertImageInfo(image_json_entry_desc[f++],
-                                                  img_info->format,
-                                                  img_info->type,
-                                                  img_info->capture_id,
-                                                  extent,
-                                                  filename,
-                                                  aspect,
-                                                  ImageFailedScaling(filename),
-                                                  mip,
-                                                  layer,
-                                                  dump_images_separate_alpha);
-
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (!mutable_resource_entry.buffers.empty())
-    {
-        uint32_t mutable_buffers_count = 0;
-        for (const auto& buffer : mutable_resource_entry.buffers)
-        {
-            const uint32_t              desc_set    = buffer.desc_set;
-            const uint32_t              binding     = buffer.desc_binding;
-            const uint32_t              array_index = buffer.array_index;
-            const VkShaderStageFlagBits stage       = buffer.stage;
-            const VulkanBufferInfo*     buffer_info = buffer.original_buffer;
-            assert(buffer_info != nullptr);
-
-            std::string filename = GenerateDispatchTraceRaysBufferFilename(
-                false, qs_index, bcb_index, tr_index, desc_set, binding, array_index, stage, false);
-
-            auto& buffer_json_entry         = outputs_json_entries_after["buffers"][mutable_buffers_count++];
-            buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
-            buffer_json_entry["set"]        = desc_set;
-            buffer_json_entry["binding"]    = binding;
-            buffer_json_entry["arrayIndex"] = array_index;
-            dump_json.InsertBufferInfo(buffer_json_entry, buffer_info, filename);
-        }
-    }
-
-    if (dump_immutable_resources)
-    {
-        for (const auto& shader_stage : tr_params->second.referenced_descriptors)
-        {
-            uint32_t          stage_entry_index = 0;
-            const std::string shader_stage_name = ShaderStageToStr(shader_stage.first);
-            for (const auto& desc_set : shader_stage.second)
-            {
-                const uint32_t desc_set_index = desc_set.first;
-
-                for (const auto& desc_binding : desc_set.second)
-                {
-                    const uint32_t desc_binding_index = desc_binding.first;
-
-                    switch (desc_binding.second.desc_type)
-                    {
-                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                        {
-                            for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
-                            {
-                                if (desc_binding.second.image_info[img].image_view_info == nullptr)
-                                {
-                                    continue;
-                                }
-
-                                auto& entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
-
-                                const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                    desc_binding.second.image_info[img].image_view_info->image_id);
-                                assert(img_info);
-
-                                entry["type"]       = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                entry["set"]        = desc_set_index;
-                                entry["binding"]    = desc_binding_index;
-                                entry["arrayIndex"] = img;
-
-                                std::vector<VkImageAspectFlagBits> aspects;
-                                GetFormatAspects(img_info->format, aspects);
-
-                                size_t f = 0;
-                                for (auto aspect : aspects)
-                                {
-                                    for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
-                                    {
-                                        for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                                        {
-                                            std::string filename = GenerateImageDescriptorFilename(img_info->format,
-                                                                                                   mip,
-                                                                                                   layer,
-                                                                                                   img_info->capture_id,
-                                                                                                   aspect,
-                                                                                                   img_info->tiling,
-                                                                                                   img_info->type,
-                                                                                                   qs_index,
-                                                                                                   bcb_index);
-
-                                            const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
-                                                                        std::max(1u, img_info->extent.height >> mip),
-                                                                        img_info->extent.depth };
-
-                                            auto& image_descriptor_json_entry = entry["descriptor"];
-
-                                            dump_json.InsertImageInfo(image_descriptor_json_entry[f++],
-                                                                      img_info->format,
-                                                                      img_info->type,
-                                                                      img_info->capture_id,
-                                                                      extent,
-                                                                      filename,
-                                                                      aspect,
-                                                                      ImageFailedScaling(filename),
-                                                                      mip,
-                                                                      layer,
-                                                                      dump_images_separate_alpha);
-
-                                            if (!dump_all_image_subresources)
-                                            {
-                                                break;
-                                            }
-                                        }
-
-                                        if (!dump_all_image_subresources)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                        {
-                            for (size_t i = 0; i < desc_binding.second.buffer_info.size(); ++i)
-                            {
-                                if (desc_binding.second.buffer_info[i].buffer_info != nullptr)
-                                {
-                                    auto& entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
-
-                                    entry["type"]    = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                    entry["set"]     = desc_set_index;
-                                    entry["binding"] = desc_binding_index;
-                                    entry["arrayIndex"] = i;
-
-                                    const std::string filename = GenerateBufferDescriptorFilename(
-                                        qs_index,
-                                        bcb_index,
-                                        desc_binding.second.buffer_info[i].buffer_info->capture_id);
-                                    auto& buffer_descriptor_json_entry = entry["descriptor"];
-                                    dump_json.InsertBufferInfo(buffer_descriptor_json_entry,
-                                                               desc_binding.second.buffer_info[i].buffer_info,
-                                                               filename);
-                                }
-                            }
-                        }
-                        break;
-
-                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                        {
-                            auto& desc_json_entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
-
-                            const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
-                                qs_index, bcb_index, desc_set_index, desc_binding_index);
-
-                            desc_json_entry["type"] = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                            desc_json_entry["set"]  = desc_set_index;
-                            desc_json_entry["binding"] = desc_binding_index;
-                            desc_json_entry["size"]    = desc_binding.second.inline_uniform_block.size();
-                            desc_json_entry["file"]    = filename;
-                        }
-                        break;
-
-                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                        case VK_DESCRIPTOR_TYPE_SAMPLER:
-                            break;
-
-                        default:
-                            GFXRECON_LOG_WARNING_ONCE(
-                                "%s(): Descriptor type (%s) not handled",
-                                __func__,
-                                util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
-                            break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (output_json_per_command)
-    {
-        dump_json.BlockEnd();
-        dump_json.Close();
-    }
-}
-
 void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(uint64_t index,
                                                                   uint32_t groupCountX,
                                                                   uint32_t groupCountY,
                                                                   uint32_t groupCountZ)
 {
-    auto new_entry = dispatch_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(
-            DispatchTraceRaysDumpingContext::DispatchTypes::kDispatch, groupCountX, groupCountY, groupCountZ));
+    auto new_entry =
+        dispatch_params.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(index),
+                                std::forward_as_tuple(DispatchTypes::kDispatch, groupCountX, groupCountY, groupCountZ));
     assert(new_entry.second);
 }
 
@@ -2969,10 +1765,10 @@ void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(uint64_t      
                                                                   const VulkanBufferInfo* buffer_info,
                                                                   VkDeviceSize            offset)
 {
-    auto new_entry = dispatch_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(DispatchTraceRaysDumpingContext::DispatchTypes::kDispatchIndirect, buffer_info, offset));
+    auto new_entry =
+        dispatch_params.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(index),
+                                std::forward_as_tuple(DispatchTypes::kDispatchIndirect, buffer_info, offset));
     assert(new_entry.second);
 }
 
@@ -2986,10 +1782,9 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysParameters(
     uint32_t                               height,
     uint32_t                               depth)
 {
-    auto new_entry = trace_rays_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRays, width, height, depth));
+    auto new_entry = trace_rays_params.emplace(std::piecewise_construct,
+                                               std::forward_as_tuple(index),
+                                               std::forward_as_tuple(TraceRaysTypes::kTraceRays, width, height, depth));
     assert(new_entry.second);
 }
 
@@ -3001,22 +1796,20 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirectParameters(
     const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
     VkDeviceAddress                        indirectDeviceAddress)
 {
-    auto new_entry = trace_rays_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect,
-                              indirectDeviceAddress));
+    auto new_entry =
+        trace_rays_params.emplace(std::piecewise_construct,
+                                  std::forward_as_tuple(index),
+                                  std::forward_as_tuple(TraceRaysTypes::kTraceRaysIndirect, indirectDeviceAddress));
     assert(new_entry.second);
 }
 
 void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint64_t        index,
                                                                             VkDeviceAddress indirectDeviceAddress)
 {
-    auto new_entry = trace_rays_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect2,
-                              indirectDeviceAddress));
+    auto new_entry =
+        trace_rays_params.emplace(std::piecewise_construct,
+                                  std::forward_as_tuple(index),
+                                  std::forward_as_tuple(TraceRaysTypes::kTraceRaysIndirect2, indirectDeviceAddress));
     assert(new_entry.second);
 }
 

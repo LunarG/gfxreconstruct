@@ -23,7 +23,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_replay_dump_resources_json.h"
+#include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -48,7 +48,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              CommonObjectInfoTable*     object_info_table) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
-    output_json_per_command(options.dump_resources_json_per_command), dump_json_(options)
+    output_json_per_command(options.dump_resources_json_per_command), user_delegate_(nullptr),
+    active_delegate_(nullptr), default_delegate_(nullptr)
 {
     capture_filename = std::filesystem::path(options.capture_filename).stem().string();
 
@@ -57,9 +58,20 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         return;
     }
 
+    if (user_delegate_ != nullptr)
+    {
+        active_delegate_ = user_delegate_;
+    }
+    else
+    {
+        // Use a default delegate if none was provided.
+        default_delegate_ = std::make_unique<DefaultVulkanDumpResourcesDelegate>(options, capture_filename);
+        active_delegate_  = default_delegate_.get();
+    }
+
     if (!options.dump_resources_json_per_command)
     {
-        dump_json_.Open(options.capture_filename, options.dump_resources_output_dir);
+        active_delegate_->Open();
     }
 
     for (size_t i = 0; i < options.BeginCommandBuffer_Indices.size(); ++i)
@@ -75,8 +87,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                options.RenderPass_Indices[i],
                                                                *object_info_table,
                                                                options,
-                                                               dump_json_,
-                                                               capture_filename));
+                                                               *active_delegate_));
         }
 
         if ((i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||
@@ -92,8 +103,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                   : std::vector<uint64_t>(),
                                               *object_info_table_,
                                               options,
-                                              dump_json_,
-                                              capture_filename));
+                                              *active_delegate_));
         }
     }
 }
@@ -105,7 +115,13 @@ VulkanReplayDumpResourcesBase::~VulkanReplayDumpResourcesBase()
 
 void VulkanReplayDumpResourcesBase::Release()
 {
-    dump_json_.Close();
+    // active_delegate_ could be nullptr because constructor could return before creating delegate.
+    if (active_delegate_)
+    {
+        active_delegate_->Close();
+        active_delegate_  = nullptr;
+        default_delegate_ = nullptr;
+    }
     draw_call_contexts.clear();
     dispatch_ray_contexts.clear();
     cmd_buf_begin_map_.clear();
@@ -1847,7 +1863,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
     if (!output_json_per_command)
     {
-        dump_json_.BlockStart();
+        active_delegate_->DumpStart();
     }
 
     for (size_t s = 0; s < submit_infos.size(); s++)
@@ -1910,7 +1926,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
     if (!output_json_per_command)
     {
-        dump_json_.BlockEnd();
+        active_delegate_->DumpEnd();
     }
 
     // Looks like we didn't submit anything. Do the submission as it would have been done
