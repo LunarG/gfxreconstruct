@@ -91,6 +91,17 @@ class VulkanAddressReplacer
      * @brief   ProcessCmdBuildAccelerationStructuresKHR will check
      *          and potentially correct input-parameters to 'vkCmdBuildAccelerationStructuresKHR'
      *
+     * Depending on capture- and replay-device-properties this includes the following:
+     *
+     * if replaying on same device/driver using the default-allocator (no --rebind):
+     * - happy day, nothing to do!
+     *
+     * if replaying on a different device/driver OR using the rebind-allocator (via --rebind):
+     * - remap buffer-device-addresses for triangle-, aabb- and instance-geometries referenced in `build_geometry_infos`
+     * - check buffer-sizes for acceleration-structures and scratch-buffers
+     *      - if necessary, create shadow acceleration-structures and -buffers, adjust references
+     * - apply in-place correction of acceleration-structure device-addresses referenced by top-level builds
+     *
      * @param command_buffer_info   a provided VulkanCommandBufferInfo
      * @param info_count            number of elements in 'build_geometry_infos'
      * @param build_geometry_infos  provided array of VkAccelerationStructureBuildGeometryInfoKHR
@@ -138,19 +149,17 @@ class VulkanAddressReplacer
     /**
      * @brief   Process information contained in a metadata-block in order to build acceleration-structures.
      *
-     * Will use an internal command-pool, submit work to a VkQueue and perform a host-synchronization.
+     * Will use an internal command-buffer, submit work to a VkQueue and perform host-synchronization.
      *
      * @param   info_count              element count in 'geometry_infos'
      * @param   geometry_infos          provided array of VkAccelerationStructureBuildGeometryInfoKHR
      * @param   range_infos             provided array of pointers to VkAccelerationStructureBuildRangeInfoKHR
-     * @param   instance_buffers_data   an array of arrays of VkAccelerationStructureInstanceKHR
      * @param   address_tracker         const reference to a VulkanDeviceAddressTracker
      */
     void ProcessBuildVulkanAccelerationStructuresMetaCommand(
         uint32_t                                                      info_count,
         VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
         VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
-        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data,
         const decode::VulkanDeviceAddressTracker&                     address_tracker);
 
     /**
@@ -265,13 +274,13 @@ class VulkanAddressReplacer
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
 
-    // TODO: check if this is sufficient
+    // pipeline-contexts dealing with shader-binding-tables, per command-buffer
     std::unordered_map<VkCommandBuffer, pipeline_context_t> _pipeline_sbt_context_map;
 
     // resources related to acceleration-structures
     std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> _shadow_as_map;
 
-    // TODO: check if this is sufficient
+    // pipeline-contexts dealing with acceleration-structure builds, per command-buffer
     std::unordered_map<VkCommandBuffer, pipeline_context_t> _build_as_context_map;
 
     // required function pointers

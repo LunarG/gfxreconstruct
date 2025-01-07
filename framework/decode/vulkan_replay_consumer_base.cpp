@@ -9638,8 +9638,7 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
     format::HandleId                                                           device,
     uint32_t                                                                   info_count,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppRangeInfos,
-    std::vector<std::vector<VkAccelerationStructureInstanceKHR>>&              instance_buffers_data)
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppRangeInfos)
 {
     if (loading_trim_state_)
     {
@@ -9655,7 +9654,6 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
             .ProcessBuildVulkanAccelerationStructuresMetaCommand(info_count,
                                                                  pInfos->GetPointer(),
                                                                  ppRangeInfos->GetPointer(),
-                                                                 instance_buffers_data,
                                                                  GetDeviceAddressTracker(device_info));
     }
 }

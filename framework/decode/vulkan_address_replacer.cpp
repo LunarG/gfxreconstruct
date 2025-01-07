@@ -516,13 +516,13 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         auto  range_info          = build_range_infos[i];
 
         // check/correct scratch-address
-        if(!address_remap(build_geometry_info.scratchData.deviceAddress))
+        if (!address_remap(build_geometry_info.scratchData.deviceAddress))
         {
-            GFXRECON_LOG_WARNING(
-                "ProcessCmdBuildAccelerationStructuresKHR: missing scratch-buffer");
+            GFXRECON_LOG_WARNING("ProcessCmdBuildAccelerationStructuresKHR: missing scratch-buffer");
         }
 
         // check capture/replay acceleration-structure buffer-sizes
+        if (!_resource_allocator->SupportsOpaqueDeviceAddresses())
         {
             VkAccelerationStructureBuildSizesInfoKHR build_size_info = {};
             build_size_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
@@ -555,7 +555,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay adjusted mismatching "
                     "acceleration-structures using shadow-structures and -buffers")
 
-                // now definitely requiring address-replaced
+                // now definitely requiring address-replacement
                 force_replace = true;
 
                 auto& replacment_as = _shadow_as_map[build_geometry_info.dstAccelerationStructure];
@@ -705,14 +705,10 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // mark injected commands
             mark_injected_commands_helper_t mark_injected_commands_helper;
 
-            if (_pipeline_bda == VK_NULL_HANDLE)
+            if (_pipeline_bda == VK_NULL_HANDLE && !init_pipeline())
             {
-                if (!init_pipeline())
-                {
-                    GFXRECON_LOG_WARNING_ONCE(
-                        "ProcessCmdBuildAccelerationStructuresKHR: internal pipeline-creation failed")
-                    return;
-                }
+                GFXRECON_LOG_WARNING_ONCE("ProcessCmdBuildAccelerationStructuresKHR: internal pipeline-creation failed")
+                return;
             }
 
             auto& pipeline_context_bda = _build_as_context_map[command_buffer_info->handle];
@@ -850,15 +846,11 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
 }
 
 void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
-    uint32_t                                                      info_count,
-    VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
-    VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
-    std::vector<std::vector<VkAccelerationStructureInstanceKHR>>& instance_buffers_data,
-    const decode::VulkanDeviceAddressTracker&                     address_tracker)
+    uint32_t                                     info_count,
+    VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
+    VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
+    const decode::VulkanDeviceAddressTracker&    address_tracker)
 {
-    // TODO: figure out what to do
-    GFXRECON_UNREFERENCED_PARAMETER(instance_buffers_data);
-
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer

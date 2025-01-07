@@ -578,35 +578,12 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
     bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
-    bytes_read += ppRangeInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
-
-    std::vector<std::vector<VkAccelerationStructureInstanceKHR>> instance_buffers;
-    if (bytes_read < buffer_size)
-    {
-        for (uint32_t i = 0; i < pInfos.GetLength(); ++i)
-        {
-            if (pInfos.GetPointer()[i].type != VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
-            {
-                continue;
-            }
-
-            uint32_t geometry_count = pInfos.GetPointer()[i].geometryCount;
-            for (uint32_t g = 0; g < geometry_count; ++g)
-            {
-                instance_buffers.emplace_back(ppRangeInfos.GetPointer()[g]->primitiveCount);
-                util::platform::MemoryCopy(instance_buffers.back().data(),
-                                           instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR),
-                                           parameter_buffer + bytes_read,
-                                           instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR));
-                bytes_read += instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR);
-            }
-        }
-    }
+    ppRangeInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
 
     for (auto consumer : consumers_)
     {
         consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
-            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos, instance_buffers);
+            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
     }
 }
 
@@ -634,7 +611,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, sizeof(format::HandleId), &device_id);
     bytes_read += ValueDecoder::DecodeEnumValue(parameter_buffer + bytes_read, sizeof(VkQueryType), &query_type);
-    bytes_read += ValueDecoder::DecodeHandleIdValue(
+    ValueDecoder::DecodeHandleIdValue(
         parameter_buffer + bytes_read, sizeof(format::HandleId), &acceleration_structure_id);
 
     for (auto consumer : consumers_)
