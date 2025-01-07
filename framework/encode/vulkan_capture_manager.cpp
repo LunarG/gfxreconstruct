@@ -2781,12 +2781,15 @@ void VulkanCaptureManager::PostProcess_vkCreateGraphicsPipelines(VkResult       
 
             for (uint32_t s = 0; s < pCreateInfos[p].stageCount; ++s)
             {
-                const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
-                        pCreateInfos[p].pStages[s].module);
-                assert(shader_wrapper != nullptr);
+                if (pCreateInfos[p].pStages[s].module != VK_NULL_HANDLE)
+                {
+                    const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
+                            pCreateInfos[p].pStages[s].module);
+                    assert(shader_wrapper != nullptr);
 
-                ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+                    ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+                }
             }
         }
     }
@@ -2804,15 +2807,18 @@ void VulkanCaptureManager::PostProcess_vkCreateComputePipelines(VkResult        
     {
         for (uint32_t p = 0; p < createInfoCount; ++p)
         {
-            vulkan_wrappers::PipelineWrapper* ppl_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pPipelines[p]);
-            assert(ppl_wrapper != nullptr);
+            if (pCreateInfos[p].stage.module != VK_NULL_HANDLE)
+            {
+                vulkan_wrappers::PipelineWrapper* ppl_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pPipelines[p]);
+                assert(ppl_wrapper != nullptr);
 
-            const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(pCreateInfos[p].stage.module);
-            assert(shader_wrapper != nullptr);
+                const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(pCreateInfos[p].stage.module);
+                assert(shader_wrapper != nullptr);
 
-            ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+                ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+            }
         }
     }
 }
@@ -2837,12 +2843,15 @@ void VulkanCaptureManager::PostProcess_vkCreateRayTracingPipelinesKHR(
 
             for (uint32_t s = 0; s < pCreateInfos[p].stageCount; ++s)
             {
-                const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
-                        pCreateInfos[p].pStages[s].module);
-                assert(shader_wrapper != nullptr);
+                if (pCreateInfos[p].pStages[s].module != VK_NULL_HANDLE)
+                {
+                    const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
+                            pCreateInfos[p].pStages[s].module);
+                    assert(shader_wrapper != nullptr);
 
-                ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+                    ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
+                }
             }
         }
     }
