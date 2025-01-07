@@ -1,6 +1,6 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
- ** Copyright (c) 2018-2023 LunarG, Inc.
+ ** Copyright (c) 2018-2025 LunarG, Inc.
  ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -785,7 +785,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void ProcessImportFd(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset);
+    void ProcessImportFdForBuffer(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset);
+    void ProcessImportFdForImage(VkDevice device, VkImage image, VkDeviceSize memoryOffset);
 
     void PostProcess_vkBindBufferMemory(
         VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
@@ -1553,16 +1554,16 @@ class VulkanCaptureManager : public ApiCaptureManager
         state_tracker_ = nullptr;
     }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
     virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                format::ThreadId        thread_id,
+                                                util::ThreadData*       thread_data,
                                                 util::FileOutputStream* asset_file_stream,
                                                 const std::string*      asset_file_name) override;
 
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,
-                             format::ThreadId        thread_id) override;
+                             util::ThreadData*       thread_data) override;
 
   private:
     struct HardwareBufferInfo

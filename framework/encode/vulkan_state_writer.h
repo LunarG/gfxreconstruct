@@ -1,5 +1,5 @@
 /*
- ** Copyright (c) 2019-2021 LunarG, Inc.
+ ** Copyright (c) 2019-2025 LunarG, Inc.
  ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -24,6 +24,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_STATE_WRITER_H
 #define GFXRECON_ENCODE_VULKAN_STATE_WRITER_H
 
+#include "encode/command_writer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "generated/generated_vulkan_state_table.h"
@@ -35,6 +36,7 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
+#include "util/thread_data.h"
 
 #include "vulkan/vulkan.h"
 
@@ -53,18 +55,20 @@ class VulkanStateWriter
 
     VulkanStateWriter(util::FileOutputStream*                  output_stream,
                       util::Compressor*                        compressor,
-                      format::ThreadId                         thread_id,
+                      util::ThreadData*                        thread_data,
                       std::function<format::HandleId()>        get_unique_id_fn,
                       util::FileOutputStream*                  asset_file_stream  = nullptr,
                       const std::string*                       asset_file_name    = nullptr,
                       VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets = nullptr);
 
+    util::ThreadData* GetThreadData() { return thread_data_; }
+
+    bool OutputStreamWrite(const void* data, size_t len);
+
     // Returns number of blocks written to the output_stream.
     uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
     uint64_t WriteAssets(const VulkanStateTable& state_table);
-
-    bool OutputStreamWrite(const void* data, size_t len);
 
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
@@ -427,7 +431,7 @@ class VulkanStateWriter
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
     std::vector<uint8_t>     compressed_parameter_buffer_;
-    format::ThreadId         thread_id_;
+    util::ThreadData*        thread_data_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
     uint64_t                 blocks_written_{ 0 };
@@ -438,6 +442,8 @@ class VulkanStateWriter
     util::FileOutputStream* asset_file_stream_;
     std::string             asset_file_name_;
     AssetFileOffsetsInfo*   asset_file_offsets_;
+
+    CommandWriter command_writer_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
