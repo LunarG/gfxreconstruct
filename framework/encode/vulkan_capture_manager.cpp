@@ -1907,7 +1907,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
             if (IsCaptureModeTrack())
             {
                 assert(state_tracker_ != nullptr);
-                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
+                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags, GetUseAssetFile());
             }
             else
             {
@@ -2086,7 +2086,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
         if (IsCaptureModeTrack())
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
+            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0, GetUseAssetFile());
         }
         else
         {
@@ -2305,9 +2305,9 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
     // and tracked mapped memory regions are resetted
-    if (IsCaptureModeTrack())
+    if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        state_tracker_->TrackSubmission(submitCount, pSubmits);
+        state_tracker_->TrackAssetsInSubmission(submitCount, pSubmits);
     }
 
     QueueSubmitWriteFillMemoryCmd();
@@ -2341,9 +2341,9 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
     // and tracked mapped memory regions are resetted
-    if (IsCaptureModeTrack())
+    if (IsCaptureModeTrack() && GetUseAssetFile())
     {
-        state_tracker_->TrackSubmission(submitCount, pSubmits);
+        state_tracker_->TrackAssetsInSubmission(submitCount, pSubmits);
     }
 
     QueueSubmitWriteFillMemoryCmd();

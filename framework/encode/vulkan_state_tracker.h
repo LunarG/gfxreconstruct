@@ -380,7 +380,8 @@ class VulkanStateTracker
                            void*            mapped_data,
                            VkDeviceSize     mapped_offset,
                            VkDeviceSize     mapped_size,
-                           VkMemoryMapFlags mapped_flags);
+                           VkMemoryMapFlags mapped_flags,
+                           bool             track_assets);
 
     void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
 
@@ -719,9 +720,9 @@ class VulkanStateTracker
                                                uint32_t        maxDrawCount,
                                                uint32_t        stride);
 
-    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 
-    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
