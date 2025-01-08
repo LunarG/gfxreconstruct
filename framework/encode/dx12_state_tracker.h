@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -142,6 +142,10 @@ class Dx12StateTracker
     void TrackResourceBarriers(ID3D12CommandList_Wrapper*    list_wrapper,
                                UINT                          num_barriers,
                                const D3D12_RESOURCE_BARRIER* barriers);
+
+    void TrackCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
+                                ID3D12CommandAllocator*    pAllocator,
+                                ID3D12PipelineState*       pInitialState);
 
     void TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queue_wrapper,
                                   UINT                        num_lists,

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,8 +38,7 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
                                  util::Compressor*       compressor,
                                  format::ThreadId        thread_id,
                                  util::FileOutputStream* asset_file_stream) :
-    output_stream_(output_stream),
-    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
+    output_stream_(output_stream), compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
 }
@@ -797,7 +796,7 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     {
         // Needs swapchain's queue to write its buffer.
         auto swapchain_info = resource_info->swapchain_wrapper->GetObjectInfo();
-        queue = swapchain_info->command_queue;
+        queue               = swapchain_info->command_queue;
     }
     // Read the data from the resource.
     HRESULT result = resource_data_util->ReadFromResource(resource,
@@ -1089,8 +1088,13 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     size_t         data_size = list_info->command_data.GetDataSize();
     const uint8_t* data      = list_info->command_data.GetData();
 
-    // TODO: Don't write any commands, including the Reset or Close commands, if the command allocator used in the most
-    // recent Reset command no longer exists.
+    bool invalid_command_allocator =
+        (list_info->reset_command_allocator_id != format::kNullHandleId) &&
+        (state_table.GetID3D12CommandAllocator_Wrapper(list_info->reset_command_allocator_id) == nullptr);
+    if (invalid_command_allocator == true)
+    {
+        return;
+    }
     while (offset < data_size)
     {
         const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);

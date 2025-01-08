@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -496,6 +496,11 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper*    list_wrapper,
                                                                UINT                          num_barriers,
                                                                const D3D12_RESOURCE_BARRIER* barriers);
+
+    void PostProcess_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
+                                                     HRESULT                    result,
+                                                     ID3D12CommandAllocator*    pAllocator,
+                                                     ID3D12PipelineState*       pInitialState);
 
     void PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
         ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
