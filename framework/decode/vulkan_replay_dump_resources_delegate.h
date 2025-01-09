@@ -40,7 +40,7 @@ struct VulkanDumpDrawCallInfo
     const VulkanDeviceInfo*            device_info;
     const VulkanCommandBufferInfo*     original_command_buffer_info;
 
-    uint64_t cmd_index;
+    uint64_t cmd_index; // dc_index, disp_index, tr_index
     uint64_t qs_index;  // queue submit
     uint64_t bcb_index; // begin command buffer
 
@@ -64,7 +64,7 @@ struct VulkanDumpResourceInfo
     const VulkanDeviceInfo*            device_info;
     const VulkanCommandBufferInfo*     original_command_buffer_info;
 
-    uint64_t cmd_index;
+    uint64_t cmd_index; // dc_index, disp_index, tr_index
     uint64_t qs_index;  // queue submit
     uint64_t bcb_index; // begin command buffer
 
