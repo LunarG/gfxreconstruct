@@ -54,18 +54,8 @@ PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bi
     }
 }
 
-bool IsFormatAstcCompressed(VkFormat format)
-{
-    return vkuFormatIsCompressed_ASTC_HDR(format) || vkuFormatIsCompressed_ASTC_LDR(format);
-}
-
 static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
 {
-    if (IsFormatAstcCompressed(format))
-    {
-        return util::imagewriter::DataFormats::kFormat_ASTC;
-    }
-
     switch (format)
     {
         case VK_FORMAT_R8G8B8_UNORM:
@@ -106,9 +96,6 @@ const char* ImageFileExtension(DumpedImageFormat image_format)
 
         case KFormatPNG:
             return ".png";
-
-        case KFormatAstc:
-            return ".astc";
 
         case KFormatRaw:
         default:
@@ -559,21 +546,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                 const uint32_t texel_size = vkuFormatElementSizeWithAspect(dst_format, aspects[i]);
                 const uint32_t stride     = texel_size * scaled_extent.width;
 
-                if (output_image_format == KFormatAstc)
-                {
-                    VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
-
-                    util::imagewriter::WriteAstcImage(filename,
-                                                      scaled_extent.width,
-                                                      scaled_extent.width,
-                                                      1,
-                                                      format_info.block_extent.width,
-                                                      format_info.block_extent.height,
-                                                      format_info.block_extent.depth,
-                                                      data.data(),
-                                                      subresource_sizes[0]);
-                }
-                else if (output_image_format == kFormatBMP)
+                if (output_image_format == kFormatBMP)
                 {
                     if (dump_separate_alpha)
                     {
@@ -667,21 +640,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspect);
                         const uint32_t stride     = texel_size * scaled_extent.width;
 
-                        if (output_image_format == KFormatAstc)
-                        {
-                            VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
-
-                            util::imagewriter::WriteAstcImage(filename,
-                                                              scaled_extent.width,
-                                                              scaled_extent.width,
-                                                              1,
-                                                              format_info.block_extent.width,
-                                                              format_info.block_extent.height,
-                                                              format_info.block_extent.depth,
-                                                              data.data(),
-                                                              subresource_sizes[sub_res_idx]);
-                        }
-                        else if (output_image_format == kFormatBMP)
+                        if (output_image_format == kFormatBMP)
                         {
                             if (dump_separate_alpha)
                             {
@@ -937,21 +896,7 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device
     // If there's a request for images to be dumped as raw bin files
     if (dump_raw)
     {
-        // We consider astc as a raw bin format
-        if (IsFormatAstcCompressed(src_format))
-        {
-            return KFormatAstc;
-        }
-        else
-        {
-            return KFormatRaw;
-        }
-    }
-
-    // Astc images will be dumped as .astc files
-    if (IsFormatAstcCompressed(src_format))
-    {
-        return KFormatAstc;
+        return KFormatRaw;
     }
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
