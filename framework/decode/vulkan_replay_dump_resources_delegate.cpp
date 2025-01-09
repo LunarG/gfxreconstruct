@@ -27,18 +27,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info)
+void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info, size_t index)
 {
     switch (draw_call_info.type)
     {
         case DumpResourceType::kDrawCallInfo:
-            GenerateOutputJsonDrawCallInfo(draw_call_info);
+            GenerateOutputJsonDrawCallInfo(draw_call_info, index);
             break;
         case DumpResourceType::kDispatchInfo:
-            GenerateOutputJsonDispatchInfo(draw_call_info);
+            GenerateOutputJsonDispatchInfo(draw_call_info, index);
             break;
         case DumpResourceType::kTraceRaysIndex:
-            GenerateOutputJsonTraceRaysIndex(draw_call_info);
+            GenerateOutputJsonTraceRaysIndex(draw_call_info, index);
             break;
         default:
             break;
@@ -182,13 +182,13 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilenam
     {
         if (options_.dump_resources_before)
         {
-            filename << "draw_" << ((resource_info.cmd_buf_index % 2) ? "after_" : "before_") << resource_info.dc_index
+            filename << "draw_" << ((!resource_info.before_cmd) ? "after_" : "before_") << resource_info.cmd_index
                      << "_qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << attachment_str
                      << "_aspect_" << aspect_str;
         }
         else
         {
-            filename << "draw_" << resource_info.dc_index << "_qs_" << resource_info.qs_index << "_bcb_"
+            filename << "draw_" << resource_info.cmd_index << "_qs_" << resource_info.qs_index << "_bcb_"
                      << resource_info.bcb_index << attachment_str << "_aspect_" << aspect_str;
         }
     }
@@ -196,14 +196,14 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilenam
     {
         if (options_.dump_resources_before)
         {
-            filename << "draw_" << ((resource_info.cmd_buf_index % 2) ? "after_" : "before_") << resource_info.dc_index
+            filename << "draw_" << ((!resource_info.before_cmd % 2) ? "after_" : "before_") << resource_info.cmd_index
                      << "_qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
                      << resource_info.qs_index << "_" << resource_info.bcb_index << attachment_str << "_"
                      << util::ToString<VkFormat>(image_info->format) << "_aspect_" << aspect_str;
         }
         else
         {
-            filename << "draw_" << resource_info.dc_index << "_qs_" << resource_info.qs_index << "_bcb_"
+            filename << "draw_" << resource_info.cmd_index << "_qs_" << resource_info.qs_index << "_bcb_"
                      << resource_info.bcb_index << attachment_str << "_" << util::ToString<VkFormat>(image_info->format)
                      << "_aspect_" << aspect_str;
         }
@@ -405,7 +405,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const VulkanDum
     filename << capture_filename_ << "_"
              << "vertexBuffers_"
              << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
-             << resource_info.dc_index << "_binding_" << resource_info.binding << ".bin";
+             << resource_info.cmd_index << "_binding_" << resource_info.binding << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -428,20 +428,21 @@ DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const VulkanDump
     std::string index_type_name = IndexTypeToStr(resource_info.index_type);
     filename << "indexBuffer_"
              << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
-             << resource_info.dc_index << index_type_name << ".bin";
+             << resource_info.cmd_index << index_type_name << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info,
+                                                                        size_t                        index)
 {
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
         filename << capture_filename_ << "_";
-        filename << "DrawCall_" << draw_call_info.dc_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
+        filename << "DrawCall_" << draw_call_info.cmd_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
                  << draw_call_info.bcb_index << "_dr.json";
         std::filesystem::path filedirname(options_.dump_resources_output_dir);
         std::filesystem::path filebasename(filename.str());
@@ -454,11 +455,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
     auto& current_block = dump_json_.GetCurrentSubEntry();
     auto& drawcall_json_entries =
         !options_.dump_resources_json_per_command ? current_block["drawCallCommands"] : current_block;
-    auto& draw_call_entry = !options_.dump_resources_json_per_command
-                                ? drawcall_json_entries[draw_call_info.cmd_buf_index]
-                                : drawcall_json_entries;
+    auto& draw_call_entry =
+        !options_.dump_resources_json_per_command ? drawcall_json_entries[index] : drawcall_json_entries;
 
-    draw_call_entry["drawIndex"]               = draw_call_info.dc_index;
+    draw_call_entry["drawIndex"]               = draw_call_info.cmd_index;
     draw_call_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
     draw_call_entry["queueSubmitIndex"]        = draw_call_info.qs_index;
 
@@ -606,6 +606,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                             res_info_before.type                   = DumpResourceType::kRtv;
                             res_info_before.image_info             = image_info;
                             res_info_before.attachment_index       = i;
+                            res_info_before.before_cmd             = true;
                             filenameBefore = GenerateRenderTargetImageFilename(res_info_before, aspect, mip, layer);
                         }
 
@@ -613,7 +614,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                         res_info_after.type                   = DumpResourceType::kRtv;
                         res_info_after.image_info             = image_info;
                         res_info_after.attachment_index       = i;
-                        res_info_after.cmd_buf_index += options_.dump_resources_before;
+                        res_info_after.before_cmd             = false;
                         std::string filenameAfter =
                             GenerateRenderTargetImageFilename(res_info_after, aspect, mip, layer);
 
@@ -676,6 +677,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                         res_info_before.type                   = DumpResourceType::kDsv;
                         res_info_before.image_info             = image_info;
                         res_info_before.attachment_index       = DEPTH_ATTACHMENT;
+                        res_info_before.before_cmd             = true;
                         filenameBefore = GenerateRenderTargetImageFilename(res_info_before, aspect, mip, layer);
                     }
 
@@ -683,7 +685,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                     res_info_after.type                   = DumpResourceType::kDsv;
                     res_info_after.image_info             = image_info;
                     res_info_after.attachment_index       = DEPTH_ATTACHMENT;
-                    res_info_after.cmd_buf_index += options_.dump_resources_before;
+                    res_info_after.before_cmd             = false;
                     std::string filenameAfter = GenerateRenderTargetImageFilename(res_info_after, aspect, mip, layer);
 
                     const VkExtent3D extent = { std::max(1u, image_info->extent.width >> mip),
@@ -1017,7 +1019,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
 
     if (resource_info.before_cmd)
     {
-        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_buf_index << "_qs_"
+        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_stage_"
                  << shader_stage_name << "_set_" << resource_info.set << "_binding_" << resource_info.binding
                  << "_index_" << resource_info.array_index;
@@ -1029,7 +1031,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
     }
     else
     {
-        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_buf_index << "_qs_"
+        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
                  << (options_.dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name << "_set_"
                  << resource_info.set << "_binding_" << resource_info.binding << "_index_" << resource_info.array_index;
@@ -1071,14 +1073,14 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferF
 
     if (resource_info.before_cmd)
     {
-        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_buf_index << "_qs_"
+        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_stage_"
                  << shader_stage_name << "_set_" << resource_info.set << "_binding_" << resource_info.binding
                  << "_index_" << resource_info.array_index << "_buffer.bin";
     }
     else
     {
-        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_buf_index << "_qs_"
+        filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
                  << (options_.dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name << "_set_"
                  << resource_info.set << "_binding_" << resource_info.binding << "_index_" << resource_info.array_index
@@ -1248,7 +1250,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     return (filedirname / filebasename).string();
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo& draw_call_info)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo& draw_call_info,
+                                                                        size_t                        index)
 {
     if (draw_call_info.disp_param == nullptr)
     {
@@ -1258,7 +1261,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << "Dispatch_" << draw_call_info.disp_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
+        filename << "Dispatch_" << draw_call_info.cmd_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
                  << draw_call_info.bcb_index << "_dr.json";
         std::filesystem::path filedirname(options_.dump_resources_output_dir);
         std::filesystem::path filebasename(filename.str());
@@ -1271,11 +1274,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     auto& current_block = dump_json_.GetCurrentSubEntry();
     auto& dispatch_json_entries =
         !options_.dump_resources_json_per_command ? current_block["dispatchCommands"] : dump_json_.GetData();
-    auto& dispatch_json_entry = !options_.dump_resources_json_per_command
-                                    ? dispatch_json_entries[draw_call_info.cmd_buf_index]
-                                    : dump_json_.GetData();
+    auto& dispatch_json_entry =
+        !options_.dump_resources_json_per_command ? dispatch_json_entries[index] : dump_json_.GetData();
 
-    dispatch_json_entry["dispatchIndex"]           = draw_call_info.disp_index;
+    dispatch_json_entry["dispatchIndex"]           = draw_call_info.cmd_index;
     dispatch_json_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
     dispatch_json_entry["queueSubmitIndex"]        = draw_call_info.qs_index;
 
@@ -1712,7 +1714,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     }
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo& draw_call_info)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo& draw_call_info,
+                                                                          size_t                        index)
 {
     if (draw_call_info.tr_param == nullptr)
     {
@@ -1726,7 +1729,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const 
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << "TraceRays_" << draw_call_info.tr_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
+        filename << "TraceRays_" << draw_call_info.cmd_index << "_qs_" << draw_call_info.qs_index << "_bcb_"
                  << draw_call_info.bcb_index << "_dr.json";
         std::filesystem::path filedirname(options_.dump_resources_output_dir);
         std::filesystem::path filebasename(filename.str());
@@ -1735,10 +1738,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const 
         dump_json_.Open(full_filename);
         dump_json_.BlockStart();
     }
-    auto& tr_entry = !options_.dump_resources_json_per_command ? tr_json_entries[draw_call_info.cmd_buf_index]
-                                                               : dump_json_.GetData();
+    auto& tr_entry = !options_.dump_resources_json_per_command ? tr_json_entries[index] : dump_json_.GetData();
 
-    tr_entry["traceRaysIndex"]          = draw_call_info.tr_index;
+    tr_entry["traceRaysIndex"]          = draw_call_info.cmd_index;
     tr_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
     tr_entry["queueSubmitIndex"]        = draw_call_info.qs_index;
 

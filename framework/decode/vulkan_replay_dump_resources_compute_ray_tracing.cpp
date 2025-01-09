@@ -875,15 +875,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         draw_call_info.device_info                  = device_info;
         draw_call_info.original_command_buffer_info = original_command_buffer_info;
         draw_call_info.bcb_index                    = bcb_index;
-        draw_call_info.cmd_buf_index                = i;
         draw_call_info.qs_index                     = qs_index;
-        draw_call_info.disp_index                   = disp_index;
+        draw_call_info.cmd_index                    = disp_index;
 
         const auto& dispatch_param_entry = dispatch_params.find(disp_index);
         GFXRECON_ASSERT(dispatch_param_entry != dispatch_params.end());
         draw_call_info.disp_param = &dispatch_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, i);
     }
 
     for (size_t i = 0; i < trace_rays_indices.size(); ++i)
@@ -918,15 +917,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         draw_call_info.device_info                  = device_info;
         draw_call_info.original_command_buffer_info = original_command_buffer_info;
         draw_call_info.bcb_index                    = bcb_index;
-        draw_call_info.cmd_buf_index                = i;
         draw_call_info.qs_index                     = qs_index;
-        draw_call_info.tr_index                     = tr_index;
+        draw_call_info.cmd_index                    = tr_index;
 
         const auto& trace_rays_param_entry = trace_rays_params.find(tr_index);
         GFXRECON_ASSERT(trace_rays_param_entry != trace_rays_params.end());
         draw_call_info.tr_param = &trace_rays_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, i);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
@@ -993,7 +991,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     res_info_base.instance_table               = instance_table;
     res_info_base.object_info_table            = &object_info_table;
     res_info_base.original_command_buffer_info = original_command_buffer_info;
-    res_info_base.cmd_buf_index                = cmd_index;
+    res_info_base.cmd_index                    = cmd_index;
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
 
@@ -1434,9 +1432,10 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
     res_info_base.instance_table               = instance_table;
     res_info_base.object_info_table            = &object_info_table;
     res_info_base.original_command_buffer_info = original_command_buffer_info;
-    res_info_base.cmd_buf_index                = cmd_index;
+    res_info_base.cmd_index                    = cmd_index;
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
+    res_info_base.is_dispatch                  = is_dispatch;
 
     for (const auto& img_info : image_descriptors)
     {
