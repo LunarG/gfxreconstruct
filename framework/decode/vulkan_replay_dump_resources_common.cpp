@@ -483,7 +483,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    const VkFormat dst_format = ChooseDestinationImageFormat(image_info->format);
+    const VkFormat dst_format = dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
 
     uint32_t f = 0;
     for (size_t i = 0; i < aspects.size(); ++i)
