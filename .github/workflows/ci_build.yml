@@ -103,7 +103,7 @@ jobs:
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
     - name: Install SDK 20348
-      uses: GuillaumeFalourd/setup-windows10-sdk-action@fix/sdk-20348-26100
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.3
       with:
         sdk-version: 20348
     - name: Set WindowsSDKVersion
