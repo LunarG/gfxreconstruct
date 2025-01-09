@@ -196,7 +196,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilenam
     {
         if (options_.dump_resources_before)
         {
-            filename << "draw_" << ((!resource_info.before_cmd % 2) ? "after_" : "before_") << resource_info.cmd_index
+            filename << "draw_" << ((!resource_info.before_cmd) ? "after_" : "before_") << resource_info.cmd_index
                      << "_qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
                      << resource_info.qs_index << "_" << resource_info.bcb_index << attachment_str << "_"
                      << util::ToString<VkFormat>(image_info->format) << "_aspect_" << aspect_str;
