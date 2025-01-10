@@ -1062,7 +1062,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     res_info_base.cmd_index                    = dc_index;
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
-    res_info_base.before_cmd                   = dump_resources_before && (cmd_buf_index % 2);
+    res_info_base.before_cmd                   = dump_resources_before && !(cmd_buf_index % 2);
     res_info_base.rp                           = rp;
     res_info_base.sp                           = sp;
     res_info_base.image_extent                 = { render_area[rp].extent.width, render_area[rp].extent.height, 1 };
