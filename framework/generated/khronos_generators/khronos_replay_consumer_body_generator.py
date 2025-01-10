@@ -54,6 +54,17 @@ class KhronosReplayConsumerBodyGenerator():
         """Method may be overriden. """
         return ''
 
+    def check_skip_extended_struct_handling(self, struct, struct_type):
+        """Method may be overriden. """
+        return False
+
+    def generate_custom_extended_struct_handling(self, struct, struct_type):
+        """ Method may be overriden.
+            None implies no customization
+        """
+
+        return None
+
     def handle_instance_device_items(self):
         """Method may be overriden. """
         return '', []
@@ -227,6 +238,8 @@ class KhronosReplayConsumerBodyGenerator():
             )
             body += '\n'
 
+        body += self.generate_custom_call(name, return_type, values)
+
         cleanup_expr = self.generate_remove_handle_expression(name, values)
         if cleanup_expr:
             body += '    {}\n'.format(cleanup_expr)
@@ -276,10 +289,10 @@ class KhronosReplayConsumerBodyGenerator():
 
         self.newline()
         write(
-            'static void InitializeOutputStruct{}Impl(const {}* in_pnext, {}* output_struct)'
+            'static void InitializeOutputStruct{}Impl(const {}* {}, {}* output_struct)'
             .format(
                 api_data.extended_struct_func_prefix, api_data.base_in_struct,
-                api_data.base_out_struct
+                var_name, api_data.base_out_struct
             ),
             file=self.outFile
         )
@@ -295,6 +308,15 @@ class KhronosReplayConsumerBodyGenerator():
         write('        {', file=self.outFile)
         for struct in self.struct_type_names:
             struct_type = self.struct_type_names[struct]
+
+            if self.check_skip_extended_struct_handling(struct, struct_type):
+                continue
+
+            custom_extended = self.generate_custom_extended_struct_handling(struct, struct_type)
+            if custom_extended:
+                write(custom_extended, file=self.outFile)
+                continue
+
             write(
                 '            case {}:'.format(struct_type), file=self.outFile
             )
@@ -402,6 +424,10 @@ class KhronosReplayConsumerBodyGenerator():
             return 'RemoveHandle({}, &CommonObjectInfoTable::Remove{basetype}Info);'.format(
                 value.name, basetype=value.base_type
             )
+
+    def generate_custom_call(self, name, return_type, values):
+        """ Method may be overridden. """
+        return ''
 
     def make_variable_length_array_post_expr(
         self, name, value, values, length_name
@@ -515,7 +541,7 @@ class KhronosReplayConsumerBodyGenerator():
             pool_alloc_type = ''
             if self.is_handle_like(value.base_type):
                 info_type = '{}{}Info'.format(
-                    api_data.api_class_prefix, value.base_type[2:]
+                    self.get_api_prefix_from_type(value.base_type), value.base_type[2:]
                 )
                 if api_data.has_pool_allocations and self.is_pool_allocation(name):
                     pool_alloc_type = self.get_pool_allocation_type(values[-1])
@@ -958,7 +984,7 @@ class KhronosReplayConsumerBodyGenerator():
                                                 )
                                             )
                                         postexpr.append(
-                                            'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
+                                            'AddStructHandles({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     api_data, value, values
@@ -1038,6 +1064,13 @@ class KhronosReplayConsumerBodyGenerator():
                     "WARNING: Generating replay code for a function {} with a {} parameter that is undefined."
                     .format(name, value.base_type)
                 )
+            elif self.is_struct(value.base_type):
+                expr = ''
+                if not value.is_pointer:
+                    expr += '*'
+                expr += f'{value.name}.decoded_value'
+                args.append(expr)
+
             else:
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
                 args.append(value.name)

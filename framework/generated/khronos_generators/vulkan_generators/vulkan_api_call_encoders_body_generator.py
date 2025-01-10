@@ -23,8 +23,8 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, json, write
-
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
 
 class VulkanApiCallEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding."""
@@ -73,7 +73,7 @@ class VulkanApiCallEncodersBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         begin_end.namespaces.extend(('gfxrecon', 'encode'))
 
 
-class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
+class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
     """VulkanApiCallEncodersBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call
     parameter data.
@@ -105,56 +105,14 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
         VulkanBaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.capture_overrides:
-            self.__load_capture_overrides(gen_opts.capture_overrides)
+            self.load_capture_overrides(gen_opts.capture_overrides)
 
     def endFile(self):
         """Method override."""
-        for cmd in self.get_all_filtered_cmd_names():
-            info = self.all_cmd_params[cmd]
-            return_type = info[0]
-            proto = info[1]
-            values = info[2]
-
-            cmddef = '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-            cmddef += '{\n'
-            cmddef += self.make_cmd_body(return_type, cmd, values)
-            cmddef += '}'
-
-            write(cmddef, file=self.outFile)
-
-        self.newline()
+        self.write_api_call_encoders_contents(make_cmd_body=self.make_cmd_body )
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def make_cmd_decl(self, proto, values):
-        """Generate function declaration for a command."""
-        param_decls = []
-
-        for value in values:
-            value_name = value.name
-            value_type = value.full_type if not value.platform_full_type else value.platform_full_type
-
-            if value.is_array and not value.is_dynamic:
-                value_name += '[{}]'.format(value.array_capacity)
-
-            param_decl = self.make_aligned_param_decl(
-                value_type, value_name, self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        if param_decls:
-            return '{}(\n{})\n'.format(proto, ',\n'.join(param_decls))
-
-        return '{}()\n'.format(proto)
 
     def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
@@ -346,33 +304,6 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
 
         return body
 
-    def make_parameter_encoding(
-        self, name, values, return_type, indent, omit_output_param
-    ):
-        body = '\n'
-        body += indent + self.make_begin_api_call(name, values)
-        body += indent + 'if (encoder)\n'
-        body += indent + '{\n'
-        indent += ' ' * self.INDENT_SIZE
-
-        for value in values:
-            method_call = self.make_encoder_method_call(
-                name, value, values, '', omit_output_param
-            )
-            body += indent + '{};\n'.format(method_call)
-
-        if return_type and return_type != 'void':
-            method_call = self.make_encoder_method_call(
-                name, ValueInfo('result', return_type, return_type), [], ''
-            )
-            body += indent + '{};\n'.format(method_call)
-
-        # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
-        body += indent + self.make_end_api_call(name, values, return_type)
-        indent = indent[0:-self.INDENT_SIZE]
-        body += indent + '}\n'
-        return body
-
     def make_begin_api_call(self, name, values):
         capture_manager = 'manager'
         if name == 'vkCreateInstance':
@@ -393,29 +324,6 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
             return 'auto encoder = {}->BeginApiCallCapture(format::ApiCallId::ApiCall_{});\n'.format(
                 capture_manager, name
             )
-
-    def get_struct_handle_member_info(self, members):
-        member_handle_type = None
-        member_handle_name = None
-        member_array_length = None
-
-        for member in members:
-            if self.is_handle(member.base_type):
-                member_handle_type = member.base_type
-                member_handle_name = member.name
-                if member.is_array:
-                    member_array_length = member.array_length
-                break
-            elif self.is_struct(member.base_type):
-                # This can't handle the case where 'member' is an array of structs
-                member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
-                    self.structs_with_handles[member.base_type]
-                )
-                member_handle_name = '{}.{}'.format(
-                    member.name, member_handle_name
-                )
-
-        return member_handle_type, member_handle_name, member_array_length
 
     def make_end_api_call(self, name, values, return_type):
         decl = 'manager->'
@@ -764,33 +672,6 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
                 )
         return expr
 
-    def get_param_list_handles(self, values):
-        """Create list of parameters that have handle types or are structs that contain handles."""
-        handles = []
-        for value in values:
-            if self.is_handle(value.base_type):
-                handles.append(value)
-            elif self.is_struct(
-                value.base_type
-            ) and (value.base_type in self.structs_with_handles):
-                handles.append(value)
-        return handles
-
-    def make_get_command_handles_expr(self, cmd, values):
-        """Generate an expression for a get command buffer handles utility function."""
-        handle_params = self.get_param_list_handles(values)
-        if handle_params:
-            args = []
-            for value in handle_params:
-                if value.array_length:
-                    args.append(value.array_length)
-                args.append(value.name)
-            return 'Track{}Handles, {}'.format(
-                cmd[2:], ', '.join(self.make_unique_list(args))
-            )
-        else:
-            return None
-
     def retrieves_handles(self, values):
         """Determine if an API call indirectly creates handles by retrieving them(e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)"""
         for value in values:
@@ -801,12 +682,3 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator):
                 return True
         return False
 
-    def has_outputs(self, return_value, parameter_values):
-        for value in parameter_values:
-            if self.is_output_parameter(value):
-                return True
-        return False
-
-    def __load_capture_overrides(self, filename):
-        overrides = json.loads(open(filename, 'r').read())
-        self.CAPTURE_OVERRIDES = overrides['functions']

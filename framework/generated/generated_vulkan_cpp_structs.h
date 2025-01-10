@@ -2335,4 +2335,4 @@ std::string GenerateStruct_VkPhysicalDeviceMeshShaderPropertiesEXT(std::ostream 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_CPP_STRUCTS_H

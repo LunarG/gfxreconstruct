@@ -23,6 +23,7 @@
 
 import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
 
 
 class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
@@ -58,7 +59,7 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
 
 
-class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator):
+class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
     """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
     Generates C++ functions responsible for encoding Vulkan API call parameter data.
     Generate C++ function declarations for Vulkan API parameter encoding
@@ -76,17 +77,7 @@ class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd in self.get_all_filtered_cmd_names():
-            info = self.all_cmd_params[cmd]
-            proto = info[1]
-            values = info[2]
-
-            cmddef = '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-
-            write(cmddef, file=self.outFile)
-
-        self.newline()
+        self.write_api_call_encoders_contents()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
@@ -97,24 +88,3 @@ class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator):
             return True
         return False
 
-    def make_cmd_decl(self, proto, values):
-        """Generate function declaration for a command."""
-        param_decls = []
-
-        for value in values:
-            value_name = value.name
-            value_type = value.full_type if not value.platform_full_type else value.platform_full_type
-
-            if value.is_array and not value.is_dynamic:
-                value_name += '[{}]'.format(value.array_capacity)
-
-            param_decl = self.make_aligned_param_decl(
-                value_type, value_name, self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        if param_decls:
-            return '{}(\n{});'.format(proto, ',\n'.join(param_decls))
-
-        return '{}();'.format(proto)

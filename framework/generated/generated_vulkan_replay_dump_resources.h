@@ -1957,4 +1957,4 @@ void Process_vkCmdDrawMeshTasksIndirectCountEXT(
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_H

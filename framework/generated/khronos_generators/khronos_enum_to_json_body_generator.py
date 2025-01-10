@@ -112,7 +112,7 @@ class KhronosEnumToJsonBodyGenerator():
             write(body, file=self.outFile)
 
         for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases:
+            if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
 
             bittype = None

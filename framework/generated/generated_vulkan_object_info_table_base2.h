@@ -340,4 +340,4 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_OBJECT_INFO_TABLE_BASE2_H

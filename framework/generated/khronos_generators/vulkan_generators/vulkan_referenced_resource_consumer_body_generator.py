@@ -98,7 +98,7 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
             if params and params[0].base_type == 'VkCommandBuffer':
 
                 # Check for parameters with resource handle types.
-                handles = self.get_param_list_handles(cmd, params[1:])
+                handles = self.get_param_list_handles(params[1:])
 
                 if (handles):
                     # Generate a function to add handles to the command buffer's referenced handle list.
@@ -155,17 +155,6 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
         else:
             return VulkanBaseGenerator.is_handle(self, base_type)
 
-    def get_param_list_handles(self, cmd, values):
-        """Create list of parameters that have handle types or are structs that contain handles."""
-        handles = []
-        for value in values:
-            if self.is_handle(value.base_type):
-                handles.append(value)
-            elif self.is_struct(
-                value.base_type
-            ) and (value.base_type in self.structs_with_handles):
-                handles.append(value)
-        return handles
 
     def track_command_handle(
         self, index, command_param_name, value, value_prefix='', indent=''

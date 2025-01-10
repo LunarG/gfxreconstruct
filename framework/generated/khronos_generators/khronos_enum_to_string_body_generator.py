@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021-2024 LunarG, Inc.
+# Copyright (c) 2021-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -63,26 +63,7 @@ class KhronosEnumToStringBodyGenerator():
                 if self.is_flags_enum_64bit(enum):
                     body += '\nstd::string {1}ToString({2} {3})\n'
                     body += '{{\n'
-                    body += '    std::string   str;\n'
-                    body += '    {2}     index = 0U;\n'
-                    body += '    while ({3})\n'
-                    body += '    {{\n'
-                    body += '        if ({3} & 1U)\n'
-                    body += '        {{\n'
-                    body += '            if (!str.empty())\n'
-                    body += '            {{\n'
-                    body += '                str += \'|\';\n'
-                    body += '            }}\n'
-                    body += '            str.append({0}ToString(static_cast<{0}>(1U) << index));\n'
-                    body += '        }}\n'
-                    body += '        ++index;\n'
-                    body += '        {3} >>= 1U;\n'
-                    body += '    }}\n'
-                    body += '    if (str.empty())\n'
-                    body += '    {{\n'
-                    body += '        str.append({0}ToString(0U));\n'
-                    body += '    }}\n'
-                    body += '    return str;\n'
+                    body += '    return BitmaskToString<{0}>({3}, {0}ToString);\n'
                     body += '}}\n'
                 else:
                     # Original version(these are never actually being called which is part of issue #620):

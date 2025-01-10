@@ -71,7 +71,7 @@ class KhronosEnumToJsonHeaderGenerator():
                 write(body.format(enum), file=self.outFile)
 
         for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases:
+            if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
             write(body.format(flag, self.flags_types[flag]), file=self.outFile)

@@ -42,7 +42,7 @@ class KhronosDispatchTableGenerator():
         """ Method must overridden. """
         raise NotImplementedError
 
-    def generateDispatchTable(self):
+    def generateDispatchTable(self, gen_dispatch_key=True):
         api_data = self.get_api_data()
 
         self.instance_cmd_names = dict(
@@ -64,11 +64,11 @@ class KhronosDispatchTableGenerator():
                     proto = info[1]
 
                     if self.is_instance_command(api_data, name, first_param):
-                        self.instance_cmd_names[name] = self.make_cmd_decl(
+                        self.instance_cmd_names[name] = self.make_dispatch_cmd_decl(
                             return_type, proto, values, name
                         )
                     elif self.is_device_command(api_data, name, first_param):
-                        self.device_cmd_names[name] = self.make_cmd_decl(
+                        self.device_cmd_names[name] = self.make_dispatch_cmd_decl(
                             return_type, proto, values, name
                         )
                     else:
@@ -77,33 +77,34 @@ class KhronosDispatchTableGenerator():
 
         self.newline()
 
-        write(
-            'typedef const void* {}DispatchKey;'.format(
-                api_data.api_class_prefix
-            ),
-            file=self.outFile
-        )
-        self.newline()
+        if gen_dispatch_key:
+            write(
+                'typedef const void* {}DispatchKey;'.format(
+                    api_data.api_class_prefix
+                ),
+                file=self.outFile
+            )
+            self.newline()
 
-        write(
-            '// Retrieve a dispatch key from a dispatchable handle',
-            file=self.outFile
-        )
-        write(
-            'static {0}DispatchKey Get{0}DispatchKey(const void* handle)'.
-            format(api_data.api_class_prefix),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    const {0}DispatchKey* dispatch_key = reinterpret_cast<const {0}DispatchKey*>(handle);'
-            .format(api_data.api_class_prefix),
-            file=self.outFile
-        )
-        write('    return (*dispatch_key);', file=self.outFile)
-        write('}', file=self.outFile)
+            write(
+                '// Retrieve a dispatch key from a dispatchable handle',
+                file=self.outFile
+            )
+            write(
+                'static {0}DispatchKey Get{0}DispatchKey(const void* handle)'.
+                format(api_data.api_class_prefix),
+                file=self.outFile
+            )
+            write('{', file=self.outFile)
+            write(
+                '    const {0}DispatchKey* dispatch_key = reinterpret_cast<const {0}DispatchKey*>(handle);'
+                .format(api_data.api_class_prefix),
+                file=self.outFile
+            )
+            write('    return (*dispatch_key);', file=self.outFile)
+            write('}', file=self.outFile)
+            self.newline()
 
-        self.newline()
         self.generate_no_op_funcs()
         self.newline()
 
@@ -268,7 +269,7 @@ class KhronosDispatchTableGenerator():
         else:
             return value.full_type
 
-    def make_cmd_decl(self, return_type, proto, values, name):
+    def make_dispatch_cmd_decl(self, return_type, proto, values, name):
         """Generate a function prototype for the NoOp functions, with a parameter list that only includes types."""
         params = ', '.join(
             [self.make_full_typename(value) for value in values]

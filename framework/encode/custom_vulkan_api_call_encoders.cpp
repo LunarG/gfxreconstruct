@@ -251,10 +251,10 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplate(VkDevice           
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate(VkCommandBuffer            commandBuffer,
-                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                            VkPipelineLayout           layout,
-                                                            uint32_t                   set,
-                                                            const void*                pData)
+                                                              VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                              VkPipelineLayout           layout,
+                                                              uint32_t                   set,
+                                                              const void*                pData)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);

@@ -3142,7 +3142,7 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-        StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements) {}
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
 
     virtual void Process_vkBindAccelerationStructureMemoryNV(
         const ApiCallInfo&                          call_info,
@@ -4578,4 +4578,4 @@ class VulkanConsumer : public VulkanConsumerBase
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_CONSUMER_H

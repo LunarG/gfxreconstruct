@@ -74,4 +74,4 @@ static const std::vector<const char *> kColorSpaceExtensionNames = {
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_CONSTANT_MAPS_H

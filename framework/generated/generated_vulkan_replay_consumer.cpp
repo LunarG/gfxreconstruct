@@ -6273,7 +6273,7 @@ void VulkanReplayConsumer::Process_vkCreatePipelineBinariesKHR(
     VkResult replay_result = GetDeviceTable(in_device)->CreatePipelineBinariesKHR(in_device, in_pCreateInfo, in_pAllocator, out_pBinaries);
     CheckResult("vkCreatePipelineBinariesKHR", returnValue, replay_result, call_info);
 
-    AddStructArrayHandles<Decoded_VkPipelineBinaryHandlesInfoKHR>(device, pBinaries->GetMetaStructPointer(), pBinaries->GetLength(), out_pBinaries, pBinaries->GetLength(), &GetObjectInfoTable());
+    AddStructHandles(device, pBinaries->GetMetaStructPointer(), out_pBinaries, &GetObjectInfoTable());
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(
@@ -7685,7 +7685,7 @@ void VulkanReplayConsumer::Process_vkGetAccelerationStructureMemoryRequirementsN
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkAccelerationStructureMemoryRequirementsInfoNV* in_pInfo = pInfo->GetPointer();

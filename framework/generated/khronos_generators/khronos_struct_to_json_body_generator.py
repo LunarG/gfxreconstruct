@@ -24,7 +24,6 @@
 from khronos_base_generator import write
 from reformat_code import indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
-
 class KhronosStructToJsonBodyGenerator():
     """KhronosStructToJsonBodyGenerator
     Generate C++ function definitions to serialize Khronos structures to JSON"""
@@ -33,6 +32,9 @@ class KhronosStructToJsonBodyGenerator():
         """Method indended to be overridden.
         Indicates that the provided struct is a struct we want to decode"""
         return True
+
+    def get_local_type_var_name(self):
+        return 's_type'
 
     def decode_as_handle(self, parent_type, member):
         """ Method which may be overridden.
@@ -47,72 +49,83 @@ class KhronosStructToJsonBodyGenerator():
 
         for struct in self.get_all_filtered_struct_names():
             if self.should_decode_struct(struct):
-                body = '''
+                body = indent_cpp_code('''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
                         if (data && data->decoded_value)
                         {{
                             const {0}& decoded_value = *data->decoded_value;
                             const Decoded_{0}& meta_struct = *data;
+                    '''.format(struct))
 
-                    '''.format(struct)
+                if struct in self.children_structs:
+                    body += self.make_base_struct_body(struct)
+
                 body += self.makeStructBody(
                     struct, self.all_struct_members[struct]
                 )
-                body += remove_leading_empty_lines(
-                    '''
-                        }
-                    }
-                    '''
-                )
-                body = remove_trailing_newlines(indent_cpp_code(body))
+
+                body += '    }\n'
+                body += '}\n'
+
+                body = remove_trailing_newlines(body)
+                #body = remove_trailing_newlines(indent_cpp_code(body))
                 write(body, file=self.outFile)
 
         stype_var = self.get_struct_type_var_name()
+        extended_type_prefix = self.get_extended_struct_func_prefix()
+        stype_auto = self.get_local_type_var_name()
         base_in_struct = self.get_base_input_structure_name()
+        
         body = '''
-            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
-            {
+            void FieldToJson(nlohmann::ordered_json& jdata, const {}Node* data, const JsonOptions& options)
+            {{
                 if (data && data->GetPointer())
-                {
-        '''
-        body += '            const auto s_type = reinterpret_cast<const {}*>(data->GetPointer())->{};'.format(
-            base_in_struct, stype_var
+                {{
+        '''.format(extended_type_prefix)
+        body += '            const auto {} = reinterpret_cast<const {}*>(data->GetPointer())->{};'.format(
+            stype_auto, base_in_struct, stype_var
         )
         body += '''
-                    switch (s_type)
-                    {'''
+                    switch ({})
+                    {{'''.format(stype_auto)
         body += self.make_extended_struct_body()
         body = indent_cpp_code(body)
         write(body, file=self.outFile)
 
-    def generate_parent_child_json_info(self, var_type, var_name, is_array):
-        to_json = ''
+    def make_base_struct_body(
+            self,
+            base_struct_type,
+            indent = '    ',
+            decoded_value='decoded_value',
+            data='data',
+            json_data='jdata',
+            json_options='options'):
+        # Otherwise, we need to go through and actually decode the appropriate
+        # type of the struct pointed at by the base header struct pointer.
         body = ''
-        if is_array:
-            # If this is a situation with a parent for the data and it's an
-            # array, we need to determine the child of the first element of that array
-            # and then treat the entire array as if it is of that child type.
-            to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
-        else:
-            # Otherwise, we need to go through and actually decode the appropriate
-            # type of the struct pointed at by the base header struct pointer.
-            body += f'    switch ({var_name}->GetPointer()->type)\n'
-            body += '    {\n'
-            body += '        default:\n'
-            body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
-            body += '            break;\n'
-            for child in self.children_structs[var_type]:
-                struct_type = self.struct_type_names[child]
+        indent1 = indent + '    '
+        indent2 = indent1 + '    '
 
-                body += f'        case {struct_type}:\n'
-                body += f'            FieldToJson(args["{var_name}"],\n'
-                body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
-                body += '                        json_options);\n'
-                body += '            break;\n'
-            body += '    }\n'
+        body += f'{indent1}switch ({decoded_value}.type)\n'
+        body += f'{indent1}{{\n'
+        body += f'{indent2}default:\n'
+        body += f'{indent2}    // Handle as base-type below\n'
+        body += f'{indent2}    break;\n'
 
-        return to_json, body
+        for child in self.children_structs[base_struct_type]:
+            struct_type = self.struct_type_names[child]
+            body += f'{indent2}case {struct_type}:\n'
+            body += f'{indent2}    FieldToJson({json_data},\n'
+            body += f'{indent2}                reinterpret_cast<const Decoded_{child}*>({data}),\n'
+            body += f'{indent2}                {json_options});\n'
+            body += f'{indent2}    // Return here because we processed the appropriate data in\n'
+            body += f'{indent2}    // the correct structure type\n'
+            body += f'{indent2}    return;\n'
+
+        body += f'{indent1}}}\n\n'
+
+        return body
 
 
     #
@@ -162,10 +175,7 @@ class KhronosStructToJsonBodyGenerator():
                         # If this is a parent class, generate the parent->child conversion info
                         # appropriately
                         if value_type in self.children_structs.keys():
-                            to_json, local_body = self.generate_parent_child_json_info(
-                                value_type, value.name, value.is_array
-                            )
-                            body += local_body
+                            to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
                         else:
                             to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif not value.is_dynamic:
@@ -178,15 +188,7 @@ class KhronosStructToJsonBodyGenerator():
                     elif value_type in self.formatAsHex:
                         to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
                     elif self.is_struct(value_type):
-                        # If this is a parent class, generate the parent->child conversion info
-                        # appropriately
-                        if value.base_type in self.children_structs.keys():
-                            to_json, local_body = self.generate_parent_child_json_info(
-                                value_type, value.name, value.is_array
-                            )
-                            body += local_body
-                        else:
-                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value_type):
                         if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
@@ -213,6 +215,7 @@ class KhronosStructToJsonBodyGenerator():
     def make_extended_struct_body(self):
         body = ''
         var_name = self.get_extended_struct_var_name().lower()
+        stype_auto = self.get_local_type_var_name()
 
         extended_list = []
         for struct in self.all_extended_structs:
@@ -234,8 +237,8 @@ class KhronosStructToJsonBodyGenerator():
         body += '\n'
         body += '            default:\n'
         body += '            {\n'
-        body += '                GFXRECON_LOG_WARNING("Unknown {} node type: %u.", (unsigned) s_type);\n'.format(
-            var_name
+        body += '                GFXRECON_LOG_WARNING("Unknown {} node type: %u.", (unsigned) {});\n'.format(
+            var_name, stype_auto
         )
         body += '            }\n'
         body += '        }\n'

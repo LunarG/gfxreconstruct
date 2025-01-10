@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021-25 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,7 +22,7 @@
 
 import os, re, sys
 from vulkan_base_generator import *
-
+from khronos_object_info_table_header_generator import KhronosObjectInfoTableHeaderGenerator
 
 class VulkanObjectInfoTableBase2HeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
@@ -55,7 +55,7 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(VulkanBaseGeneratorOption
         self.begin_end_file_data.common_api_headers = []
 
 # Generates declarations for functions for Vulkan object info table
-class VulkanObjectInfoTableBase2HeaderGenerator(VulkanBaseGenerator):
+class VulkanObjectInfoTableBase2HeaderGenerator(KhronosObjectInfoTableHeaderGenerator, VulkanBaseGenerator):
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -69,53 +69,8 @@ class VulkanObjectInfoTableBase2HeaderGenerator(VulkanBaseGenerator):
 
     # Method override
     def endFile(self):
-        self.generate_all()
+        self.generate_info_table(self.get_api_data(), 'VulkanObjectInfoTableBase2', 'VulkanObjectInfoTableBase')
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    # yapf: disable
-    def generate_all(self):
-        add_code = ''
-        remove_code = ''
-        const_get_code = ''
-        get_code = ''
-        visit_code = ''
-        map_code = ''
-
-        for handle_name in sorted(self.handle_names):
-            if handle_name in self.handle_aliases:
-                continue
-            short_handle_name = handle_name[2:]
-            handle_info = short_handle_name + 'Info'
-            function_info = handle_name + 'Info'
-            handle_map = short_handle_name[0].lower() + short_handle_name[1:] + '_map_'
-            add_code += '    void Add{0}(Vulkan{1}&& info) {{ AddVkObjectInfo(std::move(info), &{2}); }}\n'.format(function_info, handle_info, handle_map)
-            remove_code += '    void Remove{0}(format::HandleId id) {{ {1}.erase(id); }}\n'.format(function_info, handle_map)
-            const_get_code += '    const Vulkan{0}* Get{1}(format::HandleId id) const {{ return GetVkObjectInfo<Vulkan{0}>(id, &{2}); }}\n'.format(handle_info, function_info, handle_map)
-            get_code += '    Vulkan{0}* Get{1}(format::HandleId id) {{ return GetVkObjectInfo<Vulkan{0}>(id, &{2}); }}\n'.format(handle_info, function_info, handle_map)
-            visit_code += '    void Visit{0}(std::function<void(const Vulkan{1}*)> visitor) const {{  for (const auto& entry : {2}) {{ visitor(&entry.second); }}  }}\n'.format(function_info, handle_info, handle_map)
-            map_code += '     std::unordered_map<format::HandleId, Vulkan{0}> {1};\n'.format(handle_info, handle_map)
-
-        self.newline()
-        code = 'class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase\n'
-        code += '{\n'
-        code += '  public:\n'
-        code += '    VulkanObjectInfoTableBase2() {}\n'
-        code += '    ~VulkanObjectInfoTableBase2() {}\n'
-        code += '\n'
-        code += add_code
-        code += '\n'
-        code += remove_code
-        code += '\n'
-        code += const_get_code
-        code += '\n'
-        code += get_code
-        code += '\n'
-        code += visit_code
-        code += '\n'
-        code += '  protected:\n'
-        code += map_code
-        code += '};\n'
-        write(code, file=self.outFile)
-    # yapf: enable

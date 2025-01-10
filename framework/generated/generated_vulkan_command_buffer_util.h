@@ -284,4 +284,4 @@ void TrackCmdDrawMeshTasksIndirectCountEXTHandles(vulkan_wrappers::CommandBuffer
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_COMMAND_BUFFER_UTIL_H
