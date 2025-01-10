@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2019 Valve Corporation
-# Copyright (c) 2019-2024 LunarG, Inc.
+# Copyright (c) 2019-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -37,7 +37,7 @@ class KhronosStructHandleWrappersBodyGenerator():
 
     def generate_parent_child_handling(self, api_data, type):
         body = ''
-        if type in self.children_structs.keys():
+        if type in self.children_structs:
             type_var_name = api_data.struct_type_variable
             body += '        switch (value->{})\n'.format(type_var_name)
             body += '        {\n'
@@ -86,15 +86,18 @@ class KhronosStructHandleWrappersBodyGenerator():
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
                     struct
                 )
+                
                 body += '{\n'
-                body += '    if (value != nullptr)\n'
-                body += '    {\n'
 
-                body += self.generate_parent_child_handling(api_data, struct)
-                body += self.make_struct_handle_unwrappings(
-                    api_data, struct, handle_members, generic_handle_members
-                )
-                body += '    }\n'
+                unwrapping = self.generate_parent_child_handling(api_data, struct)
+                unwrapping += self.make_struct_handle_unwrappings(api_data, struct, handle_members, generic_handle_members)
+                
+                if unwrapping:
+                    body += '    if (value != nullptr)\n'
+                    body += '    {\n'
+                    body += unwrapping
+                    body += '    }\n'
+
                 body += '}'
 
                 write(body, file=self.outFile)

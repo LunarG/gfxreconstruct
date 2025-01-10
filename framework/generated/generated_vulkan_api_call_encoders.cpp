@@ -83,6 +83,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(VulkanCaptureManager::Get(), result, pCreateInfo, pAllocator, pInstance);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
@@ -119,6 +120,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(manager, instance, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::InstanceWrapper>(instance);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
@@ -168,6 +170,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(manager, result, instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(
@@ -201,6 +204,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(manager, physicalDevice, pFeatures);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties(
@@ -236,6 +240,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(manager, physicalDevice, format, pFormatProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties(
@@ -288,6 +293,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(manager, result, physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(
@@ -321,6 +327,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(manager, physicalDevice, pProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
@@ -356,6 +363,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(manager, physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties(
@@ -389,6 +397,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(manager, physicalDevice, pMemoryProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(
@@ -435,6 +444,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(manager, result, physicalDevice, pCreateInfo, pAllocator, pDevice);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(
@@ -471,6 +481,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(manager, device, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DeviceWrapper>(device);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(
@@ -510,6 +521,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(manager, device, queueFamilyIndex, queueIndex, pQueue);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(
@@ -553,6 +565,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueWaitIdle(
@@ -587,6 +600,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueWaitIdle(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(manager, result, queue);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(
@@ -621,6 +635,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(manager, result, device);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAllocateMemory(
@@ -667,6 +682,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(manager, result, device, pAllocateInfo, pAllocator, pMemory);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkFreeMemory(
@@ -705,6 +721,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(manager, device, memory, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory(
@@ -755,6 +772,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(manager, result, device, memory, offset, size, flags, ppData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkUnmapMemory(
@@ -788,6 +806,7 @@ VKAPI_ATTR void VKAPI_CALL vkUnmapMemory(
     vulkan_wrappers::GetDeviceTable(device)->UnmapMemory(device, memory);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(manager, device, memory);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkFlushMappedMemoryRanges(
@@ -829,6 +848,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkFlushMappedMemoryRanges(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(manager, result, device, memoryRangeCount, pMemoryRanges);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkInvalidateMappedMemoryRanges(
@@ -870,6 +890,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkInvalidateMappedMemoryRanges(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(manager, result, device, memoryRangeCount, pMemoryRanges);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceMemoryCommitment(
@@ -905,6 +926,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceMemoryCommitment(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(manager, device, memory, pCommittedMemoryInBytes);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory(
@@ -945,6 +967,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(manager, result, device, buffer, memory, memoryOffset);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(
@@ -985,6 +1008,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(manager, result, device, image, memory, memoryOffset);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements(
@@ -1020,6 +1044,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(manager, device, buffer, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements(
@@ -1055,6 +1080,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(manager, device, image, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements(
@@ -1092,6 +1118,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(manager, device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties(
@@ -1137,6 +1164,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(manager, physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueBindSparse(
@@ -1180,6 +1208,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueBindSparse(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(manager, result, queue, bindInfoCount, pBindInfo, fence);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateFence(
@@ -1231,6 +1260,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateFence(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pFence);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyFence(
@@ -1269,6 +1299,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyFence(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(manager, device, fence, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::FenceWrapper>(fence);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkResetFences(
@@ -1307,6 +1338,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetFences(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(manager, result, device, fenceCount, pFences);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceStatus(
@@ -1343,6 +1375,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceStatus(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(manager, result, device, fence);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWaitForFences(
@@ -1385,6 +1418,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForFences(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(manager, result, device, fenceCount, pFences, waitAll, timeout);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSemaphore(
@@ -1436,6 +1470,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSemaphore(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSemaphore);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySemaphore(
@@ -1474,6 +1509,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySemaphore(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(manager, device, semaphore, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SemaphoreWrapper>(semaphore);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateEvent(
@@ -1525,6 +1561,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateEvent(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pEvent);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyEvent(
@@ -1563,6 +1600,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyEvent(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(manager, device, event, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::EventWrapper>(event);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetEventStatus(
@@ -1599,6 +1637,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetEventStatus(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(manager, result, device, event);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetEvent(
@@ -1635,6 +1674,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetEvent(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(manager, result, device, event);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkResetEvent(
@@ -1671,6 +1711,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetEvent(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(manager, result, device, event);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateQueryPool(
@@ -1722,6 +1763,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateQueryPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pQueryPool);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyQueryPool(
@@ -1760,6 +1802,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyQueryPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(manager, device, queryPool, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::QueryPoolWrapper>(queryPool);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetQueryPoolResults(
@@ -1814,6 +1857,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetQueryPoolResults(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(manager, result, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(
@@ -1860,6 +1904,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pBuffer);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyBuffer(
@@ -1898,6 +1943,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(manager, device, buffer, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::BufferWrapper>(buffer);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(
@@ -1952,6 +1998,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pView);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyBufferView(
@@ -1990,6 +2037,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBufferView(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(manager, device, bufferView, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::BufferViewWrapper>(bufferView);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(
@@ -2036,6 +2084,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pImage);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyImage(
@@ -2074,6 +2123,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImage(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(manager, device, image, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ImageWrapper>(image);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout(
@@ -2111,6 +2161,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(manager, device, image, pSubresource, pLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateImageView(
@@ -2165,6 +2216,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImageView(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pView);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyImageView(
@@ -2203,6 +2255,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImageView(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(manager, device, imageView, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ImageViewWrapper>(imageView);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateShaderModule(
@@ -2257,6 +2310,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateShaderModule(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pShaderModule);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyShaderModule(
@@ -2295,6 +2349,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyShaderModule(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(manager, device, shaderModule, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ShaderModuleWrapper>(shaderModule);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineCache(
@@ -2346,6 +2401,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineCache(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pPipelineCache);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineCache(
@@ -2384,6 +2440,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineCache(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(manager, device, pipelineCache, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PipelineCacheWrapper>(pipelineCache);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineCacheData(
@@ -2430,6 +2487,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineCacheData(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(manager, result, device, pipelineCache, pDataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMergePipelineCaches(
@@ -2470,6 +2528,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMergePipelineCaches(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(manager, result, device, dstCache, srcCacheCount, pSrcCaches);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPipeline(
@@ -2508,6 +2567,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipeline(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(manager, device, pipeline, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PipelineWrapper>(pipeline);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineLayout(
@@ -2562,6 +2622,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineLayout(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pPipelineLayout);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineLayout(
@@ -2600,6 +2661,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineLayout(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(manager, device, pipelineLayout, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PipelineLayoutWrapper>(pipelineLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSampler(
@@ -2654,6 +2716,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSampler(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSampler);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySampler(
@@ -2692,6 +2755,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySampler(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(manager, device, sampler, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SamplerWrapper>(sampler);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorSetLayout(
@@ -2746,6 +2810,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorSetLayout(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSetLayout);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorSetLayout(
@@ -2784,6 +2849,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorSetLayout(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(manager, device, descriptorSetLayout, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DescriptorSetLayoutWrapper>(descriptorSetLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorPool(
@@ -2835,6 +2901,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pDescriptorPool);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorPool(
@@ -2873,6 +2940,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(manager, device, descriptorPool, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DescriptorPoolWrapper>(descriptorPool);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkResetDescriptorPool(
@@ -2912,6 +2980,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetDescriptorPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(manager, result, device, descriptorPool, flags);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAllocateDescriptorSets(
@@ -2964,6 +3033,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateDescriptorSets(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(manager, result, device, pAllocateInfo, pDescriptorSets);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkFreeDescriptorSets(
@@ -3007,6 +3077,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkFreeDescriptorSets(
     vulkan_wrappers::DestroyWrappedHandles<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets, descriptorSetCount);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSets(
@@ -3050,6 +3121,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSets(
     vulkan_wrappers::GetDeviceTable(device)->UpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites_unwrapped, descriptorCopyCount, pDescriptorCopies_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(manager, device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(
@@ -3104,6 +3176,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pFramebuffer);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyFramebuffer(
@@ -3142,6 +3215,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyFramebuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(manager, device, framebuffer, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::FramebufferWrapper>(framebuffer);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(
@@ -3193,6 +3267,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyRenderPass(
@@ -3231,6 +3306,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyRenderPass(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(manager, device, renderPass, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::RenderPassWrapper>(renderPass);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetRenderAreaGranularity(
@@ -3266,6 +3342,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderAreaGranularity(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(manager, device, renderPass, pGranularity);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateCommandPool(
@@ -3317,6 +3394,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCommandPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pCommandPool);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(
@@ -3355,6 +3433,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(manager, device, commandPool, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::CommandPoolWrapper>(commandPool);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandPool(
@@ -3393,6 +3472,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandPool(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(manager, result, device, commandPool, flags);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(
@@ -3445,6 +3525,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(manager, result, device, pAllocateInfo, pCommandBuffers);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(
@@ -3485,6 +3566,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(manager, device, commandPool, commandBufferCount, pCommandBuffers);
 
     vulkan_wrappers::DestroyWrappedHandles<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers, commandBufferCount);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(
@@ -3524,6 +3606,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(manager, result, commandBuffer, pBeginInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(
@@ -3558,6 +3641,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(manager, result, commandBuffer);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandBuffer(
@@ -3594,6 +3678,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandBuffer(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(manager, result, commandBuffer, flags);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindPipeline(
@@ -3629,6 +3714,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindPipeline(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindPipeline(commandBuffer, pipelineBindPoint, pipeline);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(manager, commandBuffer, pipelineBindPoint, pipeline);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewport(
@@ -3666,6 +3752,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewport(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewport(commandBuffer, firstViewport, viewportCount, pViewports);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(manager, commandBuffer, firstViewport, viewportCount, pViewports);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetScissor(
@@ -3703,6 +3790,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissor(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetScissor(commandBuffer, firstScissor, scissorCount, pScissors);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(manager, commandBuffer, firstScissor, scissorCount, pScissors);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineWidth(
@@ -3736,6 +3824,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineWidth(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineWidth(commandBuffer, lineWidth);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(manager, commandBuffer, lineWidth);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias(
@@ -3773,6 +3862,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBias(commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(manager, commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetBlendConstants(
@@ -3806,6 +3896,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetBlendConstants(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetBlendConstants(commandBuffer, blendConstants);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(manager, commandBuffer, blendConstants);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBounds(
@@ -3841,6 +3932,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBounds(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(manager, commandBuffer, minDepthBounds, maxDepthBounds);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilCompareMask(
@@ -3876,6 +3968,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilCompareMask(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(manager, commandBuffer, faceMask, compareMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilWriteMask(
@@ -3911,6 +4004,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilWriteMask(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(manager, commandBuffer, faceMask, writeMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilReference(
@@ -3946,6 +4040,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilReference(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilReference(commandBuffer, faceMask, reference);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(manager, commandBuffer, faceMask, reference);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets(
@@ -3991,6 +4086,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(manager, commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer(
@@ -4028,6 +4124,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(manager, commandBuffer, buffer, offset, indexType);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers(
@@ -4067,6 +4164,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindVertexBuffers(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(manager, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDraw(
@@ -4106,6 +4204,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDraw(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(manager, commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexed(
@@ -4147,6 +4246,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexed(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(manager, commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirect(
@@ -4186,6 +4286,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirect(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndirect(commandBuffer, buffer, offset, drawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(manager, commandBuffer, buffer, offset, drawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirect(
@@ -4225,6 +4326,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirect(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirect(commandBuffer, buffer, offset, drawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(manager, commandBuffer, buffer, offset, drawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatch(
@@ -4262,6 +4364,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatch(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(manager, commandBuffer, groupCountX, groupCountY, groupCountZ);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchIndirect(
@@ -4297,6 +4400,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchIndirect(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDispatchIndirect(commandBuffer, buffer, offset);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(manager, commandBuffer, buffer, offset);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer(
@@ -4336,6 +4440,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(manager, commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage(
@@ -4379,6 +4484,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(manager, commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage(
@@ -4424,6 +4530,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(manager, commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage(
@@ -4465,6 +4572,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(manager, commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer(
@@ -4506,6 +4614,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(manager, commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdUpdateBuffer(
@@ -4545,6 +4654,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdateBuffer(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdUpdateBuffer(commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(manager, commandBuffer, dstBuffer, dstOffset, dataSize, pData);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdFillBuffer(
@@ -4584,6 +4694,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdFillBuffer(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdFillBuffer(commandBuffer, dstBuffer, dstOffset, size, data);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(manager, commandBuffer, dstBuffer, dstOffset, size, data);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdClearColorImage(
@@ -4625,6 +4736,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearColorImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdClearColorImage(commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(manager, commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdClearDepthStencilImage(
@@ -4666,6 +4778,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearDepthStencilImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdClearDepthStencilImage(commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(manager, commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdClearAttachments(
@@ -4705,6 +4818,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearAttachments(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdClearAttachments(commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(manager, commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage(
@@ -4748,6 +4862,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(manager, commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent(
@@ -4783,6 +4898,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetEvent(commandBuffer, event, stageMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(manager, commandBuffer, event, stageMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent(
@@ -4818,6 +4934,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResetEvent(commandBuffer, event, stageMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(manager, commandBuffer, event, stageMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents(
@@ -4873,6 +4990,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWaitEvents(commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers_unwrapped, imageMemoryBarrierCount, pImageMemoryBarriers_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(manager, commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier(
@@ -4926,6 +5044,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPipelineBarrier(commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers_unwrapped, imageMemoryBarrierCount, pImageMemoryBarriers_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(manager, commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginQuery(
@@ -4963,6 +5082,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginQuery(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginQuery(commandBuffer, queryPool, query, flags);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(manager, commandBuffer, queryPool, query, flags);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndQuery(
@@ -4998,6 +5118,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndQuery(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndQuery(commandBuffer, queryPool, query);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(manager, commandBuffer, queryPool, query);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResetQueryPool(
@@ -5035,6 +5156,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetQueryPool(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResetQueryPool(commandBuffer, queryPool, firstQuery, queryCount);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(manager, commandBuffer, queryPool, firstQuery, queryCount);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp(
@@ -5072,6 +5194,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteTimestamp(commandBuffer, pipelineStage, queryPool, query);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(manager, commandBuffer, pipelineStage, queryPool, query);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyQueryPoolResults(
@@ -5117,6 +5240,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyQueryPoolResults(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyQueryPoolResults(commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(manager, commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants(
@@ -5158,6 +5282,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushConstants(commandBuffer, layout, stageFlags, offset, size, pValues);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(manager, commandBuffer, layout, stageFlags, offset, size, pValues);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass(
@@ -5196,6 +5321,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginRenderPass(commandBuffer, pRenderPassBegin_unwrapped, contents);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(manager, commandBuffer, pRenderPassBegin, contents);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass(
@@ -5229,6 +5355,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdNextSubpass(commandBuffer, contents);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(manager, commandBuffer, contents);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(
@@ -5260,6 +5387,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndRenderPass(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdExecuteCommands(
@@ -5295,6 +5423,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteCommands(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(manager, commandBuffer, commandBufferCount, pCommandBuffers);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2(
@@ -5336,6 +5465,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(manager, result, device, bindInfoCount, pBindInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2(
@@ -5377,6 +5507,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(manager, result, device, bindInfoCount, pBindInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeatures(
@@ -5416,6 +5547,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeatures(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(manager, device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMask(
@@ -5449,6 +5581,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMask(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDeviceMask(commandBuffer, deviceMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(manager, commandBuffer, deviceMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBase(
@@ -5492,6 +5625,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBase(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDispatchBase(commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(manager, commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
@@ -5541,6 +5675,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(manager, result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2(
@@ -5579,6 +5714,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2(
@@ -5617,6 +5753,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2(
@@ -5657,6 +5794,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(manager, device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2(
@@ -5690,6 +5828,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(manager, physicalDevice, pFeatures);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2(
@@ -5723,6 +5862,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(manager, physicalDevice, pProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2(
@@ -5758,6 +5898,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(manager, physicalDevice, format, pFormatProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2(
@@ -5802,6 +5943,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(manager, result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2(
@@ -5837,6 +5979,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(manager, physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2(
@@ -5870,6 +6013,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(manager, physicalDevice, pMemoryProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2(
@@ -5907,6 +6051,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(manager, physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkTrimCommandPool(
@@ -5942,6 +6087,7 @@ VKAPI_ATTR void VKAPI_CALL vkTrimCommandPool(
     vulkan_wrappers::GetDeviceTable(device)->TrimCommandPool(device, commandPool, flags);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(manager, device, commandPool, flags);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue2(
@@ -5979,6 +6125,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(manager, device, pQueueInfo, pQueue);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversion(
@@ -6030,6 +6177,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversion(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversion(
@@ -6068,6 +6216,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversion(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(manager, device, ycbcrConversion, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SamplerYcbcrConversionWrapper>(ycbcrConversion);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplate(
@@ -6122,6 +6271,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplate(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplate(
@@ -6160,6 +6310,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplate(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(manager, device, descriptorUpdateTemplate, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferProperties(
@@ -6195,6 +6346,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(manager, physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFenceProperties(
@@ -6230,6 +6382,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFenceProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(manager, physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphoreProperties(
@@ -6265,6 +6418,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphoreProperties(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(manager, physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupport(
@@ -6303,6 +6457,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupport(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(manager, device, pCreateInfo, pSupport);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCount(
@@ -6346,6 +6501,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCount(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndirectCount(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCount(
@@ -6389,6 +6545,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCount(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCount(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2(
@@ -6440,6 +6597,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2(
@@ -6478,6 +6636,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginRenderPass2(commandBuffer, pRenderPassBegin_unwrapped, pSubpassBeginInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(manager, commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2(
@@ -6513,6 +6672,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdNextSubpass2(commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(manager, commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2(
@@ -6546,6 +6706,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndRenderPass2(commandBuffer, pSubpassEndInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(manager, commandBuffer, pSubpassEndInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkResetQueryPool(
@@ -6583,6 +6744,7 @@ VKAPI_ATTR void VKAPI_CALL vkResetQueryPool(
     vulkan_wrappers::GetDeviceTable(device)->ResetQueryPool(device, queryPool, firstQuery, queryCount);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(manager, device, queryPool, firstQuery, queryCount);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValue(
@@ -6627,6 +6789,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValue(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(manager, result, device, semaphore, pValue);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphores(
@@ -6668,6 +6831,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphores(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(manager, result, device, pWaitInfo, timeout);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphore(
@@ -6707,6 +6871,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphore(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(manager, result, device, pSignalInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddress(
@@ -6746,6 +6911,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddress(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddress(
@@ -6785,6 +6951,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddress(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddress(
@@ -6824,6 +6991,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddress(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolProperties(
@@ -6868,6 +7036,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolProperties(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolProperties>::Dispatch(manager, result, physicalDevice, pToolCount, pToolProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlot(
@@ -6919,6 +7088,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlot(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlot>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pPrivateDataSlot);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlot(
@@ -6957,6 +7127,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlot(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlot>::Dispatch(manager, device, privateDataSlot, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PrivateDataSlotWrapper>(privateDataSlot);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateData(
@@ -6999,6 +7170,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateData(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateData>::Dispatch(manager, result, device, objectType, objectHandle, privateDataSlot, data);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPrivateData(
@@ -7038,6 +7210,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateData(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPrivateData>::Dispatch(manager, device, objectType, objectHandle, privateDataSlot, pData);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2(
@@ -7076,6 +7249,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetEvent2(commandBuffer, event, pDependencyInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent2>::Dispatch(manager, commandBuffer, event, pDependencyInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2(
@@ -7111,6 +7285,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResetEvent2(commandBuffer, event, stageMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent2>::Dispatch(manager, commandBuffer, event, stageMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2(
@@ -7151,6 +7326,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWaitEvents2(commandBuffer, eventCount, pEvents, pDependencyInfos_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWaitEvents2>::Dispatch(manager, commandBuffer, eventCount, pEvents, pDependencyInfos);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2(
@@ -7187,6 +7363,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPipelineBarrier2(commandBuffer, pDependencyInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2>::Dispatch(manager, commandBuffer, pDependencyInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2(
@@ -7224,6 +7401,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteTimestamp2(commandBuffer, stage, queryPool, query);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp2>::Dispatch(manager, commandBuffer, stage, queryPool, query);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2(
@@ -7267,6 +7445,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2(
@@ -7303,6 +7482,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBuffer2(commandBuffer, pCopyBufferInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2>::Dispatch(manager, commandBuffer, pCopyBufferInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2(
@@ -7339,6 +7519,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImage2(commandBuffer, pCopyImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage2>::Dispatch(manager, commandBuffer, pCopyImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2(
@@ -7375,6 +7556,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBufferToImage2(commandBuffer, pCopyBufferToImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2>::Dispatch(manager, commandBuffer, pCopyBufferToImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2(
@@ -7411,6 +7593,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer2(commandBuffer, pCopyImageToBufferInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2>::Dispatch(manager, commandBuffer, pCopyImageToBufferInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2(
@@ -7447,6 +7630,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBlitImage2(commandBuffer, pBlitImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage2>::Dispatch(manager, commandBuffer, pBlitImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2(
@@ -7483,6 +7667,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResolveImage2(commandBuffer, pResolveImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2>::Dispatch(manager, commandBuffer, pResolveImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRendering(
@@ -7519,6 +7704,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRendering(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginRendering(commandBuffer, pRenderingInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRendering>::Dispatch(manager, commandBuffer, pRenderingInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering(
@@ -7550,6 +7736,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndRendering(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRendering>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCullMode(
@@ -7583,6 +7770,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCullMode(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCullMode(commandBuffer, cullMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCullMode>::Dispatch(manager, commandBuffer, cullMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFace(
@@ -7616,6 +7804,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFace(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetFrontFace(commandBuffer, frontFace);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFrontFace>::Dispatch(manager, commandBuffer, frontFace);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopology(
@@ -7649,6 +7838,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopology(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPrimitiveTopology(commandBuffer, primitiveTopology);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopology>::Dispatch(manager, commandBuffer, primitiveTopology);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCount(
@@ -7684,6 +7874,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCount(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportWithCount(commandBuffer, viewportCount, pViewports);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCount>::Dispatch(manager, commandBuffer, viewportCount, pViewports);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCount(
@@ -7719,6 +7910,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCount(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetScissorWithCount(commandBuffer, scissorCount, pScissors);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCount>::Dispatch(manager, commandBuffer, scissorCount, pScissors);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2(
@@ -7762,6 +7954,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindVertexBuffers2(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2>::Dispatch(manager, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnable(
@@ -7795,6 +7988,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthTestEnable(commandBuffer, depthTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnable>::Dispatch(manager, commandBuffer, depthTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnable(
@@ -7828,6 +8022,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthWriteEnable(commandBuffer, depthWriteEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnable>::Dispatch(manager, commandBuffer, depthWriteEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOp(
@@ -7861,6 +8056,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOp(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthCompareOp(commandBuffer, depthCompareOp);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOp>::Dispatch(manager, commandBuffer, depthCompareOp);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnable(
@@ -7894,6 +8090,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBoundsTestEnable(commandBuffer, depthBoundsTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnable>::Dispatch(manager, commandBuffer, depthBoundsTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnable(
@@ -7927,6 +8124,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilTestEnable(commandBuffer, stencilTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnable>::Dispatch(manager, commandBuffer, stencilTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOp(
@@ -7968,6 +8166,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOp(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilOp(commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilOp>::Dispatch(manager, commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnable(
@@ -8001,6 +8200,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRasterizerDiscardEnable(commandBuffer, rasterizerDiscardEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnable>::Dispatch(manager, commandBuffer, rasterizerDiscardEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnable(
@@ -8034,6 +8234,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBiasEnable(commandBuffer, depthBiasEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnable>::Dispatch(manager, commandBuffer, depthBiasEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnable(
@@ -8067,6 +8268,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnable(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPrimitiveRestartEnable(commandBuffer, primitiveRestartEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnable>::Dispatch(manager, commandBuffer, primitiveRestartEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
@@ -8102,6 +8304,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirements>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirements(
@@ -8140,6 +8343,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirements>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirements(
@@ -8180,6 +8384,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirements(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirements>::Dispatch(manager, device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStipple(
@@ -8215,6 +8420,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStipple(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineStipple(commandBuffer, lineStippleFactor, lineStipplePattern);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStipple>::Dispatch(manager, commandBuffer, lineStippleFactor, lineStipplePattern);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2(
@@ -8262,6 +8468,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2>::Dispatch(manager, result, device, pMemoryMapInfo, ppData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2(
@@ -8301,6 +8508,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory2>::Dispatch(manager, result, device, pMemoryUnmapInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2(
@@ -8340,6 +8548,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindIndexBuffer2(commandBuffer, buffer, offset, size, indexType);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer2>::Dispatch(manager, commandBuffer, buffer, offset, size, indexType);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularity(
@@ -8375,6 +8584,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularity(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRenderingAreaGranularity>::Dispatch(manager, device, pRenderingAreaInfo, pGranularity);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayout(
@@ -8413,6 +8623,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayout(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSubresourceLayout>::Dispatch(manager, device, pInfo, pLayout);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2(
@@ -8450,6 +8661,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2>::Dispatch(manager, device, image, pSubresource, pLayout);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet(
@@ -8494,6 +8706,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushDescriptorSet(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSet>::Dispatch(manager, commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocations(
@@ -8527,6 +8740,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocations(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingAttachmentLocations(commandBuffer, pLocationInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingAttachmentLocations>::Dispatch(manager, commandBuffer, pLocationInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndices(
@@ -8560,6 +8774,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndices(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingInputAttachmentIndices(commandBuffer, pInputAttachmentIndexInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingInputAttachmentIndices>::Dispatch(manager, commandBuffer, pInputAttachmentIndexInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2(
@@ -8596,6 +8811,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2>::Dispatch(manager, commandBuffer, pBindDescriptorSetsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2(
@@ -8632,6 +8848,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushConstants2(commandBuffer, pPushConstantsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants2>::Dispatch(manager, commandBuffer, pPushConstantsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2(
@@ -8668,6 +8885,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushDescriptorSet2(commandBuffer, pPushDescriptorSetInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2>::Dispatch(manager, commandBuffer, pPushDescriptorSetInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImage(
@@ -8707,6 +8925,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImage(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToImage>::Dispatch(manager, result, device, pCopyMemoryToImageInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemory(
@@ -8746,6 +8965,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemory(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyImageToMemory>::Dispatch(manager, result, device, pCopyImageToMemoryInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImage(
@@ -8785,6 +9005,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImage(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyImageToImage>::Dispatch(manager, result, device, pCopyImageToImageInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayout(
@@ -8826,6 +9047,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayout(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTransitionImageLayout>::Dispatch(manager, result, device, transitionCount, pTransitions);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySurfaceKHR(
@@ -8864,6 +9086,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(manager, instance, surface, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SurfaceKHRWrapper>(surface);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceSupportKHR(
@@ -8910,6 +9133,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceSupportKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, surface, pSupported);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
@@ -8954,6 +9178,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(manager, result, physicalDevice, surface, pSurfaceCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormatsKHR(
@@ -9000,6 +9225,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormatsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(manager, result, physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModesKHR(
@@ -9046,6 +9272,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(manager, result, physicalDevice, surface, pPresentModeCount, pPresentModes);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(
@@ -9100,6 +9327,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSwapchain);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySwapchainKHR(
@@ -9138,6 +9366,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySwapchainKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(manager, device, swapchain, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainImagesKHR(
@@ -9189,6 +9418,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainImagesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(manager, result, device, swapchain, pSwapchainImageCount, pSwapchainImages);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImageKHR(
@@ -9239,6 +9469,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImageKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(manager, result, device, swapchain, timeout, semaphore, fence, pImageIndex);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(
@@ -9278,6 +9509,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, shared_api_call_lock, result, queue, pPresentInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupPresentCapabilitiesKHR(
@@ -9320,6 +9552,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupPresentCapabilitiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(manager, result, device, pDeviceGroupPresentCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModesKHR(
@@ -9364,6 +9597,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(manager, result, device, surface, pModes);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDevicePresentRectanglesKHR(
@@ -9410,6 +9644,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDevicePresentRectanglesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(manager, result, physicalDevice, surface, pRectCount, pRects);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImage2KHR(
@@ -9457,6 +9692,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImage2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(manager, result, device, pAcquireInfo, pImageIndex);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPropertiesKHR(
@@ -9506,6 +9742,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
@@ -9555,6 +9792,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneSupportedDisplaysKHR(
@@ -9606,6 +9844,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneSupportedDisplaysKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(manager, result, physicalDevice, planeIndex, pDisplayCount, pDisplays);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModePropertiesKHR(
@@ -9657,6 +9896,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModePropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(manager, result, physicalDevice, display, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayModeKHR(
@@ -9710,6 +9950,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayModeKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(manager, result, physicalDevice, display, pCreateInfo, pAllocator, pMode);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilitiesKHR(
@@ -9756,6 +9997,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilitiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(manager, result, physicalDevice, mode, planeIndex, pCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayPlaneSurfaceKHR(
@@ -9810,6 +10052,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayPlaneSurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSharedSwapchainsKHR(
@@ -9866,6 +10109,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSharedSwapchainsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(manager, result, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(
@@ -9917,6 +10161,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -9957,6 +10202,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, dpy, visualID);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(
@@ -10008,6 +10254,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -10048,6 +10295,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, connection, visual_id);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(
@@ -10099,6 +10347,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(
@@ -10137,6 +10386,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(
@@ -10188,6 +10438,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(
@@ -10239,6 +10490,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -10275,6 +10527,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoCapabilitiesKHR(
@@ -10319,6 +10572,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoCapabilitiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoCapabilitiesKHR>::Dispatch(manager, result, physicalDevice, pVideoProfile, pCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoFormatPropertiesKHR(
@@ -10365,6 +10619,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoFormatPropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoFormatPropertiesKHR>::Dispatch(manager, result, physicalDevice, pVideoFormatInfo, pVideoFormatPropertyCount, pVideoFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionKHR(
@@ -10416,6 +10671,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateVideoSessionKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pVideoSession);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionKHR(
@@ -10454,6 +10710,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionKHR>::Dispatch(manager, device, videoSession, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::VideoSessionKHRWrapper>(videoSession);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetVideoSessionMemoryRequirementsKHR(
@@ -10500,6 +10757,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetVideoSessionMemoryRequirementsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetVideoSessionMemoryRequirementsKHR>::Dispatch(manager, result, device, videoSession, pMemoryRequirementsCount, pMemoryRequirements);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindVideoSessionMemoryKHR(
@@ -10543,6 +10801,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindVideoSessionMemoryKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindVideoSessionMemoryKHR>::Dispatch(manager, result, device, videoSession, bindSessionMemoryInfoCount, pBindSessionMemoryInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionParametersKHR(
@@ -10597,6 +10856,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionParametersKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateVideoSessionParametersKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pVideoSessionParameters);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkUpdateVideoSessionParametersKHR(
@@ -10635,6 +10895,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUpdateVideoSessionParametersKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateVideoSessionParametersKHR>::Dispatch(manager, result, device, videoSessionParameters, pUpdateInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionParametersKHR(
@@ -10673,6 +10934,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionParametersKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionParametersKHR>::Dispatch(manager, device, videoSessionParameters, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::VideoSessionParametersKHRWrapper>(videoSessionParameters);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginVideoCodingKHR(
@@ -10709,6 +10971,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginVideoCodingKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginVideoCodingKHR(commandBuffer, pBeginInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginVideoCodingKHR>::Dispatch(manager, commandBuffer, pBeginInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndVideoCodingKHR(
@@ -10742,6 +11005,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndVideoCodingKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndVideoCodingKHR(commandBuffer, pEndCodingInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndVideoCodingKHR>::Dispatch(manager, commandBuffer, pEndCodingInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdControlVideoCodingKHR(
@@ -10775,6 +11039,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdControlVideoCodingKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdControlVideoCodingKHR(commandBuffer, pCodingControlInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdControlVideoCodingKHR>::Dispatch(manager, commandBuffer, pCodingControlInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDecodeVideoKHR(
@@ -10811,6 +11076,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDecodeVideoKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDecodeVideoKHR(commandBuffer, pDecodeInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDecodeVideoKHR>::Dispatch(manager, commandBuffer, pDecodeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderingKHR(
@@ -10847,6 +11113,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderingKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginRenderingKHR(commandBuffer, pRenderingInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderingKHR>::Dispatch(manager, commandBuffer, pRenderingInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderingKHR(
@@ -10878,6 +11145,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderingKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndRenderingKHR(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderingKHR>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2KHR(
@@ -10911,6 +11179,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(manager, physicalDevice, pFeatures);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2KHR(
@@ -10944,6 +11213,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(manager, physicalDevice, pProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2KHR(
@@ -10979,6 +11249,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(manager, physicalDevice, format, pFormatProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2KHR(
@@ -11023,6 +11294,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(manager, result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2KHR(
@@ -11058,6 +11330,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(manager, physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2KHR(
@@ -11091,6 +11364,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(manager, physicalDevice, pMemoryProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
@@ -11128,6 +11402,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(manager, physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeaturesKHR(
@@ -11167,6 +11442,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeaturesKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(manager, device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMaskKHR(
@@ -11200,6 +11476,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMaskKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDeviceMaskKHR(commandBuffer, deviceMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(manager, commandBuffer, deviceMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBaseKHR(
@@ -11243,6 +11520,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBaseKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDispatchBaseKHR(commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(manager, commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkTrimCommandPoolKHR(
@@ -11278,6 +11556,7 @@ VKAPI_ATTR void VKAPI_CALL vkTrimCommandPoolKHR(
     vulkan_wrappers::GetDeviceTable(device)->TrimCommandPoolKHR(device, commandPool, flags);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(manager, device, commandPool, flags);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroupsKHR(
@@ -11327,6 +11606,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroupsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(manager, result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferPropertiesKHR(
@@ -11362,6 +11642,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferPropertiesKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(manager, physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(
@@ -11409,6 +11690,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(manager, result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(
@@ -11455,6 +11737,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(manager, result, device, handleType, handle, pMemoryWin32HandleProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdKHR(
@@ -11502,6 +11785,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(manager, result, device, pGetFdInfo, pFd);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdPropertiesKHR(
@@ -11548,6 +11832,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdPropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(manager, result, device, handleType, fd, pMemoryFdProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
@@ -11583,6 +11868,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(manager, physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(
@@ -11622,6 +11908,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(manager, result, device, pImportSemaphoreWin32HandleInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(
@@ -11669,6 +11956,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(manager, result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreFdKHR(
@@ -11708,6 +11996,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(manager, result, device, pImportSemaphoreFdInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreFdKHR(
@@ -11755,6 +12044,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(manager, result, device, pGetFdInfo, pFd);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetKHR(
@@ -11799,6 +12089,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushDescriptorSetKHR(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(manager, commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplateKHR(
@@ -11853,6 +12144,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplateKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplateKHR(
@@ -11891,6 +12183,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplateKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(manager, device, descriptorUpdateTemplate, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2KHR(
@@ -11942,6 +12235,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2KHR(
@@ -11980,6 +12274,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginRenderPass2KHR(commandBuffer, pRenderPassBegin_unwrapped, pSubpassBeginInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(manager, commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2KHR(
@@ -12015,6 +12310,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdNextSubpass2KHR(commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(manager, commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2KHR(
@@ -12048,6 +12344,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndRenderPass2KHR(commandBuffer, pSubpassEndInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(manager, commandBuffer, pSubpassEndInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainStatusKHR(
@@ -12084,6 +12381,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainStatusKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(manager, result, device, swapchain);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFencePropertiesKHR(
@@ -12119,6 +12417,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFencePropertiesKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(manager, physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(
@@ -12158,6 +12457,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(manager, result, device, pImportFenceWin32HandleInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(
@@ -12205,6 +12505,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(manager, result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceFdKHR(
@@ -12244,6 +12545,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(manager, result, device, pImportFenceFdInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceFdKHR(
@@ -12291,6 +12593,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(manager, result, device, pGetFdInfo, pFd);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(
@@ -12339,6 +12642,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerformanceQu
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(
@@ -12374,6 +12678,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesK
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(manager, physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireProfilingLockKHR(
@@ -12410,6 +12715,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireProfilingLockKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkReleaseProfilingLockKHR(
@@ -12441,6 +12747,7 @@ VKAPI_ATTR void VKAPI_CALL vkReleaseProfilingLockKHR(
     vulkan_wrappers::GetDeviceTable(device)->ReleaseProfilingLockKHR(device);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(manager, device);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2KHR(
@@ -12488,6 +12795,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(manager, result, physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormats2KHR(
@@ -12537,6 +12845,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormats2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(manager, result, physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayProperties2KHR(
@@ -12586,6 +12895,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayProperties2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
@@ -12635,6 +12945,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModeProperties2KHR(
@@ -12686,6 +12997,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModeProperties2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(manager, result, physicalDevice, display, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilities2KHR(
@@ -12733,6 +13045,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilities2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(manager, result, physicalDevice, pDisplayPlaneInfo, pCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2KHR(
@@ -12771,6 +13084,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2KHR(
@@ -12809,6 +13123,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2KHR(
@@ -12849,6 +13164,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(manager, device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversionKHR(
@@ -12900,6 +13216,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversionKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversionKHR(
@@ -12938,6 +13255,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversionKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(manager, device, ycbcrConversion, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::SamplerYcbcrConversionWrapper>(ycbcrConversion);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2KHR(
@@ -12979,6 +13297,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(manager, result, device, bindInfoCount, pBindInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2KHR(
@@ -13020,6 +13339,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(manager, result, device, bindInfoCount, pBindInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupportKHR(
@@ -13058,6 +13378,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupportKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(manager, device, pCreateInfo, pSupport);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountKHR(
@@ -13101,6 +13422,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndirectCountKHR(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountKHR(
@@ -13144,6 +13466,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountKHR(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValueKHR(
@@ -13188,6 +13511,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValueKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(manager, result, device, semaphore, pValue);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphoresKHR(
@@ -13229,6 +13553,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphoresKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(manager, result, device, pWaitInfo, timeout);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphoreKHR(
@@ -13268,6 +13593,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphoreKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(manager, result, device, pSignalInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceFragmentShadingRatesKHR(
@@ -13312,6 +13638,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceFragmentShadingRatesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(manager, result, physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateKHR(
@@ -13347,6 +13674,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetFragmentShadingRateKHR(commandBuffer, pFragmentSize, combinerOps);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(manager, commandBuffer, pFragmentSize, combinerOps);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocationsKHR(
@@ -13380,6 +13708,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocationsKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingAttachmentLocationsKHR(commandBuffer, pLocationInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingAttachmentLocationsKHR>::Dispatch(manager, commandBuffer, pLocationInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndicesKHR(
@@ -13413,6 +13742,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndicesKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(commandBuffer, pInputAttachmentIndexInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR>::Dispatch(manager, commandBuffer, pInputAttachmentIndexInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresentKHR(
@@ -13453,6 +13783,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresentKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(manager, result, device, swapchain, presentId, timeout);
 
     return result;
+
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressKHR(
@@ -13492,6 +13823,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddressKHR(
@@ -13531,6 +13863,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddressKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddressKHR(
@@ -13570,6 +13903,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddressKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDeferredOperationKHR(
@@ -13619,6 +13953,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDeferredOperationKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(manager, result, device, pAllocator, pDeferredOperation);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDeferredOperationKHR(
@@ -13657,6 +13992,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDeferredOperationKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(manager, device, operation, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DeferredOperationKHRWrapper>(operation);
+
 }
 
 VKAPI_ATTR uint32_t VKAPI_CALL vkGetDeferredOperationMaxConcurrencyKHR(
@@ -13693,6 +14029,7 @@ VKAPI_ATTR uint32_t VKAPI_CALL vkGetDeferredOperationMaxConcurrencyKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(manager, result, device, operation);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeferredOperationResultKHR(
@@ -13729,6 +14066,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeferredOperationResultKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(manager, result, device, operation);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDeferredOperationJoinKHR(
@@ -13765,6 +14103,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeferredOperationJoinKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(manager, result, device, operation);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutablePropertiesKHR(
@@ -13814,6 +14153,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutablePropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(manager, result, device, pPipelineInfo, pExecutableCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableStatisticsKHR(
@@ -13863,6 +14203,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableStatisticsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(manager, result, device, pExecutableInfo, pStatisticCount, pStatistics);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableInternalRepresentationsKHR(
@@ -13912,6 +14253,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableInternalRepresentationsKHR
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(manager, result, device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2KHR(
@@ -13959,6 +14301,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2KHR>::Dispatch(manager, result, device, pMemoryMapInfo, ppData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2KHR(
@@ -13998,6 +14341,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory2KHR>::Dispatch(manager, result, device, pMemoryUnmapInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(
@@ -14042,6 +14386,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoEncodeQualityLevelPropert
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR>::Dispatch(manager, result, physicalDevice, pQualityLevelInfo, pQualityLevelProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetEncodedVideoSessionParametersKHR(
@@ -14093,6 +14438,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetEncodedVideoSessionParametersKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetEncodedVideoSessionParametersKHR>::Dispatch(manager, result, device, pVideoSessionParametersInfo, pFeedbackInfo, pDataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEncodeVideoKHR(
@@ -14129,6 +14475,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEncodeVideoKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEncodeVideoKHR(commandBuffer, pEncodeInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEncodeVideoKHR>::Dispatch(manager, commandBuffer, pEncodeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2KHR(
@@ -14167,6 +14514,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetEvent2KHR(commandBuffer, event, pDependencyInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent2KHR>::Dispatch(manager, commandBuffer, event, pDependencyInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2KHR(
@@ -14202,6 +14550,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResetEvent2KHR(commandBuffer, event, stageMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent2KHR>::Dispatch(manager, commandBuffer, event, stageMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2KHR(
@@ -14242,6 +14591,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWaitEvents2KHR(commandBuffer, eventCount, pEvents, pDependencyInfos_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWaitEvents2KHR>::Dispatch(manager, commandBuffer, eventCount, pEvents, pDependencyInfos);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2KHR(
@@ -14278,6 +14628,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPipelineBarrier2KHR(commandBuffer, pDependencyInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR>::Dispatch(manager, commandBuffer, pDependencyInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2KHR(
@@ -14315,6 +14666,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteTimestamp2KHR(commandBuffer, stage, queryPool, query);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR>::Dispatch(manager, commandBuffer, stage, queryPool, query);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(
@@ -14358,6 +14710,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2KHR(
@@ -14394,6 +14747,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBuffer2KHR(commandBuffer, pCopyBufferInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(manager, commandBuffer, pCopyBufferInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2KHR(
@@ -14430,6 +14784,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImage2KHR(commandBuffer, pCopyImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(manager, commandBuffer, pCopyImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2KHR(
@@ -14466,6 +14821,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyBufferToImage2KHR(commandBuffer, pCopyBufferToImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(manager, commandBuffer, pCopyBufferToImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2KHR(
@@ -14502,6 +14858,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer2KHR(commandBuffer, pCopyImageToBufferInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(manager, commandBuffer, pCopyImageToBufferInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2KHR(
@@ -14538,6 +14895,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBlitImage2KHR(commandBuffer, pBlitImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(manager, commandBuffer, pBlitImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2KHR(
@@ -14574,6 +14932,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdResolveImage2KHR(commandBuffer, pResolveImageInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(manager, commandBuffer, pResolveImageInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirect2KHR(
@@ -14607,6 +14966,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirect2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdTraceRaysIndirect2KHR(commandBuffer, indirectDeviceAddress);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR>::Dispatch(manager, commandBuffer, indirectDeviceAddress);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirementsKHR(
@@ -14642,6 +15002,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirementsKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirementsKHR(
@@ -14680,6 +15041,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirementsKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirementsKHR(
@@ -14720,6 +15082,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirementsKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR>::Dispatch(manager, device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2KHR(
@@ -14759,6 +15122,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindIndexBuffer2KHR(commandBuffer, buffer, offset, size, indexType);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer2KHR>::Dispatch(manager, commandBuffer, buffer, offset, size, indexType);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularityKHR(
@@ -14794,6 +15158,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularityKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRenderingAreaGranularityKHR>::Dispatch(manager, device, pRenderingAreaInfo, pGranularity);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayoutKHR(
@@ -14832,6 +15197,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayoutKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSubresourceLayoutKHR>::Dispatch(manager, device, pInfo, pLayout);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2KHR(
@@ -14869,6 +15235,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2KHR>::Dispatch(manager, device, image, pSubresource, pLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineBinariesKHR(
@@ -14923,6 +15290,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineBinariesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineBinariesKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pBinaries);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineBinaryKHR(
@@ -14961,6 +15329,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineBinaryKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineBinaryKHR>::Dispatch(manager, device, pipelineBinary, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PipelineBinaryKHRWrapper>(pipelineBinary);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineKeyKHR(
@@ -15005,6 +15374,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineKeyKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineKeyKHR>::Dispatch(manager, result, device, pPipelineCreateInfo, pPipelineKey);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineBinaryDataKHR(
@@ -15056,6 +15426,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineBinaryDataKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineBinaryDataKHR>::Dispatch(manager, result, device, pInfo, pPipelineBinaryKey, pPipelineBinaryDataSize, pPipelineBinaryData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(
@@ -15097,6 +15468,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseCapturedPipelineDataKHR>::Dispatch(manager, result, device, pInfo, pAllocator);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
@@ -15141,6 +15513,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleKHR(
@@ -15176,6 +15549,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineStippleKHR(commandBuffer, lineStippleFactor, lineStipplePattern);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleKHR>::Dispatch(manager, commandBuffer, lineStippleFactor, lineStipplePattern);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
@@ -15220,6 +15594,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR>::Dispatch(manager, result, physicalDevice, pTimeDomainCount, pTimeDomains);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsKHR(
@@ -15268,6 +15643,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsKHR>::Dispatch(manager, result, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2KHR(
@@ -15304,6 +15680,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindDescriptorSets2KHR(commandBuffer, pBindDescriptorSetsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2KHR>::Dispatch(manager, commandBuffer, pBindDescriptorSetsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2KHR(
@@ -15340,6 +15717,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushConstants2KHR(commandBuffer, pPushConstantsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants2KHR>::Dispatch(manager, commandBuffer, pPushConstantsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2KHR(
@@ -15376,6 +15754,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2KHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushDescriptorSet2KHR(commandBuffer, pPushDescriptorSetInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2KHR>::Dispatch(manager, commandBuffer, pPushDescriptorSetInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsets2EXT(
@@ -15412,6 +15791,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsets2EXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDescriptorBufferOffsets2EXT(commandBuffer, pSetDescriptorBufferOffsetsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT>::Dispatch(manager, commandBuffer, pSetDescriptorBufferOffsetsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
@@ -15448,6 +15828,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindDescriptorBufferEmbeddedSamplers2EXT(commandBuffer, pBindDescriptorBufferEmbeddedSamplersInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT>::Dispatch(manager, commandBuffer, pBindDescriptorBufferEmbeddedSamplersInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkFrameBoundaryANDROID(
@@ -15483,6 +15864,7 @@ VKAPI_ATTR void VKAPI_CALL vkFrameBoundaryANDROID(
     vulkan_wrappers::GetDeviceTable(device)->FrameBoundaryANDROID(device, semaphore, image);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(manager, shared_api_call_lock, device, semaphore, image);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(
@@ -15534,6 +15916,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pCallback);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(
@@ -15572,6 +15955,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(manager, instance, callback, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DebugReportCallbackEXTWrapper>(callback);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDebugReportMessageEXT(
@@ -15617,6 +16001,7 @@ VKAPI_ATTR void VKAPI_CALL vkDebugReportMessageEXT(
     vulkan_wrappers::GetInstanceTable(instance)->DebugReportMessageEXT(instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(manager, instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(
@@ -15656,6 +16041,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(manager, result, device, pTagInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectNameEXT(
@@ -15695,6 +16081,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectNameEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(manager, result, device, pNameInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(
@@ -15728,6 +16115,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(manager, commandBuffer, pMarkerInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(
@@ -15759,6 +16147,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDebugMarkerEndEXT(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerInsertEXT(
@@ -15792,6 +16181,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerInsertEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDebugMarkerInsertEXT(commandBuffer, pMarkerInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(manager, commandBuffer, pMarkerInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindTransformFeedbackBuffersEXT(
@@ -15833,6 +16223,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindTransformFeedbackBuffersEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindTransformFeedbackBuffersEXT(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(manager, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginTransformFeedbackEXT(
@@ -15872,6 +16263,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginTransformFeedbackEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginTransformFeedbackEXT(commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(manager, commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndTransformFeedbackEXT(
@@ -15911,6 +16303,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndTransformFeedbackEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndTransformFeedbackEXT(commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(manager, commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginQueryIndexedEXT(
@@ -15950,6 +16343,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginQueryIndexedEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginQueryIndexedEXT(commandBuffer, queryPool, query, flags, index);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(manager, commandBuffer, queryPool, query, flags, index);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndQueryIndexedEXT(
@@ -15987,6 +16381,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndQueryIndexedEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndQueryIndexedEXT(commandBuffer, queryPool, query, index);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(manager, commandBuffer, queryPool, query, index);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCountEXT(
@@ -16030,6 +16425,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCountEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndirectByteCountEXT(commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(manager, commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
+
 }
 
 VKAPI_ATTR uint32_t VKAPI_CALL vkGetImageViewHandleNVX(
@@ -16069,6 +16465,7 @@ VKAPI_ATTR uint32_t VKAPI_CALL vkGetImageViewHandleNVX(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR uint64_t VKAPI_CALL vkGetImageViewHandle64NVX(
@@ -16108,6 +16505,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetImageViewHandle64NVX(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewHandle64NVX>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(
@@ -16152,6 +16550,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(manager, result, device, imageView, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(
@@ -16195,6 +16594,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndirectCountAMD(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountAMD(
@@ -16238,6 +16638,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountAMD(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountAMD(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderInfoAMD(
@@ -16288,6 +16689,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderInfoAMD(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(manager, result, device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateStreamDescriptorSurfaceGGP(
@@ -16339,6 +16741,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateStreamDescriptorSurfaceGGP(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
@@ -16393,6 +16796,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceExternalImageFormatPropertiesN
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(manager, result, physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(
@@ -16439,6 +16843,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(manager, result, device, memory, handleType, pHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(
@@ -16490,6 +16895,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginConditionalRenderingEXT(
@@ -16526,6 +16932,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginConditionalRenderingEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginConditionalRenderingEXT(commandBuffer, pConditionalRenderingBegin_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(manager, commandBuffer, pConditionalRenderingBegin);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndConditionalRenderingEXT(
@@ -16557,6 +16964,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndConditionalRenderingEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndConditionalRenderingEXT(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingNV(
@@ -16594,6 +17002,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportWScalingNV(commandBuffer, firstViewport, viewportCount, pViewportWScalings);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(manager, commandBuffer, firstViewport, viewportCount, pViewportWScalings);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseDisplayEXT(
@@ -16630,6 +17039,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseDisplayEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(manager, result, physicalDevice, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(
@@ -16668,6 +17078,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(manager, result, physicalDevice, dpy, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(
@@ -16719,6 +17130,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(manager, result, physicalDevice, dpy, rrOutput, pDisplay);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2EXT(
@@ -16763,6 +17175,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(manager, result, physicalDevice, surface, pSurfaceCapabilities);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDisplayPowerControlEXT(
@@ -16801,6 +17214,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDisplayPowerControlEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(manager, result, device, display, pDisplayPowerInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDeviceEventEXT(
@@ -16852,6 +17266,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDeviceEventEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(manager, result, device, pDeviceEventInfo, pAllocator, pFence);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDisplayEventEXT(
@@ -16905,6 +17320,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDisplayEventEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(manager, result, device, display, pDisplayEventInfo, pAllocator, pFence);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainCounterEXT(
@@ -16951,6 +17367,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainCounterEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(manager, result, device, swapchain, counter, pCounterValue);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRefreshCycleDurationGOOGLE(
@@ -16995,6 +17412,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRefreshCycleDurationGOOGLE(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(manager, result, device, swapchain, pDisplayTimingProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingGOOGLE(
@@ -17041,6 +17459,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingGOOGLE(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(manager, result, device, swapchain, pPresentationTimingCount, pPresentationTimings);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEXT(
@@ -17078,6 +17497,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDiscardRectangleEXT(commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(manager, commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEnableEXT(
@@ -17111,6 +17531,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDiscardRectangleEnableEXT(commandBuffer, discardRectangleEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEnableEXT>::Dispatch(manager, commandBuffer, discardRectangleEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleModeEXT(
@@ -17144,6 +17565,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDiscardRectangleModeEXT(commandBuffer, discardRectangleMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleModeEXT>::Dispatch(manager, commandBuffer, discardRectangleMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkSetHdrMetadataEXT(
@@ -17181,6 +17603,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetHdrMetadataEXT(
     vulkan_wrappers::GetDeviceTable(device)->SetHdrMetadataEXT(device, swapchainCount, pSwapchains, pMetadata);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(manager, device, swapchainCount, pSwapchains, pMetadata);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(
@@ -17232,6 +17655,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(
@@ -17283,6 +17707,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectNameEXT(
@@ -17324,6 +17749,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectNameEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(manager, result, device, pNameInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectTagEXT(
@@ -17365,6 +17791,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectTagEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(manager, result, device, pTagInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkQueueBeginDebugUtilsLabelEXT(
@@ -17398,6 +17825,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueBeginDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(queue)->QueueBeginDebugUtilsLabelEXT(queue, pLabelInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(manager, queue, pLabelInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkQueueEndDebugUtilsLabelEXT(
@@ -17429,6 +17857,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueEndDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(queue)->QueueEndDebugUtilsLabelEXT(queue);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(manager, queue);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkQueueInsertDebugUtilsLabelEXT(
@@ -17462,6 +17891,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueInsertDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(queue)->QueueInsertDebugUtilsLabelEXT(queue, pLabelInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(manager, queue, pLabelInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginDebugUtilsLabelEXT(
@@ -17495,6 +17925,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(manager, commandBuffer, pLabelInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(
@@ -17526,6 +17957,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdEndDebugUtilsLabelEXT(commandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(manager, commandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdInsertDebugUtilsLabelEXT(
@@ -17559,6 +17991,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdInsertDebugUtilsLabelEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdInsertDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(manager, commandBuffer, pLabelInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
@@ -17610,6 +18043,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pMessenger);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(
@@ -17648,6 +18082,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(manager, instance, messenger, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(messenger);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(
@@ -17685,6 +18120,7 @@ VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(
     vulkan_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, pCallbackData);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(manager, instance, messageSeverity, messageTypes, pCallbackData);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
@@ -17729,6 +18165,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(manager, result, device, buffer, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
@@ -17776,6 +18213,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(manager, result, device, pInfo, pBuffer);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(
@@ -17809,6 +18247,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetSampleLocationsEXT(commandBuffer, pSampleLocationsInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(manager, commandBuffer, pSampleLocationsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMultisamplePropertiesEXT(
@@ -17844,6 +18283,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMultisamplePropertiesEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(manager, physicalDevice, samples, pMultisampleProperties);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetImageDrmFormatModifierPropertiesEXT(
@@ -17888,6 +18328,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageDrmFormatModifierPropertiesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(manager, result, device, image, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateValidationCacheEXT(
@@ -17939,6 +18380,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateValidationCacheEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pValidationCache);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyValidationCacheEXT(
@@ -17977,6 +18419,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyValidationCacheEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(manager, device, validationCache, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ValidationCacheEXTWrapper>(validationCache);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMergeValidationCachesEXT(
@@ -18017,6 +18460,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMergeValidationCachesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(manager, result, device, dstCache, srcCacheCount, pSrcCaches);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetValidationCacheDataEXT(
@@ -18063,6 +18507,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetValidationCacheDataEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(manager, result, device, validationCache, pDataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindShadingRateImageNV(
@@ -18098,6 +18543,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindShadingRateImageNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindShadingRateImageNV(commandBuffer, imageView, imageLayout);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(manager, commandBuffer, imageView, imageLayout);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportShadingRatePaletteNV(
@@ -18135,6 +18581,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportShadingRatePaletteNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportShadingRatePaletteNV(commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(manager, commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoarseSampleOrderNV(
@@ -18172,6 +18619,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoarseSampleOrderNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoarseSampleOrderNV(commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(manager, commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureNV(
@@ -18226,6 +18674,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pAccelerationStructure);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(
@@ -18264,6 +18713,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(manager, device, accelerationStructure, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::AccelerationStructureNVWrapper>(accelerationStructure);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(
@@ -18302,6 +18752,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindAccelerationStructureMemoryNV(
@@ -18343,6 +18794,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindAccelerationStructureMemoryNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(manager, result, device, bindInfoCount, pBindInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructureNV(
@@ -18393,6 +18845,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructureNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructureNV(commandBuffer, pInfo_unwrapped, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(manager, commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureNV(
@@ -18430,6 +18883,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureNV(commandBuffer, dst, src, mode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(manager, commandBuffer, dst, src, mode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysNV(
@@ -18489,6 +18943,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdTraceRaysNV(commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(manager, commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesKHR(
@@ -18539,6 +18994,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(manager, result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesNV(
@@ -18589,6 +19045,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(manager, result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureHandleNV(
@@ -18635,6 +19092,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureHandleNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(manager, result, device, accelerationStructure, dataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesNV(
@@ -18676,6 +19134,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteAccelerationStructuresPropertiesNV(commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(manager, commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCompileDeferredNV(
@@ -18714,6 +19173,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCompileDeferredNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(manager, result, device, pipeline, shader);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryHostPointerPropertiesEXT(
@@ -18760,6 +19220,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryHostPointerPropertiesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(manager, result, device, handleType, pHostPointer, pMemoryHostPointerProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarkerAMD(
@@ -18799,6 +19260,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarkerAMD(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteBufferMarkerAMD(commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(manager, commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarker2AMD(
@@ -18838,6 +19300,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarker2AMD(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteBufferMarker2AMD(commandBuffer, stage, dstBuffer, dstOffset, marker);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarker2AMD>::Dispatch(manager, commandBuffer, stage, dstBuffer, dstOffset, marker);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
@@ -18882,6 +19345,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(manager, result, physicalDevice, pTimeDomainCount, pTimeDomains);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(
@@ -18930,6 +19394,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(manager, result, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksNV(
@@ -18965,6 +19430,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(manager, commandBuffer, taskCount, firstTask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectNV(
@@ -19004,6 +19470,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectNV(commandBuffer, buffer, offset, drawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(manager, commandBuffer, buffer, offset, drawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountNV(
@@ -19047,6 +19514,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectCountNV(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorEnableNV(
@@ -19084,6 +19552,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetExclusiveScissorEnableNV(commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissorEnables);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorEnableNV>::Dispatch(manager, commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissorEnables);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorNV(
@@ -19121,6 +19590,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetExclusiveScissorNV(commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(manager, commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCheckpointNV(
@@ -19154,6 +19624,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCheckpointNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCheckpointNV(commandBuffer, pCheckpointMarker);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(manager, commandBuffer, pCheckpointMarker);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointDataNV(
@@ -19189,6 +19660,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointDataNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(manager, queue, pCheckpointDataCount, pCheckpointData);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(
@@ -19224,6 +19696,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV>::Dispatch(manager, queue, pCheckpointDataCount, pCheckpointData);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkInitializePerformanceApiINTEL(
@@ -19260,6 +19733,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkInitializePerformanceApiINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(manager, result, device, pInitializeInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkUninitializePerformanceApiINTEL(
@@ -19291,6 +19765,7 @@ VKAPI_ATTR void VKAPI_CALL vkUninitializePerformanceApiINTEL(
     vulkan_wrappers::GetDeviceTable(device)->UninitializePerformanceApiINTEL(device);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(manager, device);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceMarkerINTEL(
@@ -19327,6 +19802,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceMarkerINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(manager, result, commandBuffer, pMarkerInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceStreamMarkerINTEL(
@@ -19363,6 +19839,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceStreamMarkerINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(manager, result, commandBuffer, pMarkerInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceOverrideINTEL(
@@ -19399,6 +19876,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceOverrideINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(manager, result, commandBuffer, pOverrideInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquirePerformanceConfigurationINTEL(
@@ -19448,6 +19926,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquirePerformanceConfigurationINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(manager, result, device, pAcquireInfo, pConfiguration);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleasePerformanceConfigurationINTEL(
@@ -19487,6 +19966,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleasePerformanceConfigurationINTEL(
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(configuration);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkQueueSetPerformanceConfigurationINTEL(
@@ -19523,6 +20003,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSetPerformanceConfigurationINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(manager, result, queue, configuration);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPerformanceParameterINTEL(
@@ -19567,6 +20048,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPerformanceParameterINTEL(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(manager, result, device, parameter, pValue);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkSetLocalDimmingAMD(
@@ -19602,6 +20084,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetLocalDimmingAMD(
     vulkan_wrappers::GetDeviceTable(device)->SetLocalDimmingAMD(device, swapChain, localDimmingEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(manager, device, swapChain, localDimmingEnable);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(
@@ -19653,6 +20136,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(
@@ -19704,6 +20188,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressEXT(
@@ -19743,6 +20228,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(
@@ -19787,6 +20273,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(manager, result, physicalDevice, pToolCount, pToolProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
@@ -19831,6 +20318,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
@@ -19875,6 +20363,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSupportedFramebufferMixedSampl
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(manager, result, physicalDevice, pCombinationCount, pCombinations);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(
@@ -19924,6 +20413,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(manager, result, physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(
@@ -19960,6 +20450,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(manager, result, device, swapchain);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(
@@ -19996,6 +20487,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(manager, result, device, swapchain);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(
@@ -20043,6 +20535,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(manager, result, device, pSurfaceInfo, pModes);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateHeadlessSurfaceEXT(
@@ -20094,6 +20587,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateHeadlessSurfaceEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEXT(
@@ -20129,6 +20623,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineStippleEXT(commandBuffer, lineStippleFactor, lineStipplePattern);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(manager, commandBuffer, lineStippleFactor, lineStipplePattern);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkResetQueryPoolEXT(
@@ -20166,6 +20661,7 @@ VKAPI_ATTR void VKAPI_CALL vkResetQueryPoolEXT(
     vulkan_wrappers::GetDeviceTable(device)->ResetQueryPoolEXT(device, queryPool, firstQuery, queryCount);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(manager, device, queryPool, firstQuery, queryCount);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCullModeEXT(
@@ -20199,6 +20695,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCullModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCullModeEXT(commandBuffer, cullMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(manager, commandBuffer, cullMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFaceEXT(
@@ -20232,6 +20729,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFaceEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetFrontFaceEXT(commandBuffer, frontFace);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(manager, commandBuffer, frontFace);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopologyEXT(
@@ -20265,6 +20763,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopologyEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPrimitiveTopologyEXT(commandBuffer, primitiveTopology);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(manager, commandBuffer, primitiveTopology);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCountEXT(
@@ -20300,6 +20799,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCountEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportWithCountEXT(commandBuffer, viewportCount, pViewports);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(manager, commandBuffer, viewportCount, pViewports);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCountEXT(
@@ -20335,6 +20835,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCountEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetScissorWithCountEXT(commandBuffer, scissorCount, pScissors);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(manager, commandBuffer, scissorCount, pScissors);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2EXT(
@@ -20378,6 +20879,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2EXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindVertexBuffers2EXT(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(manager, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnableEXT(
@@ -20411,6 +20913,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthTestEnableEXT(commandBuffer, depthTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(manager, commandBuffer, depthTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnableEXT(
@@ -20444,6 +20947,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthWriteEnableEXT(commandBuffer, depthWriteEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(manager, commandBuffer, depthWriteEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOpEXT(
@@ -20477,6 +20981,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOpEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthCompareOpEXT(commandBuffer, depthCompareOp);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(manager, commandBuffer, depthCompareOp);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnableEXT(
@@ -20510,6 +21015,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBoundsTestEnableEXT(commandBuffer, depthBoundsTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(manager, commandBuffer, depthBoundsTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnableEXT(
@@ -20543,6 +21049,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilTestEnableEXT(commandBuffer, stencilTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(manager, commandBuffer, stencilTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOpEXT(
@@ -20584,6 +21091,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOpEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetStencilOpEXT(commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(manager, commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImageEXT(
@@ -20623,6 +21131,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImageEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToImageEXT>::Dispatch(manager, result, device, pCopyMemoryToImageInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemoryEXT(
@@ -20662,6 +21171,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemoryEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyImageToMemoryEXT>::Dispatch(manager, result, device, pCopyImageToMemoryInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImageEXT(
@@ -20701,6 +21211,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImageEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyImageToImageEXT>::Dispatch(manager, result, device, pCopyImageToImageInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayoutEXT(
@@ -20742,6 +21253,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayoutEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTransitionImageLayoutEXT>::Dispatch(manager, result, device, transitionCount, pTransitions);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(
@@ -20779,6 +21291,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT>::Dispatch(manager, device, image, pSubresource, pLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(
@@ -20818,6 +21331,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseSwapchainImagesEXT>::Dispatch(manager, result, device, pReleaseInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsNV(
@@ -20856,6 +21370,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsNV(
@@ -20892,6 +21407,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPreprocessGeneratedCommandsNV(commandBuffer, pGeneratedCommandsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(manager, commandBuffer, pGeneratedCommandsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsNV(
@@ -20930,6 +21446,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdExecuteGeneratedCommandsNV(commandBuffer, isPreprocessed, pGeneratedCommandsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(manager, commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindPipelineShaderGroupNV(
@@ -20967,6 +21484,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindPipelineShaderGroupNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindPipelineShaderGroupNV(commandBuffer, pipelineBindPoint, pipeline, groupIndex);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(manager, commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutNV(
@@ -21021,6 +21539,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutNV(
@@ -21059,6 +21578,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(manager, device, indirectCommandsLayout, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias2EXT(
@@ -21092,6 +21612,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias2EXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBias2EXT(commandBuffer, pDepthBiasInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias2EXT>::Dispatch(manager, commandBuffer, pDepthBiasInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireDrmDisplayEXT(
@@ -21130,6 +21651,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireDrmDisplayEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT>::Dispatch(manager, result, physicalDevice, drmFd, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDrmDisplayEXT(
@@ -21181,6 +21703,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDrmDisplayEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDrmDisplayEXT>::Dispatch(manager, result, physicalDevice, drmFd, connectorId, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlotEXT(
@@ -21232,6 +21755,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlotEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pPrivateDataSlot);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlotEXT(
@@ -21270,6 +21794,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlotEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(manager, device, privateDataSlot, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::PrivateDataSlotWrapper>(privateDataSlot);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateDataEXT(
@@ -21312,6 +21837,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateDataEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(manager, result, device, objectType, objectHandle, privateDataSlot, data);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(
@@ -21351,6 +21877,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(manager, device, objectType, objectHandle, privateDataSlot, pData);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(
@@ -21386,6 +21913,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetFragmentShadingRateEnumNV(commandBuffer, shadingRate, combinerOps);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(manager, commandBuffer, shadingRate, combinerOps);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultInfoEXT(
@@ -21430,6 +21958,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultInfoEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceFaultInfoEXT>::Dispatch(manager, result, device, pFaultCounts, pFaultInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(
@@ -21466,6 +21995,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireWinrtDisplayNV>::Dispatch(manager, result, physicalDevice, display);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(
@@ -21515,6 +22045,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetWinrtDisplayNV>::Dispatch(manager, result, physicalDevice, deviceRelativeId, pDisplay);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(
@@ -21566,6 +22097,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(
@@ -21604,6 +22136,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, dfb);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetVertexInputEXT(
@@ -21643,6 +22176,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetVertexInputEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetVertexInputEXT(commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetVertexInputEXT>::Dispatch(manager, commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(
@@ -21690,6 +22224,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryZirconHandleFUCHSIA>::Dispatch(manager, result, device, pGetZirconHandleInfo, pZirconHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandlePropertiesFUCHSIA(
@@ -21736,6 +22271,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandlePropertiesFUCHSIA(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryZirconHandlePropertiesFUCHSIA>::Dispatch(manager, result, device, handleType, zirconHandle, pMemoryZirconHandleProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(
@@ -21775,6 +22311,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreZirconHandleFUCHSIA>::Dispatch(manager, result, device, pImportSemaphoreZirconHandleInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(
@@ -21822,6 +22359,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreZirconHandleFUCHSIA>::Dispatch(manager, result, device, pGetZirconHandleInfo, pZirconHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindInvocationMaskHUAWEI(
@@ -21857,6 +22395,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindInvocationMaskHUAWEI(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindInvocationMaskHUAWEI(commandBuffer, imageView, imageLayout);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI>::Dispatch(manager, commandBuffer, imageView, imageLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryRemoteAddressNV(
@@ -21904,6 +22443,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryRemoteAddressNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV>::Dispatch(manager, result, device, pMemoryGetRemoteAddressInfo, pAddress);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPatchControlPointsEXT(
@@ -21937,6 +22477,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPatchControlPointsEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPatchControlPointsEXT(commandBuffer, patchControlPoints);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPatchControlPointsEXT>::Dispatch(manager, commandBuffer, patchControlPoints);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnableEXT(
@@ -21970,6 +22511,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRasterizerDiscardEnableEXT(commandBuffer, rasterizerDiscardEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnableEXT>::Dispatch(manager, commandBuffer, rasterizerDiscardEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnableEXT(
@@ -22003,6 +22545,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthBiasEnableEXT(commandBuffer, depthBiasEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnableEXT>::Dispatch(manager, commandBuffer, depthBiasEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEXT(
@@ -22036,6 +22579,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLogicOpEXT(commandBuffer, logicOp);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLogicOpEXT>::Dispatch(manager, commandBuffer, logicOp);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnableEXT(
@@ -22069,6 +22613,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPrimitiveRestartEnableEXT(commandBuffer, primitiveRestartEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnableEXT>::Dispatch(manager, commandBuffer, primitiveRestartEnable);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(
@@ -22120,6 +22665,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateScreenSurfaceQNX>::Dispatch(manager, result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
+
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
@@ -22158,6 +22704,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceScreenPresentationSupportQNX>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, window);
 
     return result;
+
 }
 
 VKAPI_ATTR void                                    VKAPI_CALL vkCmdSetColorWriteEnableEXT(
@@ -22193,6 +22740,7 @@ VKAPI_ATTR void                                    VKAPI_CALL vkCmdSetColorWrite
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetColorWriteEnableEXT(commandBuffer, attachmentCount, pColorWriteEnables);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT>::Dispatch(manager, commandBuffer, attachmentCount, pColorWriteEnables);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiEXT(
@@ -22234,6 +22782,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMultiEXT(commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiEXT>::Dispatch(manager, commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiIndexedEXT(
@@ -22277,6 +22826,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiIndexedEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMultiIndexedEXT(commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(manager, commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateMicromapEXT(
@@ -22331,6 +22881,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMicromapEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMicromapEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pMicromap);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyMicromapEXT(
@@ -22369,6 +22920,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyMicromapEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyMicromapEXT>::Dispatch(manager, device, micromap, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::MicromapEXTWrapper>(micromap);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildMicromapsEXT(
@@ -22407,6 +22959,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildMicromapsEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBuildMicromapsEXT(commandBuffer, infoCount, pInfos_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildMicromapsEXT>::Dispatch(manager, commandBuffer, infoCount, pInfos);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBuildMicromapsEXT(
@@ -22450,6 +23003,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBuildMicromapsEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBuildMicromapsEXT>::Dispatch(manager, result, device, deferredOperation, infoCount, pInfos);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapEXT(
@@ -22491,6 +23045,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMicromapEXT>::Dispatch(manager, result, device, deferredOperation, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapToMemoryEXT(
@@ -22532,6 +23087,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapToMemoryEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMicromapToMemoryEXT>::Dispatch(manager, result, device, deferredOperation, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToMicromapEXT(
@@ -22573,6 +23129,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToMicromapEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToMicromapEXT>::Dispatch(manager, result, device, deferredOperation, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWriteMicromapsPropertiesEXT(
@@ -22625,6 +23182,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWriteMicromapsPropertiesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWriteMicromapsPropertiesEXT>::Dispatch(manager, result, device, micromapCount, pMicromaps, queryType, dataSize, pData, stride);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapEXT(
@@ -22661,6 +23219,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMicromapEXT(commandBuffer, pInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMicromapEXT>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapToMemoryEXT(
@@ -22697,6 +23256,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapToMemoryEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMicromapToMemoryEXT(commandBuffer, pInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMicromapToMemoryEXT>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToMicromapEXT(
@@ -22733,6 +23293,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToMicromapEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMemoryToMicromapEXT(commandBuffer, pInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToMicromapEXT>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteMicromapsPropertiesEXT(
@@ -22774,6 +23335,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteMicromapsPropertiesEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdWriteMicromapsPropertiesEXT(commandBuffer, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteMicromapsPropertiesEXT>::Dispatch(manager, commandBuffer, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceMicromapCompatibilityEXT(
@@ -22809,6 +23371,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceMicromapCompatibilityEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMicromapCompatibilityEXT>::Dispatch(manager, device, pVersionInfo, pCompatibility);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetMicromapBuildSizesEXT(
@@ -22849,6 +23412,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetMicromapBuildSizesEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMicromapBuildSizesEXT>::Dispatch(manager, device, buildType, pBuildInfo, pSizeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterHUAWEI(
@@ -22886,6 +23450,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterHUAWEI(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawClusterHUAWEI(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawClusterHUAWEI>::Dispatch(manager, commandBuffer, groupCountX, groupCountY, groupCountZ);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterIndirectHUAWEI(
@@ -22921,6 +23486,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterIndirectHUAWEI(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawClusterIndirectHUAWEI(commandBuffer, buffer, offset);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawClusterIndirectHUAWEI>::Dispatch(manager, commandBuffer, buffer, offset);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkSetDeviceMemoryPriorityEXT(
@@ -22956,6 +23522,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetDeviceMemoryPriorityEXT(
     vulkan_wrappers::GetDeviceTable(device)->SetDeviceMemoryPriorityEXT(device, memory, priority);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT>::Dispatch(manager, device, memory, priority);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutHostMappingInfoVALVE(
@@ -22994,6 +23561,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutHostMappingInfoVALVE(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutHostMappingInfoVALVE>::Dispatch(manager, device, pBindingReference, pHostMapping);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetHostMappingVALVE(
@@ -23029,6 +23597,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetHostMappingVALVE(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetHostMappingVALVE>::Dispatch(manager, device, descriptorSet, ppData);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPipelineIndirectMemoryRequirementsNV(
@@ -23067,6 +23636,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPipelineIndirectMemoryRequirementsNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineIndirectMemoryRequirementsNV>::Dispatch(manager, device, pCreateInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdUpdatePipelineIndirectBufferNV(
@@ -23102,6 +23672,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdatePipelineIndirectBufferNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdUpdatePipelineIndirectBufferNV(commandBuffer, pipelineBindPoint, pipeline);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV>::Dispatch(manager, commandBuffer, pipelineBindPoint, pipeline);
+
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetPipelineIndirectDeviceAddressNV(
@@ -23141,6 +23712,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetPipelineIndirectDeviceAddressNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineIndirectDeviceAddressNV>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampEnableEXT(
@@ -23174,6 +23746,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthClampEnableEXT(commandBuffer, depthClampEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthClampEnableEXT>::Dispatch(manager, commandBuffer, depthClampEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPolygonModeEXT(
@@ -23207,6 +23780,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPolygonModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetPolygonModeEXT(commandBuffer, polygonMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPolygonModeEXT>::Dispatch(manager, commandBuffer, polygonMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationSamplesEXT(
@@ -23240,6 +23814,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationSamplesEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRasterizationSamplesEXT(commandBuffer, rasterizationSamples);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRasterizationSamplesEXT>::Dispatch(manager, commandBuffer, rasterizationSamples);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleMaskEXT(
@@ -23275,6 +23850,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleMaskEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetSampleMaskEXT(commandBuffer, samples, pSampleMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleMaskEXT>::Dispatch(manager, commandBuffer, samples, pSampleMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToCoverageEnableEXT(
@@ -23308,6 +23884,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToCoverageEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetAlphaToCoverageEnableEXT(commandBuffer, alphaToCoverageEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetAlphaToCoverageEnableEXT>::Dispatch(manager, commandBuffer, alphaToCoverageEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToOneEnableEXT(
@@ -23341,6 +23918,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToOneEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetAlphaToOneEnableEXT(commandBuffer, alphaToOneEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetAlphaToOneEnableEXT>::Dispatch(manager, commandBuffer, alphaToOneEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEnableEXT(
@@ -23374,6 +23952,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLogicOpEnableEXT(commandBuffer, logicOpEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLogicOpEnableEXT>::Dispatch(manager, commandBuffer, logicOpEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEnableEXT(
@@ -23411,6 +23990,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetColorBlendEnableEXT(commandBuffer, firstAttachment, attachmentCount, pColorBlendEnables);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorBlendEnableEXT>::Dispatch(manager, commandBuffer, firstAttachment, attachmentCount, pColorBlendEnables);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEquationEXT(
@@ -23448,6 +24028,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEquationEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetColorBlendEquationEXT(commandBuffer, firstAttachment, attachmentCount, pColorBlendEquations);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorBlendEquationEXT>::Dispatch(manager, commandBuffer, firstAttachment, attachmentCount, pColorBlendEquations);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteMaskEXT(
@@ -23485,6 +24066,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteMaskEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetColorWriteMaskEXT(commandBuffer, firstAttachment, attachmentCount, pColorWriteMasks);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorWriteMaskEXT>::Dispatch(manager, commandBuffer, firstAttachment, attachmentCount, pColorWriteMasks);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetTessellationDomainOriginEXT(
@@ -23518,6 +24100,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetTessellationDomainOriginEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetTessellationDomainOriginEXT(commandBuffer, domainOrigin);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetTessellationDomainOriginEXT>::Dispatch(manager, commandBuffer, domainOrigin);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationStreamEXT(
@@ -23551,6 +24134,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationStreamEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRasterizationStreamEXT(commandBuffer, rasterizationStream);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRasterizationStreamEXT>::Dispatch(manager, commandBuffer, rasterizationStream);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetConservativeRasterizationModeEXT(
@@ -23584,6 +24168,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetConservativeRasterizationModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetConservativeRasterizationModeEXT(commandBuffer, conservativeRasterizationMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetConservativeRasterizationModeEXT>::Dispatch(manager, commandBuffer, conservativeRasterizationMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetExtraPrimitiveOverestimationSizeEXT(
@@ -23617,6 +24202,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExtraPrimitiveOverestimationSizeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetExtraPrimitiveOverestimationSizeEXT(commandBuffer, extraPrimitiveOverestimationSize);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExtraPrimitiveOverestimationSizeEXT>::Dispatch(manager, commandBuffer, extraPrimitiveOverestimationSize);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipEnableEXT(
@@ -23650,6 +24236,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthClipEnableEXT(commandBuffer, depthClipEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthClipEnableEXT>::Dispatch(manager, commandBuffer, depthClipEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEnableEXT(
@@ -23683,6 +24270,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetSampleLocationsEnableEXT(commandBuffer, sampleLocationsEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEnableEXT>::Dispatch(manager, commandBuffer, sampleLocationsEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendAdvancedEXT(
@@ -23720,6 +24308,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendAdvancedEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetColorBlendAdvancedEXT(commandBuffer, firstAttachment, attachmentCount, pColorBlendAdvanced);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorBlendAdvancedEXT>::Dispatch(manager, commandBuffer, firstAttachment, attachmentCount, pColorBlendAdvanced);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetProvokingVertexModeEXT(
@@ -23753,6 +24342,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetProvokingVertexModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetProvokingVertexModeEXT(commandBuffer, provokingVertexMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetProvokingVertexModeEXT>::Dispatch(manager, commandBuffer, provokingVertexMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineRasterizationModeEXT(
@@ -23786,6 +24376,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineRasterizationModeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineRasterizationModeEXT(commandBuffer, lineRasterizationMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineRasterizationModeEXT>::Dispatch(manager, commandBuffer, lineRasterizationMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEnableEXT(
@@ -23819,6 +24410,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetLineStippleEnableEXT(commandBuffer, stippledLineEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEnableEXT>::Dispatch(manager, commandBuffer, stippledLineEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipNegativeOneToOneEXT(
@@ -23852,6 +24444,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipNegativeOneToOneEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthClipNegativeOneToOneEXT(commandBuffer, negativeOneToOne);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthClipNegativeOneToOneEXT>::Dispatch(manager, commandBuffer, negativeOneToOne);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingEnableNV(
@@ -23885,6 +24478,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportWScalingEnableNV(commandBuffer, viewportWScalingEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingEnableNV>::Dispatch(manager, commandBuffer, viewportWScalingEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportSwizzleNV(
@@ -23922,6 +24516,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportSwizzleNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetViewportSwizzleNV(commandBuffer, firstViewport, viewportCount, pViewportSwizzles);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportSwizzleNV>::Dispatch(manager, commandBuffer, firstViewport, viewportCount, pViewportSwizzles);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorEnableNV(
@@ -23955,6 +24550,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageToColorEnableNV(commandBuffer, coverageToColorEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageToColorEnableNV>::Dispatch(manager, commandBuffer, coverageToColorEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorLocationNV(
@@ -23988,6 +24584,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorLocationNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageToColorLocationNV(commandBuffer, coverageToColorLocation);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageToColorLocationNV>::Dispatch(manager, commandBuffer, coverageToColorLocation);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationModeNV(
@@ -24021,6 +24618,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationModeNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageModulationModeNV(commandBuffer, coverageModulationMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageModulationModeNV>::Dispatch(manager, commandBuffer, coverageModulationMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableEnableNV(
@@ -24054,6 +24652,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageModulationTableEnableNV(commandBuffer, coverageModulationTableEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageModulationTableEnableNV>::Dispatch(manager, commandBuffer, coverageModulationTableEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableNV(
@@ -24089,6 +24688,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageModulationTableNV(commandBuffer, coverageModulationTableCount, pCoverageModulationTable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageModulationTableNV>::Dispatch(manager, commandBuffer, coverageModulationTableCount, pCoverageModulationTable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetShadingRateImageEnableNV(
@@ -24122,6 +24722,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetShadingRateImageEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetShadingRateImageEnableNV(commandBuffer, shadingRateImageEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetShadingRateImageEnableNV>::Dispatch(manager, commandBuffer, shadingRateImageEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRepresentativeFragmentTestEnableNV(
@@ -24155,6 +24756,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRepresentativeFragmentTestEnableNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRepresentativeFragmentTestEnableNV(commandBuffer, representativeFragmentTestEnable);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRepresentativeFragmentTestEnableNV>::Dispatch(manager, commandBuffer, representativeFragmentTestEnable);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageReductionModeNV(
@@ -24188,6 +24790,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageReductionModeNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetCoverageReductionModeNV(commandBuffer, coverageReductionMode);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoverageReductionModeNV>::Dispatch(manager, commandBuffer, coverageReductionMode);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleIdentifierEXT(
@@ -24223,6 +24826,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleIdentifierEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderModuleIdentifierEXT>::Dispatch(manager, device, shaderModule, pIdentifier);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleCreateInfoIdentifierEXT(
@@ -24261,6 +24865,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleCreateInfoIdentifierEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderModuleCreateInfoIdentifierEXT>::Dispatch(manager, device, pCreateInfo, pIdentifier);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
@@ -24307,6 +24912,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceOpticalFlowImageFormatsNV>::Dispatch(manager, result, physicalDevice, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateOpticalFlowSessionNV(
@@ -24358,6 +24964,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateOpticalFlowSessionNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateOpticalFlowSessionNV>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSession);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyOpticalFlowSessionNV(
@@ -24396,6 +25003,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyOpticalFlowSessionNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyOpticalFlowSessionNV>::Dispatch(manager, device, session, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::OpticalFlowSessionNVWrapper>(session);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindOpticalFlowSessionImageNV(
@@ -24438,6 +25046,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindOpticalFlowSessionImageNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindOpticalFlowSessionImageNV>::Dispatch(manager, result, device, session, bindingPoint, view, layout);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdOpticalFlowExecuteNV(
@@ -24473,6 +25082,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdOpticalFlowExecuteNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdOpticalFlowExecuteNV(commandBuffer, session, pExecuteInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdOpticalFlowExecuteNV>::Dispatch(manager, commandBuffer, session, pExecuteInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkAntiLagUpdateAMD(
@@ -24506,6 +25116,7 @@ VKAPI_ATTR void VKAPI_CALL vkAntiLagUpdateAMD(
     vulkan_wrappers::GetDeviceTable(device)->AntiLagUpdateAMD(device, pData);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAntiLagUpdateAMD>::Dispatch(manager, device, pData);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateShadersEXT(
@@ -24562,6 +25173,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateShadersEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShadersEXT>::Dispatch(manager, result, device, createInfoCount, pCreateInfos, pAllocator, pShaders);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyShaderEXT(
@@ -24600,6 +25212,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyShaderEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderEXT>::Dispatch(manager, device, shader, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ShaderEXTWrapper>(shader);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderBinaryDataEXT(
@@ -24646,6 +25259,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderBinaryDataEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderBinaryDataEXT>::Dispatch(manager, result, device, shader, pDataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBindShadersEXT(
@@ -24683,6 +25297,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindShadersEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBindShadersEXT(commandBuffer, stageCount, pStages, pShaders);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadersEXT>::Dispatch(manager, commandBuffer, stageCount, pStages, pShaders);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampRangeEXT(
@@ -24718,6 +25333,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampRangeEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthClampRangeEXT(commandBuffer, depthClampMode, pDepthClampRange);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthClampRangeEXT>::Dispatch(manager, commandBuffer, depthClampMode, pDepthClampRange);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFramebufferTilePropertiesQCOM(
@@ -24764,6 +25380,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFramebufferTilePropertiesQCOM(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFramebufferTilePropertiesQCOM>::Dispatch(manager, result, device, framebuffer, pPropertiesCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDynamicRenderingTilePropertiesQCOM(
@@ -24811,6 +25428,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDynamicRenderingTilePropertiesQCOM(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDynamicRenderingTilePropertiesQCOM>::Dispatch(manager, result, device, pRenderingInfo, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeVectorPropertiesNV(
@@ -24855,6 +25473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeVectorPropertiesNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeVectorPropertiesNV>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkConvertCooperativeVectorMatrixNV(
@@ -24891,6 +25510,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkConvertCooperativeVectorMatrixNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkConvertCooperativeVectorMatrixNV>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdConvertCooperativeVectorMatrixNV(
@@ -24926,6 +25546,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdConvertCooperativeVectorMatrixNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdConvertCooperativeVectorMatrixNV(commandBuffer, infoCount, pInfos);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdConvertCooperativeVectorMatrixNV>::Dispatch(manager, commandBuffer, infoCount, pInfos);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetLatencySleepModeNV(
@@ -24964,6 +25585,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetLatencySleepModeNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLatencySleepModeNV>::Dispatch(manager, result, device, swapchain, pSleepModeInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkLatencySleepNV(
@@ -25005,6 +25627,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkLatencySleepNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkLatencySleepNV>::Dispatch(manager, result, device, swapchain, pSleepInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkSetLatencyMarkerNV(
@@ -25040,6 +25663,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetLatencyMarkerNV(
     vulkan_wrappers::GetDeviceTable(device)->SetLatencyMarkerNV(device, swapchain, pLatencyMarkerInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLatencyMarkerNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetLatencyTimingsNV(
@@ -25075,6 +25699,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetLatencyTimingsNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetLatencyTimingsNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(
@@ -25108,6 +25733,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(
     vulkan_wrappers::GetDeviceTable(queue)->QueueNotifyOutOfBandNV(queue, pQueueTypeInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueNotifyOutOfBandNV>::Dispatch(manager, queue, pQueueTypeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
@@ -25141,6 +25767,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetAttachmentFeedbackLoopEnableEXT(commandBuffer, aspectMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT>::Dispatch(manager, commandBuffer, aspectMask);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPartitionedAccelerationStructuresBuildSizesNV(
@@ -25176,6 +25803,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPartitionedAccelerationStructuresBuildSizesNV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPartitionedAccelerationStructuresBuildSizesNV>::Dispatch(manager, device, pInfo, pSizeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildPartitionedAccelerationStructuresNV(
@@ -25209,6 +25837,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildPartitionedAccelerationStructuresNV(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBuildPartitionedAccelerationStructuresNV(commandBuffer, pBuildInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildPartitionedAccelerationStructuresNV>::Dispatch(manager, commandBuffer, pBuildInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsEXT(
@@ -25247,6 +25876,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsEXT(
@@ -25285,6 +25915,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPreprocessGeneratedCommandsEXT(commandBuffer, pGeneratedCommandsInfo_unwrapped, stateCommandBuffer);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, pGeneratedCommandsInfo, stateCommandBuffer);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsEXT(
@@ -25323,6 +25954,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdExecuteGeneratedCommandsEXT(commandBuffer, isPreprocessed, pGeneratedCommandsInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutEXT(
@@ -25377,6 +26009,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutEXT(
@@ -25415,6 +26048,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutEXT>::Dispatch(manager, device, indirectCommandsLayout, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(indirectCommandsLayout);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectExecutionSetEXT(
@@ -25466,6 +26100,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectExecutionSetEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectExecutionSetEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectExecutionSetEXT(
@@ -25504,6 +26139,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectExecutionSetEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectExecutionSetEXT>::Dispatch(manager, device, indirectExecutionSet, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetPipelineEXT(
@@ -25544,6 +26180,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetPipelineEXT(
     vulkan_wrappers::GetDeviceTable(device)->UpdateIndirectExecutionSetPipelineEXT(device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetPipelineEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetShaderEXT(
@@ -25584,6 +26221,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetShaderEXT(
     vulkan_wrappers::GetDeviceTable(device)->UpdateIndirectExecutionSetShaderEXT(device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetShaderEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(
@@ -25628,6 +26266,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixFlexibleDimen
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV>::Dispatch(manager, result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(
@@ -25675,6 +26314,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryMetalHandleEXT>::Dispatch(manager, result, device, pGetMetalHandleInfo, pHandle);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(
@@ -25721,6 +26361,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryMetalHandlePropertiesEXT>::Dispatch(manager, result, device, handleType, pHandle, pMemoryMetalHandleProperties);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
@@ -25767,6 +26408,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pAccelerationStructure);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(
@@ -25805,6 +26447,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(manager, device, accelerationStructure, pAllocator);
 
     vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::AccelerationStructureKHRWrapper>(accelerationStructure);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(
@@ -25842,6 +26485,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(
     manager->OverrideCmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(manager, commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresIndirectKHR(
@@ -25886,6 +26530,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresIndirectKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR(commandBuffer, infoCount, pInfos_unwrapped, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(manager, commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureToMemoryKHR(
@@ -25927,6 +26572,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureToMemoryKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(manager, result, device, deferredOperation, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToAccelerationStructureKHR(
@@ -25968,6 +26614,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToAccelerationStructureKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(manager, result, device, deferredOperation, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkWriteAccelerationStructuresPropertiesKHR(
@@ -26020,6 +26667,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWriteAccelerationStructuresPropertiesKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(manager, result, device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureKHR(
@@ -26053,6 +26701,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureKHR(
     manager->OverrideCmdCopyAccelerationStructureKHR(commandBuffer, pInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureToMemoryKHR(
@@ -26089,6 +26738,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureToMemoryKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureToMemoryKHR(commandBuffer, pInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToAccelerationStructureKHR(
@@ -26125,6 +26775,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToAccelerationStructureKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMemoryToAccelerationStructureKHR(commandBuffer, pInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(manager, commandBuffer, pInfo);
+
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetAccelerationStructureDeviceAddressKHR(
@@ -26164,6 +26815,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetAccelerationStructureDeviceAddressKHR
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(manager, result, device, pInfo);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesKHR(
@@ -26205,6 +26857,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesKHR(
     manager->OverrideCmdWriteAccelerationStructuresPropertiesKHR(commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(manager, commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceAccelerationStructureCompatibilityKHR(
@@ -26240,6 +26893,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceAccelerationStructureCompatibilityKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(manager, device, pVersionInfo, pCompatibility);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureBuildSizesKHR(
@@ -26282,6 +26936,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureBuildSizesKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(manager, device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysKHR(
@@ -26327,6 +26982,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdTraceRaysKHR(commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(manager, commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
@@ -26377,6 +27033,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingCaptureReplayShaderGroupHandlesKHR
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(manager, result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirectKHR(
@@ -26418,6 +27075,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirectKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdTraceRaysIndirectKHR(commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(manager, commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
+
 }
 
 VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetRayTracingShaderGroupStackSizeKHR(
@@ -26458,6 +27116,7 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetRayTracingShaderGroupStackSizeKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(manager, result, device, pipeline, group, groupShader);
 
     return result;
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetRayTracingPipelineStackSizeKHR(
@@ -26491,6 +27150,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRayTracingPipelineStackSizeKHR(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRayTracingPipelineStackSizeKHR(commandBuffer, pipelineStackSize);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(manager, commandBuffer, pipelineStackSize);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksEXT(
@@ -26528,6 +27188,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksEXT(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksEXT>::Dispatch(manager, commandBuffer, groupCountX, groupCountY, groupCountZ);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectEXT(
@@ -26567,6 +27228,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectEXT(commandBuffer, buffer, offset, drawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectEXT>::Dispatch(manager, commandBuffer, buffer, offset, drawCount, stride);
+
 }
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountEXT(
@@ -26610,6 +27272,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectCountEXT(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountEXT>::Dispatch(manager, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
 }
 
 GFXRECON_END_NAMESPACE(encode)

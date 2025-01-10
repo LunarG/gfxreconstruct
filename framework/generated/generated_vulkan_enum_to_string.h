@@ -496,4 +496,4 @@ template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewport
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_ENUM_TO_STRING_H

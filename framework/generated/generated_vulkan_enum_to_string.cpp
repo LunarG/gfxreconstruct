@@ -707,26 +707,7 @@ std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value)
 
 std::string VkAccessFlags2ToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkAccessFlagBits2ToString(static_cast<VkAccessFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkAccessFlagBits2ToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkAccessFlagBits2>(vkFlags, VkAccessFlagBits2ToString);
 }
 
 std::string VkAccessFlagBits3KHRToString(const VkAccessFlagBits3KHR value)
@@ -740,26 +721,7 @@ std::string VkAccessFlagBits3KHRToString(const VkAccessFlagBits3KHR value)
 
 std::string VkAccessFlags3KHRToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkAccessFlagBits3KHRToString(static_cast<VkAccessFlagBits3KHR>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkAccessFlagBits3KHRToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkAccessFlagBits3KHR>(vkFlags, VkAccessFlagBits3KHRToString);
 }
 
 template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(const VkAcquireProfilingLockFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -1049,26 +1011,7 @@ std::string VkBufferUsageFlagBits2ToString(const VkBufferUsageFlagBits2 value)
 
 std::string VkBufferUsageFlags2ToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkBufferUsageFlagBits2ToString(static_cast<VkBufferUsageFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkBufferUsageFlagBits2ToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkBufferUsageFlagBits2>(vkFlags, VkBufferUsageFlagBits2ToString);
 }
 
 template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(const VkBuildAccelerationStructureFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -2547,26 +2490,7 @@ std::string VkFormatFeatureFlagBits2ToString(const VkFormatFeatureFlagBits2 valu
 
 std::string VkFormatFeatureFlags2ToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkFormatFeatureFlagBits2ToString(static_cast<VkFormatFeatureFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkFormatFeatureFlagBits2ToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkFormatFeatureFlagBits2>(vkFlags, VkFormatFeatureFlagBits2ToString);
 }
 
 template <> std::string ToString<VkFragmentShadingRateCombinerOpKHR>(const VkFragmentShadingRateCombinerOpKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -3689,26 +3613,7 @@ std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysic
 
 std::string VkPhysicalDeviceSchedulingControlsFlagsARMToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(static_cast<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(vkFlags, VkPhysicalDeviceSchedulingControlsFlagBitsARMToString);
 }
 
 template <> std::string ToString<VkPhysicalDeviceType>(const VkPhysicalDeviceType& value, ToStringFlags, uint32_t, uint32_t)
@@ -3876,26 +3781,7 @@ std::string VkPipelineCreateFlagBits2ToString(const VkPipelineCreateFlagBits2 va
 
 std::string VkPipelineCreateFlags2ToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkPipelineCreateFlagBits2ToString(static_cast<VkPipelineCreateFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkPipelineCreateFlagBits2ToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkPipelineCreateFlagBits2>(vkFlags, VkPipelineCreateFlagBits2ToString);
 }
 
 template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(const VkPipelineCreationFeedbackFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -4087,26 +3973,7 @@ std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 valu
 
 std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags)
 {
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkPipelineStageFlagBits2ToString(static_cast<VkPipelineStageFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkPipelineStageFlagBits2ToString(0U));
-    }
-    return str;
+    return BitmaskToString<VkPipelineStageFlagBits2>(vkFlags, VkPipelineStageFlagBits2ToString);
 }
 
 template <> std::string ToString<VkPointClippingBehavior>(const VkPointClippingBehavior& value, ToStringFlags, uint32_t, uint32_t)

@@ -70,7 +70,7 @@ class KhronosStructEncodersBodyGenerator():
             default_case, break_string
         ]
         fn_emit_case = lambda parent_struct, child_struct, child_enum, value_name: [
-            'const {child_struct}& child_value = reinterpret_cast<const {child_struct}&>({value_name});',
+            f'const {child_struct}& child_value = reinterpret_cast<const {child_struct}&>({value_name});',
             f'EncodeStruct(encoder, child_value);', break_string
         ]
         return self.generate_child_struct_switch_statement(

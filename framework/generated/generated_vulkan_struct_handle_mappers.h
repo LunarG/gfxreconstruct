@@ -441,4 +441,4 @@ void SetStructHandleLengths(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper);
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_STRUCT_HANDLE_MAPPERS_H

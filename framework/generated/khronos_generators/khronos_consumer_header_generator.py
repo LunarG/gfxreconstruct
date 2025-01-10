@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -33,7 +33,7 @@ class KhronosConsumerHeaderGenerator():
 
     def skip_generating_command(self, command):
         """ Method may be overridden. """
-        return False
+        return self.is_manually_generated_cmd_name(command)
 
     def write_class_setup(self, class_name, constructor_args):
         write(

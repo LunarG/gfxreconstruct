@@ -11654,4 +11654,4 @@ typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkSh
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H

@@ -106,18 +106,6 @@ class VulkanCommandBufferUtilHeaderGenerator(VulkanBaseGenerator):
             return True
         return False
 
-    def get_param_list_handles(self, values):
-        """Create list of parameters that have handle types or are structs that contain handles."""
-        handles = []
-        for value in values:
-            if self.is_handle(value.base_type):
-                handles.append(value)
-            elif self.is_struct(
-                value.base_type
-            ) and (value.base_type in self.structs_with_handles):
-                handles.append(value)
-        return handles
-
     def get_arg_list(self, values):
         args = []
         for value in values:

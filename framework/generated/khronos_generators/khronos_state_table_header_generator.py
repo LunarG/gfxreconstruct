@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021-2024 LunarG, Inc.
+# Copyright (c) 2021-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -28,12 +28,13 @@ from khronos_base_generator import write
 class KhronosStateTableHeaderGenerator():
 
     def add_wrapper_funcs_for_type(self, api_data, name):
-        wrapper_prefix = self.get_wrapper_prefix_from_type(name)
-        type_prefix = self.get_api_struct_prefix_from_type(name)
+        type_api_data = self.get_api_data_from_type(name)
+        wrapper_prefix = type_api_data.wrapper_prefix
+        type_prefix = type_api_data.type_prefix
         short_name = name[len(type_prefix):]
-        handle_wrapper_func = short_name + 'Wrapper'
+        handle_wrapper_func = type_api_data.camel_guard + short_name + 'Wrapper'
         handle_wrapper_type = wrapper_prefix + '::' + short_name + 'Wrapper'
-        handle_map = short_name[0].lower() + short_name[1:] + '_map_'
+        handle_map = type_prefix.lower() + '_' + short_name[0].lower() + short_name[1:] + '_map_'
         self.insert_code += '    bool InsertWrapper(format::HandleId id, {}* wrapper) {{ return InsertEntry(id, wrapper, {}); }}\n'.format(
             handle_wrapper_type, handle_map
         )

@@ -34,6 +34,7 @@
 #include <string>
 #include <utility>
 #include <cmath>
+#include <functional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -170,8 +171,8 @@ inline std::string WCharArrayToString(const wchar_t* pStr)
 }
 #endif
 
-template <typename BitmaskType, typename FlagsType>
-inline std::string BitmaskToString(FlagsType flags)
+template <typename BitmaskType, typename FlagsType, typename ToString>
+inline std::string BitmaskToString(FlagsType flags, ToString&& to_string)
 {
     std::string str;
     FlagsType   index = 0;
@@ -183,16 +184,23 @@ inline std::string BitmaskToString(FlagsType flags)
             {
                 str.append("|");
             }
-            str.append(ToString(static_cast<BitmaskType>(1 << index)));
+            str.append(to_string(static_cast<BitmaskType>(FlagsType(1) << index)));
         }
         ++index;
         flags >>= 1;
     }
     if (str.empty())
     {
-        str.append(ToString(static_cast<BitmaskType>(0)));
+        str.append(to_string(static_cast<BitmaskType>(0)));
     }
     return str;
+}
+
+template <typename BitmaskType, typename FlagsType>
+inline std::string BitmaskToString(FlagsType flags)
+{
+    auto to_string = [](const BitmaskType& bit) { return ToString(bit); };
+    return BitmaskToString<BitmaskType>(flags, to_string);
 }
 
 template <typename PtrType>

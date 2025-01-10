@@ -984,4 +984,4 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMeshShaderPropert
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif
+#endif // GFXRECON_GENERATED_VULKAN_STYPE_UTIL_H
