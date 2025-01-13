@@ -87,7 +87,7 @@ static const char* Dx12ResourceTypeToString(Dx12DumpResourceType type)
     }
 }
 
-static const char* Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourcePos pos)
+static const std::string Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourcePos pos)
 {
     switch (pos)
     {
@@ -97,6 +97,8 @@ static const char* Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourceP
             return "draw_call";
         case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
             return "after";
+        case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall_NoBefore:
+            return "";
         default:
             return "";
     }
@@ -206,16 +208,21 @@ bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                       
                     // processes, for exmaples: finding resource by GPU VA, getting the resource infomation, and
                     // write resource id, offset, size. But those duplicated processes shouldn't hurt the
                     // performance.
-                    CopyDrawCallResources(replay_object_info,
-                                          front_command_list_ids,
-                                          graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall);
+                    if (options_.dump_resources_before)
+                    {
+                        CopyDrawCallResources(replay_object_info,
+                                              front_command_list_ids,
+                                              graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall);
+                    }
 
                     ID3D12CommandList* ppCommandLists[] = { track_dump_resources_.split_command_sets[1].list };
                     replay_object->ExecuteCommandLists(1, ppCommandLists);
 
                     CopyDrawCallResources(replay_object_info,
                                           front_command_list_ids,
-                                          graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall);
+                                          options_.dump_resources_before
+                                              ? graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall
+                                              : graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall_NoBefore);
 
                     FinishDump(replay_object_info);
 
@@ -2556,8 +2563,8 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
     util::FieldToJson(jdata["dimension"], util::ToString(resource_data->desc.Dimension), json_options_);
 
-    std::string suffix    = Dx12DumpResourcePosToString(resource_data->dump_position);
-    std::string json_path = suffix + "_file";
+    std::string suffix         = Dx12DumpResourcePosToString(resource_data->dump_position);
+    std::string json_path      = (suffix == "" ? "file" : (suffix + "_file"));
     auto        json_sub_index = 0;
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -2572,7 +2579,8 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
         // Write data.
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
-        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".bin";
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".bin" : ("_" + suffix + ".bin"));
         util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str(), json_options_);
 
         std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
@@ -2621,9 +2629,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteFloatResource(const std::string&
             data += "\n";
         }
 
-        const char* suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
-        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".txt";
-        std::string file_path     = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        std::string suffix = Dx12DumpResourcePosToString(resource_data->dump_position);
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".txt" : ("_" + suffix + ".txt"));
+        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
         FILE*       file_handle;
         util::platform::FileOpen(&file_handle, file_path.c_str(), "w");
         util::platform::FilePuts(data.c_str(), file_handle);
@@ -2641,7 +2650,9 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         auto offset = resource_data->subresource_offsets[sub_index];
         auto size   = resource_data->subresource_sizes[sub_index];
 
+        std::string suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
         std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".bmp" : ("_" + suffix + ".bmp"));
 
         // WriteBmpImage expects 4 bytes per pixel.
         uint64_t row_pitch_aligned_size = ((size + (resource_data->footprints[sub_index].Footprint.RowPitch - 1)) /
@@ -2651,13 +2662,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
                                  (static_cast<double>(resource_data->footprints[sub_index].Footprint.RowPitch / 4) *
                                   resource_data->footprints[sub_index].Footprint.Height);
 
-        std::string suffix = Dx12DumpResourcePosToString(resource_data->dump_position);
-        file_name_sub += "_" + suffix + ".bmp ";
-
         if (bytes_per_pixel != 4.0)
         {
-            std::string msg = "Dump images could not be created for before and after resource of " + file_name_sub +
-                              ".Only formats with 4 bytes per pixel are supported.Current format " +
+            std::string msg = "Dump images could not be created for resource " + file_name_sub +
+                              ". Only formats with 4 bytes per pixel are supported.Current format " +
                               util::ToString(resource_data->footprints[sub_index].Footprint.Format) + "is " +
                               std::to_string(bytes_per_pixel) + " bytes per pixel.";
             GFXRECON_LOG_ERROR(msg.c_str());

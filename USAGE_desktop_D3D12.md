@@ -212,9 +212,10 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--dump-resources <submit-index,command-index,draw-call-index>] <file>
+                        [--dump-resources <submit-index,command-index,draw-call-index>]
+                        [--dump-resources-before-draw]
                         [--dump-resources-dir <dir>]
-                        [--pbi-all] [--pbis <index1,index2>]
+                        [--pbi-all] [--pbis <index1,index2>] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -276,77 +277,37 @@ Optional arguments:
   --pbi-all             Print all block information.
   --pbis <index1,index2>Print block information between block index1 and block index2.
 
-Windows-only:
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
                         (Same as --force-windowed-origin)
-
-Vulkan-only:
-  --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
-                        vkAllocateDescriptorSets calls that failed during
-                        capture (same as --skip-failed-allocations).
-  --replace-shaders <dir> Replace the shader code in each CreateShaderModule
-                        with the contents of the file <dir>/sh<handle_id> if found, where
-                        <handle_id> is the handle id of the CreateShaderModule call.
-                        See gfxrecon-extract.
-  --opcd                Omit pipeline cache data from calls to
-                        vkCreatePipelineCache and skip calls to
-                        vkGetPipelineCacheData (same as
-                        --omit-pipeline-cache-data).
-  --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are: auto,win32,headless
-  --surface-index <N>   Restrict rendering to the Nth surface object created.
-                        Used with captures that include multiple surfaces.  Default
-                        is -1 (render to all surfaces).
-  --sync                Synchronize after each queue submission with vkQueueWaitIdle.
-  --remove-unsupported  Remove unsupported extensions and features from instance
-                        and device creation parameters.
-  -m <mode>             Enable memory translation for replay on GPUs with memory
-                        types that are not compatible with the capture GPU's
-                        memory types.  Available modes are:
-                            none        No memory translation is performed.  This
-                                        is the default behavior.
-                            remap       Attempt to map capture memory types to
-                                        compatible replay memory types, without
-                                        altering memory allocation behavior.
-                            realign     Adjust memory allocation sizes and
-                                        resource binding offsets based on
-                                        replay memory properties.
-                            rebind      Change memory allocation behavior based
-                                        on resource usage and replay memory
-                                        properties.  Resources may be bound
-                                        to different allocations with different
-                                        offsets.  Uses VMA to manage allocations
-                                        and suballocations.
-
-D3D12-only:
-  --use-cached-psos            Permit using cached PSOs when creating graphics or compute pipelines.
-                               Using cached PSOs may reduce PSO creation time but may result in replay errors.
-  --debug-device-lost          Enables automatic injection of breadcrumbs into command buffers
-                               and page fault reporting.
-                               Used to debug Direct3D 12 device removed problems.
-  --fw <width,height>          Setup windowed and override resolution.
-                               (Same as --force-windowed)
-  --create-dummy-allocations   Enables creation of dummy heaps and resources
-                               for replay validation.
-  --dx12-override-object-names Generates unique names for all ID3D12Objects and
-                               assigns each object the generated name.
-                               This is intended to assist replay debugging.
+  --use-cached-psos     Permit using cached PSOs when creating graphics or compute pipelines.
+                        Using cached PSOs may reduce PSO creation time but may result in replay errors.
+  --debug-device-lost   Enables automatic injection of breadcrumbs into command buffers and page fault
+                        reporting.  Used to debug Direct3D 12 device removed problems.
+  --fw <width,height>   Setup windowed and override resolution.
+                        (Same as --force-windowed)
+  --create-dummy-allocations
+                        Enables creation of dummy heaps and resources for replay validation.
+  --dx12-override-object-names
+                        Generates unique names for all ID3D12Objects and assigns each object the generated
+                        name.  This is intended to assist replay debugging.
   --batching-memory-usage <pct>
-                               Limits the max amount of additional memory that can be used to batch
-                               resource data uploads during trim state load. Batching resource data
-                               uploads may reduce the number of GPU submissions required to load the
-                               trim state. <pct> is applied to the total available physical system memory
-                               and to the application's GPU memory budget. This only limits memory use
-                               for batching and does not guarantee overall max memory usage.
-                               Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
-                               100 means use all available system and GPU memory.
+                        Limits the max amount of additional memory that can be used to batch resource data
+                        uploads during trim state load. Batching resource data uploads may reduce the number
+                        of GPU submissions required to load the trim state. <pct> is applied to the total
+                        available physical system memory and to the application's GPU memory budget. This
+                        only limits memory use for batching and does not guarantee overall max memory usage.
+                        Acceptable values range from 0 to 100 (default: 80). 0 means no batching, 100 means
+                        use all available system and GPU memory.
   --dump-resources <submit-index,command-index,draw-call-index>
-                               Output binaray resources for a specific draw call.
-                               Include vertex, index, const buffer, shader resource, render target,
-                               and depth stencil. And for before and after draw call.
-                               Arguments becomes three indices, submit index, command index,
-                               draw call index. The command index is based on its in ExecuteCommandLists.
-  --dump-resources-dir <dir>   Directory to write dump resources output files. Default is the current working directory.
+                        Output binary resources for a specific draw call.  The draw call is specified as a
+                        submit index, command index, and draw call index triplet.  The output includes vertex,
+                        index, const buffer, shader resource, render target, and depth stencil data.  Resources
+                        are output after the draw call.
+  --dump-resources-before-draw
+                        In addition to dumping gpu resources after the draw call specified by the --dump-resources
+                        argument, also dump resources before the draw call.
+  --dump-resources-dir <dir>
+                        Directory to write dump resources output files. Default is the current working directory.
 ```
 
 

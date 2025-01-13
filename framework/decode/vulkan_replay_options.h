@@ -84,7 +84,6 @@ struct VulkanReplayOptions : public ReplayOptions
 
     // Flag to quickly check whether the feature is enabled or not
     bool  dumping_resources{ false };
-    bool  dump_resources_before{ false };
     bool  dump_resources_dump_depth{ false };
     int   dump_resources_color_attachment_index{ kUnspecifiedColorAttachment };
     float dump_resources_scale{ 1.0f };
