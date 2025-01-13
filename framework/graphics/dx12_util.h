@@ -92,7 +92,7 @@ typedef _com_ptr_t<
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
 #if defined(GFXRECON_DXC_SUPPORT)
-typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>>       IDxcUtilsComPtr;
+typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>> IDxcUtilsComPtr;
 typedef _com_ptr_t<_com_IIID<IDxcContainerReflection, &__uuidof(IDxcContainerReflection)>>
                                                                              IDxcContainerReflectionComPtr;
 typedef _com_ptr_t<_com_IIID<IDxcBlobEncoding, &__uuidof(IDxcBlobEncoding)>> IDxcBlobEncodingComPtr;
