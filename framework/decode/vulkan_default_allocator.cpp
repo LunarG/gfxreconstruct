@@ -661,7 +661,7 @@ void VulkanDefaultAllocator::ReportBindIncompatibility(const VkMemoryRequirement
             auto     memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
             uint32_t memory_type_index = memory_alloc_info->memory_type_index;
 
-            if ((requirements[i].memoryTypeBits & (1 << memory_type_index)) != 0)
+            if ((requirements[i].memoryTypeBits & (1 << memory_type_index)) == 0)
             {
                 GFXRECON_LOG_FATAL(
                     "Resource memory bind failed: resource is not compatible with the specified memory type.");
