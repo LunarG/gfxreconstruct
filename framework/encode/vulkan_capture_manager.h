@@ -298,6 +298,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
                                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
 
+    void OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer                           command_buffer,
+                                                 const VkCopyAccelerationStructureInfoKHR* pInfo);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,

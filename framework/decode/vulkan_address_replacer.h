@@ -118,9 +118,11 @@ class VulkanAddressReplacer
      * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
      *          and potentially correct input-parameters to 'vkCmdCopyAccelerationStructuresKHR'
      *
-     * @param   info    a provided VkCopyAccelerationStructureInfoKHR*
+     * @param   info                a provided VkCopyAccelerationStructureInfoKHR*
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
      */
-    void ProcessCmdCopyAccelerationStructuresKHR(VkCopyAccelerationStructureInfoKHR* info);
+    void ProcessCmdCopyAccelerationStructuresKHR(VkCopyAccelerationStructureInfoKHR*       info,
+                                                 const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessCmdWriteAccelerationStructuresPropertiesKHR will check
@@ -156,20 +158,22 @@ class VulkanAddressReplacer
      * @param   range_infos             provided array of pointers to VkAccelerationStructureBuildRangeInfoKHR
      * @param   address_tracker         const reference to a VulkanDeviceAddressTracker
      */
-    void ProcessBuildVulkanAccelerationStructuresMetaCommand(
-        uint32_t                                                      info_count,
-        VkAccelerationStructureBuildGeometryInfoKHR*                  geometry_infos,
-        VkAccelerationStructureBuildRangeInfoKHR**                    range_infos,
-        const decode::VulkanDeviceAddressTracker&                     address_tracker);
+    void
+    ProcessBuildVulkanAccelerationStructuresMetaCommand(uint32_t                                     info_count,
+                                                        VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
+                                                        VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
+                                                        const decode::VulkanDeviceAddressTracker&    address_tracker);
 
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.
      *
-     * @param   info_count  element count in 'copy_infos'
-     * @param   copy_infos  provided array of VkCopyAccelerationStructureInfoKHR
+     * @param   info_count      element count in 'copy_infos'
+     * @param   copy_infos      provided array of VkCopyAccelerationStructureInfoKHR
+     * @param   address_tracker const reference to a VulkanDeviceAddressTracker
      */
-    void ProcessCopyVulkanAccelerationStructuresMetaCommand(uint32_t                            info_count,
-                                                            VkCopyAccelerationStructureInfoKHR* copy_infos);
+    void ProcessCopyVulkanAccelerationStructuresMetaCommand(uint32_t                                  info_count,
+                                                            VkCopyAccelerationStructureInfoKHR*       copy_infos,
+                                                            const decode::VulkanDeviceAddressTracker& address_tracker);
     /**
      * @brief   Process information contained in a metadata-block in order to write information in a query-pool.
      *
@@ -233,11 +237,16 @@ class VulkanAddressReplacer
 
     [[nodiscard]] bool init_queue_assets();
 
-    [[nodiscard]] bool create_buffer(size_t            num_bytes,
-                                     buffer_context_t& buffer_context,
+    [[nodiscard]] bool create_buffer(buffer_context_t& buffer_context,
+                                     size_t            num_bytes,
                                      uint32_t          usage_flags   = 0,
                                      uint32_t          min_alignment = 0,
                                      bool              use_host_mem  = true);
+
+    [[nodiscard]] bool create_acceleration_asset(acceleration_structure_asset_t& as_asset,
+                                                 VkAccelerationStructureTypeKHR  type,
+                                                 size_t                          num_buffer_bytes,
+                                                 size_t                          num_scratch_bytes);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,

@@ -709,6 +709,8 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
     VkDeviceAddress capture_address = 0;
     VkDeviceAddress replay_address  = 0;
 
+    VkAccelerationStructureTypeKHR type = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
+
     //! associated buffer
     VkBuffer buffer = VK_NULL_HANDLE;
 };

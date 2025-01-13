@@ -1668,7 +1668,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         std::vector<AccelerationStructureBuildCommandData*>          blas_build;
         std::vector<AccelerationStructureBuildCommandData*>          tlas_build;
         std::vector<AccelerationStructureWritePropertiesCommandData> write_properties;
-        AccelerationStructureCopyCommandData                         copies;
+        std::vector<VkCopyAccelerationStructureInfoKHR>              copy_infos;
         std::vector<AccelerationStructureBuildCommandData*>          blas_update;
         std::vector<AccelerationStructureBuildCommandData*>          tlas_update;
     };
@@ -1714,7 +1714,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
         if (wrapper->latest_copy_command_)
         {
-            per_device_container.copies.infos.push_back(wrapper->latest_copy_command_.value().info);
+            per_device_container.copy_infos.push_back(wrapper->latest_copy_command_.value().info);
         }
 
         if (wrapper->latest_write_properties_command_)
@@ -1738,7 +1738,10 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             EncodeAccelerationStructureWritePropertiesCommand(device, cmd_properties);
         }
 
-        EncodeAccelerationStructureCopyMetaCommand(device, command.copies);
+        for (const auto& copy_info : command.copy_infos)
+        {
+            EncodeAccelerationStructureCopyMetaCommand(device, copy_info);
+        }
 
         for (auto& tlas_build : command.tlas_build)
         {
@@ -1868,8 +1871,8 @@ void VulkanStateWriter::EncodeAccelerationStructureBuildMetaCommand(
     ++blocks_written_;
 }
 
-void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::HandleId device_id,
-                                                                   const AccelerationStructureCopyCommandData& command)
+void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::HandleId                          device_id,
+                                                                   const VkCopyAccelerationStructureInfoKHR& info)
 {
     parameter_stream_.Clear();
 
@@ -1880,7 +1883,7 @@ void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::Handl
         format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kVulkanCopyAccelerationStructuresCommand);
 
     encoder_.EncodeHandleIdValue(device_id);
-    EncodeStructArray(&encoder_, command.infos.data(), command.infos.size());
+    EncodeStruct(&encoder_, info);
 
     header.meta_header.block_header.size += parameter_stream_.GetDataSize();
 

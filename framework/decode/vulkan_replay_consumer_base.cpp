@@ -7815,6 +7815,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto* acceleration_structure_info =
         reinterpret_cast<VulkanAccelerationStructureKHRInfo*>(pAccelerationStructureKHR->GetConsumerData(0));
     GFXRECON_ASSERT(acceleration_structure_info);
+    acceleration_structure_info->type   = replay_create_info->type;
     acceleration_structure_info->buffer = replay_create_info->buffer;
 
     if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
@@ -7840,7 +7841,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     {
         result = func(device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
-
     return result;
 }
 
@@ -7908,8 +7908,9 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
     VkCopyAccelerationStructureInfoKHR* info           = pInfo->GetPointer();
 
     {
-        auto& address_replacer = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCmdCopyAccelerationStructuresKHR(info);
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessCmdCopyAccelerationStructuresKHR(info, address_tracker);
     }
     func(command_buffer, info);
 }
@@ -9629,8 +9630,10 @@ void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaComman
 
         MapStructArrayHandles(copy_infos->GetMetaStructPointer(), copy_infos->GetLength(), GetObjectInfoTable());
 
-        auto& ar = GetDeviceAddressReplacer(device_info);
-        ar.ProcessCopyVulkanAccelerationStructuresMetaCommand(copy_infos->GetLength(), copy_infos->GetPointer());
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessCopyVulkanAccelerationStructuresMetaCommand(
+            copy_infos->GetLength(), copy_infos->GetPointer(), address_tracker);
     }
 }
 

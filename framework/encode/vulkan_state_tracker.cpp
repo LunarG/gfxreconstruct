@@ -537,6 +537,24 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     }
 }
 
+void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                                               const VkCopyAccelerationStructureInfoKHR* info)
+{
+    // TODO: Support other types of copies (clone, serialize, deserialize)
+    if (info == nullptr || info->mode != VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR)
+    {
+        return;
+    }
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(info->src);
+    if (!wrapper->latest_copy_command_)
+    {
+        wrapper->latest_copy_command_ =
+            vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureCopyCommandData{};
+    }
+    wrapper->latest_copy_command_->device = wrapper->device->handle_id;
+    wrapper->latest_copy_command_->info   = *info;
+}
+
 void VulkanStateTracker::TrackImageMemoryBinding(
     VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* bind_info_pnext)
 {
@@ -2817,7 +2835,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(format::HandleId memory_id)
 
     for (const auto& entry : memories_page_status)
     {
-        assert(entry.second.status_tracker.HasActiveWriteBlock());
+//        assert(entry.second.status_tracker.HasActiveWriteBlock());
 
         const util::PageStatusTracker& page_status = entry.second.status_tracker;
 

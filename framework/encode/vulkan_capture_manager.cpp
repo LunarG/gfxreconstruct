@@ -951,9 +951,19 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
     {
         state_tracker_->TrackAccelerationStructureBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
     }
-
     const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
     device_table->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+}
+
+void VulkanCaptureManager::OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer command_buffer,
+                                                                   const VkCopyAccelerationStructureInfoKHR* pInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackAccelerationStructureCopyCommand(command_buffer, pInfo);
+    }
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(command_buffer);
+    device_table->CmdCopyAccelerationStructureKHR(command_buffer, pInfo);
 }
 
 VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                     device,

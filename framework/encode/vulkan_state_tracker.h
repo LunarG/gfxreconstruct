@@ -454,6 +454,9 @@ class VulkanStateTracker
                                            const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
                                            const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
+    void TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                               const VkCopyAccelerationStructureInfoKHR* info);
+
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
     void TrackRayTracingPipelineProperties(VkPhysicalDevice                                 physicalDevice,

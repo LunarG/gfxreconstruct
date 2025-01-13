@@ -25774,10 +25774,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(
         manager->EndCommandApiCallCapture(commandBuffer, TrackCmdCopyAccelerationStructureKHRHandles, pInfo);
     }
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
-
-    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureKHR(commandBuffer, pInfo_unwrapped);
+    manager->OverrideCmdCopyAccelerationStructureKHR(commandBuffer, pInfo);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(manager, commandBuffer, pInfo);
 }
