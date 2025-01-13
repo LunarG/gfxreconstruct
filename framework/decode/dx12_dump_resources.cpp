@@ -277,8 +277,8 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                                             Decoded_GUID                 riid,
                                             HandlePointerDecoder<void*>* root_signature_decoder)
 {
-    bool is_complete = false;
-    auto handld_id   = *root_signature_decoder->GetPointer();
+    bool                                              is_complete           = false;
+    auto                                              handld_id             = *root_signature_decoder->GetPointer();
     std::unordered_map<uint32_t, TrackRootParameter>* track_root_parameters = nullptr;
 
     if (track_dump_resources_.target.bundle_target_draw_call != nullptr)
@@ -310,13 +310,13 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
         auto device = static_cast<ID3D12Device*>(device_object_info->object);
 
         // Trimming doesn't track D3D12SerializeVersionedRootSignature.
-        // Use D3D12CreateVersionedRootSignatureDeserializer to get info. 
+        // Use D3D12CreateVersionedRootSignatureDeserializer to get info.
         // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
         graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
         HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
             blob_with_root_signature_decoder->GetPointer(), blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
 
-        const D3D12_VERSIONED_ROOT_SIGNATURE_DESC *versioned_root_sig = nullptr;
+        const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* versioned_root_sig = nullptr;
         root_sig_deserializer->GetRootSignatureDescAtVersion(D3D_ROOT_SIGNATURE_VERSION_1_2, &versioned_root_sig);
         auto modified_root_sig = *versioned_root_sig;
 
@@ -331,7 +331,7 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
         for (uint32_t pi = 0; pi < param_size; ++pi)
         {
             TrackRootParameter root_param;
-            auto param_entry = track_root_parameters->find(pi);
+            auto               param_entry = track_root_parameters->find(pi);
             if (param_entry != track_root_parameters->end())
             {
                 root_param = param_entry->second;
@@ -358,8 +358,7 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                         if (ranges[pi][ri].Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
                         {
                             ranges[pi][ri].Flags &= ~D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
-                            ranges[pi][ri].Flags |=
-                                D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
+                            ranges[pi][ri].Flags |= D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
                             is_modified = true;
                             GFXRECON_LOG_WARNING(
                                 "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC could cause error for dump resources. "
@@ -388,8 +387,8 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
 
             ID3D10Blob* p_modified_blob       = nullptr;
             ID3D10Blob* p_modified_error_blob = nullptr;
-            replay_result                     = D3D12SerializeVersionedRootSignature(
-                &modified_root_sig, &p_modified_blob, &p_modified_error_blob);
+            replay_result =
+                D3D12SerializeVersionedRootSignature(&modified_root_sig, &p_modified_blob, &p_modified_error_blob);
 
             GFXRECON_ASSERT(SUCCEEDED(replay_result));
 
@@ -1068,9 +1067,9 @@ bool ReplayCPUAddrMatchDescriptorHeap(const D3D12_CPU_DESCRIPTOR_HANDLE replay_c
     auto increment           = (*heap_info.replay_increments)[heap_info.descriptor_type];
     auto replay_cpu_addr_end = heap_info.replay_cpu_addr_begin + heap_info.descriptor_count * increment;
 
-    bool is_match = true ? (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr &&
-                            replay_cpu_addr.ptr <= replay_cpu_addr_end)
-                         : false;
+    bool is_match =
+        true ? (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr && replay_cpu_addr.ptr <= replay_cpu_addr_end)
+             : false;
     if (is_match)
     {
         if (increment == 0)
@@ -1095,7 +1094,7 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                                             uint32_t                                     root_heap_index,
                                             const D3D12_DESCRIPTOR_RANGE1*               range)
 {
-    const std::vector<uint32_t> sub_indices_emptry{ 0 };
+    const std::vector<uint32_t>                  sub_indices_emptry{ 0 };
     std::vector<std::pair<std::string, int32_t>> json_path_sub;
 
     uint32_t num_descriptors = 1;
@@ -1256,7 +1255,7 @@ void Dx12DumpResources::WriteRootParameters(DxObjectInfo*                       
 {
     std::vector<std::pair<std::string, int32_t>> json_path;
     std::vector<std::pair<std::string, int32_t>> json_path_sub;
-    auto json_index = 0;
+    auto                                         json_index = 0;
     for (const auto& param : root_parameters)
     {
         json_path.clear();
@@ -1433,15 +1432,15 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
                 json_path.clear();
                 json_path.emplace_back("vertices", json_index);
 
-                if(CopyDrawCallResourceByGPUVA(queue_object_info,
-                                            front_command_list_ids,
-                                            view.BufferLocation,
-                                            view.SizeInBytes,
-                                            json_path,
-                                            Dx12DumpResourceType::kVertex,
-                                            pos,
-                                            format::kNullHandleId,
-                                            0))
+                if (CopyDrawCallResourceByGPUVA(queue_object_info,
+                                                front_command_list_ids,
+                                                view.BufferLocation,
+                                                view.SizeInBytes,
+                                                json_path,
+                                                Dx12DumpResourceType::kVertex,
+                                                pos,
+                                                format::kNullHandleId,
+                                                0))
                 {
                     ++json_index;
                 }
@@ -1495,7 +1494,7 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
     if (descriptor_heap_ids && !descriptor_heap_ids->empty())
     {
         bool bundle_write_root_params = false;
-    
+
         if (bundle_target_draw_call)
         {
             switch (bundle_target_draw_call->drawcall_type)
@@ -1632,7 +1631,7 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
     {
         // render target
         // render target isn't available in Bundle.
-        json_index        = 0;
+        json_index   = 0;
         auto rt_size = track_dump_resources_.replay_render_target_handles.size();
         for (uint32_t i = 0; i < rt_size; ++i)
         {
@@ -2168,7 +2167,7 @@ std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDum
              (track_dump_resources_.target.begin_block_index <= block_index) &&
              (track_dump_resources_.target.close_block_index >= block_index))
     {
-        command_sets  = &track_dump_resources_.split_command_sets;
+        command_sets   = &track_dump_resources_.split_command_sets;
         draw_call_info = &track_dump_resources_.target;
     }
     else
@@ -2331,7 +2330,7 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     // prepare for output data
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = util::filepath::GetFilename(capture_file_name);
+    json_filename_ = util::filepath::GetFilename(capture_file_name);
 
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
@@ -2365,7 +2364,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     WriteBlockStart();
 
     util::FieldToJson(draw_call_["block_index"], track_dump_resources.target.draw_call_block_index, json_options_);
-    util::FieldToJson(draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
+    util::FieldToJson(
+        draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
 }
 
 void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr resource_data)
@@ -2473,7 +2473,8 @@ void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
     util::FieldToJson((*jdata_node)["root_parameter_index"], root_parameter_index, json_options_);
-    util::FieldToJson((*jdata_node)["root_signature_type"],util::ToString(root_parameter.root_signature_type), json_options_);
+    util::FieldToJson(
+        (*jdata_node)["root_signature_type"], util::ToString(root_parameter.root_signature_type), json_options_);
     util::FieldToJson((*jdata_node)["cmd_bind_type"], util::ToString(root_parameter.cmd_bind_type), json_options_);
 
     if (root_parameter.root_signature_type != root_parameter.cmd_bind_type)
@@ -2629,7 +2630,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteFloatResource(const std::string&
             data += "\n";
         }
 
-        std::string suffix = Dx12DumpResourcePosToString(resource_data->dump_position);
+        std::string suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
         std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
         file_name_sub += (suffix == "" ? ".txt" : ("_" + suffix + ".txt"));
         std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
