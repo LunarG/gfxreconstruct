@@ -2359,17 +2359,18 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     assert(dc_params_entry != draw_call_params.end());
     DrawCallParameters& dc_params = dc_params_entry->second;
 
-    uint32_t greatest_vertex_index = 0;
+    std::pair<uint32_t, uint32_t> min_max_vertex_indices(std::numeric_limits<uint32_t>::max(), 0);
 
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
-        // Store all (indexCount, firstIndex) pairs used by all associated with this index buffer.
-        // Latter we will parse the index buffer using all these pairs in order to detect the
-        // greatest index.
+        // Store all (indexCount, firstIndex) pairs used by all draw calls (in case of indirect)
+        // associated with this index buffer. Then we will parse the index buffer using all these pairs in order to
+        // detect the greatest index.
         std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs;
 
-        uint32_t abs_index_count = 0;
+        uint32_t abs_index_count        = 0;
+        int32_t  greatest_vertex_offset = 0;
 
         if (IsDrawCallIndirect(dc_params.type))
         {
@@ -2392,6 +2393,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         if (abs_index_count < indirect_index_count + indirect_first_index)
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
+                        }
+
+                        if (greatest_vertex_offset < ic_params.draw_indexed_params[d].vertexOffset)
+                        {
+                            greatest_vertex_offset = ic_params.draw_indexed_params[d].vertexOffset;
                         }
                     }
                 }
@@ -2416,6 +2422,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
                         }
+
+                        if (greatest_vertex_offset < i_params.draw_indexed_params[d].vertexOffset)
+                        {
+                            greatest_vertex_offset = i_params.draw_indexed_params[d].vertexOffset;
+                        }
                     }
                 }
             }
@@ -2426,7 +2437,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             const uint32_t first_index = dc_params.dc_params_union.draw_indexed.firstIndex;
 
             index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
-            abs_index_count = index_count + first_index;
+            abs_index_count        = index_count + first_index;
+            greatest_vertex_offset = dc_params.dc_params_union.draw_indexed.vertexOffset;
         }
 
         if (abs_index_count)
@@ -2467,12 +2479,19 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             std::string filename = GenerateIndexBufferFilename(qs_index, bcb_index, dc_index, index_type);
             util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
 
+            // Parse all indices in order to find the smallest and greatest index
             for (const auto& pairs : index_count_first_index_pairs)
             {
-                const uint32_t gvi = FindGreatestVertexIndex(index_data, pairs.first, pairs.second, index_type);
-                if (greatest_vertex_index < gvi)
+                const std::pair<uint32_t, uint32_t> min_max_indices =
+                    FindMinMaxVertexIndices(index_data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
+                if (min_max_indices.first < min_max_vertex_indices.first)
                 {
-                    greatest_vertex_index = gvi;
+                    min_max_vertex_indices.first = min_max_indices.first;
+                }
+
+                if (min_max_indices.second > min_max_vertex_indices.second)
+                {
+                    min_max_vertex_indices.second = min_max_indices.second;
                 }
             }
         }
@@ -2487,7 +2506,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         if (IsDrawCallIndexed(dc_params.type))
         {
             // For indexed draw calls the greatest vertex index will be used as the max vertex count
-            vertex_count = greatest_vertex_index + 1;
+            GFXRECON_ASSERT(min_max_vertex_indices.second >= min_max_vertex_indices.first);
+            vertex_count = (min_max_vertex_indices.second - min_max_vertex_indices.first) + 1;
 
             if (IsDrawCallIndirect(dc_params.type))
             {
@@ -2614,16 +2634,18 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 const uint32_t count =
                     vis.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
-                const uint32_t offset     = vb_entry->second.offset;
-                uint32_t       total_size = 0;
+                uint32_t total_size = 0;
+                uint32_t binding_stride;
+
                 if (vb_entry->second.size)
                 {
                     // Exact size was provided by vkCmdBindVertexBuffers2
-                    total_size = vb_entry->second.size;
+                    total_size     = vb_entry->second.size;
+                    binding_stride = vb_entry->second.stride;
                 }
                 else
                 {
-                    const uint32_t binding_stride = vis.second.stride;
+                    binding_stride = vis.second.stride;
                     if (binding_stride)
                     {
                         total_size = count * binding_stride;
@@ -2658,6 +2680,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         total_size += min_offset;
                     }
                 }
+
+                // Calculate offset including vertexOffset
+                const uint32_t offset = vb_entry->second.offset + (min_max_vertex_indices.first * binding_stride);
 
                 assert(total_size <= vb_entry->second.buffer_info->size - offset);
                 // There is something wrong with the calculations if this is true

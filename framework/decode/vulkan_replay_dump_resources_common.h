@@ -98,10 +98,11 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
 
 uint32_t VkIndexTypeToBytes(VkIndexType type);
 
-uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
-                                 uint32_t                    index_count,
-                                 uint32_t                    first_index,
-                                 VkIndexType                 type);
+std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
+                                                      uint32_t                    index_count,
+                                                      uint32_t                    first_index,
+                                                      int32_t                     vertex_offset,
+                                                      VkIndexType                 type);
 
 VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          const VulkanDeviceInfo*            device_info,
