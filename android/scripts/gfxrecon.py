@@ -68,7 +68,7 @@ def CheckDeviceSelection():
     devices = QueryAvailableDevices()
     if len(devices) <= 1:
         return
-    
+
     selection = os.getenv(android_serial)
     if selection is None or selection == '':
         raise DeviceSelectionException('Multiple devices detected - you must specify which one to use by setting ANDROID_SERIAL environment variable.')
@@ -365,8 +365,6 @@ def Replay(replay_args):
     if extras:
         if args.push_file:
             cmd = ' '.join([adb_push, args.push_file, args.file])
-            if selection is not None:
-                cmd = InsertDeviceSelectionArgument(cmd, selection)
             print('Executing:', cmd)
             subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
@@ -374,8 +372,6 @@ def Replay(replay_args):
         subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
 
         cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
-        if selection is not None:
-            cmd = InsertDeviceSelectionArgument(cmd, selection)
         print('Executing:', cmd)
 
         # Specify posix=False to prevent removal of quotes from adb extras.
