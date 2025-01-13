@@ -457,6 +457,13 @@ class VulkanStateTracker
     void TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
                                                const VkCopyAccelerationStructureInfoKHR* info);
 
+    void TrackWriteAccelerationStructuresPropertiesCommand(VkCommandBuffer                   commandBuffer,
+                                                           uint32_t                          accelerationStructureCount,
+                                                           const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                           VkQueryType                       queryType,
+                                                           VkQueryPool                       queryPool,
+                                                           uint32_t                          firstQuery);
+
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
     void TrackRayTracingPipelineProperties(VkPhysicalDevice                                 physicalDevice,

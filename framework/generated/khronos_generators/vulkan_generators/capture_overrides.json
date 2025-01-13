@@ -14,6 +14,7 @@
         "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR",
         "vkCmdBuildAccelerationStructuresKHR": "manager->OverrideCmdBuildAccelerationStructuresKHR",
         "vkCmdCopyAccelerationStructureKHR": "manager->OverrideCmdCopyAccelerationStructureKHR",
+        "vkCmdWriteAccelerationStructuresPropertiesKHR": "manager->OverrideCmdWriteAccelerationStructuresPropertiesKHR",
         "vkGetPhysicalDeviceProperties2": "manager->OverrideGetPhysicalDeviceProperties2",
         "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2"
     }

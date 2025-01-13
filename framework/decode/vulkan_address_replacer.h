@@ -130,9 +130,15 @@ class VulkanAddressReplacer
      *
      * @param   count                   element count in acceleration_structures
      * @param   acceleration_structures provided array of VkAccelerationStructureKHR-handles
+     * @param   query_type              the query's type
+     * @param   pool                    provided VkQuerypool handle
+     * @param   first_query             index of first query
      */
     void ProcessCmdWriteAccelerationStructuresPropertiesKHR(uint32_t                    count,
-                                                            VkAccelerationStructureKHR* acceleration_structures);
+                                                            VkAccelerationStructureKHR* acceleration_structures,
+                                                            VkQueryType                 query_type,
+                                                            VkQueryPool                 pool,
+                                                            uint32_t                    first_query);
 
     /**
      * @brief   ProcessUpdateDescriptorSets will check
@@ -278,6 +284,7 @@ class VulkanAddressReplacer
     VkCommandBuffer _command_buffer = VK_NULL_HANDLE;
     VkFence         _fence          = VK_NULL_HANDLE;
     VkQueue         _queue          = VK_NULL_HANDLE;
+    VkQueryPool     _query_pool     = VK_NULL_HANDLE;
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;

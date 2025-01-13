@@ -221,6 +221,10 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
         _device_table->DestroyPipelineLayout(_device, _pipeline_layout, nullptr);
     }
 
+    if (_query_pool != VK_NULL_HANDLE)
+    {
+        _device_table->DestroyQueryPool(_device, _query_pool, nullptr);
+    }
     if (_fence != VK_NULL_HANDLE)
     {
         _device_table->DestroyFence(_device, _fence, nullptr);
@@ -792,7 +796,6 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
 
         GFXRECON_ASSERT(info->dst != VK_NULL_HANDLE);
 
-        //        // tmp -> we don't arrive here during trim!?
         //        auto replace_it = _shadow_as_map.find(info->dst);
         //        if (replace_it == _shadow_as_map.end())
         //        {
@@ -818,7 +821,11 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
 }
 
 void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
-    uint32_t count, VkAccelerationStructureKHR* acceleration_structures)
+    uint32_t                    count,
+    VkAccelerationStructureKHR* acceleration_structures,
+    VkQueryType                 query_type,
+    VkQueryPool                 pool,
+    uint32_t                    first_query)
 {
     for (uint32_t i = 0; i < count; ++i)
     {
@@ -884,6 +891,7 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
             &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
 
         // issue build-command
+        mark_injected_commands_helper_t mark_injected_commands_helper;
         _device_table->CmdBuildAccelerationStructuresKHR(_command_buffer, info_count, geometry_infos, range_infos);
     }
 }
@@ -902,6 +910,7 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
         {
             ProcessCmdCopyAccelerationStructuresKHR(copy_infos + i, address_tracker);
         }
+        mark_injected_commands_helper_t mark_injected_commands_helper;
         _device_table->CmdCopyAccelerationStructureKHR(_command_buffer, copy_infos);
     }
 }
@@ -911,7 +920,15 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
 {
     if (init_queue_assets())
     {
-        // TODO: reset/submit/sync command-buffer
+        // reset/submit/sync command-buffer
+        queue_submit_helper_t queue_submit_helper(_device_table, _device, _command_buffer, _queue, _fence);
+
+        ProcessCmdWriteAccelerationStructuresPropertiesKHR(1, &acceleration_structure, query_type, _query_pool, 0);
+
+        // issue vkCmdWriteAccelerationStructuresPropertiesKHR
+        mark_injected_commands_helper_t mark_injected_commands_helper;
+        _device_table->CmdWriteAccelerationStructuresPropertiesKHR(
+            _command_buffer, 1, &acceleration_structure, query_type, _query_pool, 0);
     }
 }
 
@@ -1044,6 +1061,20 @@ bool VulkanAddressReplacer::init_queue_assets()
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal fence creation failed");
+        return false;
+    }
+
+    VkQueryPoolCreateInfo pool_info;
+    pool_info.sType              = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+    pool_info.pNext              = nullptr;
+    pool_info.flags              = 0;
+    pool_info.queryType          = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
+    pool_info.queryCount         = 1;
+    pool_info.pipelineStatistics = 0;
+    result                       = _device_table->CreateQueryPool(_device, &pool_info, nullptr, &_query_pool);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal query-pool creation failed");
         return false;
     }
 

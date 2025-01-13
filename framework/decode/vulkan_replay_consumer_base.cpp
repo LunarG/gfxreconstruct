@@ -7934,7 +7934,8 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
 
     {
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCmdWriteAccelerationStructuresPropertiesKHR(count, acceleration_structs);
+        address_replacer.ProcessCmdWriteAccelerationStructuresPropertiesKHR(
+            count, acceleration_structs, queryType, query_pool, firstQuery);
     }
     func(command_buffer, count, acceleration_structs, queryType, query_pool, firstQuery);
 }

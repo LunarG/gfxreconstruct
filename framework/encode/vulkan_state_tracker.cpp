@@ -555,6 +555,28 @@ void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer  
     wrapper->latest_copy_command_->info   = *info;
 }
 
+void VulkanStateTracker::TrackWriteAccelerationStructuresPropertiesCommand(
+    VkCommandBuffer                   commandBuffer,
+    uint32_t                          accelerationStructureCount,
+    const VkAccelerationStructureKHR* pAccelerationStructures,
+    VkQueryType                       queryType,
+    VkQueryPool                       queryPool,
+    uint32_t                          firstQuery)
+{
+    auto* cmd_buf_wrapper    = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+    auto* query_pool_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(queryPool);
+
+    for (uint32_t i = 0; i < accelerationStructureCount; ++i)
+    {
+        auto* wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(pAccelerationStructures[i]);
+        wrapper->latest_write_properties_command_ =
+            vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureWritePropertiesCommandData{};
+        wrapper->latest_write_properties_command_->device     = wrapper->device->handle_id;
+        wrapper->latest_write_properties_command_->query_type = queryType;
+    }
+}
+
 void VulkanStateTracker::TrackImageMemoryBinding(
     VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* bind_info_pnext)
 {
