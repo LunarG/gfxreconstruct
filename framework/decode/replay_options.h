@@ -71,6 +71,7 @@ struct ReplayOptions
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
     std::string                  dump_resources_output_dir;
+    bool                         dump_resources_before{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

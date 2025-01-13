@@ -112,6 +112,7 @@ enum class Dx12DumpResourcePos : uint32_t
     kBeforeDrawCall,
     kDrawCall,
     kAfterDrawCall,
+    kAfterDrawCall_NoBefore,
 };
 
 const static uint32_t kBeforeDrawCallArrayIndex = 0;
