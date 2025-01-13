@@ -1001,7 +1001,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
 
     auto& current_block         = dump_json.GetCurrentSubEntry();
     auto& drawcall_json_entries = !output_json_per_command ? current_block["drawCallCommands"] : current_block;
-    auto& draw_call_entry = !output_json_per_command ? drawcall_json_entries[cmd_buf_index] : drawcall_json_entries;
+
+    static uint64_t unique_json_entry = 0;
+    auto&           draw_call_entry =
+        !output_json_per_command ? drawcall_json_entries[unique_json_entry++] : drawcall_json_entries;
 
     const auto& dc_param_entry = draw_call_params.find(dc_index);
     assert(dc_param_entry != draw_call_params.end());
@@ -1710,7 +1713,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             }
         }
 
-        const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         std::vector<bool> scaling_supported(filenames.size());
         VkResult          res = DumpImageToFile(image_info,
                                        device_info,
@@ -1724,8 +1726,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        dump_all_image_subresources,
                                        dump_images_raw,
                                        dump_images_separate_alpha,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                       &extent);
+                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
         if (res != VK_SUCCESS)
         {
@@ -1788,7 +1789,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             }
         }
 
-        const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         std::vector<bool> scaling_supported(filenames.size());
         VkResult          res = DumpImageToFile(image_info,
                                        device_info,
@@ -1802,8 +1802,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                        dump_all_image_subresources,
                                        dump_images_raw,
                                        dump_images_separate_alpha,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                       &extent);
+                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
         if (res != VK_SUCCESS)
         {
