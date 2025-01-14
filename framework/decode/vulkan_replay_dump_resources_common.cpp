@@ -76,6 +76,7 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
 
+        case VK_FORMAT_D24_UNORM_S8_UINT:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
             return util::imagewriter::DataFormats::kFormat_D24_UNORM;
 
@@ -83,6 +84,8 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
             return util::imagewriter::DataFormats::kFormat_D16_UNORM;
 
         default:
+            GFXRECON_LOG_ERROR("%s isn't supported in VkFormatToImageWriterDataFormat",
+                               util::ToString<VkFormat>(format).c_str());
             return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
     }
 }
