@@ -2028,8 +2028,8 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
             if (it != (*command)->input_buffers.end())
             {
                 vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
-                buffer.destroyed              = true;
-                auto [resource_util, created] = resource_utils_.try_emplace(
+                buffer.destroyed                                                        = true;
+                auto [resource_util, created]                                           = resource_utils_.try_emplace(
                     buffer.bind_device->handle,
                     graphics::VulkanResourcesUtil(buffer.bind_device->handle,
                                                   buffer.bind_device->physical_device->handle,
@@ -2857,7 +2857,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(format::HandleId memory_id)
 
     for (const auto& entry : memories_page_status)
     {
-//        assert(entry.second.status_tracker.HasActiveWriteBlock());
+        assert(entry.second.status_tracker.HasActiveWriteBlock());
 
         const util::PageStatusTracker& page_status = entry.second.status_tracker;
 

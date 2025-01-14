@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define CATCH_CONFIG_MAIN
+#include <numeric>
 #include <catch2/catch.hpp>
 
 #include "graphics/vulkan_shader_group_handle.h"

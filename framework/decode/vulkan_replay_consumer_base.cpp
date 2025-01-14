@@ -7886,7 +7886,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
 
-//    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         auto& address_tracker  = GetDeviceAddressTracker(device_info);
         auto& address_replacer = GetDeviceAddressReplacer(device_info);
@@ -7987,38 +7987,157 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                                          &pPipelines->GetPointer()[createInfoCount]);
     }
 
-    if (omitted_pipeline_cache_data_)
+    // NOTE: as of early 2025, rayTracingPipelineShaderGroupHandleCaptureReplay is not widely supported.
+    // e.g. newest nvidia desktop-drivers do not support this feature
+    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        AllowCompileDuringPipelineCreation(createInfoCount,
-                                           const_cast<VkRayTracingPipelineCreateInfoKHR*>(in_pCreateInfos));
-    }
+        // Modify pipeline create infos with capture replay flag and data.
+        std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
+        std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> modified_pgroups;
+        modified_create_infos.reserve(createInfoCount);
+        modified_pgroups.resize(createInfoCount);
+        for (uint32_t create_info_i = 0; create_info_i < createInfoCount; ++create_info_i)
+        {
+            format::HandleId pipeline_capture_id = (*pPipelines[create_info_i].GetPointer());
 
-    VkPipeline* created_pipelines = nullptr;
+            // Enable capture replay flag.
+            modified_create_infos.push_back(in_pCreateInfos[create_info_i]);
+            modified_create_infos[create_info_i].flags |=
+                VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
 
-    if (deferred_operation_info)
-    {
-        created_pipelines = deferred_operation_info->replayPipelines.data();
+            uint32_t group_info_count = in_pCreateInfos[create_info_i].groupCount;
+            bool     has_data         = (device_info->shader_group_handles.find(pipeline_capture_id) !=
+                             device_info->shader_group_handles.end());
+
+            if (has_data)
+            {
+                assert(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
+                       (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                        group_info_count));
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
+                                     pipeline_capture_id);
+            }
+
+            // Set pShaderGroupCaptureReplayHandle in shader group create infos.
+            std::vector<VkRayTracingShaderGroupCreateInfoKHR>& modified_group_infos = modified_pgroups[create_info_i];
+            modified_group_infos.reserve(group_info_count);
+
+            for (uint32_t group_info_i = 0; group_info_i < group_info_count; ++group_info_i)
+            {
+                modified_group_infos.push_back(in_pCreateInfos[create_info_i].pGroups[group_info_i]);
+
+                if (has_data)
+                {
+                    uint32_t byte_offset =
+                        device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
+                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
+                        device_info->shader_group_handles.at(pipeline_capture_id).data() + byte_offset;
+                }
+                else
+                {
+                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle = nullptr;
+                }
+            }
+
+            // Use modified shader group infos.
+            modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
+        }
+
+        if (omitted_pipeline_cache_data_)
+        {
+            AllowCompileDuringPipelineCreation(createInfoCount, modified_create_infos.data());
+        }
+
+        VkPipeline* created_pipelines = nullptr;
+
+        if (deferred_operation_info)
+        {
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
+        result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device,
+                                                                      in_deferredOperation,
+                                                                      overridePipelineCache,
+                                                                      createInfoCount,
+                                                                      modified_create_infos.data(),
+                                                                      in_pAllocator,
+                                                                      created_pipelines);
+
+        if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+            (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+        {
+            // The above return values mean the command is not deferred and driver will finish all workload in current
+            // thread. Therefore the created pipelines can be read and copied to out_pPipelines which will be
+            // referenced later.
+            //
+            // Note:
+            //     Some pipelines might actually fail creation if the return value is VK_PIPELINE_COMPILE_REQUIRED_EXT.
+            //     These failed pipelines will generate VK_NULL_HANDLE.
+            //
+            //     If the return value is VK_OPERATION_DEFERRED_KHR, it means the command is deferred, and thus pipeline
+            //     creation is not finished. Subsequent handling will be done by
+            //     vkDeferredOperationJoinKHR/vkGetDeferredOperationResultKHR after pipeline creation is finished.
+
+            if (deferred_operation_info)
+            {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+
+                // Eventhough vkCreateRayTracingPipelinesKHR was called with a valid deferred operation object, the
+                // driver may opt to not defer the command. In this case, set pending_state flag to false to skip
+                // vkDeferredOperationJoinKHR handling.
+                deferred_operation_info->pending_state = false;
+            }
+        }
+
+        if (deferred_operation_info)
+        {
+            deferred_operation_info->record_modified_create_infos = std::move(modified_create_infos);
+            deferred_operation_info->record_modified_pgroups      = std::move(modified_pgroups);
+        }
     }
     else
     {
-        created_pipelines = out_pPipelines;
-    }
+        if (omitted_pipeline_cache_data_)
+        {
+            AllowCompileDuringPipelineCreation(createInfoCount,
+                                               const_cast<VkRayTracingPipelineCreateInfoKHR*>(in_pCreateInfos));
+        }
 
-    result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device,
-                                                                  in_deferredOperation,
-                                                                  overridePipelineCache,
-                                                                  createInfoCount,
-                                                                  in_pCreateInfos,
-                                                                  in_pAllocator,
-                                                                  created_pipelines);
+        VkPipeline* created_pipelines = nullptr;
 
-    if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
-        (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
-    {
         if (deferred_operation_info)
         {
-            memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
-            deferred_operation_info->pending_state = false;
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
+        result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device,
+                                                                      in_deferredOperation,
+                                                                      overridePipelineCache,
+                                                                      createInfoCount,
+                                                                      in_pCreateInfos,
+                                                                      in_pAllocator,
+                                                                      created_pipelines);
+
+        if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+            (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+        {
+
+            if (deferred_operation_info)
+            {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+                deferred_operation_info->pending_state = false;
+            }
         }
     }
 
@@ -9632,12 +9751,15 @@ void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaComman
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        MapStructArrayHandles(copy_infos->GetMetaStructPointer(), copy_infos->GetLength(), GetObjectInfoTable());
+        if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+        {
+            MapStructArrayHandles(copy_infos->GetMetaStructPointer(), copy_infos->GetLength(), GetObjectInfoTable());
 
-        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
-        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCopyVulkanAccelerationStructuresMetaCommand(
-            copy_infos->GetLength(), copy_infos->GetPointer(), address_tracker);
+            const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+            auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.ProcessCopyVulkanAccelerationStructuresMetaCommand(
+                copy_infos->GetLength(), copy_infos->GetPointer(), address_tracker);
+        }
     }
 }
 
@@ -9652,16 +9774,17 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+        if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+        {
+            MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
-        VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
-        VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
+            VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
+            VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
 
-        GetDeviceAddressReplacer(device_info)
-            .ProcessBuildVulkanAccelerationStructuresMetaCommand(info_count,
-                                                                 pInfos->GetPointer(),
-                                                                 ppRangeInfos->GetPointer(),
-                                                                 GetDeviceAddressTracker(device_info));
+            GetDeviceAddressReplacer(device_info)
+                .ProcessBuildVulkanAccelerationStructuresMetaCommand(
+                    info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
+        }
     }
 }
 
@@ -9673,11 +9796,14 @@ void VulkanReplayConsumerBase::ProcessVulkanAccelerationStructuresWritePropertie
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device_id);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        VkAccelerationStructureKHR acceleration_structure = MapHandle<VulkanAccelerationStructureKHRInfo>(
-            acceleration_structure_id, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
+        if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+        {
+            VkAccelerationStructureKHR acceleration_structure = MapHandle<VulkanAccelerationStructureKHRInfo>(
+                acceleration_structure_id, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
 
-        GetDeviceAddressReplacer(device_info)
-            .ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(query_type, acceleration_structure);
+            GetDeviceAddressReplacer(device_info)
+                .ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(query_type, acceleration_structure);
+        }
     }
 }
 

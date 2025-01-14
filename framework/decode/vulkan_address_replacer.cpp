@@ -512,8 +512,9 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         }
         else
         {
-//            GFXRECON_LOG_WARNING(
-//                "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap failed");
+            //            GFXRECON_LOG_WARNING(
+            //                "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap
+            //                failed");
             return false;
         }
     };
@@ -532,7 +533,6 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         address_remap(build_geometry_info.scratchData.deviceAddress);
 
         // check capture/replay acceleration-structure buffer-sizes
-        if (!_resource_allocator->SupportsOpaqueDeviceAddresses())
         {
             VkAccelerationStructureBuildSizesInfoKHR build_size_info = {};
             build_size_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
@@ -594,7 +594,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                                         build_size_info.accelerationStructureSize,
                                                         scratch_size))
                     {
-                        // problem creating shadow-AS
+                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: creation of shadow "
+                                           "acceleration-structure failed");
                     }
                 }
 
@@ -791,43 +792,16 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
         swap_acceleration_structure(info->src);
         swap_acceleration_structure(info->dst);
 
-        VkDeviceSize compact_size = 0;
-        //        GFXRECON_ASSERT(info->dst != VK_NULL_HANDLE);
-        auto compact_size_it = _as_compact_sizes.find(info->dst);
+        VkDeviceSize compact_size    = 0;
+        auto         compact_size_it = _as_compact_sizes.find(info->dst);
         if (compact_size_it != _as_compact_sizes.end())
         {
             compact_size = compact_size_it->second;
-
+            _as_compact_sizes.erase(info->dst);
             GFXRECON_LOG_INFO(
                 "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: found compacted AS-size: %ul",
                 compact_size);
         }
-        //        else
-        //        {
-        //            GFXRECON_LOG_ERROR(
-        //                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: compacted AS-size unknown");
-        //        }
-        //        auto replace_it = _shadow_as_map.find(info->dst);
-        //        if (replace_it == _shadow_as_map.end())
-        //        {
-        //            if (info->dst != VK_NULL_HANDLE)
-        //            {
-        //                auto as_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
-        //                GFXRECON_ASSERT(as_info != nullptr);
-        //
-        //                acceleration_structure_asset_t& new_dst = _shadow_as_map[info->dst];
-        //                uint32_t fake_as_buffer_size = 5 * (1 << 20);
-        //
-        //                if (create_acceleration_asset(new_dst, as_info->type, fake_as_buffer_size, 0))
-        //                {
-        //                    swap_acceleration_structure(info->dst);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                GFXRECON_ASSERT(info->dst != VK_NULL_HANDLE);
-        //            }
-        //        }
     }
 }
 
