@@ -358,9 +358,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateBufferDescriptorFilename(const Vulka
 {
     std::stringstream filename;
 
-    filename << capture_filename_ << "_"
-             << "buffer_" << resource_info.buffer_info->capture_id << "_qs_" << resource_info.qs_index << "_bcb_"
-             << resource_info.bcb_index << "_rp_" << resource_info.rp << ".bin";
+    filename << capture_filename_ << "_" << "buffer_" << resource_info.buffer_info->capture_id << "_qs_"
+             << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_rp_" << resource_info.rp << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -380,9 +379,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateInlineUniformBufferDescr
     const VulkanDumpResourceInfo& resource_info) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "inlineUniformBlock_set_" << resource_info.set << "_binding_" << resource_info.binding << "_qs_"
-             << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << ".bin";
+    filename << capture_filename_ << "_" << "inlineUniformBlock_set_" << resource_info.set << "_binding_"
+             << resource_info.binding << "_qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index
+             << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -401,10 +400,9 @@ std::string
 DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const VulkanDumpResourceInfo& resource_info) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "vertexBuffers_"
-             << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
-             << resource_info.cmd_index << "_binding_" << resource_info.binding << ".bin";
+    filename << capture_filename_ << "_" << "vertexBuffers_" << "qs_" << resource_info.qs_index << "_bcb_"
+             << resource_info.bcb_index << "_dc_" << resource_info.cmd_index << "_binding_" << resource_info.binding
+             << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -425,8 +423,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const VulkanDump
     std::stringstream filename;
     filename << capture_filename_ << "_";
     std::string index_type_name = IndexTypeToStr(resource_info.index_type);
-    filename << "indexBuffer_"
-             << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
+    filename << "indexBuffer_" << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
              << resource_info.cmd_index << index_type_name << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1275,7 +1272,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
         !options_.dump_resources_json_per_command ? current_block["dispatchCommands"] : dump_json_.GetData();
 
     static uint64_t unique_json_entry = 0;
-    auto& dispatch_json_entry =
+    auto&           dispatch_json_entry =
         !options_.dump_resources_json_per_command ? dispatch_json_entries[unique_json_entry++] : dump_json_.GetData();
 
     dispatch_json_entry["dispatchIndex"]           = draw_call_info.cmd_index;
@@ -1740,7 +1737,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const 
     }
 
     static uint64_t unique_json_entry = 0;
-    auto& tr_entry = !options_.dump_resources_json_per_command ? tr_json_entries[unique_json_entry++] : dump_json_.GetData();
+    auto&           tr_entry =
+        !options_.dump_resources_json_per_command ? tr_json_entries[unique_json_entry++] : dump_json_.GetData();
 
     tr_entry["traceRaysIndex"]          = draw_call_info.cmd_index;
     tr_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;

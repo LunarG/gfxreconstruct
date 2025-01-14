@@ -46,8 +46,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
                                                              CommonObjectInfoTable*     object_info_table) :
-    QueueSubmit_indices_(options.QueueSubmit_Indices),
-    recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
+    QueueSubmit_indices_(options.QueueSubmit_Indices), recording_(false),
+    dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), user_delegate_(nullptr),
     active_delegate_(nullptr), default_delegate_(nullptr)
 {
