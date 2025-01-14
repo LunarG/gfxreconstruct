@@ -932,6 +932,27 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
         _device_table->CmdWriteAccelerationStructuresPropertiesKHR(
             _command_buffer, 1, &acceleration_structure, query_type, _query_pool, 0);
     }
+
+    VkDeviceSize compact_size = 0;
+
+    // issue vkCmdWriteAccelerationStructuresPropertiesKHR
+    mark_injected_commands_helper_t mark_injected_commands_helper;
+    _device_table->GetQueryPoolResults(_device,
+                                       _query_pool,
+                                       0,
+                                       1,
+                                       sizeof(VkDeviceSize),
+                                       &compact_size,
+                                       sizeof(VkDeviceSize),
+                                       VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+    ProcessGetQueryPoolResults(_device,
+                               _query_pool,
+                               0,
+                               1,
+                               sizeof(VkDeviceSize),
+                               &compact_size,
+                               sizeof(VkDeviceSize),
+                               VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 }
 
 void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device,
@@ -993,12 +1014,13 @@ bool VulkanAddressReplacer::init_pipeline()
     }
 
     auto create_pipeline = [this](VkPipelineLayout layout, const auto& spirv, VkPipeline& out_pipeline) -> VkResult {
+        using elem_t                                       = typename std::decay_t<decltype(spirv)>::value_type;
         VkShaderModule           compute_module            = VK_NULL_HANDLE;
         VkShaderModuleCreateInfo shader_module_create_info = {};
         shader_module_create_info.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shader_module_create_info.pNext                    = VK_NULL_HANDLE;
         shader_module_create_info.flags                    = 0;
-        shader_module_create_info.codeSize                 = spirv.size();
+        shader_module_create_info.codeSize                 = spirv.size() * sizeof(elem_t);
         shader_module_create_info.pCode                    = reinterpret_cast<const uint32_t*>(spirv.data());
 
         VkResult result =
