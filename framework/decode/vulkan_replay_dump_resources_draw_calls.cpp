@@ -1065,7 +1065,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     res_info_base.before_cmd                   = dump_resources_before && !(cmd_buf_index % 2);
     res_info_base.rp                           = rp;
     res_info_base.sp                           = sp;
-    res_info_base.image_extent                 = { render_area[rp].extent.width, render_area[rp].extent.height, 1 };
 
     // Dump color attachments
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
@@ -1618,8 +1617,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             // Parse all indices in order to find the smallest and greatest index
             for (const auto& pairs : index_count_first_index_pairs)
             {
-                const std::pair<uint32_t, uint32_t> min_max_indices =
-                    FindMinMaxVertexIndices(index_data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
+                const std::pair<uint32_t, uint32_t> min_max_indices = FindMinMaxVertexIndices(
+                    res_info.data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
                 if (min_max_indices.first < min_max_vertex_indices.first)
                 {
                     min_max_vertex_indices.first = min_max_indices.first;

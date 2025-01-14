@@ -136,8 +136,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
-                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                   &resource_info.image_extent);
+                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
     if (res != VK_SUCCESS)
     {
@@ -455,8 +454,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
     auto& current_block = dump_json_.GetCurrentSubEntry();
     auto& drawcall_json_entries =
         !options_.dump_resources_json_per_command ? current_block["drawCallCommands"] : current_block;
-    auto& draw_call_entry =
-        !options_.dump_resources_json_per_command ? drawcall_json_entries[index] : drawcall_json_entries;
+
+    static uint64_t unique_json_entry = 0;
+    auto&           draw_call_entry =
+        !options_.dump_resources_json_per_command ? drawcall_json_entries[unique_json_entry++] : drawcall_json_entries;
 
     draw_call_entry["drawIndex"]               = draw_call_info.cmd_index;
     draw_call_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;

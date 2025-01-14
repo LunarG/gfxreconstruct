@@ -72,7 +72,6 @@ struct VulkanDumpResourceInfo
     uint64_t sp; // subpass
 
     const VulkanImageInfo*  image_info;
-    VkExtent3D              image_extent;
     const VulkanBufferInfo* buffer_info;
     std::vector<uint8_t>    data;
 
