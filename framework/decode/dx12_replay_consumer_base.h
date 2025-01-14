@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -282,6 +282,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IDXGIAdapter* GetAdapter();
 
+    graphics::dx12::ActiveAdapterMap& GetAdaptersMap() { return adapters_; }
+
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
@@ -455,7 +457,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                  D3D12_RENDER_PASS_FLAGS                                             Flags);
 
     template <typename T>
-    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src){};
+    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src) {};
 
     template <>
     void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, D3D12_RESOURCE_DESC1* desc_src)
