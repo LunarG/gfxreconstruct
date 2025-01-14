@@ -56,6 +56,16 @@ class VulkanAddressReplacer
     ~VulkanAddressReplacer();
 
     /**
+     * @brief   Set raytracing-related properties
+     *
+     * @param   capture_properties      capture-time raytracing pipeline properties
+     * @param   replay_properties       replay-time raytracing pipeline properties
+     * @param   replay_as_properties    replay-time acceleration-structure properties
+     */
+    void SetRaytracingProperties(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    capture_properties,
+                                 const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    replay_properties,
+                                 const VkPhysicalDeviceAccelerationStructurePropertiesKHR& replay_as_properties);
+    /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
      *          like buffer-device-addresses and shader-group-handles.
      *
@@ -272,50 +282,50 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
 
-    const encode::VulkanDeviceTable*                   _device_table      = nullptr;
-    VkPhysicalDeviceMemoryProperties                   _memory_properties = {};
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR    _capture_ray_properties{}, _replay_ray_properties{};
-    VkPhysicalDeviceAccelerationStructurePropertiesKHR _replay_acceleration_structure_properties{};
-    bool                                               _valid_sbt_alignment = true;
+    const encode::VulkanDeviceTable*                   device_table_      = nullptr;
+    VkPhysicalDeviceMemoryProperties                   memory_properties_ = {};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR    capture_ray_properties_{}, replay_ray_properties_{};
+    VkPhysicalDeviceAccelerationStructurePropertiesKHR replay_acceleration_structure_properties_{};
+    bool                                               valid_sbt_alignment_ = true;
 
-    VkDevice                         _device             = VK_NULL_HANDLE;
-    decode::VulkanResourceAllocator* _resource_allocator = nullptr;
+    VkDevice                         device_             = VK_NULL_HANDLE;
+    decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
 
     // common layout used for all pipelines
-    VkPipelineLayout _pipeline_layout = VK_NULL_HANDLE;
+    VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
 
     // pipeline dealing with shader-binding-table (SBT), replacing group-handles
-    VkPipeline _pipeline_sbt = VK_NULL_HANDLE;
+    VkPipeline pipeline_sbt_ = VK_NULL_HANDLE;
 
     // pipeline dealing with buffer-device-addresses (BDA), replacing addresses
-    VkPipeline _pipeline_bda = VK_NULL_HANDLE;
+    VkPipeline pipeline_bda_ = VK_NULL_HANDLE;
 
     // required assets for submitting meta-commands
-    VkCommandPool   _command_pool   = VK_NULL_HANDLE;
-    VkCommandBuffer _command_buffer = VK_NULL_HANDLE;
-    VkFence         _fence          = VK_NULL_HANDLE;
-    VkQueue         _queue          = VK_NULL_HANDLE;
-    VkQueryPool     _query_pool     = VK_NULL_HANDLE;
+    VkCommandPool   command_pool_   = VK_NULL_HANDLE;
+    VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+    VkFence         fence_          = VK_NULL_HANDLE;
+    VkQueue         queue_          = VK_NULL_HANDLE;
+    VkQueryPool     query_pool_     = VK_NULL_HANDLE;
 
-    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> _hashmap_sbt;
-    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 _hashmap_bda;
-    std::unordered_map<VkCommandBuffer, buffer_context_t>                                  _shadow_sbt_map;
+    util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap_sbt_;
+    util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 hashmap_bda_;
+    std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
 
     // pipeline-contexts dealing with shader-binding-tables, per command-buffer
-    std::unordered_map<VkCommandBuffer, pipeline_context_t> _pipeline_sbt_context_map;
+    std::unordered_map<VkCommandBuffer, pipeline_context_t> pipeline_sbt_context_map_;
 
     // resources related to acceleration-structures
-    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> _shadow_as_map;
+    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> shadow_as_map_;
 
     // pipeline-contexts dealing with acceleration-structure builds, per command-buffer
-    std::unordered_map<VkCommandBuffer, pipeline_context_t> _build_as_context_map;
+    std::unordered_map<VkCommandBuffer, pipeline_context_t> build_as_context_map_;
 
     // currently running compaction queries. pool -> AS -> query-pool-index
-    std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> _as_compact_queries;
-    std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              _as_compact_sizes;
+    std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> as_compact_queries_;
+    std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              as_compact_sizes_;
 
     // required function pointers
-    PFN_vkGetBufferDeviceAddress _get_device_address_fn_ = nullptr;
+    PFN_vkGetBufferDeviceAddress get_device_address_fn_ = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

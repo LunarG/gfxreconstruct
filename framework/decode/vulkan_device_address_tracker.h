@@ -121,12 +121,12 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
                                                         const buffer_address_map_t& address_map) const;
 
-    const VulkanObjectInfoTable&                          _object_info_table;
-    buffer_address_map_t                                  _buffer_capture_addresses;
-    std::unordered_map<VkDeviceAddress, format::HandleId> _acceleration_structure_capture_addresses;
+    const VulkanObjectInfoTable&                          object_info_table_;
+    buffer_address_map_t                                  buffer_capture_addresses_;
+    std::unordered_map<VkDeviceAddress, format::HandleId> acceleration_structure_capture_addresses_;
 
-    std::unordered_map<VkBuffer, format::HandleId>                   _buffer_handles;
-    std::unordered_map<VkAccelerationStructureKHR, format::HandleId> _acceleration_structure_handles;
+    std::unordered_map<VkBuffer, format::HandleId>                   buffer_handles_;
+    std::unordered_map<VkAccelerationStructureKHR, format::HandleId> acceleration_structure_handles_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
