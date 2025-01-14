@@ -65,9 +65,6 @@ class VulkanEnumToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
 class VulkanEnumToJsonHeaderGenerator(VulkanBaseGenerator, KhronosEnumToJsonHeaderGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
 
-    SKIP_ENUM = [
-    ]
-
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):

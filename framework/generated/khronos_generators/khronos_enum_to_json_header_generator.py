@@ -58,7 +58,7 @@ class KhronosEnumToJsonHeaderGenerator():
 
         self.newline()
         for enum in sorted(self.enum_names):
-            if enum in processedEnums or enum in self.SKIP_ENUM or self.skip_generating_enum_to_json_for_type(
+            if enum in processedEnums or self.skip_generating_enum_to_json_for_type(
                 enum
             ):
                 continue
