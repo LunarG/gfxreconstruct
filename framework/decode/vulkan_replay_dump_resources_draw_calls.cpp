@@ -873,7 +873,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             GFXRECON_ASSERT(dc_param_entry != draw_call_params.end());
             draw_call_info.dc_param = &dc_param_entry->second;
 
-            delegate_.DumpDrawCallInfo(draw_call_info, cb);
+            delegate_.DumpDrawCallInfo(draw_call_info);
         }
 
         res = RevertRenderTargetImageLayouts(queue, cb);

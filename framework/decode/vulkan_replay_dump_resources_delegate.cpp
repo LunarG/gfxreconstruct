@@ -27,18 +27,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info, size_t index)
+void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info)
 {
     switch (draw_call_info.type)
     {
         case DumpResourceType::kDrawCallInfo:
-            GenerateOutputJsonDrawCallInfo(draw_call_info, index);
+            GenerateOutputJsonDrawCallInfo(draw_call_info);
             break;
         case DumpResourceType::kDispatchInfo:
-            GenerateOutputJsonDispatchInfo(draw_call_info, index);
+            GenerateOutputJsonDispatchInfo(draw_call_info);
             break;
         case DumpResourceType::kTraceRaysIndex:
-            GenerateOutputJsonTraceRaysIndex(draw_call_info, index);
+            GenerateOutputJsonTraceRaysIndex(draw_call_info);
             break;
         default:
             break;
@@ -434,8 +434,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const VulkanDump
     return (filedirname / filebasename).string();
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info,
-                                                                        size_t                        index)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo& draw_call_info)
 {
     if (options_.dump_resources_json_per_command)
     {
@@ -1251,8 +1250,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     return (filedirname / filebasename).string();
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo& draw_call_info,
-                                                                        size_t                        index)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo& draw_call_info)
 {
     if (draw_call_info.disp_param == nullptr)
     {
@@ -1275,8 +1273,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     auto& current_block = dump_json_.GetCurrentSubEntry();
     auto& dispatch_json_entries =
         !options_.dump_resources_json_per_command ? current_block["dispatchCommands"] : dump_json_.GetData();
+
+    static uint64_t unique_json_entry = 0;
     auto& dispatch_json_entry =
-        !options_.dump_resources_json_per_command ? dispatch_json_entries[index] : dump_json_.GetData();
+        !options_.dump_resources_json_per_command ? dispatch_json_entries[unique_json_entry++] : dump_json_.GetData();
 
     dispatch_json_entry["dispatchIndex"]           = draw_call_info.cmd_index;
     dispatch_json_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
@@ -1715,8 +1715,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     }
 }
 
-void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo& draw_call_info,
-                                                                          size_t                        index)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo& draw_call_info)
 {
     if (draw_call_info.tr_param == nullptr)
     {
@@ -1739,7 +1738,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const 
         dump_json_.Open(full_filename);
         dump_json_.BlockStart();
     }
-    auto& tr_entry = !options_.dump_resources_json_per_command ? tr_json_entries[index] : dump_json_.GetData();
+
+    static uint64_t unique_json_entry = 0;
+    auto& tr_entry = !options_.dump_resources_json_per_command ? tr_json_entries[unique_json_entry++] : dump_json_.GetData();
 
     tr_entry["traceRaysIndex"]          = draw_call_info.cmd_index;
     tr_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
