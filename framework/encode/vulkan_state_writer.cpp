@@ -1660,7 +1660,6 @@ void VulkanStateWriter::WriteTlasToBlasDependenciesMetadata(const VulkanStateTab
     });
 }
 
-// Rename this to represent the whole acc structure prepare process
 void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table)
 {
     struct AccelerationStructureCommands
@@ -1738,10 +1737,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             EncodeAccelerationStructureWritePropertiesCommand(device, cmd_properties);
         }
 
-        for (const auto& copy_info : command.copy_infos)
-        {
-            EncodeAccelerationStructureCopyMetaCommand(device, copy_info);
-        }
+        EncodeAccelerationStructuresCopyMetaCommand(device, command.copy_infos);
 
         for (auto& tlas_build : command.tlas_build)
         {
@@ -1871,8 +1867,8 @@ void VulkanStateWriter::EncodeAccelerationStructureBuildMetaCommand(
     ++blocks_written_;
 }
 
-void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::HandleId                          device_id,
-                                                                   const VkCopyAccelerationStructureInfoKHR& info)
+void VulkanStateWriter::EncodeAccelerationStructuresCopyMetaCommand(
+    format::HandleId device_id, const std::vector<VkCopyAccelerationStructureInfoKHR>& infos)
 {
     parameter_stream_.Clear();
 
@@ -1883,15 +1879,12 @@ void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::Handl
         format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kVulkanCopyAccelerationStructuresCommand);
 
     encoder_.EncodeHandleIdValue(device_id);
-    EncodeStruct(&encoder_, info);
-
+    EncodeStructArray(&encoder_, infos.data(), infos.size());
     header.meta_header.block_header.size += parameter_stream_.GetDataSize();
 
     output_stream_->Write(&header, sizeof(header));
     output_stream_->Write(parameter_stream_.GetData(), parameter_stream_.GetDataSize());
-
     parameter_stream_.Clear();
-
     ++blocks_written_;
 }
 

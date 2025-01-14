@@ -181,14 +181,25 @@ class VulkanAddressReplacer
                                                             VkCopyAccelerationStructureInfoKHR*       copy_infos,
                                                             const decode::VulkanDeviceAddressTracker& address_tracker);
     /**
-     * @brief   Process information contained in a metadata-block in order to write information in a query-pool.
+     * @brief   Process information contained in a metadata-block in order to issue a query on internal an query-pool.
      *
-     * @param   query_type              element count in 'copy_infos'
+     * Will use an internal command-buffer, submit work to a VkQueue and perform host-synchronization.
+     *
+     * @param   query_type              type of query
      * @param   acceleration_structure  provided acceleration-structure handle
      */
     void
     ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(VkQueryType                query_type,
                                                                   VkAccelerationStructureKHR acceleration_structure);
+
+    void ProcessGetQueryPoolResults(VkDevice           device,
+                                    VkQueryPool        query_pool,
+                                    uint32_t           firstQuery,
+                                    uint32_t           queryCount,
+                                    size_t             dataSize,
+                                    void*              pData,
+                                    VkDeviceSize       stride,
+                                    VkQueryResultFlags flags);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
@@ -298,6 +309,10 @@ class VulkanAddressReplacer
 
     // pipeline-contexts dealing with acceleration-structure builds, per command-buffer
     std::unordered_map<VkCommandBuffer, pipeline_context_t> _build_as_context_map;
+
+    // currently running compaction queries. pool -> AS -> query-pool-index
+    std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> _as_compact_queries;
+    std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              _as_compact_sizes;
 
     // required function pointers
     PFN_vkGetBufferDeviceAddress _get_device_address_fn_ = nullptr;

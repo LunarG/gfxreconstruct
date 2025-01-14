@@ -3518,6 +3518,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     } while (((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) &&
              (++retries <= kMaxQueryPoolResultsRetries));
 
+    auto& address_replacer = GetDeviceAddressReplacer(device_info);
+    address_replacer.ProcessGetQueryPoolResults(
+        device, query_pool, firstQuery, queryCount, dataSize, pData->GetPointer(), stride, flags);
     return result;
 }
 

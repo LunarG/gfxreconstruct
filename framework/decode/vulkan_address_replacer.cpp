@@ -512,8 +512,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         }
         else
         {
-            GFXRECON_LOG_WARNING(
-                "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap failed");
+//            GFXRECON_LOG_WARNING(
+//                "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap failed");
             return false;
         }
     };
@@ -529,10 +529,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             address_tracker.GetBufferByCaptureDeviceAddress(build_geometry_info.scratchData.deviceAddress);
 
         // check/correct scratch-address
-        if (!address_remap(build_geometry_info.scratchData.deviceAddress))
-        {
-            GFXRECON_LOG_WARNING("ProcessCmdBuildAccelerationStructuresKHR: missing scratch-buffer");
-        }
+        address_remap(build_geometry_info.scratchData.deviceAddress);
 
         // check capture/replay acceleration-structure buffer-sizes
         if (!_resource_allocator->SupportsOpaqueDeviceAddresses())
@@ -794,8 +791,22 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
         swap_acceleration_structure(info->src);
         swap_acceleration_structure(info->dst);
 
-        GFXRECON_ASSERT(info->dst != VK_NULL_HANDLE);
+        VkDeviceSize compact_size = 0;
+        //        GFXRECON_ASSERT(info->dst != VK_NULL_HANDLE);
+        auto compact_size_it = _as_compact_sizes.find(info->dst);
+        if (compact_size_it != _as_compact_sizes.end())
+        {
+            compact_size = compact_size_it->second;
 
+            GFXRECON_LOG_INFO(
+                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: found compacted AS-size: %ul",
+                compact_size);
+        }
+        //        else
+        //        {
+        //            GFXRECON_LOG_ERROR(
+        //                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: compacted AS-size unknown");
+        //        }
         //        auto replace_it = _shadow_as_map.find(info->dst);
         //        if (replace_it == _shadow_as_map.end())
         //        {
@@ -833,6 +844,12 @@ void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
         if (shadow_as_it != _shadow_as_map.end())
         {
             acceleration_structures[i] = shadow_as_it->second.handle;
+        }
+
+        if (query_type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR)
+        {
+            // read back compacted size later
+            _as_compact_queries[pool][acceleration_structures[i]] = first_query + i;
         }
     }
 }
@@ -908,10 +925,21 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
 
         for (uint32_t i = 0; i < info_count; ++i)
         {
-            ProcessCmdCopyAccelerationStructuresKHR(copy_infos + i, address_tracker);
+            auto* copy_info = copy_infos + i;
+
+            if (copy_info->src != VK_NULL_HANDLE && copy_info->dst != VK_NULL_HANDLE)
+            {
+                ProcessCmdCopyAccelerationStructuresKHR(copy_info, address_tracker);
+
+                // issue copy command
+                mark_injected_commands_helper_t mark_injected_commands_helper;
+                _device_table->CmdCopyAccelerationStructureKHR(_command_buffer, copy_info);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("ProcessCopyVulkanAccelerationStructuresMetaCommand: missing handles");
+            }
         }
-        mark_injected_commands_helper_t mark_injected_commands_helper;
-        _device_table->CmdCopyAccelerationStructureKHR(_command_buffer, copy_infos);
     }
 }
 
@@ -929,6 +957,36 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
         mark_injected_commands_helper_t mark_injected_commands_helper;
         _device_table->CmdWriteAccelerationStructuresPropertiesKHR(
             _command_buffer, 1, &acceleration_structure, query_type, _query_pool, 0);
+    }
+}
+
+void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device,
+                                                       VkQueryPool        query_pool,
+                                                       uint32_t           firstQuery,
+                                                       uint32_t           queryCount,
+                                                       size_t             dataSize,
+                                                       void*              pData,
+                                                       VkDeviceSize       stride,
+                                                       VkQueryResultFlags flags)
+{
+    // intercept queries containing acceleration-structure compaction-sizes
+    //    if (!_as_compact_queries.empty())
+    {
+        bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
+
+        auto it = _as_compact_queries.find(query_pool);
+        if (is_synced && it != _as_compact_queries.end())
+        {
+            // assuming post-processing here, pData was already written
+            auto* result_array = reinterpret_cast<const VkDeviceSize*>(pData);
+
+            for (const auto& [as, query_index] : it->second)
+            {
+                GFXRECON_LOG_INFO("query-index %d: %d", query_index, result_array[query_index]);
+                _as_compact_sizes[as] = result_array[query_index];
+            }
+        }
+        _as_compact_queries.erase(query_pool);
     }
 }
 
