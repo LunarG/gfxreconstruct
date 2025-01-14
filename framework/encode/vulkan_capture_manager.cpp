@@ -1317,11 +1317,6 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     }
     else
     {
-        GFXRECON_LOG_ERROR_ONCE(
-            "The capturing application used vkCreateRayTracingPipelinesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capturing "
-            "device does not support this feature, so replay may fail.");
-
         if (deferred_operation_wrapper)
         {
             deferred_operation_wrapper->create_infos.clear();
@@ -1408,7 +1403,6 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
             }
         }
     }
-
     return result;
 }
 
@@ -2521,19 +2515,6 @@ void VulkanCaptureManager::PreProcess_vkGetAccelerationStructureDeviceAddressKHR
             "The application is using vkGetAccelerationStructureDeviceAddressKHR, which may require the "
             "accelerationStructureCaptureReplay feature for accurate capture and replay. The capture device does not "
             "support this feature, so replay of the captured file may fail.");
-    }
-}
-
-void VulkanCaptureManager::PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
-    VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData)
-{
-    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    if (!device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The application is using vkGetRayTracingShaderGroupHandlesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capture "
-            "device does not support this feature, so replay of the captured file may fail.");
     }
 }
 

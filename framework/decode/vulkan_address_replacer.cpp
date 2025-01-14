@@ -965,7 +965,7 @@ void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device
                                                        VkQueryResultFlags flags)
 {
     // intercept queries containing acceleration-structure compaction-sizes
-    //    if (!_as_compact_queries.empty())
+    if (!_as_compact_queries.empty())
     {
         bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
 
@@ -977,7 +977,6 @@ void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device
 
             for (const auto& [as, query_index] : it->second)
             {
-                GFXRECON_LOG_INFO("query-index %d: %d", query_index, result_array[query_index]);
                 _as_compact_sizes[as] = result_array[query_index];
             }
         }

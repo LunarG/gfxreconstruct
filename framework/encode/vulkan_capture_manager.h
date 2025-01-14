@@ -1270,9 +1270,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
                                                           const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
 
-    void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
-        VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
-
     void PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice                                  device,
                                                                 const struct AHardwareBuffer*             buffer,
                                                                 VkAndroidHardwareBufferPropertiesANDROID* pProperties);
