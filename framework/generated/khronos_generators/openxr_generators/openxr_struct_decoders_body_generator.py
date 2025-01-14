@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,12 +22,12 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
-from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
+from openxr_base_generator import OpenXrBaseGenerator, OpenXrBaseGeneratorOptions, write
+from khronos_struct_decoders_body_generator import KhronosStructDecodersBodyGenerator
 
 
-class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating C++ function declarations for Vulkan API parameter encoding"""
+class OpenXrStructDecodersBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
+    """Options for generating C++ functions for OpenXr struct decoding."""
 
     def __init__(
         self,
@@ -40,7 +40,7 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        VulkanBaseGeneratorOptions.__init__(
+        OpenXrBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -53,39 +53,39 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'format/platform_types.h',
-            'util/defines.h',
+            'decode/custom_dx12_struct_decoders.h',
+            'decode/custom_openxr_struct_decoders.h',
+            'decode/custom_vulkan_struct_decoders.h',
+            'decode/decode_allocator.h',
+            '',
+            'generated/generated_openxr_struct_decoders.h',
         ))
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
+        self.begin_end_file_data.system_headers.append( 'cassert')
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
 
-class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
-    """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ functions responsible for encoding Vulkan API call parameter data.
-    Generate C++ function declarations for Vulkan API parameter encoding
+class OpenXrStructDecodersBodyGenerator(
+    KhronosStructDecodersBodyGenerator, OpenXrBaseGenerator
+):
+    """OpenXrStructDecodersBodyGenerator - subclass of OpenXrBaseGenerator.
+    Generates C++ functions for decoding OpenXr API structures.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        VulkanBaseGenerator.__init__(
+        OpenXrBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-        KhronosApiCallEncodersGenerator.__init__(self)
 
     def endFile(self):
         """Method override."""
-        self.write_api_call_encoders_contents()
+        KhronosStructDecodersBodyGenerator.generate_struct_decoder_content(self)
+        self.newline()
 
         # Finish processing in superclass
-        VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
+        OpenXrBaseGenerator.endFile(self)

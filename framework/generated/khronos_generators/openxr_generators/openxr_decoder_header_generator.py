@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,12 +22,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
-from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
+from openxr_base_generator import OpenXrBaseGenerator, OpenXrBaseGeneratorOptions, write
+from khronos_decoder_header_generator import KhronosDecoderHeaderGenerator
 
-
-class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating C++ function declarations for Vulkan API parameter encoding"""
+class OpenXrDecoderHeaderGeneratorOptions(OpenXrBaseGeneratorOptions):
+    """Options for generating a C++ class declaration for OpenXr API parameter decoding."""
 
     def __init__(
         self,
@@ -38,9 +37,10 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extra_headers=[]
+        extra_headers=[],
+        extra_manual_commands=[],
     ):
-        VulkanBaseGeneratorOptions.__init__(
+        OpenXrBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
@@ -49,43 +49,39 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extra_headers=extra_headers
+            extra_headers=extra_headers,
+            extra_manual_commands=extra_manual_commands,
         )
 
+
         self.begin_end_file_data.specific_headers.extend((
-            'format/platform_types.h',
+            'decode/openxr_decoder_base.h',
             'util/defines.h',
         ))
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
+        self.extra_manual_commands.append('xrEnumerateSwapchainImages')
 
-class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
-    """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ functions responsible for encoding Vulkan API call parameter data.
-    Generate C++ function declarations for Vulkan API parameter encoding
+class OpenXrDecoderHeaderGenerator(OpenXrBaseGenerator, KhronosDecoderHeaderGenerator):
+    """OpenXrDecoderHeaderGenerator - subclass of OpenXrBaseGenerator.
+    Generates C++ member declarations for the OpenXrDecoder class responsible for decoding
+    OpenXr API call parameter data.
+    Generate a C++ class declaration for OpenXr API parameter decoding.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        VulkanBaseGenerator.__init__(
+        OpenXrBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-        KhronosApiCallEncodersGenerator.__init__(self)
 
     def endFile(self):
         """Method override."""
-        self.write_api_call_encoders_contents()
+        KhronosDecoderHeaderGenerator.write_decoder_header_content(self)
 
         # Finish processing in superclass
-        VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
+        OpenXrBaseGenerator.endFile(self)

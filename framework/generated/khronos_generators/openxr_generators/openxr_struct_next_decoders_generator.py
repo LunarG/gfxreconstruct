@@ -22,17 +22,18 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
-from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
+from openxr_base_generator import OpenXrBaseGenerator, OpenXrBaseGeneratorOptions, write
+from khronos_decode_extended_struct_generator import KhronosDecodeExtendedStructGenerator
 
 
-class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating C++ function declarations for Vulkan API parameter encoding"""
+class OpenXrStructNextDecodersGeneratorOptions(OpenXrBaseGeneratorOptions):
+    """Eliminates JSON black_lists and platform_types files, which are not necessary for
+    pNext switch statement generation.
+    Options for OpenXr API pNext structure decoding C++ code generation.
+    """
 
     def __init__(
         self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
         prefix_text='',
@@ -40,10 +41,10 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         protect_feature=True,
         extra_headers=[]
     ):
-        VulkanBaseGeneratorOptions.__init__(
+        OpenXrBaseGeneratorOptions.__init__(
             self,
-            blacklists,
-            platform_types,
+            None,
+            None,
             filename,
             directory,
             prefix_text,
@@ -52,40 +53,44 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             extra_headers=extra_headers
         )
 
-        self.begin_end_file_data.specific_headers.extend((
-            'format/platform_types.h',
-            'util/defines.h',
-        ))
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
 
-
-class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
-    """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ functions responsible for encoding Vulkan API call parameter data.
-    Generate C++ function declarations for Vulkan API parameter encoding
+class OpenXrStructNextDecodersGenerator(OpenXrBaseGenerator, KhronosDecodeExtendedStructGenerator):
+    """DecodePNextStructGenerator - subclass of OpenXrBaseGenerator.
+    Generates C++ code for OpenXr API pNext structure decoding.
+    Generate pNext structure decoding C++ code.
     """
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        VulkanBaseGenerator.__init__(
+        OpenXrBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-        KhronosApiCallEncodersGenerator.__init__(self)
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        OpenXrBaseGenerator.beginFile(self, gen_opts)
+
+        KhronosDecodeExtendedStructGenerator.write_common_headers(self, gen_opts)
+
+        self.newline()
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
+        KhronosDecodeExtendedStructGenerator.write_decode_struct_definition_prefix(self)
 
     def endFile(self):
         """Method override."""
-        self.write_api_call_encoders_contents()
+        """Performs C++ code generation for the feature."""
+        KhronosDecodeExtendedStructGenerator.write_decode_struct_definition_data(self)
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
+        OpenXrBaseGenerator.endFile(self)
 

@@ -1,7 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2022-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -22,12 +21,13 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
-from khronos_api_call_encoders_generator import KhronosApiCallEncodersGenerator
+from openxr_base_generator import *
+from khronos_enum_to_json_body_generator import KhronosEnumToJsonBodyGenerator
+from reformat_code import format_cpp_code
 
 
-class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating C++ function declarations for Vulkan API parameter encoding"""
+class OpenXrEnumToJsonBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
+    """Options for generating C++ functions for OpenXr FieldToJson() functions"""
 
     def __init__(
         self,
@@ -35,57 +35,52 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefix_text='',
-        protect_file=False,
-        protect_feature=True,
+        prefixText='',
+        protectFile=False,
+        protectFeature=True,
         extra_headers=[]
     ):
-        VulkanBaseGeneratorOptions.__init__(
+        OpenXrBaseGeneratorOptions.__init__(
             self,
             blacklists,
             platform_types,
             filename,
             directory,
-            prefix_text,
-            protect_file,
-            protect_feature,
+            prefixText,
+            protectFile,
+            protectFeature,
             extra_headers=extra_headers
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'format/platform_types.h',
-            'util/defines.h',
+            'generated_openxr_enum_to_json.h',
+            'util/to_string.h',
         ))
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
 
-class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEncodersGenerator):
-    """VulkanApiCallEncodersHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ functions responsible for encoding Vulkan API call parameter data.
-    Generate C++ function declarations for Vulkan API parameter encoding
-    """
+# OpenXrEnumToStringBodyGenerator - subclass of OpenXrBaseGenerator.
+# Generates C++ functions for stringifying OpenXr API enums.
+class OpenXrEnumToJsonBodyGenerator(OpenXrBaseGenerator, KhronosEnumToJsonBodyGenerator):
+    """Generate C++ functions for OpenXr FieldToJson() functions"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
-        VulkanBaseGenerator.__init__(
+        OpenXrBaseGenerator.__init__(
             self,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
-        KhronosApiCallEncodersGenerator.__init__(self)
 
+    def skip_generating_enum_to_json_for_type(self, type):
+        return type.startswith('Vk') or 'Bits' in type
+
+    # Method override
     def endFile(self):
-        """Method override."""
-        self.write_api_call_encoders_contents()
+        KhronosEnumToJsonBodyGenerator.make_decls(self)
 
         # Finish processing in superclass
-        VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
+        OpenXrBaseGenerator.endFile(self)
