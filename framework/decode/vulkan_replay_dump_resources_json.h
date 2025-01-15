@@ -76,6 +76,12 @@ class VulkanReplayDumpResourcesJson
                           const VulkanBufferInfo* buffer_info,
                           const std::string&      filename);
 
+    uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
+
+    uint32_t FetchAndAddDispatchEntryIndex() { return dispatch_entry_index++; }
+
+    uint32_t FetchAndAddTraceRaysEntryIndex() { return trace_rays_entry_index++; }
+
   private:
     bool InitializeFile(const std::string& filename);
 
@@ -84,6 +90,10 @@ class VulkanReplayDumpResourcesJson
     nlohmann::ordered_json  json_data_;
     nlohmann::ordered_json* current_entry;
     bool                    first_block_;
+
+    uint32_t draw_calls_entry_index;
+    uint32_t dispatch_entry_index;
+    uint32_t trace_rays_entry_index;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

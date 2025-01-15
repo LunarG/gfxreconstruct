@@ -34,7 +34,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options) :
-    file_(nullptr), current_entry(nullptr), first_block_(true)
+    file_(nullptr), current_entry(nullptr), first_block_(true), draw_calls_entry_index(0), dispatch_entry_index(0),
+    trace_rays_entry_index(0)
 {
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -126,6 +127,11 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
 {
     json_data_.clear();
     current_entry = nullptr;
+
+    draw_calls_entry_index = 0;
+    dispatch_entry_index   = 0;
+    trace_rays_entry_index = 0;
+
     return json_data_;
 }
 
