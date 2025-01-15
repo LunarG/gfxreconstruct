@@ -212,6 +212,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageI
     }
 }
 
+void FieldToJson(nlohmann::ordered_json&              jdata,
+                 VkDescriptorType                     discriminant,
+                 const Decoded_VkDescriptorImageInfo* data,
+                 const JsonOptions&                   options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        if (discriminant == VK_DESCRIPTOR_TYPE_SAMPLER || discriminant == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+        {
+            HandleToJson(jdata["sampler"], meta_struct.sampler, options);
+        }
+        HandleToJson(jdata["imageView"], meta_struct.imageView, options);
+        HandleToJson(jdata["imageLayout"], decoded_value.imageLayout, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -233,7 +251,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
             case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
             case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
-                FieldToJson(jdata["pImageInfo"], meta_struct.pImageInfo, options);
+                FieldToJson(jdata["pImageInfo"],
+                            decoded_value.descriptorType,
+                            meta_struct.pImageInfo->GetMetaStructPointer(),
+                            options);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
