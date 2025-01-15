@@ -8127,9 +8127,9 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 
     if (!device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        GFXRECON_LOG_ERROR_ONCE("The captured application used vkGetBufferDeviceAddress, which requires the "
-                                "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
-                                "replay device does not support this feature, so replay may fail.");
+        GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetBufferDeviceAddress, which requires the "
+                                  "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
+                                  "replay device does not support this feature, so replay may fail.");
     }
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
