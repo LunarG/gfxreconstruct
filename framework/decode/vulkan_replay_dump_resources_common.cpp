@@ -54,18 +54,8 @@ PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bi
     }
 }
 
-bool IsFormatAstcCompressed(VkFormat format)
-{
-    return vkuFormatIsCompressed_ASTC_HDR(format) || vkuFormatIsCompressed_ASTC_LDR(format);
-}
-
 static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
 {
-    if (IsFormatAstcCompressed(format))
-    {
-        return util::imagewriter::DataFormats::kFormat_ASTC;
-    }
-
     switch (format)
     {
         case VK_FORMAT_R8G8B8_UNORM:
@@ -86,6 +76,7 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
 
+        case VK_FORMAT_D24_UNORM_S8_UINT:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
             return util::imagewriter::DataFormats::kFormat_D24_UNORM;
 
@@ -93,6 +84,8 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
             return util::imagewriter::DataFormats::kFormat_D16_UNORM;
 
         default:
+            GFXRECON_LOG_ERROR("%s isn't supported in VkFormatToImageWriterDataFormat",
+                               util::ToString<VkFormat>(format).c_str());
             return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
     }
 }
@@ -106,9 +99,6 @@ const char* ImageFileExtension(DumpedImageFormat image_format)
 
         case KFormatPNG:
             return ".png";
-
-        case KFormatAstc:
-            return ".astc";
 
         case KFormatRaw:
         default:
@@ -317,10 +307,11 @@ uint32_t VkIndexTypeToBytes(VkIndexType type)
     }
 }
 
-uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
-                                 uint32_t                    index_count,
-                                 uint32_t                    first_index,
-                                 VkIndexType                 type)
+std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
+                                                      uint32_t                    index_count,
+                                                      uint32_t                    first_index,
+                                                      int32_t                     vertex_offset,
+                                                      VkIndexType                 type)
 {
     switch (type)
     {
@@ -336,9 +327,10 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
 
             if (i == index_count)
             {
-                return 0;
+                return std::make_pair(0, 0);
             }
 
+            uint8_t min = indices[first_index + i];
             uint8_t max = indices[first_index + i];
 
             for (; i < index_count; ++i)
@@ -352,9 +344,15 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 {
                     max = indices[first_index + i];
                 }
+
+                if (indices[first_index + i] < min)
+                {
+                    min = indices[first_index + i];
+                }
             }
 
-            return max;
+            return std::make_pair(static_cast<uint32_t>(min) + vertex_offset,
+                                  static_cast<uint32_t>(max) + vertex_offset);
         }
         break;
 
@@ -370,9 +368,10 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
 
             if (i == index_count)
             {
-                return 0;
+                return std::make_pair(0, 0);
             }
 
+            uint16_t min = indices[first_index + i];
             uint16_t max = indices[first_index + i];
 
             for (; i < index_count; ++i)
@@ -386,9 +385,15 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 {
                     max = indices[first_index + i];
                 }
+
+                if (indices[first_index + i] < min)
+                {
+                    min = indices[first_index + i];
+                }
             }
 
-            return max;
+            return std::make_pair(static_cast<uint32_t>(min) + vertex_offset,
+                                  static_cast<uint32_t>(max) + vertex_offset);
         }
         break;
 
@@ -404,9 +409,10 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
 
             if (i == index_count)
             {
-                return 0;
+                return std::make_pair(0, 0);
             }
 
+            uint32_t min = indices[first_index + i];
             uint32_t max = indices[first_index + i];
 
             for (; i < index_count; ++i)
@@ -420,9 +426,14 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
                 {
                     max = indices[first_index + i];
                 }
+
+                if (indices[first_index + i] < min)
+                {
+                    min = indices[first_index + i];
+                }
             }
 
-            return max;
+            return std::make_pair(min + vertex_offset, max + vertex_offset);
         }
         break;
 
@@ -430,7 +441,8 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
         default:
             GFXRECON_LOG_ERROR("%s() Unrecognized/unhandled index type (%u)", __func__, static_cast<uint32_t>(type));
             assert(0);
-            return 0;
+
+            return std::make_pair(0, 0);
             break;
     }
 }
@@ -447,8 +459,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          bool                               dump_all_subresources,
                          bool                               dump_image_raw,
                          bool                               dump_separate_alpha,
-                         VkImageLayout                      layout,
-                         const VkExtent3D*                  extent_p)
+                         VkImageLayout                      layout)
 {
     assert(image_info != nullptr);
     assert(device_info != nullptr);
@@ -472,10 +483,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    const VkExtent3D extent{ (extent_p != nullptr) ? extent_p->width : image_info->extent.width,
-                             (extent_p != nullptr) ? extent_p->height : image_info->extent.height,
-                             (extent_p != nullptr) ? extent_p->depth : image_info->extent.depth };
-
     const VkFormat dst_format = ChooseDestinationImageFormat(image_info->format);
 
     uint32_t f = 0;
@@ -492,7 +499,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
             image_info->handle,
             image_info->format,
             image_info->type,
-            extent,
+            image_info->extent,
             image_info->level_count,
             image_info->layer_count,
             image_info->tiling,
@@ -559,21 +566,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                 const uint32_t texel_size = vkuFormatElementSizeWithAspect(dst_format, aspects[i]);
                 const uint32_t stride     = texel_size * scaled_extent.width;
 
-                if (output_image_format == KFormatAstc)
-                {
-                    VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
-
-                    util::imagewriter::WriteAstcImage(filename,
-                                                      scaled_extent.width,
-                                                      scaled_extent.width,
-                                                      1,
-                                                      format_info.block_extent.width,
-                                                      format_info.block_extent.height,
-                                                      format_info.block_extent.depth,
-                                                      data.data(),
-                                                      subresource_sizes[0]);
-                }
-                else if (output_image_format == kFormatBMP)
+                if (output_image_format == kFormatBMP)
                 {
                     if (dump_separate_alpha)
                     {
@@ -651,13 +644,13 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         VkExtent3D scaled_extent;
                         if (scale != 1.0f && scaled)
                         {
-                            scaled_extent.width  = extent.width * scale;
-                            scaled_extent.height = extent.height * scale;
-                            scaled_extent.depth  = extent.depth;
+                            scaled_extent.width  = image_info->extent.width * scale;
+                            scaled_extent.height = image_info->extent.height * scale;
+                            scaled_extent.depth  = image_info->extent.depth;
                         }
                         else
                         {
-                            scaled_extent = extent;
+                            scaled_extent = image_info->extent;
                         }
 
                         scaled_extent.width  = std::max(1u, scaled_extent.width >> mip);
@@ -667,21 +660,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspect);
                         const uint32_t stride     = texel_size * scaled_extent.width;
 
-                        if (output_image_format == KFormatAstc)
-                        {
-                            VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
-
-                            util::imagewriter::WriteAstcImage(filename,
-                                                              scaled_extent.width,
-                                                              scaled_extent.width,
-                                                              1,
-                                                              format_info.block_extent.width,
-                                                              format_info.block_extent.height,
-                                                              format_info.block_extent.depth,
-                                                              data.data(),
-                                                              subresource_sizes[sub_res_idx]);
-                        }
-                        else if (output_image_format == kFormatBMP)
+                        if (output_image_format == kFormatBMP)
                         {
                             if (dump_separate_alpha)
                             {
@@ -937,21 +916,7 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device
     // If there's a request for images to be dumped as raw bin files
     if (dump_raw)
     {
-        // We consider astc as a raw bin format
-        if (IsFormatAstcCompressed(src_format))
-        {
-            return KFormatAstc;
-        }
-        else
-        {
-            return KFormatRaw;
-        }
-    }
-
-    // Astc images will be dumped as .astc files
-    if (IsFormatAstcCompressed(src_format))
-    {
-        return KFormatAstc;
+        return KFormatRaw;
     }
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,

@@ -26,6 +26,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_replay_dump_resources_json.h"
 #include "util/platform.h"
+#include "util/file_path.h"
 #include "vulkan/vulkan_core.h"
 #include <cstddef>
 
@@ -187,7 +188,9 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
         json_entry["scaleFailed"] = true;
     }
 
-    if (separate_alpha && vkuFormatHasAlpha(image_format))
+    const bool raw_image = !util::filepath::GetFilenameExtension(filename).compare(".bin");
+
+    if (separate_alpha && !raw_image && vkuFormatHasAlpha(image_format))
     {
         if (filename_before != nullptr)
         {
