@@ -30,15 +30,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 //! RAII helper to mark injected commands in scope
-struct mark_injected_commands_helper_t
+struct MarkInjectedCommandsHelper
 {
-    mark_injected_commands_helper_t()
+    MarkInjectedCommandsHelper()
     {
         // mark injected commands
         decode::BeginInjectedCommands();
     }
 
-    ~mark_injected_commands_helper_t()
+    ~MarkInjectedCommandsHelper()
     {
         // mark end of injected commands
         decode::EndInjectedCommands();
@@ -46,7 +46,7 @@ struct mark_injected_commands_helper_t
 };
 
 //! RAII helper submit a command-buffer to a queue and synchronize via fence
-struct queue_submit_helper_t
+struct QueueSubmitHelper
 {
     const encode::VulkanDeviceTable* device_table   = nullptr;
     VkDevice                         device         = VK_NULL_HANDLE;
@@ -54,14 +54,14 @@ struct queue_submit_helper_t
     VkFence                          fence          = VK_NULL_HANDLE;
     VkQueue                          queue          = VK_NULL_HANDLE;
 
-    queue_submit_helper_t(const encode::VulkanDeviceTable* device_table_,
-                          VkDevice                         device_,
-                          VkCommandBuffer                  command_buffer_,
-                          VkQueue                          queue_,
-                          VkFence                          fence_) :
+    QueueSubmitHelper(const encode::VulkanDeviceTable* device_table_,
+                      VkDevice                         device_,
+                      VkCommandBuffer                  command_buffer_,
+                      VkQueue                          queue_,
+                      VkFence                          fence_) :
         device(device_), device_table(device_table_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
-        mark_injected_commands_helper_t mark_injected_commands_helper;
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
 
         device_table->ResetFences(device, 1, &fence);
 
@@ -73,9 +73,9 @@ struct queue_submit_helper_t
         device_table->BeginCommandBuffer(command_buffer, &command_buffer_begin_info);
     }
 
-    ~queue_submit_helper_t()
+    ~QueueSubmitHelper()
     {
-        mark_injected_commands_helper_t mark_injected_commands_helper;
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
 
         device_table->EndCommandBuffer(command_buffer);
 
@@ -166,33 +166,43 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr);
 
     const VulkanPhysicalDeviceInfo* physical_device_info = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    device_                                              = device_info->handle;
-    resource_allocator_                                  = device_info->allocator.get();
+    GFXRECON_ASSERT(physical_device_info != nullptr);
+    device_                = device_info->handle;
+    resource_allocator_    = device_info->allocator.get();
     get_device_address_fn_ = physical_device_info->parent_api_version >= VK_API_VERSION_1_2
                                  ? device_table->GetBufferDeviceAddress
                                  : device_table->GetBufferDeviceAddressKHR;
 
-    if (physical_device_info != nullptr && physical_device_info->capture_raytracing_properties &&
-        physical_device_info->replay_device_info->raytracing_properties &&
-        physical_device_info->replay_device_info->acceleration_structure_properties)
+    //    get_physical_device_properties_fn_ = physical_device_info->parent_api_version >= VK_API_VERSION_1_1 ?
+
+    if (physical_device_info != nullptr)
     {
-        SetRaytracingProperties(*physical_device_info->capture_raytracing_properties,
-                                *physical_device_info->replay_device_info->raytracing_properties,
-                                *physical_device_info->replay_device_info->acceleration_structure_properties);
+        GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
+        SetRaytracingProperties(physical_device_info->capture_raytracing_properties,
+                                physical_device_info->replay_device_info->raytracing_properties,
+                                physical_device_info->replay_device_info->acceleration_structure_properties);
     }
-    GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
     GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
     memory_properties_ = *physical_device_info->replay_device_info->memory_properties;
 }
 
 void VulkanAddressReplacer::SetRaytracingProperties(
-    const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    capture_properties,
-    const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    replay_properties,
-    const VkPhysicalDeviceAccelerationStructurePropertiesKHR& replay_as_properties)
+    const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    capture_properties,
+    const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    replay_properties,
+    const std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR>& replay_as_properties)
 {
-    capture_ray_properties_                   = capture_properties;
-    replay_ray_properties_                    = replay_properties;
-    replay_acceleration_structure_properties_ = replay_as_properties;
+    if (capture_properties)
+    {
+        capture_ray_properties_ = *capture_properties;
+    }
+    if (replay_properties)
+    {
+        replay_ray_properties_ = *replay_properties;
+    }
+    if (replay_as_properties)
+    {
+        replay_acceleration_structure_properties_ = *replay_as_properties;
+    }
 
     if (capture_ray_properties_.shaderGroupHandleSize != replay_ray_properties_.shaderGroupHandleSize ||
         capture_ray_properties_.shaderGroupHandleAlignment != replay_ray_properties_.shaderGroupHandleAlignment ||
@@ -200,11 +210,16 @@ void VulkanAddressReplacer::SetRaytracingProperties(
     {
         valid_sbt_alignment_ = false;
     }
+
+    if (!capture_properties || !replay_properties || !replay_as_properties)
+    {
+        GFXRECON_LOG_WARNING("VulkanAddressReplacer::SetRaytracingProperties: missing device-information")
+    }
 }
 
 VulkanAddressReplacer::~VulkanAddressReplacer()
 {
-    mark_injected_commands_helper_t mark_injected_commands_helper;
+    MarkInjectedCommandsHelper mark_injected_commands_helper;
 
     // explicitly free resources here, in order to mark destruction API-calls as injected
     pipeline_sbt_context_map_ = {};
@@ -314,7 +329,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
     if (!valid_sbt_alignment_ || !valid_group_handles)
     {
         // mark injected commands
-        mark_injected_commands_helper_t mark_injected_commands_helper;
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
 
         if (pipeline_sbt_ == VK_NULL_HANDLE)
         {
@@ -424,7 +439,10 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             // raygen: stride == size
             raygen_sbt->size = raygen_sbt->stride = replay_ray_properties_.shaderGroupBaseAlignment;
 
-            if (!create_buffer(shadow_buf_context, sbt_offset, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR))
+            if (!create_buffer(shadow_buf_context,
+                               sbt_offset,
+                               VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR,
+                               replay_ray_properties_.shaderGroupBaseAlignment))
             {
                 GFXRECON_LOG_ERROR("VulkanAddressReplacer: shadow shader-binding-table creation failed");
                 return;
@@ -549,7 +567,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     primitive_counts[j] = range_info->primitiveCount;
                 }
 
-                mark_injected_commands_helper_t mark_injected_commands_helper;
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
                 device_table_->GetAccelerationStructureBuildSizesKHR(device_,
                                                                      VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
                                                                      &build_geometry_info,
@@ -612,13 +630,13 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // hot swap acceleration-structure handle
                 build_geometry_info.dstAccelerationStructure = replacement_as.handle;
 
+                uint32_t min_scratch_offset_alignment =
+                    replay_acceleration_structure_properties_
+                        ? replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment
+                        : 128;
+
                 // create a replacement scratch-buffer
-                if (!create_buffer(
-                        replacement_as.scratch,
-                        scratch_size,
-                        0,
-                        replay_acceleration_structure_properties_.minAccelerationStructureScratchOffsetAlignment,
-                        false))
+                if (!create_buffer(replacement_as.scratch, scratch_size, 0, min_scratch_offset_alignment, false))
                 {
                     GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
                     return;
@@ -707,7 +725,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         if (!hashmap_bda_.empty())
         {
             // mark injected commands
-            mark_injected_commands_helper_t mark_injected_commands_helper;
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
 
             if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
             {
@@ -807,9 +825,9 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
             as_compact_sizes_.erase(info->dst);
 
             // tmp/debug: cleanup before merge
-//            GFXRECON_LOG_INFO(
-//                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: found compacted AS-size: %ul",
-//                compact_size);
+            //            GFXRECON_LOG_INFO(
+            //                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: found compacted AS-size:
+            //                %ul", compact_size);
         }
     }
 }
@@ -844,6 +862,12 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
 {
     GFXRECON_UNREFERENCED_PARAMETER(descriptor_copy_count);
     GFXRECON_UNREFERENCED_PARAMETER(descriptor_copies);
+
+    // bail out if we're not tracking any shadow acceleration-structures
+    if (shadow_as_map_.empty())
+    {
+        return;
+    }
 
     for (uint32_t i = 0; i < descriptor_write_count; ++i)
     {
@@ -882,7 +906,7 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        queue_submit_helper_t queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
         // dummy-wrapper
         VulkanCommandBufferInfo command_buffer_info = {};
@@ -891,7 +915,7 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
             &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
 
         // issue build-command
-        mark_injected_commands_helper_t mark_injected_commands_helper;
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
         device_table_->CmdBuildAccelerationStructuresKHR(command_buffer_, info_count, geometry_infos, range_infos);
     }
 }
@@ -904,7 +928,7 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
     if (copy_infos != nullptr && info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        queue_submit_helper_t queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
         for (uint32_t i = 0; i < info_count; ++i)
         {
@@ -915,7 +939,7 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
                 ProcessCmdCopyAccelerationStructuresKHR(copy_info, address_tracker);
 
                 // issue copy command
-                mark_injected_commands_helper_t mark_injected_commands_helper;
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
                 device_table_->CmdCopyAccelerationStructureKHR(command_buffer_, copy_info);
             }
             else
@@ -932,12 +956,12 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     if (init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        queue_submit_helper_t queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
         ProcessCmdWriteAccelerationStructuresPropertiesKHR(1, &acceleration_structure, query_type, query_pool_, 0);
 
         // issue vkCmdWriteAccelerationStructuresPropertiesKHR
-        mark_injected_commands_helper_t mark_injected_commands_helper;
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
         device_table_->CmdWriteAccelerationStructuresPropertiesKHR(
             command_buffer_, 1, &acceleration_structure, query_type, query_pool_, 0);
     }
@@ -945,7 +969,7 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     VkDeviceSize compact_size = 0;
 
     // issue vkCmdWriteAccelerationStructuresPropertiesKHR
-    mark_injected_commands_helper_t mark_injected_commands_helper;
+    MarkInjectedCommandsHelper mark_injected_commands_helper;
     device_table_->GetQueryPoolResults(device_,
                                        query_pool_,
                                        0,
@@ -1280,7 +1304,7 @@ void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR ha
 
         if (remove_as_it != shadow_as_map_.end())
         {
-            mark_injected_commands_helper_t mark_injected_commands_helper;
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
             shadow_as_map_.erase(remove_as_it);
         }
     }
@@ -1294,7 +1318,7 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
 
         if (remove_context_it != build_as_context_map_.end())
         {
-            mark_injected_commands_helper_t mark_injected_commands_helper;
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
             build_as_context_map_.erase(remove_context_it);
         }
 
@@ -1302,7 +1326,7 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
 
         if (shadow_sbt_it != shadow_sbt_map_.end())
         {
-            mark_injected_commands_helper_t mark_injected_commands_helper;
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
             shadow_sbt_map_.erase(shadow_sbt_it);
         }
 
@@ -1310,7 +1334,7 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
 
         if (pipeline_sbt_it != pipeline_sbt_context_map_.end())
         {
-            mark_injected_commands_helper_t mark_injected_commands_helper;
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
             pipeline_sbt_context_map_.erase(pipeline_sbt_it);
         }
     }

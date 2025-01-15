@@ -1856,16 +1856,24 @@ void VulkanStateTracker::TrackRayTracingPipelineProperties(
     wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
 }
 
+void VulkanStateTracker::TrackAccelerationStructureProperties(
+    VkPhysicalDevice                                    physicalDevice,
+    VkPhysicalDeviceAccelerationStructurePropertiesKHR* acceleration_structure_properties)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    wrapper->acceleration_structure_properties        = *acceleration_structure_properties;
+    wrapper->acceleration_structure_properties->pNext = nullptr;
+}
+
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
                                                            VkPipeline  pipeline,
                                                            size_t      data_size,
                                                            const void* data)
 {
     assert((device != VK_NULL_HANDLE) && (pipeline != VK_NULL_HANDLE));
-
-    auto           wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pipeline);
-    const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
-    wrapper->device_id       = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+    auto  wrapper      = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pipeline);
+    auto* byte_data    = reinterpret_cast<const uint8_t*>(data);
+    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->shader_group_handle_data.assign(byte_data, byte_data + data_size);
 }
 

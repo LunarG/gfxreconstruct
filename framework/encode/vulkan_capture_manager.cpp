@@ -1160,6 +1160,15 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice
             state_tracker_->TrackRayTracingPipelineProperties(physicalDevice, raytracing_props);
         }
     }
+
+    if (auto acceleration_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceAccelerationStructurePropertiesKHR>(pProperties))
+    {
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackAccelerationStructureProperties(physicalDevice, acceleration_props);
+        }
+    }
 }
 
 VkResult VulkanCaptureManager::OverrideGetPhysicalDeviceToolPropertiesEXT(

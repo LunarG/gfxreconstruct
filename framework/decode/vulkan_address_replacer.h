@@ -58,13 +58,14 @@ class VulkanAddressReplacer
     /**
      * @brief   Set raytracing-related properties
      *
-     * @param   capture_properties      capture-time raytracing pipeline properties
-     * @param   replay_properties       replay-time raytracing pipeline properties
-     * @param   replay_as_properties    replay-time acceleration-structure properties
+     * @param   capture_properties      optional capture-time raytracing pipeline properties
+     * @param   replay_properties       optional replay-time raytracing pipeline properties
+     * @param   replay_as_properties    optional replay-time acceleration-structure properties
      */
-    void SetRaytracingProperties(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    capture_properties,
-                                 const VkPhysicalDeviceRayTracingPipelinePropertiesKHR&    replay_properties,
-                                 const VkPhysicalDeviceAccelerationStructurePropertiesKHR& replay_as_properties);
+    void SetRaytracingProperties(
+        const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    capture_properties,
+        const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    replay_properties,
+        const std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR>& replay_as_properties);
     /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
      *          like buffer-device-addresses and shader-group-handles.
@@ -103,10 +104,10 @@ class VulkanAddressReplacer
      *
      * Depending on capture- and replay-device-properties this includes the following:
      *
-     * if replaying on same device/driver using the default-allocator (no --rebind):
+     * if replaying on same device/driver using the default-allocator (no -m rebind):
      * - happy day, nothing to do!
      *
-     * if replaying on a different device/driver OR using the rebind-allocator (via --rebind):
+     * if replaying on a different device/driver OR using the rebind-allocator (via -m rebind):
      * - remap buffer-device-addresses for triangle-, aabb- and instance-geometries referenced in `build_geometry_infos`
      * - check buffer-sizes for acceleration-structures and scratch-buffers
      *      - if necessary, create shadow acceleration-structures and -buffers, adjust references
@@ -282,11 +283,11 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
 
-    const encode::VulkanDeviceTable*                   device_table_      = nullptr;
-    VkPhysicalDeviceMemoryProperties                   memory_properties_ = {};
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR    capture_ray_properties_{}, replay_ray_properties_{};
-    VkPhysicalDeviceAccelerationStructurePropertiesKHR replay_acceleration_structure_properties_{};
-    bool                                               valid_sbt_alignment_ = true;
+    const encode::VulkanDeviceTable*                device_table_      = nullptr;
+    VkPhysicalDeviceMemoryProperties                memory_properties_ = {};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR capture_ray_properties_{}, replay_ray_properties_{};
+    std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> replay_acceleration_structure_properties_{};
+    bool                                                              valid_sbt_alignment_ = true;
 
     VkDevice                         device_             = VK_NULL_HANDLE;
     decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
@@ -325,7 +326,8 @@ class VulkanAddressReplacer
     std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              as_compact_sizes_;
 
     // required function pointers
-    PFN_vkGetBufferDeviceAddress get_device_address_fn_ = nullptr;
+    PFN_vkGetBufferDeviceAddress       get_device_address_fn_             = nullptr;
+    PFN_vkGetPhysicalDeviceProperties2 get_physical_device_properties_fn_ = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

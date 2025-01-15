@@ -137,7 +137,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
 
     // physical-device / raytracing properties
-    WriteRayTracingPipelinePropertiesState(state_table);
+    WriteRayTracingPropertiesState(state_table);
 
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
@@ -1932,7 +1932,7 @@ void VulkanStateWriter::WriteGetAccelerationStructureDeviceAddressKHRCall(
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table)
+void VulkanStateWriter::WriteRayTracingPropertiesState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -1941,9 +1941,17 @@ void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanState
         {
             parameter_stream_.Clear();
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
+
+            // pNext-chaining
+            auto pipeline_props  = *wrapper->ray_tracing_pipeline_properties;
+            pipeline_props.pNext = wrapper->acceleration_structure_properties
+                                       ? (void*)&wrapper->acceleration_structure_properties.value()
+                                       : nullptr;
+
             VkPhysicalDeviceProperties2 properties2 = {};
             properties2.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
+            properties2.pNext                       = &pipeline_props;
+
             EncodeStructPtr(&encoder_, &properties2);
             WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
             parameter_stream_.Clear();
