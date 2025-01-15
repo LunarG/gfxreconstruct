@@ -1081,13 +1081,6 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
 {
     auto list_info = list_wrapper->GetObjectInfo();
 
-    bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
-
-    // Write each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = list_info->command_data.GetDataSize();
-    const uint8_t* data      = list_info->command_data.GetData();
-
     bool invalid_command_allocator =
         (list_info->reset_command_allocator_id != format::kNullHandleId) &&
         (state_table.GetID3D12CommandAllocator_Wrapper(list_info->reset_command_allocator_id) == nullptr);
@@ -1095,6 +1088,14 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     {
         return;
     }
+
+    bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
+
+    // Write each of the commands that was recorded for the command buffer.
+    size_t         offset    = 0;
+    size_t         data_size = list_info->command_data.GetDataSize();
+    const uint8_t* data      = list_info->command_data.GetData();
+
     while (offset < data_size)
     {
         const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
