@@ -1002,9 +1002,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     auto& current_block         = dump_json.GetCurrentSubEntry();
     auto& drawcall_json_entries = !output_json_per_command ? current_block["drawCallCommands"] : current_block;
 
-    static uint64_t unique_json_entry = 0;
-    auto&           draw_call_entry =
-        !output_json_per_command ? drawcall_json_entries[unique_json_entry++] : drawcall_json_entries;
+    const uint32_t draw_call_json_entry = dump_json.FetchAndAddDrawCallsEntryIndex();
+    auto&          draw_call_entry =
+        !output_json_per_command ? drawcall_json_entries[draw_call_json_entry] : drawcall_json_entries;
 
     const auto& dc_param_entry = draw_call_params.find(dc_index);
     assert(dc_param_entry != draw_call_params.end());

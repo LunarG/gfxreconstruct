@@ -180,15 +180,9 @@ class DispatchTraceRaysDumpingContext
 
     VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
 
-    void GenerateOutputJsonDispatchInfo(uint64_t qs_index,
-                                        uint64_t bcb_index,
-                                        uint64_t disp_index,
-                                        uint64_t cmd_index) const;
+    void GenerateOutputJsonDispatchInfo(uint64_t qs_index, uint64_t bcb_index, uint64_t disp_index) const;
 
-    void GenerateOutputJsonTraceRaysIndex(uint64_t qs_index,
-                                          uint64_t bcb_index,
-                                          uint64_t tr_index,
-                                          uint64_t cmd_index) const;
+    void GenerateOutputJsonTraceRaysIndex(uint64_t qs_index, uint64_t bcb_index, uint64_t tr_index) const;
 
     const VulkanCommandBufferInfo* original_command_buffer_info;
     VkCommandBuffer                DR_command_buffer;

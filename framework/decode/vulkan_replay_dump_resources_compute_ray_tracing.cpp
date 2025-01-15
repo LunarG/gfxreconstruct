@@ -873,7 +873,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        GenerateOutputJsonDispatchInfo(qs_index, bcb_index, disp_index, i);
+        GenerateOutputJsonDispatchInfo(qs_index, bcb_index, disp_index);
     }
 
     for (size_t i = 0; i < trace_rays_indices.size(); ++i)
@@ -900,7 +900,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        GenerateOutputJsonTraceRaysIndex(qs_index, bcb_index, tr_index, i);
+        GenerateOutputJsonTraceRaysIndex(qs_index, bcb_index, tr_index);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
@@ -2058,8 +2058,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 
 void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs_index,
                                                                      uint64_t bcb_index,
-                                                                     uint64_t disp_index,
-                                                                     uint64_t cmd_index) const
+                                                                     uint64_t disp_index) const
 {
     if (dispatch_params.empty())
     {
@@ -2080,7 +2079,10 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
 
     auto& current_block         = dump_json.GetCurrentSubEntry();
     auto& dispatch_json_entries = !output_json_per_command ? current_block["dispatchCommands"] : dump_json.GetData();
-    auto& dispatch_json_entry   = !output_json_per_command ? dispatch_json_entries[cmd_index] : dump_json.GetData();
+
+    const uint32_t dispatch_json_entry_index = dump_json.FetchAndAddDispatchEntryIndex();
+    auto&          dispatch_json_entry =
+        !output_json_per_command ? dispatch_json_entries[dispatch_json_entry_index] : dump_json.GetData();
 
     const auto& disp_params = dispatch_params.find(disp_index);
 
@@ -2506,8 +2508,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
 
 void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t qs_index,
                                                                        uint64_t bcb_index,
-                                                                       uint64_t tr_index,
-                                                                       uint64_t cmd_index) const
+                                                                       uint64_t tr_index) const
 {
     auto& current_block = dump_json.GetCurrentSubEntry();
 
@@ -2528,7 +2529,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
     }
     const auto& tr_params = trace_rays_params.find(tr_index);
 
-    auto& tr_entry = !output_json_per_command ? tr_json_entries[cmd_index] : dump_json.GetData();
+    const uint32_t trace_rays_json_entry_index = dump_json.FetchAndAddTraceRaysEntryIndex();
+    auto& tr_entry = !output_json_per_command ? tr_json_entries[trace_rays_json_entry_index] : dump_json.GetData();
 
     tr_entry["traceRaysIndex"]          = tr_index;
     tr_entry["beginCommandBufferIndex"] = bcb_index;
