@@ -258,6 +258,13 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         try
         {
             std::ifstream          dr_json_file(vulkan_replay_options.dump_resources, std::ifstream::binary);
+            if(!dr_json_file.is_open())
+            {
+                GFXRECON_LOG_ERROR("Could not open \"%s\" for input", vulkan_replay_options.dump_resources.c_str());
+                vulkan_replay_options.dumping_resources = false;
+                return false;
+            }
+
             nlohmann::ordered_json jargs;
             dr_json_file >> jargs;
 
