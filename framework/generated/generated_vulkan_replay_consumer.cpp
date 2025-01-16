@@ -7298,13 +7298,13 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkDebugUtilsObjectNameInfoEXT* in_pNameInfo = pNameInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pNameInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);
     VkPhysicalDevice  physical_device = device_info->parent;
 
-    VkResult replay_result = GetInstanceTable(physical_device)->SetDebugUtilsObjectNameEXT(in_device, in_pNameInfo);
+    VkResult replay_result = OverrideSetDebugUtilsObjectNameEXT(GetInstanceTable(physical_device)->SetDebugUtilsObjectNameEXT, returnValue, in_device, pNameInfo);
     CheckResult("vkSetDebugUtilsObjectNameEXT", returnValue, replay_result, call_info);
 }
 
@@ -7314,13 +7314,13 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectTagEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkDebugUtilsObjectTagInfoEXT* in_pTagInfo = pTagInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pTagInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);
     VkPhysicalDevice  physical_device = device_info->parent;
 
-    VkResult replay_result = GetInstanceTable(physical_device)->SetDebugUtilsObjectTagEXT(in_device, in_pTagInfo);
+    VkResult replay_result = OverrideSetDebugUtilsObjectTagEXT(GetInstanceTable(physical_device)->SetDebugUtilsObjectTagEXT, returnValue, in_device, pTagInfo);
     CheckResult("vkSetDebugUtilsObjectTagEXT", returnValue, replay_result, call_info);
 }
 

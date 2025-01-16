@@ -1968,6 +1968,8 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.bind_video_session_memory                   = device_table->BindVideoSessionMemoryKHR;
     functions.get_video_session_memory_requirements       = device_table->GetVideoSessionMemoryRequirementsKHR;
     functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
+    functions.set_debug_utils_object_name                 = instance_table->SetDebugUtilsObjectNameEXT;
+    functions.set_debug_utils_object_tag                  = instance_table->SetDebugUtilsObjectTagEXT;
 
     if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
@@ -6231,6 +6233,77 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
                 &modified_create_info,
                 GetAllocationCallbacks(pAllocator),
                 pMessenger->GetHandlePointer());
+}
+
+uintptr_t VulkanReplayConsumerBase::GetObjectAllocatorData(VkObjectType object_type, format::HandleId handle_id)
+{
+    switch (object_type)
+    {
+        case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            return GetObjectInfoTable().GetVkDeviceMemoryInfo(handle_id)->allocator_data;
+        case VK_OBJECT_TYPE_BUFFER:
+            return GetObjectInfoTable().GetVkBufferInfo(handle_id)->allocator_data;
+        case VK_OBJECT_TYPE_IMAGE:
+            return GetObjectInfoTable().GetVkImageInfo(handle_id)->allocator_data;
+        default:
+            return 0;
+    }
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
+    PFN_vkSetDebugUtilsObjectNameEXT                             func,
+    const VkResult                                               original_result,
+    const VulkanDeviceInfo*                                      device_info,
+    StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* name_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(name_info != nullptr);
+
+    VulkanResourceAllocator* allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    Decoded_VkDebugUtilsObjectNameInfoEXT* meta_info = name_info->GetMetaStructPointer();
+    GFXRECON_ASSERT(meta_info != nullptr);
+
+    VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
+    GFXRECON_ASSERT(info != nullptr);
+
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
+    {
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+    }
+    return func(device_info->handle, info);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
+    PFN_vkSetDebugUtilsObjectTagEXT                             func,
+    const VkResult                                              original_result,
+    const VulkanDeviceInfo*                                     device_info,
+    StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(tag_info != nullptr);
+
+    VulkanResourceAllocator* allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    Decoded_VkDebugUtilsObjectTagInfoEXT* meta_info = tag_info->GetMetaStructPointer();
+    GFXRECON_ASSERT(meta_info != nullptr);
+
+    VkDebugUtilsObjectTagInfoEXT* info = meta_info->decoded_value;
+    GFXRECON_ASSERT(info != nullptr);
+
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
+    {
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectTagEXT(device_info->handle, info, allocator_data);
+    }
+    return func(device_info->handle, info);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
