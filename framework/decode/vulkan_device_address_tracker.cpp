@@ -81,13 +81,8 @@ const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer h
     auto handle_it = buffer_handles_.find(handle);
     if (handle_it != buffer_handles_.end())
     {
-        const auto& [h, handle_id]                = *handle_it;
-        const VulkanBufferInfo* found_buffer_info = object_info_table_.GetVkBufferInfo(handle_id);
-
-        if (found_buffer_info != nullptr)
-        {
-            return found_buffer_info;
-        }
+        const auto& [h, handle_id] = *handle_it;
+        return object_info_table_.GetVkBufferInfo(handle_id);
     }
     return nullptr;
 }

@@ -59,14 +59,10 @@ class VulkanAddressReplacer
     /**
      * @brief   Set raytracing-related properties
      *
-     * @param   capture_properties      optional capture-time raytracing pipeline properties
-     * @param   replay_properties       optional replay-time raytracing pipeline properties
-     * @param   replay_as_properties    optional replay-time acceleration-structure properties
+     * @param   physical_device_info    a physical-device info struct.
      */
-    void SetRaytracingProperties(
-        const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    capture_properties,
-        const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    replay_properties,
-        const std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR>& replay_as_properties);
+    void SetRaytracingProperties(const decode::VulkanPhysicalDeviceInfo* physical_device_info);
+
     /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
      *          like buffer-device-addresses and shader-group-handles.
