@@ -290,9 +290,9 @@ class VulkanAddressReplacer
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> replay_acceleration_structure_properties_{};
     bool                                                              valid_sbt_alignment_ = true;
 
-    VkPhysicalDevice                 physical_device_    = VK_NULL_HANDLE;
-    VkDevice                         device_             = VK_NULL_HANDLE;
-    decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
+    const decode::VulkanPhysicalDeviceInfo* physical_device_info_ = nullptr;
+    VkDevice                                device_               = VK_NULL_HANDLE;
+    decode::VulkanResourceAllocator*        resource_allocator_   = nullptr;
 
     // common layout used for all pipelines
     VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;

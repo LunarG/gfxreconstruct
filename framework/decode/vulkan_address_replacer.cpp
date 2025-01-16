@@ -150,27 +150,25 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
     device_table_(device_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
-
-    const VulkanPhysicalDeviceInfo* physical_device_info = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    GFXRECON_ASSERT(physical_device_info != nullptr);
-    physical_device_       = physical_device_info->handle;
+    physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(physical_device_info_ != nullptr);
     device_                = device_info->handle;
     resource_allocator_    = device_info->allocator.get();
-    get_device_address_fn_ = physical_device_info->parent_api_version >= VK_API_VERSION_1_2
+    get_device_address_fn_ = physical_device_info_->parent_api_version >= VK_API_VERSION_1_2
                                  ? device_table->GetBufferDeviceAddress
                                  : device_table->GetBufferDeviceAddressKHR;
 
     get_physical_device_properties_fn_ = instance_table->GetPhysicalDeviceProperties2;
 
-    if (physical_device_info != nullptr)
+    if (physical_device_info_ != nullptr)
     {
-        GFXRECON_ASSERT(physical_device_info->replay_device_info != nullptr);
-        SetRaytracingProperties(physical_device_info->capture_raytracing_properties,
-                                physical_device_info->replay_device_info->raytracing_properties,
-                                physical_device_info->replay_device_info->acceleration_structure_properties);
+        GFXRECON_ASSERT(physical_device_info_->replay_device_info != nullptr);
+        SetRaytracingProperties(physical_device_info_->capture_raytracing_properties,
+                                physical_device_info_->replay_device_info->raytracing_properties,
+                                physical_device_info_->replay_device_info->acceleration_structure_properties);
     }
-    GFXRECON_ASSERT(physical_device_info->replay_device_info->memory_properties.has_value());
-    memory_properties_ = *physical_device_info->replay_device_info->memory_properties;
+    GFXRECON_ASSERT(physical_device_info_->replay_device_info->memory_properties.has_value());
+    memory_properties_ = *physical_device_info_->replay_device_info->memory_properties;
 }
 
 void VulkanAddressReplacer::SetRaytracingProperties(
@@ -260,13 +258,6 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
     if (group_handle_map.empty())
     {
         // the capture appears to be older and is missing information we require here -> bail out
-        return;
-    }
-
-    if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
-    {
-        GFXRECON_LOG_ERROR_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: missing "
-                                "VkPhysicalDeviceRayTracingPipelinePropertiesKHR for capture/replay, cannot proceed");
         return;
     }
 
@@ -387,8 +378,25 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay adjusted a mismatching "
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting a mismatching "
                                    "raytracing shader-binding-table using a shadow-buffer");
+
+            // raytracing-pipeline properties not populated yet, check if we missed it
+            if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
+            {
+                SetRaytracingProperties(physical_device_info_->capture_raytracing_properties,
+                                        physical_device_info_->replay_device_info->raytracing_properties,
+                                        physical_device_info_->replay_device_info->acceleration_structure_properties);
+            }
+
+            // capture does contain the call, bail out
+            if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
+            {
+                GFXRECON_LOG_ERROR_ONCE(
+                    "VulkanAddressReplacer::ProcessCmdTraceRays: missing "
+                    "VkPhysicalDeviceRayTracingPipelinePropertiesKHR for capture/replay, cannot proceed");
+                return;
+            }
 
             // output-handles
             if (!create_buffer(pipeline_context_sbt.output_handle_buffer, max_num_handles * sizeof(VkDeviceAddress)))
@@ -610,7 +618,16 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // hot swap acceleration-structure handle
                 build_geometry_info.dstAccelerationStructure = replacement_as.handle;
 
-                // we did not populate the acceleration-structure yet (capture might not even contain that call)
+                // acceleration-structure properties not populated yet, check if we missed it
+                if (!replay_acceleration_structure_properties_)
+                {
+                    SetRaytracingProperties(
+                        physical_device_info_->capture_raytracing_properties,
+                        physical_device_info_->replay_device_info->raytracing_properties,
+                        physical_device_info_->replay_device_info->acceleration_structure_properties);
+                }
+
+                // capture did not contain the call, inject
                 if (!replay_acceleration_structure_properties_)
                 {
                     VkPhysicalDeviceAccelerationStructurePropertiesKHR as_properties = {};
@@ -620,7 +637,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     VkPhysicalDeviceProperties2 physical_device_properties = {};
                     physical_device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
                     physical_device_properties.pNext = &as_properties;
-                    get_physical_device_properties_fn_(physical_device_, &physical_device_properties);
+                    get_physical_device_properties_fn_(physical_device_info_->handle, &physical_device_properties);
                     replay_acceleration_structure_properties_ = as_properties;
                 }
 
