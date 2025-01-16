@@ -913,8 +913,10 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
-    // If there's a request for images to be dumped as raw bin files
-    if (dump_raw)
+    // Two cases that an image is going to be dumped as raw binary file:
+    // 1. It's a compressed format.
+    // 2. All images are requested to be dumped raw.
+    if (dump_raw || vkuFormatIsCompressed(src_format))
     {
         return KFormatRaw;
     }
