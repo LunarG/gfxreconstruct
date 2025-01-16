@@ -24,6 +24,9 @@
 # Description: CMake script for gfxrecon tests
 ###############################################################################
 
-add_subdirectory(test_apps)
+
+if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
+    add_subdirectory(test_apps)
+endif ()
 
 # TODO: runner goes here

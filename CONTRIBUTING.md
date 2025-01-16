@@ -5,6 +5,7 @@ Guidelines for contributing to the GFXReconstruct project.
 [![Creative Commons][1]][2]
 
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
 Copyright &copy; 2018-2024 LunarG, Inc.
@@ -51,9 +52,9 @@ coordinate further.
 Repository Issue labels:
 
 - _Bug_:          These issues refer to invalid or broken functionality and
- are the highest priority.
+  are the highest priority.
 - _Enhancement_:  These issues refer to tasks for extending or improving the
- GFXReconstruct software.
+  GFXReconstruct software.
 
 If you would like to work on an issue that is already assigned, please coordinate
 with the current assignee.
@@ -146,7 +147,7 @@ Now you can freely create your branch
 ### Branch Naming
 
 Naming your branches a clear name will also help to identify what changes
-are present in a branch just by looking at the availabe branches on your 
+are present in a branch just by looking at the availabe branches on your
 local machine or a remote repo.
 Because of this, we suggest naming in the following fashion:
 
@@ -185,7 +186,6 @@ to differentiate the work from other people working in the repo.
    For example: `if (pointer_variable == nullptr)`
 3. Avoid editing code unrelated to the new functionality or bugfix.
 
-
 ### GFXR Don'ts
 
 1. Don’t hand-edit C++ headers or implementation files in `framework/generated`.
@@ -220,7 +220,7 @@ It is intended for use with **ClangFormat version 9.0.1** (see
 for instructions on installing this version for your particular platform)
 
 C++ code formatting can be applied to pending changes with the `clang-format`
-  or `git clang-format` commands.
+or `git clang-format` commands.
 
 Here's an example of the workflow using `clang-format` to clean up formating
 issues in code changes:
@@ -244,14 +244,13 @@ $ git commit
 #### Verifying Changes with the Build Script
 
 For desktop, the Python 3 `scripts\build.py` script can be used to verify changes
-before they are committed.  By default, the script performs a pre-build step to
+before they are committed. By default, the script performs a pre-build step to
 verify that the formatting of uncommitted changes adheres to the project's
 ClangFormat style.
 
 The build script also has an option to apply `clang-format` to project files
-before build.  Run the script with the `-h` option for additional usage
+before build. Run the script with the `-h` option for additional usage
 information.
-
 
 ### Python Styling
 
@@ -270,7 +269,6 @@ $ yapf -i <files>
 $ yapf -i -r <path>
 ```
 
-
 ### Commit Message Format
 
 Keep commit message summary (the first line) to 50 characters and format the
@@ -278,9 +276,9 @@ remainder of the message to 72-characters.
 
 * This allows the information to display correctly in git/Github logs
 * Because a 50-character commit summary [works well](https://cbea.ms/git-commit/)
-     with `git log --oneline --graph` on an 80-column window,  e.g.: 
+  with `git log --oneline --graph` on an 80-column window, e.g.:
 
-   ![Example Commit](docs/img/gfxreconstruct-pr-process-01.png)
+  ![Example Commit](docs/img/gfxreconstruct-pr-process-01.png)
 
 Separate subject from body with a blank line
 
@@ -323,6 +321,7 @@ utilizes it appropriately.
 
 It is recommended to capture and replay one or more Vulkan applications out
 of the following repositories:
+
 * VkCube | [Vulkan-Tools Repository](https://github.com/KhronosGroup/Vulkan-Tools)
 * One or more samples | [Sascha Willems Vulkan Repository](https://github.com/SaschaWillems/Vulkan)
 * One or more samples | [Khronos Vulkan Samples Repostiory](https://github.com/KhronosGroup/Vulkan-Samples)
@@ -388,6 +387,7 @@ To regenerate generated source for DirectX 12, `cd` to `framework/generated` and
 ```bash
 python3 generate_dx12.py 
 ```
+
 **NOTE** The minimum supported Python version is 3.10.
 
 **NOTE** On some systems, e.g. Windows, the Python 3 executable may be named
@@ -401,6 +401,7 @@ Changes to the GFXReconstruct project should be made in a branch created off of
 the`dev` branch (as mentioned in [Creating a Branch For Work](#creating-a-branch-for-work)).
 
 When creating a [Pull Request](https://help.github.com/articles/using-pull-requests/):
+
 * Make sure that `base repository` is set to the `LunarG/gfxreconstruct` repository
 * Make sure the `base` branch is set to `dev`
 * Update the `head repository` to point to your fork
@@ -408,17 +409,19 @@ When creating a [Pull Request](https://help.github.com/articles/using-pull-reque
 
 It should look something like this:
 
-   ![Example PR Creation](docs/img/gfxreconstruct-pr-process-03.png)
+![Example PR Creation](docs/img/gfxreconstruct-pr-process-03.png)
 
 Also make sure the PR title clearly states the purpose of the issue,
 like `Fix crash in vulkaninfo` or
 `Add tracking for all types derived from Wrapper`.
+
 * If a PR is submitted in order to share and receive comments and run CI
   before the PR is submitted for final approvals:
-     * Add `WIP - ` in front of the title of the PR
-     * Mark it as `Draft` in Github
+    * Add `WIP - ` in front of the title of the PR
+    * Mark it as `Draft` in Github
 
 Make sure the description is also clear.
+
 * If it is targeting a specific platform, say which one (`Linux`, `Android`, etc)
 * In the case of an issue fix, put the issue number being fixed in the final
   commit message or at least in the PR description so the Github issue and PR
@@ -427,6 +430,7 @@ Make sure the description is also clear.
   the issue, like `fixes #341` or `Fixes #341`; see the Github page on this.
 
 If your change modified something such as `gfxrecon-convert` or `gfxrecon-info`:
+
 * Include a cut-and-paste of output before and after for review.
 * Verify that the JSON output validate correctly e.g. through the JSON tool [`jq`](https://stedolan.github.io/jq/)
 
@@ -446,11 +450,11 @@ pull request or other contribution to GitHub.
     * This is the "checks passed" or "checks failed" section at the bottom of the PR
     * It represents whether the automated build in a container succeeded.
     * This set of “CI builds” includes no replay of capture files.
-![Github Workflows CI Screenshot](docs/img/gfxreconstruct-pr-process-02.png "Github Workflows CI Screenshot")
+      ![Github Workflows CI Screenshot](docs/img/gfxreconstruct-pr-process-02.png "Github Workflows CI Screenshot")
 * Did the extended LunarG CI pass?
     * LunarG runs additional tests on our own machine and posts the results to the PR.
     * This will appear in the `Conversation` part of the PR and appear as comments made.
-![LunarG CI Screenshot](docs/img/gfxreconstruct-pr-process-04.png "LunarG CI Screenshot")
+      ![LunarG CI Screenshot](docs/img/gfxreconstruct-pr-process-04.png "LunarG CI Screenshot")
 * Have you responded and/or resolved all code-review feedback?
 
 <br/>
@@ -466,10 +470,10 @@ on various platforms.
 - Visual Studio 2017 has built-in support for an older version of ClangFormat,
   but can be changed to use a separately installed ClangFormat version 9
   by following the instructions described here:
-  - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
-    At the bottom is a checkbox for **Use custom clang-format.exe file**.
-    Select this, and browse to the location of the 9.0.1 version of
-    `clang-format.exe` that was installed separately.
+    - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
+      At the bottom is a checkbox for **Use custom clang-format.exe file**.
+      Select this, and browse to the location of the 9.0.1 version of
+      `clang-format.exe` that was installed separately.
 
 ### Ubuntu
 
@@ -478,7 +482,6 @@ For Ubuntu 20, `clang-format-9` is the default provided by the package manager.
 For earlier versions of Ubuntu, the required version of `clang-format` can be
 obtained through the [LLVM toolchain repository](https://apt.llvm.org) by
 following the instructions described here:
-
 
 On any version of Ubuntu, continue with:
 
