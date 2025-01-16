@@ -9550,9 +9550,12 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
     auto it = _device_address_replacers.find(device_info);
     if (it == _device_address_replacers.end())
     {
-        auto [new_it, success] = _device_address_replacers.insert(
-            { device_info,
-              VulkanAddressReplacer(device_info, GetDeviceTable(device_info->handle), *object_info_table_) });
+        auto [new_it, success] =
+            _device_address_replacers.insert({ device_info,
+                                               VulkanAddressReplacer(device_info,
+                                                                     GetDeviceTable(device_info->handle),
+                                                                     GetInstanceTable(device_info->parent),
+                                                                     *object_info_table_) });
         GFXRECON_ASSERT(success);
         return new_it->second;
     }

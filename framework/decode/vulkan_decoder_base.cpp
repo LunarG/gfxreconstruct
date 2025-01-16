@@ -611,7 +611,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, sizeof(format::HandleId), &device_id);
     bytes_read += ValueDecoder::DecodeEnumValue(parameter_buffer + bytes_read, sizeof(VkQueryType), &query_type);
-    ValueDecoder::DecodeHandleIdValue(
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
         parameter_buffer + bytes_read, sizeof(format::HandleId), &acceleration_structure_id);
 
     for (auto consumer : consumers_)

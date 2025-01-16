@@ -160,20 +160,22 @@ decode::VulkanAddressReplacer::acceleration_structure_asset_t::~acceleration_str
 
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
                                              const encode::VulkanDeviceTable*     device_table,
+                                             const encode::VulkanInstanceTable*   instance_table,
                                              const decode::CommonObjectInfoTable& object_table) :
     device_table_(device_table)
 {
-    GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
 
     const VulkanPhysicalDeviceInfo* physical_device_info = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     GFXRECON_ASSERT(physical_device_info != nullptr);
+    physical_device_       = physical_device_info->handle;
     device_                = device_info->handle;
     resource_allocator_    = device_info->allocator.get();
     get_device_address_fn_ = physical_device_info->parent_api_version >= VK_API_VERSION_1_2
                                  ? device_table->GetBufferDeviceAddress
                                  : device_table->GetBufferDeviceAddressKHR;
 
-    //    get_physical_device_properties_fn_ = physical_device_info->parent_api_version >= VK_API_VERSION_1_1 ?
+    get_physical_device_properties_fn_ = instance_table->GetPhysicalDeviceProperties2;
 
     if (physical_device_info != nullptr)
     {
@@ -191,6 +193,9 @@ void VulkanAddressReplacer::SetRaytracingProperties(
     const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    replay_properties,
     const std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR>& replay_as_properties)
 {
+    GFXRECON_ASSERT(capture_properties);
+    GFXRECON_ASSERT(replay_properties);
+
     if (capture_properties)
     {
         capture_ray_properties_ = *capture_properties;
@@ -209,11 +214,6 @@ void VulkanAddressReplacer::SetRaytracingProperties(
         capture_ray_properties_.shaderGroupBaseAlignment != replay_ray_properties_.shaderGroupBaseAlignment)
     {
         valid_sbt_alignment_ = false;
-    }
-
-    if (!capture_properties || !replay_properties || !replay_as_properties)
-    {
-        GFXRECON_LOG_WARNING("VulkanAddressReplacer::SetRaytracingProperties: missing device-information")
     }
 }
 
@@ -591,9 +591,10 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
                 GFXRECON_LOG_INFO_ONCE(
-                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay adjusted mismatching "
-                    "acceleration-structures using shadow-structures and -buffers")
+                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting mismatching "
+                    "acceleration-structures using shadow-structures and -buffers");
 
                 // now definitely requiring address-replacement
                 force_replace = true;
@@ -630,13 +631,27 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // hot swap acceleration-structure handle
                 build_geometry_info.dstAccelerationStructure = replacement_as.handle;
 
-                uint32_t min_scratch_offset_alignment =
-                    replay_acceleration_structure_properties_
-                        ? replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment
-                        : 128;
+                // we did not populate the acceleration-structure yet (capture might not even contain that call)
+                if (!replay_acceleration_structure_properties_)
+                {
+                    VkPhysicalDeviceAccelerationStructurePropertiesKHR as_properties = {};
+                    as_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+                    as_properties.pNext = nullptr;
+
+                    VkPhysicalDeviceProperties2 physical_device_properties = {};
+                    physical_device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+                    physical_device_properties.pNext = &as_properties;
+                    get_physical_device_properties_fn_(physical_device_, &physical_device_properties);
+                    replay_acceleration_structure_properties_ = as_properties;
+                }
 
                 // create a replacement scratch-buffer
-                if (!create_buffer(replacement_as.scratch, scratch_size, 0, min_scratch_offset_alignment, false))
+                if (!create_buffer(
+                        replacement_as.scratch,
+                        scratch_size,
+                        0,
+                        replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment,
+                        false))
                 {
                     GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
                     return;

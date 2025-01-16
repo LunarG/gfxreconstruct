@@ -45,6 +45,7 @@ class VulkanAddressReplacer
 
     VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
                           const encode::VulkanDeviceTable*     device_table,
+                          const encode::VulkanInstanceTable*   instance_table,
                           const decode::CommonObjectInfoTable& object_table);
 
     //! prevent copying
@@ -289,6 +290,7 @@ class VulkanAddressReplacer
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> replay_acceleration_structure_properties_{};
     bool                                                              valid_sbt_alignment_ = true;
 
+    VkPhysicalDevice                 physical_device_    = VK_NULL_HANDLE;
     VkDevice                         device_             = VK_NULL_HANDLE;
     decode::VulkanResourceAllocator* resource_allocator_ = nullptr;
 
