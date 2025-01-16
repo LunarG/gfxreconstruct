@@ -30,6 +30,7 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.h

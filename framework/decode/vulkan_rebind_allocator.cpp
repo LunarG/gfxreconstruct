@@ -56,7 +56,7 @@
 #include "decode/vulkan_enum_util.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "util/logging.h"
+#include "util/alignment_utils.h"
 #include "util/platform.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
@@ -255,12 +255,8 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
 
     if ((create_info != nullptr) && (buffer != nullptr) && (allocator_data != nullptr))
     {
-        auto aligned_size = [](uint32_t size, uint32_t alignment) -> uint32_t {
-            return (size + alignment - 1) & ~(alignment - 1);
-        };
-
         auto modified_info = *create_info;
-        modified_info.size = aligned_size(create_info->size, min_buffer_alignment_);
+        modified_info.size = util::aligned_value(create_info->size, min_buffer_alignment_);
         result             = functions_.create_buffer(device_, &modified_info, nullptr, buffer);
 
         if (result >= 0)

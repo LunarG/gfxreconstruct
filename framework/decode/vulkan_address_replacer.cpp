@@ -24,6 +24,7 @@
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_address_replacer_shaders.h"
 #include "decode/mark_injected_commands.h"
+#include "util/alignment_utils.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -96,22 +97,6 @@ struct QueueSubmitHelper
         device_table->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     }
 };
-
-inline VkDeviceAddress aligned_address(VkDeviceAddress address, uint64_t alignment)
-{
-    return alignment ? (address + alignment - 1) & ~(alignment - 1) : address;
-}
-
-inline uint32_t aligned_size(uint32_t size, uint32_t alignment)
-{
-    return alignment ? (size + alignment - 1) & ~(alignment - 1) : size;
-}
-
-inline uint32_t div_up(uint32_t nom, uint32_t denom)
-{
-    GFXRECON_ASSERT(denom > 0);
-    return (nom + denom - 1) / denom;
-}
 
 struct hashmap_t
 {
@@ -193,9 +178,6 @@ void VulkanAddressReplacer::SetRaytracingProperties(
     const std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>&    replay_properties,
     const std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR>& replay_as_properties)
 {
-    GFXRECON_ASSERT(capture_properties);
-    GFXRECON_ASSERT(replay_properties);
-
     if (capture_properties)
     {
         capture_ray_properties_ = *capture_properties;
@@ -209,11 +191,14 @@ void VulkanAddressReplacer::SetRaytracingProperties(
         replay_acceleration_structure_properties_ = *replay_as_properties;
     }
 
-    if (capture_ray_properties_.shaderGroupHandleSize != replay_ray_properties_.shaderGroupHandleSize ||
-        capture_ray_properties_.shaderGroupHandleAlignment != replay_ray_properties_.shaderGroupHandleAlignment ||
-        capture_ray_properties_.shaderGroupBaseAlignment != replay_ray_properties_.shaderGroupBaseAlignment)
+    if (capture_ray_properties_ && replay_ray_properties_)
     {
-        valid_sbt_alignment_ = false;
+        if (capture_ray_properties_->shaderGroupHandleSize != replay_ray_properties_->shaderGroupHandleSize ||
+            capture_ray_properties_->shaderGroupHandleAlignment != replay_ray_properties_->shaderGroupHandleAlignment ||
+            capture_ray_properties_->shaderGroupBaseAlignment != replay_ray_properties_->shaderGroupBaseAlignment)
+        {
+            valid_sbt_alignment_ = false;
+        }
     }
 }
 
@@ -278,6 +263,13 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         return;
     }
 
+    if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
+    {
+        GFXRECON_LOG_ERROR_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: missing "
+                                "VkPhysicalDeviceRayTracingPipelinePropertiesKHR for capture/replay, cannot proceed");
+        return;
+    }
+
     // figure out if the captured group-handles are valid for replay
     bool valid_group_handles = true;
 
@@ -290,12 +282,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
     }
 
-    // TODO: testing only -> remove when closing issue #1526
-    //    _valid_sbt_alignment = false;
-    //    valid_group_handles = false;
-
     std::unordered_set<VkBuffer> buffer_set;
-
     auto address_remap = [&address_tracker, &buffer_set](VkStridedDeviceAddressRegionKHR* address_region) {
         if (address_region->size > 0)
         {
@@ -311,13 +298,10 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
                 // in-place address-remap
                 address_region->deviceAddress = buffer_info->replay_address + offset;
-            }
-            else
-            {
-                GFXRECON_LOG_INFO_ONCE(
-                    "VulkanAddressReplacer::ProcessCmdTraceRays: missing buffer_info->replay_address, remap failed")
+                return true;
             }
         }
+        return false;
     };
 
     // in-place remap: capture-addresses -> replay-addresses
@@ -419,16 +403,16 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             uint32_t sbt_offset         = 0;
             auto&    shadow_buf_context = shadow_sbt_map_[command_buffer_info->handle];
 
-            const uint32_t handle_size_aligned = aligned_size(replay_ray_properties_.shaderGroupHandleSize,
-                                                              replay_ray_properties_.shaderGroupHandleAlignment);
+            const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
+                replay_ray_properties_->shaderGroupHandleSize, replay_ray_properties_->shaderGroupHandleAlignment));
 
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
                 if (region != nullptr)
                 {
                     uint32_t num_handles_limit = region->size / region->stride;
-                    uint32_t group_size        = aligned_size(num_handles_limit * handle_size_aligned,
-                                                       replay_ray_properties_.shaderGroupBaseAlignment);
+                    auto     group_size        = static_cast<uint32_t>(util::aligned_value(
+                        num_handles_limit * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
                     sbt_offset += group_size;
 
                     // adjust group-size
@@ -437,12 +421,12 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                 }
             }
             // raygen: stride == size
-            raygen_sbt->size = raygen_sbt->stride = replay_ray_properties_.shaderGroupBaseAlignment;
+            raygen_sbt->size = raygen_sbt->stride = replay_ray_properties_->shaderGroupBaseAlignment;
 
             if (!create_buffer(shadow_buf_context,
                                sbt_offset,
                                VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR,
-                               replay_ray_properties_.shaderGroupBaseAlignment))
+                               replay_ray_properties_->shaderGroupBaseAlignment))
             {
                 GFXRECON_LOG_ERROR("VulkanAddressReplacer: shadow shader-binding-table creation failed");
                 return;
@@ -475,7 +459,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                                         &replacer_params);
         // run a single workgroup
         constexpr uint32_t wg_size = 32;
-        device_table_->CmdDispatch(command_buffer_info->handle, div_up(replacer_params.num_handles, wg_size), 1, 1);
+        device_table_->CmdDispatch(
+            command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
 
         // post memory-barrier
         for (const auto& buf : buffer_set)
@@ -533,13 +518,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             capture_address = buffer_info->replay_address + offset;
             return true;
         }
-        else
-        {
-            //            GFXRECON_LOG_WARNING(
-            //                "ProcessCmdBuildAccelerationStructuresKHR: missing buffer_info->replay_address, remap
-            //                failed");
-            return false;
-        }
+        return false;
     };
 
     std::vector<VkDeviceAddress> addresses_to_replace;
@@ -788,7 +767,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                             &replacer_params);
             // dispatch workgroups
             constexpr uint32_t wg_size = 32;
-            device_table_->CmdDispatch(command_buffer_info->handle, div_up(replacer_params.num_handles, wg_size), 1, 1);
+            device_table_->CmdDispatch(
+                command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
 
             // post memory-barrier
             for (const auto& buf : buffer_set)
@@ -1232,11 +1212,13 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     uint32_t memory_type_index =
         graphics::GetMemoryTypeIndex(memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
 
-    if (memory_type_index == std::numeric_limits<uint32_t>::max())
+    if (memory_type_index == std::numeric_limits<uint32_t>::max() && use_host_mem)
     {
         /* fallback to coherent */
         memory_type_index =
-            graphics::GetMemoryTypeIndex(memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
+            graphics::GetMemoryTypeIndex(memory_properties_,
+                                         memory_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
@@ -1279,7 +1261,8 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     GFXRECON_ASSERT(buffer_context.device_address != 0);
 
     // ensure alignment for returned address
-    buffer_context.device_address = aligned_address(buffer_context.device_address, min_alignment);
+    buffer_context.device_address = util::aligned_value(buffer_context.device_address, min_alignment);
+    GFXRECON_ASSERT(!min_alignment || !(buffer_context.device_address % min_alignment));
 
     if (use_host_mem)
     {
