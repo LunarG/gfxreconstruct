@@ -143,7 +143,7 @@ Run the script with the `-h` option for additional usage information.
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
     - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
-- [CMake](http://www.cmake.org/download/) (Version 3.16.3 or newer)
+- [CMake](http://www.cmake.org/download/) (Version 3.24 or newer)
   - The build instructions assume that CMake has been added to the system PATH
 - Git Client Support
   - [Git for Windows](http://git-scm.com/download/win) is a popular solution
