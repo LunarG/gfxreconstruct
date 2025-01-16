@@ -768,12 +768,6 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
-        GFXRECON_LOG_INFO("Submitting CB/DC %u of %zu (idx: %" PRIu64 ") for BeginCommandBuffer: %" PRIu64,
-                          cb,
-                          n_drawcalls,
-                          dc_indices[CmdBufToDCVectorIndex(cb)],
-                          bcb_index);
-
         VkSubmitInfo si;
         si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         si.pNext                = nullptr;
