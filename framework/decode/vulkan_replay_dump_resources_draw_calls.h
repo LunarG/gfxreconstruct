@@ -27,7 +27,6 @@
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_replay_dump_resources_json.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -48,8 +47,7 @@ class DrawCallsDumpingContext
                             const std::vector<std::vector<uint64_t>>& rp_indices,
                             CommonObjectInfoTable&                    object_info_table,
                             const VulkanReplayOptions&                options,
-                            VulkanReplayDumpResourcesJson&            dump_json,
-                            std::string                               capture_filename);
+                            VulkanDumpResourcesDelegate&              delegate);
 
     ~DrawCallsDumpingContext();
 
@@ -192,45 +190,6 @@ class DrawCallsDumpingContext
 
     void SetRenderArea(const VkRect2D& new_render_area);
 
-    std::string GenerateRenderTargetImageFilename(VkFormat              format,
-                                                  VkImageAspectFlagBits aspect,
-                                                  VkImageTiling         tiling,
-                                                  VkImageType           type,
-                                                  uint32_t              mip_level,
-                                                  uint32_t              layer,
-                                                  uint64_t              cmd_buf_index,
-                                                  uint64_t              qs_index,
-                                                  uint64_t              bcb_index,
-                                                  uint64_t              dc_index,
-                                                  int                   attachment_index) const;
-
-    std::string GenerateImageDescriptorFilename(VkFormat              format,
-                                                VkImageAspectFlagBits aspect,
-                                                VkImageTiling         tiling,
-                                                VkImageType           type,
-                                                format::HandleId      image_id,
-                                                uint32_t              level,
-                                                uint32_t              layer,
-                                                uint64_t              qs_index,
-                                                uint64_t              bcb_index,
-                                                uint64_t              rp) const;
-
-    std::string GenerateBufferDescriptorFilename(uint64_t         qs_index,
-                                                 uint64_t         bcb_index,
-                                                 uint64_t         rp,
-                                                 format::HandleId buffer_id) const;
-
-    std::string GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
-                                                              uint64_t bcb_index,
-                                                              uint32_t set,
-                                                              uint32_t binding) const;
-
-    std::string
-    GenerateVertexBufferFilename(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint32_t binding) const;
-
-    std::string
-    GenerateIndexBufferFilename(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, VkIndexType type) const;
-
     using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
     RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
     size_t                CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
@@ -247,9 +206,6 @@ class DrawCallsDumpingContext
 
     VkResult FetchDrawIndirectParams(uint64_t dc_index);
 
-    void GenerateOutputJsonDrawCallInfo(
-        uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_buf_index, uint64_t rp, uint64_t sp) const;
-
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
 
     VulkanCommandBufferInfo*           original_command_buffer_info;
@@ -264,18 +220,11 @@ class DrawCallsDumpingContext
     uint32_t                           current_subpass;
     uint32_t                           n_subpasses;
     bool                               dump_resources_before;
-    const std::string&                 dump_resource_path;
-    util::ScreenshotFormat             image_file_format;
-    float                              dump_resources_scale;
-    VulkanReplayDumpResourcesJson&     dump_json;
+    VulkanDumpResourcesDelegate&       delegate_;
     bool                               dump_depth;
     int32_t                            color_attachment_to_dump;
     bool                               dump_vertex_index_buffers;
-    bool                               output_json_per_command;
     bool                               dump_immutable_resources;
-    bool                               dump_all_image_subresources;
-    bool                               dump_images_raw;
-    bool                               dump_images_separate_alpha;
 
     enum RenderPassType
     {
@@ -297,6 +246,7 @@ class DrawCallsDumpingContext
 
     std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts;
 
+  public:
     struct RenderTargets
     {
         RenderTargets() : depth_att_img(nullptr) {}
@@ -305,6 +255,7 @@ class DrawCallsDumpingContext
         VulkanImageInfo*              depth_att_img;
     };
 
+  private:
     // render_targets is basically a 2d array (vector of vectors). It is indexed like render_targets[rp][sp]
     // where rp specifies the render pass and sp the subpass.
     std::vector<std::vector<RenderTargets>> render_targets;
@@ -315,6 +266,7 @@ class DrawCallsDumpingContext
     // One entry per descriptor set
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_gr;
 
+  public:
     struct VertexInputState
     {
         // One entry per binding
@@ -324,9 +276,11 @@ class DrawCallsDumpingContext
         VulkanPipelineInfo::VertexInputAttributeMap vertex_input_attribute_map;
     };
 
+  private:
     // Keep track of CmdSetVertexInputEXT
     VertexInputState dynamic_vertex_input_state;
 
+  public:
     // Keep track of bound vertex buffers
     struct BoundVertexBuffersInfo
     {
@@ -358,8 +312,10 @@ class DrawCallsDumpingContext
         std::unordered_map<uint32_t, BufferPerBinding> bound_vertex_buffer_per_binding;
     };
 
+  private:
     BoundVertexBuffersInfo bound_vertex_buffers;
 
+  public:
     // Keep track of bound index buffer
     struct BoundIndexBuffer
     {
@@ -386,8 +342,10 @@ class DrawCallsDumpingContext
         VkDeviceSize actual_size;
     };
 
+  private:
     BoundIndexBuffer bound_index_buffer;
 
+  public:
     enum DrawCallTypes
     {
         kDraw,
@@ -676,6 +634,7 @@ class DrawCallsDumpingContext
             referenced_descriptors;
     };
 
+  private:
     // One entry for each draw call
     std::unordered_map<uint64_t, DrawCallParameters> draw_call_params;
 
@@ -702,12 +661,6 @@ class DrawCallsDumpingContext
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors;
 
-    // Keep track of images for which scalling failed so we can
-    // note them in the output json
-    std::unordered_set<std::string> images_failed_scaling;
-
-    bool ImageFailedScaling(const std::string& filename) const { return images_failed_scaling.count(filename); }
-
     VkCommandBuffer aux_command_buffer;
     VkFence         aux_fence;
     bool            must_backup_resources;
@@ -716,7 +669,6 @@ class DrawCallsDumpingContext
     const encode::VulkanInstanceTable*      instance_table;
     CommonObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
-    std::string                             capture_filename;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -22,7 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
-#include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
@@ -58,23 +58,15 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
                                                  const std::vector<std::vector<uint64_t>>& rp_indices,
                                                  CommonObjectInfoTable&                    object_info_table,
                                                  const VulkanReplayOptions&                options,
-                                                 VulkanReplayDumpResourcesJson&            dump_json,
-                                                 std::string                               capture_filename) :
-    original_command_buffer_info(nullptr),
-    current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices), active_renderpass(nullptr),
-    active_framebuffer(nullptr), bound_pipelines{ nullptr }, current_renderpass(0), current_subpass(0),
-    dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE),
-    device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
-    replay_device_phys_mem_props(nullptr), dump_resource_path(options.dump_resources_output_dir),
-    image_file_format(options.dump_resources_image_format), dump_resources_scale(options.dump_resources_scale),
-    dump_json(dump_json), dump_depth(options.dump_resources_dump_depth),
+                                                 VulkanDumpResourcesDelegate&              delegate) :
+    original_command_buffer_info(nullptr), current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices),
+    active_renderpass(nullptr), active_framebuffer(nullptr), bound_pipelines{ nullptr }, current_renderpass(0),
+    current_subpass(0), dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE),
+    aux_fence(VK_NULL_HANDLE), device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
+    replay_device_phys_mem_props(nullptr), delegate_(delegate), dump_depth(options.dump_resources_dump_depth),
     color_attachment_to_dump(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers(options.dump_resources_dump_vertex_index_buffer),
-    output_json_per_command(options.dump_resources_json_per_command),
-    dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), current_render_pass_type(kNone),
-    capture_filename(capture_filename), dump_images_raw(options.dump_resources_dump_raw_images),
-    dump_images_separate_alpha(options.dump_resources_dump_separate_alpha)
+    dump_immutable_resources(options.dump_resources_dump_immutable_resources), current_render_pass_type(kNone)
 {
     must_backup_resources = (dc_indices.size() > 1);
 
@@ -149,8 +141,7 @@ void DrawCallsDumpingContext::InsertNewDrawParameters(
     auto new_entry = draw_call_params.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(index),
-        std::forward_as_tuple(
-            DrawCallsDumpingContext::kDraw, vertex_count, instance_count, first_vertex, first_instance));
+        std::forward_as_tuple(DrawCallTypes::kDraw, vertex_count, instance_count, first_vertex, first_instance));
     assert(new_entry.second);
 }
 
@@ -161,24 +152,21 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
                                                              int32_t  vertexOffset,
                                                              uint32_t first_instance)
 {
-    auto new_entry = draw_call_params.emplace(std::piecewise_construct,
-                                              std::forward_as_tuple(index),
-                                              std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndexed,
-                                                                    index_count,
-                                                                    instance_count,
-                                                                    first_index,
-                                                                    vertexOffset,
-                                                                    first_instance));
+    auto new_entry = draw_call_params.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(index),
+        std::forward_as_tuple(
+            DrawCallTypes::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance));
     assert(new_entry.second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
     uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
-    auto new_entry = draw_call_params.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(index),
-        std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndirect, buffer_info, offset, draw_count, stride));
+    auto new_entry =
+        draw_call_params.emplace(std::piecewise_construct,
+                                 std::forward_as_tuple(index),
+                                 std::forward_as_tuple(kDrawIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
 }
 
@@ -188,7 +176,7 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
     auto new_entry = draw_call_params.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(index),
-        std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride));
+        std::forward_as_tuple(DrawCallTypes::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
 }
 
@@ -202,7 +190,7 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
 {
     auto new_entry = draw_call_params.emplace(std::piecewise_construct,
                                               std::forward_as_tuple(index),
-                                              std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndirectCount,
+                                              std::forward_as_tuple(DrawCallTypes::kDrawIndirectCount,
                                                                     buffer_info,
                                                                     offset,
                                                                     count_buffer_info,
@@ -222,7 +210,7 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
 {
     auto new_entry = draw_call_params.emplace(std::piecewise_construct,
                                               std::forward_as_tuple(index),
-                                              std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndexedIndirectCount,
+                                              std::forward_as_tuple(DrawCallTypes::kDrawIndexedIndirectCount,
                                                                     buffer_info,
                                                                     offset,
                                                                     count_buffer_info,
@@ -242,7 +230,7 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t  
 {
     auto new_entry = draw_call_params.emplace(std::piecewise_construct,
                                               std::forward_as_tuple(index),
-                                              std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndirectCountKHR,
+                                              std::forward_as_tuple(DrawCallTypes::kDrawIndirectCountKHR,
                                                                     buffer_info,
                                                                     offset,
                                                                     count_buffer_info,
@@ -260,16 +248,15 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uin
                                                                              uint32_t     max_draw_count,
                                                                              uint32_t     stride)
 {
-    auto new_entry =
-        draw_call_params.emplace(std::piecewise_construct,
-                                 std::forward_as_tuple(index),
-                                 std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndexedIndirectCountKHR,
-                                                       buffer_info,
-                                                       offset,
-                                                       count_buffer_info,
-                                                       count_buffer_offset,
-                                                       max_draw_count,
-                                                       stride));
+    auto new_entry = draw_call_params.emplace(std::piecewise_construct,
+                                              std::forward_as_tuple(index),
+                                              std::forward_as_tuple(DrawCallTypes::kDrawIndexedIndirectCountKHR,
+                                                                    buffer_info,
+                                                                    offset,
+                                                                    count_buffer_info,
+                                                                    count_buffer_offset,
+                                                                    max_draw_count,
+                                                                    stride));
     assert(new_entry.second);
 }
 
@@ -867,7 +854,25 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
         if (!dump_resources_before || dump_resources_before && !(cb % 2))
         {
-            GenerateOutputJsonDrawCallInfo(qs_index, bcb_index, cb, rp, sp);
+            VulkanDumpDrawCallInfo draw_call_info{};
+            draw_call_info.type                         = DumpResourceType::kDrawCallInfo;
+            draw_call_info.instance_table               = instance_table;
+            draw_call_info.device_table                 = device_table;
+            draw_call_info.object_info_table            = &object_info_table;
+            draw_call_info.device_info                  = device_info;
+            draw_call_info.original_command_buffer_info = original_command_buffer_info;
+            draw_call_info.bcb_index                    = bcb_index;
+            draw_call_info.qs_index                     = qs_index;
+            draw_call_info.rp                           = rp;
+            draw_call_info.sp                           = sp;
+            draw_call_info.cmd_index                    = dc_index;
+            draw_call_info.render_targets               = &render_targets[rp][sp];
+
+            const auto& dc_param_entry = draw_call_params.find(draw_call_info.cmd_index);
+            GFXRECON_ASSERT(dc_param_entry != draw_call_params.end());
+            draw_call_info.dc_param = &dc_param_entry->second;
+
+            delegate_.DumpDrawCallInfo(draw_call_info);
         }
 
         res = RevertRenderTargetImageLayouts(queue, cb);
@@ -891,615 +896,6 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
     GFXRECON_LOG_INFO("Done.")
 
     return VK_SUCCESS;
-}
-
-#define DEPTH_ATTACHMENT ~0
-
-std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat              format,
-                                                                       VkImageAspectFlagBits aspect,
-                                                                       VkImageTiling         tiling,
-                                                                       VkImageType           type,
-                                                                       uint32_t              mip_level,
-                                                                       uint32_t              layer,
-                                                                       uint64_t              cmd_buf_index,
-                                                                       uint64_t              qs_index,
-                                                                       uint64_t              bcb_index,
-                                                                       uint64_t              dc_index,
-                                                                       int                   attachment_index) const
-{
-    std::string aspect_str = ImageAspectToStr(aspect);
-    std::string attachment_str =
-        attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att";
-
-    std::stringstream filename;
-    filename << capture_filename << "_";
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
-    assert(device_info);
-
-    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                       device_table,
-                                                                       instance_table,
-                                                                       object_info_table,
-                                                                       format,
-                                                                       tiling,
-                                                                       type,
-                                                                       image_file_format,
-                                                                       dump_images_raw);
-
-    if (output_image_format != KFormatRaw)
-    {
-        if (dump_resources_before)
-        {
-            filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
-                     << "_bcb_" << bcb_index << attachment_str << "_aspect_" << aspect_str;
-        }
-        else
-        {
-            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str
-                     << "_aspect_" << aspect_str;
-        }
-    }
-    else
-    {
-        if (dump_resources_before)
-        {
-            filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
-                     << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << attachment_str << "_"
-                     << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
-        }
-        else
-        {
-            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str << "_"
-                     << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
-        }
-    }
-
-    if (dump_all_image_subresources)
-    {
-        std::stringstream subresource_sting;
-        subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
-        subresource_sting << ImageFileExtension(output_image_format);
-
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(filename.str() + subresource_sting.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        filename << ImageFileExtension(output_image_format);
-
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(filename.str());
-        return (filedirname / filebasename).string();
-    }
-}
-
-void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
-    uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_buf_index, uint64_t rp, uint64_t sp) const
-{
-    const size_t dc_index = dc_indices[CmdBufToDCVectorIndex(cmd_buf_index)];
-
-    if (output_json_per_command)
-    {
-        std::stringstream filename;
-        filename << capture_filename << "_";
-        filename << "DrawCall_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dr.json";
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json.Open(full_filename);
-        dump_json.BlockStart();
-    }
-
-    auto& current_block         = dump_json.GetCurrentSubEntry();
-    auto& drawcall_json_entries = !output_json_per_command ? current_block["drawCallCommands"] : current_block;
-
-    const uint32_t draw_call_json_entry = dump_json.FetchAndAddDrawCallsEntryIndex();
-    auto&          draw_call_entry =
-        !output_json_per_command ? drawcall_json_entries[draw_call_json_entry] : drawcall_json_entries;
-
-    const auto& dc_param_entry = draw_call_params.find(dc_index);
-    assert(dc_param_entry != draw_call_params.end());
-
-    draw_call_entry["drawIndex"]               = dc_index;
-    draw_call_entry["beginCommandBufferIndex"] = bcb_index;
-    draw_call_entry["queueSubmitIndex"]        = qs_index;
-
-    // Write draw call params
-    auto& dc_params_json_entry           = draw_call_entry["parameters"];
-    dc_params_json_entry["drawCallType"] = DrawCallTypeToStr(dc_param_entry->second.type);
-    switch (dc_param_entry->second.type)
-    {
-        case kDraw:
-        {
-            const VkDrawIndirectCommand& dc_params = dc_param_entry->second.dc_params_union.draw;
-
-            dc_params_json_entry["vertexCount"]   = dc_params.vertexCount;
-            dc_params_json_entry["instanceCount"] = dc_params.instanceCount;
-            dc_params_json_entry["firstVertex"]   = dc_params.firstVertex;
-            dc_params_json_entry["firstInstance"] = dc_params.firstInstance;
-        }
-        break;
-
-        case kDrawIndexed:
-        {
-            const VkDrawIndexedIndirectCommand& dc_params = dc_param_entry->second.dc_params_union.draw_indexed;
-
-            dc_params_json_entry["indexCount"]    = dc_params.indexCount;
-            dc_params_json_entry["instanceCount"] = dc_params.instanceCount;
-            dc_params_json_entry["firstIndex"]    = dc_params.firstIndex;
-            dc_params_json_entry["vertexOffset"]  = dc_params.vertexOffset;
-            dc_params_json_entry["firstInstance"] = dc_params.firstInstance;
-        }
-        break;
-
-        case kDrawIndirect:
-        {
-            const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw_indirect;
-
-            assert((dc_params.draw_count && dc_params.draw_params != nullptr) || !dc_params.draw_count);
-
-            dc_params_json_entry["drawCount"] = dc_params.draw_count;
-            auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
-            for (uint32_t di = 0; di < dc_params.draw_count; ++di)
-            {
-                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertexCount;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instanceCount;
-                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].firstVertex;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].firstInstance;
-            }
-        }
-        break;
-
-        case kDrawIndexedIndirect:
-        {
-            const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw_indirect;
-
-            assert((dc_params.draw_count && dc_params.draw_indexed_params != nullptr) || !dc_params.draw_count);
-
-            dc_params_json_entry["drawCount"] = dc_params.draw_count;
-            auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
-            for (uint32_t di = 0; di < dc_params.draw_count; ++di)
-            {
-                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].indexCount;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instanceCount;
-                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].firstIndex;
-                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertexOffset;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].firstInstance;
-            }
-        }
-        break;
-
-        case kDrawIndirectCount:
-        case kDrawIndirectCountKHR:
-        {
-            const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw_indirect_count;
-
-            dc_params_json_entry["maxDrawCount"]    = dc_params.max_draw_count;
-            dc_params_json_entry["actualDrawCount"] = dc_params.actual_draw_count;
-
-            auto& indirect_param_entries = dc_params_json_entry["indirectParams"];
-            for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
-            {
-                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertexCount;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instanceCount;
-                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].firstVertex;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].firstInstance;
-            }
-        }
-        break;
-
-        case kDrawIndexedIndirectCount:
-        case kDrawIndexedIndirectCountKHR:
-        {
-            const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw_indirect_count;
-
-            dc_params_json_entry["maxDrawCount"]    = dc_params.max_draw_count;
-            dc_params_json_entry["actualDrawCount"] = dc_params.actual_draw_count;
-
-            auto& indirect_param_entries = dc_params_json_entry["indirectParams"];
-            for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
-            {
-                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].indexCount;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instanceCount;
-                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].firstIndex;
-                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertexOffset;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].firstInstance;
-            }
-        }
-        break;
-
-        default:
-            assert(0);
-    }
-
-    // Write color attachment info
-    if (!render_targets[rp][sp].color_att_imgs.empty())
-    {
-        auto& rt_entries = draw_call_entry["colorAttachments"];
-
-        size_t f = 0;
-        for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
-        {
-            if (color_attachment_to_dump != kUnspecifiedColorAttachment &&
-                static_cast<size_t>(color_attachment_to_dump) != i)
-            {
-                continue;
-            }
-
-            const VulkanImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
-            assert(image_info != nullptr);
-
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(image_info->format, aspects);
-
-            for (auto aspect : aspects)
-            {
-                for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-                {
-                    for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                    {
-                        std::string filenameBefore;
-                        if (dump_resources_before)
-                        {
-                            filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
-                                                                               aspect,
-                                                                               image_info->tiling,
-                                                                               image_info->type,
-                                                                               mip,
-                                                                               layer,
-                                                                               cmd_buf_index,
-                                                                               qs_index,
-                                                                               bcb_index,
-                                                                               dc_index,
-                                                                               i);
-                        }
-
-                        std::string filenameAfter =
-                            GenerateRenderTargetImageFilename(image_info->format,
-                                                              aspect,
-                                                              image_info->tiling,
-                                                              image_info->type,
-                                                              mip,
-                                                              layer,
-                                                              cmd_buf_index + dump_resources_before,
-                                                              qs_index,
-                                                              bcb_index,
-                                                              dc_index,
-                                                              i);
-
-                        const VkExtent3D extent = { std::max(1u, image_info->extent.width >> mip),
-                                                    std::max(1u, image_info->extent.height >> mip),
-                                                    image_info->extent.depth };
-
-                        dump_json.InsertImageInfo(rt_entries[f++],
-                                                  image_info->format,
-                                                  image_info->type,
-                                                  image_info->capture_id,
-                                                  extent,
-                                                  filenameAfter,
-                                                  aspect,
-                                                  ImageFailedScaling(filenameAfter),
-                                                  mip,
-                                                  layer,
-                                                  dump_images_separate_alpha,
-                                                  dump_resources_before ? &filenameBefore : nullptr);
-
-                        // Skip rest of layers
-                        if (!dump_all_image_subresources)
-                        {
-                            break;
-                        }
-                    }
-
-                    // Skip rest of mip map levels
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    // Write depth attachment info
-    if (dump_depth && render_targets[rp][sp].depth_att_img != nullptr)
-    {
-        auto& depth_entries = draw_call_entry["depthAttachments"];
-
-        const VulkanImageInfo* image_info = render_targets[rp][sp].depth_att_img;
-
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(image_info->format, aspects);
-
-        size_t f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                {
-                    std::string filenameBefore;
-                    if (dump_resources_before)
-                    {
-                        filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
-                                                                           aspect,
-                                                                           image_info->tiling,
-                                                                           image_info->type,
-                                                                           mip,
-                                                                           layer,
-                                                                           cmd_buf_index,
-                                                                           qs_index,
-                                                                           bcb_index,
-                                                                           dc_index,
-                                                                           DEPTH_ATTACHMENT);
-                    }
-
-                    std::string filenameAfter = GenerateRenderTargetImageFilename(image_info->format,
-                                                                                  aspect,
-                                                                                  image_info->tiling,
-                                                                                  image_info->type,
-                                                                                  mip,
-                                                                                  layer,
-                                                                                  cmd_buf_index + dump_resources_before,
-                                                                                  qs_index,
-                                                                                  bcb_index,
-                                                                                  dc_index,
-                                                                                  DEPTH_ATTACHMENT);
-
-                    const VkExtent3D extent = { std::max(1u, image_info->extent.width >> mip),
-                                                std::max(1u, image_info->extent.height >> mip),
-                                                image_info->extent.depth };
-
-                    dump_json.InsertImageInfo(depth_entries[f++],
-                                              image_info->format,
-                                              image_info->type,
-                                              image_info->capture_id,
-                                              extent,
-                                              filenameAfter,
-                                              aspect,
-                                              ImageFailedScaling(filenameAfter),
-                                              mip,
-                                              layer,
-                                              dump_images_separate_alpha,
-                                              dump_resources_before ? &filenameBefore : nullptr);
-
-                    // Skip rest of layers
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                // Skip rest of mip map levels
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    // Emit in json output the references to vertex and index buffers dumped files
-    if (dump_vertex_index_buffers)
-    {
-        const uint64_t            dc_index = dc_param_entry->first;
-        const DrawCallParameters& dc_param = dc_param_entry->second;
-
-        if (IsDrawCallIndexed(dc_param.type))
-        {
-            if (dc_param.referenced_index_buffer.buffer_info != nullptr)
-            {
-                const std::string index_buffer_filename = GenerateIndexBufferFilename(
-                    qs_index, bcb_index, dc_index, dc_param.referenced_index_buffer.index_type);
-
-                auto& json_entry = draw_call_entry["indexBuffer"];
-
-                dump_json.InsertBufferInfo(
-                    json_entry, dc_param.referenced_index_buffer.buffer_info, index_buffer_filename);
-            }
-        }
-
-        if (!dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty() &&
-            !dc_param.vertex_input_state.vertex_input_binding_map.empty())
-        {
-            auto& json_entry = draw_call_entry["vertexBuffers"];
-
-            uint32_t i = 0;
-            for (const auto& vb_binding : dc_param.vertex_input_state.vertex_input_binding_map)
-            {
-                const auto& vb_binding_buffer =
-                    dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(vb_binding.first);
-                assert(vb_binding_buffer != dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
-
-                if (vb_binding_buffer->second.buffer_info != nullptr)
-                {
-                    const std::string vb_filename =
-                        GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
-
-                    json_entry[i]["bufferId"]            = vb_binding_buffer->second.buffer_info->capture_id;
-                    json_entry[i]["vertexBufferBinding"] = vb_binding.first;
-                    json_entry[i]["file"]                = vb_filename;
-                    ++i;
-                }
-            }
-        }
-    }
-
-    // Emit in json output the references to dumped immutable descriptors
-    if (dump_immutable_resources)
-    {
-        const auto& dc_param_entry = draw_call_params.find(dc_index);
-        assert(dc_param_entry != draw_call_params.end());
-        if (dc_param_entry != draw_call_params.end())
-        {
-            const DrawCallParameters& dc_param = dc_param_entry->second;
-            for (const auto& shader_stage : dc_param.referenced_descriptors)
-            {
-                uint32_t stage_entry_index = 0;
-                for (const auto& desc_set : shader_stage.second)
-                {
-                    const uint32_t desc_set_index = desc_set.first;
-                    for (const auto& desc_binding : desc_set.second)
-                    {
-                        const uint32_t desc_set_binding_index = desc_binding.first;
-                        switch (desc_binding.second.desc_type)
-                        {
-                            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                            {
-                                for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
-                                {
-                                    if (desc_binding.second.image_info[img].image_view_info == nullptr)
-                                    {
-                                        continue;
-                                    }
-
-                                    auto& desc_shader_stage_json_entry =
-                                        draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
-                                    auto& desc_shader_binding_json_entry =
-                                        desc_shader_stage_json_entry[stage_entry_index++];
-
-                                    desc_shader_binding_json_entry["type"] =
-                                        util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                    desc_shader_binding_json_entry["set"]        = desc_set_index;
-                                    desc_shader_binding_json_entry["binding"]    = desc_set_binding_index;
-                                    desc_shader_binding_json_entry["arrayIndex"] = img;
-
-                                    const VulkanImageInfo* image_info = object_info_table.GetVkImageInfo(
-                                        desc_binding.second.image_info[img].image_view_info->image_id);
-                                    assert(image_info != nullptr);
-
-                                    std::vector<VkImageAspectFlagBits> aspects;
-                                    GetFormatAspects(image_info->format, aspects);
-
-                                    size_t f = 0;
-                                    for (auto aspect : aspects)
-                                    {
-                                        for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-                                        {
-                                            for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                                            {
-                                                std::string filename =
-                                                    GenerateImageDescriptorFilename(image_info->format,
-                                                                                    aspect,
-                                                                                    image_info->tiling,
-                                                                                    image_info->type,
-                                                                                    image_info->capture_id,
-                                                                                    mip,
-                                                                                    layer,
-                                                                                    qs_index,
-                                                                                    bcb_index,
-                                                                                    rp);
-                                                const VkExtent3D extent = {
-                                                    std::max(1u, image_info->extent.width >> mip),
-                                                    std::max(1u, image_info->extent.height >> mip),
-                                                    image_info->extent.depth
-                                                };
-
-                                                auto& image_descriptor_json_entry =
-                                                    desc_shader_binding_json_entry["descriptor"];
-                                                dump_json.InsertImageInfo(image_descriptor_json_entry[f++],
-                                                                          image_info->format,
-                                                                          image_info->type,
-                                                                          image_info->capture_id,
-                                                                          extent,
-                                                                          filename,
-                                                                          aspect,
-                                                                          ImageFailedScaling(filename),
-                                                                          mip,
-                                                                          layer,
-                                                                          dump_images_separate_alpha);
-
-                                                if (!dump_all_image_subresources)
-                                                {
-                                                    break;
-                                                }
-                                            }
-
-                                            if (!dump_all_image_subresources)
-                                            {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-
-                            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                            {
-                                for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
-                                {
-                                    const VulkanBufferInfo* buf_info = desc_binding.second.buffer_info[buf].buffer_info;
-                                    if (buf_info != nullptr)
-                                    {
-                                        auto& desc_shader_stage_json_entry =
-                                            draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
-                                        auto& desc_shader_binding_json_entry =
-                                            desc_shader_stage_json_entry[stage_entry_index++];
-
-                                        desc_shader_binding_json_entry["type"] =
-                                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                        desc_shader_binding_json_entry["set"]        = desc_set_index;
-                                        desc_shader_binding_json_entry["binding"]    = desc_set_binding_index;
-                                        desc_shader_binding_json_entry["arrayIndex"] = buf;
-
-                                        const std::string filename = GenerateBufferDescriptorFilename(
-                                            qs_index, bcb_index, rp, buf_info->capture_id);
-                                        auto& buffer_descriptor_json_entry =
-                                            desc_shader_binding_json_entry["descriptor"];
-                                        dump_json.InsertBufferInfo(buffer_descriptor_json_entry, buf_info, filename);
-                                    }
-                                }
-                            }
-                            break;
-
-                            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                            {
-                                auto& desc_shader_stage_json_entry =
-                                    draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
-                                auto& desc_shader_binding_json_entry =
-                                    desc_shader_stage_json_entry[stage_entry_index++];
-
-                                desc_shader_binding_json_entry["type"] =
-                                    util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                desc_shader_binding_json_entry["set"]     = desc_set_index;
-                                desc_shader_binding_json_entry["binding"] = desc_set_binding_index;
-                                desc_shader_binding_json_entry["size"] =
-                                    desc_binding.second.inline_uniform_block.size();
-                                desc_shader_binding_json_entry["file"] = GenerateInlineUniformBufferDescriptorFilename(
-                                    qs_index, bcb_index, desc_set_index, desc_set_binding_index);
-                            }
-                            break;
-
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (output_json_per_command)
-    {
-        dump_json.BlockEnd();
-        dump_json.Close();
-    }
 }
 
 VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, uint64_t cmd_buf_index)
@@ -1656,6 +1052,19 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
+    VulkanDumpResourceInfo res_info_base{};
+    res_info_base.device_info                  = device_info;
+    res_info_base.device_table                 = device_table;
+    res_info_base.instance_table               = instance_table;
+    res_info_base.object_info_table            = &object_info_table;
+    res_info_base.original_command_buffer_info = original_command_buffer_info;
+    res_info_base.cmd_index                    = dc_index;
+    res_info_base.qs_index                     = qs_index;
+    res_info_base.bcb_index                    = bcb_index;
+    res_info_base.before_cmd                   = dump_resources_before && !(cmd_buf_index % 2);
+    res_info_base.rp                           = rp;
+    res_info_base.sp                           = sp;
+
     // Dump color attachments
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
     {
@@ -1665,247 +1074,32 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             continue;
         }
 
-        const VulkanImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
-
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(image_info->format, aspects);
-
-        const size_t total_files = dump_all_image_subresources
-                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
-                                       : aspects.size();
-
-        std::vector<std::string> filenames(total_files);
-        size_t                   f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                {
-                    filenames[f++] = GenerateRenderTargetImageFilename(image_info->format,
-                                                                       aspect,
-                                                                       image_info->tiling,
-                                                                       image_info->type,
-                                                                       mip,
-                                                                       layer,
-                                                                       cmd_buf_index,
-                                                                       qs_index,
-                                                                       bcb_index,
-                                                                       dc_index,
-                                                                       i);
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-
-        std::vector<bool> scaling_supported(filenames.size());
-        VkResult          res = DumpImageToFile(image_info,
-                                       device_info,
-                                       device_table,
-                                       instance_table,
-                                       object_info_table,
-                                       filenames,
-                                       dump_resources_scale,
-                                       scaling_supported,
-                                       image_file_format,
-                                       dump_all_image_subresources,
-                                       dump_images_raw,
-                                       dump_images_separate_alpha,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kRtv;
+        res_info.image_info             = render_targets[rp][sp].color_att_imgs[i];
+        res_info.attachment_index       = i;
+        auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
-        }
-
-        // Keep track of images for which scaling failed
-        for (size_t i = 0; i < filenames.size(); ++i)
-        {
-            if (!scaling_supported[i])
-            {
-                images_failed_scaling.insert(filenames[i]);
-            }
         }
     }
 
     // Dump depth attachment
     if (dump_depth && render_targets[rp][sp].depth_att_img != nullptr)
     {
-        const VulkanImageInfo* image_info = render_targets[rp][sp].depth_att_img;
-
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(image_info->format, aspects);
-
-        const size_t total_files = dump_all_image_subresources
-                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
-                                       : aspects.size();
-
-        std::vector<std::string> filenames(total_files);
-        size_t                   f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                {
-                    filenames[f++] = GenerateRenderTargetImageFilename(image_info->format,
-                                                                       aspect,
-                                                                       image_info->tiling,
-                                                                       image_info->type,
-                                                                       mip,
-                                                                       layer,
-                                                                       cmd_buf_index,
-                                                                       qs_index,
-                                                                       bcb_index,
-                                                                       dc_index,
-                                                                       DEPTH_ATTACHMENT);
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-
-        std::vector<bool> scaling_supported(filenames.size());
-        VkResult          res = DumpImageToFile(image_info,
-                                       device_info,
-                                       device_table,
-                                       instance_table,
-                                       object_info_table,
-                                       filenames,
-                                       dump_resources_scale,
-                                       scaling_supported,
-                                       image_file_format,
-                                       dump_all_image_subresources,
-                                       dump_images_raw,
-                                       dump_images_separate_alpha,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kDsv;
+        res_info.image_info             = render_targets[rp][sp].depth_att_img;
+        res_info.attachment_index       = DEPTH_ATTACHMENT;
+        auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
-        }
-
-        // Keep track of images for which scaling failed
-        for (size_t i = 0; i < filenames.size(); ++i)
-        {
-            if (!scaling_supported[i])
-            {
-                images_failed_scaling.insert(filenames[i]);
-            }
         }
     }
 
     return VK_SUCCESS;
-}
-
-std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat              format,
-                                                                     VkImageAspectFlagBits aspect,
-                                                                     VkImageTiling         tiling,
-                                                                     VkImageType           type,
-                                                                     format::HandleId      image_id,
-                                                                     uint32_t              level,
-                                                                     uint32_t              layer,
-                                                                     uint64_t              qs_index,
-                                                                     uint64_t              bcb_index,
-                                                                     uint64_t              rp) const
-{
-    std::string       aspect_str = ImageAspectToStr(aspect);
-    std::stringstream base_filename;
-    base_filename << capture_filename << "_";
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
-    assert(device_info);
-
-    const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                       device_table,
-                                                                       instance_table,
-                                                                       object_info_table,
-                                                                       format,
-                                                                       tiling,
-                                                                       type,
-                                                                       image_file_format,
-                                                                       dump_images_raw);
-
-    if (output_image_format != KFormatRaw)
-    {
-        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp
-                      << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        std::string whole_format_name = util::ToString<VkFormat>(format);
-        std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
-
-        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << "_"
-                      << format_name << "_aspect_" << aspect_str;
-    }
-
-    if (dump_all_image_subresources)
-    {
-        std::stringstream sub_resources_str;
-        sub_resources_str << base_filename.str() << "_mip_" << level << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(output_image_format);
-
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(sub_resources_str.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        base_filename << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(dump_resource_path);
-        std::filesystem::path filebasename(base_filename.str());
-        return (filedirname / filebasename).string();
-    }
-}
-
-std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(uint64_t         qs_index,
-                                                                      uint64_t         bcb_index,
-                                                                      uint64_t         rp,
-                                                                      format::HandleId buffer_id) const
-{
-    std::stringstream filename;
-
-    filename << capture_filename << "_"
-             << "buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
-                                                                                   uint64_t bcb_index,
-                                                                                   uint32_t set,
-                                                                                   uint32_t binding) const
-{
-    std::stringstream filename;
-    filename << capture_filename << "_"
-             << "inlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_" << qs_index << "_bcb_" << bcb_index
-             << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
 }
 
 VkResult
@@ -2030,74 +1224,26 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
+    VulkanDumpResourceInfo res_info_base{};
+    res_info_base.device_info                  = device_info;
+    res_info_base.device_table                 = device_table;
+    res_info_base.instance_table               = instance_table;
+    res_info_base.object_info_table            = &object_info_table;
+    res_info_base.original_command_buffer_info = original_command_buffer_info;
+    res_info_base.cmd_index                    = dc_index;
+    res_info_base.qs_index                     = qs_index;
+    res_info_base.bcb_index                    = bcb_index;
+    res_info_base.rp                           = rp;
+
     for (const auto& image_info : image_descriptors)
     {
-        std::vector<VkImageAspectFlagBits> aspects;
-        GetFormatAspects(image_info->format, aspects);
-
-        const size_t total_files = dump_all_image_subresources
-                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
-                                       : aspects.size();
-
-        std::vector<std::string> filenames(total_files);
-
-        size_t f = 0;
-        for (auto aspect : aspects)
-        {
-            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
-            {
-                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
-                {
-                    filenames[f++] = GenerateImageDescriptorFilename(image_info->format,
-                                                                     aspect,
-                                                                     image_info->tiling,
-                                                                     image_info->type,
-                                                                     image_info->capture_id,
-                                                                     mip,
-                                                                     layer,
-                                                                     qs_index,
-                                                                     bcb_index,
-                                                                     rp);
-
-                    if (!dump_all_image_subresources)
-                    {
-                        break;
-                    }
-                }
-
-                if (!dump_all_image_subresources)
-                {
-                    break;
-                }
-            }
-        }
-
-        std::vector<bool> scaling_supported(total_files);
-        VkResult          res = DumpImageToFile(image_info,
-                                       device_info,
-                                       device_table,
-                                       instance_table,
-                                       object_info_table,
-                                       filenames,
-                                       dump_resources_scale,
-                                       scaling_supported,
-                                       image_file_format,
-                                       dump_all_image_subresources,
-                                       dump_images_raw,
-                                       dump_images_separate_alpha);
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kImageDescriptor;
+        res_info.image_info             = image_info;
+        auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
-        }
-
-        // Keep track of images for which scaling failed
-        for (size_t i = 0; i < filenames.size(); ++i)
-        {
-            if (!scaling_supported[i])
-            {
-                images_failed_scaling.insert(filenames[i]);
-            }
         }
     }
 
@@ -2112,65 +1258,45 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
 
     for (const auto& buf : buffer_descriptors)
     {
-        const VulkanBufferInfo* buffer_info = buf.first;
-        const VkDeviceSize      offset      = buf.second.offset;
-        const VkDeviceSize      range       = buf.second.range;
-        const VkDeviceSize      size        = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.buffer_info            = buf.first;
+        const VkDeviceSize offset       = buf.second.offset;
+        const VkDeviceSize range        = buf.second.range;
+        const VkDeviceSize size         = range == VK_WHOLE_SIZE ? res_info.buffer_info->size - offset : range;
 
-        std::vector<uint8_t> data;
-        VkResult             res = resource_util.ReadFromBufferResource(
-            buffer_info->handle, size, offset, buffer_info->queue_family_index, data);
+        VkResult res = resource_util.ReadFromBufferResource(
+            res_info.buffer_info->handle, size, offset, res_info.buffer_info->queue_family_index, res_info.data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource %" PRIu64 " failed (%s).",
-                               buffer_info->capture_id,
+                               res_info.buffer_info->capture_id,
                                util::ToString<VkResult>(res).c_str())
             return res;
         }
 
-        const std::string filename = GenerateBufferDescriptorFilename(qs_index, bcb_index, rp, buffer_info->capture_id);
-        util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+        res_info.type = DumpResourceType::kBufferDescriptor;
+        res           = delegate_.DumpResource(res_info);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
     }
 
     for (const auto& iub : inline_uniform_blocks)
     {
-        std::string filename =
-            GenerateInlineUniformBufferDescriptorFilename(qs_index, bcb_index, iub.second.set, iub.second.binding);
-        util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
+        VulkanDumpResourceInfo res_info = res_info_base;
+        res_info.type                   = DumpResourceType::kInlineUniformBufferDescriptor;
+        res_info.set                    = iub.second.set;
+        res_info.binding                = iub.second.binding;
+        res_info.data                   = *iub.second.data;
+        auto res                        = delegate_.DumpResource(res_info);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
     }
 
     return VK_SUCCESS;
-}
-
-std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    qs_index,
-                                                                 uint64_t    bcb_index,
-                                                                 uint64_t    dc_index,
-                                                                 VkIndexType type) const
-{
-    std::stringstream filename;
-    filename << capture_filename << "_";
-    std::string index_type_name = IndexTypeToStr(type);
-    filename << "indexBuffer_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << index_type_name << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t qs_index,
-                                                                  uint64_t bcb_index,
-                                                                  uint64_t dc_index,
-                                                                  uint32_t binding) const
-{
-    std::stringstream filename;
-    filename << capture_filename << "_"
-             << "vertexBuffers_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << "_binding_" << binding << ".bin";
-
-    std::filesystem::path filedirname(dump_resource_path);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
 }
 
 VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
@@ -2355,6 +1481,16 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
     std::pair<uint32_t, uint32_t> min_max_vertex_indices(std::numeric_limits<uint32_t>::max(), 0);
 
+    VulkanDumpResourceInfo res_info_base{};
+    res_info_base.device_info                  = device_info;
+    res_info_base.device_table                 = device_table;
+    res_info_base.instance_table               = instance_table;
+    res_info_base.object_info_table            = &object_info_table;
+    res_info_base.original_command_buffer_info = original_command_buffer_info;
+    res_info_base.cmd_index                    = dc_index;
+    res_info_base.qs_index                     = qs_index;
+    res_info_base.bcb_index                    = bcb_index;
+
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
@@ -2454,14 +1590,13 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             }
 
             dc_params.referenced_index_buffer.actual_size = total_size;
-
-            std::vector<uint8_t> index_data;
-            VkResult             res =
+            VulkanDumpResourceInfo res_info               = res_info_base;
+            VkResult               res =
                 resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
                                                      total_size,
                                                      offset,
                                                      dc_params.referenced_index_buffer.buffer_info->queue_family_index,
-                                                     index_data);
+                                                     res_info.data);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Reading index buffer resource %" PRIu64 " failed (%s).",
@@ -2470,14 +1605,19 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 return res;
             }
 
-            std::string filename = GenerateIndexBufferFilename(qs_index, bcb_index, dc_index, index_type);
-            util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
+            res_info.type       = DumpResourceType::kIndex;
+            res_info.index_type = index_type;
+            res                 = delegate_.DumpResource(res_info);
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
 
             // Parse all indices in order to find the smallest and greatest index
             for (const auto& pairs : index_count_first_index_pairs)
             {
-                const std::pair<uint32_t, uint32_t> min_max_indices =
-                    FindMinMaxVertexIndices(index_data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
+                const std::pair<uint32_t, uint32_t> min_max_indices = FindMinMaxVertexIndices(
+                    res_info.data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
                 if (min_max_indices.first < min_max_vertex_indices.first)
                 {
                     min_max_vertex_indices.first = min_max_indices.first;
@@ -2685,14 +1825,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry->second.buffer_info->size - offset;
                 }
 
-                vb_entry->second.actual_size = total_size;
+                vb_entry->second.actual_size    = total_size;
+                VulkanDumpResourceInfo res_info = res_info_base;
 
-                std::vector<uint8_t> vb_data;
-                VkResult             res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
+                VkResult res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
                                                                     total_size,
                                                                     offset,
                                                                     vb_entry->second.buffer_info->queue_family_index,
-                                                                    vb_data);
+                                                                    res_info.data);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
@@ -2700,8 +1840,15 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     return res;
                 }
 
-                std::string filename = GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, binding);
-                util::bufferwriter::WriteBuffer(filename, vb_data.data(), vb_data.size());
+                res_info.type    = DumpResourceType::kVertex;
+                res_info.binding = binding;
+                res              = delegate_.DumpResource(res_info);
+                if (res != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
+                                       util::ToString<VkResult>(res).c_str())
+                    return res;
+                }
             }
         }
     }

@@ -138,6 +138,31 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
 
 void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
 
+class VulkanDumpResourcesDelegate;
+class DefaultVulkanDumpResourcesDelegate;
+
+enum class DumpResourceType : uint32_t
+{
+    kUnknown,
+    kRtv,
+    kDsv,
+    kVertex,
+    kIndex,
+    kImageDescriptor,
+    kBufferDescriptor,
+    kInlineUniformBufferDescriptor,
+    kDrawCallInfo,
+    kDispatchInfo,
+    kTraceRaysIndex,
+    kDispatchTraceRaysImage,
+    kDispatchTraceRaysBuffer,
+    kDispatchTraceRaysImageDescriptor,
+    kDispatchTraceRaysBufferDescriptor,
+    kDispatchTraceRaysInlineUniformBufferDescriptor,
+};
+
+#define DEPTH_ATTACHMENT ~0
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

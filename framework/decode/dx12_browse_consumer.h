@@ -63,7 +63,7 @@ struct TrackRootParameter
     // The other parameter types have no resources or descriptors info, so no track.
 };
 
-enum DumpDrawCallType
+enum class DumpDrawCallType
 {
     kUnknown,
     kDraw,
