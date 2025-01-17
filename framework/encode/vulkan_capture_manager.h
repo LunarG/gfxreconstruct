@@ -479,10 +479,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*         pAllocator,
                                               VkSurfaceKHR*                        pSurface);
 
-    void PreProcess_vkCreateSwapchain(VkDevice                        device,
-                                      const VkSwapchainCreateInfoKHR* pCreateInfo,
-                                      const VkAllocationCallbacks*    pAllocator,
-                                      VkSwapchainKHR*                 pSwapchain);
+    void PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
+                                         const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                         const VkAllocationCallbacks*    pAllocator,
+                                         VkSwapchainKHR*                 pSwapchain);
+
+    void PostProcess_vkCreateSwapchainKHR(VkResult                        result,
+                                          VkDevice                        device,
+                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                          const VkAllocationCallbacks*    pAllocator,
+                                          VkSwapchainKHR*                 pSwapchain);
 
     void PostProcess_vkAcquireNextImageKHR(VkResult result,
                                            VkDevice,

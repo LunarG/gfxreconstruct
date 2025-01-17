@@ -1869,16 +1869,16 @@ void VulkanCaptureManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance      
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
-                                                        const VkSwapchainCreateInfoKHR* pCreateInfo,
-                                                        const VkAllocationCallbacks*    pAllocator,
-                                                        VkSwapchainKHR*                 pSwapchain)
+void VulkanCaptureManager::PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
+                                                           const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                                           const VkAllocationCallbacks*    pAllocator,
+                                                           VkSwapchainKHR*                 pSwapchain)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
 
-    assert(pCreateInfo != nullptr);
+    GFXRECON_ASSERT(pCreateInfo != nullptr);
 
     if (pCreateInfo)
     {
@@ -1886,6 +1886,59 @@ void VulkanCaptureManager::PreProcess_vkCreateSwapchain(VkDevice                
                               pCreateInfo->imageExtent.width,
                               pCreateInfo->imageExtent.height,
                               pCreateInfo->preTransform);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult                        result,
+                                                            VkDevice                        device,
+                                                            const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                                            const VkAllocationCallbacks*    pAllocator,
+                                                            VkSwapchainKHR*                 pSwapchain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
+
+    GFXRECON_ASSERT(pCreateInfo != nullptr);
+
+    if (pCreateInfo)
+    {
+        // Vulkan Spec: Upon calling vkCreateSwapchainKHR with an oldSwapchain that is not VK_NULL_HANDLE, any images
+        // from oldSwapchain that are not acquired by the application may be freed by the implementation, which may
+        // occur even if creation of the new swapchain fails.
+
+        // The capture layer needs to be conservative and treat these images as destroyed now because the implementation
+        // is free to destroy and reuse the image handles before the retired swapchain is destroyed.
+        if (pCreateInfo->oldSwapchain != VK_NULL_HANDLE)
+        {
+            auto old_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pCreateInfo->oldSwapchain);
+            old_wrapper->retired = true;
+
+            for (int i = old_wrapper->child_images.size() - 1; i >= 0; --i)
+            {
+                bool is_acquired = false;
+                if (i < old_wrapper->image_acquired_info.size())
+                    is_acquired = old_wrapper->image_acquired_info[i].is_acquired;
+
+                if (!is_acquired)
+                {
+                    const auto image_handle = old_wrapper->child_images[i]->handle;
+
+                    // Remove from swapchain info struct
+                    old_wrapper->child_images.erase(old_wrapper->child_images.begin() + i);
+                    if (i < old_wrapper->image_acquired_info.size())
+                        old_wrapper->image_acquired_info.erase(old_wrapper->image_acquired_info.begin() + i);
+
+                    // Destroy handle wrapper
+                    if (IsCaptureModeTrack())
+                    {
+                        state_tracker_->RemoveEntry<vulkan_wrappers::ImageWrapper>(image_handle);
+                    }
+                    vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ImageWrapper>(image_handle);
+                }
+            }
+        }
     }
 }
 
