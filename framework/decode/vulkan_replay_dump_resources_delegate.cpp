@@ -451,9 +451,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
     auto& drawcall_json_entries =
         !options_.dump_resources_json_per_command ? current_block["drawCallCommands"] : current_block;
 
-    static uint64_t unique_json_entry = 0;
-    auto&           draw_call_entry =
-        !options_.dump_resources_json_per_command ? drawcall_json_entries[unique_json_entry++] : drawcall_json_entries;
+    const uint32_t draw_call_json_entry = dump_json_.FetchAndAddDrawCallsEntryIndex();
+    auto&          draw_call_entry =
+        !options_.dump_resources_json_per_command ? drawcall_json_entries[draw_call_json_entry] : drawcall_json_entries;
 
     draw_call_entry["drawIndex"]               = draw_call_info.cmd_index;
     draw_call_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
@@ -1271,9 +1271,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(const Vu
     auto& dispatch_json_entries =
         !options_.dump_resources_json_per_command ? current_block["dispatchCommands"] : dump_json_.GetData();
 
-    static uint64_t unique_json_entry = 0;
-    auto&           dispatch_json_entry =
-        !options_.dump_resources_json_per_command ? dispatch_json_entries[unique_json_entry++] : dump_json_.GetData();
+    const uint32_t dispatch_json_entry_index = dump_json_.FetchAndAddDispatchEntryIndex();
+    auto&          dispatch_json_entry       = !options_.dump_resources_json_per_command
+                                                   ? dispatch_json_entries[dispatch_json_entry_index]
+                                                   : dump_json_.GetData();
 
     dispatch_json_entry["dispatchIndex"]           = draw_call_info.cmd_index;
     dispatch_json_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
@@ -1736,9 +1737,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(const 
         dump_json_.BlockStart();
     }
 
-    static uint64_t unique_json_entry = 0;
-    auto&           tr_entry =
-        !options_.dump_resources_json_per_command ? tr_json_entries[unique_json_entry++] : dump_json_.GetData();
+    const uint32_t trace_rays_json_entry_index = dump_json_.FetchAndAddTraceRaysEntryIndex();
+    auto&          tr_entry =
+        !options_.dump_resources_json_per_command ? tr_json_entries[trace_rays_json_entry_index] : dump_json_.GetData();
 
     tr_entry["traceRaysIndex"]          = draw_call_info.cmd_index;
     tr_entry["beginCommandBufferIndex"] = draw_call_info.bcb_index;
