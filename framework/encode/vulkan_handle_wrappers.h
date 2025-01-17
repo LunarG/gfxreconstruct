@@ -227,7 +227,6 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkImageTiling            tiling{};
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
-    std::set<VkSwapchainKHR> parent_swapchains;
 
     std::set<ImageViewWrapper*> image_views;
 };
@@ -530,6 +529,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
     // Members for general wrapper support.
     std::vector<ImageWrapper*> child_images;
+    bool                       retired{ false };
 
     // Members for trimming state tracking.
     DeviceWrapper*                                    device{ nullptr };

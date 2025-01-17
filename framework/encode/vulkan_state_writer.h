@@ -326,6 +326,16 @@ class VulkanStateWriter
     {
         std::set<util::MemoryOutputStream*> processed;
         state_table.VisitWrappers([&](const Wrapper* wrapper) {
+            // Skip create call for swapchain images, i.e. vkGetSwapchainImagesKHR
+            // This call is already emitted by the state setup for the parent swapchain
+            if constexpr (std::is_same<Wrapper, vulkan_wrappers::ImageWrapper>::value)
+            {
+                auto image_wrapper = reinterpret_cast<const vulkan_wrappers::ImageWrapper*>(wrapper);
+                if (image_wrapper->is_swapchain_image)
+                {
+                    return;
+                }
+            }
             // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
             // all reference the same parameter buffer.
             if (processed.find(wrapper->create_parameters.get()) == processed.end())
