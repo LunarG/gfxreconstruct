@@ -1402,12 +1402,12 @@ const char* string_SpvOpcode(uint32_t opcode)
             return "OpFragmentFetchAMD";
         case spv::OpReadClockKHR:
             return "OpReadClockKHR";
-        case spv::OpFinalizeNodePayloadsAMDX:
-            return "OpFinalizeNodePayloadsAMDX";
+        case spv::OpEnqueueNodePayloadsAMDX:
+            return "OpEnqueueNodePayloadsAMDX";
         case spv::OpFinishWritingNodePayloadAMDX:
             return "OpFinishWritingNodePayloadAMDX";
-        case spv::OpInitializeNodePayloadsAMDX:
-            return "OpInitializeNodePayloadsAMDX";
+        case spv::OpAllocateNodePayloadsAMDX:
+            return "OpAllocateNodePayloadsAMDX";
         case spv::OpGroupNonUniformQuadAllKHR:
             return "OpGroupNonUniformQuadAllKHR";
         case spv::OpGroupNonUniformQuadAnyKHR:
