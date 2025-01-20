@@ -202,7 +202,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         {
             auto existing_wrapper = state_handle_table_.GetWrapper<Wrapper>(wrapper->handle);
             GFXRECON_LOG_WARNING("Cannot add duplicate entry to VulkanStateHandleTable for handle 0x%" PRIx64
-                                 " with ID %d. This handle is already wrapped with ID %d.",
+                                 " with ID %" PRIu64 ". This handle is already wrapped with ID %" PRIu64 ".",
                                  wrapper->handle,
                                  wrapper->handle_id,
                                  existing_wrapper->handle_id);
@@ -224,7 +224,7 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
         {
             auto existing_wrapper = state_handle_table_.GetWrapper<Wrapper>(wrapper->handle);
             GFXRECON_LOG_WARNING("Cannot add duplicate entry to VulkanStateHandleTable for handle 0x%" PRIx64
-                                 " with ID %d. This handle is already wrapped with ID %d.",
+                                 " with ID %" PRIu64 ". This handle is already wrapped with ID %" PRIu64 ".",
                                  wrapper->handle,
                                  wrapper->handle_id,
                                  existing_wrapper->handle_id);
