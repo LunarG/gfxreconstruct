@@ -1880,13 +1880,10 @@ void VulkanCaptureManager::PreProcess_vkCreateSwapchainKHR(VkDevice             
 
     GFXRECON_ASSERT(pCreateInfo != nullptr);
 
-    if (pCreateInfo)
-    {
-        WriteResizeWindowCmd2(vulkan_wrappers::GetWrappedId<vulkan_wrappers::SurfaceKHRWrapper>(pCreateInfo->surface),
-                              pCreateInfo->imageExtent.width,
-                              pCreateInfo->imageExtent.height,
-                              pCreateInfo->preTransform);
-    }
+    WriteResizeWindowCmd2(vulkan_wrappers::GetWrappedId<vulkan_wrappers::SurfaceKHRWrapper>(pCreateInfo->surface),
+                          pCreateInfo->imageExtent.width,
+                          pCreateInfo->imageExtent.height,
+                          pCreateInfo->preTransform);
 }
 
 void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult                        result,
@@ -1895,48 +1892,45 @@ void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult            
                                                             const VkAllocationCallbacks*    pAllocator,
                                                             VkSwapchainKHR*                 pSwapchain)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
 
     GFXRECON_ASSERT(pCreateInfo != nullptr);
 
-    if (pCreateInfo)
+    // Vulkan Spec: Upon calling vkCreateSwapchainKHR with an oldSwapchain that is not VK_NULL_HANDLE, any images
+    // from oldSwapchain that are not acquired by the application may be freed by the implementation, which may
+    // occur even if creation of the new swapchain fails.
+
+    // The capture layer needs to be conservative and treat these images as destroyed now because the implementation
+    // is free to destroy and reuse the image handles before the retired swapchain is destroyed.
+    if (pCreateInfo->oldSwapchain != VK_NULL_HANDLE)
     {
-        // Vulkan Spec: Upon calling vkCreateSwapchainKHR with an oldSwapchain that is not VK_NULL_HANDLE, any images
-        // from oldSwapchain that are not acquired by the application may be freed by the implementation, which may
-        // occur even if creation of the new swapchain fails.
+        auto old_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pCreateInfo->oldSwapchain);
+        old_wrapper->retired = true;
 
-        // The capture layer needs to be conservative and treat these images as destroyed now because the implementation
-        // is free to destroy and reuse the image handles before the retired swapchain is destroyed.
-        if (pCreateInfo->oldSwapchain != VK_NULL_HANDLE)
+        for (int i = old_wrapper->child_images.size() - 1; i >= 0; --i)
         {
-            auto old_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pCreateInfo->oldSwapchain);
-            old_wrapper->retired = true;
+            bool is_acquired = false;
+            if (i < old_wrapper->image_acquired_info.size())
+                is_acquired = old_wrapper->image_acquired_info[i].is_acquired;
 
-            for (int i = old_wrapper->child_images.size() - 1; i >= 0; --i)
+            if (!is_acquired)
             {
-                bool is_acquired = false;
+                const auto image_handle = old_wrapper->child_images[i]->handle;
+
+                // Remove from swapchain info struct
+                old_wrapper->child_images.erase(old_wrapper->child_images.begin() + i);
                 if (i < old_wrapper->image_acquired_info.size())
-                    is_acquired = old_wrapper->image_acquired_info[i].is_acquired;
+                    old_wrapper->image_acquired_info.erase(old_wrapper->image_acquired_info.begin() + i);
 
-                if (!is_acquired)
+                // Destroy handle wrapper
+                if (IsCaptureModeTrack())
                 {
-                    const auto image_handle = old_wrapper->child_images[i]->handle;
-
-                    // Remove from swapchain info struct
-                    old_wrapper->child_images.erase(old_wrapper->child_images.begin() + i);
-                    if (i < old_wrapper->image_acquired_info.size())
-                        old_wrapper->image_acquired_info.erase(old_wrapper->image_acquired_info.begin() + i);
-
-                    // Destroy handle wrapper
-                    if (IsCaptureModeTrack())
-                    {
-                        state_tracker_->RemoveEntry<vulkan_wrappers::ImageWrapper>(image_handle);
-                    }
-                    vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ImageWrapper>(image_handle);
+                    state_tracker_->RemoveEntry<vulkan_wrappers::ImageWrapper>(image_handle);
                 }
+                vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::ImageWrapper>(image_handle);
             }
         }
     }
