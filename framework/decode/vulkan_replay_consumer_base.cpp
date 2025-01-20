@@ -3520,7 +3520,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
 
     auto& address_replacer = GetDeviceAddressReplacer(device_info);
     address_replacer.ProcessGetQueryPoolResults(
-        device, query_pool, firstQuery, queryCount, dataSize, pData->GetPointer(), stride, flags);
+        device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
     return result;
 }
 

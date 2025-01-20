@@ -594,7 +594,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfos;
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
-    pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
+    bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
 
     for (auto consumer : consumers_)
     {

@@ -272,6 +272,21 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
     }
 
+    // raytracing-pipeline properties not populated yet, check if we missed it
+    if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
+    {
+        SetRaytracingProperties(physical_device_info_);
+
+        // capture does contain the call, bail out
+        if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
+        {
+            GFXRECON_LOG_ERROR_ONCE(
+                "VulkanAddressReplacer::ProcessCmdTraceRays: missing "
+                "VkPhysicalDeviceRayTracingPipelinePropertiesKHR for capture/replay, cannot proceed");
+            return;
+        }
+    }
+
     std::unordered_set<VkBuffer> buffer_set;
     auto address_remap = [&address_tracker, &buffer_set](VkStridedDeviceAddressRegionKHR* address_region) {
         if (address_region->size > 0)
@@ -379,21 +394,6 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         {
             GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting a mismatching "
                                    "raytracing shader-binding-table using a shadow-buffer");
-
-            // raytracing-pipeline properties not populated yet, check if we missed it
-            if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
-            {
-                SetRaytracingProperties(physical_device_info_);
-            }
-
-            // capture does contain the call, bail out
-            if (capture_ray_properties_ == std::nullopt || replay_ray_properties_ == std::nullopt)
-            {
-                GFXRECON_LOG_ERROR_ONCE(
-                    "VulkanAddressReplacer::ProcessCmdTraceRays: missing "
-                    "VkPhysicalDeviceRayTracingPipelinePropertiesKHR for capture/replay, cannot proceed");
-                return;
-            }
 
             // output-handles
             if (!create_buffer(pipeline_context_sbt.output_handle_buffer, max_num_handles * sizeof(VkDeviceAddress)))
@@ -609,8 +609,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     }
                 }
 
-                // tmp
-                GFXRECON_ASSERT(build_geometry_info.srcAccelerationStructure == VK_NULL_HANDLE);
+                // check/correct source acceleration-structure
+                swap_acceleration_structure_handle(build_geometry_info.srcAccelerationStructure);
 
                 // hot swap acceleration-structure handle
                 build_geometry_info.dstAccelerationStructure = replacement_as.handle;
@@ -619,20 +619,20 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 if (!replay_acceleration_structure_properties_)
                 {
                     SetRaytracingProperties(physical_device_info_);
-                }
 
-                // capture did not contain the call, inject
-                if (!replay_acceleration_structure_properties_)
-                {
-                    VkPhysicalDeviceAccelerationStructurePropertiesKHR as_properties = {};
-                    as_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
-                    as_properties.pNext = nullptr;
+                    // capture did not contain the call, inject
+                    if (!replay_acceleration_structure_properties_)
+                    {
+                        VkPhysicalDeviceAccelerationStructurePropertiesKHR as_properties = {};
+                        as_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+                        as_properties.pNext = nullptr;
 
-                    VkPhysicalDeviceProperties2 physical_device_properties = {};
-                    physical_device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-                    physical_device_properties.pNext = &as_properties;
-                    get_physical_device_properties_fn_(physical_device_info_->handle, &physical_device_properties);
-                    replay_acceleration_structure_properties_ = as_properties;
+                        VkPhysicalDeviceProperties2 physical_device_properties = {};
+                        physical_device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+                        physical_device_properties.pNext = &as_properties;
+                        get_physical_device_properties_fn_(physical_device_info_->handle, &physical_device_properties);
+                        replay_acceleration_structure_properties_ = as_properties;
+                    }
                 }
 
                 // create a replacement scratch-buffer
@@ -811,30 +811,32 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
 {
     if (info != nullptr)
     {
-        auto swap_acceleration_structure = [this](VkAccelerationStructureKHR& as) {
-            auto shadow_as_it = shadow_as_map_.find(as);
-            if (shadow_as_it != shadow_as_map_.end())
-            {
-                as = shadow_as_it->second.handle;
-            }
-        };
-
-        // correct in-place
-        swap_acceleration_structure(info->src);
-        swap_acceleration_structure(info->dst);
-
         VkDeviceSize compact_size    = 0;
-        auto         compact_size_it = as_compact_sizes_.find(info->dst);
+        auto         compact_size_it = as_compact_sizes_.find(info->src);
         if (compact_size_it != as_compact_sizes_.end())
         {
             compact_size = compact_size_it->second;
-            as_compact_sizes_.erase(info->dst);
+            as_compact_sizes_.erase(info->src);
 
-            // tmp/debug: cleanup before merge
-            //            GFXRECON_LOG_INFO(
-            //                "VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: found compacted AS-size:
-            //                %ul", compact_size);
+            auto* as_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
+            GFXRECON_ASSERT(as_info != nullptr);
+            if (as_info != nullptr)
+            {
+                auto* buffer_info = address_tracker.GetBufferByHandle(as_info->buffer);
+                GFXRECON_ASSERT(buffer_info != nullptr);
+                if (buffer_info != nullptr)
+                {
+                    if (buffer_info->size < compact_size)
+                    {
+                        // TODO: need replacement AS
+                    }
+                }
+            }
         }
+
+        // correct in-place
+        swap_acceleration_structure_handle(info->src);
+        swap_acceleration_structure_handle(info->dst);
     }
 }
 
@@ -900,6 +902,40 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
                 }
             }
         }
+    }
+}
+
+void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device,
+                                                       VkQueryPool        query_pool,
+                                                       uint32_t           firstQuery,
+                                                       uint32_t           queryCount,
+                                                       size_t             dataSize,
+                                                       void*              pData,
+                                                       VkDeviceSize       stride,
+                                                       VkQueryResultFlags flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
+    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
+
+    // intercept queries containing acceleration-structure compaction-sizes
+    if (!as_compact_queries_.empty() && stride == sizeof(VkDeviceSize))
+    {
+        bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
+
+        auto it = as_compact_queries_.find(query_pool);
+        if (is_synced && it != as_compact_queries_.end())
+        {
+            // assuming post-processing here, pData was already written
+            auto* result_array = reinterpret_cast<const VkDeviceSize*>(pData);
+
+            for (const auto& [as, query_index] : it->second)
+            {
+                as_compact_sizes_[as] = result_array[query_index];
+            }
+        }
+        as_compact_queries_.erase(query_pool);
     }
 }
 
@@ -992,35 +1028,6 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
                                &compact_size,
                                sizeof(VkDeviceSize),
                                VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
-}
-
-void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device,
-                                                       VkQueryPool        query_pool,
-                                                       uint32_t           firstQuery,
-                                                       uint32_t           queryCount,
-                                                       size_t             dataSize,
-                                                       void*              pData,
-                                                       VkDeviceSize       stride,
-                                                       VkQueryResultFlags flags)
-{
-    // intercept queries containing acceleration-structure compaction-sizes
-    if (!as_compact_queries_.empty())
-    {
-        bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
-
-        auto it = as_compact_queries_.find(query_pool);
-        if (is_synced && it != as_compact_queries_.end())
-        {
-            // assuming post-processing here, pData was already written
-            auto* result_array = reinterpret_cast<const VkDeviceSize*>(pData);
-
-            for (const auto& [as, query_index] : it->second)
-            {
-                as_compact_sizes_[as] = result_array[query_index];
-            }
-        }
-        as_compact_queries_.erase(query_pool);
-    }
 }
 
 bool VulkanAddressReplacer::init_pipeline()
@@ -1185,7 +1192,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
 
     // 4kB min-size
     constexpr uint32_t min_buffer_size = 1 << 12;
-    num_bytes                          = std::max<uint32_t>(num_bytes + min_alignment, min_buffer_size);
+    num_bytes = std::max<uint32_t>(util::aligned_value(num_bytes, min_alignment), min_buffer_size);
 
     // nothing to do
     if (num_bytes <= buffer_context.num_bytes)
@@ -1272,14 +1279,17 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     GFXRECON_ASSERT(buffer_context.device_address != 0);
 
     // ensure alignment for returned address
-    buffer_context.device_address = util::aligned_value(buffer_context.device_address, min_alignment);
-    GFXRECON_ASSERT(!min_alignment || !(buffer_context.device_address % min_alignment));
+    auto aligned_address = util::aligned_value(buffer_context.device_address, min_alignment);
+    GFXRECON_ASSERT(!min_alignment || !(aligned_address % min_alignment));
+    auto offset                   = aligned_address - buffer_context.device_address;
+    buffer_context.device_address = aligned_address;
 
     if (use_host_mem)
     {
         // map buffer
         result = resource_allocator_->MapResourceMemoryDirect(
             VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
+        buffer_context.mapped_data = static_cast<uint8_t*>(buffer_context.mapped_data) + offset;
         return result == VK_SUCCESS;
     }
     return true;
@@ -1303,6 +1313,20 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
 
     device_table_->CmdPipelineBarrier(
         command_buffer, src_stage, dst_stage, VkDependencyFlags(0), 0, nullptr, 1, &barrier, 0, nullptr);
+}
+
+bool VulkanAddressReplacer::swap_acceleration_structure_handle(VkAccelerationStructureKHR& handle)
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        auto shadow_as_it = shadow_as_map_.find(handle);
+        if (shadow_as_it != shadow_as_map_.end())
+        {
+            handle = shadow_as_it->second.handle;
+            return true;
+        }
+    }
+    return false;
 }
 
 void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR handle)

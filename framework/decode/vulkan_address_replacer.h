@@ -163,6 +163,30 @@ class VulkanAddressReplacer
                                      VkCopyDescriptorSet*  descriptor_copies);
 
     /**
+     * @brief   ProcessGetQueryPoolResults will check for running queries and attempt to extract information
+     *          about acceleration-structure compactions-sizes.
+     *
+     * Should be run after vkGetQueryPoolResults has returned.
+     *
+     * @param   device      a VkDevice handle
+     * @param   query_pool  a VkQueryPool handle
+     * @param   firstQuery  index for first query
+     * @param   queryCount  number of queries
+     * @param   dataSize    datasize in bytes
+     * @param   pData       provided data-pointer
+     * @param   stride      provided stride in bytes
+     * @param   flags       query result-flags
+     */
+    void ProcessGetQueryPoolResults(VkDevice           device,
+                                    VkQueryPool        query_pool,
+                                    uint32_t           firstQuery,
+                                    uint32_t           queryCount,
+                                    size_t             dataSize,
+                                    void*              pData,
+                                    VkDeviceSize       stride,
+                                    VkQueryResultFlags flags);
+
+    /**
      * @brief   Process information contained in a metadata-block in order to build acceleration-structures.
      *
      * Will use an internal command-buffer, submit work to a VkQueue and perform host-synchronization.
@@ -199,15 +223,6 @@ class VulkanAddressReplacer
     void
     ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(VkQueryType                query_type,
                                                                   VkAccelerationStructureKHR acceleration_structure);
-
-    void ProcessGetQueryPoolResults(VkDevice           device,
-                                    VkQueryPool        query_pool,
-                                    uint32_t           firstQuery,
-                                    uint32_t           queryCount,
-                                    size_t             dataSize,
-                                    void*              pData,
-                                    VkDeviceSize       stride,
-                                    VkQueryResultFlags flags);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
@@ -279,6 +294,8 @@ class VulkanAddressReplacer
                  VkAccessFlags        src_access,
                  VkPipelineStageFlags dst_stage,
                  VkAccessFlags        dst_access);
+
+    bool swap_acceleration_structure_handle(VkAccelerationStructureKHR& handle);
 
     const encode::VulkanDeviceTable*                               device_table_      = nullptr;
     VkPhysicalDeviceMemoryProperties                               memory_properties_ = {};
