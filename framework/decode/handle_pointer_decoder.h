@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
 ** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -86,6 +87,14 @@ class HandlePointerDecoder
     size_t GetHandleLength() const { return handle_data_len_; }
 
     T* GetHandlePointer() { return handle_data_; }
+
+    void SetHandlePointerData(T data)
+    {
+        if (handle_data_ != nullptr)
+        {
+            *handle_data_ = data;
+        }
+    }
 
     const T* GetHandlePointer() const { return handle_data_; }
 

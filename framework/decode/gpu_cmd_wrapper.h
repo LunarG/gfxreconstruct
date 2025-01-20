@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,45 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-
-#include "decode/replay_options.h"
+#ifndef GFXRECON_GPU_CMD_WRAPPER_H
+#define GFXRECON_GPU_CMD_WRAPPER_H
 
 #include "util/defines.h"
-#include "util/options.h"
-#include "util/logging.h"
+#include "format/format.h"
 
-#include <vector>
-#include <string>
+#include "decode/dx_replay_options.h"
+
+#include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
-
-struct DumpResourcesTarget
+class GpuCmdWrapper
 {
-    uint32_t submit_index{ 0 };
-    uint32_t command_index{ 0 };
-    uint32_t draw_call_index{ 0 };
-};
+  public:
+    GpuCmdWrapper(DxReplayOptions*           options,
+                  ID3D12GraphicsCommandList* command_list,
+                  format::HandleId           capture_id,
+                  format::ApiCallId          call_id,
+                  uint64_t                   block_idx);
 
-struct DxReplayOptions : public ReplayOptions
-{
-    bool                 enable_d3d12{ true };
-    bool                 enable_d3d12_two_pass_replay{ false };
-    bool                 use_cached_psos{ false };
-    std::vector<int32_t> AllowedDebugMessages;
-    std::vector<int32_t> DeniedDebugMessages;
-    bool                 override_object_names{ false };
-    bool                 ags_inject_markers{ false };
-    bool                 enable_dump_resources{ false };
-    DumpResourcesTarget  dump_resources_target{};
-    int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
+    ~GpuCmdWrapper();
+
+  private:
+    DxReplayOptions*           current_options{ nullptr };
+    ID3D12GraphicsCommandList* current_command_list{ nullptr };
+    bool                       bypass_marker_ = false;
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#endif // GFXRECON_DX12_GPU_CMD_WRAPPER_H

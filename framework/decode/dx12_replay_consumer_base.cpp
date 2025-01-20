@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -75,11 +75,10 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
-    application_(application),
-    options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
-    frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
-    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr), frame_end_marker_count_(0)
+    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
+    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
+    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr), frame_end_marker_count_(0)
 {
     if (options_.enable_validation_layer)
     {
@@ -118,11 +117,48 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
+    SetAgsMarkerInjector();
+
     DetectAdapters();
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
     resource_value_mapper_ =
         std::make_unique<Dx12ResourceValueMapper>(get_object_func, shader_id_map_, gpu_va_map_, descriptor_map_);
+}
+
+void Dx12ReplayConsumerBase::SetAgsMarkerInjector(AGSContext* ags_context)
+{
+    if (options_.ags_inject_markers)
+    {
+        ags_marker_injector_ = graphics::Dx12AgsMarkerInjector::Create();
+
+        if (ags_marker_injector_ != nullptr)
+        {
+            AGSConfiguration ags_config   = {};
+            AGSGPUInfo       ags_gpu_info = {};
+
+            if (ags_context == nullptr)
+            {
+                AGSReturnCode ags_return =
+                    agsInitialize(AGS_MAKE_VERSION(AMD_AGS_VERSION_MAJOR, AMD_AGS_VERSION_MINOR, AMD_AGS_VERSION_PATCH),
+                                  &ags_config,
+                                  &ags_context,
+                                  &ags_gpu_info);
+
+                if (ags_return != AGS_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Failed to initialize AGS. Marker injection disabled.");
+
+                    options_.ags_inject_markers = false;
+                    ags_marker_injector_        = nullptr;
+                }
+            }
+            if (ags_context != nullptr)
+            {
+                ags_marker_injector_->SetContext(ags_context);
+            }
+        }
+    }
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -390,7 +426,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         // 2. One ExecuteCommandLists could work for only one swapchain buffer.
         // 3. The current back buffer index has to match the swapchain buffer.
         // 4. After ExecuteCommandLists, the current back buffer index has to back init.
-        // 5. It shouldn't change resource states until all Presnt are done since Present require 
+        // 5. It shouldn't change resource states until all Presnt are done since Present require
         //    D3D12_RESOURCE_STATE_PRESENT. The before_states supposes to be PRESENT.
 
         // Although it has only one swapchain mostly, it probably has a plural in some cases.
@@ -404,7 +440,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
             auto swapchain             = reinterpret_cast<IDXGISwapChain3*>(swapchain_info->object);
             swapchain_infos[swapchain] = swapchain_extra_info;
 
-            for (auto &state : resource_info.second->before_states)
+            for (auto& state : resource_info.second->before_states)
             {
                 if (state.states != D3D12_RESOURCE_STATE_PRESENT)
                 {
@@ -1078,8 +1114,53 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
 
-    auto replay_result =
-        D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+    auto replay_result = E_FAIL;
+
+    if (options_.ags_inject_markers)
+    {
+        AGSDX12DeviceCreationParams creation_params = {};
+        creation_params.pAdapter                    = GetAdapter();
+        creation_params.iid                         = IID_ID3D12Device;
+        creation_params.FeatureLevel                = minimum_feature_level;
+
+        AGSDX12ExtensionParams extension_params = {};
+        AGSDX12ReturnedParams  returned_params  = {};
+
+        // Create AGS device for marker injection
+        AGSReturnCode ags_return = agsDriverExtensionsDX12_CreateDevice(
+            ags_marker_injector_->Context(), &creation_params, &extension_params, &returned_params);
+
+        if (ags_return == AGS_SUCCESS)
+        {
+            GFXRECON_LOG_DEBUG("Created AGS device.");
+
+            device->SetHandlePointerData(returned_params.pDevice);
+
+            replay_result = S_OK;
+
+            if (returned_params.extensionsSupported.userMarkers == 0)
+            {
+                GFXRECON_LOG_WARNING("Device does not support the AGS marker extension. Marker injection disabled.");
+
+                options_.ags_inject_markers = false;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to create AGS device, so falling back to creation of regular ID3D12Device. "
+                                 "Marker injection disabled.");
+
+            options_.ags_inject_markers = false;
+
+            replay_result =
+                D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+        }
+    }
+    else
+    {
+        replay_result =
+            D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+    }
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
@@ -4633,7 +4714,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     }
     else
     {
-        srv_info.desc     = *(pDesc->GetMetaStructPointer()->decoded_value);
+        srv_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
         srv_info.is_desc_null = false;
 
         if (options_.enable_dump_resources)

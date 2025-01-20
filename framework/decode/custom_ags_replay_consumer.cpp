@@ -163,6 +163,7 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
     if (result == AGS_SUCCESS)
     {
         context_map_[context] = replay_context;
+        dx12_replay_consumer_->SetAgsMarkerInjector(replay_context);
     }
 
     CheckReplayResult("Process_agsInitialize", return_value, result);

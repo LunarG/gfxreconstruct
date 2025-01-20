@@ -40,6 +40,7 @@
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
+#include "graphics/dx12_ags_marker_injector.h"
 #include "application/application.h"
 
 #include <functional>
@@ -63,6 +64,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
+
+    void SetAgsMarkerInjector(AGSContext* ags_context = nullptr);
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 
@@ -1170,6 +1173,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
+    graphics::Dx12AgsMarkerInjector*                      ags_marker_injector_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
