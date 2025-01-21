@@ -1002,15 +1002,16 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
 
         ProcessCmdWriteAccelerationStructuresPropertiesKHR(1, &acceleration_structure, query_type, query_pool_, 0);
 
-        // issue vkCmdWriteAccelerationStructuresPropertiesKHR
+        // issue vkCmdResetQueryPool and vkCmdWriteAccelerationStructuresPropertiesKHR
         MarkInjectedCommandsHelper mark_injected_commands_helper;
+        device_table_->CmdResetQueryPool(command_buffer_, query_pool_, 0, 1);
         device_table_->CmdWriteAccelerationStructuresPropertiesKHR(
             command_buffer_, 1, &acceleration_structure, query_type, query_pool_, 0);
     }
 
     VkDeviceSize compact_size = 0;
 
-    // issue vkCmdWriteAccelerationStructuresPropertiesKHR
+    // the above command-buffer is already synced here, retrieve result using vkGetQueryPoolResults
     MarkInjectedCommandsHelper mark_injected_commands_helper;
     device_table_->GetQueryPoolResults(device_,
                                        query_pool_,
@@ -1020,6 +1021,8 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
                                        &compact_size,
                                        sizeof(VkDeviceSize),
                                        VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+
+    // apply usual post-processing of queries
     ProcessGetQueryPoolResults(device_,
                                query_pool_,
                                0,

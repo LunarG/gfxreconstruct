@@ -1430,7 +1430,7 @@ void VulkanStateWriter::BeginAccelerationStructuresSection(format::HandleId devi
     begin_cmd.thread_id         = thread_id_;
     begin_cmd.device_id         = device_id;
     begin_cmd.max_resource_size = max_resource_size;
-    // Our buffers should not need staging copy as the memroy should be host visible and coherent
+    // Our buffers should not need staging copy as the memory should be host visible and coherent
     begin_cmd.max_copy_size = 0;
 
     output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
@@ -1713,7 +1713,13 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
         if (wrapper->latest_copy_command_)
         {
-            per_device_container.copy_infos.push_back(wrapper->latest_copy_command_.value().info);
+            // filter out stale handles
+            auto get_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>;
+            if (get_id(wrapper->latest_copy_command_->info.src, false) != 0 &&
+                get_id(wrapper->latest_copy_command_->info.dst, false) != 0)
+            {
+                per_device_container.copy_infos.push_back(wrapper->latest_copy_command_.value().info);
+            }
         }
 
         if (wrapper->latest_write_properties_command_)
