@@ -363,6 +363,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate unique names for all ID3D12Objects and");
     GFXRECON_WRITE_CONSOLE("          \t\tassign each object the generated name.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis is intended to assist in replay debugging.");
+    GFXRECON_WRITE_CONSOLE("  --dx12-ags-inject-markers");
+    GFXRECON_WRITE_CONSOLE("          \t\tLabel each API calls as block index of the trace");
+    GFXRECON_WRITE_CONSOLE("          \t\tRadeon™ GPU Detective could dump the label for debugging.");
     GFXRECON_WRITE_CONSOLE("  --batching-memory-usage <pct>");
     GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption while loading a trimmed capture file.");
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
