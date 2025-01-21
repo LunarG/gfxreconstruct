@@ -37,13 +37,22 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class SpirVParsingUtil
 {
   public:
+    enum class BufferReferenceLocation
+    {
+        INVALID = 0,
+        UNIFORM_BUFFER,
+        STORAGE_BUFFER,
+        SHADER_RECORD_BUFFER,
+        PUSH_CONSTANT_BLOCK
+    };
+
     struct BufferReferenceInfo
     {
-        uint32_t set                 = 0;
-        uint32_t binding             = 0;
-        bool     push_constant_block = false;
-        uint32_t buffer_offset       = 0;
-        uint32_t array_stride        = 0;
+        BufferReferenceLocation source        = BufferReferenceLocation::INVALID;
+        uint32_t                set           = 0;
+        uint32_t                binding       = 0;
+        uint32_t                buffer_offset = 0;
+        uint32_t                array_stride  = 0;
     };
 
     SpirVParsingUtil() = default;
