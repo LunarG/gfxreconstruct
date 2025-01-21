@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2477,6 +2477,17 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
+                                                                      HRESULT                    result,
+                                                                      ID3D12CommandAllocator*    pAllocator,
+                                                                      ID3D12PipelineState*       pInitialState)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCommandList_Reset(list_wrapper, pAllocator, pInitialState);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
     ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          desc,
@@ -3368,11 +3379,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         if (target_info->find_target_draw_call_count !=
             (trim_draw_calls.draw_call_indices.last - trim_draw_calls.draw_call_indices.first + 1))
         {
-            GFXRECON_LOG_WARNING(
-                "CAPTURE_DRAW_CALLS didn't find the enough draw call count(%d). The indices(%d-%d) might be out of range.",
-                target_info->find_target_draw_call_count,
-                trim_draw_calls.draw_call_indices.first,
-                trim_draw_calls.draw_call_indices.last);
+            GFXRECON_LOG_WARNING("CAPTURE_DRAW_CALLS didn't find the enough draw call count(%d). The indices(%d-%d) "
+                                 "might be out of range.",
+                                 target_info->find_target_draw_call_count,
+                                 trim_draw_calls.draw_call_indices.first,
+                                 trim_draw_calls.draw_call_indices.last);
         }
 
         if (target_info->target_bundle_commandlist_info)
@@ -3678,10 +3689,10 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
                 case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
                     if (trim_draw_calls.draw_call_indices.first != trim_draw_calls.draw_call_indices.last)
                     {
-                        GFXRECON_LOG_FATAL(
-                            "The target draw call is a ExecuteBundle. The draw call indices must be not a range(%d-%d).",
-                            trim_draw_calls.draw_call_indices.first,
-                            trim_draw_calls.draw_call_indices.last);
+                        GFXRECON_LOG_FATAL("The target draw call is a ExecuteBundle. The draw call indices must be not "
+                                           "a range(%d-%d).",
+                                           trim_draw_calls.draw_call_indices.first,
+                                           trim_draw_calls.draw_call_indices.last);
                         GFXRECON_ASSERT(trim_draw_calls.draw_call_indices.first ==
                                         trim_draw_calls.draw_call_indices.last);
                     }
