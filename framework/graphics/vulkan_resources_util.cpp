@@ -785,8 +785,6 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
                                                            std::vector<uint64_t>* subresource_sizes,
                                                            bool                   all_layers_per_level)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-
     if (subresource_sizes != nullptr)
     {
         subresource_sizes->clear();
@@ -1667,7 +1665,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         dst_format = format;
     }
 
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    assert(mip_levels <= 1 + GFXRECON_LOG2(std::max(std::max(extent.width, extent.height), extent.depth)));
     assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
            (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
 
@@ -1880,7 +1878,7 @@ void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                ima
                                                       std::vector<uint64_t>& subresource_offsets,
                                                       std::vector<uint64_t>& subresource_sizes)
 {
-    GFXRECON_ASSERT(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    GFXRECON_ASSERT(mip_levels <= 1 + GFXRECON_LOG2(std::max(std::max(extent.width, extent.height), extent.depth)));
     GFXRECON_ASSERT(mapped_image_ptr);
 
     subresource_offsets.clear();
@@ -1988,7 +1986,7 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
                                                           const std::vector<uint64_t>& subresource_offsets,
                                                           const std::vector<uint64_t>& subresource_sizes)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    assert(mip_levels <= 1 + GFXRECON_LOG2(std::max(std::max(extent.width, extent.height), extent.depth)));
 
     const VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)

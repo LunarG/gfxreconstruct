@@ -67,6 +67,11 @@ static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)
     return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(ptr));
 }
 
+static constexpr uint32_t GFXRECON_LOG2(uint32_t n)
+{
+    return (n > 1) ? 1 + GFXRECON_LOG2(n >> 1) : 0;
+}
+
 #ifdef NDEBUG
 #define GFXRECON_RELEASE_BUILD 1
 #else
