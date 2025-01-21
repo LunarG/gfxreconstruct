@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2023-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX12_BROWSE_CONSUMER_H
-#define GFXRECON_DECODE_DX12_BROWSE_CONSUMER_H
+#ifndef GFXRECON_DECODE_DX12_PRE_PROCESS_CONSUMER_H
+#define GFXRECON_DECODE_DX12_PRE_PROCESS_CONSUMER_H
 
 #include <memory>
 
@@ -162,10 +162,10 @@ struct TrackDumpCommandList
     }
 };
 
-class Dx12BrowseConsumer : public Dx12Consumer
+class Dx12PreProcessConsumer : public Dx12Consumer
 {
   public:
-    Dx12BrowseConsumer() {}
+    Dx12PreProcessConsumer() {}
 
     void SetDumpTarget(const DumpResourcesTarget& dump_resources_target)
     {
@@ -906,4 +906,4 @@ class Dx12BrowseConsumer : public Dx12Consumer
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX12_BROWSE_CONSUMER_H
+#endif // GFXRECON_DECODE_DX12_PRE_PROCESS_CONSUMER_H

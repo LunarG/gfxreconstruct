@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,35 +20,33 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#ifndef GFXRECON_DECODE_VULKAN_PRE_PROCESS_CONSUMER_H
+#define GFXRECON_DECODE_VULKAN_PRE_PROCESS_CONSUMER_H
 
-#include "decode/replay_options.h"
-
-#include "util/defines.h"
-#include "util/options.h"
-#include "util/logging.h"
-
-#include <vector>
-#include <string>
+#include "generated/generated_vulkan_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
-
-struct DxReplayOptions : public ReplayOptions
+class VulkanPreProcessConsumer : public VulkanConsumer
 {
-    bool                 enable_d3d12{ true };
-    bool                 enable_d3d12_two_pass_replay{ false };
-    bool                 use_cached_psos{ false };
-    std::vector<int32_t> AllowedDebugMessages;
-    std::vector<int32_t> DeniedDebugMessages;
-    bool                 override_object_names{ false };
-    int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
+  public:
+    VulkanPreProcessConsumer() {}
+
+    void SetDumpTarget(const DumpResourcesTarget& dump_resources_target)
+    {
+        dump_resources_target_ = dump_resources_target;
+    }
+
+    std::string GetDumpResourcesBlockIndices() { return dump_resources_block_indices_; }
+
+  private:
+    DumpResourcesTarget dump_resources_target_{};
+    std::string         dump_resources_block_indices_;
 };
+
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#endif // GFXRECON_DECODE_VULKAN_PRE_PROCESS_CONSUMER_H

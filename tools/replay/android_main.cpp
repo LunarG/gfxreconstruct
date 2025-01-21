@@ -29,6 +29,7 @@
 #include "decode/preload_file_processor.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
+#include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -71,6 +72,41 @@ extern "C"
     bool MainGetLoadingTrimmedState()
     {
         return file_processor->GetLoadingTrimmedState();
+    }
+}
+
+void VulkanPreProcessConsumer(const std::string&                      input_filename,
+                              gfxrecon::decode::VulkanReplayOptions&  replay_options,
+                              gfxrecon::decode::VulkanReplayConsumer& replay_consumer)
+{
+    if (replay_options.enable_dump_resources && replay_options.dump_resources_block_indices.empty())
+    {
+        if (replay_options.dump_resources_block_indices.empty())
+        {
+            gfxrecon::decode::FileProcessor file_processor;
+            if (file_processor.Initialize(input_filename))
+            {
+                gfxrecon::decode::VulkanPreProcessConsumer pre_process_consumer;
+                gfxrecon::decode::VulkanDecoder            decoder;
+
+                pre_process_consumer.SetDumpTarget(replay_options.dump_resources_target);
+
+                decoder.AddConsumer(&pre_process_consumer);
+                file_processor.AddDecoder(&decoder);
+                file_processor.ProcessAllFrames();
+
+                replay_options.dump_resources_block_indices = pre_process_consumer.GetDumpResourcesBlockIndices();
+            }
+        }
+
+        // Process --dump-resources-block-indices arg. We do it here so that other gfxr tools that use
+        // the VulkanReplayOptions class won't have to link in the json library.
+        if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
+        {
+            GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
+            return;
+        }
+        replay_consumer.InitializeReplayDumpResources();
     }
 }
 
@@ -139,16 +175,11 @@ void android_main(struct android_app* app)
                                                       replay_options.block_index_from,
                                                       replay_options.block_index_to);
 
-                // Process --dump-resources arg. We do it here so that other gfxr tools that use
-                // the VulkanReplayOptions class won't have to link in the json library.
-                if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
-                {
-                    GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
-                    return;
-                }
-
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+
+                VulkanPreProcessConsumer(filename, replay_options, vulkan_replay_consumer);
+
                 uint32_t                               start_frame, end_frame;
                 bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
                 std::string measurement_file_name;
