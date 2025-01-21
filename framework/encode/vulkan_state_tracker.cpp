@@ -2299,12 +2299,17 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
             }
             break;
 
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                // nothing to do, only sanity-check
+                GFXRECON_ASSERT(binding.count);
+                GFXRECON_ASSERT(binding.inline_uniform_block);
+                break;
+
             default:
                 GFXRECON_LOG_WARNING("%s() Descriptor type %u not handled", __func__, binding.type);
                 break;
         }
     }
-
     wrapper->bindings.clear();
 }
 
