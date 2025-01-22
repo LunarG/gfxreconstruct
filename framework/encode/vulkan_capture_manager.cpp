@@ -2725,34 +2725,6 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
     }
 }
 
-void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkResult                        result,
-                                                            VkDevice                        device,
-                                                            const VkShaderModuleCreateInfo* pCreateInfo,
-                                                            const VkAllocationCallbacks*    pAllocator,
-                                                            VkShaderModule*                 pShaderModule)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(pShaderModule);
-
-    if (result == VK_SUCCESS)
-    {
-        graphics::vulkan_check_buffer_references(pCreateInfo->pCode, pCreateInfo->codeSize);
-
-        vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(*pShaderModule);
-        if (shader_wrapper != nullptr)
-        {
-            gfxrecon::util::SpirVParsingUtil spirv_util;
-            if (!spirv_util.SPIRVReflectPerformReflectionOnShaderModule(
-                    pCreateInfo->codeSize, pCreateInfo->pCode, shader_wrapper->used_descriptors_info))
-            {
-                GFXRECON_LOG_WARNING("Reflection on shader %" PRIu64 "failed", shader_wrapper->handle_id);
-            }
-        }
-    }
-}
-
 void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                                          VkPipelineBindPoint pipelineBindPoint,
                                                          VkPipeline          pipeline)
@@ -2760,103 +2732,6 @@ void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     com
     if (IsCaptureModeTrack())
     {
         state_tracker_->TrackCmdBindPipeline(commandBuffer, pipelineBindPoint, pipeline);
-    }
-}
-
-void VulkanCaptureManager::PostProcess_vkCreateGraphicsPipelines(VkResult                            result,
-                                                                 VkDevice                            device,
-                                                                 VkPipelineCache                     pipelineCache,
-                                                                 uint32_t                            createInfoCount,
-                                                                 const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                                                 const VkAllocationCallbacks*        pAllocator,
-                                                                 VkPipeline*                         pPipelines)
-{
-    if (result == VK_SUCCESS && createInfoCount && pPipelines != nullptr)
-    {
-        for (uint32_t p = 0; p < createInfoCount; ++p)
-        {
-            vulkan_wrappers::PipelineWrapper* ppl_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pPipelines[p]);
-            assert(ppl_wrapper != nullptr);
-
-            const auto binary_info = graphics::vulkan_struct_get_pnext<VkPipelineBinaryInfoKHR>(&pCreateInfos[p]);
-            if (binary_info == nullptr || !binary_info->binaryCount)
-            {
-                for (uint32_t s = 0; s < pCreateInfos[p].stageCount; ++s)
-                {
-                    const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
-                            pCreateInfos[p].pStages[s].module);
-                    assert(shader_wrapper != nullptr);
-
-                    ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
-                }
-            }
-        }
-    }
-}
-
-void VulkanCaptureManager::PostProcess_vkCreateComputePipelines(VkResult                           result,
-                                                                VkDevice                           device,
-                                                                VkPipelineCache                    pipelineCache,
-                                                                uint32_t                           createInfoCount,
-                                                                const VkComputePipelineCreateInfo* pCreateInfos,
-                                                                const VkAllocationCallbacks*       pAllocator,
-                                                                VkPipeline*                        pPipelines)
-{
-    if (result == VK_SUCCESS && createInfoCount && pPipelines != nullptr)
-    {
-        for (uint32_t p = 0; p < createInfoCount; ++p)
-        {
-            vulkan_wrappers::PipelineWrapper* ppl_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pPipelines[p]);
-            assert(ppl_wrapper != nullptr);
-
-            const auto binary_info = graphics::vulkan_struct_get_pnext<VkPipelineBinaryInfoKHR>(&pCreateInfos[p]);
-            if (binary_info == nullptr || !binary_info->binaryCount)
-            {
-                const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(pCreateInfos[p].stage.module);
-                assert(shader_wrapper != nullptr);
-
-                ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
-            }
-        }
-    }
-}
-
-void VulkanCaptureManager::PostProcess_vkCreateRayTracingPipelinesKHR(
-    VkResult                                 result,
-    VkDevice                                 device,
-    VkDeferredOperationKHR                   deferredOperation,
-    VkPipelineCache                          pipelineCache,
-    uint32_t                                 createInfoCount,
-    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-    const VkAllocationCallbacks*             pAllocator,
-    VkPipeline*                              pPipelines)
-{
-    if (result == VK_SUCCESS && createInfoCount && pPipelines != nullptr)
-    {
-        for (uint32_t p = 0; p < createInfoCount; ++p)
-        {
-            vulkan_wrappers::PipelineWrapper* ppl_wrapper =
-                vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pPipelines[p]);
-            assert(ppl_wrapper != nullptr);
-
-            const auto binary_info = graphics::vulkan_struct_get_pnext<VkPipelineBinaryInfoKHR>(&pCreateInfos[p]);
-            if (binary_info == nullptr || !binary_info->binaryCount)
-            {
-                for (uint32_t s = 0; s < pCreateInfos[p].stageCount; ++s)
-                {
-                    const vulkan_wrappers::ShaderModuleWrapper* shader_wrapper =
-                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(
-                            pCreateInfos[p].pStages[s].module);
-                    assert(shader_wrapper != nullptr);
-
-                    ppl_wrapper->bound_shaders.push_back(*shader_wrapper);
-                }
-            }
-        }
     }
 }
 

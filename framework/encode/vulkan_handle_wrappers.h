@@ -78,6 +78,7 @@ struct HandleWrapper
 //
 
 // clang-format off
+struct ShaderModuleWrapper                            : public HandleWrapper<VkShaderModule> {};
 struct SamplerYcbcrConversionWrapper                  : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper                  : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper                  : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
@@ -113,11 +114,6 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 //
 // Declarations for handle wrappers that require additional state info.
 //
-
-struct ShaderModuleWrapper : public HandleWrapper<VkShaderModule>
-{
-    vulkan_state_info::ShaderReflectionDescriptorSetsInfos used_descriptors_info;
-};
 
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent
 // VkPhysicalDevice handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is
@@ -387,8 +383,6 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
-
-    std::vector<ShaderModuleWrapper> bound_shaders;
 };
 
 struct AccelerationStructureKHRWrapper;

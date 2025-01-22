@@ -1201,52 +1201,12 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLab
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShaderModule>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_vkCreateShaderModule(args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>
 {
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PostProcess_vkCmdBindPipeline(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkCreateGraphicsPipelines(result, args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkCreateComputePipelines(result, args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkCreateRayTracingPipelinesKHR(result, args...);
     }
 };
 
