@@ -215,7 +215,9 @@ Usage:
                         [--dump-resources <submit-index,command-index,draw-call-index>]
                         [--dump-resources-before-draw]
                         [--dump-resources-dir <dir>]
-                        [--pbi-all] [--pbis <index1,index2>] <file>
+                        [--dump-resources-modifiable-state-only ]
+                        [--pbi-all] [--pbis <index1,index2>]
+                        <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -311,6 +313,8 @@ Optional arguments:
                         argument, also dump resources before the draw call.
   --dump-resources-dir <dir>
                         Directory to write dump resources output files. Default is the current working directory.
+  --dump-resources-modifiable-state-only
+                        Only dump resources that are in a modifiable state set by D3D12 ResourceBarrier
 ```
 
 
