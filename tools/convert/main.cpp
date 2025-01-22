@@ -201,18 +201,35 @@ int main(int argc, const char** argv)
     {
         GFXRECON_LOG_INFO("Capture file does not contain Vulkan content.  D3D12 content may be present but "
                           "gfxrecon-convert is not compiled with D3D12 support.");
-        goto exit;
+        gfxrecon::util::Log::Release();
+        return 1;
     }
 #endif
     if (file_per_frame && output_to_stdout)
     {
-        GFXRECON_LOG_WARNING("Outputting a file per frame is not consistent with outputting to stdout.");
-        file_per_frame = false;
+        GFXRECON_LOG_ERROR("Outputting a file per frame is not consistent with outputting to stdout.");
+        gfxrecon::util::Log::Release();
+        return 1;
     }
 
     if (dump_binaries)
     {
-        gfxrecon::util::filepath::MakeDirectory(data_dir);
+        const bool made_directory = gfxrecon::util::filepath::MakeDirectory(data_dir);
+        if (!made_directory)
+        {
+            if (!gfxrecon::util::filepath::IsDirectory(data_dir))
+            {
+                GFXRECON_LOG_ERROR("Failed to create directory for dumping binary blobs into: '%s'.", data_dir.c_str());
+                gfxrecon::util::Log::Release();
+                return 1;
+            }
+            else
+            {
+                // The result of this run may be a mixture of files from previous runs and this one
+                // in the output directory.
+                GFXRECON_LOG_INFO("Directory for dumping binary blobs already exists: '%s'.", data_dir.c_str());
+            }
+        }
     }
 
     if (file_processor.Initialize(input_filename))
@@ -235,13 +252,20 @@ int main(int argc, const char** argv)
         }
         else
         {
-            gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
+            auto result = gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
+            if (result != 0)
+            {
+                GFXRECON_LOG_ERROR("Error while opening file \"%s\"", json_filename.c_str());
+                gfxrecon::util::Log::Release();
+                return 1;
+            }
         }
 
         if (!out_file_handle)
         {
-            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", output_filename.c_str());
-            ret_code = 1;
+            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"", output_filename.c_str());
+            gfxrecon::util::Log::Release();
+            return 1;
         }
         else
         {
@@ -268,7 +292,7 @@ int main(int argc, const char** argv)
             json_consumer.Initialize(&json_writer, vulkan_version);
             json_writer.StartStream(&out_stream);
 
-            // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
+            // If D3D12_SUPPORT was set, then add DX12 consumer/decoder
 #ifdef D3D12_SUPPORT
             Dx12JsonConsumer              dx12_json_consumer;
             gfxrecon::decode::Dx12Decoder dx12_decoder;
@@ -286,11 +310,18 @@ int main(int argc, const char** argv)
                 if (success && file_per_frame)
                 {
                     json_writer.EndStream();
-                    gfxrecon::util::platform::FileClose(out_file_handle);
+                    const auto close_result = gfxrecon::util::platform::FileClose(out_file_handle);
+                    if (close_result != 0)
+                    {
+                        GFXRECON_LOG_ERROR("Failed to close file: '%s'.", json_filename.c_str());
+                        gfxrecon::util::Log::Release();
+                        return 1;
+                    }
                     json_filename = gfxrecon::util::filepath::InsertFilenamePostfix(
                         output_filename, +"_" + FormatFrameNumber(file_processor.GetCurrentFrameNumber()));
-                    gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
-                    success = out_file_handle != nullptr;
+                    const auto open_result =
+                        gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
+                    success = open_result == 0 && out_file_handle != nullptr;
                     if (success)
                     {
                         out_stream.Reset(out_file_handle);
@@ -298,8 +329,9 @@ int main(int argc, const char** argv)
                     }
                     else
                     {
-                        GFXRECON_LOG_ERROR("Failed to create file: '%s'.", json_filename.c_str());
-                        ret_code = 1;
+                        GFXRECON_LOG_ERROR("Failed to open file: '%s'.", json_filename.c_str());
+                        gfxrecon::util::Log::Release();
+                        return 1;
                     }
                 }
             }
@@ -308,19 +340,17 @@ int main(int argc, const char** argv)
 #ifdef D3D12_SUPPORT
             dx12_json_consumer.Destroy();
 #endif
-            if (!output_to_stdout)
+            if (!output_to_stdout && out_file_handle != nullptr)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
             }
             if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
-                GFXRECON_LOG_ERROR("Failed to process trace.");
+                GFXRECON_LOG_ERROR("Failure in processing capture stream.");
                 ret_code = 1;
             }
         }
     }
-    goto exit; // The other goto is inside an #ifdef and if compiled-out an unreferenced label warning results.
-exit:
     gfxrecon::util::Log::Release();
     return ret_code;
 }
