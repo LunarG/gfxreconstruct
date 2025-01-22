@@ -580,17 +580,12 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         }
     }
 
-    std::string trim_key_option        = FindOption(options, kOptionKeyCaptureTrigger);
-    std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
+    std::string trim_key_option = FindOption(options, kOptionKeyCaptureTrigger);
     if (!trim_key_option.empty())
     {
         if (settings->trace_settings_.trim_ranges.empty())
         {
             settings->trace_settings_.trim_key = ParseTrimKeyString(trim_key_option);
-            if (!trim_key_frames_option.empty())
-            {
-                settings->trace_settings_.trim_key_frames = ParseTrimKeyFramesString(trim_key_frames_option);
-            }
             if (!settings->trace_settings_.trim_key.empty())
             {
                 settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
@@ -599,6 +594,20 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         else
         {
             GFXRECON_LOG_WARNING("Settings Loader: Ignoring trim key setting as trim ranges has been specified.");
+        }
+    }
+
+    std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
+    if (!trim_key_frames_option.empty())
+    {
+        if (settings->trace_settings_.trim_ranges.empty())
+        {
+            settings->trace_settings_.trim_key_frames = ParseTrimKeyFramesString(trim_key_frames_option);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Settings Loader: Ignoring trim trigger frames setting as trim ranges has been specified.");
         }
     }
 
