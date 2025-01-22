@@ -373,8 +373,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
         if (valid_sbt_alignment_)
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay adjusted mismatching raytracing "
-                                   "shader-group-handles");
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+                                   "raytracing shader-group-handles");
 
             // rewrite group-handles in-place
             replacer_params.output_handles = replacer_params.input_handles;
@@ -392,8 +392,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting a mismatching "
-                                   "raytracing shader-binding-table using a shadow-buffer");
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+                                   "raytracing shader-binding-tables using shadow-buffers");
 
             // output-handles
             if (!create_buffer(pipeline_context_sbt.output_handle_buffer, max_num_handles * sizeof(VkDeviceAddress)))
@@ -1262,13 +1262,12 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         return false;
     }
 
-    VkMemoryPropertyFlags memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    result                             = resource_allocator_->BindBufferMemory(buffer_context.buffer,
+    result = resource_allocator_->BindBufferMemory(buffer_context.buffer,
                                                    buffer_context.device_memory,
                                                    0,
                                                    buffer_context.allocator_data,
                                                    buffer_context.memory_data,
-                                                   &memory_flags);
+                                                   &memory_property_flags);
     if (result != VK_SUCCESS)
     {
         return false;

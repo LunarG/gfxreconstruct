@@ -104,7 +104,7 @@ class VulkanAddressReplacer
      * if replaying on same device/driver using the default-allocator (no -m rebind):
      * - happy day, nothing to do!
      *
-     * if replaying on a different device/driver OR using the rebind-allocator (via -m rebind):
+     * if replaying on a different device/driver and/or using the rebind-allocator (via -m rebind):
      * - remap buffer-device-addresses for triangle-, aabb- and instance-geometries referenced in `build_geometry_infos`
      * - check buffer-sizes for acceleration-structures and scratch-buffers
      *      - if necessary, create shadow acceleration-structures and -buffers, adjust references
