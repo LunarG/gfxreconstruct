@@ -80,6 +80,7 @@ struct ReplayOptions
     bool                         enable_dump_resources{ false };
     std::string                  dump_resources_output_dir;
     bool                         dump_resources_before{ false };
+    bool                         dump_resources_modifiable_state_only;
     DumpResourcesTarget          dump_resources_target{};
     bool                         using_dump_resources_target{ false };
 };
