@@ -119,6 +119,79 @@ struct TrackDumpDrawCall
         bundle_target_draw_call           = nullptr;
         drawcall_type                     = DumpDrawCallType::kUnknown;
     }
+
+    std::string GetString()
+    {
+        std::string info;
+        info = "BlockIndices: ";
+
+        info += "ExecuteCommandLists:";
+        info += std::to_string(execute_block_index);
+        info += ", ";
+
+        info += "BeginCommandList:";
+        info += std::to_string(begin_block_index);
+        info += ", ";
+
+        info += "CloseCommandList:";
+        info += std::to_string(close_block_index);
+        info += ", ";
+
+        if (begin_renderpass_block_index != 0)
+        {
+            info += "BeginRenderPass:";
+            info += std::to_string(begin_renderpass_block_index);
+            info += ", ";
+
+            info += "EndRenderPass:";
+            info += std::to_string(end_renderpass_block_index);
+            info += ", ";
+        }
+
+        if (set_render_targets_block_index != 0)
+        {
+            info += "SetRenderTargets:";
+            info += std::to_string(set_render_targets_block_index);
+            info += ", ";
+        }
+
+        info += "DrawCall:";
+        info += std::to_string(draw_call_block_index);
+
+        if (bundle_target_draw_call != nullptr)
+        {
+            info += ", ";
+            info += "Bundle-BeginCommandList:";
+            info += std::to_string(bundle_target_draw_call->begin_block_index);
+            info += ", ";
+
+            info += "Bundle-CloseCommandList:";
+            info += std::to_string(bundle_target_draw_call->close_block_index);
+            info += ", ";
+
+            if (bundle_target_draw_call->begin_renderpass_block_index != 0)
+            {
+                info += "Bundle-BeginRenderPass:";
+                info += std::to_string(bundle_target_draw_call->begin_renderpass_block_index);
+                info += ", ";
+
+                info += "Bundle-EndRenderPass:";
+                info += std::to_string(bundle_target_draw_call->end_renderpass_block_index);
+                info += ", ";
+            }
+
+            if (bundle_target_draw_call->set_render_targets_block_index != 0)
+            {
+                info += "Bundle-SetRenderTargets:";
+                info += std::to_string(bundle_target_draw_call->set_render_targets_block_index);
+                info += ", ";
+            }
+
+            info += "Bundle-DrawCall:";
+            info += std::to_string(bundle_target_draw_call->draw_call_block_index);
+        }
+        return info;
+    }
 };
 
 struct TrackDumpCommandList
@@ -162,6 +235,7 @@ struct TrackDumpCommandList
     }
 };
 
+// It supposes to be able do many tasks that before replay, not only for dump resources.
 class Dx12PreProcessConsumer : public Dx12Consumer
 {
   public:
@@ -203,6 +277,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
             }
             auto& target                  = it->second.track_dump_draw_calls[target_draw_call_index_];
             target->dump_resources_target = dump_resources_target_;
+            GFXRECON_LOG_INFO("Dump resources info: %s", target->GetString().c_str());
             return target.get();
         }
         return nullptr;
@@ -216,7 +291,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                         format::HandleId             pCommandAllocator,
                                                         format::HandleId             pInitialState,
                                                         Decoded_GUID                 riid,
-                                                        HandlePointerDecoder<void*>* ppCommandList)
+                                                        HandlePointerDecoder<void*>* ppCommandList) override
     {
         InitializeTracking(call_info, *ppCommandList->GetPointer());
     }
@@ -225,7 +300,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                          format::HandleId   object_id,
                                                          HRESULT            return_value,
                                                          format::HandleId   pAllocator,
-                                                         format::HandleId   pInitialState)
+                                                         format::HandleId   pInitialState) override
     {
         InitializeTracking(call_info, object_id);
     }
@@ -236,7 +311,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                                                NumRenderTargets,
         StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,
         StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
-        D3D12_RENDER_PASS_FLAGS                                             Flags)
+        D3D12_RENDER_PASS_FLAGS                                             Flags) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -250,7 +325,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
     }
 
     virtual void Process_ID3D12GraphicsCommandList4_EndRenderPass(const ApiCallInfo& call_info,
-                                                                  format::HandleId   object_id)
+                                                                  format::HandleId   object_id) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -274,7 +349,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                                       NumRenderTargetDescriptors,
         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pRenderTargetDescriptors,
         BOOL                                                       RTsSingleHandleToDescriptorRange,
-        StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
+        StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -289,7 +364,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
 
     virtual void Process_ID3D12GraphicsCommandList_SetComputeRootSignature(const ApiCallInfo& call_info,
                                                                            format::HandleId   object_id,
-                                                                           format::HandleId   pRootSignature)
+                                                                           format::HandleId   pRootSignature) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -303,7 +378,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
 
     virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(const ApiCallInfo& call_info,
                                                                             format::HandleId   object_id,
-                                                                            format::HandleId   pRootSignature)
+                                                                            format::HandleId   pRootSignature) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -315,12 +390,12 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_IASetVertexBuffers(const ApiCallInfo& call_info,
-                                                         format::HandleId   object_id,
-                                                         UINT               StartSlot,
-                                                         UINT               NumViews,
-                                                         StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews)
+    virtual void Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
+        const ApiCallInfo&                                      call_info,
+        format::HandleId                                        object_id,
+        UINT                                                    StartSlot,
+        UINT                                                    NumViews,
+        StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -337,10 +412,10 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_IASetIndexBuffer(const ApiCallInfo&                                     call_info,
-                                                       format::HandleId                                       object_id,
-                                                       StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
+    virtual void Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
+        const ApiCallInfo&                                     call_info,
+        format::HandleId                                       object_id,
+        StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -360,11 +435,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(const ApiCallInfo& call_info,
-                                                         format::HandleId   object_id,
-                                                         UINT               NumDescriptorHeaps,
-                                                         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
+    virtual void Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
+        const ApiCallInfo&                           call_info,
+        format::HandleId                             object_id,
+        UINT                                         NumDescriptorHeaps,
+        HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -381,11 +456,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(const ApiCallInfo& call_info,
-                                                                    format::HandleId   object_id,
-                                                                    UINT               RootParameterIndex,
-                                                                    Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
+        const ApiCallInfo&                  call_info,
+        format::HandleId                    object_id,
+        UINT                                RootParameterIndex,
+        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -400,11 +475,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(const ApiCallInfo& call_info,
-                                                                     format::HandleId   object_id,
-                                                                     UINT               RootParameterIndex,
-                                                                     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
+        const ApiCallInfo&                  call_info,
+        format::HandleId                    object_id,
+        UINT                                RootParameterIndex,
+        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -423,7 +498,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                format::HandleId   object_id,
                                                                                UINT               RootParameterIndex,
                                                                                UINT               SrcData,
-                                                                               UINT DestOffsetIn32BitValues)
+                                                                               UINT DestOffsetIn32BitValues) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -441,7 +516,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                 format::HandleId   object_id,
                                                                                 UINT               RootParameterIndex,
                                                                                 UINT               SrcData,
-                                                                                UINT DestOffsetIn32BitValues)
+                                                                                UINT DestOffsetIn32BitValues) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -460,7 +535,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                 UINT               RootParameterIndex,
                                                                                 UINT               Num32BitValuesToSet,
                                                                                 PointerDecoder<uint8_t>* pSrcData,
-                                                                                UINT DestOffsetIn32BitValues)
+                                                                                UINT DestOffsetIn32BitValues) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -479,7 +554,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                  UINT               RootParameterIndex,
                                                                                  UINT               Num32BitValuesToSet,
                                                                                  PointerDecoder<uint8_t>* pSrcData,
-                                                                                 UINT DestOffsetIn32BitValues)
+                                                                                 UINT DestOffsetIn32BitValues) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -493,11 +568,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }  
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(const ApiCallInfo&        call_info,
-                                                                       format::HandleId          object_id,
-                                                                       UINT                      RootParameterIndex,
-                                                                       D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -512,11 +587,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }  
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(const ApiCallInfo&        call_info,
-                                                                        format::HandleId          object_id,
-                                                                        UINT                      RootParameterIndex,
-                                                                        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -531,11 +606,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }  
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(const ApiCallInfo&        call_info,
-                                                                       format::HandleId          object_id,
-                                                                       UINT                      RootParameterIndex,
-                                                                       D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -550,11 +625,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         } 
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(const ApiCallInfo&        call_info,
-                                                                        format::HandleId          object_id,
-                                                                        UINT                      RootParameterIndex,
-                                                                        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -569,11 +644,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         }  
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(const ApiCallInfo&        call_info,
-                                                                        format::HandleId          object_id,
-                                                                        UINT                      RootParameterIndex,
-                                                                        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -588,11 +663,11 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         } 
     }
 
-    virtual void
-    Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(const ApiCallInfo&        call_info,
-                                                                         format::HandleId          object_id,
-                                                                         UINT                      RootParameterIndex,
-                                                                         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -612,7 +687,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                  UINT               VertexCountPerInstance,
                                                                  UINT               InstanceCount,
                                                                  UINT               StartVertexLocation,
-                                                                 UINT               StartInstanceLocation)
+                                                                 UINT               StartInstanceLocation) override
     {
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDraw);
     }
@@ -623,7 +698,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                         UINT               InstanceCount,
                                                                         UINT               StartIndexLocation,
                                                                         INT                BaseVertexLocation,
-                                                                        UINT               StartInstanceLocation)
+                                                                        UINT StartInstanceLocation) override
     {
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDraw);
     }
@@ -632,7 +707,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                             format::HandleId   object_id,
                                                             UINT               ThreadGroupCountX,
                                                             UINT               ThreadGroupCountY,
-                                                            UINT               ThreadGroupCountZ)
+                                                            UINT               ThreadGroupCountZ) override
     {
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDispatch);
     }
@@ -644,7 +719,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                    format::HandleId   pArgumentBuffer,
                                                                    UINT64             ArgumentBufferOffset,
                                                                    format::HandleId   pCountBuffer,
-                                                                   UINT64             CountBufferOffset)
+                                                                   UINT64             CountBufferOffset) override
     {
         TrackTargetDrawCall(call_info,
                             object_id,
@@ -657,7 +732,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
 
     virtual void Process_ID3D12GraphicsCommandList_ExecuteBundle(const ApiCallInfo& call_info,
                                                                  format::HandleId   object_id,
-                                                                 format::HandleId   pCommandList)
+                                                                 format::HandleId   pCommandList) override
     {
         TrackTargetDrawCall(call_info,
                             object_id,
@@ -671,7 +746,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
 
     virtual void Process_ID3D12GraphicsCommandList_Close(const ApiCallInfo& call_info,
                                                          format::HandleId   object_id,
-                                                         HRESULT            return_value)
+                                                         HRESULT            return_value) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -690,7 +765,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
     Process_ID3D12CommandQueue_ExecuteCommandLists(const ApiCallInfo&                        call_info,
                                                    format::HandleId                          object_id,
                                                    UINT                                      NumCommandLists,
-                                                   HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
+                                                   HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists) override
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -834,7 +909,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
     bool                is_modified_args{ false };
     DumpResourcesTarget dump_resources_target_{};
     uint32_t            track_submit_index_{ 0 };
-    format::HandleId    target_command_list_{ 0 };
+    format::HandleId    target_command_list_{ format::kNullHandleId };
     uint32_t            target_draw_call_index_{ 0 };
 
     // Key is commandlist_id. We need to know the commandlist of the info because in a commandlist block

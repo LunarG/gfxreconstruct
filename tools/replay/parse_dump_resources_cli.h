@@ -21,6 +21,8 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+#ifndef GFXRECON_PARSE_DUMP_RESOURCES_CLI_H
+#define GFXRECON_PARSE_DUMP_RESOURCES_CLI_H
 
 #include "replay_settings.h"
 
@@ -31,3 +33,5 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
 
 GFXRECON_END_NAMESPACE(parse_dump_resources)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_PARSE_DUMP_RESOURCES_CLI_H

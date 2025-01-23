@@ -25,6 +25,7 @@
 #include "replay_settings.h"
 #include "util/json_util.h"
 #include "util/logging.h"
+#include "decode/vulkan_pre_process_consumer.h"
 
 #include <cstdint>
 #include <string>
@@ -271,56 +272,60 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             dr_json_file >> jargs;
 
             // Transfer jargs to vectors in vulkan_replay_options
-            for (int idx0 = 0; idx0 < jargs["BeginCommandBuffer"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size(); idx0++)
             {
-                vulkan_replay_options.BeginCommandBuffer_Indices.push_back(jargs["BeginCommandBuffer"][idx0]);
+                vulkan_replay_options.BeginCommandBuffer_Indices.push_back(
+                    jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0]);
             }
 
-            for (int idx0 = 0; idx0 < jargs["Draw"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
             {
                 vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs["Draw"][idx0].size(); idx1++)
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DRAW][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs["Draw"][idx0][idx1]);
+                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs[decode::DUMP_ARG_DRAW][idx0][idx1]);
                 }
             }
 
-            for (int idx0 = 0; idx0 < jargs["RenderPass"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_RENDER_PASS].size(); idx0++)
             {
                 vulkan_replay_options.RenderPass_Indices.push_back(std::vector<std::vector<uint64_t>>());
-                for (int idx1 = 0; idx1 < jargs["RenderPass"][idx0].size(); idx1++)
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0].size(); idx1++)
                 {
                     vulkan_replay_options.RenderPass_Indices[idx0].push_back(std::vector<uint64_t>());
-                    for (int idx2 = 0; idx2 < jargs["RenderPass"][idx0][idx1].size(); idx2++)
+                    for (int idx2 = 0; idx2 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0][idx1].size(); idx2++)
                     {
                         vulkan_replay_options.RenderPass_Indices[idx0][idx1].push_back(
-                            jargs["RenderPass"][idx0][idx1][idx2]);
+                            jargs[decode::DUMP_ARG_RENDER_PASS][idx0][idx1][idx2]);
                     }
                 }
             }
 
-            for (int idx0 = 0; idx0 < jargs["TraceRays"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRACE_RAYS].size(); idx0++)
             {
                 vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs["TraceRays"][idx0].size(); idx1++)
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(jargs["TraceRays"][idx0][idx1]);
+                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(
+                        jargs[decode::DUMP_ARG_TRACE_RAYS][idx0][idx1]);
                 }
             }
 
-            for (int idx0 = 0; idx0 < jargs["Dispatch"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DISPATCH].size(); idx0++)
             {
                 vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs["Dispatch"][idx0].size(); idx1++)
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DISPATCH][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(jargs["Dispatch"][idx0][idx1]);
+                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(
+                        jargs[decode::DUMP_ARG_DISPATCH][idx0][idx1]);
                 }
             }
 
-            for (int idx0 = 0; idx0 < jargs["QueueSubmit"].size(); idx0++)
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_QUEUE_SUBMIT].size(); idx0++)
             {
-                uint64_t qs = static_cast<uint64_t>(jargs["QueueSubmit"][idx0]);
-                vulkan_replay_options.QueueSubmit_Indices.push_back(static_cast<uint64_t>(jargs["QueueSubmit"][idx0]));
+                uint64_t qs = static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]);
+                vulkan_replay_options.QueueSubmit_Indices.push_back(
+                    static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]));
             }
         }
         catch (...)
@@ -415,21 +420,21 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     break;
                 }
 
-                if (drargs[i].compare(apos, epos - apos, "BeginCommandBuffer") == 0)
+                if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_BEGIN_COMMAND_BUFFER) == 0)
                     BeginCommandBuffer = num;
-                else if (drargs[i].compare(apos, epos - apos, "Draw") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_DRAW) == 0)
                     Draw = num;
-                else if (drargs[i].compare(apos, epos - apos, "BeginRenderPass") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_BEGIN_RENDER_PASS) == 0)
                     BeginRenderPass = num;
-                else if (drargs[i].compare(apos, epos - apos, "NextSubPass") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_NEXT_SUB_PASS) == 0)
                     NextSubPass.push_back(num);
-                else if (drargs[i].compare(apos, epos - apos, "EndRenderPass") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_END_RENDER_PASS) == 0)
                     EndRenderPass = num;
-                else if (drargs[i].compare(apos, epos - apos, "Dispatch") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_DISPATCH) == 0)
                     Dispatch = num;
-                else if (drargs[i].compare(apos, epos - apos, "TraceRays") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_TRACE_RAYS) == 0)
                     TraceRays = num;
-                else if (drargs[i].compare(apos, epos - apos, "QueueSubmit") == 0)
+                else if (drargs[i].compare(apos, epos - apos, decode::DUMP_ARG_QUEUE_SUBMIT) == 0)
                     QueueSubmit = num;
                 else
                 {
