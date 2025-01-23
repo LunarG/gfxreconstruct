@@ -274,14 +274,15 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
                         if (GetVariableDecorations(object_insn, buffer_reference_info))
                         {
+                            SpvReflectResult spv_result;
                             if (spv_shader_module == std::nullopt)
                             {
                                 // spirv-reflect parsing only on-demand
                                 spv_shader_module = SpvReflectShaderModule();
-                                spvReflectCreateShaderModule(spirv_num_bytes, spirv_code, &spv_shader_module.value());
+                                spv_result        = spvReflectCreateShaderModule(
+                                    spirv_num_bytes, spirv_code, &spv_shader_module.value());
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                             }
-
-                            SpvReflectResult                 spv_result;
                             const SpvReflectTypeDescription* td = nullptr;
 
                             // access-chain starts with descriptor-binding root
@@ -291,6 +292,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                             {
                                 const SpvReflectBlockVariable* block = spvReflectGetEntryPointPushConstantBlock(
                                     &spv_shader_module.value(), spv_shader_module->entry_point_name, &spv_result);
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                                 td = block->type_description;
                             }
                             else
@@ -300,6 +302,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                                                    buffer_reference_info.binding,
                                                                    buffer_reference_info.set,
                                                                    &spv_result);
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                                 td = spv_descriptor_binding->type_description;
 
                                 // spirv_reflect sets the name by tracking SPIR-V instructions like OpName. Some
