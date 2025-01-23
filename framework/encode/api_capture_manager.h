@@ -221,6 +221,7 @@ class ApiCaptureManager
     util::ScreenshotFormat            GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
     auto                              GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
     auto                              GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
+    bool                              GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
 
   protected:
     const format::ApiFamilyId api_family_;

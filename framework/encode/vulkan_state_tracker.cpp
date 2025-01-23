@@ -607,7 +607,8 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
                                            void*            mapped_data,
                                            VkDeviceSize     mapped_offset,
                                            VkDeviceSize     mapped_size,
-                                           VkMemoryMapFlags mapped_flags)
+                                           VkMemoryMapFlags mapped_flags,
+                                           bool             track_assets)
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
@@ -618,7 +619,7 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
     wrapper->mapped_flags  = mapped_flags;
 
     // Scan assets on unmap
-    if (mapped_data == nullptr)
+    if (track_assets && mapped_data == nullptr)
     {
         TrackMappedAssetsWrites(wrapper->handle_id);
     }
@@ -3196,7 +3197,7 @@ void VulkanStateTracker::MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBuf
     }
 }
 
-void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits)
+void VulkanStateTracker::TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits)
 {
     if (pSubmits != nullptr && submitCount)
     {
@@ -3219,7 +3220,7 @@ void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInf
     }
 }
 
-void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits)
+void VulkanStateTracker::TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits)
 {
     if (pSubmits != nullptr && submitCount)
     {
