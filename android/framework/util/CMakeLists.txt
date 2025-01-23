@@ -2,6 +2,7 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.h

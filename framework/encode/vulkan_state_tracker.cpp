@@ -433,6 +433,8 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
             continue;
         }
 
+        std::vector<VkDeviceAddress> to_extract = { build_info.scratchData.deviceAddress };
+
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
             build_info.dstAccelerationStructure);
 
@@ -442,24 +444,26 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
         {
             auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
 
-            std::vector<VkDeviceAddress> to_extract;
             switch (geometry->geometryType)
             {
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_TRIANGLES_KHR:
                 {
-                    to_extract = { geometry->geometry.triangles.vertexData.deviceAddress,
-                                   geometry->geometry.triangles.indexData.deviceAddress,
-                                   geometry->geometry.triangles.transformData.deviceAddress };
+                    for (const auto& address : { geometry->geometry.triangles.vertexData.deviceAddress,
+                                                 geometry->geometry.triangles.indexData.deviceAddress,
+                                                 geometry->geometry.triangles.transformData.deviceAddress })
+                    {
+                        to_extract.push_back(address);
+                    }
                     break;
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_AABBS_KHR:
                 {
-                    to_extract = { geometry->geometry.aabbs.data.deviceAddress };
+                    to_extract.push_back(geometry->geometry.aabbs.data.deviceAddress);
                     break;
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
-                    to_extract = { geometry->geometry.instances.data.deviceAddress };
+                    to_extract.push_back(geometry->geometry.instances.data.deviceAddress);
                     break;
                 }
                 case VK_GEOMETRY_TYPE_MAX_ENUM_KHR:
@@ -479,7 +483,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                 GFXRECON_ASSERT(target_buffer_wrapper != nullptr);
 
                 vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer =
-                    dst_command.input_buffers.emplace_back();
+                    dst_command.input_buffers[target_buffer_wrapper->handle_id];
 
                 buffer.capture_address    = address;
                 buffer.handle             = target_buffer_wrapper->handle;
@@ -530,6 +534,46 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                 cmd_buf_wrapper->tlas_build_info_map.emplace_back(wrapper, tlas_info);
             }
         }
+    }
+}
+
+void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                                               const VkCopyAccelerationStructureInfoKHR* info)
+{
+    // TODO: Support other types of copies (clone, serialize, deserialize)
+    if (info == nullptr || info->mode != VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR)
+    {
+        return;
+    }
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(info->src);
+    if (!wrapper->latest_copy_command_)
+    {
+        wrapper->latest_copy_command_ =
+            vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureCopyCommandData{};
+    }
+    wrapper->latest_copy_command_->device = wrapper->device->handle_id;
+    wrapper->latest_copy_command_->info   = *info;
+}
+
+void VulkanStateTracker::TrackWriteAccelerationStructuresPropertiesCommand(
+    VkCommandBuffer                   commandBuffer,
+    uint32_t                          accelerationStructureCount,
+    const VkAccelerationStructureKHR* pAccelerationStructures,
+    VkQueryType                       queryType,
+    VkQueryPool                       queryPool,
+    uint32_t                          firstQuery)
+{
+    auto* cmd_buf_wrapper    = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+    auto* query_pool_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(queryPool);
+
+    for (uint32_t i = 0; i < accelerationStructureCount; ++i)
+    {
+        auto* wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(pAccelerationStructures[i]);
+        wrapper->latest_write_properties_command_ =
+            vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureWritePropertiesCommandData{};
+        wrapper->latest_write_properties_command_->device     = wrapper->device->handle_id;
+        wrapper->latest_write_properties_command_->query_type = queryType;
     }
 }
 
@@ -1812,16 +1856,24 @@ void VulkanStateTracker::TrackRayTracingPipelineProperties(
     wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
 }
 
+void VulkanStateTracker::TrackAccelerationStructureProperties(
+    VkPhysicalDevice                                    physicalDevice,
+    VkPhysicalDeviceAccelerationStructurePropertiesKHR* acceleration_structure_properties)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    wrapper->acceleration_structure_properties        = *acceleration_structure_properties;
+    wrapper->acceleration_structure_properties->pNext = nullptr;
+}
+
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
                                                            VkPipeline  pipeline,
                                                            size_t      data_size,
                                                            const void* data)
 {
     assert((device != VK_NULL_HANDLE) && (pipeline != VK_NULL_HANDLE));
-
-    auto           wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pipeline);
-    const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
-    wrapper->device_id       = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+    auto  wrapper      = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(pipeline);
+    auto* byte_data    = reinterpret_cast<const uint8_t*>(data);
+    wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->shader_group_handle_data.assign(byte_data, byte_data + data_size);
 }
 
@@ -1979,23 +2031,23 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
             {
                 continue;
             }
-            for (vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer : (*command)->input_buffers)
+
+            auto it = (*command)->input_buffers.find(wrapper->handle_id);
+            if (it != (*command)->input_buffers.end())
             {
-                if (wrapper->handle_id == buffer.handle_id)
-                {
-                    buffer.destroyed              = true;
-                    auto [resource_util, created] = resource_utils_.try_emplace(
-                        buffer.bind_device->handle,
-                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
-                                                      buffer.bind_device->physical_device->handle,
-                                                      buffer.bind_device->layer_table,
-                                                      *buffer.bind_device->physical_device->layer_table_ref,
-                                                      buffer.bind_device->physical_device->memory_properties));
-                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
-                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
-                    resource_util->second.ReadFromBufferResource(
-                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
-                }
+                vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
+                buffer.destroyed                                                        = true;
+                auto [resource_util, created]                                           = resource_utils_.try_emplace(
+                    buffer.bind_device->handle,
+                    graphics::VulkanResourcesUtil(buffer.bind_device->handle,
+                                                  buffer.bind_device->physical_device->handle,
+                                                  buffer.bind_device->layer_table,
+                                                  *buffer.bind_device->physical_device->layer_table_ref,
+                                                  buffer.bind_device->physical_device->memory_properties));
+                buffer.bind_device->layer_table.GetBufferMemoryRequirements(
+                    buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
+                resource_util->second.ReadFromBufferResource(
+                    buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
             }
         }
     });

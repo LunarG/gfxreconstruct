@@ -951,9 +951,38 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
     {
         state_tracker_->TrackAccelerationStructureBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
     }
-
     const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
     device_table->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+}
+
+void VulkanCaptureManager::OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer command_buffer,
+                                                                   const VkCopyAccelerationStructureInfoKHR* pInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackAccelerationStructureCopyCommand(command_buffer, pInfo);
+    }
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(command_buffer);
+    device_table->CmdCopyAccelerationStructureKHR(command_buffer, pInfo);
+}
+
+void VulkanCaptureManager::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+    VkCommandBuffer                   commandBuffer,
+    uint32_t                          accelerationStructureCount,
+    const VkAccelerationStructureKHR* pAccelerationStructures,
+    VkQueryType                       queryType,
+    VkQueryPool                       queryPool,
+    uint32_t                          firstQuery)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackWriteAccelerationStructuresPropertiesCommand(
+            commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+    }
+
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
+    device_table->CmdWriteAccelerationStructuresPropertiesKHR(
+        commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 }
 
 VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                     device,
@@ -1131,6 +1160,15 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice
             state_tracker_->TrackRayTracingPipelineProperties(physicalDevice, raytracing_props);
         }
     }
+
+    if (auto acceleration_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceAccelerationStructurePropertiesKHR>(pProperties))
+    {
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackAccelerationStructureProperties(physicalDevice, acceleration_props);
+        }
+    }
 }
 
 VkResult VulkanCaptureManager::OverrideGetPhysicalDeviceToolPropertiesEXT(
@@ -1288,11 +1326,6 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     }
     else
     {
-        GFXRECON_LOG_ERROR_ONCE(
-            "The capturing application used vkCreateRayTracingPipelinesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capturing "
-            "device does not support this feature, so replay may fail.");
-
         if (deferred_operation_wrapper)
         {
             deferred_operation_wrapper->create_infos.clear();
@@ -1379,7 +1412,6 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
             }
         }
     }
-
     return result;
 }
 
@@ -2492,19 +2524,6 @@ void VulkanCaptureManager::PreProcess_vkGetAccelerationStructureDeviceAddressKHR
             "The application is using vkGetAccelerationStructureDeviceAddressKHR, which may require the "
             "accelerationStructureCaptureReplay feature for accurate capture and replay. The capture device does not "
             "support this feature, so replay of the captured file may fail.");
-    }
-}
-
-void VulkanCaptureManager::PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
-    VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData)
-{
-    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    if (!device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The application is using vkGetRayTracingShaderGroupHandlesKHR, which may require the "
-            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capture "
-            "device does not support this feature, so replay of the captured file may fail.");
     }
 }
 

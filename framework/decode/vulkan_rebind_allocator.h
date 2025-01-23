@@ -446,6 +446,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
     VkQueue                          staging_queue_ = VK_NULL_HANDLE;
     uint32_t                         staging_queue_family_{};
+
+    //! define a general minimum alignment for buffers
+    uint32_t min_buffer_alignment_ = 128;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -298,6 +298,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
                                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
 
+    void OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer                           command_buffer,
+                                                 const VkCopyAccelerationStructureInfoKHR* pInfo);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer commandBuffer,
+                                                             uint32_t        accelerationStructureCount,
+                                                             const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                             VkQueryType                       queryType,
+                                                             VkQueryPool                       queryPool,
+                                                             uint32_t                          firstQuery);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,
@@ -1259,9 +1269,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
                                                           const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
-
-    void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
-        VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
 
     void PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice                                  device,
                                                                 const struct AHardwareBuffer*             buffer,

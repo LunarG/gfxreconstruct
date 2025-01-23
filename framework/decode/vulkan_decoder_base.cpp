@@ -578,35 +578,12 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
     bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
-    bytes_read += ppRangeInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
-
-    std::vector<std::vector<VkAccelerationStructureInstanceKHR>> instance_buffers;
-    if (bytes_read < buffer_size)
-    {
-        for (uint32_t i = 0; i < pInfos.GetLength(); ++i)
-        {
-            if (pInfos.GetPointer()[i].type != VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
-            {
-                continue;
-            }
-
-            uint32_t geometry_count = pInfos.GetPointer()[i].geometryCount;
-            for (uint32_t g = 0; g < geometry_count; ++g)
-            {
-                instance_buffers.emplace_back(ppRangeInfos.GetPointer()[g]->primitiveCount);
-                util::platform::MemoryCopy(instance_buffers.back().data(),
-                                           instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR),
-                                           parameter_buffer + bytes_read,
-                                           instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR));
-                bytes_read += instance_buffers.back().size() * sizeof(VkAccelerationStructureInstanceKHR);
-            }
-        }
-    }
+    ppRangeInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
 
     for (auto consumer : consumers_)
     {
         consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
-            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos, instance_buffers);
+            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
     }
 }
 
@@ -617,7 +594,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfos;
 
     std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
-    pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
+    bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
 
     for (auto consumer : consumers_)
     {

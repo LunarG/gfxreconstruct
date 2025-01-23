@@ -56,7 +56,7 @@
 #include "decode/vulkan_enum_util.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "util/logging.h"
+#include "util/alignment_utils.h"
 #include "util/platform.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -248,7 +248,9 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
 
     if ((create_info != nullptr) && (buffer != nullptr) && (allocator_data != nullptr))
     {
-        result = functions_.create_buffer(device_, create_info, nullptr, buffer);
+        auto modified_info = *create_info;
+        modified_info.size = util::aligned_value(create_info->size, min_buffer_alignment_);
+        result             = functions_.create_buffer(device_, &modified_info, nullptr, buffer);
 
         if (result >= 0)
         {
@@ -557,6 +559,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
 
         VkMemoryRequirements requirements;
         functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+        requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
 
         VmaAllocationCreateInfo create_info;
         create_info.flags = 0;
@@ -640,6 +643,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
 
                 VkMemoryRequirements requirements;
                 functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+                requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
 
                 VmaAllocationCreateInfo create_info;
                 create_info.flags = 0;

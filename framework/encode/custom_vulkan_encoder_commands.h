@@ -1021,16 +1021,6 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructur
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, Args... args)
-    {
-        manager->PreProcess_vkGetRayTracingShaderGroupHandlesKHR(args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>
 {
     template <typename... Args>
