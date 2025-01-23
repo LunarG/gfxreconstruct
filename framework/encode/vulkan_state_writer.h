@@ -156,7 +156,7 @@ class VulkanStateWriter
 
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
-    void WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table);
+    void WriteRayTracingPropertiesState(const VulkanStateTable& state_table);
 
     void WriteRayTracingShaderGroupHandlesState(const VulkanStateTable& state_table);
 
@@ -393,12 +393,8 @@ class VulkanStateWriter
     void EncodeAccelerationStructureBuildMetaCommand(format::HandleId                             device_id,
                                                      const AccelerationStructureBuildCommandData& command);
 
-    struct AccelerationStructureCopyCommandData
-    {
-        std::vector<VkCopyAccelerationStructureInfoKHR> infos;
-    };
-    void EncodeAccelerationStructureCopyMetaCommand(format::HandleId                            device_id,
-                                                    const AccelerationStructureCopyCommandData& command);
+    void EncodeAccelerationStructuresCopyMetaCommand(format::HandleId                                       device_id,
+                                                     const std::vector<VkCopyAccelerationStructureInfoKHR>& infos);
 
     struct AccelerationStructureWritePropertiesCommandData
     {

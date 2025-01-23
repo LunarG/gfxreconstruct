@@ -146,8 +146,9 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 
-    // Track RayTracingPipelinePropertiesKHR
-    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> ray_tracing_pipeline_properties;
+    // Track RayTracingPipeline / AccelerationStructure properties
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    ray_tracing_pipeline_properties;
+    std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
@@ -586,7 +587,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
         VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
         std::unique_ptr<uint8_t[]>                            geometry_info_memory;
         std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
-        std::vector<ASInputBuffer>                            input_buffers;
+        std::unordered_map<format::HandleId, ASInputBuffer>   input_buffers;
     };
     std::optional<AccelerationStructureKHRBuildCommandData> latest_update_command_{ std::nullopt };
     std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };

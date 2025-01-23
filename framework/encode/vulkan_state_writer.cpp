@@ -137,7 +137,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
 
     // physical-device / raytracing properties
-    WriteRayTracingPipelinePropertiesState(state_table);
+    WriteRayTracingPropertiesState(state_table);
 
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
@@ -1435,7 +1435,7 @@ void VulkanStateWriter::BeginAccelerationStructuresSection(format::HandleId devi
     begin_cmd.thread_id         = thread_id_;
     begin_cmd.device_id         = device_id;
     begin_cmd.max_resource_size = max_resource_size;
-    // Our buffers should not need staging copy as the memroy should be host visible and coherent
+    // Our buffers should not need staging copy as the memory should be host visible and coherent
     begin_cmd.max_copy_size = 0;
 
     output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
@@ -1665,7 +1665,6 @@ void VulkanStateWriter::WriteTlasToBlasDependenciesMetadata(const VulkanStateTab
     });
 }
 
-// Rename this to represent the whole acc structure prepare process
 void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table)
 {
     struct AccelerationStructureCommands
@@ -1673,7 +1672,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         std::vector<AccelerationStructureBuildCommandData*>          blas_build;
         std::vector<AccelerationStructureBuildCommandData*>          tlas_build;
         std::vector<AccelerationStructureWritePropertiesCommandData> write_properties;
-        AccelerationStructureCopyCommandData                         copies;
+        std::vector<VkCopyAccelerationStructureInfoKHR>              copy_infos;
         std::vector<AccelerationStructureBuildCommandData*>          blas_update;
         std::vector<AccelerationStructureBuildCommandData*>          tlas_update;
     };
@@ -1702,8 +1701,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         if (wrapper->latest_build_command_)
         {
             build_container->push_back(&wrapper->latest_build_command_.value());
-            for (const vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer :
-                 wrapper->latest_build_command_->input_buffers)
+            for (const auto& [handle_id, buffer] : wrapper->latest_build_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1712,8 +1710,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         if (wrapper->latest_update_command_)
         {
             update_container->push_back(&wrapper->latest_update_command_.value());
-            for (const vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer :
-                 wrapper->latest_update_command_->input_buffers)
+            for (const auto& [handle_id, buffer] : wrapper->latest_update_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1721,7 +1718,13 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
         if (wrapper->latest_copy_command_)
         {
-            per_device_container.copies.infos.push_back(wrapper->latest_copy_command_.value().info);
+            // filter out stale handles
+            auto get_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>;
+            if (get_id(wrapper->latest_copy_command_->info.src, false) != 0 &&
+                get_id(wrapper->latest_copy_command_->info.dst, false) != 0)
+            {
+                per_device_container.copy_infos.push_back(wrapper->latest_copy_command_.value().info);
+            }
         }
 
         if (wrapper->latest_write_properties_command_)
@@ -1745,7 +1748,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             EncodeAccelerationStructureWritePropertiesCommand(device, cmd_properties);
         }
 
-        EncodeAccelerationStructureCopyMetaCommand(device, command.copies);
+        EncodeAccelerationStructuresCopyMetaCommand(device, command.copy_infos);
 
         for (auto& tlas_build : command.tlas_build)
         {
@@ -1768,7 +1771,7 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&      device,
                                                              AccelerationStructureBuildCommandData& command)
 {
-    for (ASInputBuffer& buffer : command.input_buffers)
+    for (auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
@@ -1780,7 +1783,7 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
 
     UpdateAddresses(command);
     EncodeAccelerationStructureBuildMetaCommand(device, command);
-    for (ASInputBuffer& buffer : command.input_buffers)
+    for (auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
@@ -1830,7 +1833,7 @@ void VulkanStateWriter::UpdateAddresses(AccelerationStructureBuildCommandData& c
         }
     }
 
-    for (const ASInputBuffer& buffer : command.input_buffers)
+    for (const auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
         {
@@ -1875,8 +1878,8 @@ void VulkanStateWriter::EncodeAccelerationStructureBuildMetaCommand(
     ++blocks_written_;
 }
 
-void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::HandleId device_id,
-                                                                   const AccelerationStructureCopyCommandData& command)
+void VulkanStateWriter::EncodeAccelerationStructuresCopyMetaCommand(
+    format::HandleId device_id, const std::vector<VkCopyAccelerationStructureInfoKHR>& infos)
 {
     parameter_stream_.Clear();
 
@@ -1887,15 +1890,12 @@ void VulkanStateWriter::EncodeAccelerationStructureCopyMetaCommand(format::Handl
         format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kVulkanCopyAccelerationStructuresCommand);
 
     encoder_.EncodeHandleIdValue(device_id);
-    EncodeStructArray(&encoder_, command.infos.data(), command.infos.size());
-
+    EncodeStructArray(&encoder_, infos.data(), infos.size());
     header.meta_header.block_header.size += parameter_stream_.GetDataSize();
 
     output_stream_->Write(&header, sizeof(header));
     output_stream_->Write(parameter_stream_.GetData(), parameter_stream_.GetDataSize());
-
     parameter_stream_.Clear();
-
     ++blocks_written_;
 }
 
@@ -1943,7 +1943,7 @@ void VulkanStateWriter::WriteGetAccelerationStructureDeviceAddressKHRCall(
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table)
+void VulkanStateWriter::WriteRayTracingPropertiesState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -1952,9 +1952,17 @@ void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanState
         {
             parameter_stream_.Clear();
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
+
+            // pNext-chaining
+            auto pipeline_props  = *wrapper->ray_tracing_pipeline_properties;
+            pipeline_props.pNext = wrapper->acceleration_structure_properties
+                                       ? (void*)&wrapper->acceleration_structure_properties.value()
+                                       : nullptr;
+
             VkPhysicalDeviceProperties2 properties2 = {};
             properties2.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
+            properties2.pNext                       = &pipeline_props;
+
             EncodeStructPtr(&encoder_, &properties2);
             WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
             parameter_stream_.Clear();
