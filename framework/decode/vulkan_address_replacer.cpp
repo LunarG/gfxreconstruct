@@ -413,7 +413,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
-                if (region != nullptr)
+                if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
                     uint32_t num_handles_limit = region->size / region->stride;
                     auto     group_size        = static_cast<uint32_t>(util::aligned_value(
@@ -443,7 +443,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             sbt_offset         = 0;
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
-                if (region != nullptr)
+                if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
                     // assign shadow-sbt-address
                     region->deviceAddress = shadow_buf_context.device_address + sbt_offset;
