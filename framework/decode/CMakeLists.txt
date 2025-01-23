@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2023 LunarG, Inc.
-# Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
+# Copyright (c) 2019-2025 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -143,8 +143,6 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracked_object_info_table.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_browse_consumer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dump_resources.h>
@@ -273,6 +271,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/ags_detection_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.h
+                    ${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.cpp
                )
 endif()
 

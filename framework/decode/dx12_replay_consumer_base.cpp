@@ -117,7 +117,9 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
+#ifdef GFXRECON_AGS_SUPPORT
     SetAgsMarkerInjector();
+#endif
 
     DetectAdapters();
 
@@ -126,6 +128,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         std::make_unique<Dx12ResourceValueMapper>(get_object_func, shader_id_map_, gpu_va_map_, descriptor_map_);
 }
 
+#ifdef GFXRECON_AGS_SUPPORT
 void Dx12ReplayConsumerBase::SetAgsMarkerInjector(AGSContext* ags_context)
 {
     if (options_.ags_inject_markers)
@@ -160,6 +163,7 @@ void Dx12ReplayConsumerBase::SetAgsMarkerInjector(AGSContext* ags_context)
         }
     }
 }
+#endif
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
 {
@@ -1115,7 +1119,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
     IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
 
     auto replay_result = E_FAIL;
-
+#ifdef GFXRECON_AGS_SUPPORT
     if (options_.ags_inject_markers)
     {
         AGSDX12DeviceCreationParams creation_params = {};
@@ -1157,6 +1161,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
         }
     }
     else
+#endif
     {
         replay_result =
             D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());

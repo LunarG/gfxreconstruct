@@ -114,8 +114,17 @@ class Dx12ReplayConsumerBodyGenerator(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
+        self.newline()
+        write(
+            '#ifdef GFXRECON_AGS_SUPPORT',
+            file=self.outFile
+        )
         write(
             '#include "decode/gpu_cmd_wrapper.h"',
+            file=self.outFile
+        )
+        write(
+            '#endif',
             file=self.outFile
         )
         self.newline()
@@ -170,8 +179,12 @@ class Dx12ReplayConsumerBodyGenerator(
             )
 
             if 'ID3D12GraphicsCommandList' in class_name:
+                    cmddef += ("#ifdef GFXRECON_AGS_SUPPORT\n".format(method)
+                    )
                     cmddef += (
-                        "        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_{0}, GetCurrentBlockIndex());\n\n".format(method)
+                        "        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_{0}, GetCurrentBlockIndex());\n".format(method)
+                    )
+                    cmddef += ("#endif\n\n".format(method)
                     )
 
             body = self.make_consumer_func_body(return_type, method, values)
