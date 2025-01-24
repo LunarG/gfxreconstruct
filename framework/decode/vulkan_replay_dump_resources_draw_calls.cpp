@@ -1496,13 +1496,19 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     {
         min_max_vertex_indices.min = std::numeric_limits<uint32_t>::max();
 
-        // Store all (indexCount, firstIndex) pairs used by all draw calls (in case of indirect)
-        // associated with this index buffer. Then we will parse the index buffer using all these pairs in order to
-        // detect the greatest index.
-        std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs;
+        struct DrawIndexedParams
+        {
+            uint32_t index_count;
+            uint32_t first_index;
+            int32_t  vertex_offset;
+        };
 
-        uint32_t abs_index_count        = 0;
-        int32_t  greatest_vertex_offset = 0;
+        // Store all indexCount, firstIndex and vertexOffset used by all draw calls (in case of indirect)
+        // associated with this index buffer. Then we will parse the index buffer using all these pairs
+        // in order to detect the greatest index which should help calculate the size of the vertex buffer
+        // actually used by the draw calls.
+        std::vector<DrawIndexedParams> indexed_params;
+        uint32_t                       abs_index_count = 0;
 
         if (IsDrawCallIndirect(dc_params.type))
         {
@@ -1519,18 +1525,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
 
-                        index_count_first_index_pairs.emplace_back(
-                            std::make_pair(indirect_index_count, indirect_first_index));
-
                         if (abs_index_count < indirect_index_count + indirect_first_index)
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
                         }
 
-                        if (greatest_vertex_offset < ic_params.draw_indexed_params[d].vertexOffset)
-                        {
-                            greatest_vertex_offset = ic_params.draw_indexed_params[d].vertexOffset;
-                        }
+                        indexed_params.emplace_back(DrawIndexedParams{ indirect_index_count,
+                                                                       indirect_first_index,
+                                                                       ic_params.draw_indexed_params[d].vertexOffset });
                     }
                 }
             }
@@ -1547,18 +1549,13 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = i_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
 
-                        index_count_first_index_pairs.emplace_back(
-                            std::make_pair(indirect_index_count, indirect_first_index));
-
                         if (abs_index_count < indirect_index_count + indirect_first_index)
                         {
                             abs_index_count = indirect_index_count + indirect_first_index;
                         }
 
-                        if (greatest_vertex_offset < i_params.draw_indexed_params[d].vertexOffset)
-                        {
-                            greatest_vertex_offset = i_params.draw_indexed_params[d].vertexOffset;
-                        }
+                        indexed_params.emplace_back(DrawIndexedParams{
+                            indirect_index_count, indirect_first_index, i_params.draw_indexed_params[d].vertexOffset });
                     }
                 }
             }
@@ -1567,10 +1564,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         {
             const uint32_t index_count = dc_params.dc_params_union.draw_indexed.indexCount;
             const uint32_t first_index = dc_params.dc_params_union.draw_indexed.firstIndex;
+            abs_index_count            = index_count + first_index;
 
-            index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
-            abs_index_count        = index_count + first_index;
-            greatest_vertex_offset = dc_params.dc_params_union.draw_indexed.vertexOffset;
+            indexed_params.emplace_back(
+                DrawIndexedParams{ index_count, first_index, dc_params.dc_params_union.draw_indexed.vertexOffset });
         }
 
         if (abs_index_count)
@@ -1616,10 +1613,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             }
 
             // Parse all indices in order to find the smallest and greatest index
-            for (const auto& pairs : index_count_first_index_pairs)
+            for (const auto& params : indexed_params)
             {
                 MinMaxVertexIndex min_max_indices = FindMinMaxVertexIndices(
-                    res_info.data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
+                    res_info.data, params.index_count, params.first_index, params.vertex_offset, index_type);
                 if (min_max_indices.min < min_max_vertex_indices.min)
                 {
                     min_max_vertex_indices.min = min_max_indices.min;
