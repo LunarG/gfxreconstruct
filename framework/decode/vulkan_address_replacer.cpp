@@ -347,19 +347,31 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         hashmap_sbt_.get_storage(pipeline_context_sbt.hashmap_storage.mapped_data);
 
         // input-handles
-        constexpr uint32_t max_num_handles = 4;
+        constexpr uint32_t max_num_handles = 512;
         if (!create_buffer(pipeline_context_sbt.input_handle_buffer, max_num_handles * sizeof(VkDeviceAddress)))
         {
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
         }
         auto input_addresses = reinterpret_cast<VkDeviceAddress*>(pipeline_context_sbt.input_handle_buffer.mapped_data);
+
+        std::unordered_map<const VkStridedDeviceAddressRegionKHR*, uint32_t> num_handles_map;
         uint32_t num_addresses = 0;
 
-        for (const auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
         {
-            if (region != nullptr && region->size)
+            const auto handle_size_capture = static_cast<uint32_t>(util::aligned_value(
+                capture_ray_properties_->shaderGroupHandleSize, capture_ray_properties_->shaderGroupHandleAlignment));
+
+            for (const auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
-                input_addresses[num_addresses++] = region->deviceAddress;
+                if (region != nullptr && region->size != 0 && region->stride != 0)
+                {
+                    num_handles_map[region] = region->size / region->stride;
+
+                    for (uint32_t offset = 0; offset < region->size; offset += region->stride)
+                    {
+                        input_addresses[num_addresses++] = region->deviceAddress + offset;
+                    }
+                }
             }
         }
 
@@ -413,7 +425,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
-                if (region != nullptr)
+                if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
                     uint32_t num_handles_limit = region->size / region->stride;
                     auto     group_size        = static_cast<uint32_t>(util::aligned_value(
@@ -443,14 +455,21 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             sbt_offset         = 0;
             for (auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
-                if (region != nullptr)
+                if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
+                    uint32_t num_handles = num_handles_map[region];
+
                     // assign shadow-sbt-address
                     region->deviceAddress = shadow_buf_context.device_address + sbt_offset;
+
+                    for (uint32_t i = 0; i < num_handles; ++i)
+                    {
+                        output_addresses[out_index++] = region->deviceAddress + i * handle_size_aligned;
+                    }
                     sbt_offset += region->size;
-                    output_addresses[out_index++] = region->deviceAddress;
                 }
             }
+            GFXRECON_ASSERT(out_index == num_addresses);
         }
 
         device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_sbt_);
