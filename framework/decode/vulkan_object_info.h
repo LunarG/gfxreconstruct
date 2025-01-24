@@ -433,34 +433,6 @@ struct VulkanPipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 
 struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
 {
-    // All information stored in ShaderModuleInfo is populated and used
-    // by the dump resources feature
-    struct ShaderDescriptorInfo
-    {
-        ShaderDescriptorInfo(
-            VkDescriptorType _type, bool _readonly, uint32_t _accessed, uint32_t _count, bool _is_array) :
-            type(_type),
-            readonly(_readonly), accessed(_accessed), count(_count), is_array(_is_array)
-        {}
-
-        ShaderDescriptorInfo(const ShaderDescriptorInfo& other)            = default;
-        ShaderDescriptorInfo& operator=(const ShaderDescriptorInfo& other) = default;
-
-        VkDescriptorType type;
-        bool             readonly;
-        uint32_t         accessed;
-        uint32_t         count;
-        bool             is_array;
-    };
-
-    // One entry per descriptor binding
-    using ShaderDescriptorSetInfo = std::map<uint32_t, ShaderDescriptorInfo>;
-
-    // One entry per descriptor set
-    using ShaderDescriptorSetsInfos = std::map<uint32_t, ShaderDescriptorSetInfo>;
-
-    ShaderDescriptorSetsInfos used_descriptors_info;
-
     // keep track of existing usage of buffer-references
     std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 };
@@ -468,10 +440,6 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
 struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
-
-    // shader modules used during creation of this pipeline,
-    // NOTE: this can be circumvented by inlined SPIRV
-    std::unordered_map<VkShaderStageFlagBits, VulkanShaderModuleInfo> shaders;
 
     // keep track of existing usage of buffer-references
     std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
@@ -677,9 +645,10 @@ struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLa
 {
     struct DescriptorBindingLayout
     {
-        VkDescriptorType type;
-        uint32_t         binding;
-        uint32_t         count;
+        VkDescriptorType   type;
+        uint32_t           binding;
+        uint32_t           count;
+        VkShaderStageFlags stage_flags;
     };
 
     std::vector<DescriptorBindingLayout> bindings_layout;
@@ -701,6 +670,7 @@ struct VulkanDescriptorTypeBufferInfo
 struct VulkanDescriptorSetBindingInfo
 {
     VkDescriptorType                            desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    VkShaderStageFlags                          stage_flags{ 0 };
     std::vector<VulkanDescriptorTypeImageInfo>  image_info;
     std::vector<VulkanDescriptorTypeBufferInfo> buffer_info;
     std::vector<const VulkanBufferViewInfo*>    texel_buffer_view_info;

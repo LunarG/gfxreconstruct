@@ -61,11 +61,6 @@ class SpirVParsingUtil
 
     [[nodiscard]] std::vector<BufferReferenceInfo> GetBufferReferenceInfos() const;
 
-    bool SPIRVReflectPerformReflectionOnShaderModule(
-        size_t                                                          spirv_size,
-        const uint32_t*                                                 spirv_code,
-        encode::vulkan_state_info::ShaderReflectionDescriptorSetsInfos& reflection);
-
   private:
     class Instruction;
 
