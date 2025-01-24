@@ -2370,6 +2370,197 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
     }
     return false;
 }
+// for Linking Graphics Pipelines Libraries start[--
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+std::vector<VkPipeline> libraries(3);
+std::vector<VkPipeline> pipeLibraries(4);
+
+void VulkanReplayConsumerBase::LinkGraphicsPipelines(const VkGraphicsPipelineCreateInfo* createInfo)
+{
+    if (createInfo->flags == 0x0 && createInfo->pNext != nullptr)
+    {
+        const VkPipelineCreationFeedbackCreateInfo* feedbackInfo =
+            (reinterpret_cast<const VkPipelineCreationFeedbackCreateInfo*>(createInfo->pNext));
+        if (feedbackInfo->pNext != nullptr)
+        {
+            const VkPipelineLibraryCreateInfoKHR* pipelineLibraryInfo =
+                (reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(feedbackInfo->pNext));
+            const VkDescriptorSetVariableDescriptorCountAllocateInfo* libraryLinkInfo =
+                (reinterpret_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfo*>(
+                    pipelineLibraryInfo->pNext));
+            VkPipelineLibraryCreateInfoKHR* pTempLibraries =
+                (const_cast<VkPipelineLibraryCreateInfoKHR*>(pipelineLibraryInfo));
+            pTempLibraries->pLibraries = nullptr;
+            if (libraryLinkInfo != nullptr)
+            {
+                if (libraryLinkInfo->descriptorSetCount == 4)
+                {
+                    GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:descriptorSetCount=%d[%d][%d][%d][%d]",
+                                         libraryLinkInfo->descriptorSetCount,
+                                         libraryLinkInfo->pDescriptorCounts[0],
+                                         libraryLinkInfo->pDescriptorCounts[1],
+                                         libraryLinkInfo->pDescriptorCounts[2],
+                                         libraryLinkInfo->pDescriptorCounts[3]);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:descriptorSetCount=%d[%d][%d][%d]",
+                                         libraryLinkInfo->descriptorSetCount,
+                                         libraryLinkInfo->pDescriptorCounts[0],
+                                         libraryLinkInfo->pDescriptorCounts[1],
+                                         libraryLinkInfo->pDescriptorCounts[2]);
+                }
+                std::vector<VkPipeline> pipelines(pipelineLibraryInfo->libraryCount);
+                if (libraryLinkInfo->pDescriptorCounts[0] >= vertexInputPipelines.size())
+                {
+                    pipelines[0] = vertexInputPipelines[vertexInputPipelines.size() - 1];
+                }
+                else
+                {
+                    for (size_t i = 0; i < vertexInputPipelines.size(); i++)
+                    {
+                        if (libraryLinkInfo->pDescriptorCounts[0] == i)
+                        {
+                            pipelines[0] = vertexInputPipelines[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (libraryLinkInfo->pDescriptorCounts[1] >= shadersPipelines.size())
+                {
+                    pipelines[1] = shadersPipelines[shadersPipelines.size() - 1];
+                }
+                else
+                {
+                    for (size_t j = 0; j < shadersPipelines.size(); j++)
+                    {
+                        if (libraryLinkInfo->pDescriptorCounts[1] == j)
+                        {
+                            pipelines[1] = shadersPipelines[j];
+                            break;
+                        }
+                    }
+                }
+
+                if (pipelineLibraryInfo->libraryCount == 4)
+                {
+                    if (libraryLinkInfo->pDescriptorCounts[2] >= fragmentShaderPipelines.size())
+                    {
+                        pipelines[2] = fragmentShaderPipelines[fragmentShaderPipelines.size() - 1];
+                    }
+                    else
+                    {
+                        for (size_t k = 0; k < fragmentShaderPipelines.size(); k++)
+                        {
+                            if (libraryLinkInfo->pDescriptorCounts[2] == k)
+                            {
+                                pipelines[2] = fragmentShaderPipelines[k];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (libraryLinkInfo->pDescriptorCounts[3] >= fragmentOutputPipelines.size())
+                    {
+                        pipelines[3] = fragmentOutputPipelines[fragmentOutputPipelines.size() - 1];
+                    }
+                    else
+                    {
+                        for (size_t l = 0; l < fragmentOutputPipelines.size(); l++)
+                        {
+                            if (libraryLinkInfo->pDescriptorCounts[3] == l)
+                            {
+                                pipelines[3] = fragmentOutputPipelines[l];
+                                break;
+                            }
+                        }
+                    }
+
+                    pipeLibraries.swap(pipelines);
+                    pTempLibraries->pLibraries = pipeLibraries.data();
+                    GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:libraryCount=%d,pLibraries[0]=%p,"
+                                         "pLibraries[1]=%p,pLibraries[2]=%p,pLibraries[3]=%p",
+                                         pipelineLibraryInfo->libraryCount,
+                                         pipelineLibraryInfo->pLibraries[0],
+                                         pipelineLibraryInfo->pLibraries[1],
+                                         pipelineLibraryInfo->pLibraries[2],
+                                         pipelineLibraryInfo->pLibraries[3]);
+                }
+                else
+                {
+                    for (size_t k = 0; k < fragmentOutputPipelines.size(); k++)
+                    {
+                        if (libraryLinkInfo->pDescriptorCounts[2] == k)
+                        {
+                            pipelines[2] = fragmentOutputPipelines[k];
+                            break;
+                        }
+                    }
+
+                    libraries.swap(pipelines);
+                    pTempLibraries->pLibraries = libraries.data();
+                    GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:libraryCount=%d,pLibraries[0]=%p,"
+                                         "pLibraries[1]=%p,pLibraries[2]=%p",
+                                         pipelineLibraryInfo->libraryCount,
+                                         pipelineLibraryInfo->pLibraries[0],
+                                         pipelineLibraryInfo->pLibraries[1],
+                                         pipelineLibraryInfo->pLibraries[2]);
+                }
+                pTempLibraries->pNext = nullptr;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:error. libraryLinkInfo == nullptr.");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:gpl off. libraryInfo == nullptr.");
+        }
+    }
+    else if (createInfo->flags == 0x0)
+    {
+        GFXRECON_LOG_WARNING("[replay]vkCreateGraphicsPipelines:link:gpl off. in_pCreateInfos->pNext == nullptr.");
+    }
+}
+
+void VulkanReplayConsumerBase::CompileGraphicsPipelines(const VkGraphicsPipelineCreateInfo* createInfo,
+                                                        VkPipeline*                         pipeline)
+{
+    if (createInfo->flags & VK_PIPELINE_CREATE_LIBRARY_BIT_KHR)
+    {
+        const VkPipelineCreationFeedbackCreateInfo* feedbackInfo =
+            (reinterpret_cast<const VkPipelineCreationFeedbackCreateInfo*>(createInfo->pNext));
+        const VkGraphicsPipelineLibraryCreateInfoEXT* libraryInfo =
+            (reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(feedbackInfo->pNext));
+        GFXRECON_LOG_WARNING(
+            "[replay]vkCreateGraphicsPipelines:compile:flags[0x%x], pPipelines=%p", libraryInfo->flags, *pipeline);
+        if (libraryInfo->flags == VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT)
+        {
+            vertexInputPipelines.push_back(*pipeline);
+        }
+        else if (libraryInfo->flags == (VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT |
+                                        VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT))
+        {
+            shadersPipelines.push_back(*pipeline);
+        }
+        else if (libraryInfo->flags == VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT)
+        {
+            shadersPipelines.push_back(*pipeline);
+        }
+        else if (libraryInfo->flags == VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT)
+        {
+            fragmentShaderPipelines.push_back(*pipeline);
+        }
+        else if (libraryInfo->flags == VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT)
+        {
+            fragmentOutputPipelines.push_back(*pipeline);
+        }
+    }
+}
+#endif
+// for Linking Graphics Pipelines Libraries end--]
 
 bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDeviceInfo* device_info,
                                                                const PNextNode*        pnext)
@@ -10046,12 +10237,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
         maybe_replaced_create_infos = replaced_create_infos;
     }
 
+    // for Linking Graphics Pipelines Libraries
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    LinkGraphicsPipelines(maybe_replaced_create_infos);
+#endif
     VkResult replay_result = func(in_device,
                                   override_pipeline_cache,
                                   create_info_count,
                                   maybe_replaced_create_infos,
                                   in_p_allocation_callbacks,
                                   out_pipelines);
+
+    // for Linking Graphics Pipelines Libraries
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    CompileGraphicsPipelines(maybe_replaced_create_infos, out_pipelines);
+#endif
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
 

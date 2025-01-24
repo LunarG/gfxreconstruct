@@ -5948,6 +5948,18 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalR
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value)
 {
+    // fix gpl issue for release build.
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (value.pNext != nullptr)
+    {
+        auto base = reinterpret_cast<const VkBaseOutStructure*>(value.pNext);
+        if (base->sType == 1)
+        {
+            VkBaseOutStructure* temp = (const_cast<VkBaseOutStructure*>(base));
+            temp->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+        }
+    }
+#endif
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.libraryCount);

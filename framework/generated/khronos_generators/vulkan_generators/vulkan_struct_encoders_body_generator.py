@@ -62,10 +62,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
-            self,
-            err_file=err_file,
-            warn_file=warn_file,
-            diag_file=diag_file
+            self, err_file=err_file, warn_file=warn_file, diag_file=diag_file
         )
 
     def beginFile(self, gen_opts):
@@ -115,6 +112,19 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
                 struct
             )
             body += '{\n'
+            if struct == 'VkPipelineLibraryCreateInfoKHR':
+                body += '    // fix gpl issue for release build.\n'
+                body += '#if defined(VK_USE_PLATFORM_ANDROID_KHR)\n'
+                body += '    if (value.pNext != nullptr)\n'
+                body += '    {\n'
+                body += '        auto base = reinterpret_cast<const VkBaseOutStructure*>(value.pNext);\n'
+                body += '        if (base->sType == 1)\n'
+                body += '        {\n'
+                body += '            VkBaseOutStructure* temp = (const_cast<VkBaseOutStructure*>(base));\n'
+                body += '            temp->sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;\n'
+                body += '        }\n'
+                body += '    }\n'
+                body += '#endif\n'
             body += self.make_struct_body(
                 struct, self.all_struct_members[struct], 'value.'
             )

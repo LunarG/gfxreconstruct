@@ -1345,6 +1345,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
                                        HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder);
 
+    // for Linking Graphics Pipelines Libraries start[--
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    void LinkGraphicsPipelines(const VkGraphicsPipelineCreateInfo* createInfo);
+    void CompileGraphicsPipelines(const VkGraphicsPipelineCreateInfo* createInfo, VkPipeline* pipeline);
+#endif
+    // for Linking Graphics Pipelines Libraries end--]
     void OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID func,
                                       const VulkanDeviceInfo*    device_info,
                                       const VulkanSemaphoreInfo* semaphore_info,
@@ -1675,6 +1681,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
 
+    // for Linking Graphics Piplelines Libraries start[--
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    std::vector<VkPipeline> vertexInputPipelines;
+    std::vector<VkPipeline> shadersPipelines;
+    std::vector<VkPipeline> fragmentShaderPipelines;
+    std::vector<VkPipeline> fragmentOutputPipelines;
+#endif
+    // for Linking Graphics Piplelines Libraries end--]
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //
