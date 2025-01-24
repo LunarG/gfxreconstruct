@@ -1314,12 +1314,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                    const VkDebugUtilsLabelEXT* pLabelInfo);
 
-    void PostProcess_vkCreateShaderModule(VkResult                        result,
-                                          VkDevice                        device,
-                                          const VkShaderModuleCreateInfo* pCreateInfo,
-                                          const VkAllocationCallbacks*    pAllocator,
-                                          VkShaderModule*                 pShaderModule);
-
     void PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
                                              VkPipelineBindPoint    pipelineBindPoint,
                                              VkPipelineLayout       layout,
@@ -1419,31 +1413,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                        VkPipelineBindPoint pipelineBindPoint,
                                        VkPipeline          pipeline);
-
-    void PostProcess_vkCreateGraphicsPipelines(VkResult                            result,
-                                               VkDevice                            device,
-                                               VkPipelineCache                     pipelineCache,
-                                               uint32_t                            createInfoCount,
-                                               const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                               const VkAllocationCallbacks*        pAllocator,
-                                               VkPipeline*                         pPipelines);
-
-    void PostProcess_vkCreateComputePipelines(VkResult                           result,
-                                              VkDevice                           device,
-                                              VkPipelineCache                    pipelineCache,
-                                              uint32_t                           createInfoCount,
-                                              const VkComputePipelineCreateInfo* pCreateInfos,
-                                              const VkAllocationCallbacks*       pAllocator,
-                                              VkPipeline*                        pPipelines);
-
-    void PostProcess_vkCreateRayTracingPipelinesKHR(VkResult                                 result,
-                                                    VkDevice                                 device,
-                                                    VkDeferredOperationKHR                   deferredOperation,
-                                                    VkPipelineCache                          pipelineCache,
-                                                    uint32_t                                 createInfoCount,
-                                                    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-                                                    const VkAllocationCallbacks*             pAllocator,
-                                                    VkPipeline*                              pPipelines);
 
     void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                uint32_t        vertexCount,
