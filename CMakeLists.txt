@@ -139,6 +139,8 @@ endif()
 
 option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
 
+option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" ON)
+
 if(MSVC)
 
     # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):
@@ -174,9 +176,6 @@ if(MSVC)
 
     # Add option to enable/disable D3D12 support.
     option(D3D12_SUPPORT "Build with Direct3D 12 support enabled" ON)
-
-    # Add option to enable/disable D3D12 support.
-    option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" ON)
 
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
