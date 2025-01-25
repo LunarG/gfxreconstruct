@@ -175,6 +175,9 @@ if(MSVC)
     # Add option to enable/disable D3D12 support.
     option(D3D12_SUPPORT "Build with Direct3D 12 support enabled" ON)
 
+    # Add option to enable/disable D3D12 support.
+    option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" ON)
+
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
 	
@@ -380,7 +383,10 @@ if(NOT BUILD_STATIC)
     add_subdirectory(layer)
 endif()
 add_subdirectory(tools)
+
+if(GFXRECON_INCLUDE_TEST_APPS)
 add_subdirectory(test)
+endif()
 
 if (${RUN_TESTS})
     add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)

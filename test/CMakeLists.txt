@@ -25,8 +25,6 @@
 ###############################################################################
 
 
-if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
-    add_subdirectory(test_apps)
-endif ()
+add_subdirectory(test_apps)
 
 # TODO: runner goes here
