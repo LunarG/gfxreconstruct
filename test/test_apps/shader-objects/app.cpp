@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
         app.run("shader objects");
         return 0;
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
         return -1;
