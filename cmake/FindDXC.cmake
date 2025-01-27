@@ -38,6 +38,7 @@ if (${D3D12_SUPPORT})
           DXC_SDK
           URL        ${DXC_SDK_URL}
           SOURCE_DIR ${DXC_SDK_DIR}
+          DOWNLOAD_EXTRACT_TIMESTAMP OFF
         )
         FetchContent_MakeAvailable(DXC_SDK)
         
