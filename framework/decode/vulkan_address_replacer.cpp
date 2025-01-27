@@ -355,7 +355,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         auto input_addresses = reinterpret_cast<VkDeviceAddress*>(pipeline_context_sbt.input_handle_buffer.mapped_data);
 
         std::unordered_map<const VkStridedDeviceAddressRegionKHR*, uint32_t> num_handles_map;
-        uint32_t num_addresses = 0;
+        uint32_t                                                             num_addresses = 0;
 
         {
             const auto handle_size_capture = static_cast<uint32_t>(util::aligned_value(
@@ -578,13 +578,17 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                                                      &build_size_info);
             }
 
+            bool as_buffer_usable = false;
+
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
-            GFXRECON_ASSERT(acceleration_structure_info != nullptr);
-            auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
-            bool  as_buffer_usable =
-                buffer_info != nullptr && buffer_info->size >= build_size_info.accelerationStructureSize;
+            if (acceleration_structure_info != nullptr)
+            {
+                auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
+                as_buffer_usable =
+                    buffer_info != nullptr && buffer_info->size >= build_size_info.accelerationStructureSize;
+            }
 
             // determine required size of scratch-buffer
             uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
