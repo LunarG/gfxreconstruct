@@ -147,7 +147,7 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                              const encode::VulkanDeviceTable*     device_table,
                                              const encode::VulkanInstanceTable*   instance_table,
                                              const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table)
+    device_table_(device_table), object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
     physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
@@ -497,7 +497,20 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                     VK_ACCESS_SHADER_READ_BIT);
         }
 
-        // set previous push-constant data
+        // set previous compute-pipeline, if any
+        if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
+        {
+            auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+                command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+            GFXRECON_ASSERT(previous_pipeline);
+            if (previous_pipeline != nullptr)
+            {
+                device_table_->CmdBindPipeline(
+                    command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+            }
+        }
+
+        // set previous push-constant data, if any
         if (!command_buffer_info->push_constant_data.empty())
         {
             device_table_->CmdPushConstants(command_buffer_info->handle,
@@ -815,7 +828,20 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                         VK_ACCESS_SHADER_READ_BIT);
             }
 
-            // set previous push-constant data
+            // set previous compute-pipeline, if any
+            if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
+            {
+                auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+                    command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+                GFXRECON_ASSERT(previous_pipeline);
+                if (previous_pipeline != nullptr)
+                {
+                    device_table_->CmdBindPipeline(
+                        command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+                }
+            }
+
+            // set previous push-constant data, if any
             if (!command_buffer_info->push_constant_data.empty())
             {
                 device_table_->CmdPushConstants(command_buffer_info->handle,
