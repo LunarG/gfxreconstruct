@@ -7829,7 +7829,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
         auto entry = device_info->opaque_addresses.find(capture_id);
         if (entry != device_info->opaque_addresses.end())
         {
-            modified_create_info.deviceAddress = entry->second;
+            modified_create_info.deviceAddress           = entry->second;
+
+            // assign opaque address, same for capture and replay
+            acceleration_structure_info->capture_address = acceleration_structure_info->replay_address =
+                modified_create_info.deviceAddress;
         }
         else
         {
