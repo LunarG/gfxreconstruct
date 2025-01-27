@@ -214,7 +214,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
     VkBufferUsageFlags usage{ 0 };
 
     std::set<BufferViewWrapper*> buffer_views;
-    
+
     DeviceWrapper*             bind_device{ nullptr };
     const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
