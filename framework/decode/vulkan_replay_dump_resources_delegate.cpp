@@ -1136,7 +1136,8 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
                                    scaling_supported,
                                    options_.dump_resources_image_format,
                                    options_.dump_resources_dump_all_image_subresources,
-                                   options_.dump_resources_dump_raw_images);
+                                   options_.dump_resources_dump_raw_images,
+                                   options_.dump_resources_dump_separate_alpha);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
