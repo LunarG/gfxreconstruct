@@ -413,7 +413,7 @@ void MapStructHandles(Decoded_VkCopyAccelerationStructureInfoKHR* wrapper, const
 
 void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table);
+void MapPNextStructHandles(PNextNode* value, const CommonObjectInfoTable& object_info_table);
 
 void AddStructHandles(format::HandleId parent_id, const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, const VkPhysicalDeviceGroupProperties* handle_struct, CommonObjectInfoTable* object_info_table);
 

@@ -91,21 +91,19 @@ class KhronosBaseStructHandleMappersBodyGenerator():
         extended_struct_func_name = self.get_extended_struct_func_prefix()
         self.newline()
         write(
-            'void Map{}StructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
+            'void Map{}StructHandles(PNextNode* pnext, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
             file=self.outFile
         )
         write('{', file=self.outFile)
         write(
-            '    if ((value != nullptr) && (wrapper != nullptr))',
+            '    while (pnext)',
             file=self.outFile
         )
         write('    {', file=self.outFile)
-        write(
-            '        const {struct}* base = reinterpret_cast<const {struct}*>(value);'.format(struct=self.get_base_input_structure_name()),
-            file=self.outFile
-        )
+        write('        void *wrapper = pnext->GetMetaStructPointer();', file=self.outFile)
+        write('        const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());', file=self.outFile)
         write('', file=self.outFile)
-        write('        switch (base->{})'.format(self.get_struct_type_var_name()), file=self.outFile)
+        write('        switch (*header->{})'.format(self.get_struct_type_var_name()), file=self.outFile)
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
         write(
@@ -134,6 +132,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                 write('            break;', file=self.outFile)
 
         write('        }', file=self.outFile)
+        write('    pnext = header->pNext;', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
@@ -190,7 +189,7 @@ class KhronosBaseStructHandleMappersBodyGenerator():
                 func_id = self.get_extended_struct_func_prefix()
                 body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
-                body += f'            Map{func_id}StructHandles(wrapper->{member.name}->GetPointer(), wrapper->{member.name}->GetMetaStructPointer(), object_info_table);\n'
+                body += f'            Map{func_id}StructHandles(wrapper->{member.name}, object_info_table);\n'
                 body += '        }\n'
             elif map_func:
                 if member.is_array:

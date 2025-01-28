@@ -63,7 +63,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const CommonObjectI
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext, object_mapper);
         }
 
         value->dstSet = handle_mapping::MapHandle<VulkanDescriptorSetInfo>(
