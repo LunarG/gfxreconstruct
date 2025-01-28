@@ -7821,7 +7821,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     acceleration_structure_info->type   = replay_create_info->type;
     acceleration_structure_info->buffer = replay_create_info->buffer;
 
-    if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
+    // even when available, the feature also requires allocator-support
+    bool use_capture_replay_feature = device_info->property_feature_info.feature_accelerationStructureCaptureReplay &&
+                                      device_info->allocator->SupportsOpaqueDeviceAddresses();
+
+    if (use_capture_replay_feature)
     {
         // Set opaque device address
         VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);
