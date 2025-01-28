@@ -35,4 +35,4 @@ Use of the *TestAppBase* is optional.
 ## **Building Test Apps**
 
 Test apps are built as part of the default build CMAKE build process. In order to stop test apps from building, set the
-**GFXRECON_NO_TEST_APPS** environment variable at CMAKE build time.
+**GFXRECON_INCLUDE_TEST_APPS** CMake variable to OFF, e.g. provide `-DGFXRECON_INCLUDE_TEST_APPS=OFF` in your cmake command line.
