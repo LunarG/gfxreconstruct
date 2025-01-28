@@ -218,6 +218,8 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DRUN_TESTS={}'.format('OFF' if args.skip_tests else 'ON'))
         generate_options.append(
+            '-DGFXRECON_INCLUDE_TEST_APPS={}'.format('OFF' if args.skip_tests else 'ON'))
+        generate_options.append(
             '-DGENERATE_TEST_ARCHIVE={}'.format(
                 'ON' if args.test_archive else 'OFF'))
         generate_options.append(
