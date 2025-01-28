@@ -23,7 +23,7 @@
 # Description: CMake test build directives
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.16)
 
 option(RUN_TESTS "Run unit tests" OFF)
 

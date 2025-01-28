@@ -23,7 +23,7 @@
 # Description: CMake code static analysis build directives
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.16)
 
 if(NOT (${CMAKE_GENERATOR} MATCHES "^.*Makefiles$|^Ninja$"))
     if(NOT ("" STREQUAL "${CMAKE_CXX_CLANG_TIDY}"))
