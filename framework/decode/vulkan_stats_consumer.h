@@ -420,7 +420,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::format::HandleId                                                                  device,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
-        gfxrecon::decode::HandlePointerDecoder<VkSwapchainKHR>*                                     pSwapchain)
+        gfxrecon::decode::HandlePointerDecoder<VkSwapchainKHR>*                                     pSwapchain) override
     {
         if (!pCreateInfo->IsNull())
         {
@@ -436,7 +436,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                         uint32_t                                                swapchainCount,
                                         StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfos,
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchains)
+                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchains) override
     {
         if (!pCreateInfos->IsNull())
         {
