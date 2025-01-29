@@ -125,74 +125,18 @@ bool VulkanFileOptimizer::ProcessFunctionCall(const format::BlockHeader& block_h
     return success;
 }
 
-// TODO: This is the same code used by CaptureManager to write function call data. It could be moved to a format
-// utility.
 void VulkanFileOptimizer::WriteFunctionCall(format::ApiCallId               call_id,
                                             format::ThreadId                thread_id,
                                             const util::MemoryOutputStream* parameter_buffer)
 {
-    assert(parameter_buffer != nullptr);
-
-    bool                                 not_compressed      = true;
-    format::CompressedFunctionCallHeader compressed_header   = {};
-    format::FunctionCallHeader           uncompressed_header = {};
-    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
-    size_t                               header_size         = 0;
-    const void*                          header_pointer      = nullptr;
-    size_t                               data_size           = 0;
-    const void*                          data_pointer        = nullptr;
-
-    auto compressor                  = GetCompressor();
-    auto compressed_parameter_buffer = GetCompressedParameterBuffer();
-
-    if (compressor != nullptr)
-    {
-        size_t packet_size = 0;
-        size_t compressed_size =
-            compressor->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer, 0);
-
-        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
-        {
-            data_pointer   = reinterpret_cast<const void*>(compressed_parameter_buffer.data());
-            data_size      = compressed_size;
-            header_pointer = reinterpret_cast<const void*>(&compressed_header);
-            header_size    = sizeof(format::CompressedFunctionCallHeader);
-
-            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
-            compressed_header.api_call_id       = call_id;
-            compressed_header.thread_id         = thread_id;
-            compressed_header.uncompressed_size = uncompressed_size;
-
-            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
-                           sizeof(compressed_header.thread_id) + compressed_size;
-
-            compressed_header.block_header.size = packet_size;
-            not_compressed                      = false;
-        }
-    }
-
-    if (not_compressed)
-    {
-        size_t packet_size = 0;
-        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
-        data_size          = uncompressed_size;
-        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-        header_size        = sizeof(format::FunctionCallHeader);
-
-        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
-        uncompressed_header.api_call_id       = call_id;
-        uncompressed_header.thread_id         = thread_id;
-
-        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
-
-        uncompressed_header.block_header.size = packet_size;
-    }
+    format::function_call_block_t block = format::CreateFunctionCallBlock(
+        call_id, thread_id, parameter_buffer, GetCompressor(), &GetCompressedParameterBuffer());
 
     // Write appropriate function call block header.
-    WriteBytes(header_pointer, header_size);
+    WriteBytes(block.header, block.header_size);
 
     // Write parameter data.
-    WriteBytes(data_pointer, data_size);
+    WriteBytes(block.data, block.data_size);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -27,6 +27,7 @@
 #include "format/format.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/memory_output_stream.h"
 
 #include <string>
 
@@ -94,6 +95,32 @@ bool ValidateFileHeader(const FileHeader& header);
 util::Compressor* CreateCompressor(CompressionType type);
 
 std::string GetCompressionTypeName(CompressionType type);
+
+//! groups memory regions for header & data of an optionally compressed function-block
+struct function_call_block_t
+{
+    char        header[std::max(sizeof(format::FunctionCallHeader), sizeof(format::CompressedFunctionCallHeader))]{};
+    size_t      header_size = 0;
+    const void* data        = nullptr;
+    size_t      data_size   = 0;
+};
+
+/**
+ * @brief   CreateFunctionCallBlock can be used to create an optionally compressed function-call block
+ *          and return pointers to the created header- and data-segments.
+ *
+ * @param   call_id                     provided ApiCallId
+ * @param   thread_id                   provided ThreadId
+ * @param   parameter_buffer            a MemoryOutputStream containing parameters
+ * @param   compressor                  optional compressor, can be nullptr
+ * @param   compressor_scratch_space    optional scratch-space to be used during compression, can be nullptr
+ * @return  a struct grouping pointers for header- and data-segments
+ */
+format::function_call_block_t CreateFunctionCallBlock(format::ApiCallId               call_id,
+                                                      format::ThreadId                thread_id,
+                                                      const util::MemoryOutputStream* parameter_buffer,
+                                                      util::Compressor*               compressor,
+                                                      std::vector<uint8_t>*           compressor_scratch_space);
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

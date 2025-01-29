@@ -3683,76 +3683,23 @@ void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId          
     WriteDestroyDeviceObject(call_id, device_id, object_id, allocator);
 }
 
-// TODO: This is the same code used by CaptureManager to write function call data. It could be moved to a format
-// utility.
 void VulkanStateWriter::WriteFunctionCall(format::ApiCallId         call_id,
                                           util::MemoryOutputStream* parameter_buffer,
                                           util::FileOutputStream*   output_stream)
 {
-    assert(parameter_buffer != nullptr);
+    format::function_call_block_t block = format::CreateFunctionCallBlock(
+        call_id, thread_data_->thread_id_, parameter_buffer, compressor_, &compressed_parameter_buffer_);
 
-    bool                                 not_compressed      = true;
-    format::CompressedFunctionCallHeader compressed_header   = {};
-    format::FunctionCallHeader           uncompressed_header = {};
-    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
-    size_t                               header_size         = 0;
-    const void*                          header_pointer      = nullptr;
-    size_t                               data_size           = 0;
-    const void*                          data_pointer        = nullptr;
-
-    if (compressor_ != nullptr)
-    {
-        size_t packet_size = 0;
-        size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
-
-        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
-        {
-            data_pointer   = reinterpret_cast<const void*>(compressed_parameter_buffer_.data());
-            data_size      = compressed_size;
-            header_pointer = reinterpret_cast<const void*>(&compressed_header);
-            header_size    = sizeof(format::CompressedFunctionCallHeader);
-
-            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
-            compressed_header.api_call_id       = call_id;
-            compressed_header.thread_id         = thread_data_->thread_id_;
-            compressed_header.uncompressed_size = uncompressed_size;
-
-            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
-                           sizeof(compressed_header.thread_id) + compressed_size;
-
-            compressed_header.block_header.size = packet_size;
-            not_compressed                      = false;
-        }
-    }
-
-    if (not_compressed)
-    {
-        size_t packet_size = 0;
-        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
-        data_size          = uncompressed_size;
-        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-        header_size        = sizeof(format::FunctionCallHeader);
-
-        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
-        uncompressed_header.api_call_id       = call_id;
-        uncompressed_header.thread_id         = thread_data_->thread_id_;
-
-        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
-
-        uncompressed_header.block_header.size = packet_size;
-    }
-
-    // Write appropriate function call block header and parameter data
     if (output_stream != nullptr)
     {
-        output_stream->Write(header_pointer, header_size);
-        output_stream->Write(data_pointer, data_size);
+        output_stream->Write(block.header, block.header_size);
+        output_stream->Write(block.data, block.data_size);
     }
     else
     {
-        output_stream_->Write(header_pointer, header_size);
-        output_stream_->Write(data_pointer, data_size);
+        // if using internal output-stream, increment block-count
+        output_stream_->Write(block.header, block.header_size);
+        output_stream_->Write(block.data, block.data_size);
         ++blocks_written_;
     }
 }

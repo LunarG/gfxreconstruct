@@ -40,12 +40,12 @@ class VulkanFileOptimizer : public FileOptimizer
         std::vector<std::unique_ptr<util::VulkanModifierBase>> modifiers;
     };
 
-    VulkanFileOptimizer(VulkanOptimizationData* optimization_data) :
+    explicit VulkanFileOptimizer(VulkanOptimizationData* optimization_data) :
         FileOptimizer(optimization_data->unreferenced_ids), optimization_data_(optimization_data)
     {}
 
   private:
-    virtual bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id) override;
+    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id) override;
 
     void WriteFunctionCall(format::ApiCallId               call_id,
                            format::ThreadId                thread_id,
