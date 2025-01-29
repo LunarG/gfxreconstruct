@@ -119,6 +119,7 @@ jobs:
         git diff --exit-code
     - name: Run build script
       run: |
+        cmake --version
         python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
     - name: Prepare artifacts
       run: |
