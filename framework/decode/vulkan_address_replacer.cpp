@@ -358,25 +358,19 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         uint32_t                                                             num_addresses = 0;
 
         {
-            const auto handle_size_capture = static_cast<uint32_t>(util::aligned_value(
+            const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
                 capture_ray_properties_->shaderGroupHandleSize, capture_ray_properties_->shaderGroupHandleAlignment));
 
             for (const auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    num_addresses_map[region] = region->size / capture_ray_properties_->shaderGroupHandleSize;
+                    // NOTE: if region->stride > capture_handle_size, the excess-data is considered a shaderRecord
+                    num_addresses_map[region] = region->size / handle_size_aligned;
 
-                    uint32_t capture_handle_size = capture_ray_properties_->shaderGroupHandleSize;
-                    if (region->stride > capture_handle_size)
+                    // populate input-addresses, which are handles to replace and shaderRecord data to pass-through
+                    for (uint32_t offset = 0; offset < region->size; offset += handle_size_aligned)
                     {
-                        uint32_t payload_size = region->stride - capture_handle_size;
-                        GFXRECON_LOG_DEBUG("Extra data in sbt: %d", payload_size);
-                    }
-
-                    for (uint32_t offset = 0; offset < region->size; offset += capture_handle_size)
-                    {
-                        // input-address are handles and extra data
                         input_addresses[num_addresses++] = region->deviceAddress + offset;
                     }
                 }
@@ -435,9 +429,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    uint32_t num_handles_limit = region->size / region->stride;
-                    auto     group_size        = static_cast<uint32_t>(util::aligned_value(
-                        num_handles_limit * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
+                    uint32_t num_handles = num_addresses_map[region];
+                    auto     group_size  = static_cast<uint32_t>(util::aligned_value(
+                        num_handles * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
 
                     // increase group-size/stride, if required
                     region->size   = std::max<VkDeviceSize>(group_size, region->size);
@@ -515,6 +509,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             GFXRECON_ASSERT(previous_pipeline);
             if (previous_pipeline != nullptr)
             {
+                GFXRECON_LOG_INFO_ONCE(
+                    "VulkanAddressReplacer::ProcessCmdTraceRays: Replay is injecting compute-dispatches, "
+                    "originally bound compute-pipelines are restored.");
                 device_table_->CmdBindPipeline(
                     command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
             }
@@ -844,8 +841,12 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 auto* previous_pipeline = object_table_->GetVkPipelineInfo(
                     command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
                 GFXRECON_ASSERT(previous_pipeline);
+
                 if (previous_pipeline != nullptr)
                 {
+                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is "
+                                           "injecting compute-dispatches, "
+                                           "originally bound compute-pipelines are restored.");
                     device_table_->CmdBindPipeline(
                         command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
                 }
