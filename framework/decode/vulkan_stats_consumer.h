@@ -30,8 +30,8 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
-#include "vulkan/vulkan.hpp"
 #include "vulkan/vulkan_hash.hpp"
+#include "vulkan/vulkan_structs.hpp"
 
 #include "vulkan/vulkan.h"
 
