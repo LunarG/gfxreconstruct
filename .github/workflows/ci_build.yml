@@ -94,9 +94,6 @@ jobs:
             cc: "cl", cxx: "cl"
           }
     steps:
-    - uses: lukka/get-cmake@latest
-      with:
-        cmakeVersion: 3.22
     - name: Require Python 3.10
       uses: actions/setup-python@v5
       with:
