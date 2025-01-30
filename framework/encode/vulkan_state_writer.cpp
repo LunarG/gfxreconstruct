@@ -170,9 +170,13 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteMappedMemoryState(state_table);
 
     WriteBufferViewState(state_table);
-    WriteImageViewState(state_table);
-    StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
+
+    // Sampler and image view create infos can reference a VkSamplerYcbcrConversion object (through VkSamplerYcbcrConversionInfo
+    // in the pnext chain). For that reason dump VkSamplerYcbcrConversion object first.
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
+    StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
+
+    WriteImageViewState(state_table);
 
     // Retrieve buffer-device-addresses
     WriteBufferDeviceAddressState(state_table);
