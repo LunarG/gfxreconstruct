@@ -26,7 +26,6 @@
 
 
 cmake_minimum_required(VERSION 3.24.0)
-add_subdirectory(test_apps)
 
 if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     set(GFXRECON_INSTALL_TESTDIR ${CMAKE_INSTALL_PREFIX}/test)
