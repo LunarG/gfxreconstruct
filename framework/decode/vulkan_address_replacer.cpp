@@ -147,7 +147,7 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                              const encode::VulkanDeviceTable*     device_table,
                                              const encode::VulkanInstanceTable*   instance_table,
                                              const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table)
+    device_table_(device_table), object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
     physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
@@ -354,20 +354,22 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         auto input_addresses = reinterpret_cast<VkDeviceAddress*>(pipeline_context_sbt.input_handle_buffer.mapped_data);
 
-        std::unordered_map<const VkStridedDeviceAddressRegionKHR*, uint32_t> num_handles_map;
-        uint32_t num_addresses = 0;
+        std::unordered_map<const VkStridedDeviceAddressRegionKHR*, uint32_t> num_addresses_map;
+        uint32_t                                                             num_addresses = 0;
 
         {
-            const auto handle_size_capture = static_cast<uint32_t>(util::aligned_value(
+            const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
                 capture_ray_properties_->shaderGroupHandleSize, capture_ray_properties_->shaderGroupHandleAlignment));
 
             for (const auto& region : { raygen_sbt, miss_sbt, hit_sbt, callable_sbt })
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    num_handles_map[region] = region->size / region->stride;
+                    // NOTE: if region->stride > capture_handle_size, the excess-data is considered a shaderRecord
+                    num_addresses_map[region] = region->size / handle_size_aligned;
 
-                    for (uint32_t offset = 0; offset < region->size; offset += region->stride)
+                    // populate input-addresses, which are handles to replace and shaderRecord data to pass-through
+                    for (uint32_t offset = 0; offset < region->size; offset += handle_size_aligned)
                     {
                         input_addresses[num_addresses++] = region->deviceAddress + offset;
                     }
@@ -427,18 +429,20 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    uint32_t num_handles_limit = region->size / region->stride;
-                    auto     group_size        = static_cast<uint32_t>(util::aligned_value(
-                        num_handles_limit * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
-                    sbt_offset += group_size;
+                    uint32_t num_handles = num_addresses_map[region];
+                    auto     group_size  = static_cast<uint32_t>(util::aligned_value(
+                        num_handles * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
 
-                    // adjust group-size
-                    region->size   = group_size;
-                    region->stride = handle_size_aligned;
+                    // increase group-size/stride, if required
+                    region->size   = std::max<VkDeviceSize>(group_size, region->size);
+                    region->stride = std::max<VkDeviceSize>(handle_size_aligned, region->stride);
+
+                    sbt_offset += region->size;
                 }
             }
             // raygen: stride == size
-            raygen_sbt->size = raygen_sbt->stride = replay_ray_properties_->shaderGroupBaseAlignment;
+            raygen_sbt->size = raygen_sbt->stride =
+                util::aligned_value(raygen_sbt->stride, replay_ray_properties_->shaderGroupBaseAlignment);
 
             if (!create_buffer(shadow_buf_context,
                                sbt_offset,
@@ -457,7 +461,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    uint32_t num_handles = num_handles_map[region];
+                    uint32_t num_handles = num_addresses_map[region];
 
                     // assign shadow-sbt-address
                     region->deviceAddress = shadow_buf_context.device_address + sbt_offset;
@@ -497,7 +501,23 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                     VK_ACCESS_SHADER_READ_BIT);
         }
 
-        // set previous push-constant data
+        // set previous compute-pipeline, if any
+        if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
+        {
+            auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+                command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+            GFXRECON_ASSERT(previous_pipeline);
+            if (previous_pipeline != nullptr)
+            {
+                GFXRECON_LOG_INFO_ONCE(
+                    "VulkanAddressReplacer::ProcessCmdTraceRays: Replay is injecting compute-dispatches, "
+                    "originally bound compute-pipelines are restored.");
+                device_table_->CmdBindPipeline(
+                    command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+            }
+        }
+
+        // set previous push-constant data, if any
         if (!command_buffer_info->push_constant_data.empty())
         {
             device_table_->CmdPushConstants(command_buffer_info->handle,
@@ -578,13 +598,17 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                                                                      &build_size_info);
             }
 
+            bool as_buffer_usable = false;
+
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
-            GFXRECON_ASSERT(acceleration_structure_info != nullptr);
-            auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
-            bool  as_buffer_usable =
-                buffer_info != nullptr && buffer_info->size >= build_size_info.accelerationStructureSize;
+            if (acceleration_structure_info != nullptr)
+            {
+                auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
+                as_buffer_usable =
+                    buffer_info != nullptr && buffer_info->size >= build_size_info.accelerationStructureSize;
+            }
 
             // determine required size of scratch-buffer
             uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
@@ -811,7 +835,24 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                         VK_ACCESS_SHADER_READ_BIT);
             }
 
-            // set previous push-constant data
+            // set previous compute-pipeline, if any
+            if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
+            {
+                auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+                    command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+                GFXRECON_ASSERT(previous_pipeline);
+
+                if (previous_pipeline != nullptr)
+                {
+                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is "
+                                           "injecting compute-dispatches, "
+                                           "originally bound compute-pipelines are restored.");
+                    device_table_->CmdBindPipeline(
+                        command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+                }
+            }
+
+            // set previous push-constant data, if any
             if (!command_buffer_info->push_constant_data.empty())
             {
                 device_table_->CmdPushConstants(command_buffer_info->handle,
