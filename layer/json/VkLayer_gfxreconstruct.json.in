@@ -405,7 +405,7 @@
                         {
                             "key": "log_allow_indents",
                             "env": "GFXRECON_LOG_ALLOW_INDENTS",
-                            "label": "Log Name and Line Number",
+                            "label": "Apply additional indentation",
                             "description": "Apply additional indentation formatting to log messages.",
                             "type": "BOOL",
                             "default": false
