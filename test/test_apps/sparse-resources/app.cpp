@@ -34,33 +34,32 @@ GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(sparse_resources)
 
 const size_t MAX_FRAMES_IN_FLIGHT = 2;
-const size_t STAGING_BUFFER_SIZE = 16 * 1024 * 1024;
+const size_t STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
 
 class App : public gfxrecon::test::TestAppBase
 {
-private:
+  private:
     VkQueue graphics_queue_;
     VkQueue present_queue_;
 
     std::vector<VkFramebuffer> framebuffers_;
 
-    VkRenderPass render_pass_;
+    VkRenderPass     render_pass_;
     VkDescriptorPool descriptor_pool_;
-    VkDescriptorSet descriptor_set_;
+    VkDescriptorSet  descriptor_set_;
     VkPipelineLayout pipeline_layout_;
     VkPipeline       graphics_pipeline_;
 
-    VkBuffer staging_buffer_;
-    uint8_t* staging_buffer_ptr_;
-    VkImage image0_;
-    VkImageView image0_view_;
+    VkBuffer       staging_buffer_;
+    uint8_t*       staging_buffer_ptr_;
+    VkImage        image0_;
+    VkImageView    image0_view_;
     VkDeviceMemory image_backing_memory_;
     VkDeviceMemory staging_backing_memory_;
-    uint32_t device_memory_type_;
-    uint32_t staging_memory_type_;
+    uint32_t       device_memory_type_;
+    uint32_t       staging_memory_type_;
 
     VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
-
 
     size_t current_frame_ = 0;
 
@@ -79,18 +78,20 @@ private:
     void setup();
 };
 
-void App::configure_instance_builder(test::InstanceBuilder& instance_builder) {
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder)
+{
     instance_builder.desire_api_version(VK_MAKE_VERSION(1, 3, 0));
 }
 
-void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) {
+void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector)
+{
     VkPhysicalDeviceFeatures feats = {};
-    feats.sparseBinding = true;
-    feats.sparseResidencyBuffer = true;
-    feats.sparseResidencyAliased = true;
-    feats.sparseResidencyImage2D = true;
+    feats.sparseBinding            = true;
+    feats.sparseResidencyBuffer    = true;
+    feats.sparseResidencyAliased   = true;
+    feats.sparseResidencyImage2D   = true;
     phys_device_selector.set_required_features(feats);
-    
+
     phys_device_selector.add_required_extension("VK_KHR_maintenance2");
 }
 
@@ -266,126 +267,134 @@ void App::create_framebuffers()
     }
 }
 
-void App::create_descriptor_set() {
+void App::create_descriptor_set() {}
 
-}
-
-void App::determine_memory_heaps() {
+void App::determine_memory_heaps()
+{
     VkPhysicalDeviceMemoryProperties props = init.physical_device.memory_properties;
-    
+
     // Search for largest device-only memory heap
     VkDeviceSize largest_seen = 0;
-    for (int i = 0; i < props.memoryTypeCount; ++i) {
-        VkMemoryType type = props.memoryTypes[i];
-        bool device_local = type.propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-        VkMemoryHeap heap = props.memoryHeaps[type.heapIndex];
+    for (int i = 0; i < props.memoryTypeCount; ++i)
+    {
+        VkMemoryType type         = props.memoryTypes[i];
+        bool         device_local = type.propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        VkMemoryHeap heap         = props.memoryHeaps[type.heapIndex];
 
-        if (
-            (type.propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) &&
+        if ((type.propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) &&
             (type.propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
-            (type.propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
-                staging_memory_type_ = i;
-        } else if (heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-            if (heap.size > largest_seen) {
+            (type.propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+        {
+            staging_memory_type_ = i;
+        }
+        else if (heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+        {
+            if (heap.size > largest_seen)
+            {
                 device_memory_type_ = i;
-                largest_seen = heap.size;
+                largest_seen        = heap.size;
             }
         }
     }
 }
 
-void App::create_staging_buffer() {
+void App::create_staging_buffer()
+{
     // Create buffer object
-    VkBufferCreateInfo buffer_info = {};
-    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_info.pNext = nullptr;
-    buffer_info.flags = 0;
-    buffer_info.size = STAGING_BUFFER_SIZE;
-    buffer_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkBufferCreateInfo buffer_info    = {};
+    buffer_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.pNext                 = nullptr;
+    buffer_info.flags                 = 0;
+    buffer_info.size                  = STAGING_BUFFER_SIZE;
+    buffer_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    buffer_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     buffer_info.queueFamilyIndexCount = 1;
-    uint32_t idx = init.device.get_queue_index(test::QueueType::graphics).value();
-    buffer_info.pQueueFamilyIndices = &idx;
-    VERIFY_VK_RESULT("failed to create staging buffer", init.disp.createBuffer(&buffer_info, nullptr, &staging_buffer_));
+    uint32_t idx                      = init.device.get_queue_index(test::QueueType::graphics).value();
+    buffer_info.pQueueFamilyIndices   = &idx;
+    VERIFY_VK_RESULT("failed to create staging buffer",
+                     init.disp.createBuffer(&buffer_info, nullptr, &staging_buffer_));
 
     // Allocate and bind buffer memory
     VkMemoryRequirements mem_reqs = {};
     init.disp.getBufferMemoryRequirements(staging_buffer_, &mem_reqs);
     VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.pNext = nullptr;
-    alloc_info.allocationSize = mem_reqs.size;
-    alloc_info.memoryTypeIndex = staging_memory_type_;
-    VERIFY_VK_RESULT("failed to allocate staging buffer memory", init.disp.allocateMemory(&alloc_info, nullptr, &staging_backing_memory_));
-    VERIFY_VK_RESULT("failed to bind staging buffer memory", init.disp.bindBufferMemory(staging_buffer_, staging_backing_memory_, 0));
+    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = mem_reqs.size;
+    alloc_info.memoryTypeIndex      = staging_memory_type_;
+    VERIFY_VK_RESULT("failed to allocate staging buffer memory",
+                     init.disp.allocateMemory(&alloc_info, nullptr, &staging_backing_memory_));
+    VERIFY_VK_RESULT("failed to bind staging buffer memory",
+                     init.disp.bindBufferMemory(staging_buffer_, staging_backing_memory_, 0));
 
     // Map buffer
     init.disp.mapMemory(staging_backing_memory_, 0, STAGING_BUFFER_SIZE, 0, (void**)&staging_buffer_ptr_);
 }
 
-void App::create_textures() {
-    const uint32_t size = 16;
+void App::create_textures()
+{
+    const uint32_t size       = 16;
     const uint32_t mip_levels = 5;
-    const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+    const VkFormat format     = VK_FORMAT_R8G8B8A8_SRGB;
 
     // Create image object
     VkImageCreateInfo image_info = {};
-    image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_info.pNext = nullptr;
-    image_info.flags = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
-    image_info.imageType = VK_IMAGE_TYPE_2D;
-    image_info.format = format;
-    image_info.extent.width = size;
-    image_info.extent.height = size;
-    image_info.extent.depth = 1;
-    image_info.mipLevels = mip_levels;
-    image_info.arrayLayers = 1;
-    image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-    image_info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-    image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_info.pNext                 = nullptr;
+    image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+    image_info.imageType             = VK_IMAGE_TYPE_2D;
+    image_info.format                = format;
+    image_info.extent.width          = size;
+    image_info.extent.height         = size;
+    image_info.extent.depth          = 1;
+    image_info.mipLevels             = mip_levels;
+    image_info.arrayLayers           = 1;
+    image_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+    image_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+    image_info.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    image_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     image_info.queueFamilyIndexCount = 1;
-    uint32_t idx = init.device.get_queue_index(test::QueueType::graphics).value();
-    image_info.pQueueFamilyIndices = &idx;
-    image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    uint32_t idx                     = init.device.get_queue_index(test::QueueType::graphics).value();
+    image_info.pQueueFamilyIndices   = &idx;
+    image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
     VERIFY_VK_RESULT("failed to create image", init.disp.createImage(&image_info, nullptr, &image0_));
 
     // Allocate image backing memory
     VkMemoryRequirements image0_reqs = {};
     init.disp.getImageMemoryRequirements(image0_, &image0_reqs);
     VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.pNext = nullptr;
-    alloc_info.allocationSize = image0_reqs.size;
-    alloc_info.memoryTypeIndex = device_memory_type_;
+    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = image0_reqs.size;
+    alloc_info.memoryTypeIndex      = device_memory_type_;
     init.disp.allocateMemory(&alloc_info, nullptr, &image_backing_memory_);
 
     // Bind image to memory
-    //init.disp.bindImageMemory(image0_, image_backing_memory_, 0);
+    // init.disp.bindImageMemory(image0_, image_backing_memory_, 0);
 
     // Create image view object
-    VkImageViewCreateInfo view_info = {};
-    view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    view_info.pNext = nullptr;
-    view_info.flags = 0;
-    view_info.image = image0_;
-    view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    view_info.format = format;
-    view_info.components = {};
-    view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    view_info.subresourceRange.baseMipLevel = 0;
-    view_info.subresourceRange.levelCount = mip_levels;
+    VkImageViewCreateInfo view_info           = {};
+    view_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    view_info.pNext                           = nullptr;
+    view_info.flags                           = 0;
+    view_info.image                           = image0_;
+    view_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+    view_info.format                          = format;
+    view_info.components                      = {};
+    view_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+    view_info.subresourceRange.baseMipLevel   = 0;
+    view_info.subresourceRange.levelCount     = mip_levels;
     view_info.subresourceRange.baseArrayLayer = 0;
-    view_info.subresourceRange.layerCount = 1;
+    view_info.subresourceRange.layerCount     = 1;
     init.disp.createImageView(&view_info, nullptr, &image0_view_);
 
     // Upload image data
 
-
     // Update descriptor set?
 }
 
-void App::setup() {
+void App::setup()
+{
     auto graphics_queue = init.device.get_queue(gfxrecon::test::QueueType::graphics);
     if (!graphics_queue.has_value())
         throw std::runtime_error("could not get graphics queue");
@@ -415,7 +424,8 @@ void App::setup() {
     sync_ = gfxrecon::test::create_sync_objects(init.swapchain, init.disp, MAX_FRAMES_IN_FLIGHT);
 }
 
-bool App::frame(const int frame_num) {
+bool App::frame(const int frame_num)
+{
     init.disp.waitForFences(1, &sync_.in_flight_fences[current_frame_], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
@@ -424,9 +434,9 @@ bool App::frame(const int frame_num) {
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        //recreate_swapchain();
+        // recreate_swapchain();
         TestAppBase::recreate_swapchain(true);
-        //return frame_num >= NUM_FRAMES;
+        // return frame_num >= NUM_FRAMES;
         return true;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -572,16 +582,16 @@ bool App::frame(const int frame_num) {
     result = init.disp.queuePresentKHR(present_queue_, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        //recreate_swapchain();
+        // recreate_swapchain();
         TestAppBase::recreate_swapchain(true);
-        //return frame_num >= NUM_FRAMES;
+        // return frame_num >= NUM_FRAMES;
         return true;
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
     current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    //return IS_RUNNING(frame_num);
+    // return IS_RUNNING(frame_num);
     return true;
 }
 
