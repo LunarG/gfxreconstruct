@@ -65,7 +65,7 @@ add_custom_command(
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 if (WIN32)
     add_custom_command(TARGET gfxrecon-testapp-sparse-resources POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-sparse-resources> $<TARGET_FILE_DIR:gfxrecon-testapp-triangle>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-sparse-resources> $<TARGET_FILE_DIR:gfxrecon-testapp-sparse-resources>
             COMMAND_EXPAND_LISTS)
 endif ()
 
