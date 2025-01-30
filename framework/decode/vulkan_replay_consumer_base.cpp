@@ -7821,7 +7821,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     acceleration_structure_info->type   = replay_create_info->type;
     acceleration_structure_info->buffer = replay_create_info->buffer;
 
-    if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
+    // even when available, the feature also requires allocator-support
+    bool use_capture_replay_feature = device_info->property_feature_info.feature_accelerationStructureCaptureReplay &&
+                                      device_info->allocator->SupportsOpaqueDeviceAddresses();
+
+    if (use_capture_replay_feature)
     {
         // Set opaque device address
         VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);
@@ -7830,6 +7834,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
         if (entry != device_info->opaque_addresses.end())
         {
             modified_create_info.deviceAddress = entry->second;
+
+            // assign opaque address, same for capture and replay
+            acceleration_structure_info->capture_address = acceleration_structure_info->replay_address =
+                modified_create_info.deviceAddress;
         }
         else
         {
@@ -7844,6 +7852,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     {
         result = func(device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
+
+    // track newly created acceleration-structure
+    GetDeviceAddressTracker(device_info).TrackAccelerationStructure(acceleration_structure_info);
     return result;
 }
 
@@ -8446,7 +8457,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
     command_buffer_info->frame_buffer_ids.clear();
-    command_buffer_info->bound_pipeline_id = format::kNullHandleId;
+    command_buffer_info->bound_pipelines.clear();
     command_buffer_info->push_constant_data.clear();
     command_buffer_info->push_constant_stage_flags     = 0;
     command_buffer_info->push_constant_pipeline_layout = VK_NULL_HANDLE;
@@ -8592,7 +8603,7 @@ void VulkanReplayConsumerBase::OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    
         pipeline = MapHandle<VulkanPipelineInfo>(pipeline_info->capture_id, &CommonObjectInfoTable::GetVkPipelineInfo);
 
         // keep track of currently bound pipeline
-        command_buffer_info->bound_pipeline_id = pipeline_info->capture_id;
+        command_buffer_info->bound_pipelines[pipelineBindPoint] = pipeline_info->capture_id;
     }
     func(command_buffer, pipelineBindPoint, pipeline);
 }
@@ -8742,7 +8753,9 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
             const auto& address_tracker  = GetDeviceAddressTracker(device_info);
             auto&       address_replacer = GetDeviceAddressReplacer(device_info);
 
-            auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(command_buffer_info->bound_pipeline_id);
+            GFXRECON_ASSERT(command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR));
+            auto bound_pipeline = GetObjectInfoTable().GetVkPipelineInfo(
+                command_buffer_info->bound_pipelines[VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR]);
             GFXRECON_ASSERT(bound_pipeline != nullptr)
 
             address_replacer.ProcessCmdTraceRays(command_buffer_info,
