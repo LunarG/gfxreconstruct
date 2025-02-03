@@ -2297,6 +2297,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineLibrary(DxObjectInfo*     
         // needs to be preserved because it is not copied by the runtime.
         if (library_object != nullptr)
         {
+            if (options_.omit_pipeline_cache_data)
+            {
+                blob        = nullptr;
+                blob_length = 0;
+            }
+
             std::unique_ptr<uint8_t[]> cache_data = nullptr;
 
             if (blob != nullptr)
