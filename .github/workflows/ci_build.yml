@@ -49,11 +49,11 @@ jobs:
         then
           clang-format --version # A check for version 9 should be added.
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0
+          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps --test-apps
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
           git diff --exit-code
         else
-          python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0
+          python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps --test-apps
         fi
     - name: Prepare artifacts
       run: |
@@ -119,7 +119,7 @@ jobs:
         git diff --exit-code
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0
+        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
     - name: Prepare artifacts
       run: |
         copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
@@ -171,7 +171,7 @@ jobs:
       run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0 --test-apps
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
