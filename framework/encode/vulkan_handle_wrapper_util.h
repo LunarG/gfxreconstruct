@@ -32,6 +32,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <algorithm>
 #include <iterator>
@@ -54,7 +55,7 @@ static const VkCommandPool    kTempCommandPool =
     UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
 static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
 static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
-typedef format::HandleId (*PFN_GetHandleId)();
+typedef format::HandleId      (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
 
@@ -281,6 +282,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
         wrapper                  = GetWrapper<PhysicalDeviceWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
+        wrapper->instance = parent_wrapper;
     }
 }
 
@@ -336,6 +338,8 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
         wrapper                  = GetWrapper<QueueWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
+
+        wrapper->parent_instance = parent_wrapper->physical_device->instance;
     }
 }
 

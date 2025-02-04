@@ -119,7 +119,8 @@ class CommonCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type);
 
-    void EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
+    void
+    EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock, const void* instance_p);
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
@@ -228,7 +229,7 @@ class CommonCaptureManager
     PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
     const std::string&                  GetTrimKey() const { return trim_key_; }
     bool                                IsTrimEnabled() const { return trim_enabled_; }
-    uint32_t                            GetCurrentFrame() const { return current_frame_; }
+    uint32_t                            GetCurrentFrame() const { return global_frame_counter_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     void                                SetCaptureMode(CaptureMode new_mode) { capture_mode_ = new_mode; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
@@ -290,7 +291,7 @@ class CommonCaptureManager
 
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N],
-                               util::FileOutputStream* file_stream = nullptr)
+                               util::FileOutputStream*              file_stream = nullptr)
     {
         file_stream ? file_stream->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer())
                     : file_stream_->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer());
@@ -306,12 +307,24 @@ class CommonCaptureManager
 
     bool WriteFrameStateFile();
 
+    bool CheckTrimmingState(ApiCaptureManager* api_instance_, const void* instance_p);
+    template <typename Derived>
+    static bool CheckTrimmingState(const void* instance_p)
+    {
+        GFXRECON_ASSERT(singleton_ != nullptr);
+        return singleton_->CheckTrimmingState(Derived::InitSingleton(), instance_p);
+    }
+
   private:
     void WriteExecuteFromFile(util::FileOutputStream& out_stream,
                               const std::string&      filename,
                               format::ThreadId        thread_id,
                               uint32_t                n_blocks,
                               int64_t                 offset);
+
+    uint32_t CurrentFrame() const;
+
+    uint32_t IncrementAndGetTrimFrame(const void* instance_p, bool increment);
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
@@ -369,7 +382,7 @@ class CommonCaptureManager
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
-    uint32_t                                current_frame_;
+    uint32_t                                global_frame_counter_;
     uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
@@ -390,6 +403,16 @@ class CommonCaptureManager
     bool                                    write_assets_;
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
+
+    struct InstanceFrameCount
+    {
+        uint32_t instance_index;
+        uint32_t current_frame;
+    };
+    std::unordered_map<const void*, InstanceFrameCount> instance_frame_counters_;
+    std::vector<const void*>                            instances_;
+    bool                                                count_frames_per_instance_;
+    uint32_t                                            trim_instance_index_;
 
     struct
     {

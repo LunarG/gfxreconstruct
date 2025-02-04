@@ -103,9 +103,9 @@ class ApiCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type) { common_manager_->WriteFrameMarker(marker_type); }
 
-    void EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock, const void *instance_p = nullptr)
     {
-        common_manager_->EndFrame(api_family_, current_lock);
+        common_manager_->EndFrame(api_family_, current_lock, instance_p);
     }
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for

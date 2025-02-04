@@ -23,7 +23,10 @@
 */
 
 #include "encode/capture_settings.h"
+#include <cstdint>
+#include <limits>
 #include <string>
+#include <tuple>
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "encode/capture_manager.h"
@@ -67,13 +70,13 @@ CommonCaptureManager::CommonCaptureManager() :
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
-    trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
+    trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), global_frame_counter_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false)
+    write_assets_(false), previous_write_assets_(false), count_frames_per_instance_(false), trim_instance_index_(0)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -255,6 +258,130 @@ std::string PrepScreenshotPrefix(const std::string& dir)
     return out;
 }
 
+uint32_t CommonCaptureManager::IncrementAndGetTrimFrame(const void* instance_p, bool increment)
+{
+    uint32_t frame;
+
+    if (count_frames_per_instance_)
+    {
+        GFXRECON_ASSERT(instance_p != nullptr);
+
+        auto entry = instance_frame_counters_.find(instance_p);
+
+        if (entry != instance_frame_counters_.end())
+        {
+            if (increment)
+                ++entry->second.current_frame;
+
+            if (entry->second.instance_index != trim_instance_index_)
+            {
+                frame = std::numeric_limits<uint32_t>::max();
+            }
+            else
+            {
+                frame = entry->second.current_frame;
+            }
+        }
+        else
+        {
+            frame = std::numeric_limits<uint32_t>::max();
+        }
+    }
+    else
+    {
+        if (increment)
+            ++global_frame_counter_;
+
+        frame = global_frame_counter_;
+    }
+
+    return frame;
+}
+
+bool CommonCaptureManager::CheckTrimmingState(ApiCaptureManager* api_instance_, const void* instance_p)
+{
+    if (!trim_enabled_)
+    {
+        return true;
+    }
+
+    GFXRECON_ASSERT(instance_p != nullptr);
+
+    const format::ApiFamilyId api_family = api_instance_->GetApiFamily();
+
+
+    if (count_frames_per_instance_)
+    {
+        instances_.push_back(instance_p);
+        GFXRECON_ASSERT(instance_count_);
+        GFXRECON_ASSERT(instances_.size() == instance_count_);
+
+        instance_frame_counters_.emplace(std::piecewise_construct,
+                                         std::forward_as_tuple(instance_p),
+                                         std::forward_as_tuple(InstanceFrameCount{ instance_count_ - 1, kFirstFrame }));
+    }
+
+    bool success = true;
+
+    if (!trim_ranges_.empty())
+    {
+        GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
+                        (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
+
+        // Determine if trim starts at the first frame
+        if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) &&
+            (trim_ranges_[trim_current_range_].first == IncrementAndGetTrimFrame(instance_p, false)))
+        {
+            // When capturing from the first frame, state tracking only needs to be enabled if there is more than
+            // one capture range.
+            if (trim_ranges_.size() > 1)
+            {
+                capture_mode_ = kModeWriteAndTrack;
+            }
+
+            success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
+        }
+        else
+        {
+            capture_mode_ = kModeTrack;
+        }
+    }
+    // Check if trim is enabled by hot-key trigger at the first frame.
+    else if (!trim_key_.empty() || previous_runtime_trigger_state_ != CaptureSettings::RuntimeTriggerState::kNotUsed)
+    {
+        // Capture key/trigger only support frames as trim boundaries.
+        GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
+
+        // Enable state tracking when hotkey pressed
+        if (IsTrimHotkeyPressed() || previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kEnabled)
+        {
+            capture_mode_         = kModeWriteAndTrack;
+            trim_key_first_frame_ = IncrementAndGetTrimFrame(instance_p, false);
+
+            success =
+                CreateCaptureFile(api_family, util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
+        }
+        else
+        {
+            capture_mode_ = kModeTrack;
+        }
+    }
+    else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawCalls)
+    {
+        // trim_draw_calls_ = trace_settings.trim_draw_calls;
+        capture_mode_ = kModeTrack;
+    }
+    else
+    {
+        // if/else blocks above should have covered all "else" cases from the parent conditional.
+        GFXRECON_ASSERT(false);
+        trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+        capture_mode_  = kModeTrack;
+    }
+
+    return success;
+}
+
 bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_family,
                                       std::string                           base_filename,
                                       const CaptureSettings::TraceSettings& trace_settings)
@@ -280,6 +407,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
     force_fifo_present_mode_         = trace_settings.force_fifo_present_mode;
     use_asset_file_                  = trace_settings.use_asset_file;
+    trim_instance_index_             = trace_settings.trim_instance_index;
+    count_frames_per_instance_       = trim_instance_index_ != std::numeric_limits<uint32_t>::max();
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -355,74 +484,15 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     {
         GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
 
-        // Override default kModeWrite capture mode.
-        trim_enabled_            = true;
-        trim_boundary_           = trace_settings.trim_boundary;
-        quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
-
-        // Check if trim ranges were specified.
-        if (!trace_settings.trim_ranges.empty())
-        {
-            GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
-                            (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
-
-            trim_ranges_ = trace_settings.trim_ranges;
-
-            // Determine if trim starts at the first frame
-            if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) && (trim_ranges_[0].first == current_frame_))
-            {
-                // When capturing from the first frame, state tracking only needs to be enabled if there is more than
-                // one capture range.
-                if (trim_ranges_.size() > 1)
-                {
-                    capture_mode_ = kModeWriteAndTrack;
-                }
-
-                success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
-            }
-            else
-            {
-                capture_mode_ = kModeTrack;
-            }
-        }
-        // Check if trim is enabled by hot-key trigger at the first frame.
-        else if (!trace_settings.trim_key.empty() ||
-                 trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
-        {
-            // Capture key/trigger only support frames as trim boundaries.
-            GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
-
-            trim_key_                       = trace_settings.trim_key;
-            trim_key_frames_                = trace_settings.trim_key_frames;
-            previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
-
-            // Enable state tracking when hotkey pressed
-            if (IsTrimHotkeyPressed() ||
-                trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
-            {
-                capture_mode_         = kModeWriteAndTrack;
-                trim_key_first_frame_ = current_frame_;
-
-                success = CreateCaptureFile(api_family,
-                                            util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
-            }
-            else
-            {
-                capture_mode_ = kModeTrack;
-            }
-        }
-        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawCalls)
-        {
-            trim_draw_calls_ = trace_settings.trim_draw_calls;
-            capture_mode_    = kModeTrack;
-        }
-        else
-        {
-            // if/else blocks above should have covered all "else" cases from the parent conditional.
-            GFXRECON_ASSERT(false);
-            trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
-            capture_mode_  = kModeTrack;
-        }
+        trim_enabled_                   = true;
+        capture_mode_                   = kModeTrack;
+        trim_boundary_                  = trace_settings.trim_boundary;
+        quit_after_frame_ranges_        = trace_settings.quit_after_frame_ranges;
+        trim_ranges_                    = trace_settings.trim_ranges;
+        trim_key_                       = trace_settings.trim_key;
+        trim_key_frames_                = trace_settings.trim_key_frames;
+        previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
+        trim_draw_calls_                = trace_settings.trim_draw_calls;
     }
 
     if (success)
@@ -852,7 +922,7 @@ bool CommonCaptureManager::ShouldTriggerScreenshot()
         uint32_t target_frame = screenshot_indices_.back();
 
         // If this is a frame of interest, take a screenshot
-        if (target_frame == current_frame_)
+        if (target_frame == global_frame_counter_)
         {
             triger_screenshot = true;
 
@@ -879,17 +949,19 @@ void CommonCaptureManager::WriteFrameMarker(format::MarkerType marker_type)
         marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
         marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
         marker_cmd.marker_type     = marker_type;
-        marker_cmd.frame_number    = current_frame_;
+        marker_cmd.frame_number    = global_frame_counter_;
         WriteToFile(&marker_cmd, sizeof(marker_cmd));
     }
 }
 
-void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
+void CommonCaptureManager::EndFrame(format::ApiFamilyId              api_family,
+                                    std::shared_lock<ApiCallMutexT>& current_lock,
+                                    const void*                      instance_p)
 {
     // Write an end-of-frame marker to the capture file.
     WriteFrameMarker(format::MarkerType::kEndMarker);
 
-    ++current_frame_;
+    const uint32_t current_frame = IncrementAndGetTrimFrame(instance_p, true);
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kFrames))
     {
@@ -897,13 +969,13 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
         {
             // Currently capturing a frame range.
             // Check for end of range or hotkey trigger to stop capture.
-            CheckContinueCaptureForWriteMode(api_family, current_frame_, current_lock);
+            CheckContinueCaptureForWriteMode(api_family, current_frame, current_lock);
         }
         else if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             // Capture is not active.
             // Check for start of capture frame range or hotkey trigger to start capture
-            CheckStartCaptureForTrackMode(api_family, current_frame_, current_lock);
+            CheckStartCaptureForTrackMode(api_family, current_frame, current_lock);
         }
     }
 
@@ -1629,7 +1701,8 @@ CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_m
                                                  const std::string&    filename,
                                                  size_t                buffer_size,
                                                  bool                  append) :
-    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
+    FileOutputStream(filename, buffer_size, append),
+    capture_manager_(capture_manager)
 {}
 
 bool CaptureFileOutputStream::Write(const void* data, size_t len)

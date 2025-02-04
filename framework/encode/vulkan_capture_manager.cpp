@@ -22,6 +22,7 @@
  ** DEALINGS IN THE SOFTWARE.
  */
 
+#include "encode/capture_manager.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "vulkan/vulkan_core.h"
 #include <cstdint>
@@ -548,6 +549,12 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    if (pCreateInfo && pCreateInfo->pApplicationInfo && pCreateInfo->pApplicationInfo->pApplicationName)
+    {
+        GFXRECON_WRITE_CONSOLE("  pApplicationName: %s()", pCreateInfo->pApplicationInfo->pApplicationName)
+    }
+
     if (CreateInstance())
     {
         if (singleton_->IsPageGuardMemoryModeExternal())
@@ -604,20 +611,25 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
 
     if ((result == VK_SUCCESS) && (pCreateInfo->pApplicationInfo != nullptr))
     {
-        auto api_version              = pCreateInfo->pApplicationInfo->apiVersion;
-        auto instance_wrapper         = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(*pInstance);
-        instance_wrapper->api_version = api_version;
-
-        // Warn when enabled API version is newer than the supported API version.
-        if (api_version > VK_HEADER_VERSION_COMPLETE)
+        GFXRECON_WRITE_CONSOLE("  *pInstance: %p", *pInstance)
+        if (CommonCaptureManager::CheckTrimmingState<VulkanCaptureManager>(*pInstance))
         {
-            GFXRECON_LOG_WARNING(
-                "The application has specified that it uses Vulkan API version %u.%u.%u, which is newer than the "
-                "version supported by GFXReconstruct.  Use of unsupported Vulkan features may cause capture or replay "
-                "to fail.",
-                VK_VERSION_MAJOR(api_version),
-                VK_VERSION_MINOR(api_version),
-                VK_VERSION_PATCH(api_version));
+            auto api_version              = pCreateInfo->pApplicationInfo->apiVersion;
+            auto instance_wrapper         = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(*pInstance);
+            instance_wrapper->api_version = api_version;
+
+            // Warn when enabled API version is newer than the supported API version.
+            if (api_version > VK_HEADER_VERSION_COMPLETE)
+            {
+                GFXRECON_LOG_WARNING(
+                    "The application has specified that it uses Vulkan API version %u.%u.%u, which is newer than the "
+                    "version supported by GFXReconstruct.  Use of unsupported Vulkan features may cause capture or "
+                    "replay "
+                    "to fail.",
+                    VK_VERSION_MAJOR(api_version),
+                    VK_VERSION_MINOR(api_version),
+                    VK_VERSION_PATCH(api_version));
+            }
         }
     }
 
@@ -731,12 +743,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
 
-        if (!IsCaptureModeTrack())
-        {
-            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
-            // to ensure it is available.
-            wrapper->physical_device = physical_device_wrapper;
-        }
+        wrapper->physical_device = physical_device_wrapper;
 
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
@@ -1698,6 +1705,7 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
                     physical_device_wrapper->memory_properties = std::move(memory_properties);
                 }
 
+                physical_device_wrapper->instance             = instance_wrapper;
                 physical_device_wrapper->instance_api_version = instance_wrapper->api_version;
 
                 WriteSetDevicePropertiesCommand(physical_device_id, properties);

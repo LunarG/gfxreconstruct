@@ -24,6 +24,7 @@
 
 #include "encode/d3d12_capture_manager.h"
 
+#include "encode/capture_manager.h"
 #include "graphics/dx12_util.h"
 #include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/dx12_object_wrapper_info.h"
@@ -50,6 +51,10 @@ D3D12CaptureManager::D3D12CaptureManager() :
 bool D3D12CaptureManager::CreateInstance()
 {
     bool ret = CommonCaptureManager::CreateInstance<D3D12CaptureManager>();
+    if (ret)
+    {
+        ret = CommonCaptureManager::CheckTrimmingState<D3D12CaptureManager>(nullptr);
+    }
 
     GFXRECON_ASSERT(singleton_);
 

@@ -41,6 +41,7 @@
 #include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/defines.h"
 
+#include "util/logging.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
@@ -547,7 +548,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                 pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
         }
 
-        EndFrame(current_lock);
+        vulkan_wrappers::QueueWrapper* queue_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(queue);
+        EndFrame(current_lock, queue_wrapper->parent_instance->handle);
     }
 
     void PostProcess_vkQueueBindSparse(
@@ -1270,7 +1273,12 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             VkSemaphore                                            semaphore,
                                             VkImage                                                image)
     {
-        EndFrame(current_lock);
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->physical_device != nullptr);
+        GFXRECON_ASSERT(wrapper->physical_device->instance != nullptr);
+
+        EndFrame(current_lock, wrapper->physical_device->instance->handle);
     }
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
@@ -1544,15 +1552,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override
-    {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
-    }
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
 
-    virtual void DestroyStateTracker() override
-    {
-        state_tracker_ = nullptr;
-    }
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 

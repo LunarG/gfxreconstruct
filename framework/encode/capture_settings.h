@@ -31,6 +31,7 @@
 #include "util/page_guard_manager.h"
 #include "util/options.h"
 
+#include <limits>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -132,6 +133,7 @@ class CaptureSettings
         bool                         quit_after_frame_ranges{ false };
         bool                         force_fifo_present_mode{ true };
         bool                         use_asset_file{ false };
+        uint32_t                     trim_instance_index{ std::numeric_limits<uint32_t>::max() };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

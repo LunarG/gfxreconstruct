@@ -125,9 +125,11 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkInstance
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+struct InstanceWrapper;
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
     VulkanInstanceTable*            layer_table_ref{ nullptr };
+    InstanceWrapper*                instance{ nullptr };
     std::vector<DisplayKHRWrapper*> child_displays;
     uint32_t                        instance_api_version{ 0 };
 
@@ -158,6 +160,7 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
     VulkanDeviceTable* layer_table_ref{ nullptr };
+    InstanceWrapper*   parent_instance{ nullptr };
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
@@ -215,16 +218,16 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 struct ImageViewWrapper;
 struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
-    VkImageType              image_type{ VK_IMAGE_TYPE_2D };
-    VkFormat                 format{ VK_FORMAT_UNDEFINED };
-    bool                     external_format{ false };
-    VkExtent3D               extent{ 0, 0, 0 };
-    uint32_t                 mip_levels{ 0 };
-    uint32_t                 array_layers{ 0 };
-    VkSampleCountFlagBits    samples{};
-    VkImageTiling            tiling{};
-    VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-    bool                     is_swapchain_image{ false };
+    VkImageType           image_type{ VK_IMAGE_TYPE_2D };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
+    bool                  external_format{ false };
+    VkExtent3D            extent{ 0, 0, 0 };
+    uint32_t              mip_levels{ 0 };
+    uint32_t              array_layers{ 0 };
+    VkSampleCountFlagBits samples{};
+    VkImageTiling         tiling{};
+    VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    bool                  is_swapchain_image{ false };
 
     std::set<ImageViewWrapper*> image_views;
 };
