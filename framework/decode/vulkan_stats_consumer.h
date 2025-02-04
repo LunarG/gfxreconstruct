@@ -27,11 +27,13 @@
 
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/api_decoder.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
 #include "vulkan/vulkan_hash.hpp"
 #include "vulkan/vulkan_structs.hpp"
+#include "util/platform.h"
 
 #include "vulkan/vulkan.h"
 
@@ -62,6 +64,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t                        GetAnnotationCount() const { return annotation_count_; }
     const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
     const auto&                     GetResolutions() const { return resolutions_; }
+
+    using PhysicalDeviceProperties = std::unordered_map<gfxrecon::format::HandleId, VkPhysicalDeviceProperties>;
+    const PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return physical_device_properties_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -381,6 +386,36 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                               uint32_t) override
     {
         ++dispatch_count_;
+    }
+
+    virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
+                                                   uint32_t           api_version,
+                                                   uint32_t           driver_version,
+                                                   uint32_t           vendor_id,
+                                                   uint32_t           device_id,
+                                                   uint32_t           device_type,
+                                                   const uint8_t      pipeline_cache_uuid[format::kUuidSize],
+                                                   const std::string& device_name) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(physical_device_id);
+
+        if (physical_device_properties_.find(physical_device_id) == physical_device_properties_.end())
+        {
+            physical_device_properties_.emplace(physical_device_id, VkPhysicalDeviceProperties());
+            physical_device_properties_[physical_device_id].apiVersion    = api_version;
+            physical_device_properties_[physical_device_id].driverVersion = driver_version;
+            physical_device_properties_[physical_device_id].vendorID      = vendor_id;
+            physical_device_properties_[physical_device_id].deviceID      = device_id;
+            physical_device_properties_[physical_device_id].deviceType = static_cast<VkPhysicalDeviceType>(device_type);
+
+            device_name.copy(physical_device_properties_[physical_device_id].deviceName,
+                             VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
+
+            util::platform::MemoryCopy(&physical_device_properties_[physical_device_id].pipelineCacheUUID[0],
+                                       format::kUuidSize,
+                                       pipeline_cache_uuid,
+                                       format::kUuidSize);
+        }
     }
 
     virtual void Process_vkAllocateMemory(
