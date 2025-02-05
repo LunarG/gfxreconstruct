@@ -28,6 +28,7 @@
 
 #include <string_view>
 #include <cstddef>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -42,6 +43,23 @@ class OutputStream
     virtual bool Write(const void* data, size_t len) = 0;
 
     virtual void Flush() {}
+
+    template <size_t N>
+    void CombineAndWrite(const std::pair<const void*, size_t> (&buffers)[N], std::vector<uint8_t>& scratch_buffer)
+    {
+        static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
+
+        // Combine buffers for a single write.
+        scratch_buffer.clear();
+        for (size_t i = 0; i < N; ++i)
+        {
+            const uint8_t* const data = reinterpret_cast<const uint8_t*>(buffers[i].first);
+            const size_t         size = buffers[i].second;
+            scratch_buffer.insert(scratch_buffer.end(), data, data + size);
+        }
+
+        Write(scratch_buffer.data(), scratch_buffer.size());
+    }
 };
 
 inline void Write(OutputStream& os, std::string_view sv)

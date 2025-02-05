@@ -146,7 +146,7 @@ class KhronosStructToJsonBodyGenerator():
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif self.is_handle(value_type):
+                elif self.is_handle_like(value_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
@@ -156,7 +156,7 @@ class KhronosStructToJsonBodyGenerator():
                         to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
                     elif 'String' in type_name:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_handle(value_type):
+                    elif self.is_handle_like(value_type):
                         to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_struct(value_type):
                         # If this is a parent class, generate the parent->child conversion info
@@ -213,7 +213,14 @@ class KhronosStructToJsonBodyGenerator():
     def make_extended_struct_body(self):
         body = ''
         var_name = self.get_extended_struct_var_name().lower()
+
+        extended_list = []
         for struct in self.all_extended_structs:
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for struct in sorted(extended_list):
             if struct not in self.struct_type_names:
                 continue
             body += '''

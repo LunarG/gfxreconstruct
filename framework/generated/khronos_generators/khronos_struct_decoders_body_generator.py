@@ -27,12 +27,26 @@ from khronos_base_generator import write
 from copy import deepcopy
 
 
-class KhronosBaseStructDecodersBodyGenerator():
+class KhronosStructDecodersBodyGenerator():
     """Base class for generating struct docoder body code."""
 
-    def generate_feature(self):
+    def endFile(self):
+        self.generate_decode_struct_body()
+
+    def generate_decode_struct_body(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
+        api_data = self.get_api_data()
+
+        write(
+            'size_t Decode{0}Struct(const uint8_t* buffer, size_t buffer_size, {0}Node** {1});'
+            .format(
+                api_data.extended_struct_func_prefix,
+                api_data.extended_struct_variable
+            ),
+            file=self.outFile
+        )
+
+        for struct in self.get_all_filtered_struct_names():
             body = '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
                 struct
@@ -44,7 +58,7 @@ class KhronosBaseStructDecodersBodyGenerator():
             body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
             body += self.make_decode_struct_body(
-                struct, self.feature_struct_members[struct]
+                struct, self.all_struct_members[struct]
             )
             body += '\n'
             body += '    return bytes_read;\n'
@@ -62,13 +76,16 @@ class KhronosBaseStructDecodersBodyGenerator():
             # If it is an extended struct name, it requires special treatment
             if self.is_extended_struct_definition(value):
                 extended_struct_name = self.get_extended_struct_var_name()
-                extended_struct_func_prefix = self.get_extended_struct_func_prefix()
+                extended_struct_func_prefix = self.get_extended_struct_func_prefix(
+                )
                 main_body += '    bytes_read += Decode{}Struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
                     extended_struct_func_prefix, value.name
                 )
-                main_body += '    value->{var} = wrapper->{var} ? wrapper->{var}->GetPointer() : nullptr;\n'.format(var=extended_struct_name)
+                main_body += '    value->{var} = wrapper->{var} ? wrapper->{var}->GetPointer() : nullptr;\n'.format(
+                    var=extended_struct_name
+                )
             else:
-                preamble, main_body, epilogue = KhronosBaseStructDecodersBodyGenerator.make_decode_invocation(
+                preamble, main_body, epilogue = KhronosStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value, preamble, main_body, epilogue
                 )
 
@@ -77,16 +94,17 @@ class KhronosBaseStructDecodersBodyGenerator():
         body = preamble + main_body + epilogue
         return body
 
-    def make_decode_invocation(self, name, value, preamble, main_body, epilogue):
+    def make_decode_invocation(
+        self, name, value, preamble, main_body, epilogue
+    ):
         """Generate the struct member decoder function call invocation."""
         buffer_args = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
         is_struct = False
         is_string = False
         is_funcp = False
-        is_handle = False
+        is_handle_like = False
         is_enum = False
-        is_atom = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -96,10 +114,8 @@ class KhronosBaseStructDecodersBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif self.is_handle(value.base_type):
-            is_handle = True
-        elif self.is_atom(value.base_type):
-            is_atom = True
+        elif self.is_handle_like(value.base_type):
+            is_handle_like = True
         elif type_name == 'Enum':
             is_enum = True
 
@@ -143,7 +159,9 @@ class KhronosBaseStructDecodersBodyGenerator():
 
                             new_value = deepcopy(value)
                             new_value.base_type = child
-                            decode_type = self.make_decoded_param_type(new_value)
+                            decode_type = self.make_decoded_param_type(
+                                new_value
+                            )
                             var_name = value.name + '_' + child.lower()
                             preamble += f'    {decode_type}* {var_name};\n'
 
@@ -179,14 +197,15 @@ class KhronosBaseStructDecodersBodyGenerator():
                             arraylen=value.array_capacity
                         )
 
-                    if is_struct or is_string or is_handle or is_atom:
+                    if is_struct or is_string or is_handle_like:
                         main_body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
                             value.name, access_op, buffer_args
                         )
                     elif self.has_basetype(value.base_type):
                         base_type = self.get_basetype(value.base_type)
                         main_body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
-                            value.name, self.encode_types[base_type], buffer_args
+                            value.name, self.encode_types[base_type],
+                            buffer_args
                         )
                     else:
                         main_body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
@@ -194,9 +213,11 @@ class KhronosBaseStructDecodersBodyGenerator():
                         )
 
                     if not is_static_array:
-                        if is_handle or is_atom:
+                        if is_handle_like:
                             # Point the real struct's member pointer to the handle pointer decoder's handle memory.
-                            main_body += '    value->{} = nullptr;\n'.format(value.name)
+                            main_body += '    value->{} = nullptr;\n'.format(
+                                value.name
+                            )
                         else:
                             # Point the real struct's member pointer to the pointer decoder's memory.
                             convert_const_cast_begin = ''
@@ -270,12 +291,16 @@ class KhronosBaseStructDecodersBodyGenerator():
                     buffer_args, value.name
                 )
                 main_body += '    value->{} = nullptr;\n'.format(value.name)
-            elif is_handle or is_atom:
+            elif is_handle_like:
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
                 )
-                default_type = self.get_default_handle_atom_value(value.base_type)
-                main_body += '    value->{} = {};\n'.format(value.name, default_type)
+                default_type = self.get_default_handle_atom_value(
+                    value.base_type
+                )
+                main_body += '    value->{} = {};\n'.format(
+                    value.name, default_type
+                )
             elif self.is_generic_struct_handle_value(name, value.name):
                 main_body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
@@ -284,7 +309,9 @@ class KhronosBaseStructDecodersBodyGenerator():
             elif value.bitfield_width:
                 # Bit fields need to be read into a tempoaray and then assigned to the struct member.
                 temp_param_name = 'temp_{}'.format(value.name)
-                main_body += '    {} {};\n'.format(value.base_type, temp_param_name)
+                main_body += '    {} {};\n'.format(
+                    value.base_type, temp_param_name
+                )
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, temp_param_name
                 )

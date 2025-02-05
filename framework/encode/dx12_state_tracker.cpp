@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -198,6 +198,14 @@ void Dx12StateTracker::TrackResourceBarriers(ID3D12CommandList_Wrapper*    list_
             list_wrapper->GetObjectInfo()->transition_barriers.push_back(transition);
         }
     }
+}
+
+void Dx12StateTracker::TrackCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
+                                              ID3D12CommandAllocator*    pAllocator,
+                                              ID3D12PipelineState*       pInitialState)
+{
+    auto allocator = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pAllocator);
+    list_wrapper->GetObjectInfo()->reset_command_allocator_id = allocator->GetCaptureId();
 }
 
 void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queue_wrapper,
@@ -457,6 +465,7 @@ void Dx12StateTracker::TrackCommandListCreation(ID3D12CommandList_Wrapper* list_
     {
         auto cmd_alloc_wrapper                   = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pCommandAllocator);
         list_info->create_command_allocator_id   = cmd_alloc_wrapper->GetCaptureId();
+        list_info->reset_command_allocator_id    = list_info->create_command_allocator_id;
         list_info->create_command_allocator_info = cmd_alloc_wrapper->GetObjectInfo();
     }
 }

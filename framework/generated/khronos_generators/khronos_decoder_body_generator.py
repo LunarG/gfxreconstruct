@@ -26,8 +26,8 @@ from khronos_base_generator import ValueInfo, write
 from copy import deepcopy
 
 
-class KhronosBaseDecoderBodyGenerator():
-    """Base class for generating decoder body code."""
+class KhronosDecoderBodyGenerator():
+    """Khronos class for generating decoder body code."""
     def generate_commands(self):
         platform_type = self.get_api_prefix()
 
@@ -116,11 +116,11 @@ class KhronosBaseDecoderBodyGenerator():
 
         # Decode() method calls for pointer decoder wrappers.
         for value in values:
-            preamble, main_body, epilogue = KhronosBaseDecoderBodyGenerator.make_decode_invocation(
+            preamble, main_body, epilogue = KhronosDecoderBodyGenerator.make_decode_invocation(
                 self, value, preamble, main_body, epilogue
             )
         if return_type and return_type != 'void':
-            preamble, main_body, epilogue = KhronosBaseDecoderBodyGenerator.make_decode_invocation(
+            preamble, main_body, epilogue = KhronosDecoderBodyGenerator.make_decode_invocation(
                 self, ValueInfo('return_value', return_type, return_type), preamble, main_body, epilogue
             )
 
@@ -155,8 +155,7 @@ class KhronosBaseDecoderBodyGenerator():
         is_struct = False
         is_string = False
         is_funcp = False
-        is_handle = False
-        is_atom = False
+        is_handle_like = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -166,10 +165,8 @@ class KhronosBaseDecoderBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif self.is_handle(value.base_type):
-            is_handle = True
-        elif self.is_atom(value.base_type):
-            is_atom = True
+        elif self.is_handle_like(value.base_type):
+            is_handle_like = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -185,7 +182,7 @@ class KhronosBaseDecoderBodyGenerator():
                         buffer_args, value.name
                     )
             else:
-                if is_struct or is_string or is_handle or is_atom:
+                if is_struct or is_string or is_handle_like:
                     if type_name in self.children_structs.keys():
                         base_type_name = self.make_simple_var_name(value.base_type)
                         main_body += '    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),\n'
@@ -252,7 +249,7 @@ class KhronosBaseDecoderBodyGenerator():
                 main_body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
                     buffer_args, value.name
                 )
-            elif is_handle or is_atom:
+            elif is_handle_like:
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                     buffer_args, value.name
                 )

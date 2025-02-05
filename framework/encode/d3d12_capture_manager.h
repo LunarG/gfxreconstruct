@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -497,6 +497,11 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                                UINT                          num_barriers,
                                                                const D3D12_RESOURCE_BARRIER* barriers);
 
+    void PostProcess_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
+                                                     HRESULT                    result,
+                                                     ID3D12CommandAllocator*    pAllocator,
+                                                     ID3D12PipelineState*       pInitialState);
+
     void PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
         ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          desc,
@@ -843,22 +848,22 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
     virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                format::ThreadId        thread_id,
+                                                util::ThreadData*       thread_data,
                                                 util::FileOutputStream* asset_file_stream,
                                                 const std::string*      asset_file_name) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(file_stream);
-        GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+        GFXRECON_UNREFERENCED_PARAMETER(thread_data);
         GFXRECON_UNREFERENCED_PARAMETER(asset_file_stream);
         GFXRECON_UNREFERENCED_PARAMETER(asset_file_name);
     }
 
     virtual void WriteAssets(util::FileOutputStream* assert_file_stream,
                              const std::string*      asset_file_name,
-                             format::ThreadId        thread_id) override
+                             util::ThreadData*       thread_data) override
     {}
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,

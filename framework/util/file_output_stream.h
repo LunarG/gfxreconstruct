@@ -28,6 +28,7 @@
 #include "util/defines.h"
 #include "util/output_stream.h"
 #include "util/platform.h"
+#include "util/thread_data.h"
 
 #include <cstdint>
 #include <cstdio>

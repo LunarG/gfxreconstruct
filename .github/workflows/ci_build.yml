@@ -42,7 +42,7 @@ jobs:
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - uses: lukka/get-cmake@latest
       with:
-        cmakeVersion: 3.16.3
+        cmakeVersion: 3.24
     - name: Run build script
       run: |
         if [ "${{ matrix.config.type }}" == "release" ]

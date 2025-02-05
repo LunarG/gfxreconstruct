@@ -415,6 +415,16 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         GFXRECON_WRITE_CONSOLE("\tEngine version: %u", vulkan_stats_consumer.GetEngineVersion());
         GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
 
+        if (!vulkan_stats_consumer.GetResolutions().empty())
+        {
+            std::string resolutions = "\tUsed resolutions: ";
+            for (const auto& resolution : vulkan_stats_consumer.GetResolutions())
+            {
+                resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
+            }
+            GFXRECON_WRITE_CONSOLE(resolutions.c_str());
+        }
+
         // Properties for physical devices used to create logical devices.
         std::vector<const VkPhysicalDeviceProperties*> used_device_properties;
         auto                                           used_devices = vulkan_stats_consumer.GetInstantiatedDevices();
@@ -464,6 +474,23 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
         // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
         // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());
+
+        // Print Physical device info
+        const gfxrecon::decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
+            vulkan_stats_consumer.GetPhysicalDeviceProperties();
+
+        GFXRECON_WRITE_CONSOLE("\nPhysical device properties:");
+        for (const auto& props : physical_device_properties)
+        {
+            GFXRECON_WRITE_CONSOLE("  Device: %" PRIu64, props.first);
+            GFXRECON_WRITE_CONSOLE("\tAPI version: 0x%x", props.second.apiVersion);
+            GFXRECON_WRITE_CONSOLE("\tDriver version: 0x%x", props.second.driverVersion);
+            GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", props.second.vendorID);
+            GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", props.second.deviceID);
+            GFXRECON_WRITE_CONSOLE("\tDevice type: %u", props.second.deviceType);
+            GFXRECON_WRITE_CONSOLE("\tPipeline cache UUID: 0x%x", props.second.pipelineCacheUUID);
+            GFXRECON_WRITE_CONSOLE("\tDevice name: %s", props.second.deviceName);
+        }
 
         if (file_processor.GetCurrentFrameNumber() == 0)
         {

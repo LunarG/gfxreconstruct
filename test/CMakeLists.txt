@@ -25,8 +25,7 @@
 ###############################################################################
 
 
-if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
-    add_subdirectory(test_apps)
-endif ()
+cmake_minimum_required(VERSION 3.24.0)
+add_subdirectory(test_apps)
 
 # TODO: runner goes here

@@ -542,6 +542,76 @@ template <> std::string ToString<StdVideoH265SliceType>(const StdVideoH265SliceT
     return "Unhandled StdVideoH265SliceType";
 }
 
+template <> std::string ToString<VkAccelerationStructureBuildTypeKHR>(const VkAccelerationStructureBuildTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR";
+    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR";
+    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureBuildTypeKHR";
+}
+
+template <> std::string ToString<VkAccelerationStructureCompatibilityKHR>(const VkAccelerationStructureCompatibilityKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR: return "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR";
+    case VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR: return "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureCompatibilityKHR";
+}
+
+template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(const VkAccelerationStructureCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR: return "VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR";
+    case VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT: return "VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT";
+    case VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV: return "VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureCreateFlagBitsKHR";
+}
+
+template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkAccelerationStructureCreateFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkAccelerationStructureMemoryRequirementsTypeNV>(const VkAccelerationStructureMemoryRequirementsTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV";
+    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV";
+    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureMemoryRequirementsTypeNV";
+}
+
+template <> std::string ToString<VkAccelerationStructureMotionInstanceTypeNV>(const VkAccelerationStructureMotionInstanceTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV";
+    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV";
+    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureMotionInstanceTypeNV";
+}
+
+template <> std::string ToString<VkAccelerationStructureTypeKHR>(const VkAccelerationStructureTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR";
+    case VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR";
+    case VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR";
+    default: break;
+    }
+    return "Unhandled VkAccelerationStructureTypeKHR";
+}
+
 template <> std::string ToString<VkAccessFlagBits>(const VkAccessFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -582,6 +652,112 @@ template <> std::string ToString<VkAccessFlagBits>(const VkAccessFlagBits& value
 template <> std::string ToString<VkAccessFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkAccessFlagBits>(vkFlags);
+}
+
+std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value)
+{
+    switch (value) {
+    case VK_ACCESS_2_NONE: return "VK_ACCESS_2_NONE";
+    case VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT: return "VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT";
+    case VK_ACCESS_2_INDEX_READ_BIT: return "VK_ACCESS_2_INDEX_READ_BIT";
+    case VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT: return "VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT";
+    case VK_ACCESS_2_UNIFORM_READ_BIT: return "VK_ACCESS_2_UNIFORM_READ_BIT";
+    case VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT";
+    case VK_ACCESS_2_SHADER_READ_BIT: return "VK_ACCESS_2_SHADER_READ_BIT";
+    case VK_ACCESS_2_SHADER_WRITE_BIT: return "VK_ACCESS_2_SHADER_WRITE_BIT";
+    case VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT";
+    case VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT: return "VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT";
+    case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT";
+    case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT: return "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT";
+    case VK_ACCESS_2_TRANSFER_READ_BIT: return "VK_ACCESS_2_TRANSFER_READ_BIT";
+    case VK_ACCESS_2_TRANSFER_WRITE_BIT: return "VK_ACCESS_2_TRANSFER_WRITE_BIT";
+    case VK_ACCESS_2_HOST_READ_BIT: return "VK_ACCESS_2_HOST_READ_BIT";
+    case VK_ACCESS_2_HOST_WRITE_BIT: return "VK_ACCESS_2_HOST_WRITE_BIT";
+    case VK_ACCESS_2_MEMORY_READ_BIT: return "VK_ACCESS_2_MEMORY_READ_BIT";
+    case VK_ACCESS_2_MEMORY_WRITE_BIT: return "VK_ACCESS_2_MEMORY_WRITE_BIT";
+    case VK_ACCESS_2_SHADER_SAMPLED_READ_BIT: return "VK_ACCESS_2_SHADER_SAMPLED_READ_BIT";
+    case VK_ACCESS_2_SHADER_STORAGE_READ_BIT: return "VK_ACCESS_2_SHADER_STORAGE_READ_BIT";
+    case VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT: return "VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT";
+    case VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR: return "VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR";
+    case VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR: return "VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR";
+    case VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR: return "VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR";
+    case VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR: return "VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR";
+    case VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT";
+    case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT";
+    case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT";
+    case VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT: return "VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT";
+    case VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV: return "VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV";
+    case VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV: return "VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV";
+    case VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR: return "VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR";
+    case VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR: return "VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR";
+    case VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR: return "VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR";
+    case VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT: return "VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT";
+    case VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT: return "VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT";
+    case VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT: return "VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT";
+    case VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI: return "VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI";
+    case VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR: return "VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR";
+    case VK_ACCESS_2_MICROMAP_READ_BIT_EXT: return "VK_ACCESS_2_MICROMAP_READ_BIT_EXT";
+    case VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT: return "VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT";
+    case VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV: return "VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV";
+    case VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV: return "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkAccessFlagBits2";
+}
+
+std::string VkAccessFlags2ToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkAccessFlagBits2ToString(static_cast<VkAccessFlagBits2>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkAccessFlagBits2ToString(0U));
+    }
+    return str;
+}
+
+template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(const VkAcquireProfilingLockFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    return "Unhandled VkAcquireProfilingLockFlagBitsKHR";
+}
+
+template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkAcquireProfilingLockFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkAntiLagModeAMD>(const VkAntiLagModeAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD: return "VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD";
+    case VK_ANTI_LAG_MODE_ON_AMD: return "VK_ANTI_LAG_MODE_ON_AMD";
+    case VK_ANTI_LAG_MODE_OFF_AMD: return "VK_ANTI_LAG_MODE_OFF_AMD";
+    default: break;
+    }
+    return "Unhandled VkAntiLagModeAMD";
+}
+
+template <> std::string ToString<VkAntiLagStageAMD>(const VkAntiLagStageAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_ANTI_LAG_STAGE_INPUT_AMD: return "VK_ANTI_LAG_STAGE_INPUT_AMD";
+    case VK_ANTI_LAG_STAGE_PRESENT_AMD: return "VK_ANTI_LAG_STAGE_PRESENT_AMD";
+    default: break;
+    }
+    return "Unhandled VkAntiLagStageAMD";
 }
 
 template <> std::string ToString<VkAttachmentDescriptionFlagBits>(const VkAttachmentDescriptionFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -707,6 +883,27 @@ template <> std::string ToString<VkBlendOp>(const VkBlendOp& value, ToStringFlag
     return "Unhandled VkBlendOp";
 }
 
+template <> std::string ToString<VkBlendOverlapEXT>(const VkBlendOverlapEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BLEND_OVERLAP_UNCORRELATED_EXT: return "VK_BLEND_OVERLAP_UNCORRELATED_EXT";
+    case VK_BLEND_OVERLAP_DISJOINT_EXT: return "VK_BLEND_OVERLAP_DISJOINT_EXT";
+    case VK_BLEND_OVERLAP_CONJOINT_EXT: return "VK_BLEND_OVERLAP_CONJOINT_EXT";
+    default: break;
+    }
+    return "Unhandled VkBlendOverlapEXT";
+}
+
+template <> std::string ToString<VkBlockMatchWindowCompareModeQCOM>(const VkBlockMatchWindowCompareModeQCOM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM: return "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM";
+    case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM: return "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM";
+    default: break;
+    }
+    return "Unhandled VkBlockMatchWindowCompareModeQCOM";
+}
+
 template <> std::string ToString<VkBorderColor>(const VkBorderColor& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -782,6 +979,146 @@ template <> std::string ToString<VkBufferUsageFlagBits>(VkFlags vkFlags, ToStrin
     return BitmaskToString<VkBufferUsageFlagBits>(vkFlags);
 }
 
+std::string VkBufferUsageFlagBits2ToString(const VkBufferUsageFlagBits2 value)
+{
+    switch (value) {
+    case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT: return "VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT";
+    case VK_BUFFER_USAGE_2_TRANSFER_DST_BIT: return "VK_BUFFER_USAGE_2_TRANSFER_DST_BIT";
+    case VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT: return "VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT: return "VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT: return "VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT: return "VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT: return "VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT: return "VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT: return "VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT";
+    case VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT: return "VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT";
+    case VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX: return "VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX";
+    case VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT: return "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
+    case VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR: return "VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR";
+    case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT";
+    case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT";
+    case VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR";
+    case VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR";
+    case VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR";
+    case VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR";
+    case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR: return "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR";
+    case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR: return "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR";
+    case VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT";
+    case VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT";
+    case VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT";
+    case VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT: return "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT";
+    case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT: return "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
+    case VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkBufferUsageFlagBits2";
+}
+
+std::string VkBufferUsageFlags2ToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkBufferUsageFlagBits2ToString(static_cast<VkBufferUsageFlagBits2>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkBufferUsageFlagBits2ToString(0U));
+    }
+    return str;
+}
+
+template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(const VkBuildAccelerationStructureFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV: return "VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV";
+    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR";
+    default: break;
+    }
+    return "Unhandled VkBuildAccelerationStructureFlagBitsKHR";
+}
+
+template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkBuildAccelerationStructureFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkBuildAccelerationStructureModeKHR>(const VkBuildAccelerationStructureModeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR";
+    case VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR";
+    default: break;
+    }
+    return "Unhandled VkBuildAccelerationStructureModeKHR";
+}
+
+template <> std::string ToString<VkBuildMicromapFlagBitsEXT>(const VkBuildMicromapFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT: return "VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT";
+    case VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT: return "VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT";
+    case VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT: return "VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkBuildMicromapFlagBitsEXT";
+}
+
+template <> std::string ToString<VkBuildMicromapFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkBuildMicromapFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkBuildMicromapModeEXT>(const VkBuildMicromapModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_BUILD_MICROMAP_MODE_BUILD_EXT: return "VK_BUILD_MICROMAP_MODE_BUILD_EXT";
+    default: break;
+    }
+    return "Unhandled VkBuildMicromapModeEXT";
+}
+
+template <> std::string ToString<VkChromaLocation>(const VkChromaLocation& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_CHROMA_LOCATION_COSITED_EVEN: return "VK_CHROMA_LOCATION_COSITED_EVEN";
+    case VK_CHROMA_LOCATION_MIDPOINT: return "VK_CHROMA_LOCATION_MIDPOINT";
+    default: break;
+    }
+    return "Unhandled VkChromaLocation";
+}
+
+template <> std::string ToString<VkCoarseSampleOrderTypeNV>(const VkCoarseSampleOrderTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV";
+    case VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV";
+    case VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV";
+    case VK_COARSE_SAMPLE_ORDER_TYPE_SAMPLE_MAJOR_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_SAMPLE_MAJOR_NV";
+    default: break;
+    }
+    return "Unhandled VkCoarseSampleOrderTypeNV";
+}
+
 template <> std::string ToString<VkColorComponentFlagBits>(const VkColorComponentFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -797,6 +1134,30 @@ template <> std::string ToString<VkColorComponentFlagBits>(const VkColorComponen
 template <> std::string ToString<VkColorComponentFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkColorComponentFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkColorSpaceKHR>(const VkColorSpaceKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COLOR_SPACE_SRGB_NONLINEAR_KHR: return "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR";
+    case VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT: return "VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT";
+    case VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT: return "VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT";
+    case VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT: return "VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT";
+    case VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT: return "VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT";
+    case VK_COLOR_SPACE_BT709_LINEAR_EXT: return "VK_COLOR_SPACE_BT709_LINEAR_EXT";
+    case VK_COLOR_SPACE_BT709_NONLINEAR_EXT: return "VK_COLOR_SPACE_BT709_NONLINEAR_EXT";
+    case VK_COLOR_SPACE_BT2020_LINEAR_EXT: return "VK_COLOR_SPACE_BT2020_LINEAR_EXT";
+    case VK_COLOR_SPACE_HDR10_ST2084_EXT: return "VK_COLOR_SPACE_HDR10_ST2084_EXT";
+    case VK_COLOR_SPACE_DOLBYVISION_EXT: return "VK_COLOR_SPACE_DOLBYVISION_EXT";
+    case VK_COLOR_SPACE_HDR10_HLG_EXT: return "VK_COLOR_SPACE_HDR10_HLG_EXT";
+    case VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT: return "VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT";
+    case VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT: return "VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT";
+    case VK_COLOR_SPACE_PASS_THROUGH_EXT: return "VK_COLOR_SPACE_PASS_THROUGH_EXT";
+    case VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT: return "VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT";
+    case VK_COLOR_SPACE_DISPLAY_NATIVE_AMD: return "VK_COLOR_SPACE_DISPLAY_NATIVE_AMD";
+    default: break;
+    }
+    return "Unhandled VkColorSpaceKHR";
 }
 
 template <> std::string ToString<VkCommandBufferLevel>(const VkCommandBufferLevel& value, ToStringFlags, uint32_t, uint32_t)
@@ -900,6 +1261,125 @@ template <> std::string ToString<VkComponentSwizzle>(const VkComponentSwizzle& v
     return "Unhandled VkComponentSwizzle";
 }
 
+template <> std::string ToString<VkComponentTypeKHR>(const VkComponentTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COMPONENT_TYPE_FLOAT16_KHR: return "VK_COMPONENT_TYPE_FLOAT16_KHR";
+    case VK_COMPONENT_TYPE_FLOAT32_KHR: return "VK_COMPONENT_TYPE_FLOAT32_KHR";
+    case VK_COMPONENT_TYPE_FLOAT64_KHR: return "VK_COMPONENT_TYPE_FLOAT64_KHR";
+    case VK_COMPONENT_TYPE_SINT8_KHR: return "VK_COMPONENT_TYPE_SINT8_KHR";
+    case VK_COMPONENT_TYPE_SINT16_KHR: return "VK_COMPONENT_TYPE_SINT16_KHR";
+    case VK_COMPONENT_TYPE_SINT32_KHR: return "VK_COMPONENT_TYPE_SINT32_KHR";
+    case VK_COMPONENT_TYPE_SINT64_KHR: return "VK_COMPONENT_TYPE_SINT64_KHR";
+    case VK_COMPONENT_TYPE_UINT8_KHR: return "VK_COMPONENT_TYPE_UINT8_KHR";
+    case VK_COMPONENT_TYPE_UINT16_KHR: return "VK_COMPONENT_TYPE_UINT16_KHR";
+    case VK_COMPONENT_TYPE_UINT32_KHR: return "VK_COMPONENT_TYPE_UINT32_KHR";
+    case VK_COMPONENT_TYPE_UINT64_KHR: return "VK_COMPONENT_TYPE_UINT64_KHR";
+    default: break;
+    }
+    return "Unhandled VkComponentTypeKHR";
+}
+
+template <> std::string ToString<VkCompositeAlphaFlagBitsKHR>(const VkCompositeAlphaFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR: return "VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR";
+    case VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR: return "VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR";
+    case VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR: return "VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR";
+    case VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR: return "VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkCompositeAlphaFlagBitsKHR";
+}
+
+template <> std::string ToString<VkCompositeAlphaFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkCompositeAlphaFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkConditionalRenderingFlagBitsEXT>(const VkConditionalRenderingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT: return "VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkConditionalRenderingFlagBitsEXT";
+}
+
+template <> std::string ToString<VkConditionalRenderingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkConditionalRenderingFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkConservativeRasterizationModeEXT>(const VkConservativeRasterizationModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT";
+    case VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT";
+    case VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT";
+    default: break;
+    }
+    return "Unhandled VkConservativeRasterizationModeEXT";
+}
+
+template <> std::string ToString<VkCopyAccelerationStructureModeKHR>(const VkCopyAccelerationStructureModeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR";
+    case VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR";
+    case VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR";
+    case VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR";
+    default: break;
+    }
+    return "Unhandled VkCopyAccelerationStructureModeKHR";
+}
+
+template <> std::string ToString<VkCopyMicromapModeEXT>(const VkCopyMicromapModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COPY_MICROMAP_MODE_CLONE_EXT: return "VK_COPY_MICROMAP_MODE_CLONE_EXT";
+    case VK_COPY_MICROMAP_MODE_SERIALIZE_EXT: return "VK_COPY_MICROMAP_MODE_SERIALIZE_EXT";
+    case VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT: return "VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT";
+    case VK_COPY_MICROMAP_MODE_COMPACT_EXT: return "VK_COPY_MICROMAP_MODE_COMPACT_EXT";
+    default: break;
+    }
+    return "Unhandled VkCopyMicromapModeEXT";
+}
+
+template <> std::string ToString<VkCoverageModulationModeNV>(const VkCoverageModulationModeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COVERAGE_MODULATION_MODE_NONE_NV: return "VK_COVERAGE_MODULATION_MODE_NONE_NV";
+    case VK_COVERAGE_MODULATION_MODE_RGB_NV: return "VK_COVERAGE_MODULATION_MODE_RGB_NV";
+    case VK_COVERAGE_MODULATION_MODE_ALPHA_NV: return "VK_COVERAGE_MODULATION_MODE_ALPHA_NV";
+    case VK_COVERAGE_MODULATION_MODE_RGBA_NV: return "VK_COVERAGE_MODULATION_MODE_RGBA_NV";
+    default: break;
+    }
+    return "Unhandled VkCoverageModulationModeNV";
+}
+
+template <> std::string ToString<VkCoverageReductionModeNV>(const VkCoverageReductionModeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_COVERAGE_REDUCTION_MODE_MERGE_NV: return "VK_COVERAGE_REDUCTION_MODE_MERGE_NV";
+    case VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV: return "VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV";
+    default: break;
+    }
+    return "Unhandled VkCoverageReductionModeNV";
+}
+
+template <> std::string ToString<VkCubicFilterWeightsQCOM>(const VkCubicFilterWeightsQCOM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM";
+    case VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM";
+    case VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM";
+    case VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM";
+    default: break;
+    }
+    return "Unhandled VkCubicFilterWeightsQCOM";
+}
+
 template <> std::string ToString<VkCullModeFlagBits>(const VkCullModeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -917,6 +1397,107 @@ template <> std::string ToString<VkCullModeFlagBits>(VkFlags vkFlags, ToStringFl
     return BitmaskToString<VkCullModeFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkDebugReportFlagBitsEXT>(const VkDebugReportFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEBUG_REPORT_INFORMATION_BIT_EXT: return "VK_DEBUG_REPORT_INFORMATION_BIT_EXT";
+    case VK_DEBUG_REPORT_WARNING_BIT_EXT: return "VK_DEBUG_REPORT_WARNING_BIT_EXT";
+    case VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT: return "VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT";
+    case VK_DEBUG_REPORT_ERROR_BIT_EXT: return "VK_DEBUG_REPORT_ERROR_BIT_EXT";
+    case VK_DEBUG_REPORT_DEBUG_BIT_EXT: return "VK_DEBUG_REPORT_DEBUG_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDebugReportFlagBitsEXT";
+}
+
+template <> std::string ToString<VkDebugReportFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDebugReportFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkDebugReportObjectTypeEXT>(const VkDebugReportObjectTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_CACHE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_CACHE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_LAYOUT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_LAYOUT_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_CU_MODULE_NVX_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CU_MODULE_NVX_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_CU_FUNCTION_NVX_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CU_FUNCTION_NVX_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT";
+    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT";
+    default: break;
+    }
+    return "Unhandled VkDebugReportObjectTypeEXT";
+}
+
+template <> std::string ToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(const VkDebugUtilsMessageSeverityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDebugUtilsMessageSeverityFlagBitsEXT";
+}
+
+template <> std::string ToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkDebugUtilsMessageTypeFlagBitsEXT>(const VkDebugUtilsMessageTypeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT";
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDebugUtilsMessageTypeFlagBitsEXT";
+}
+
+template <> std::string ToString<VkDebugUtilsMessageTypeFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDebugUtilsMessageTypeFlagBitsEXT>(vkFlags);
+}
+
 template <> std::string ToString<VkDependencyFlagBits>(const VkDependencyFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -932,6 +1513,44 @@ template <> std::string ToString<VkDependencyFlagBits>(const VkDependencyFlagBit
 template <> std::string ToString<VkDependencyFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkDependencyFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkDepthBiasRepresentationEXT>(const VkDepthBiasRepresentationEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT";
+    case VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT";
+    case VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDepthBiasRepresentationEXT";
+}
+
+template <> std::string ToString<VkDepthClampModeEXT>(const VkDepthClampModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT: return "VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT";
+    case VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT: return "VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT";
+    default: break;
+    }
+    return "Unhandled VkDepthClampModeEXT";
+}
+
+template <> std::string ToString<VkDescriptorBindingFlagBits>(const VkDescriptorBindingFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT: return "VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT";
+    case VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT: return "VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT";
+    case VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT: return "VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT";
+    case VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT: return "VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT";
+    default: break;
+    }
+    return "Unhandled VkDescriptorBindingFlagBits";
+}
+
+template <> std::string ToString<VkDescriptorBindingFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDescriptorBindingFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkDescriptorPoolCreateFlagBits>(const VkDescriptorPoolCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -997,6 +1616,120 @@ template <> std::string ToString<VkDescriptorType>(const VkDescriptorType& value
     return "Unhandled VkDescriptorType";
 }
 
+template <> std::string ToString<VkDescriptorUpdateTemplateType>(const VkDescriptorUpdateTemplateType& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET: return "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET";
+    case VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS: return "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS";
+    default: break;
+    }
+    return "Unhandled VkDescriptorUpdateTemplateType";
+}
+
+template <> std::string ToString<VkDeviceAddressBindingFlagBitsEXT>(const VkDeviceAddressBindingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT: return "VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceAddressBindingFlagBitsEXT";
+}
+
+template <> std::string ToString<VkDeviceAddressBindingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDeviceAddressBindingFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkDeviceAddressBindingTypeEXT>(const VkDeviceAddressBindingTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT: return "VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT";
+    case VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT: return "VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceAddressBindingTypeEXT";
+}
+
+template <> std::string ToString<VkDeviceDiagnosticsConfigFlagBitsNV>(const VkDeviceDiagnosticsConfigFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV";
+    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV";
+    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV";
+    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkDeviceDiagnosticsConfigFlagBitsNV";
+}
+
+template <> std::string ToString<VkDeviceDiagnosticsConfigFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDeviceDiagnosticsConfigFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkDeviceEventTypeEXT>(const VkDeviceEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT: return "VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceEventTypeEXT";
+}
+
+template <> std::string ToString<VkDeviceFaultAddressTypeEXT>(const VkDeviceFaultAddressTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_EXECUTE_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_EXECUTE_INVALID_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_UNKNOWN_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_UNKNOWN_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_INVALID_EXT";
+    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_FAULT_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_FAULT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceFaultAddressTypeEXT";
+}
+
+template <> std::string ToString<VkDeviceFaultVendorBinaryHeaderVersionEXT>(const VkDeviceFaultVendorBinaryHeaderVersionEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT: return "VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceFaultVendorBinaryHeaderVersionEXT";
+}
+
+template <> std::string ToString<VkDeviceGroupPresentModeFlagBitsKHR>(const VkDeviceGroupPresentModeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR";
+    case VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR";
+    case VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR";
+    case VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkDeviceGroupPresentModeFlagBitsKHR";
+}
+
+template <> std::string ToString<VkDeviceGroupPresentModeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDeviceGroupPresentModeFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkDeviceMemoryReportEventTypeEXT>(const VkDeviceMemoryReportEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT";
+    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT";
+    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT";
+    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_UNIMPORT_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_UNIMPORT_EXT";
+    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATION_FAILED_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATION_FAILED_EXT";
+    default: break;
+    }
+    return "Unhandled VkDeviceMemoryReportEventTypeEXT";
+}
+
 template <> std::string ToString<VkDeviceQueueCreateFlagBits>(const VkDeviceQueueCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1009,6 +1742,121 @@ template <> std::string ToString<VkDeviceQueueCreateFlagBits>(const VkDeviceQueu
 template <> std::string ToString<VkDeviceQueueCreateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkDeviceQueueCreateFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkDirectDriverLoadingModeLUNARG>(const VkDirectDriverLoadingModeLUNARG& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG: return "VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG";
+    case VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG: return "VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG";
+    default: break;
+    }
+    return "Unhandled VkDirectDriverLoadingModeLUNARG";
+}
+
+template <> std::string ToString<VkDiscardRectangleModeEXT>(const VkDiscardRectangleModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT: return "VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT";
+    case VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT: return "VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT";
+    default: break;
+    }
+    return "Unhandled VkDiscardRectangleModeEXT";
+}
+
+template <> std::string ToString<VkDisplacementMicromapFormatNV>(const VkDisplacementMicromapFormatNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV";
+    case VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV";
+    case VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV";
+    default: break;
+    }
+    return "Unhandled VkDisplacementMicromapFormatNV";
+}
+
+template <> std::string ToString<VkDisplayEventTypeEXT>(const VkDisplayEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT: return "VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT";
+    default: break;
+    }
+    return "Unhandled VkDisplayEventTypeEXT";
+}
+
+template <> std::string ToString<VkDisplayPlaneAlphaFlagBitsKHR>(const VkDisplayPlaneAlphaFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR";
+    case VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR";
+    case VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR";
+    case VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkDisplayPlaneAlphaFlagBitsKHR";
+}
+
+template <> std::string ToString<VkDisplayPlaneAlphaFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkDisplayPlaneAlphaFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkDisplayPowerStateEXT>(const VkDisplayPowerStateEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISPLAY_POWER_STATE_OFF_EXT: return "VK_DISPLAY_POWER_STATE_OFF_EXT";
+    case VK_DISPLAY_POWER_STATE_SUSPEND_EXT: return "VK_DISPLAY_POWER_STATE_SUSPEND_EXT";
+    case VK_DISPLAY_POWER_STATE_ON_EXT: return "VK_DISPLAY_POWER_STATE_ON_EXT";
+    default: break;
+    }
+    return "Unhandled VkDisplayPowerStateEXT";
+}
+
+template <> std::string ToString<VkDisplaySurfaceStereoTypeNV>(const VkDisplaySurfaceStereoTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV";
+    case VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV";
+    case VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV";
+    case VK_DISPLAY_SURFACE_STEREO_TYPE_INBAND_DISPLAYPORT_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_INBAND_DISPLAYPORT_NV";
+    default: break;
+    }
+    return "Unhandled VkDisplaySurfaceStereoTypeNV";
+}
+
+template <> std::string ToString<VkDriverId>(const VkDriverId& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DRIVER_ID_AMD_PROPRIETARY: return "VK_DRIVER_ID_AMD_PROPRIETARY";
+    case VK_DRIVER_ID_AMD_OPEN_SOURCE: return "VK_DRIVER_ID_AMD_OPEN_SOURCE";
+    case VK_DRIVER_ID_MESA_RADV: return "VK_DRIVER_ID_MESA_RADV";
+    case VK_DRIVER_ID_NVIDIA_PROPRIETARY: return "VK_DRIVER_ID_NVIDIA_PROPRIETARY";
+    case VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS: return "VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS";
+    case VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA: return "VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA";
+    case VK_DRIVER_ID_IMAGINATION_PROPRIETARY: return "VK_DRIVER_ID_IMAGINATION_PROPRIETARY";
+    case VK_DRIVER_ID_QUALCOMM_PROPRIETARY: return "VK_DRIVER_ID_QUALCOMM_PROPRIETARY";
+    case VK_DRIVER_ID_ARM_PROPRIETARY: return "VK_DRIVER_ID_ARM_PROPRIETARY";
+    case VK_DRIVER_ID_GOOGLE_SWIFTSHADER: return "VK_DRIVER_ID_GOOGLE_SWIFTSHADER";
+    case VK_DRIVER_ID_GGP_PROPRIETARY: return "VK_DRIVER_ID_GGP_PROPRIETARY";
+    case VK_DRIVER_ID_BROADCOM_PROPRIETARY: return "VK_DRIVER_ID_BROADCOM_PROPRIETARY";
+    case VK_DRIVER_ID_MESA_LLVMPIPE: return "VK_DRIVER_ID_MESA_LLVMPIPE";
+    case VK_DRIVER_ID_MOLTENVK: return "VK_DRIVER_ID_MOLTENVK";
+    case VK_DRIVER_ID_COREAVI_PROPRIETARY: return "VK_DRIVER_ID_COREAVI_PROPRIETARY";
+    case VK_DRIVER_ID_JUICE_PROPRIETARY: return "VK_DRIVER_ID_JUICE_PROPRIETARY";
+    case VK_DRIVER_ID_VERISILICON_PROPRIETARY: return "VK_DRIVER_ID_VERISILICON_PROPRIETARY";
+    case VK_DRIVER_ID_MESA_TURNIP: return "VK_DRIVER_ID_MESA_TURNIP";
+    case VK_DRIVER_ID_MESA_V3DV: return "VK_DRIVER_ID_MESA_V3DV";
+    case VK_DRIVER_ID_MESA_PANVK: return "VK_DRIVER_ID_MESA_PANVK";
+    case VK_DRIVER_ID_SAMSUNG_PROPRIETARY: return "VK_DRIVER_ID_SAMSUNG_PROPRIETARY";
+    case VK_DRIVER_ID_MESA_VENUS: return "VK_DRIVER_ID_MESA_VENUS";
+    case VK_DRIVER_ID_MESA_DOZEN: return "VK_DRIVER_ID_MESA_DOZEN";
+    case VK_DRIVER_ID_MESA_NVK: return "VK_DRIVER_ID_MESA_NVK";
+    case VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA: return "VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA";
+    case VK_DRIVER_ID_MESA_HONEYKRISP: return "VK_DRIVER_ID_MESA_HONEYKRISP";
+    case VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN: return "VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN";
+    default: break;
+    }
+    return "Unhandled VkDriverId";
 }
 
 template <> std::string ToString<VkDynamicState>(const VkDynamicState& value, ToStringFlags, uint32_t, uint32_t)
@@ -1106,6 +1954,148 @@ template <> std::string ToString<VkEventCreateFlagBits>(VkFlags vkFlags, ToStrin
     return BitmaskToString<VkEventCreateFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkExternalFenceFeatureFlagBits>(const VkExternalFenceFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT";
+    case VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT";
+    default: break;
+    }
+    return "Unhandled VkExternalFenceFeatureFlagBits";
+}
+
+template <> std::string ToString<VkExternalFenceFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalFenceFeatureFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalFenceHandleTypeFlagBits>(const VkExternalFenceHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT";
+    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT";
+    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
+    case VK_EXTERNAL_FENCE_HANDLE_TYPE_SYNC_FD_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_SYNC_FD_BIT";
+    default: break;
+    }
+    return "Unhandled VkExternalFenceHandleTypeFlagBits";
+}
+
+template <> std::string ToString<VkExternalFenceHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalFenceHandleTypeFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalMemoryFeatureFlagBits>(const VkExternalMemoryFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT";
+    case VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT";
+    case VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT";
+    default: break;
+    }
+    return "Unhandled VkExternalMemoryFeatureFlagBits";
+}
+
+template <> std::string ToString<VkExternalMemoryFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalMemoryFeatureFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalMemoryFeatureFlagBitsNV>(const VkExternalMemoryFeatureFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV";
+    case VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV";
+    case VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkExternalMemoryFeatureFlagBitsNV";
+}
+
+template <> std::string ToString<VkExternalMemoryFeatureFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalMemoryFeatureFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalMemoryHandleTypeFlagBits>(const VkExternalMemoryHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_MAPPED_FOREIGN_MEMORY_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_MAPPED_FOREIGN_MEMORY_BIT_EXT";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_ZIRCON_VMO_BIT_FUCHSIA: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_ZIRCON_VMO_BIT_FUCHSIA";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_RDMA_ADDRESS_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_RDMA_ADDRESS_BIT_NV";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_SCREEN_BUFFER_BIT_QNX: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_SCREEN_BUFFER_BIT_QNX";
+    default: break;
+    }
+    return "Unhandled VkExternalMemoryHandleTypeFlagBits";
+}
+
+template <> std::string ToString<VkExternalMemoryHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalMemoryHandleTypeFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalMemoryHandleTypeFlagBitsNV>(const VkExternalMemoryHandleTypeFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV";
+    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkExternalMemoryHandleTypeFlagBitsNV";
+}
+
+template <> std::string ToString<VkExternalMemoryHandleTypeFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalMemoryHandleTypeFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalSemaphoreFeatureFlagBits>(const VkExternalSemaphoreFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT";
+    case VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT";
+    default: break;
+    }
+    return "Unhandled VkExternalSemaphoreFeatureFlagBits";
+}
+
+template <> std::string ToString<VkExternalSemaphoreFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalSemaphoreFeatureFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkExternalSemaphoreHandleTypeFlagBits>(const VkExternalSemaphoreHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT";
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT";
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT";
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT";
+    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_ZIRCON_EVENT_BIT_FUCHSIA: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_ZIRCON_EVENT_BIT_FUCHSIA";
+    default: break;
+    }
+    return "Unhandled VkExternalSemaphoreHandleTypeFlagBits";
+}
+
+template <> std::string ToString<VkExternalSemaphoreHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkExternalSemaphoreHandleTypeFlagBits>(vkFlags);
+}
+
 template <> std::string ToString<VkFenceCreateFlagBits>(const VkFenceCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1118,6 +2108,20 @@ template <> std::string ToString<VkFenceCreateFlagBits>(const VkFenceCreateFlagB
 template <> std::string ToString<VkFenceCreateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkFenceCreateFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkFenceImportFlagBits>(const VkFenceImportFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FENCE_IMPORT_TEMPORARY_BIT: return "VK_FENCE_IMPORT_TEMPORARY_BIT";
+    default: break;
+    }
+    return "Unhandled VkFenceImportFlagBits";
+}
+
+template <> std::string ToString<VkFenceImportFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkFenceImportFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkFilter>(const VkFilter& value, ToStringFlags, uint32_t, uint32_t)
@@ -1433,6 +2437,140 @@ template <> std::string ToString<VkFormatFeatureFlagBits>(VkFlags vkFlags, ToStr
     return BitmaskToString<VkFormatFeatureFlagBits>(vkFlags);
 }
 
+std::string VkFormatFeatureFlagBits2ToString(const VkFormatFeatureFlagBits2 value)
+{
+    switch (value) {
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT";
+    case VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT";
+    case VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT";
+    case VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT: return "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT";
+    case VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT: return "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT";
+    case VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT: return "VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT";
+    case VK_FORMAT_FEATURE_2_BLIT_SRC_BIT: return "VK_FORMAT_FEATURE_2_BLIT_SRC_BIT";
+    case VK_FORMAT_FEATURE_2_BLIT_DST_BIT: return "VK_FORMAT_FEATURE_2_BLIT_DST_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT";
+    case VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT: return "VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT";
+    case VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT: return "VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT";
+    case VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT: return "VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT";
+    case VK_FORMAT_FEATURE_2_DISJOINT_BIT: return "VK_FORMAT_FEATURE_2_DISJOINT_BIT";
+    case VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT: return "VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT";
+    case VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT";
+    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT";
+    case VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT: return "VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT";
+    case VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR: return "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT: return "VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT";
+    case VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV: return "VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV";
+    case VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM: return "VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM";
+    case VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM: return "VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM";
+    case VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM: return "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM";
+    case VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM: return "VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM";
+    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV";
+    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV";
+    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV";
+    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
+    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkFormatFeatureFlagBits2";
+}
+
+std::string VkFormatFeatureFlags2ToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkFormatFeatureFlagBits2ToString(static_cast<VkFormatFeatureFlagBits2>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkFormatFeatureFlagBits2ToString(0U));
+    }
+    return str;
+}
+
+template <> std::string ToString<VkFragmentShadingRateCombinerOpKHR>(const VkFragmentShadingRateCombinerOpKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR";
+    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR";
+    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR";
+    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR";
+    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR";
+    default: break;
+    }
+    return "Unhandled VkFragmentShadingRateCombinerOpKHR";
+}
+
+template <> std::string ToString<VkFragmentShadingRateNV>(const VkFragmentShadingRateNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X2_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X4_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X4_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X2_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X4_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X4_PIXELS_NV";
+    case VK_FRAGMENT_SHADING_RATE_2_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_2_INVOCATIONS_PER_PIXEL_NV";
+    case VK_FRAGMENT_SHADING_RATE_4_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_4_INVOCATIONS_PER_PIXEL_NV";
+    case VK_FRAGMENT_SHADING_RATE_8_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_8_INVOCATIONS_PER_PIXEL_NV";
+    case VK_FRAGMENT_SHADING_RATE_16_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_16_INVOCATIONS_PER_PIXEL_NV";
+    case VK_FRAGMENT_SHADING_RATE_NO_INVOCATIONS_NV: return "VK_FRAGMENT_SHADING_RATE_NO_INVOCATIONS_NV";
+    default: break;
+    }
+    return "Unhandled VkFragmentShadingRateNV";
+}
+
+template <> std::string ToString<VkFragmentShadingRateTypeNV>(const VkFragmentShadingRateTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV: return "VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV";
+    case VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV: return "VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV";
+    default: break;
+    }
+    return "Unhandled VkFragmentShadingRateTypeNV";
+}
+
+template <> std::string ToString<VkFrameBoundaryFlagBitsEXT>(const VkFrameBoundaryFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT: return "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkFrameBoundaryFlagBitsEXT";
+}
+
+template <> std::string ToString<VkFrameBoundaryFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkFrameBoundaryFlagBitsEXT>(vkFlags);
+}
+
 template <> std::string ToString<VkFramebufferCreateFlagBits>(const VkFramebufferCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1455,6 +2593,94 @@ template <> std::string ToString<VkFrontFace>(const VkFrontFace& value, ToString
     default: break;
     }
     return "Unhandled VkFrontFace";
+}
+
+template <> std::string ToString<VkFullScreenExclusiveEXT>(const VkFullScreenExclusiveEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT";
+    case VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT";
+    case VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT";
+    case VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT";
+    default: break;
+    }
+    return "Unhandled VkFullScreenExclusiveEXT";
+}
+
+template <> std::string ToString<VkGeometryFlagBitsKHR>(const VkGeometryFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GEOMETRY_OPAQUE_BIT_KHR: return "VK_GEOMETRY_OPAQUE_BIT_KHR";
+    case VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR: return "VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkGeometryFlagBitsKHR";
+}
+
+template <> std::string ToString<VkGeometryFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkGeometryFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkGeometryInstanceFlagBitsKHR>(const VkGeometryInstanceFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR";
+    case VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR: return "VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR";
+    case VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR";
+    case VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR";
+    case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT: return "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT";
+    case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT: return "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT";
+    default: break;
+    }
+    return "Unhandled VkGeometryInstanceFlagBitsKHR";
+}
+
+template <> std::string ToString<VkGeometryInstanceFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkGeometryInstanceFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkGeometryTypeKHR>(const VkGeometryTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GEOMETRY_TYPE_TRIANGLES_KHR: return "VK_GEOMETRY_TYPE_TRIANGLES_KHR";
+    case VK_GEOMETRY_TYPE_AABBS_KHR: return "VK_GEOMETRY_TYPE_AABBS_KHR";
+    case VK_GEOMETRY_TYPE_INSTANCES_KHR: return "VK_GEOMETRY_TYPE_INSTANCES_KHR";
+    default: break;
+    }
+    return "Unhandled VkGeometryTypeKHR";
+}
+
+template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(const VkGraphicsPipelineLibraryFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT";
+    case VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT";
+    case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT";
+    case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkGraphicsPipelineLibraryFlagBitsEXT";
+}
+
+template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkGraphicsPipelineLibraryFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkHostImageCopyFlagBits>(const VkHostImageCopyFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_HOST_IMAGE_COPY_MEMCPY: return "VK_HOST_IMAGE_COPY_MEMCPY";
+    default: break;
+    }
+    return "Unhandled VkHostImageCopyFlagBits";
+}
+
+template <> std::string ToString<VkHostImageCopyFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkHostImageCopyFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkImageAspectFlagBits>(const VkImageAspectFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -1480,6 +2706,61 @@ template <> std::string ToString<VkImageAspectFlagBits>(const VkImageAspectFlagB
 template <> std::string ToString<VkImageAspectFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkImageAspectFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkImageCompressionFixedRateFlagBitsEXT>(const VkImageCompressionFixedRateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkImageCompressionFixedRateFlagBitsEXT";
+}
+
+template <> std::string ToString<VkImageCompressionFixedRateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkImageCompressionFixedRateFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkImageCompressionFlagBitsEXT>(const VkImageCompressionFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_IMAGE_COMPRESSION_DEFAULT_EXT: return "VK_IMAGE_COMPRESSION_DEFAULT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT";
+    case VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT";
+    case VK_IMAGE_COMPRESSION_DISABLED_EXT: return "VK_IMAGE_COMPRESSION_DISABLED_EXT";
+    default: break;
+    }
+    return "Unhandled VkImageCompressionFlagBitsEXT";
+}
+
+template <> std::string ToString<VkImageCompressionFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkImageCompressionFlagBitsEXT>(vkFlags);
 }
 
 template <> std::string ToString<VkImageCreateFlagBits>(const VkImageCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -1654,6 +2935,118 @@ template <> std::string ToString<VkIndexType>(const VkIndexType& value, ToString
     return "Unhandled VkIndexType";
 }
 
+template <> std::string ToString<VkIndirectCommandsInputModeFlagBitsEXT>(const VkIndirectCommandsInputModeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT";
+    case VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT";
+    default: break;
+    }
+    return "Unhandled VkIndirectCommandsInputModeFlagBitsEXT";
+}
+
+template <> std::string ToString<VkIndirectCommandsInputModeFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkIndirectCommandsInputModeFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(const VkIndirectCommandsLayoutUsageFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT";
+    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkIndirectCommandsLayoutUsageFlagBitsEXT";
+}
+
+template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(const VkIndirectCommandsLayoutUsageFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV";
+    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV";
+    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkIndirectCommandsLayoutUsageFlagBitsNV";
+}
+
+template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkIndirectCommandsTokenTypeEXT>(const VkIndirectCommandsTokenTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT";
+    default: break;
+    }
+    return "Unhandled VkIndirectCommandsTokenTypeEXT";
+}
+
+template <> std::string ToString<VkIndirectCommandsTokenTypeNV>(const VkIndirectCommandsTokenTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV";
+    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV";
+    default: break;
+    }
+    return "Unhandled VkIndirectCommandsTokenTypeNV";
+}
+
+template <> std::string ToString<VkIndirectExecutionSetInfoTypeEXT>(const VkIndirectExecutionSetInfoTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT: return "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT";
+    case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT: return "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT";
+    default: break;
+    }
+    return "Unhandled VkIndirectExecutionSetInfoTypeEXT";
+}
+
+template <> std::string ToString<VkIndirectStateFlagBitsNV>(const VkIndirectStateFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV: return "VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkIndirectStateFlagBitsNV";
+}
+
+template <> std::string ToString<VkIndirectStateFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkIndirectStateFlagBitsNV>(vkFlags);
+}
+
 template <> std::string ToString<VkInstanceCreateFlagBits>(const VkInstanceCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1675,6 +3068,64 @@ template <> std::string ToString<VkInternalAllocationType>(const VkInternalAlloc
     default: break;
     }
     return "Unhandled VkInternalAllocationType";
+}
+
+template <> std::string ToString<VkLatencyMarkerNV>(const VkLatencyMarkerNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_LATENCY_MARKER_SIMULATION_START_NV: return "VK_LATENCY_MARKER_SIMULATION_START_NV";
+    case VK_LATENCY_MARKER_SIMULATION_END_NV: return "VK_LATENCY_MARKER_SIMULATION_END_NV";
+    case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV";
+    case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_END_NV";
+    case VK_LATENCY_MARKER_PRESENT_START_NV: return "VK_LATENCY_MARKER_PRESENT_START_NV";
+    case VK_LATENCY_MARKER_PRESENT_END_NV: return "VK_LATENCY_MARKER_PRESENT_END_NV";
+    case VK_LATENCY_MARKER_INPUT_SAMPLE_NV: return "VK_LATENCY_MARKER_INPUT_SAMPLE_NV";
+    case VK_LATENCY_MARKER_TRIGGER_FLASH_NV: return "VK_LATENCY_MARKER_TRIGGER_FLASH_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV";
+    default: break;
+    }
+    return "Unhandled VkLatencyMarkerNV";
+}
+
+template <> std::string ToString<VkLayerSettingTypeEXT>(const VkLayerSettingTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_LAYER_SETTING_TYPE_BOOL32_EXT: return "VK_LAYER_SETTING_TYPE_BOOL32_EXT";
+    case VK_LAYER_SETTING_TYPE_INT32_EXT: return "VK_LAYER_SETTING_TYPE_INT32_EXT";
+    case VK_LAYER_SETTING_TYPE_INT64_EXT: return "VK_LAYER_SETTING_TYPE_INT64_EXT";
+    case VK_LAYER_SETTING_TYPE_UINT32_EXT: return "VK_LAYER_SETTING_TYPE_UINT32_EXT";
+    case VK_LAYER_SETTING_TYPE_UINT64_EXT: return "VK_LAYER_SETTING_TYPE_UINT64_EXT";
+    case VK_LAYER_SETTING_TYPE_FLOAT32_EXT: return "VK_LAYER_SETTING_TYPE_FLOAT32_EXT";
+    case VK_LAYER_SETTING_TYPE_FLOAT64_EXT: return "VK_LAYER_SETTING_TYPE_FLOAT64_EXT";
+    case VK_LAYER_SETTING_TYPE_STRING_EXT: return "VK_LAYER_SETTING_TYPE_STRING_EXT";
+    default: break;
+    }
+    return "Unhandled VkLayerSettingTypeEXT";
+}
+
+template <> std::string ToString<VkLayeredDriverUnderlyingApiMSFT>(const VkLayeredDriverUnderlyingApiMSFT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT: return "VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT";
+    case VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT: return "VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT";
+    default: break;
+    }
+    return "Unhandled VkLayeredDriverUnderlyingApiMSFT";
+}
+
+template <> std::string ToString<VkLineRasterizationMode>(const VkLineRasterizationMode& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_LINE_RASTERIZATION_MODE_DEFAULT: return "VK_LINE_RASTERIZATION_MODE_DEFAULT";
+    case VK_LINE_RASTERIZATION_MODE_RECTANGULAR: return "VK_LINE_RASTERIZATION_MODE_RECTANGULAR";
+    case VK_LINE_RASTERIZATION_MODE_BRESENHAM: return "VK_LINE_RASTERIZATION_MODE_BRESENHAM";
+    case VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH: return "VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH";
+    default: break;
+    }
+    return "Unhandled VkLineRasterizationMode";
 }
 
 template <> std::string ToString<VkLogicOp>(const VkLogicOp& value, ToStringFlags, uint32_t, uint32_t)
@@ -1699,6 +3150,22 @@ template <> std::string ToString<VkLogicOp>(const VkLogicOp& value, ToStringFlag
     default: break;
     }
     return "Unhandled VkLogicOp";
+}
+
+template <> std::string ToString<VkMemoryAllocateFlagBits>(const VkMemoryAllocateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT";
+    case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT";
+    case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT";
+    default: break;
+    }
+    return "Unhandled VkMemoryAllocateFlagBits";
+}
+
+template <> std::string ToString<VkMemoryAllocateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkMemoryAllocateFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkMemoryHeapFlagBits>(const VkMemoryHeapFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -1730,6 +3197,17 @@ template <> std::string ToString<VkMemoryMapFlagBits>(VkFlags vkFlags, ToStringF
     return BitmaskToString<VkMemoryMapFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkMemoryOverallocationBehaviorAMD>(const VkMemoryOverallocationBehaviorAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD";
+    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD";
+    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD";
+    default: break;
+    }
+    return "Unhandled VkMemoryOverallocationBehaviorAMD";
+}
+
 template <> std::string ToString<VkMemoryPropertyFlagBits>(const VkMemoryPropertyFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1750,6 +3228,44 @@ template <> std::string ToString<VkMemoryPropertyFlagBits>(const VkMemoryPropert
 template <> std::string ToString<VkMemoryPropertyFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkMemoryPropertyFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkMemoryUnmapFlagBits>(const VkMemoryUnmapFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_MEMORY_UNMAP_RESERVE_BIT_EXT: return "VK_MEMORY_UNMAP_RESERVE_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkMemoryUnmapFlagBits";
+}
+
+template <> std::string ToString<VkMemoryUnmapFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkMemoryUnmapFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkMicromapCreateFlagBitsEXT>(const VkMicromapCreateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT: return "VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkMicromapCreateFlagBitsEXT";
+}
+
+template <> std::string ToString<VkMicromapCreateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkMicromapCreateFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkMicromapTypeEXT>(const VkMicromapTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT: return "VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT";
+    case VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV: return "VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV";
+    default: break;
+    }
+    return "Unhandled VkMicromapTypeEXT";
 }
 
 template <> std::string ToString<VkObjectType>(const VkObjectType& value, ToStringFlags, uint32_t, uint32_t)
@@ -1812,6 +3328,300 @@ template <> std::string ToString<VkObjectType>(const VkObjectType& value, ToStri
     default: break;
     }
     return "Unhandled VkObjectType";
+}
+
+template <> std::string ToString<VkOpacityMicromapFormatEXT>(const VkOpacityMicromapFormatEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT: return "VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT";
+    case VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT: return "VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT";
+    default: break;
+    }
+    return "Unhandled VkOpacityMicromapFormatEXT";
+}
+
+template <> std::string ToString<VkOpacityMicromapSpecialIndexEXT>(const VkOpacityMicromapSpecialIndexEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT";
+    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT";
+    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT";
+    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT";
+    default: break;
+    }
+    return "Unhandled VkOpacityMicromapSpecialIndexEXT";
+}
+
+template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(const VkOpticalFlowExecuteFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV: return "VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowExecuteFlagBitsNV";
+}
+
+template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkOpticalFlowExecuteFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkOpticalFlowGridSizeFlagBitsNV>(const VkOpticalFlowGridSizeFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV";
+    case VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV";
+    case VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV";
+    case VK_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_NV";
+    case VK_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowGridSizeFlagBitsNV";
+}
+
+template <> std::string ToString<VkOpticalFlowGridSizeFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkOpticalFlowGridSizeFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkOpticalFlowPerformanceLevelNV>(const VkOpticalFlowPerformanceLevelNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV";
+    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV";
+    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV";
+    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowPerformanceLevelNV";
+}
+
+template <> std::string ToString<VkOpticalFlowSessionBindingPointNV>(const VkOpticalFlowSessionBindingPointNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_HINT_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_HINT_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_FLOW_VECTOR_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_FLOW_VECTOR_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_FLOW_VECTOR_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_FLOW_VECTOR_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_COST_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_COST_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_COST_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_COST_NV";
+    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_GLOBAL_FLOW_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_GLOBAL_FLOW_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowSessionBindingPointNV";
+}
+
+template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(const VkOpticalFlowSessionCreateFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV";
+    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV";
+    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV";
+    case VK_OPTICAL_FLOW_SESSION_CREATE_ALLOW_REGIONS_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ALLOW_REGIONS_BIT_NV";
+    case VK_OPTICAL_FLOW_SESSION_CREATE_BOTH_DIRECTIONS_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_BOTH_DIRECTIONS_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowSessionCreateFlagBitsNV";
+}
+
+template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkOpticalFlowSessionCreateFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(const VkOpticalFlowUsageFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV: return "VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV";
+    case VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV";
+    case VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV";
+    case VK_OPTICAL_FLOW_USAGE_HINT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_HINT_BIT_NV";
+    case VK_OPTICAL_FLOW_USAGE_COST_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_COST_BIT_NV";
+    case VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkOpticalFlowUsageFlagBitsNV";
+}
+
+template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkOpticalFlowUsageFlagBitsNV>(vkFlags);
+}
+
+template <> std::string ToString<VkOutOfBandQueueTypeNV>(const VkOutOfBandQueueTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV";
+    case VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV";
+    default: break;
+    }
+    return "Unhandled VkOutOfBandQueueTypeNV";
+}
+
+template <> std::string ToString<VkPeerMemoryFeatureFlagBits>(const VkPeerMemoryFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT: return "VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT";
+    case VK_PEER_MEMORY_FEATURE_COPY_DST_BIT: return "VK_PEER_MEMORY_FEATURE_COPY_DST_BIT";
+    case VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT: return "VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT";
+    case VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT: return "VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT";
+    default: break;
+    }
+    return "Unhandled VkPeerMemoryFeatureFlagBits";
+}
+
+template <> std::string ToString<VkPeerMemoryFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPeerMemoryFeatureFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkPerformanceConfigurationTypeINTEL>(const VkPerformanceConfigurationTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL: return "VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL";
+    default: break;
+    }
+    return "Unhandled VkPerformanceConfigurationTypeINTEL";
+}
+
+template <> std::string ToString<VkPerformanceCounterDescriptionFlagBitsKHR>(const VkPerformanceCounterDescriptionFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR: return "VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR";
+    case VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR: return "VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkPerformanceCounterDescriptionFlagBitsKHR";
+}
+
+template <> std::string ToString<VkPerformanceCounterDescriptionFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPerformanceCounterDescriptionFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkPerformanceCounterScopeKHR>(const VkPerformanceCounterScopeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR";
+    case VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR";
+    case VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR";
+    default: break;
+    }
+    return "Unhandled VkPerformanceCounterScopeKHR";
+}
+
+template <> std::string ToString<VkPerformanceCounterStorageKHR>(const VkPerformanceCounterStorageKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR";
+    case VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR";
+    case VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR";
+    case VK_PERFORMANCE_COUNTER_STORAGE_UINT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_UINT64_KHR";
+    case VK_PERFORMANCE_COUNTER_STORAGE_FLOAT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_FLOAT32_KHR";
+    case VK_PERFORMANCE_COUNTER_STORAGE_FLOAT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_FLOAT64_KHR";
+    default: break;
+    }
+    return "Unhandled VkPerformanceCounterStorageKHR";
+}
+
+template <> std::string ToString<VkPerformanceCounterUnitKHR>(const VkPerformanceCounterUnitKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_BYTES_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_BYTES_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_BYTES_PER_SECOND_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_BYTES_PER_SECOND_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_KELVIN_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_KELVIN_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_WATTS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_WATTS_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_VOLTS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_VOLTS_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_AMPS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_AMPS_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_HERTZ_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_HERTZ_KHR";
+    case VK_PERFORMANCE_COUNTER_UNIT_CYCLES_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_CYCLES_KHR";
+    default: break;
+    }
+    return "Unhandled VkPerformanceCounterUnitKHR";
+}
+
+template <> std::string ToString<VkPerformanceOverrideTypeINTEL>(const VkPerformanceOverrideTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL: return "VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL";
+    case VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL: return "VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL";
+    default: break;
+    }
+    return "Unhandled VkPerformanceOverrideTypeINTEL";
+}
+
+template <> std::string ToString<VkPerformanceParameterTypeINTEL>(const VkPerformanceParameterTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL: return "VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL";
+    case VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL: return "VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL";
+    default: break;
+    }
+    return "Unhandled VkPerformanceParameterTypeINTEL";
+}
+
+template <> std::string ToString<VkPerformanceValueTypeINTEL>(const VkPerformanceValueTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL";
+    case VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL";
+    case VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL";
+    case VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL";
+    case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL";
+    default: break;
+    }
+    return "Unhandled VkPerformanceValueTypeINTEL";
+}
+
+template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysicalDeviceLayeredApiKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR";
+    case VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR";
+    case VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR";
+    case VK_PHYSICAL_DEVICE_LAYERED_API_OPENGL_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGL_KHR";
+    case VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR";
+    default: break;
+    }
+    return "Unhandled VkPhysicalDeviceLayeredApiKHR";
+}
+
+std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysicalDeviceSchedulingControlsFlagBitsARM value)
+{
+    switch (value) {
+    case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM: return "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM";
+    default: break;
+    }
+    return "Unhandled VkPhysicalDeviceSchedulingControlsFlagBitsARM";
+}
+
+std::string VkPhysicalDeviceSchedulingControlsFlagsARMToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(static_cast<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(0U));
+    }
+    return str;
 }
 
 template <> std::string ToString<VkPhysicalDeviceType>(const VkPhysicalDeviceType& value, ToStringFlags, uint32_t, uint32_t)
@@ -1877,6 +3687,16 @@ template <> std::string ToString<VkPipelineColorBlendStateCreateFlagBits>(VkFlag
     return BitmaskToString<VkPipelineColorBlendStateCreateFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(const VkPipelineCompilerControlFlagBitsAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    return "Unhandled VkPipelineCompilerControlFlagBitsAMD";
+}
+
+template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPipelineCompilerControlFlagBitsAMD>(vkFlags);
+}
+
 template <> std::string ToString<VkPipelineCreateFlagBits>(const VkPipelineCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1921,6 +3741,89 @@ template <> std::string ToString<VkPipelineCreateFlagBits>(VkFlags vkFlags, ToSt
     return BitmaskToString<VkPipelineCreateFlagBits>(vkFlags);
 }
 
+std::string VkPipelineCreateFlagBits2ToString(const VkPipelineCreateFlagBits2 value)
+{
+    switch (value) {
+    case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT: return "VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT";
+    case VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT: return "VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT";
+    case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT: return "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT";
+    case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT: return "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT";
+    case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT: return "VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT";
+    case VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT: return "VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT";
+    case VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT: return "VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT";
+    case VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT: return "VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT";
+    case VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT: return "VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT";
+    case VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX: return "VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX";
+    case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT: return "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV: return "VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV";
+    case VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT: return "VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT: return "VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR: return "VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV: return "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV: return "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV";
+    case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT: return "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT: return "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT: return "VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT: return "VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV: return "VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV";
+    case VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT";
+    case VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR";
+    case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT: return "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkPipelineCreateFlagBits2";
+}
+
+std::string VkPipelineCreateFlags2ToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkPipelineCreateFlagBits2ToString(static_cast<VkPipelineCreateFlagBits2>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkPipelineCreateFlagBits2ToString(0U));
+    }
+    return str;
+}
+
+template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(const VkPipelineCreationFeedbackFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT";
+    case VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT";
+    case VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT";
+    default: break;
+    }
+    return "Unhandled VkPipelineCreationFeedbackFlagBits";
+}
+
+template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPipelineCreationFeedbackFlagBits>(vkFlags);
+}
+
 template <> std::string ToString<VkPipelineDepthStencilStateCreateFlagBits>(const VkPipelineDepthStencilStateCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1936,6 +3839,18 @@ template <> std::string ToString<VkPipelineDepthStencilStateCreateFlagBits>(VkFl
     return BitmaskToString<VkPipelineDepthStencilStateCreateFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkPipelineExecutableStatisticFormatKHR>(const VkPipelineExecutableStatisticFormatKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR";
+    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR";
+    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR";
+    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR";
+    default: break;
+    }
+    return "Unhandled VkPipelineExecutableStatisticFormatKHR";
+}
+
 template <> std::string ToString<VkPipelineLayoutCreateFlagBits>(const VkPipelineLayoutCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1948,6 +3863,30 @@ template <> std::string ToString<VkPipelineLayoutCreateFlagBits>(const VkPipelin
 template <> std::string ToString<VkPipelineLayoutCreateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkPipelineLayoutCreateFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkPipelineRobustnessBufferBehavior>(const VkPipelineRobustnessBufferBehavior& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT";
+    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED";
+    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS";
+    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS_2: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS_2";
+    default: break;
+    }
+    return "Unhandled VkPipelineRobustnessBufferBehavior";
+}
+
+template <> std::string ToString<VkPipelineRobustnessImageBehavior>(const VkPipelineRobustnessImageBehavior& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT";
+    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED";
+    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS";
+    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS_2: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS_2";
+    default: break;
+    }
+    return "Unhandled VkPipelineRobustnessImageBehavior";
 }
 
 template <> std::string ToString<VkPipelineShaderStageCreateFlagBits>(const VkPipelineShaderStageCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -2005,6 +3944,90 @@ template <> std::string ToString<VkPipelineStageFlagBits>(VkFlags vkFlags, ToStr
     return BitmaskToString<VkPipelineStageFlagBits>(vkFlags);
 }
 
+std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 value)
+{
+    switch (value) {
+    case VK_PIPELINE_STAGE_2_NONE: return "VK_PIPELINE_STAGE_2_NONE";
+    case VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT";
+    case VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT: return "VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT";
+    case VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT";
+    case VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT: return "VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT: return "VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT: return "VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT: return "VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT: return "VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT";
+    case VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT: return "VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT";
+    case VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT: return "VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT";
+    case VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT: return "VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT";
+    case VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT: return "VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT";
+    case VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT";
+    case VK_PIPELINE_STAGE_2_HOST_BIT: return "VK_PIPELINE_STAGE_2_HOST_BIT";
+    case VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT: return "VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT";
+    case VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT: return "VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT";
+    case VK_PIPELINE_STAGE_2_COPY_BIT: return "VK_PIPELINE_STAGE_2_COPY_BIT";
+    case VK_PIPELINE_STAGE_2_RESOLVE_BIT: return "VK_PIPELINE_STAGE_2_RESOLVE_BIT";
+    case VK_PIPELINE_STAGE_2_BLIT_BIT: return "VK_PIPELINE_STAGE_2_BLIT_BIT";
+    case VK_PIPELINE_STAGE_2_CLEAR_BIT: return "VK_PIPELINE_STAGE_2_CLEAR_BIT";
+    case VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT: return "VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT";
+    case VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT";
+    case VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT: return "VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT";
+    case VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR: return "VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR: return "VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT: return "VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT: return "VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV: return "VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV";
+    case VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR: return "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR: return "VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT: return "VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT: return "VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT: return "VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI";
+    case VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI";
+    case VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR: return "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR";
+    case VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT: return "VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT";
+    case VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI";
+    case VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV: return "VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkPipelineStageFlagBits2";
+}
+
+std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags)
+{
+    std::string   str;
+    VkFlags64     index = 0U;
+    while (vkFlags)
+    {
+        if (vkFlags & 1U)
+        {
+            if (!str.empty())
+            {
+                str += '|';
+            }
+            str.append(VkPipelineStageFlagBits2ToString(static_cast<VkPipelineStageFlagBits2>(1U) << index));
+        }
+        ++index;
+        vkFlags >>= 1U;
+    }
+    if (str.empty())
+    {
+        str.append(VkPipelineStageFlagBits2ToString(0U));
+    }
+    return str;
+}
+
+template <> std::string ToString<VkPointClippingBehavior>(const VkPointClippingBehavior& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES: return "VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES";
+    case VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY: return "VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY";
+    default: break;
+    }
+    return "Unhandled VkPointClippingBehavior";
+}
+
 template <> std::string ToString<VkPolygonMode>(const VkPolygonMode& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2015,6 +4038,53 @@ template <> std::string ToString<VkPolygonMode>(const VkPolygonMode& value, ToSt
     default: break;
     }
     return "Unhandled VkPolygonMode";
+}
+
+template <> std::string ToString<VkPresentGravityFlagBitsEXT>(const VkPresentGravityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PRESENT_GRAVITY_MIN_BIT_EXT: return "VK_PRESENT_GRAVITY_MIN_BIT_EXT";
+    case VK_PRESENT_GRAVITY_MAX_BIT_EXT: return "VK_PRESENT_GRAVITY_MAX_BIT_EXT";
+    case VK_PRESENT_GRAVITY_CENTERED_BIT_EXT: return "VK_PRESENT_GRAVITY_CENTERED_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkPresentGravityFlagBitsEXT";
+}
+
+template <> std::string ToString<VkPresentGravityFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPresentGravityFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkPresentModeKHR>(const VkPresentModeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PRESENT_MODE_IMMEDIATE_KHR: return "VK_PRESENT_MODE_IMMEDIATE_KHR";
+    case VK_PRESENT_MODE_MAILBOX_KHR: return "VK_PRESENT_MODE_MAILBOX_KHR";
+    case VK_PRESENT_MODE_FIFO_KHR: return "VK_PRESENT_MODE_FIFO_KHR";
+    case VK_PRESENT_MODE_FIFO_RELAXED_KHR: return "VK_PRESENT_MODE_FIFO_RELAXED_KHR";
+    case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR: return "VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR";
+    case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR: return "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR";
+    case VK_PRESENT_MODE_FIFO_LATEST_READY_EXT: return "VK_PRESENT_MODE_FIFO_LATEST_READY_EXT";
+    default: break;
+    }
+    return "Unhandled VkPresentModeKHR";
+}
+
+template <> std::string ToString<VkPresentScalingFlagBitsEXT>(const VkPresentScalingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT: return "VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT";
+    case VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT: return "VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT";
+    case VK_PRESENT_SCALING_STRETCH_BIT_EXT: return "VK_PRESENT_SCALING_STRETCH_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkPresentScalingFlagBitsEXT";
+}
+
+template <> std::string ToString<VkPresentScalingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkPresentScalingFlagBitsEXT>(vkFlags);
 }
 
 template <> std::string ToString<VkPrimitiveTopology>(const VkPrimitiveTopology& value, ToStringFlags, uint32_t, uint32_t)
@@ -2034,6 +4104,16 @@ template <> std::string ToString<VkPrimitiveTopology>(const VkPrimitiveTopology&
     default: break;
     }
     return "Unhandled VkPrimitiveTopology";
+}
+
+template <> std::string ToString<VkProvokingVertexModeEXT>(const VkProvokingVertexModeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT: return "VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT";
+    case VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT: return "VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT";
+    default: break;
+    }
+    return "Unhandled VkProvokingVertexModeEXT";
 }
 
 template <> std::string ToString<VkQueryControlFlagBits>(const VkQueryControlFlagBits& value, ToStringFlags, uint32_t, uint32_t)
@@ -2077,6 +4157,15 @@ template <> std::string ToString<VkQueryPipelineStatisticFlagBits>(VkFlags vkFla
     return BitmaskToString<VkQueryPipelineStatisticFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkQueryPoolSamplingModeINTEL>(const VkQueryPoolSamplingModeINTEL& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL: return "VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL";
+    default: break;
+    }
+    return "Unhandled VkQueryPoolSamplingModeINTEL";
+}
+
 template <> std::string ToString<VkQueryResultFlagBits>(const VkQueryResultFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2093,6 +4182,18 @@ template <> std::string ToString<VkQueryResultFlagBits>(const VkQueryResultFlagB
 template <> std::string ToString<VkQueryResultFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkQueryResultFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkQueryResultStatusKHR>(const VkQueryResultStatusKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_QUERY_RESULT_STATUS_ERROR_KHR: return "VK_QUERY_RESULT_STATUS_ERROR_KHR";
+    case VK_QUERY_RESULT_STATUS_NOT_READY_KHR: return "VK_QUERY_RESULT_STATUS_NOT_READY_KHR";
+    case VK_QUERY_RESULT_STATUS_COMPLETE_KHR: return "VK_QUERY_RESULT_STATUS_COMPLETE_KHR";
+    case VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR: return "VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR";
+    default: break;
+    }
+    return "Unhandled VkQueryResultStatusKHR";
 }
 
 template <> std::string ToString<VkQueryType>(const VkQueryType& value, ToStringFlags, uint32_t, uint32_t)
@@ -2141,6 +4242,49 @@ template <> std::string ToString<VkQueueFlagBits>(VkFlags vkFlags, ToStringFlags
     return BitmaskToString<VkQueueFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkQueueGlobalPriority>(const VkQueueGlobalPriority& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_QUEUE_GLOBAL_PRIORITY_LOW: return "VK_QUEUE_GLOBAL_PRIORITY_LOW";
+    case VK_QUEUE_GLOBAL_PRIORITY_MEDIUM: return "VK_QUEUE_GLOBAL_PRIORITY_MEDIUM";
+    case VK_QUEUE_GLOBAL_PRIORITY_HIGH: return "VK_QUEUE_GLOBAL_PRIORITY_HIGH";
+    case VK_QUEUE_GLOBAL_PRIORITY_REALTIME: return "VK_QUEUE_GLOBAL_PRIORITY_REALTIME";
+    default: break;
+    }
+    return "Unhandled VkQueueGlobalPriority";
+}
+
+template <> std::string ToString<VkRasterizationOrderAMD>(const VkRasterizationOrderAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_RASTERIZATION_ORDER_STRICT_AMD: return "VK_RASTERIZATION_ORDER_STRICT_AMD";
+    case VK_RASTERIZATION_ORDER_RELAXED_AMD: return "VK_RASTERIZATION_ORDER_RELAXED_AMD";
+    default: break;
+    }
+    return "Unhandled VkRasterizationOrderAMD";
+}
+
+template <> std::string ToString<VkRayTracingInvocationReorderModeNV>(const VkRayTracingInvocationReorderModeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_NV: return "VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_NV";
+    case VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV: return "VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV";
+    default: break;
+    }
+    return "Unhandled VkRayTracingInvocationReorderModeNV";
+}
+
+template <> std::string ToString<VkRayTracingShaderGroupTypeKHR>(const VkRayTracingShaderGroupTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR";
+    case VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR";
+    case VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR";
+    default: break;
+    }
+    return "Unhandled VkRayTracingShaderGroupTypeKHR";
+}
+
 template <> std::string ToString<VkRenderPassCreateFlagBits>(const VkRenderPassCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2153,6 +4297,43 @@ template <> std::string ToString<VkRenderPassCreateFlagBits>(const VkRenderPassC
 template <> std::string ToString<VkRenderPassCreateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkRenderPassCreateFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkRenderingFlagBits>(const VkRenderingFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT: return "VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT";
+    case VK_RENDERING_SUSPENDING_BIT: return "VK_RENDERING_SUSPENDING_BIT";
+    case VK_RENDERING_RESUMING_BIT: return "VK_RENDERING_RESUMING_BIT";
+    case VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT: return "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT";
+    case VK_RENDERING_CONTENTS_INLINE_BIT_KHR: return "VK_RENDERING_CONTENTS_INLINE_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkRenderingFlagBits";
+}
+
+template <> std::string ToString<VkRenderingFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkRenderingFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkResolveModeFlagBits>(const VkResolveModeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_RESOLVE_MODE_NONE: return "VK_RESOLVE_MODE_NONE";
+    case VK_RESOLVE_MODE_SAMPLE_ZERO_BIT: return "VK_RESOLVE_MODE_SAMPLE_ZERO_BIT";
+    case VK_RESOLVE_MODE_AVERAGE_BIT: return "VK_RESOLVE_MODE_AVERAGE_BIT";
+    case VK_RESOLVE_MODE_MIN_BIT: return "VK_RESOLVE_MODE_MIN_BIT";
+    case VK_RESOLVE_MODE_MAX_BIT: return "VK_RESOLVE_MODE_MAX_BIT";
+    case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID: return "VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID";
+    default: break;
+    }
+    return "Unhandled VkResolveModeFlagBits";
+}
+
+template <> std::string ToString<VkResolveModeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkResolveModeFlagBits>(vkFlags);
 }
 
 template <> std::string ToString<VkResult>(const VkResult& value, ToStringFlags, uint32_t, uint32_t)
@@ -2273,6 +4454,166 @@ template <> std::string ToString<VkSamplerMipmapMode>(const VkSamplerMipmapMode&
     return "Unhandled VkSamplerMipmapMode";
 }
 
+template <> std::string ToString<VkSamplerReductionMode>(const VkSamplerReductionMode& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE: return "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE";
+    case VK_SAMPLER_REDUCTION_MODE_MIN: return "VK_SAMPLER_REDUCTION_MODE_MIN";
+    case VK_SAMPLER_REDUCTION_MODE_MAX: return "VK_SAMPLER_REDUCTION_MODE_MAX";
+    case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM: return "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM";
+    default: break;
+    }
+    return "Unhandled VkSamplerReductionMode";
+}
+
+template <> std::string ToString<VkSamplerYcbcrModelConversion>(const VkSamplerYcbcrModelConversion& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY";
+    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY";
+    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709";
+    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_601: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_601";
+    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020";
+    default: break;
+    }
+    return "Unhandled VkSamplerYcbcrModelConversion";
+}
+
+template <> std::string ToString<VkSamplerYcbcrRange>(const VkSamplerYcbcrRange& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SAMPLER_YCBCR_RANGE_ITU_FULL: return "VK_SAMPLER_YCBCR_RANGE_ITU_FULL";
+    case VK_SAMPLER_YCBCR_RANGE_ITU_NARROW: return "VK_SAMPLER_YCBCR_RANGE_ITU_NARROW";
+    default: break;
+    }
+    return "Unhandled VkSamplerYcbcrRange";
+}
+
+template <> std::string ToString<VkScopeKHR>(const VkScopeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SCOPE_DEVICE_KHR: return "VK_SCOPE_DEVICE_KHR";
+    case VK_SCOPE_WORKGROUP_KHR: return "VK_SCOPE_WORKGROUP_KHR";
+    case VK_SCOPE_SUBGROUP_KHR: return "VK_SCOPE_SUBGROUP_KHR";
+    case VK_SCOPE_QUEUE_FAMILY_KHR: return "VK_SCOPE_QUEUE_FAMILY_KHR";
+    default: break;
+    }
+    return "Unhandled VkScopeKHR";
+}
+
+template <> std::string ToString<VkSemaphoreImportFlagBits>(const VkSemaphoreImportFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SEMAPHORE_IMPORT_TEMPORARY_BIT: return "VK_SEMAPHORE_IMPORT_TEMPORARY_BIT";
+    default: break;
+    }
+    return "Unhandled VkSemaphoreImportFlagBits";
+}
+
+template <> std::string ToString<VkSemaphoreImportFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSemaphoreImportFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkSemaphoreType>(const VkSemaphoreType& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SEMAPHORE_TYPE_BINARY: return "VK_SEMAPHORE_TYPE_BINARY";
+    case VK_SEMAPHORE_TYPE_TIMELINE: return "VK_SEMAPHORE_TYPE_TIMELINE";
+    default: break;
+    }
+    return "Unhandled VkSemaphoreType";
+}
+
+template <> std::string ToString<VkSemaphoreWaitFlagBits>(const VkSemaphoreWaitFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SEMAPHORE_WAIT_ANY_BIT: return "VK_SEMAPHORE_WAIT_ANY_BIT";
+    default: break;
+    }
+    return "Unhandled VkSemaphoreWaitFlagBits";
+}
+
+template <> std::string ToString<VkSemaphoreWaitFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSemaphoreWaitFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkShaderCodeTypeEXT>(const VkShaderCodeTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADER_CODE_TYPE_BINARY_EXT: return "VK_SHADER_CODE_TYPE_BINARY_EXT";
+    case VK_SHADER_CODE_TYPE_SPIRV_EXT: return "VK_SHADER_CODE_TYPE_SPIRV_EXT";
+    default: break;
+    }
+    return "Unhandled VkShaderCodeTypeEXT";
+}
+
+template <> std::string ToString<VkShaderCorePropertiesFlagBitsAMD>(const VkShaderCorePropertiesFlagBitsAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    return "Unhandled VkShaderCorePropertiesFlagBitsAMD";
+}
+
+template <> std::string ToString<VkShaderCorePropertiesFlagBitsAMD>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkShaderCorePropertiesFlagBitsAMD>(vkFlags);
+}
+
+template <> std::string ToString<VkShaderCreateFlagBitsEXT>(const VkShaderCreateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADER_CREATE_LINK_STAGE_BIT_EXT: return "VK_SHADER_CREATE_LINK_STAGE_BIT_EXT";
+    case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT: return "VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT";
+    case VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT: return "VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT";
+    case VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT: return "VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT";
+    case VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT: return "VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT";
+    case VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT: return "VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT";
+    case VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT: return "VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
+    case VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT: return "VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkShaderCreateFlagBitsEXT";
+}
+
+template <> std::string ToString<VkShaderCreateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkShaderCreateFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkShaderFloatControlsIndependence>(const VkShaderFloatControlsIndependence& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY";
+    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL";
+    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE";
+    default: break;
+    }
+    return "Unhandled VkShaderFloatControlsIndependence";
+}
+
+template <> std::string ToString<VkShaderGroupShaderKHR>(const VkShaderGroupShaderKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADER_GROUP_SHADER_GENERAL_KHR: return "VK_SHADER_GROUP_SHADER_GENERAL_KHR";
+    case VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR: return "VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR";
+    case VK_SHADER_GROUP_SHADER_ANY_HIT_KHR: return "VK_SHADER_GROUP_SHADER_ANY_HIT_KHR";
+    case VK_SHADER_GROUP_SHADER_INTERSECTION_KHR: return "VK_SHADER_GROUP_SHADER_INTERSECTION_KHR";
+    default: break;
+    }
+    return "Unhandled VkShaderGroupShaderKHR";
+}
+
+template <> std::string ToString<VkShaderInfoTypeAMD>(const VkShaderInfoTypeAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADER_INFO_TYPE_STATISTICS_AMD: return "VK_SHADER_INFO_TYPE_STATISTICS_AMD";
+    case VK_SHADER_INFO_TYPE_BINARY_AMD: return "VK_SHADER_INFO_TYPE_BINARY_AMD";
+    case VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD: return "VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD";
+    default: break;
+    }
+    return "Unhandled VkShaderInfoTypeAMD";
+}
+
 template <> std::string ToString<VkShaderStageFlagBits>(const VkShaderStageFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2302,6 +4643,26 @@ template <> std::string ToString<VkShaderStageFlagBits>(const VkShaderStageFlagB
 template <> std::string ToString<VkShaderStageFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkShaderStageFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkShadingRatePaletteEntryNV>(const VkShadingRatePaletteEntryNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_4_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_4_INVOCATIONS_PER_PIXEL_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_2_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_2_INVOCATIONS_PER_PIXEL_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_PIXEL_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X1_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X1_PIXELS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_1X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_1X2_PIXELS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X2_PIXELS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X2_PIXELS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X4_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X4_PIXELS_NV";
+    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X4_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X4_PIXELS_NV";
+    default: break;
+    }
+    return "Unhandled VkShadingRatePaletteEntryNV";
 }
 
 template <> std::string ToString<VkSharingMode>(const VkSharingMode& value, ToStringFlags, uint32_t, uint32_t)
@@ -3354,6 +5715,44 @@ template <> std::string ToString<VkStructureType>(const VkStructureType& value, 
     return "Unhandled VkStructureType";
 }
 
+template <> std::string ToString<VkSubgroupFeatureFlagBits>(const VkSubgroupFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SUBGROUP_FEATURE_BASIC_BIT: return "VK_SUBGROUP_FEATURE_BASIC_BIT";
+    case VK_SUBGROUP_FEATURE_VOTE_BIT: return "VK_SUBGROUP_FEATURE_VOTE_BIT";
+    case VK_SUBGROUP_FEATURE_ARITHMETIC_BIT: return "VK_SUBGROUP_FEATURE_ARITHMETIC_BIT";
+    case VK_SUBGROUP_FEATURE_BALLOT_BIT: return "VK_SUBGROUP_FEATURE_BALLOT_BIT";
+    case VK_SUBGROUP_FEATURE_SHUFFLE_BIT: return "VK_SUBGROUP_FEATURE_SHUFFLE_BIT";
+    case VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT: return "VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT";
+    case VK_SUBGROUP_FEATURE_CLUSTERED_BIT: return "VK_SUBGROUP_FEATURE_CLUSTERED_BIT";
+    case VK_SUBGROUP_FEATURE_QUAD_BIT: return "VK_SUBGROUP_FEATURE_QUAD_BIT";
+    case VK_SUBGROUP_FEATURE_ROTATE_BIT: return "VK_SUBGROUP_FEATURE_ROTATE_BIT";
+    case VK_SUBGROUP_FEATURE_ROTATE_CLUSTERED_BIT: return "VK_SUBGROUP_FEATURE_ROTATE_CLUSTERED_BIT";
+    case VK_SUBGROUP_FEATURE_PARTITIONED_BIT_NV: return "VK_SUBGROUP_FEATURE_PARTITIONED_BIT_NV";
+    default: break;
+    }
+    return "Unhandled VkSubgroupFeatureFlagBits";
+}
+
+template <> std::string ToString<VkSubgroupFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSubgroupFeatureFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkSubmitFlagBits>(const VkSubmitFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SUBMIT_PROTECTED_BIT: return "VK_SUBMIT_PROTECTED_BIT";
+    default: break;
+    }
+    return "Unhandled VkSubmitFlagBits";
+}
+
+template <> std::string ToString<VkSubmitFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSubmitFlagBits>(vkFlags);
+}
+
 template <> std::string ToString<VkSubpassContents>(const VkSubpassContents& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -3386,6 +5785,81 @@ template <> std::string ToString<VkSubpassDescriptionFlagBits>(VkFlags vkFlags, 
     return BitmaskToString<VkSubpassDescriptionFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkSubpassMergeStatusEXT>(const VkSubpassMergeStatusEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SUBPASS_MERGE_STATUS_MERGED_EXT: return "VK_SUBPASS_MERGE_STATUS_MERGED_EXT";
+    case VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT: return "VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SAMPLES_MISMATCH_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SAMPLES_MISMATCH_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_VIEWS_MISMATCH_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_VIEWS_MISMATCH_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_ALIASING_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_ALIASING_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPENDENCIES_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPENDENCIES_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INCOMPATIBLE_INPUT_ATTACHMENT_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INCOMPATIBLE_INPUT_ATTACHMENT_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_TOO_MANY_ATTACHMENTS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_TOO_MANY_ATTACHMENTS_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INSUFFICIENT_STORAGE_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INSUFFICIENT_STORAGE_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPTH_STENCIL_COUNT_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPTH_STENCIL_COUNT_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_RESOLVE_ATTACHMENT_REUSE_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_RESOLVE_ATTACHMENT_REUSE_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SINGLE_SUBPASS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SINGLE_SUBPASS_EXT";
+    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_UNSPECIFIED_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_UNSPECIFIED_EXT";
+    default: break;
+    }
+    return "Unhandled VkSubpassMergeStatusEXT";
+}
+
+template <> std::string ToString<VkSurfaceCounterFlagBitsEXT>(const VkSurfaceCounterFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SURFACE_COUNTER_VBLANK_BIT_EXT: return "VK_SURFACE_COUNTER_VBLANK_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkSurfaceCounterFlagBitsEXT";
+}
+
+template <> std::string ToString<VkSurfaceCounterFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSurfaceCounterFlagBitsEXT>(vkFlags);
+}
+
+template <> std::string ToString<VkSurfaceTransformFlagBitsKHR>(const VkSurfaceTransformFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR: return "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR";
+    case VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR: return "VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkSurfaceTransformFlagBitsKHR";
+}
+
+template <> std::string ToString<VkSurfaceTransformFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSurfaceTransformFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(const VkSwapchainCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR: return "VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR";
+    case VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR: return "VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR";
+    case VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR: return "VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR";
+    case VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT: return "VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkSwapchainCreateFlagBitsKHR";
+}
+
+template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSwapchainCreateFlagBitsKHR>(vkFlags);
+}
+
 template <> std::string ToString<VkSystemAllocationScope>(const VkSystemAllocationScope& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -3397,6 +5871,96 @@ template <> std::string ToString<VkSystemAllocationScope>(const VkSystemAllocati
     default: break;
     }
     return "Unhandled VkSystemAllocationScope";
+}
+
+template <> std::string ToString<VkTessellationDomainOrigin>(const VkTessellationDomainOrigin& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT: return "VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT";
+    case VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT: return "VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT";
+    default: break;
+    }
+    return "Unhandled VkTessellationDomainOrigin";
+}
+
+template <> std::string ToString<VkTimeDomainKHR>(const VkTimeDomainKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_TIME_DOMAIN_DEVICE_KHR: return "VK_TIME_DOMAIN_DEVICE_KHR";
+    case VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR: return "VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR";
+    case VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR: return "VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR";
+    case VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR: return "VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR";
+    default: break;
+    }
+    return "Unhandled VkTimeDomainKHR";
+}
+
+template <> std::string ToString<VkToolPurposeFlagBits>(const VkToolPurposeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_TOOL_PURPOSE_VALIDATION_BIT: return "VK_TOOL_PURPOSE_VALIDATION_BIT";
+    case VK_TOOL_PURPOSE_PROFILING_BIT: return "VK_TOOL_PURPOSE_PROFILING_BIT";
+    case VK_TOOL_PURPOSE_TRACING_BIT: return "VK_TOOL_PURPOSE_TRACING_BIT";
+    case VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT: return "VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT";
+    case VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT: return "VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT";
+    case VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT: return "VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT";
+    case VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT: return "VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkToolPurposeFlagBits";
+}
+
+template <> std::string ToString<VkToolPurposeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkToolPurposeFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkValidationCacheHeaderVersionEXT>(const VkValidationCacheHeaderVersionEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT: return "VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT";
+    default: break;
+    }
+    return "Unhandled VkValidationCacheHeaderVersionEXT";
+}
+
+template <> std::string ToString<VkValidationCheckEXT>(const VkValidationCheckEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VALIDATION_CHECK_ALL_EXT: return "VK_VALIDATION_CHECK_ALL_EXT";
+    case VK_VALIDATION_CHECK_SHADERS_EXT: return "VK_VALIDATION_CHECK_SHADERS_EXT";
+    default: break;
+    }
+    return "Unhandled VkValidationCheckEXT";
+}
+
+template <> std::string ToString<VkValidationFeatureDisableEXT>(const VkValidationFeatureDisableEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VALIDATION_FEATURE_DISABLE_ALL_EXT: return "VK_VALIDATION_FEATURE_DISABLE_ALL_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT: return "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT: return "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT: return "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT";
+    case VK_VALIDATION_FEATURE_DISABLE_SHADER_VALIDATION_CACHE_EXT: return "VK_VALIDATION_FEATURE_DISABLE_SHADER_VALIDATION_CACHE_EXT";
+    default: break;
+    }
+    return "Unhandled VkValidationFeatureDisableEXT";
+}
+
+template <> std::string ToString<VkValidationFeatureEnableEXT>(const VkValidationFeatureEnableEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT: return "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT";
+    case VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT: return "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT";
+    case VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT: return "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
+    case VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT: return "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT";
+    case VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT: return "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT";
+    default: break;
+    }
+    return "Unhandled VkValidationFeatureEnableEXT";
 }
 
 template <> std::string ToString<VkVendorId>(const VkVendorId& value, ToStringFlags, uint32_t, uint32_t)
@@ -3423,1018 +5987,6 @@ template <> std::string ToString<VkVertexInputRate>(const VkVertexInputRate& val
     default: break;
     }
     return "Unhandled VkVertexInputRate";
-}
-
-template <> std::string ToString<VkChromaLocation>(const VkChromaLocation& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_CHROMA_LOCATION_COSITED_EVEN: return "VK_CHROMA_LOCATION_COSITED_EVEN";
-    case VK_CHROMA_LOCATION_MIDPOINT: return "VK_CHROMA_LOCATION_MIDPOINT";
-    default: break;
-    }
-    return "Unhandled VkChromaLocation";
-}
-
-template <> std::string ToString<VkDescriptorUpdateTemplateType>(const VkDescriptorUpdateTemplateType& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET: return "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET";
-    case VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS: return "VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS";
-    default: break;
-    }
-    return "Unhandled VkDescriptorUpdateTemplateType";
-}
-
-template <> std::string ToString<VkExternalFenceFeatureFlagBits>(const VkExternalFenceFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT";
-    case VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT";
-    default: break;
-    }
-    return "Unhandled VkExternalFenceFeatureFlagBits";
-}
-
-template <> std::string ToString<VkExternalFenceFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalFenceFeatureFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalFenceHandleTypeFlagBits>(const VkExternalFenceHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT";
-    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT";
-    case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
-    case VK_EXTERNAL_FENCE_HANDLE_TYPE_SYNC_FD_BIT: return "VK_EXTERNAL_FENCE_HANDLE_TYPE_SYNC_FD_BIT";
-    default: break;
-    }
-    return "Unhandled VkExternalFenceHandleTypeFlagBits";
-}
-
-template <> std::string ToString<VkExternalFenceHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalFenceHandleTypeFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalMemoryFeatureFlagBits>(const VkExternalMemoryFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT";
-    case VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT";
-    case VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT";
-    default: break;
-    }
-    return "Unhandled VkExternalMemoryFeatureFlagBits";
-}
-
-template <> std::string ToString<VkExternalMemoryFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalMemoryFeatureFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalMemoryHandleTypeFlagBits>(const VkExternalMemoryHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_MAPPED_FOREIGN_MEMORY_BIT_EXT: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_MAPPED_FOREIGN_MEMORY_BIT_EXT";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_ZIRCON_VMO_BIT_FUCHSIA: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_ZIRCON_VMO_BIT_FUCHSIA";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_RDMA_ADDRESS_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_RDMA_ADDRESS_BIT_NV";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_SCREEN_BUFFER_BIT_QNX: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_SCREEN_BUFFER_BIT_QNX";
-    default: break;
-    }
-    return "Unhandled VkExternalMemoryHandleTypeFlagBits";
-}
-
-template <> std::string ToString<VkExternalMemoryHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalMemoryHandleTypeFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalSemaphoreFeatureFlagBits>(const VkExternalSemaphoreFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT: return "VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT";
-    case VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT: return "VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT";
-    default: break;
-    }
-    return "Unhandled VkExternalSemaphoreFeatureFlagBits";
-}
-
-template <> std::string ToString<VkExternalSemaphoreFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalSemaphoreFeatureFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalSemaphoreHandleTypeFlagBits>(const VkExternalSemaphoreHandleTypeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT";
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT";
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT";
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT";
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT";
-    case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_ZIRCON_EVENT_BIT_FUCHSIA: return "VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_ZIRCON_EVENT_BIT_FUCHSIA";
-    default: break;
-    }
-    return "Unhandled VkExternalSemaphoreHandleTypeFlagBits";
-}
-
-template <> std::string ToString<VkExternalSemaphoreHandleTypeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalSemaphoreHandleTypeFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkFenceImportFlagBits>(const VkFenceImportFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FENCE_IMPORT_TEMPORARY_BIT: return "VK_FENCE_IMPORT_TEMPORARY_BIT";
-    default: break;
-    }
-    return "Unhandled VkFenceImportFlagBits";
-}
-
-template <> std::string ToString<VkFenceImportFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkFenceImportFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkMemoryAllocateFlagBits>(const VkMemoryAllocateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT";
-    case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT";
-    case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT: return "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT";
-    default: break;
-    }
-    return "Unhandled VkMemoryAllocateFlagBits";
-}
-
-template <> std::string ToString<VkMemoryAllocateFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkMemoryAllocateFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkPeerMemoryFeatureFlagBits>(const VkPeerMemoryFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT: return "VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT";
-    case VK_PEER_MEMORY_FEATURE_COPY_DST_BIT: return "VK_PEER_MEMORY_FEATURE_COPY_DST_BIT";
-    case VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT: return "VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT";
-    case VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT: return "VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT";
-    default: break;
-    }
-    return "Unhandled VkPeerMemoryFeatureFlagBits";
-}
-
-template <> std::string ToString<VkPeerMemoryFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPeerMemoryFeatureFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkPointClippingBehavior>(const VkPointClippingBehavior& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES: return "VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES";
-    case VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY: return "VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY";
-    default: break;
-    }
-    return "Unhandled VkPointClippingBehavior";
-}
-
-template <> std::string ToString<VkSamplerYcbcrModelConversion>(const VkSamplerYcbcrModelConversion& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY";
-    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY";
-    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709";
-    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_601: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_601";
-    case VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020: return "VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020";
-    default: break;
-    }
-    return "Unhandled VkSamplerYcbcrModelConversion";
-}
-
-template <> std::string ToString<VkSamplerYcbcrRange>(const VkSamplerYcbcrRange& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SAMPLER_YCBCR_RANGE_ITU_FULL: return "VK_SAMPLER_YCBCR_RANGE_ITU_FULL";
-    case VK_SAMPLER_YCBCR_RANGE_ITU_NARROW: return "VK_SAMPLER_YCBCR_RANGE_ITU_NARROW";
-    default: break;
-    }
-    return "Unhandled VkSamplerYcbcrRange";
-}
-
-template <> std::string ToString<VkSemaphoreImportFlagBits>(const VkSemaphoreImportFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SEMAPHORE_IMPORT_TEMPORARY_BIT: return "VK_SEMAPHORE_IMPORT_TEMPORARY_BIT";
-    default: break;
-    }
-    return "Unhandled VkSemaphoreImportFlagBits";
-}
-
-template <> std::string ToString<VkSemaphoreImportFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSemaphoreImportFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkSubgroupFeatureFlagBits>(const VkSubgroupFeatureFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SUBGROUP_FEATURE_BASIC_BIT: return "VK_SUBGROUP_FEATURE_BASIC_BIT";
-    case VK_SUBGROUP_FEATURE_VOTE_BIT: return "VK_SUBGROUP_FEATURE_VOTE_BIT";
-    case VK_SUBGROUP_FEATURE_ARITHMETIC_BIT: return "VK_SUBGROUP_FEATURE_ARITHMETIC_BIT";
-    case VK_SUBGROUP_FEATURE_BALLOT_BIT: return "VK_SUBGROUP_FEATURE_BALLOT_BIT";
-    case VK_SUBGROUP_FEATURE_SHUFFLE_BIT: return "VK_SUBGROUP_FEATURE_SHUFFLE_BIT";
-    case VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT: return "VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT";
-    case VK_SUBGROUP_FEATURE_CLUSTERED_BIT: return "VK_SUBGROUP_FEATURE_CLUSTERED_BIT";
-    case VK_SUBGROUP_FEATURE_QUAD_BIT: return "VK_SUBGROUP_FEATURE_QUAD_BIT";
-    case VK_SUBGROUP_FEATURE_ROTATE_BIT: return "VK_SUBGROUP_FEATURE_ROTATE_BIT";
-    case VK_SUBGROUP_FEATURE_ROTATE_CLUSTERED_BIT: return "VK_SUBGROUP_FEATURE_ROTATE_CLUSTERED_BIT";
-    case VK_SUBGROUP_FEATURE_PARTITIONED_BIT_NV: return "VK_SUBGROUP_FEATURE_PARTITIONED_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkSubgroupFeatureFlagBits";
-}
-
-template <> std::string ToString<VkSubgroupFeatureFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSubgroupFeatureFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkTessellationDomainOrigin>(const VkTessellationDomainOrigin& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT: return "VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT";
-    case VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT: return "VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT";
-    default: break;
-    }
-    return "Unhandled VkTessellationDomainOrigin";
-}
-
-template <> std::string ToString<VkDescriptorBindingFlagBits>(const VkDescriptorBindingFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT: return "VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT";
-    case VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT: return "VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT";
-    case VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT: return "VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT";
-    case VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT: return "VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT";
-    default: break;
-    }
-    return "Unhandled VkDescriptorBindingFlagBits";
-}
-
-template <> std::string ToString<VkDescriptorBindingFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDescriptorBindingFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkDriverId>(const VkDriverId& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DRIVER_ID_AMD_PROPRIETARY: return "VK_DRIVER_ID_AMD_PROPRIETARY";
-    case VK_DRIVER_ID_AMD_OPEN_SOURCE: return "VK_DRIVER_ID_AMD_OPEN_SOURCE";
-    case VK_DRIVER_ID_MESA_RADV: return "VK_DRIVER_ID_MESA_RADV";
-    case VK_DRIVER_ID_NVIDIA_PROPRIETARY: return "VK_DRIVER_ID_NVIDIA_PROPRIETARY";
-    case VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS: return "VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS";
-    case VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA: return "VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA";
-    case VK_DRIVER_ID_IMAGINATION_PROPRIETARY: return "VK_DRIVER_ID_IMAGINATION_PROPRIETARY";
-    case VK_DRIVER_ID_QUALCOMM_PROPRIETARY: return "VK_DRIVER_ID_QUALCOMM_PROPRIETARY";
-    case VK_DRIVER_ID_ARM_PROPRIETARY: return "VK_DRIVER_ID_ARM_PROPRIETARY";
-    case VK_DRIVER_ID_GOOGLE_SWIFTSHADER: return "VK_DRIVER_ID_GOOGLE_SWIFTSHADER";
-    case VK_DRIVER_ID_GGP_PROPRIETARY: return "VK_DRIVER_ID_GGP_PROPRIETARY";
-    case VK_DRIVER_ID_BROADCOM_PROPRIETARY: return "VK_DRIVER_ID_BROADCOM_PROPRIETARY";
-    case VK_DRIVER_ID_MESA_LLVMPIPE: return "VK_DRIVER_ID_MESA_LLVMPIPE";
-    case VK_DRIVER_ID_MOLTENVK: return "VK_DRIVER_ID_MOLTENVK";
-    case VK_DRIVER_ID_COREAVI_PROPRIETARY: return "VK_DRIVER_ID_COREAVI_PROPRIETARY";
-    case VK_DRIVER_ID_JUICE_PROPRIETARY: return "VK_DRIVER_ID_JUICE_PROPRIETARY";
-    case VK_DRIVER_ID_VERISILICON_PROPRIETARY: return "VK_DRIVER_ID_VERISILICON_PROPRIETARY";
-    case VK_DRIVER_ID_MESA_TURNIP: return "VK_DRIVER_ID_MESA_TURNIP";
-    case VK_DRIVER_ID_MESA_V3DV: return "VK_DRIVER_ID_MESA_V3DV";
-    case VK_DRIVER_ID_MESA_PANVK: return "VK_DRIVER_ID_MESA_PANVK";
-    case VK_DRIVER_ID_SAMSUNG_PROPRIETARY: return "VK_DRIVER_ID_SAMSUNG_PROPRIETARY";
-    case VK_DRIVER_ID_MESA_VENUS: return "VK_DRIVER_ID_MESA_VENUS";
-    case VK_DRIVER_ID_MESA_DOZEN: return "VK_DRIVER_ID_MESA_DOZEN";
-    case VK_DRIVER_ID_MESA_NVK: return "VK_DRIVER_ID_MESA_NVK";
-    case VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA: return "VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA";
-    case VK_DRIVER_ID_MESA_HONEYKRISP: return "VK_DRIVER_ID_MESA_HONEYKRISP";
-    case VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN: return "VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN";
-    default: break;
-    }
-    return "Unhandled VkDriverId";
-}
-
-template <> std::string ToString<VkResolveModeFlagBits>(const VkResolveModeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_RESOLVE_MODE_NONE: return "VK_RESOLVE_MODE_NONE";
-    case VK_RESOLVE_MODE_SAMPLE_ZERO_BIT: return "VK_RESOLVE_MODE_SAMPLE_ZERO_BIT";
-    case VK_RESOLVE_MODE_AVERAGE_BIT: return "VK_RESOLVE_MODE_AVERAGE_BIT";
-    case VK_RESOLVE_MODE_MIN_BIT: return "VK_RESOLVE_MODE_MIN_BIT";
-    case VK_RESOLVE_MODE_MAX_BIT: return "VK_RESOLVE_MODE_MAX_BIT";
-    case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID: return "VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID";
-    default: break;
-    }
-    return "Unhandled VkResolveModeFlagBits";
-}
-
-template <> std::string ToString<VkResolveModeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkResolveModeFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkSamplerReductionMode>(const VkSamplerReductionMode& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE: return "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE";
-    case VK_SAMPLER_REDUCTION_MODE_MIN: return "VK_SAMPLER_REDUCTION_MODE_MIN";
-    case VK_SAMPLER_REDUCTION_MODE_MAX: return "VK_SAMPLER_REDUCTION_MODE_MAX";
-    case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM: return "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM";
-    default: break;
-    }
-    return "Unhandled VkSamplerReductionMode";
-}
-
-template <> std::string ToString<VkSemaphoreType>(const VkSemaphoreType& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SEMAPHORE_TYPE_BINARY: return "VK_SEMAPHORE_TYPE_BINARY";
-    case VK_SEMAPHORE_TYPE_TIMELINE: return "VK_SEMAPHORE_TYPE_TIMELINE";
-    default: break;
-    }
-    return "Unhandled VkSemaphoreType";
-}
-
-template <> std::string ToString<VkSemaphoreWaitFlagBits>(const VkSemaphoreWaitFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SEMAPHORE_WAIT_ANY_BIT: return "VK_SEMAPHORE_WAIT_ANY_BIT";
-    default: break;
-    }
-    return "Unhandled VkSemaphoreWaitFlagBits";
-}
-
-template <> std::string ToString<VkSemaphoreWaitFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSemaphoreWaitFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkShaderFloatControlsIndependence>(const VkShaderFloatControlsIndependence& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY";
-    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_ALL";
-    case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE: return "VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE";
-    default: break;
-    }
-    return "Unhandled VkShaderFloatControlsIndependence";
-}
-
-std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value)
-{
-    switch (value) {
-    case VK_ACCESS_2_NONE: return "VK_ACCESS_2_NONE";
-    case VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT: return "VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT";
-    case VK_ACCESS_2_INDEX_READ_BIT: return "VK_ACCESS_2_INDEX_READ_BIT";
-    case VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT: return "VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT";
-    case VK_ACCESS_2_UNIFORM_READ_BIT: return "VK_ACCESS_2_UNIFORM_READ_BIT";
-    case VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT";
-    case VK_ACCESS_2_SHADER_READ_BIT: return "VK_ACCESS_2_SHADER_READ_BIT";
-    case VK_ACCESS_2_SHADER_WRITE_BIT: return "VK_ACCESS_2_SHADER_WRITE_BIT";
-    case VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT";
-    case VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT: return "VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT";
-    case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT: return "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT";
-    case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT: return "VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT";
-    case VK_ACCESS_2_TRANSFER_READ_BIT: return "VK_ACCESS_2_TRANSFER_READ_BIT";
-    case VK_ACCESS_2_TRANSFER_WRITE_BIT: return "VK_ACCESS_2_TRANSFER_WRITE_BIT";
-    case VK_ACCESS_2_HOST_READ_BIT: return "VK_ACCESS_2_HOST_READ_BIT";
-    case VK_ACCESS_2_HOST_WRITE_BIT: return "VK_ACCESS_2_HOST_WRITE_BIT";
-    case VK_ACCESS_2_MEMORY_READ_BIT: return "VK_ACCESS_2_MEMORY_READ_BIT";
-    case VK_ACCESS_2_MEMORY_WRITE_BIT: return "VK_ACCESS_2_MEMORY_WRITE_BIT";
-    case VK_ACCESS_2_SHADER_SAMPLED_READ_BIT: return "VK_ACCESS_2_SHADER_SAMPLED_READ_BIT";
-    case VK_ACCESS_2_SHADER_STORAGE_READ_BIT: return "VK_ACCESS_2_SHADER_STORAGE_READ_BIT";
-    case VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT: return "VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT";
-    case VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR: return "VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR";
-    case VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR: return "VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR";
-    case VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR: return "VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR";
-    case VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR: return "VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR";
-    case VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT";
-    case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT";
-    case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT: return "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT";
-    case VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT: return "VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT";
-    case VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV: return "VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV";
-    case VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV: return "VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV";
-    case VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR: return "VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR";
-    case VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR: return "VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR";
-    case VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR: return "VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR";
-    case VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT: return "VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT";
-    case VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT: return "VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT";
-    case VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT: return "VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT";
-    case VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI: return "VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI";
-    case VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR: return "VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR";
-    case VK_ACCESS_2_MICROMAP_READ_BIT_EXT: return "VK_ACCESS_2_MICROMAP_READ_BIT_EXT";
-    case VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT: return "VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT";
-    case VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV: return "VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV";
-    case VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV: return "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkAccessFlagBits2";
-}
-
-std::string VkAccessFlags2ToString(VkFlags64 vkFlags)
-{
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkAccessFlagBits2ToString(static_cast<VkAccessFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkAccessFlagBits2ToString(0U));
-    }
-    return str;
-}
-
-std::string VkFormatFeatureFlagBits2ToString(const VkFormatFeatureFlagBits2 value)
-{
-    switch (value) {
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_ATOMIC_BIT";
-    case VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_ATOMIC_BIT";
-    case VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT: return "VK_FORMAT_FEATURE_2_VERTEX_BUFFER_BIT";
-    case VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT: return "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BIT";
-    case VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT: return "VK_FORMAT_FEATURE_2_COLOR_ATTACHMENT_BLEND_BIT";
-    case VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT: return "VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT";
-    case VK_FORMAT_FEATURE_2_BLIT_SRC_BIT: return "VK_FORMAT_FEATURE_2_BLIT_SRC_BIT";
-    case VK_FORMAT_FEATURE_2_BLIT_DST_BIT: return "VK_FORMAT_FEATURE_2_BLIT_DST_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_BIT";
-    case VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT: return "VK_FORMAT_FEATURE_2_TRANSFER_SRC_BIT";
-    case VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT: return "VK_FORMAT_FEATURE_2_TRANSFER_DST_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_MINMAX_BIT";
-    case VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT: return "VK_FORMAT_FEATURE_2_MIDPOINT_CHROMA_SAMPLES_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT";
-    case VK_FORMAT_FEATURE_2_DISJOINT_BIT: return "VK_FORMAT_FEATURE_2_DISJOINT_BIT";
-    case VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT: return "VK_FORMAT_FEATURE_2_COSITED_CHROMA_SAMPLES_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT";
-    case VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT: return "VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT";
-    case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT: return "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_CUBIC_BIT";
-    case VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT: return "VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT";
-    case VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_DECODE_OUTPUT_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_DECODE_DPB_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR: return "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT: return "VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT";
-    case VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV: return "VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV";
-    case VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM: return "VK_FORMAT_FEATURE_2_WEIGHT_IMAGE_BIT_QCOM";
-    case VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM: return "VK_FORMAT_FEATURE_2_WEIGHT_SAMPLED_IMAGE_BIT_QCOM";
-    case VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM: return "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM";
-    case VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM: return "VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM";
-    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV";
-    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV";
-    case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV: return "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV";
-    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
-    case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR: return "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkFormatFeatureFlagBits2";
-}
-
-std::string VkFormatFeatureFlags2ToString(VkFlags64 vkFlags)
-{
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkFormatFeatureFlagBits2ToString(static_cast<VkFormatFeatureFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkFormatFeatureFlagBits2ToString(0U));
-    }
-    return str;
-}
-
-template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(const VkPipelineCreationFeedbackFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT";
-    case VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT";
-    case VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT: return "VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT";
-    default: break;
-    }
-    return "Unhandled VkPipelineCreationFeedbackFlagBits";
-}
-
-template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPipelineCreationFeedbackFlagBits>(vkFlags);
-}
-
-std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 value)
-{
-    switch (value) {
-    case VK_PIPELINE_STAGE_2_NONE: return "VK_PIPELINE_STAGE_2_NONE";
-    case VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT";
-    case VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT: return "VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT";
-    case VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT";
-    case VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT: return "VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT: return "VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT: return "VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT: return "VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT: return "VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT";
-    case VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT: return "VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT";
-    case VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT: return "VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT";
-    case VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT: return "VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT";
-    case VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT: return "VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT";
-    case VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT";
-    case VK_PIPELINE_STAGE_2_HOST_BIT: return "VK_PIPELINE_STAGE_2_HOST_BIT";
-    case VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT: return "VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT";
-    case VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT: return "VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT";
-    case VK_PIPELINE_STAGE_2_COPY_BIT: return "VK_PIPELINE_STAGE_2_COPY_BIT";
-    case VK_PIPELINE_STAGE_2_RESOLVE_BIT: return "VK_PIPELINE_STAGE_2_RESOLVE_BIT";
-    case VK_PIPELINE_STAGE_2_BLIT_BIT: return "VK_PIPELINE_STAGE_2_BLIT_BIT";
-    case VK_PIPELINE_STAGE_2_CLEAR_BIT: return "VK_PIPELINE_STAGE_2_CLEAR_BIT";
-    case VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT: return "VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT";
-    case VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT: return "VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT";
-    case VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT: return "VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT";
-    case VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR: return "VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR: return "VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT: return "VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT: return "VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV: return "VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV";
-    case VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR: return "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR: return "VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT: return "VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT: return "VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT: return "VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_SUBPASS_SHADER_BIT_HUAWEI";
-    case VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI";
-    case VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR: return "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR";
-    case VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT: return "VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT";
-    case VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI: return "VK_PIPELINE_STAGE_2_CLUSTER_CULLING_SHADER_BIT_HUAWEI";
-    case VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV: return "VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkPipelineStageFlagBits2";
-}
-
-std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags)
-{
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkPipelineStageFlagBits2ToString(static_cast<VkPipelineStageFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkPipelineStageFlagBits2ToString(0U));
-    }
-    return str;
-}
-
-template <> std::string ToString<VkRenderingFlagBits>(const VkRenderingFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT: return "VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT";
-    case VK_RENDERING_SUSPENDING_BIT: return "VK_RENDERING_SUSPENDING_BIT";
-    case VK_RENDERING_RESUMING_BIT: return "VK_RENDERING_RESUMING_BIT";
-    case VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT: return "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT";
-    case VK_RENDERING_CONTENTS_INLINE_BIT_KHR: return "VK_RENDERING_CONTENTS_INLINE_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkRenderingFlagBits";
-}
-
-template <> std::string ToString<VkRenderingFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkRenderingFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkSubmitFlagBits>(const VkSubmitFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SUBMIT_PROTECTED_BIT: return "VK_SUBMIT_PROTECTED_BIT";
-    default: break;
-    }
-    return "Unhandled VkSubmitFlagBits";
-}
-
-template <> std::string ToString<VkSubmitFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSubmitFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkToolPurposeFlagBits>(const VkToolPurposeFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_TOOL_PURPOSE_VALIDATION_BIT: return "VK_TOOL_PURPOSE_VALIDATION_BIT";
-    case VK_TOOL_PURPOSE_PROFILING_BIT: return "VK_TOOL_PURPOSE_PROFILING_BIT";
-    case VK_TOOL_PURPOSE_TRACING_BIT: return "VK_TOOL_PURPOSE_TRACING_BIT";
-    case VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT: return "VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT";
-    case VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT: return "VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT";
-    case VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT: return "VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT";
-    case VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT: return "VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkToolPurposeFlagBits";
-}
-
-template <> std::string ToString<VkToolPurposeFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkToolPurposeFlagBits>(vkFlags);
-}
-
-std::string VkBufferUsageFlagBits2ToString(const VkBufferUsageFlagBits2 value)
-{
-    switch (value) {
-    case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT: return "VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT";
-    case VK_BUFFER_USAGE_2_TRANSFER_DST_BIT: return "VK_BUFFER_USAGE_2_TRANSFER_DST_BIT";
-    case VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT: return "VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT: return "VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT: return "VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT: return "VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT: return "VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT: return "VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT: return "VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT";
-    case VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT: return "VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT";
-    case VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX: return "VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX";
-    case VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT: return "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
-    case VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR: return "VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR";
-    case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT";
-    case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT";
-    case VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR";
-    case VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR";
-    case VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR";
-    case VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR: return "VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR";
-    case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR: return "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR";
-    case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR: return "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR";
-    case VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT";
-    case VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT";
-    case VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT";
-    case VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT: return "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT";
-    case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT: return "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
-    case VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT: return "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkBufferUsageFlagBits2";
-}
-
-std::string VkBufferUsageFlags2ToString(VkFlags64 vkFlags)
-{
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkBufferUsageFlagBits2ToString(static_cast<VkBufferUsageFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkBufferUsageFlagBits2ToString(0U));
-    }
-    return str;
-}
-
-template <> std::string ToString<VkHostImageCopyFlagBits>(const VkHostImageCopyFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_HOST_IMAGE_COPY_MEMCPY: return "VK_HOST_IMAGE_COPY_MEMCPY";
-    default: break;
-    }
-    return "Unhandled VkHostImageCopyFlagBits";
-}
-
-template <> std::string ToString<VkHostImageCopyFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkHostImageCopyFlagBits>(vkFlags);
-}
-
-template <> std::string ToString<VkLineRasterizationMode>(const VkLineRasterizationMode& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_LINE_RASTERIZATION_MODE_DEFAULT: return "VK_LINE_RASTERIZATION_MODE_DEFAULT";
-    case VK_LINE_RASTERIZATION_MODE_RECTANGULAR: return "VK_LINE_RASTERIZATION_MODE_RECTANGULAR";
-    case VK_LINE_RASTERIZATION_MODE_BRESENHAM: return "VK_LINE_RASTERIZATION_MODE_BRESENHAM";
-    case VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH: return "VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH";
-    default: break;
-    }
-    return "Unhandled VkLineRasterizationMode";
-}
-
-template <> std::string ToString<VkMemoryUnmapFlagBits>(const VkMemoryUnmapFlagBits& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_MEMORY_UNMAP_RESERVE_BIT_EXT: return "VK_MEMORY_UNMAP_RESERVE_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkMemoryUnmapFlagBits";
-}
-
-template <> std::string ToString<VkMemoryUnmapFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkMemoryUnmapFlagBits>(vkFlags);
-}
-
-std::string VkPipelineCreateFlagBits2ToString(const VkPipelineCreateFlagBits2 value)
-{
-    switch (value) {
-    case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT: return "VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT";
-    case VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT: return "VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT";
-    case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT: return "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT";
-    case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT: return "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT";
-    case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT: return "VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT";
-    case VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT: return "VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT";
-    case VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT: return "VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT";
-    case VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT: return "VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT";
-    case VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT: return "VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT";
-    case VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX: return "VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX";
-    case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT: return "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV: return "VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV";
-    case VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT: return "VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT: return "VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR: return "VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR: return "VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV: return "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV: return "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV";
-    case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR: return "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT: return "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT: return "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT: return "VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT: return "VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV: return "VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV";
-    case VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT: return "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT";
-    case VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR: return "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR";
-    case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT: return "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkPipelineCreateFlagBits2";
-}
-
-std::string VkPipelineCreateFlags2ToString(VkFlags64 vkFlags)
-{
-    std::string   str;
-    VkFlags64     index = 0U;
-    while (vkFlags)
-    {
-        if (vkFlags & 1U)
-        {
-            if (!str.empty())
-            {
-                str += '|';
-            }
-            str.append(VkPipelineCreateFlagBits2ToString(static_cast<VkPipelineCreateFlagBits2>(1U) << index));
-        }
-        ++index;
-        vkFlags >>= 1U;
-    }
-    if (str.empty())
-    {
-        str.append(VkPipelineCreateFlagBits2ToString(0U));
-    }
-    return str;
-}
-
-template <> std::string ToString<VkPipelineRobustnessBufferBehavior>(const VkPipelineRobustnessBufferBehavior& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT";
-    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED";
-    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS";
-    case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS_2: return "VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS_2";
-    default: break;
-    }
-    return "Unhandled VkPipelineRobustnessBufferBehavior";
-}
-
-template <> std::string ToString<VkPipelineRobustnessImageBehavior>(const VkPipelineRobustnessImageBehavior& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT";
-    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED";
-    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS";
-    case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS_2: return "VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS_2";
-    default: break;
-    }
-    return "Unhandled VkPipelineRobustnessImageBehavior";
-}
-
-template <> std::string ToString<VkQueueGlobalPriority>(const VkQueueGlobalPriority& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_QUEUE_GLOBAL_PRIORITY_LOW: return "VK_QUEUE_GLOBAL_PRIORITY_LOW";
-    case VK_QUEUE_GLOBAL_PRIORITY_MEDIUM: return "VK_QUEUE_GLOBAL_PRIORITY_MEDIUM";
-    case VK_QUEUE_GLOBAL_PRIORITY_HIGH: return "VK_QUEUE_GLOBAL_PRIORITY_HIGH";
-    case VK_QUEUE_GLOBAL_PRIORITY_REALTIME: return "VK_QUEUE_GLOBAL_PRIORITY_REALTIME";
-    default: break;
-    }
-    return "Unhandled VkQueueGlobalPriority";
-}
-
-template <> std::string ToString<VkColorSpaceKHR>(const VkColorSpaceKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COLOR_SPACE_SRGB_NONLINEAR_KHR: return "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR";
-    case VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT: return "VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT";
-    case VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT: return "VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT";
-    case VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT: return "VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT";
-    case VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT: return "VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT";
-    case VK_COLOR_SPACE_BT709_LINEAR_EXT: return "VK_COLOR_SPACE_BT709_LINEAR_EXT";
-    case VK_COLOR_SPACE_BT709_NONLINEAR_EXT: return "VK_COLOR_SPACE_BT709_NONLINEAR_EXT";
-    case VK_COLOR_SPACE_BT2020_LINEAR_EXT: return "VK_COLOR_SPACE_BT2020_LINEAR_EXT";
-    case VK_COLOR_SPACE_HDR10_ST2084_EXT: return "VK_COLOR_SPACE_HDR10_ST2084_EXT";
-    case VK_COLOR_SPACE_DOLBYVISION_EXT: return "VK_COLOR_SPACE_DOLBYVISION_EXT";
-    case VK_COLOR_SPACE_HDR10_HLG_EXT: return "VK_COLOR_SPACE_HDR10_HLG_EXT";
-    case VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT: return "VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT";
-    case VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT: return "VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT";
-    case VK_COLOR_SPACE_PASS_THROUGH_EXT: return "VK_COLOR_SPACE_PASS_THROUGH_EXT";
-    case VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT: return "VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT";
-    case VK_COLOR_SPACE_DISPLAY_NATIVE_AMD: return "VK_COLOR_SPACE_DISPLAY_NATIVE_AMD";
-    default: break;
-    }
-    return "Unhandled VkColorSpaceKHR";
-}
-
-template <> std::string ToString<VkCompositeAlphaFlagBitsKHR>(const VkCompositeAlphaFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR: return "VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR";
-    case VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR: return "VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR";
-    case VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR: return "VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR";
-    case VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR: return "VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkCompositeAlphaFlagBitsKHR";
-}
-
-template <> std::string ToString<VkCompositeAlphaFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkCompositeAlphaFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkPresentModeKHR>(const VkPresentModeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PRESENT_MODE_IMMEDIATE_KHR: return "VK_PRESENT_MODE_IMMEDIATE_KHR";
-    case VK_PRESENT_MODE_MAILBOX_KHR: return "VK_PRESENT_MODE_MAILBOX_KHR";
-    case VK_PRESENT_MODE_FIFO_KHR: return "VK_PRESENT_MODE_FIFO_KHR";
-    case VK_PRESENT_MODE_FIFO_RELAXED_KHR: return "VK_PRESENT_MODE_FIFO_RELAXED_KHR";
-    case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR: return "VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR";
-    case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR: return "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR";
-    case VK_PRESENT_MODE_FIFO_LATEST_READY_EXT: return "VK_PRESENT_MODE_FIFO_LATEST_READY_EXT";
-    default: break;
-    }
-    return "Unhandled VkPresentModeKHR";
-}
-
-template <> std::string ToString<VkSurfaceTransformFlagBitsKHR>(const VkSurfaceTransformFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR: return "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR: return "VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR: return "VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR";
-    case VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR: return "VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkSurfaceTransformFlagBitsKHR";
-}
-
-template <> std::string ToString<VkSurfaceTransformFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSurfaceTransformFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkDeviceGroupPresentModeFlagBitsKHR>(const VkDeviceGroupPresentModeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR";
-    case VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR";
-    case VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR";
-    case VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR: return "VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkDeviceGroupPresentModeFlagBitsKHR";
-}
-
-template <> std::string ToString<VkDeviceGroupPresentModeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDeviceGroupPresentModeFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(const VkSwapchainCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR: return "VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR";
-    case VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR: return "VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR";
-    case VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR: return "VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR";
-    case VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT: return "VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkSwapchainCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSwapchainCreateFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkDisplayPlaneAlphaFlagBitsKHR>(const VkDisplayPlaneAlphaFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR";
-    case VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR";
-    case VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR";
-    case VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR: return "VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkDisplayPlaneAlphaFlagBitsKHR";
-}
-
-template <> std::string ToString<VkDisplayPlaneAlphaFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDisplayPlaneAlphaFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkQueryResultStatusKHR>(const VkQueryResultStatusKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_QUERY_RESULT_STATUS_ERROR_KHR: return "VK_QUERY_RESULT_STATUS_ERROR_KHR";
-    case VK_QUERY_RESULT_STATUS_NOT_READY_KHR: return "VK_QUERY_RESULT_STATUS_NOT_READY_KHR";
-    case VK_QUERY_RESULT_STATUS_COMPLETE_KHR: return "VK_QUERY_RESULT_STATUS_COMPLETE_KHR";
-    case VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR: return "VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR";
-    default: break;
-    }
-    return "Unhandled VkQueryResultStatusKHR";
 }
 
 template <> std::string ToString<VkVideoCapabilityFlagBitsKHR>(const VkVideoCapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -4523,38 +6075,6 @@ template <> std::string ToString<VkVideoComponentBitDepthFlagBitsKHR>(VkFlags vk
     return BitmaskToString<VkVideoComponentBitDepthFlagBitsKHR>(vkFlags);
 }
 
-template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(const VkVideoSessionCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR";
-    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR";
-    case VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR";
-    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
-    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_EMPHASIS_MAP_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoSessionCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoSessionCreateFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(const VkVideoSessionParametersCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR: return "VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoSessionParametersCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoSessionParametersCreateFlagBitsKHR>(vkFlags);
-}
-
 template <> std::string ToString<VkVideoDecodeCapabilityFlagBitsKHR>(const VkVideoDecodeCapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -4568,6 +6088,22 @@ template <> std::string ToString<VkVideoDecodeCapabilityFlagBitsKHR>(const VkVid
 template <> std::string ToString<VkVideoDecodeCapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkVideoDecodeCapabilityFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(const VkVideoDecodeH264PictureLayoutFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR";
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR";
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoDecodeH264PictureLayoutFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(vkFlags);
 }
 
 template <> std::string ToString<VkVideoDecodeUsageFlagBitsKHR>(const VkVideoDecodeUsageFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -4585,6 +6121,161 @@ template <> std::string ToString<VkVideoDecodeUsageFlagBitsKHR>(const VkVideoDec
 template <> std::string ToString<VkVideoDecodeUsageFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkVideoDecodeUsageFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(const VkVideoEncodeAV1CapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_CAPABILITY_FRAME_SIZE_OVERRIDE_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_FRAME_SIZE_OVERRIDE_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_CAPABILITY_MOTION_VECTOR_SCALING_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_MOTION_VECTOR_SCALING_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1CapabilityFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeAV1PredictionModeKHR>(const VkVideoEncodeAV1PredictionModeKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR";
+    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR";
+    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR";
+    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_BIDIRECTIONAL_COMPOUND_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_BIDIRECTIONAL_COMPOUND_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1PredictionModeKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(const VkVideoEncodeAV1RateControlFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_DYADIC_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_DYADIC_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1RateControlFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeAV1RateControlGroupKHR>(const VkVideoEncodeAV1RateControlGroupKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR";
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR";
+    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1RateControlGroupKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1StdFlagBitsKHR>(const VkVideoEncodeAV1StdFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_STD_DELTA_Q_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_DELTA_Q_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1StdFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1StdFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeAV1StdFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR";
+    case VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeAV1SuperblockSizeFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeCapabilityFlagBitsKHR>(const VkVideoEncodeCapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR";
+    case VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR";
+    case VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR";
+    case VK_VIDEO_ENCODE_CAPABILITY_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_EMPHASIS_MAP_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeCapabilityFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeCapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeCapabilityFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeContentFlagBitsKHR>(const VkVideoEncodeContentFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR: return "VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR";
+    case VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR";
+    case VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR";
+    case VK_VIDEO_ENCODE_CONTENT_RENDERED_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_RENDERED_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeContentFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeContentFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeContentFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeFeedbackFlagBitsKHR>(const VkVideoEncodeFeedbackFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR";
+    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR";
+    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeFeedbackFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeFeedbackFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeFeedbackFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeFlagBitsKHR>(const VkVideoEncodeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR";
+    case VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoEncodeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeFlagBitsKHR>(vkFlags);
 }
 
 template <> std::string ToString<VkVideoEncodeH264CapabilityFlagBitsKHR>(const VkVideoEncodeH264CapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
@@ -4770,181 +6461,6 @@ template <> std::string ToString<VkVideoEncodeH265TransformBlockSizeFlagBitsKHR>
     return BitmaskToString<VkVideoEncodeH265TransformBlockSizeFlagBitsKHR>(vkFlags);
 }
 
-template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(const VkVideoDecodeH264PictureLayoutFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR";
-    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR";
-    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoDecodeH264PictureLayoutFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoDecodeH264PictureLayoutFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(const VkAcquireProfilingLockFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled VkAcquireProfilingLockFlagBitsKHR";
-}
-
-template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkAcquireProfilingLockFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkPerformanceCounterDescriptionFlagBitsKHR>(const VkPerformanceCounterDescriptionFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR: return "VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR";
-    case VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR: return "VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkPerformanceCounterDescriptionFlagBitsKHR";
-}
-
-template <> std::string ToString<VkPerformanceCounterDescriptionFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPerformanceCounterDescriptionFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkPerformanceCounterScopeKHR>(const VkPerformanceCounterScopeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR";
-    case VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_RENDER_PASS_KHR";
-    case VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR: return "VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_KHR";
-    default: break;
-    }
-    return "Unhandled VkPerformanceCounterScopeKHR";
-}
-
-template <> std::string ToString<VkPerformanceCounterStorageKHR>(const VkPerformanceCounterStorageKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR";
-    case VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_INT64_KHR";
-    case VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_UINT32_KHR";
-    case VK_PERFORMANCE_COUNTER_STORAGE_UINT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_UINT64_KHR";
-    case VK_PERFORMANCE_COUNTER_STORAGE_FLOAT32_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_FLOAT32_KHR";
-    case VK_PERFORMANCE_COUNTER_STORAGE_FLOAT64_KHR: return "VK_PERFORMANCE_COUNTER_STORAGE_FLOAT64_KHR";
-    default: break;
-    }
-    return "Unhandled VkPerformanceCounterStorageKHR";
-}
-
-template <> std::string ToString<VkPerformanceCounterUnitKHR>(const VkPerformanceCounterUnitKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_PERCENTAGE_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_BYTES_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_BYTES_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_BYTES_PER_SECOND_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_BYTES_PER_SECOND_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_KELVIN_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_KELVIN_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_WATTS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_WATTS_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_VOLTS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_VOLTS_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_AMPS_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_AMPS_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_HERTZ_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_HERTZ_KHR";
-    case VK_PERFORMANCE_COUNTER_UNIT_CYCLES_KHR: return "VK_PERFORMANCE_COUNTER_UNIT_CYCLES_KHR";
-    default: break;
-    }
-    return "Unhandled VkPerformanceCounterUnitKHR";
-}
-
-template <> std::string ToString<VkFragmentShadingRateCombinerOpKHR>(const VkFragmentShadingRateCombinerOpKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR";
-    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR";
-    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR";
-    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR";
-    case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR: return "VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR";
-    default: break;
-    }
-    return "Unhandled VkFragmentShadingRateCombinerOpKHR";
-}
-
-template <> std::string ToString<VkPipelineExecutableStatisticFormatKHR>(const VkPipelineExecutableStatisticFormatKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR";
-    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR";
-    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR";
-    case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR: return "VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR";
-    default: break;
-    }
-    return "Unhandled VkPipelineExecutableStatisticFormatKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeCapabilityFlagBitsKHR>(const VkVideoEncodeCapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR";
-    case VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR";
-    case VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR";
-    case VK_VIDEO_ENCODE_CAPABILITY_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_CAPABILITY_EMPHASIS_MAP_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeCapabilityFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeCapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeCapabilityFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeContentFlagBitsKHR>(const VkVideoEncodeContentFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR: return "VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR";
-    case VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_CAMERA_BIT_KHR";
-    case VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_DESKTOP_BIT_KHR";
-    case VK_VIDEO_ENCODE_CONTENT_RENDERED_BIT_KHR: return "VK_VIDEO_ENCODE_CONTENT_RENDERED_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeContentFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeContentFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeContentFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeFeedbackFlagBitsKHR>(const VkVideoEncodeFeedbackFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR";
-    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR";
-    case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR: return "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeFeedbackFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeFeedbackFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeFeedbackFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeFlagBitsKHR>(const VkVideoEncodeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR";
-    case VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_ENCODE_WITH_EMPHASIS_MAP_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeFlagBitsKHR>(vkFlags);
-}
-
 template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(const VkVideoEncodeRateControlModeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -4993,338 +6509,36 @@ template <> std::string ToString<VkVideoEncodeUsageFlagBitsKHR>(VkFlags vkFlags,
     return BitmaskToString<VkVideoEncodeUsageFlagBitsKHR>(vkFlags);
 }
 
-template <> std::string ToString<VkComponentTypeKHR>(const VkComponentTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
+template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(const VkVideoSessionCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
-    case VK_COMPONENT_TYPE_FLOAT16_KHR: return "VK_COMPONENT_TYPE_FLOAT16_KHR";
-    case VK_COMPONENT_TYPE_FLOAT32_KHR: return "VK_COMPONENT_TYPE_FLOAT32_KHR";
-    case VK_COMPONENT_TYPE_FLOAT64_KHR: return "VK_COMPONENT_TYPE_FLOAT64_KHR";
-    case VK_COMPONENT_TYPE_SINT8_KHR: return "VK_COMPONENT_TYPE_SINT8_KHR";
-    case VK_COMPONENT_TYPE_SINT16_KHR: return "VK_COMPONENT_TYPE_SINT16_KHR";
-    case VK_COMPONENT_TYPE_SINT32_KHR: return "VK_COMPONENT_TYPE_SINT32_KHR";
-    case VK_COMPONENT_TYPE_SINT64_KHR: return "VK_COMPONENT_TYPE_SINT64_KHR";
-    case VK_COMPONENT_TYPE_UINT8_KHR: return "VK_COMPONENT_TYPE_UINT8_KHR";
-    case VK_COMPONENT_TYPE_UINT16_KHR: return "VK_COMPONENT_TYPE_UINT16_KHR";
-    case VK_COMPONENT_TYPE_UINT32_KHR: return "VK_COMPONENT_TYPE_UINT32_KHR";
-    case VK_COMPONENT_TYPE_UINT64_KHR: return "VK_COMPONENT_TYPE_UINT64_KHR";
+    case VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR";
+    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_PARAMETER_OPTIMIZATIONS_BIT_KHR";
+    case VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR";
+    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
+    case VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_EMPHASIS_MAP_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_EMPHASIS_MAP_BIT_KHR";
     default: break;
     }
-    return "Unhandled VkComponentTypeKHR";
+    return "Unhandled VkVideoSessionCreateFlagBitsKHR";
 }
 
-template <> std::string ToString<VkScopeKHR>(const VkScopeKHR& value, ToStringFlags, uint32_t, uint32_t)
+template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoSessionCreateFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(const VkVideoSessionParametersCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
-    case VK_SCOPE_DEVICE_KHR: return "VK_SCOPE_DEVICE_KHR";
-    case VK_SCOPE_WORKGROUP_KHR: return "VK_SCOPE_WORKGROUP_KHR";
-    case VK_SCOPE_SUBGROUP_KHR: return "VK_SCOPE_SUBGROUP_KHR";
-    case VK_SCOPE_QUEUE_FAMILY_KHR: return "VK_SCOPE_QUEUE_FAMILY_KHR";
+    case VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR: return "VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR";
     default: break;
     }
-    return "Unhandled VkScopeKHR";
+    return "Unhandled VkVideoSessionParametersCreateFlagBitsKHR";
 }
 
-template <> std::string ToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(const VkVideoEncodeAV1CapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_GENERATE_OBU_EXTENSION_HEADER_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_PRIMARY_REFERENCE_CDF_ONLY_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_CAPABILITY_FRAME_SIZE_OVERRIDE_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_FRAME_SIZE_OVERRIDE_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_CAPABILITY_MOTION_VECTOR_SCALING_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_CAPABILITY_MOTION_VECTOR_SCALING_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1CapabilityFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeAV1CapabilityFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeAV1PredictionModeKHR>(const VkVideoEncodeAV1PredictionModeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR";
-    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_SINGLE_REFERENCE_KHR";
-    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_UNIDIRECTIONAL_COMPOUND_KHR";
-    case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_BIDIRECTIONAL_COMPOUND_KHR: return "VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_BIDIRECTIONAL_COMPOUND_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1PredictionModeKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(const VkVideoEncodeAV1RateControlFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_TEMPORAL_LAYER_PATTERN_DYADIC_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_FLAT_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_DYADIC_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REFERENCE_PATTERN_DYADIC_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1RateControlFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeAV1RateControlFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeAV1RateControlGroupKHR>(const VkVideoEncodeAV1RateControlGroupKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR";
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_PREDICTIVE_KHR";
-    case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR: return "VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_BIPREDICTIVE_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1RateControlGroupKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1StdFlagBitsKHR>(const VkVideoEncodeAV1StdFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_SKIP_MODE_PRESENT_UNSET_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_PRIMARY_REF_FRAME_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_STD_DELTA_Q_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_STD_DELTA_Q_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1StdFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1StdFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeAV1StdFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR";
-    case VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR: return "VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_128_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkVideoEncodeAV1SuperblockSizeFlagBitsKHR";
-}
-
-template <> std::string ToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkVideoEncodeAV1SuperblockSizeFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkTimeDomainKHR>(const VkTimeDomainKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_TIME_DOMAIN_DEVICE_KHR: return "VK_TIME_DOMAIN_DEVICE_KHR";
-    case VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR: return "VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR";
-    case VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR: return "VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR";
-    case VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR: return "VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR";
-    default: break;
-    }
-    return "Unhandled VkTimeDomainKHR";
-}
-
-template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysicalDeviceLayeredApiKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR";
-    case VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR";
-    case VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR";
-    case VK_PHYSICAL_DEVICE_LAYERED_API_OPENGL_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGL_KHR";
-    case VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR: return "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR";
-    default: break;
-    }
-    return "Unhandled VkPhysicalDeviceLayeredApiKHR";
-}
-
-template <> std::string ToString<VkDebugReportFlagBitsEXT>(const VkDebugReportFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEBUG_REPORT_INFORMATION_BIT_EXT: return "VK_DEBUG_REPORT_INFORMATION_BIT_EXT";
-    case VK_DEBUG_REPORT_WARNING_BIT_EXT: return "VK_DEBUG_REPORT_WARNING_BIT_EXT";
-    case VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT: return "VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT";
-    case VK_DEBUG_REPORT_ERROR_BIT_EXT: return "VK_DEBUG_REPORT_ERROR_BIT_EXT";
-    case VK_DEBUG_REPORT_DEBUG_BIT_EXT: return "VK_DEBUG_REPORT_DEBUG_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDebugReportFlagBitsEXT";
-}
-
-template <> std::string ToString<VkDebugReportFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDebugReportFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkDebugReportObjectTypeEXT>(const VkDebugReportObjectTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_CACHE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_CACHE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_LAYOUT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_LAYOUT_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_CU_MODULE_NVX_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CU_MODULE_NVX_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_CU_FUNCTION_NVX_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CU_FUNCTION_NVX_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT";
-    case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT: return "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT";
-    default: break;
-    }
-    return "Unhandled VkDebugReportObjectTypeEXT";
-}
-
-template <> std::string ToString<VkRasterizationOrderAMD>(const VkRasterizationOrderAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_RASTERIZATION_ORDER_STRICT_AMD: return "VK_RASTERIZATION_ORDER_STRICT_AMD";
-    case VK_RASTERIZATION_ORDER_RELAXED_AMD: return "VK_RASTERIZATION_ORDER_RELAXED_AMD";
-    default: break;
-    }
-    return "Unhandled VkRasterizationOrderAMD";
-}
-
-template <> std::string ToString<VkShaderInfoTypeAMD>(const VkShaderInfoTypeAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADER_INFO_TYPE_STATISTICS_AMD: return "VK_SHADER_INFO_TYPE_STATISTICS_AMD";
-    case VK_SHADER_INFO_TYPE_BINARY_AMD: return "VK_SHADER_INFO_TYPE_BINARY_AMD";
-    case VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD: return "VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD";
-    default: break;
-    }
-    return "Unhandled VkShaderInfoTypeAMD";
-}
-
-template <> std::string ToString<VkExternalMemoryFeatureFlagBitsNV>(const VkExternalMemoryFeatureFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV";
-    case VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV";
-    case VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV: return "VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkExternalMemoryFeatureFlagBitsNV";
-}
-
-template <> std::string ToString<VkExternalMemoryFeatureFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalMemoryFeatureFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkExternalMemoryHandleTypeFlagBitsNV>(const VkExternalMemoryHandleTypeFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV";
-    case VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV: return "VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkExternalMemoryHandleTypeFlagBitsNV";
-}
-
-template <> std::string ToString<VkExternalMemoryHandleTypeFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkExternalMemoryHandleTypeFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkValidationCheckEXT>(const VkValidationCheckEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VALIDATION_CHECK_ALL_EXT: return "VK_VALIDATION_CHECK_ALL_EXT";
-    case VK_VALIDATION_CHECK_SHADERS_EXT: return "VK_VALIDATION_CHECK_SHADERS_EXT";
-    default: break;
-    }
-    return "Unhandled VkValidationCheckEXT";
-}
-
-template <> std::string ToString<VkConditionalRenderingFlagBitsEXT>(const VkConditionalRenderingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT: return "VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkConditionalRenderingFlagBitsEXT";
-}
-
-template <> std::string ToString<VkConditionalRenderingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkConditionalRenderingFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkSurfaceCounterFlagBitsEXT>(const VkSurfaceCounterFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SURFACE_COUNTER_VBLANK_BIT_EXT: return "VK_SURFACE_COUNTER_VBLANK_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkSurfaceCounterFlagBitsEXT";
-}
-
-template <> std::string ToString<VkSurfaceCounterFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkSurfaceCounterFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkDeviceEventTypeEXT>(const VkDeviceEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT: return "VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceEventTypeEXT";
-}
-
-template <> std::string ToString<VkDisplayEventTypeEXT>(const VkDisplayEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT: return "VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDisplayEventTypeEXT";
-}
-
-template <> std::string ToString<VkDisplayPowerStateEXT>(const VkDisplayPowerStateEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISPLAY_POWER_STATE_OFF_EXT: return "VK_DISPLAY_POWER_STATE_OFF_EXT";
-    case VK_DISPLAY_POWER_STATE_SUSPEND_EXT: return "VK_DISPLAY_POWER_STATE_SUSPEND_EXT";
-    case VK_DISPLAY_POWER_STATE_ON_EXT: return "VK_DISPLAY_POWER_STATE_ON_EXT";
-    default: break;
-    }
-    return "Unhandled VkDisplayPowerStateEXT";
+    return BitmaskToString<VkVideoSessionParametersCreateFlagBitsKHR>(vkFlags);
 }
 
 template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewportCoordinateSwizzleNV& value, ToStringFlags, uint32_t, uint32_t)
@@ -5341,1201 +6555,6 @@ template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewport
     default: break;
     }
     return "Unhandled VkViewportCoordinateSwizzleNV";
-}
-
-template <> std::string ToString<VkDiscardRectangleModeEXT>(const VkDiscardRectangleModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT: return "VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT";
-    case VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT: return "VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT";
-    default: break;
-    }
-    return "Unhandled VkDiscardRectangleModeEXT";
-}
-
-template <> std::string ToString<VkConservativeRasterizationModeEXT>(const VkConservativeRasterizationModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT";
-    case VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT";
-    case VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT: return "VK_CONSERVATIVE_RASTERIZATION_MODE_UNDERESTIMATE_EXT";
-    default: break;
-    }
-    return "Unhandled VkConservativeRasterizationModeEXT";
-}
-
-template <> std::string ToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(const VkDebugUtilsMessageSeverityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDebugUtilsMessageSeverityFlagBitsEXT";
-}
-
-template <> std::string ToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkDebugUtilsMessageTypeFlagBitsEXT>(const VkDebugUtilsMessageTypeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT";
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT: return "VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDebugUtilsMessageTypeFlagBitsEXT";
-}
-
-template <> std::string ToString<VkDebugUtilsMessageTypeFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDebugUtilsMessageTypeFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkBlendOverlapEXT>(const VkBlendOverlapEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BLEND_OVERLAP_UNCORRELATED_EXT: return "VK_BLEND_OVERLAP_UNCORRELATED_EXT";
-    case VK_BLEND_OVERLAP_DISJOINT_EXT: return "VK_BLEND_OVERLAP_DISJOINT_EXT";
-    case VK_BLEND_OVERLAP_CONJOINT_EXT: return "VK_BLEND_OVERLAP_CONJOINT_EXT";
-    default: break;
-    }
-    return "Unhandled VkBlendOverlapEXT";
-}
-
-template <> std::string ToString<VkCoverageModulationModeNV>(const VkCoverageModulationModeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COVERAGE_MODULATION_MODE_NONE_NV: return "VK_COVERAGE_MODULATION_MODE_NONE_NV";
-    case VK_COVERAGE_MODULATION_MODE_RGB_NV: return "VK_COVERAGE_MODULATION_MODE_RGB_NV";
-    case VK_COVERAGE_MODULATION_MODE_ALPHA_NV: return "VK_COVERAGE_MODULATION_MODE_ALPHA_NV";
-    case VK_COVERAGE_MODULATION_MODE_RGBA_NV: return "VK_COVERAGE_MODULATION_MODE_RGBA_NV";
-    default: break;
-    }
-    return "Unhandled VkCoverageModulationModeNV";
-}
-
-template <> std::string ToString<VkValidationCacheHeaderVersionEXT>(const VkValidationCacheHeaderVersionEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT: return "VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT";
-    default: break;
-    }
-    return "Unhandled VkValidationCacheHeaderVersionEXT";
-}
-
-template <> std::string ToString<VkCoarseSampleOrderTypeNV>(const VkCoarseSampleOrderTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV";
-    case VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV";
-    case VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV";
-    case VK_COARSE_SAMPLE_ORDER_TYPE_SAMPLE_MAJOR_NV: return "VK_COARSE_SAMPLE_ORDER_TYPE_SAMPLE_MAJOR_NV";
-    default: break;
-    }
-    return "Unhandled VkCoarseSampleOrderTypeNV";
-}
-
-template <> std::string ToString<VkShadingRatePaletteEntryNV>(const VkShadingRatePaletteEntryNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_4_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_4_INVOCATIONS_PER_PIXEL_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_2_INVOCATIONS_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_2_INVOCATIONS_PER_PIXEL_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_PIXEL_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_PIXEL_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X1_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X1_PIXELS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_1X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_1X2_PIXELS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X2_PIXELS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X2_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X2_PIXELS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X4_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X4_PIXELS_NV";
-    case VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X4_PIXELS_NV: return "VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X4_PIXELS_NV";
-    default: break;
-    }
-    return "Unhandled VkShadingRatePaletteEntryNV";
-}
-
-template <> std::string ToString<VkAccelerationStructureMemoryRequirementsTypeNV>(const VkAccelerationStructureMemoryRequirementsTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV";
-    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV";
-    case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV: return "VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureMemoryRequirementsTypeNV";
-}
-
-template <> std::string ToString<VkAccelerationStructureTypeKHR>(const VkAccelerationStructureTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR";
-    case VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR";
-    case VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR: return "VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureTypeKHR";
-}
-
-template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(const VkBuildAccelerationStructureFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV: return "VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV";
-    case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR";
-    default: break;
-    }
-    return "Unhandled VkBuildAccelerationStructureFlagBitsKHR";
-}
-
-template <> std::string ToString<VkBuildAccelerationStructureFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkBuildAccelerationStructureFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkCopyAccelerationStructureModeKHR>(const VkCopyAccelerationStructureModeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR";
-    case VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR";
-    case VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR";
-    case VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR: return "VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR";
-    default: break;
-    }
-    return "Unhandled VkCopyAccelerationStructureModeKHR";
-}
-
-template <> std::string ToString<VkGeometryFlagBitsKHR>(const VkGeometryFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_GEOMETRY_OPAQUE_BIT_KHR: return "VK_GEOMETRY_OPAQUE_BIT_KHR";
-    case VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR: return "VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR";
-    default: break;
-    }
-    return "Unhandled VkGeometryFlagBitsKHR";
-}
-
-template <> std::string ToString<VkGeometryFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkGeometryFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkGeometryInstanceFlagBitsKHR>(const VkGeometryInstanceFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR";
-    case VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR: return "VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR";
-    case VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR";
-    case VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR: return "VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR";
-    case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT: return "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT";
-    case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT: return "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT";
-    default: break;
-    }
-    return "Unhandled VkGeometryInstanceFlagBitsKHR";
-}
-
-template <> std::string ToString<VkGeometryInstanceFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkGeometryInstanceFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkGeometryTypeKHR>(const VkGeometryTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_GEOMETRY_TYPE_TRIANGLES_KHR: return "VK_GEOMETRY_TYPE_TRIANGLES_KHR";
-    case VK_GEOMETRY_TYPE_AABBS_KHR: return "VK_GEOMETRY_TYPE_AABBS_KHR";
-    case VK_GEOMETRY_TYPE_INSTANCES_KHR: return "VK_GEOMETRY_TYPE_INSTANCES_KHR";
-    default: break;
-    }
-    return "Unhandled VkGeometryTypeKHR";
-}
-
-template <> std::string ToString<VkRayTracingShaderGroupTypeKHR>(const VkRayTracingShaderGroupTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR";
-    case VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR";
-    case VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR: return "VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR";
-    default: break;
-    }
-    return "Unhandled VkRayTracingShaderGroupTypeKHR";
-}
-
-template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(const VkPipelineCompilerControlFlagBitsAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled VkPipelineCompilerControlFlagBitsAMD";
-}
-
-template <> std::string ToString<VkPipelineCompilerControlFlagBitsAMD>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPipelineCompilerControlFlagBitsAMD>(vkFlags);
-}
-
-template <> std::string ToString<VkMemoryOverallocationBehaviorAMD>(const VkMemoryOverallocationBehaviorAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD";
-    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD";
-    case VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD: return "VK_MEMORY_OVERALLOCATION_BEHAVIOR_DISALLOWED_AMD";
-    default: break;
-    }
-    return "Unhandled VkMemoryOverallocationBehaviorAMD";
-}
-
-template <> std::string ToString<VkPerformanceConfigurationTypeINTEL>(const VkPerformanceConfigurationTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL: return "VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL";
-    default: break;
-    }
-    return "Unhandled VkPerformanceConfigurationTypeINTEL";
-}
-
-template <> std::string ToString<VkPerformanceOverrideTypeINTEL>(const VkPerformanceOverrideTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL: return "VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL";
-    case VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL: return "VK_PERFORMANCE_OVERRIDE_TYPE_FLUSH_GPU_CACHES_INTEL";
-    default: break;
-    }
-    return "Unhandled VkPerformanceOverrideTypeINTEL";
-}
-
-template <> std::string ToString<VkPerformanceParameterTypeINTEL>(const VkPerformanceParameterTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL: return "VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL";
-    case VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL: return "VK_PERFORMANCE_PARAMETER_TYPE_STREAM_MARKER_VALID_BITS_INTEL";
-    default: break;
-    }
-    return "Unhandled VkPerformanceParameterTypeINTEL";
-}
-
-template <> std::string ToString<VkPerformanceValueTypeINTEL>(const VkPerformanceValueTypeINTEL& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL";
-    case VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL";
-    case VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL";
-    case VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL";
-    case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL: return "VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL";
-    default: break;
-    }
-    return "Unhandled VkPerformanceValueTypeINTEL";
-}
-
-template <> std::string ToString<VkQueryPoolSamplingModeINTEL>(const VkQueryPoolSamplingModeINTEL& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL: return "VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL";
-    default: break;
-    }
-    return "Unhandled VkQueryPoolSamplingModeINTEL";
-}
-
-template <> std::string ToString<VkShaderCorePropertiesFlagBitsAMD>(const VkShaderCorePropertiesFlagBitsAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled VkShaderCorePropertiesFlagBitsAMD";
-}
-
-template <> std::string ToString<VkShaderCorePropertiesFlagBitsAMD>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkShaderCorePropertiesFlagBitsAMD>(vkFlags);
-}
-
-template <> std::string ToString<VkValidationFeatureDisableEXT>(const VkValidationFeatureDisableEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VALIDATION_FEATURE_DISABLE_ALL_EXT: return "VK_VALIDATION_FEATURE_DISABLE_ALL_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT: return "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT: return "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT: return "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT: return "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT";
-    case VK_VALIDATION_FEATURE_DISABLE_SHADER_VALIDATION_CACHE_EXT: return "VK_VALIDATION_FEATURE_DISABLE_SHADER_VALIDATION_CACHE_EXT";
-    default: break;
-    }
-    return "Unhandled VkValidationFeatureDisableEXT";
-}
-
-template <> std::string ToString<VkValidationFeatureEnableEXT>(const VkValidationFeatureEnableEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT: return "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT";
-    case VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT: return "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT";
-    case VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT: return "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
-    case VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT: return "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT";
-    case VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT: return "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT";
-    default: break;
-    }
-    return "Unhandled VkValidationFeatureEnableEXT";
-}
-
-template <> std::string ToString<VkCoverageReductionModeNV>(const VkCoverageReductionModeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COVERAGE_REDUCTION_MODE_MERGE_NV: return "VK_COVERAGE_REDUCTION_MODE_MERGE_NV";
-    case VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV: return "VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV";
-    default: break;
-    }
-    return "Unhandled VkCoverageReductionModeNV";
-}
-
-template <> std::string ToString<VkProvokingVertexModeEXT>(const VkProvokingVertexModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT: return "VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT";
-    case VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT: return "VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT";
-    default: break;
-    }
-    return "Unhandled VkProvokingVertexModeEXT";
-}
-
-template <> std::string ToString<VkFullScreenExclusiveEXT>(const VkFullScreenExclusiveEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT";
-    case VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT";
-    case VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT";
-    case VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT: return "VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT";
-    default: break;
-    }
-    return "Unhandled VkFullScreenExclusiveEXT";
-}
-
-template <> std::string ToString<VkPresentGravityFlagBitsEXT>(const VkPresentGravityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PRESENT_GRAVITY_MIN_BIT_EXT: return "VK_PRESENT_GRAVITY_MIN_BIT_EXT";
-    case VK_PRESENT_GRAVITY_MAX_BIT_EXT: return "VK_PRESENT_GRAVITY_MAX_BIT_EXT";
-    case VK_PRESENT_GRAVITY_CENTERED_BIT_EXT: return "VK_PRESENT_GRAVITY_CENTERED_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkPresentGravityFlagBitsEXT";
-}
-
-template <> std::string ToString<VkPresentGravityFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPresentGravityFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkPresentScalingFlagBitsEXT>(const VkPresentScalingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT: return "VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT";
-    case VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT: return "VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT";
-    case VK_PRESENT_SCALING_STRETCH_BIT_EXT: return "VK_PRESENT_SCALING_STRETCH_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkPresentScalingFlagBitsEXT";
-}
-
-template <> std::string ToString<VkPresentScalingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPresentScalingFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(const VkIndirectCommandsLayoutUsageFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV";
-    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_INDEXED_SEQUENCES_BIT_NV";
-    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkIndirectCommandsLayoutUsageFlagBitsNV";
-}
-
-template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkIndirectCommandsLayoutUsageFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkIndirectCommandsTokenTypeNV>(const VkIndirectCommandsTokenTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV";
-    default: break;
-    }
-    return "Unhandled VkIndirectCommandsTokenTypeNV";
-}
-
-template <> std::string ToString<VkIndirectStateFlagBitsNV>(const VkIndirectStateFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV: return "VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkIndirectStateFlagBitsNV";
-}
-
-template <> std::string ToString<VkIndirectStateFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkIndirectStateFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkDepthBiasRepresentationEXT>(const VkDepthBiasRepresentationEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT";
-    case VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT";
-    case VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT: return "VK_DEPTH_BIAS_REPRESENTATION_FLOAT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDepthBiasRepresentationEXT";
-}
-
-template <> std::string ToString<VkDeviceMemoryReportEventTypeEXT>(const VkDeviceMemoryReportEventTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT";
-    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_FREE_EXT";
-    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_IMPORT_EXT";
-    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_UNIMPORT_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_UNIMPORT_EXT";
-    case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATION_FAILED_EXT: return "VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATION_FAILED_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceMemoryReportEventTypeEXT";
-}
-
-template <> std::string ToString<VkDeviceDiagnosticsConfigFlagBitsNV>(const VkDeviceDiagnosticsConfigFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV";
-    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV";
-    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV";
-    case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV: return "VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkDeviceDiagnosticsConfigFlagBitsNV";
-}
-
-template <> std::string ToString<VkDeviceDiagnosticsConfigFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDeviceDiagnosticsConfigFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(const VkGraphicsPipelineLibraryFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT";
-    case VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT";
-    case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT";
-    case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT: return "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkGraphicsPipelineLibraryFlagBitsEXT";
-}
-
-template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkGraphicsPipelineLibraryFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkFragmentShadingRateNV>(const VkFragmentShadingRateNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_1X2_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X1_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X2_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X4_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_2X4_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X2_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X2_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X4_PIXELS_NV: return "VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_4X4_PIXELS_NV";
-    case VK_FRAGMENT_SHADING_RATE_2_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_2_INVOCATIONS_PER_PIXEL_NV";
-    case VK_FRAGMENT_SHADING_RATE_4_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_4_INVOCATIONS_PER_PIXEL_NV";
-    case VK_FRAGMENT_SHADING_RATE_8_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_8_INVOCATIONS_PER_PIXEL_NV";
-    case VK_FRAGMENT_SHADING_RATE_16_INVOCATIONS_PER_PIXEL_NV: return "VK_FRAGMENT_SHADING_RATE_16_INVOCATIONS_PER_PIXEL_NV";
-    case VK_FRAGMENT_SHADING_RATE_NO_INVOCATIONS_NV: return "VK_FRAGMENT_SHADING_RATE_NO_INVOCATIONS_NV";
-    default: break;
-    }
-    return "Unhandled VkFragmentShadingRateNV";
-}
-
-template <> std::string ToString<VkFragmentShadingRateTypeNV>(const VkFragmentShadingRateTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV: return "VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV";
-    case VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV: return "VK_FRAGMENT_SHADING_RATE_TYPE_ENUMS_NV";
-    default: break;
-    }
-    return "Unhandled VkFragmentShadingRateTypeNV";
-}
-
-template <> std::string ToString<VkAccelerationStructureMotionInstanceTypeNV>(const VkAccelerationStructureMotionInstanceTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV";
-    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV";
-    case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV: return "VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureMotionInstanceTypeNV";
-}
-
-template <> std::string ToString<VkImageCompressionFixedRateFlagBitsEXT>(const VkImageCompressionFixedRateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkImageCompressionFixedRateFlagBitsEXT";
-}
-
-template <> std::string ToString<VkImageCompressionFixedRateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkImageCompressionFixedRateFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkImageCompressionFlagBitsEXT>(const VkImageCompressionFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_IMAGE_COMPRESSION_DEFAULT_EXT: return "VK_IMAGE_COMPRESSION_DEFAULT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT";
-    case VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT: return "VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT";
-    case VK_IMAGE_COMPRESSION_DISABLED_EXT: return "VK_IMAGE_COMPRESSION_DISABLED_EXT";
-    default: break;
-    }
-    return "Unhandled VkImageCompressionFlagBitsEXT";
-}
-
-template <> std::string ToString<VkImageCompressionFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkImageCompressionFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkDeviceFaultAddressTypeEXT>(const VkDeviceFaultAddressTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_READ_INVALID_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_WRITE_INVALID_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_EXECUTE_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_EXECUTE_INVALID_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_UNKNOWN_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_UNKNOWN_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_INVALID_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_INVALID_EXT";
-    case VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_FAULT_EXT: return "VK_DEVICE_FAULT_ADDRESS_TYPE_INSTRUCTION_POINTER_FAULT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceFaultAddressTypeEXT";
-}
-
-template <> std::string ToString<VkDeviceFaultVendorBinaryHeaderVersionEXT>(const VkDeviceFaultVendorBinaryHeaderVersionEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT: return "VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceFaultVendorBinaryHeaderVersionEXT";
-}
-
-template <> std::string ToString<VkDeviceAddressBindingFlagBitsEXT>(const VkDeviceAddressBindingFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT: return "VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceAddressBindingFlagBitsEXT";
-}
-
-template <> std::string ToString<VkDeviceAddressBindingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkDeviceAddressBindingFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkDeviceAddressBindingTypeEXT>(const VkDeviceAddressBindingTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT: return "VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT";
-    case VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT: return "VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT";
-    default: break;
-    }
-    return "Unhandled VkDeviceAddressBindingTypeEXT";
-}
-
-template <> std::string ToString<VkFrameBoundaryFlagBitsEXT>(const VkFrameBoundaryFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT: return "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkFrameBoundaryFlagBitsEXT";
-}
-
-template <> std::string ToString<VkFrameBoundaryFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkFrameBoundaryFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkAccelerationStructureBuildTypeKHR>(const VkAccelerationStructureBuildTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR";
-    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR";
-    case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR: return "VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureBuildTypeKHR";
-}
-
-template <> std::string ToString<VkAccelerationStructureCompatibilityKHR>(const VkAccelerationStructureCompatibilityKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR: return "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR";
-    case VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR: return "VK_ACCELERATION_STRUCTURE_COMPATIBILITY_INCOMPATIBLE_KHR";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureCompatibilityKHR";
-}
-
-template <> std::string ToString<VkBuildMicromapFlagBitsEXT>(const VkBuildMicromapFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT: return "VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT";
-    case VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT: return "VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT";
-    case VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT: return "VK_BUILD_MICROMAP_ALLOW_COMPACTION_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkBuildMicromapFlagBitsEXT";
-}
-
-template <> std::string ToString<VkBuildMicromapFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkBuildMicromapFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkBuildMicromapModeEXT>(const VkBuildMicromapModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BUILD_MICROMAP_MODE_BUILD_EXT: return "VK_BUILD_MICROMAP_MODE_BUILD_EXT";
-    default: break;
-    }
-    return "Unhandled VkBuildMicromapModeEXT";
-}
-
-template <> std::string ToString<VkCopyMicromapModeEXT>(const VkCopyMicromapModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_COPY_MICROMAP_MODE_CLONE_EXT: return "VK_COPY_MICROMAP_MODE_CLONE_EXT";
-    case VK_COPY_MICROMAP_MODE_SERIALIZE_EXT: return "VK_COPY_MICROMAP_MODE_SERIALIZE_EXT";
-    case VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT: return "VK_COPY_MICROMAP_MODE_DESERIALIZE_EXT";
-    case VK_COPY_MICROMAP_MODE_COMPACT_EXT: return "VK_COPY_MICROMAP_MODE_COMPACT_EXT";
-    default: break;
-    }
-    return "Unhandled VkCopyMicromapModeEXT";
-}
-
-template <> std::string ToString<VkMicromapCreateFlagBitsEXT>(const VkMicromapCreateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT: return "VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkMicromapCreateFlagBitsEXT";
-}
-
-template <> std::string ToString<VkMicromapCreateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkMicromapCreateFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkMicromapTypeEXT>(const VkMicromapTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT: return "VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT";
-    case VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV: return "VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV";
-    default: break;
-    }
-    return "Unhandled VkMicromapTypeEXT";
-}
-
-template <> std::string ToString<VkOpacityMicromapFormatEXT>(const VkOpacityMicromapFormatEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT: return "VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT";
-    case VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT: return "VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT";
-    default: break;
-    }
-    return "Unhandled VkOpacityMicromapFormatEXT";
-}
-
-template <> std::string ToString<VkOpacityMicromapSpecialIndexEXT>(const VkOpacityMicromapSpecialIndexEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT";
-    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT";
-    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT";
-    case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT: return "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT";
-    default: break;
-    }
-    return "Unhandled VkOpacityMicromapSpecialIndexEXT";
-}
-
-template <> std::string ToString<VkDisplacementMicromapFormatNV>(const VkDisplacementMicromapFormatNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV";
-    case VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV";
-    case VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV: return "VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV";
-    default: break;
-    }
-    return "Unhandled VkDisplacementMicromapFormatNV";
-}
-
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM: return "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM";
-    default: break;
-    }
-    return "Unhandled VkPhysicalDeviceSchedulingControlsFlagBitsARM";
-}
-
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(vkFlags);
-}
-
-template <> std::string ToString<VkSubpassMergeStatusEXT>(const VkSubpassMergeStatusEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SUBPASS_MERGE_STATUS_MERGED_EXT: return "VK_SUBPASS_MERGE_STATUS_MERGED_EXT";
-    case VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT: return "VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SAMPLES_MISMATCH_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SAMPLES_MISMATCH_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_VIEWS_MISMATCH_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_VIEWS_MISMATCH_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_ALIASING_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_ALIASING_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPENDENCIES_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPENDENCIES_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INCOMPATIBLE_INPUT_ATTACHMENT_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INCOMPATIBLE_INPUT_ATTACHMENT_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_TOO_MANY_ATTACHMENTS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_TOO_MANY_ATTACHMENTS_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INSUFFICIENT_STORAGE_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INSUFFICIENT_STORAGE_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPTH_STENCIL_COUNT_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPTH_STENCIL_COUNT_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_RESOLVE_ATTACHMENT_REUSE_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_RESOLVE_ATTACHMENT_REUSE_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SINGLE_SUBPASS_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SINGLE_SUBPASS_EXT";
-    case VK_SUBPASS_MERGE_STATUS_NOT_MERGED_UNSPECIFIED_EXT: return "VK_SUBPASS_MERGE_STATUS_NOT_MERGED_UNSPECIFIED_EXT";
-    default: break;
-    }
-    return "Unhandled VkSubpassMergeStatusEXT";
-}
-
-template <> std::string ToString<VkDirectDriverLoadingModeLUNARG>(const VkDirectDriverLoadingModeLUNARG& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG: return "VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG";
-    case VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG: return "VK_DIRECT_DRIVER_LOADING_MODE_INCLUSIVE_LUNARG";
-    default: break;
-    }
-    return "Unhandled VkDirectDriverLoadingModeLUNARG";
-}
-
-template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(const VkOpticalFlowExecuteFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV: return "VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowExecuteFlagBitsNV";
-}
-
-template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkOpticalFlowExecuteFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkOpticalFlowGridSizeFlagBitsNV>(const VkOpticalFlowGridSizeFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV";
-    case VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_1X1_BIT_NV";
-    case VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_2X2_BIT_NV";
-    case VK_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_4X4_BIT_NV";
-    case VK_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_NV: return "VK_OPTICAL_FLOW_GRID_SIZE_8X8_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowGridSizeFlagBitsNV";
-}
-
-template <> std::string ToString<VkOpticalFlowGridSizeFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkOpticalFlowGridSizeFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkOpticalFlowPerformanceLevelNV>(const VkOpticalFlowPerformanceLevelNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV";
-    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_SLOW_NV";
-    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_MEDIUM_NV";
-    case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_NV: return "VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_FAST_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowPerformanceLevelNV";
-}
-
-template <> std::string ToString<VkOpticalFlowSessionBindingPointNV>(const VkOpticalFlowSessionBindingPointNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_INPUT_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_REFERENCE_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_HINT_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_HINT_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_FLOW_VECTOR_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_FLOW_VECTOR_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_FLOW_VECTOR_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_FLOW_VECTOR_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_COST_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_COST_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_COST_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_BACKWARD_COST_NV";
-    case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_GLOBAL_FLOW_NV: return "VK_OPTICAL_FLOW_SESSION_BINDING_POINT_GLOBAL_FLOW_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowSessionBindingPointNV";
-}
-
-template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(const VkOpticalFlowSessionCreateFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV";
-    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_COST_BIT_NV";
-    case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_GLOBAL_FLOW_BIT_NV";
-    case VK_OPTICAL_FLOW_SESSION_CREATE_ALLOW_REGIONS_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_ALLOW_REGIONS_BIT_NV";
-    case VK_OPTICAL_FLOW_SESSION_CREATE_BOTH_DIRECTIONS_BIT_NV: return "VK_OPTICAL_FLOW_SESSION_CREATE_BOTH_DIRECTIONS_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowSessionCreateFlagBitsNV";
-}
-
-template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkOpticalFlowSessionCreateFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(const VkOpticalFlowUsageFlagBitsNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV: return "VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV";
-    case VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_INPUT_BIT_NV";
-    case VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_OUTPUT_BIT_NV";
-    case VK_OPTICAL_FLOW_USAGE_HINT_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_HINT_BIT_NV";
-    case VK_OPTICAL_FLOW_USAGE_COST_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_COST_BIT_NV";
-    case VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV: return "VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkOpticalFlowUsageFlagBitsNV";
-}
-
-template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkOpticalFlowUsageFlagBitsNV>(vkFlags);
-}
-
-template <> std::string ToString<VkAntiLagModeAMD>(const VkAntiLagModeAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD: return "VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD";
-    case VK_ANTI_LAG_MODE_ON_AMD: return "VK_ANTI_LAG_MODE_ON_AMD";
-    case VK_ANTI_LAG_MODE_OFF_AMD: return "VK_ANTI_LAG_MODE_OFF_AMD";
-    default: break;
-    }
-    return "Unhandled VkAntiLagModeAMD";
-}
-
-template <> std::string ToString<VkAntiLagStageAMD>(const VkAntiLagStageAMD& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ANTI_LAG_STAGE_INPUT_AMD: return "VK_ANTI_LAG_STAGE_INPUT_AMD";
-    case VK_ANTI_LAG_STAGE_PRESENT_AMD: return "VK_ANTI_LAG_STAGE_PRESENT_AMD";
-    default: break;
-    }
-    return "Unhandled VkAntiLagStageAMD";
-}
-
-template <> std::string ToString<VkDepthClampModeEXT>(const VkDepthClampModeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT: return "VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT";
-    case VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT: return "VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT";
-    default: break;
-    }
-    return "Unhandled VkDepthClampModeEXT";
-}
-
-template <> std::string ToString<VkShaderCodeTypeEXT>(const VkShaderCodeTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADER_CODE_TYPE_BINARY_EXT: return "VK_SHADER_CODE_TYPE_BINARY_EXT";
-    case VK_SHADER_CODE_TYPE_SPIRV_EXT: return "VK_SHADER_CODE_TYPE_SPIRV_EXT";
-    default: break;
-    }
-    return "Unhandled VkShaderCodeTypeEXT";
-}
-
-template <> std::string ToString<VkShaderCreateFlagBitsEXT>(const VkShaderCreateFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADER_CREATE_LINK_STAGE_BIT_EXT: return "VK_SHADER_CREATE_LINK_STAGE_BIT_EXT";
-    case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT: return "VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT";
-    case VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT: return "VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT";
-    case VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT: return "VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT";
-    case VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT: return "VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT";
-    case VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT: return "VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT";
-    case VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT: return "VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
-    case VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT: return "VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkShaderCreateFlagBitsEXT";
-}
-
-template <> std::string ToString<VkShaderCreateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkShaderCreateFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkRayTracingInvocationReorderModeNV>(const VkRayTracingInvocationReorderModeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_NV: return "VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_NV";
-    case VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV: return "VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV";
-    default: break;
-    }
-    return "Unhandled VkRayTracingInvocationReorderModeNV";
-}
-
-template <> std::string ToString<VkLayerSettingTypeEXT>(const VkLayerSettingTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_LAYER_SETTING_TYPE_BOOL32_EXT: return "VK_LAYER_SETTING_TYPE_BOOL32_EXT";
-    case VK_LAYER_SETTING_TYPE_INT32_EXT: return "VK_LAYER_SETTING_TYPE_INT32_EXT";
-    case VK_LAYER_SETTING_TYPE_INT64_EXT: return "VK_LAYER_SETTING_TYPE_INT64_EXT";
-    case VK_LAYER_SETTING_TYPE_UINT32_EXT: return "VK_LAYER_SETTING_TYPE_UINT32_EXT";
-    case VK_LAYER_SETTING_TYPE_UINT64_EXT: return "VK_LAYER_SETTING_TYPE_UINT64_EXT";
-    case VK_LAYER_SETTING_TYPE_FLOAT32_EXT: return "VK_LAYER_SETTING_TYPE_FLOAT32_EXT";
-    case VK_LAYER_SETTING_TYPE_FLOAT64_EXT: return "VK_LAYER_SETTING_TYPE_FLOAT64_EXT";
-    case VK_LAYER_SETTING_TYPE_STRING_EXT: return "VK_LAYER_SETTING_TYPE_STRING_EXT";
-    default: break;
-    }
-    return "Unhandled VkLayerSettingTypeEXT";
-}
-
-template <> std::string ToString<VkLatencyMarkerNV>(const VkLatencyMarkerNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_LATENCY_MARKER_SIMULATION_START_NV: return "VK_LATENCY_MARKER_SIMULATION_START_NV";
-    case VK_LATENCY_MARKER_SIMULATION_END_NV: return "VK_LATENCY_MARKER_SIMULATION_END_NV";
-    case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV";
-    case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_END_NV";
-    case VK_LATENCY_MARKER_PRESENT_START_NV: return "VK_LATENCY_MARKER_PRESENT_START_NV";
-    case VK_LATENCY_MARKER_PRESENT_END_NV: return "VK_LATENCY_MARKER_PRESENT_END_NV";
-    case VK_LATENCY_MARKER_INPUT_SAMPLE_NV: return "VK_LATENCY_MARKER_INPUT_SAMPLE_NV";
-    case VK_LATENCY_MARKER_TRIGGER_FLASH_NV: return "VK_LATENCY_MARKER_TRIGGER_FLASH_NV";
-    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV";
-    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV";
-    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV";
-    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV";
-    default: break;
-    }
-    return "Unhandled VkLatencyMarkerNV";
-}
-
-template <> std::string ToString<VkOutOfBandQueueTypeNV>(const VkOutOfBandQueueTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV";
-    case VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV";
-    default: break;
-    }
-    return "Unhandled VkOutOfBandQueueTypeNV";
-}
-
-template <> std::string ToString<VkBlockMatchWindowCompareModeQCOM>(const VkBlockMatchWindowCompareModeQCOM& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM: return "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM";
-    case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM: return "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM";
-    default: break;
-    }
-    return "Unhandled VkBlockMatchWindowCompareModeQCOM";
-}
-
-template <> std::string ToString<VkCubicFilterWeightsQCOM>(const VkCubicFilterWeightsQCOM& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM";
-    case VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM";
-    case VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM";
-    case VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM: return "VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM";
-    default: break;
-    }
-    return "Unhandled VkCubicFilterWeightsQCOM";
-}
-
-template <> std::string ToString<VkLayeredDriverUnderlyingApiMSFT>(const VkLayeredDriverUnderlyingApiMSFT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT: return "VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT";
-    case VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT: return "VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT";
-    default: break;
-    }
-    return "Unhandled VkLayeredDriverUnderlyingApiMSFT";
-}
-
-template <> std::string ToString<VkDisplaySurfaceStereoTypeNV>(const VkDisplaySurfaceStereoTypeNV& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV";
-    case VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_ONBOARD_DIN_NV";
-    case VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_HDMI_3D_NV";
-    case VK_DISPLAY_SURFACE_STEREO_TYPE_INBAND_DISPLAYPORT_NV: return "VK_DISPLAY_SURFACE_STEREO_TYPE_INBAND_DISPLAYPORT_NV";
-    default: break;
-    }
-    return "Unhandled VkDisplaySurfaceStereoTypeNV";
-}
-
-template <> std::string ToString<VkIndirectCommandsInputModeFlagBitsEXT>(const VkIndirectCommandsInputModeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT";
-    case VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_INPUT_MODE_DXGI_INDEX_BUFFER_EXT";
-    default: break;
-    }
-    return "Unhandled VkIndirectCommandsInputModeFlagBitsEXT";
-}
-
-template <> std::string ToString<VkIndirectCommandsInputModeFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkIndirectCommandsInputModeFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(const VkIndirectCommandsLayoutUsageFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT";
-    case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT: return "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled VkIndirectCommandsLayoutUsageFlagBitsEXT";
-}
-
-template <> std::string ToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkIndirectCommandsLayoutUsageFlagBitsEXT>(vkFlags);
-}
-
-template <> std::string ToString<VkIndirectCommandsTokenTypeEXT>(const VkIndirectCommandsTokenTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT";
-    case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT: return "VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT";
-    default: break;
-    }
-    return "Unhandled VkIndirectCommandsTokenTypeEXT";
-}
-
-template <> std::string ToString<VkIndirectExecutionSetInfoTypeEXT>(const VkIndirectExecutionSetInfoTypeEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT: return "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT";
-    case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT: return "VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT";
-    default: break;
-    }
-    return "Unhandled VkIndirectExecutionSetInfoTypeEXT";
-}
-
-template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(const VkAccelerationStructureCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR: return "VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR";
-    case VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT: return "VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT";
-    case VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV: return "VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV";
-    default: break;
-    }
-    return "Unhandled VkAccelerationStructureCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<VkAccelerationStructureCreateFlagBitsKHR>(vkFlags);
-}
-
-template <> std::string ToString<VkBuildAccelerationStructureModeKHR>(const VkBuildAccelerationStructureModeKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR";
-    case VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR: return "VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR";
-    default: break;
-    }
-    return "Unhandled VkBuildAccelerationStructureModeKHR";
-}
-
-template <> std::string ToString<VkShaderGroupShaderKHR>(const VkShaderGroupShaderKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case VK_SHADER_GROUP_SHADER_GENERAL_KHR: return "VK_SHADER_GROUP_SHADER_GENERAL_KHR";
-    case VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR: return "VK_SHADER_GROUP_SHADER_CLOSEST_HIT_KHR";
-    case VK_SHADER_GROUP_SHADER_ANY_HIT_KHR: return "VK_SHADER_GROUP_SHADER_ANY_HIT_KHR";
-    case VK_SHADER_GROUP_SHADER_INTERSECTION_KHR: return "VK_SHADER_GROUP_SHADER_INTERSECTION_KHR";
-    default: break;
-    }
-    return "Unhandled VkShaderGroupShaderKHR";
 }
 
 GFXRECON_END_NAMESPACE(util)

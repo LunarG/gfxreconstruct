@@ -73,11 +73,6 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     def beginFile(self, gen_opts):
@@ -111,7 +106,10 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
+            if self.is_cmd_black_listed(cmd):
+                continue
+
             return_type = info[0]
             params = info[2]
             if params and params[0].base_type == 'VkCommandBuffer':
@@ -142,25 +140,11 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""

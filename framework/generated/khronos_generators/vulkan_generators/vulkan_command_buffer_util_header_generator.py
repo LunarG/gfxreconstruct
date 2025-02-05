@@ -69,11 +69,6 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -88,8 +83,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd in self.get_all_filtered_cmd_names():
+            wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
             info = self.all_cmd_params[cmd]
             values = info[2]
 
@@ -112,15 +107,6 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

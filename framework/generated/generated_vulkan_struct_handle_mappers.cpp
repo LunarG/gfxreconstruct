@@ -66,7 +66,7 @@ void MapStructHandles(Decoded_VkDeviceCreateInfo* wrapper, const CommonObjectInf
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -79,7 +79,7 @@ void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const CommonObjectInfoTable
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &CommonObjectInfoTable::GetVkSemaphoreInfo);
@@ -106,7 +106,7 @@ void MapStructHandles(Decoded_VkMemoryAllocateInfo* wrapper, const CommonObjectI
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -175,7 +175,7 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const CommonObjectInfoT
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &CommonObjectInfoTable::GetVkSemaphoreInfo);
@@ -206,7 +206,7 @@ void MapStructHandles(Decoded_VkImageCreateInfo* wrapper, const CommonObjectInfo
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -219,7 +219,7 @@ void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const CommonObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
@@ -232,7 +232,7 @@ void MapStructHandles(Decoded_VkShaderModuleCreateInfo* wrapper, const CommonObj
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -245,7 +245,7 @@ void MapStructHandles(Decoded_VkPipelineShaderStageCreateInfo* wrapper, const Co
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->module = handle_mapping::MapHandle<VulkanShaderModuleInfo>(wrapper->module, object_info_table, &CommonObjectInfoTable::GetVkShaderModuleInfo);
@@ -260,7 +260,7 @@ void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const Common
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         MapStructHandles(wrapper->stage, object_info_table);
@@ -279,7 +279,7 @@ void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const Commo
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
@@ -308,7 +308,7 @@ void MapStructHandles(Decoded_VkSamplerCreateInfo* wrapper, const CommonObjectIn
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -415,7 +415,7 @@ void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const CommonObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &CommonObjectInfoTable::GetVkRenderPassInfo);
@@ -444,7 +444,7 @@ void MapStructHandles(Decoded_VkBindImageMemoryInfo* wrapper, const CommonObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
@@ -631,6 +631,11 @@ void MapStructHandles(Decoded_VkCommandBufferSubmitInfo* wrapper, const CommonOb
     {
         VkCommandBufferSubmitInfo* value = wrapper->decoded_value;
 
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+
         value->commandBuffer = handle_mapping::MapHandle<VulkanCommandBufferInfo>(wrapper->commandBuffer, object_info_table, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     }
 }
@@ -641,7 +646,7 @@ void MapStructHandles(Decoded_VkSubmitInfo2* wrapper, const CommonObjectInfoTabl
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         MapStructArrayHandles<Decoded_VkSemaphoreSubmitInfo>(wrapper->pWaitSemaphoreInfos->GetMetaStructPointer(), wrapper->pWaitSemaphoreInfos->GetLength(), object_info_table);
@@ -742,7 +747,7 @@ void MapStructHandles(Decoded_VkRenderingInfo* wrapper, const CommonObjectInfoTa
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         MapStructArrayHandles<Decoded_VkRenderingAttachmentInfo>(wrapper->pColorAttachments->GetMetaStructPointer(), wrapper->pColorAttachments->GetLength(), object_info_table);
@@ -797,7 +802,7 @@ void MapStructHandles(Decoded_VkBindDescriptorSetsInfo* wrapper, const CommonObj
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -814,7 +819,7 @@ void MapStructHandles(Decoded_VkPushConstantsInfo* wrapper, const CommonObjectIn
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -829,7 +834,7 @@ void MapStructHandles(Decoded_VkPushDescriptorSetInfo* wrapper, const CommonObje
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -900,7 +905,7 @@ void MapStructHandles(Decoded_VkPresentInfoKHR* wrapper, const CommonObjectInfoT
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->pWaitSemaphores = handle_mapping::MapHandleArray<VulkanSemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &CommonObjectInfoTable::GetVkSemaphoreInfo);
@@ -1045,7 +1050,7 @@ void MapStructHandles(Decoded_VkVideoDecodeInfoKHR* wrapper, const CommonObjectI
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->srcBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->srcBuffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
@@ -1262,7 +1267,7 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const CommonObjectI
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->dstBuffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->dstBuffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
@@ -1353,7 +1358,7 @@ void MapStructHandles(Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper, cons
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -1368,7 +1373,7 @@ void MapStructHandles(Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wra
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->layout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->layout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -1885,7 +1890,7 @@ void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* wrap
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->indirectExecutionSet = handle_mapping::MapHandle<VulkanIndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &CommonObjectInfoTable::GetVkIndirectExecutionSetEXTInfo);
@@ -1934,7 +1939,7 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoEXT* wrapper, const CommonO
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->indirectExecutionSet = handle_mapping::MapHandle<VulkanIndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &CommonObjectInfoTable::GetVkIndirectExecutionSetEXTInfo);
@@ -1961,7 +1966,7 @@ void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, co
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         value->pipelineLayout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
@@ -2004,7 +2009,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* w
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
     }
 }
@@ -2079,7 +2084,7 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoKHR* wrapper, const 
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
 
         MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
@@ -2092,91 +2097,35 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoKHR* wrapper, const 
     }
 }
 
-void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectInfoTable& object_info_table)
+void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object_info_table)
 {
-    if ((value != nullptr) && (wrapper != nullptr))
+    while (pnext)
     {
-        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);
+        void *wrapper = pnext->GetMetaStructPointer();
+        const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());
 
-        switch (base->sType)
+        switch (*header->sType)
         {
         default:
             // TODO: Report or raise fatal error for unrecognized sType?
             break;
-        case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleCreateInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkPipelineLayoutCreateInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkMemoryDedicatedAllocateInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkDeviceGroupDeviceCreateInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkSamplerYcbcrConversionInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfo*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkImageSwapchainCreateInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkBindImageMemorySwapchainInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkPipelineLibraryCreateInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkPipelineBinaryInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkVideoInlineQueryInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkVideoEncodeQuantizationMapInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkSwapchainPresentFenceInfoEXT*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkFrameBoundaryEXT*>(wrapper), object_info_table);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT*>(wrapper), object_info_table);
             break;
-        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(wrapper), object_info_table);
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkBindImageMemorySwapchainInfoKHR*>(wrapper), object_info_table);
             break;
-        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassStripeSubmitInfoARM*>(wrapper), object_info_table);
+        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkDeviceGroupDeviceCreateInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkFrameBoundaryEXT*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkGeneratedCommandsPipelineInfoEXT*>(wrapper), object_info_table);
@@ -2184,10 +2133,68 @@ void MapPNextStructHandles(const void* value, void* wrapper, const CommonObjectI
         case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkGeneratedCommandsShaderInfoEXT*>(wrapper), object_info_table);
             break;
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkImageSwapchainCreateInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkMemoryDedicatedAllocateInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkPipelineBinaryInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkPipelineLayoutCreateInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkPipelineLibraryCreateInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassStripeSubmitInfoARM*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkSamplerYcbcrConversionInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleCreateInfo*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkSwapchainPresentFenceInfoEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkVideoEncodeQuantizationMapInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkVideoInlineQueryInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV*>(wrapper), object_info_table);
+            break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(wrapper), object_info_table);
             break;
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(wrapper), object_info_table);
+            break;
         }
+    pnext = header->pNext;
     }
 }
 

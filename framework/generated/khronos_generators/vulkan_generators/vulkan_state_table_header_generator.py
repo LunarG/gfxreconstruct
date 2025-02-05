@@ -103,7 +103,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
             if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
             handle_name = vkhandle_name[2:]
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(vkhandle_name)
             handle_prefix = self.get_api_prefix()
             handle_wrapper_func = handle_name + 'Wrapper'
             handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'

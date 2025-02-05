@@ -37,6 +37,10 @@ struct VulkanReplayDeviceInfo;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                            uint32_t                                type_bits,
+                            VkMemoryPropertyFlags                   property_flags);
+
 struct VulkanDevicePropertyFeatureInfo
 {
     uint32_t property_shaderGroupHandleSize{ 0 };

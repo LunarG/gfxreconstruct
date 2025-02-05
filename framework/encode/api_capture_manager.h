@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -43,16 +43,16 @@ class ApiCaptureManager
     static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
 
     // Virtual interface
-    virtual void CreateStateTracker()                                                               = 0;
-    virtual void DestroyStateTracker()                                                              = 0;
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) = 0;
+    virtual void CreateStateTracker()                                                                  = 0;
+    virtual void DestroyStateTracker()                                                                 = 0;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) = 0;
     virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                format::ThreadId        thread_id,
+                                                util::ThreadData*       thread_data,
                                                 util::FileOutputStream* asset_file_stream,
-                                                const std::string*      asset_file_name)                 = 0;
+                                                const std::string*      asset_file_name)                    = 0;
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,
-                             format::ThreadId        thread_id)                                            = 0;
+                             util::ThreadData*       thread_data)                                            = 0;
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
@@ -201,6 +201,17 @@ class ApiCaptureManager
     {
         common_manager_->WriteFillMemoryCmd(api_family_, memory_id, offset, size, data);
     }
+
+    void WriteBeginResourceInitCmd(format::HandleId device_id, uint64_t max_resource_size)
+    {
+        common_manager_->WriteBeginResourceInitCmd(api_family_, device_id, max_resource_size);
+    }
+
+    void WriteEndResourceInitCmd(format::HandleId device_id)
+    {
+        common_manager_->WriteEndResourceInitCmd(api_family_, device_id);
+    }
+
     void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size)
     {
         common_manager_->WriteCreateHeapAllocationCmd(api_family_, allocation_id, allocation_size);
@@ -213,14 +224,16 @@ class ApiCaptureManager
         common_manager_->CombineAndWriteToFile<N>(buffers);
     }
 
-    CommonCaptureManager::ThreadData* GetThreadData() { return common_manager_->GetThreadData(); }
-    util::Compressor*                 GetCompressor() { return common_manager_->GetCompressor(); }
-    std::mutex&                       GetMappedMemoryLock() { return common_manager_->GetMappedMemoryLock(); }
-    util::Keyboard&                   GetKeyboard() { return common_manager_->GetKeyboard(); }
-    const std::string&                GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }
-    util::ScreenshotFormat            GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
-    auto                              GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
-    auto                              GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
+    util::ThreadData*      GetThreadData() { return common_manager_->GetThreadData(); }
+    util::Compressor*      GetCompressor() { return common_manager_->GetCompressor(); }
+    std::mutex&            GetMappedMemoryLock() { return common_manager_->GetMappedMemoryLock(); }
+    util::Keyboard&        GetKeyboard() { return common_manager_->GetKeyboard(); }
+    const std::string&     GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }
+    util::ScreenshotFormat GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
+    auto                   GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
+    auto                   GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
+    bool                   GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
+    CommandWriter*         GetCommandWriter() { return common_manager_->GetCommandWriter(); }
 
   protected:
     const format::ApiFamilyId api_family_;

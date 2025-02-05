@@ -179,24 +179,32 @@ class KhronosDecodeExtendedStructGenerator():
     def write_decode_struct_definition_data(self):
         current_api_data = self.get_api_data()
 
+        extended_list = []
         for struct in self.all_extended_structs:
-            if struct in self.struct_type_names:
-                stype = self.struct_type_names[struct]
-                write('            case {}:'.format(stype), file=self.outFile)
-                write(
-                    '                (*{}) = DecodeAllocator::Allocate<{}TypedNode<Decoded_{}>>();'
-                    .format(
-                        current_api_data.extended_struct_variable,
-                        current_api_data.extended_struct_func_prefix, struct
-                    ),
-                    file=self.outFile
-                )
-                write(
-                    '                bytes_read = (*{})->Decode(parameter_buffer, buffer_size);'
-                    .format(current_api_data.extended_struct_variable),
-                    file=self.outFile
-                )
-                write('                break;', file=self.outFile)
+            for ext_struct in self.all_extended_structs[struct]:
+                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
+                    extended_list.append(ext_struct)
+
+        for struct in sorted(extended_list):
+            if struct not in self.struct_type_names:
+                continue
+
+            stype = self.struct_type_names[struct]
+            write('            case {}:'.format(stype), file=self.outFile)
+            write(
+                '                (*{}) = DecodeAllocator::Allocate<{}TypedNode<Decoded_{}>>();'
+                .format(
+                    current_api_data.extended_struct_variable,
+                    current_api_data.extended_struct_func_prefix, struct
+                ),
+                file=self.outFile
+            )
+            write(
+                '                bytes_read = (*{})->Decode(parameter_buffer, buffer_size);'
+                .format(current_api_data.extended_struct_variable),
+                file=self.outFile
+            )
+            write('                break;', file=self.outFile)
 
         write('            }', file=self.outFile)
         write('        }', file=self.outFile)

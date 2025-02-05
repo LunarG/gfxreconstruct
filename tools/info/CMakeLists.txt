@@ -46,6 +46,7 @@ if (MSVC)
 endif()
 
 target_include_directories(gfxrecon-info PUBLIC ${CMAKE_BINARY_DIR})
+target_compile_definitions(gfxrecon_decode PUBLIC VULKAN_HPP_NO_STRUCT_SETTERS)
 
 target_link_libraries(gfxrecon-info
                       gfxrecon_decode

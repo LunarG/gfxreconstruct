@@ -17589,79 +17589,86 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
         const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
         switch (s_type)
         {
-            case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkShaderModuleCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureMotionInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice16BitStorageFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
+            case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryDedicatedRequirements*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAmigoProfilingSubmitInfoSEC*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
+            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryDedicatedAllocateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
+            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryAllocateFlagsInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
+            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupCommandBufferBeginInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferUsageANDROID*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+            case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupSubmitInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentDescriptionStencilLayout*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
+            case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupBindSparseInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentReferenceStencilLayout*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentSampleCountInfoAMD*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17680,6 +17687,216 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBindImageMemorySwapchainInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBindImagePlaneMemoryInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBindMemoryStatus*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBlitImageCubicWeightsInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBufferDeviceAddressCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBufferOpaqueCaptureAddressCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBufferUsageFlags2CreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceRenderingInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceViewportScissorInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkComputePipelineIndirectBufferInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkCopyCommandTransformInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkD3D12FenceSubmitInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDebugReportCallbackCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDebugUtilsMessengerCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDebugUtilsObjectNameInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationBufferCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationImageCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDepthBiasRepresentationInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceAddressBindingCallbackDataEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceDiagnosticsConfigCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupBindSparseInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupCommandBufferBeginInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupDeviceCreateInfo*>(data->GetMetaStructPointer());
@@ -17687,23 +17904,380 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFeatures2*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupPresentInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePointClippingProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassInputAttachmentAspectCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupSubmitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupSwapchainCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceMemoryOverallocationCreateInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDevicePipelineBinaryInternalCacheControlKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDevicePrivateDataCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceQueueGlobalPriorityCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDirectDriverLoadingListLUNARG*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayModeStereoPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayPresentInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDisplaySurfaceStereoCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDrmFormatModifierPropertiesList2EXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDrmFormatModifierPropertiesListEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportFenceCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportFenceWin32HandleInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryAllocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryAllocateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryWin32HandleInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryWin32HandleInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportSemaphoreCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExportSemaphoreWin32HandleInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalFormatANDROID*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalImageFormatProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryAcquireUnmodifiedEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryBufferCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryImageCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryImageCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkFormatProperties3*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkFragmentShadingRateAttachmentInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkFramebufferAttachmentsCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsPipelineInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsShaderInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGraphicsPipelineLibraryCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkHdrVividDynamicMetadataHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkHostImageCopyDevicePerformanceQuery*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageAlignmentControlCreateInfoMESA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageCompressionControlEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageCompressionPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageDrmFormatModifierListCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageFormatListCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImagePlaneMemoryRequirementsInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageStencilUsageCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageSwapchainCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewASTCDecodeModeEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewMinLodCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewSampleWeightCreateInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewSlicedCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17715,16 +18289,1213 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineTessellationDomainOriginStateCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportAndroidHardwareBufferInfoANDROID*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassMultiviewCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryFdInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryHostPointerInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryWin32HandleInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryWin32HandleInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryZirconHandleInfoFUCHSIA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkLatencySubmissionPresentIdNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkLatencySurfaceCapabilitiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkLayerSettingsCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryAllocateFlagsInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryBarrier2*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryDedicatedAllocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryDedicatedRequirements*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryMapPlacedInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryPriorityAllocateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMultisampledRenderToSingleSampledInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMultiviewPerViewAttributesInfoNVX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkMutableDescriptorTypeCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkOpticalFlowImageFormatInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkOpticalFlowSessionCreatePrivateDataInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPerformanceQuerySubmitInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice16BitStorageFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice4444FormatsFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice8BitStorageFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAntiLagFeaturesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMMAND_BUFFER_INHERITANCE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthStencilResolveProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorIndexingFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorIndexingProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDriverProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDrmPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalImageFormatInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFaultFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFeatures2*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFloatControlsProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostImageCopyFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostImageCopyProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostQueryResetFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceIDProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageRobustnessFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImagelessFramebufferFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceIndexTypeUint8Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInlineUniformBlockFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInlineUniformBlockProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLineRasterizationFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLineRasterizationProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance3Properties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance4Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance4Properties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance5Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance5Properties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance6Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance6Properties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance7FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance7PropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17736,6 +19507,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewProperties*>(data->GetMetaStructPointer());
@@ -17743,9 +19535,219 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVariablePointersFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpticalFlowFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpticalFlowPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineBinaryFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineBinaryPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineRobustnessFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineRobustnessProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePointClippingProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentBarrierFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentIdFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentWaitFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrivateDataFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17764,30 +19766,170 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkProtectedSubmitInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBindImagePlaneMemoryInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePushDescriptorProperties*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImagePlaneMemoryRequirementsInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayQueryFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRenderPassStripedFeaturesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRenderPassStripedPropertiesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRobustness2FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRobustness2PropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17799,72 +19941,107 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionImageFormatProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalImageFormatInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalImageFormatProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceIDProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryImageCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryBufferCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryAllocateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportFenceCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicInt64Features*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportSemaphoreCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance3Properties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreProperties2AMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCorePropertiesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCorePropertiesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17872,6 +20049,363 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderDrawParametersFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderExpectAssumeFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderFloat16Int8Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderFloatControls2Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupRotateFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupSizeControlProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSynchronization2Features*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTimelineSemaphoreProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVariablePointersFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -17904,244 +20438,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageFormatListCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice8BitStorageFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDriverProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicInt64Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderFloat16Int8Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFloatControlsProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorIndexingFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorIndexingProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassDescriptionDepthStencilResolve*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthStencilResolveProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageStencilUsageCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerReductionModeCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImagelessFramebufferFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkFramebufferAttachmentsCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentReferenceStencilLayout*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentDescriptionStencilLayout*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostQueryResetFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTimelineSemaphoreProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSemaphoreTypeCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkTimelineSemaphoreSubmitInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBufferOpaqueCaptureAddressCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVulkan13Features*>(data->GetMetaStructPointer());
@@ -18152,195 +20448,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVulkan13Properties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCreationFeedbackCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrivateDataFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDevicePrivateDataCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryBarrier2*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSynchronization2Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageRobustnessFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubgroupSizeControlProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInlineUniformBlockFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInlineUniformBlockProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkWriteDescriptorSetInlineUniformBlock*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRenderingCreateInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceRenderingInfo*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkFormatProperties3*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance4Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance4Properties*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18359,107 +20466,93 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceQueueGlobalPriorityCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyGlobalPriorityProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupRotateFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderFloatControls2Features*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderExpectAssumeFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLineRasterizationFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineBinaryInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLineRasterizationProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationLineStateCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineColorWriteCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCompilerControlCreateInfoAMD*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineVertexInputDivisorStateCreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageModulationStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageReductionStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceIndexTypeUint8Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance5Features*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance5Properties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageToColorStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18471,79 +20564,100 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBufferUsageFlags2CreateInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCreationFeedbackCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePushDescriptorProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingAttachmentLocationInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingInputAttachmentIndexInfo*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance6Features*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineLibraryCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance6Properties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBindMemoryStatus*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationLineStateCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineRobustnessFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineRobustnessProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationStateRasterizationOrderAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRenderingCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18555,65 +20669,170 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
+            case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostImageCopyFeatures*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineSampleLocationsStateCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHostImageCopyProperties*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
+            case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSubresourceHostMemcpySize*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
+            case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkHostImageCopyDevicePerformanceQuery*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineTessellationDomainOriginStateCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageSwapchainCreateInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineVertexInputDivisorStateCreateInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBindImageMemorySwapchainInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupPresentInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceGroupSwapchainCreateInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayPresentInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportSwizzleStateCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportWScalingStateCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentFrameTokenGGP*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentIdKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentRegionsKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentTimesInfoGOOGLE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkProtectedSubmitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueryLowLatencySupportNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolPerformanceCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyCheckpointProperties2NV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyCheckpointPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyGlobalPriorityProperties*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18632,16 +20851,401 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoProfileInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
+            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoProfileListInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassCreationControlEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassCreationFeedbackCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassInputAttachmentAspectCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassMultiviewCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassSampleLocationsBeginInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassStripeSubmitInfoARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassTransformBeginInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingAttachmentLocationInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingInputAttachmentIndexInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSampleLocationsInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerCubicWeightsCreateInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerCustomBorderColorCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerReductionModeCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionImageFormatProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSemaphoreTypeCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkShaderModuleCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSharedPresentSurfaceCapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassDescriptionDepthStencilResolve*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassResolvePerformanceQueryEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSubresourceHostMemcpySize*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesPresentBarrierNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceFullScreenExclusiveInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentModeCompatibilityEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentModeEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentScalingCapabilitiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceProtectedCapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainCounterCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainLatencyCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentBarrierCreateInfoNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentFenceInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentModeInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentModesCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentScalingCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkTextureLODGatherFormatPropertiesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkTimelineSemaphoreSubmitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkValidationFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkValidationFlagsEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1CapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1PictureInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1ProfileInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18653,9 +21257,177 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264CapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264PictureInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264ProfileInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265CapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265PictureInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265ProfileInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeUsageInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1CapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_DPB_SLOT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PICTURE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1PictureInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1ProfileInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUALITY_LEVEL_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1QualityLevelPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUANTIZATION_MAP_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1RateControlInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_LAYER_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1RateControlLayerInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1SessionCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeCapabilitiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18667,9 +21439,58 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264PictureInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264ProfileInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264QualityLevelPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUANTIZATION_MAP_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264RateControlInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264RateControlLayerInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18695,13 +21516,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(data->GetMetaStructPointer());
@@ -18709,44 +21523,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264PictureInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264DpbSlotInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264ProfileInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264RateControlInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264RateControlLayerInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18758,44 +21537,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionCreateInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265DpbSlotInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18807,16 +21558,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265DpbSlotInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265ProfileInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265ProfileInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -18835,317 +21593,37 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264ProfileInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264CapabilitiesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264PictureInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH264DpbSlotInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryWin32HandleInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryWin32HandleInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryFdInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportSemaphoreWin32HandleInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkD3D12FenceSubmitInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPresentRegionsKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSharedPresentSurfaceCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportFenceWin32HandleInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolPerformanceCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPerformanceQuerySubmitInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265ProfileInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265CapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265PictureInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeH265DpbSlotInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkFragmentShadingRateAttachmentInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceProtectedCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentWaitFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineLibraryCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPresentIdKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentIdFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeUsageInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeRateControlInfoKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -19157,247 +21635,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineBinaryFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineBinaryPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDevicePipelineBinaryInternalCacheControlKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineBinaryInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1ProfileInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1CapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1PictureInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoDecodeAV1DpbSlotInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1CapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUALITY_LEVEL_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1QualityLevelPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1SessionCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1SessionParametersCreateInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PICTURE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1PictureInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_DPB_SLOT_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1DpbSlotInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1ProfileInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1GopRemainingFrameInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1RateControlInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_LAYER_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1RateControlLayerInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoInlineQueryInfoKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeQuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoFormatQuantizationMapPropertiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -19416,37 +21656,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeRateControlInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUANTIZATION_MAP_CAPABILITIES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH264QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoFormatH265QuantizationMapPropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUANTIZATION_MAP_CAPABILITIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeUsageInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -19458,135 +21677,44 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoFormatH265QuantizationMapPropertiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance7FeaturesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoFormatQuantizationMapPropertiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance7PropertiesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoInlineQueryInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoProfileInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR:
+            case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoProfileListInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
+            case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDebugReportCallbackCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationStateRasterizationOrderAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationImageCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationBufferCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkTextureLODGatherFormatPropertiesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryImageCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryAllocateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryWin32HandleInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExportMemoryWin32HandleInfoNV*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -19598,331 +21726,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkValidationFlagsEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewASTCDecodeModeEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportWScalingStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainCounterCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPresentTimesInfoGOOGLE*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMultiviewPerViewAttributesInfoNVX*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportSwizzleStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDebugUtilsObjectNameInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDebugUtilsMessengerCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferUsageANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportAndroidHardwareBufferInfoANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalFormatANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAttachmentSampleCountInfoAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSampleLocationsInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassSampleLocationsBeginInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineSampleLocationsStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageToColorStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageModulationStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDrmFormatModifierPropertiesListEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageDrmFormatModifierListCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDrmFormatModifierPropertiesList2EXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -19934,1815 +21740,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryHostPointerInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCompilerControlCreateInfoAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCorePropertiesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceMemoryOverallocationCreateInfoAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPresentFrameTokenGGP*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyCheckpointPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyCheckpointProperties2NV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreProperties2AMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryPriorityAllocateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBufferDeviceAddressCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkValidationFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineCoverageReductionStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceFullScreenExclusiveInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMemoryMapPlacedInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentModeEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentScalingCapabilitiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfacePresentModeCompatibilityEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentFenceInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentModesCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentModeInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentScalingCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceViewportScissorInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassTransformBeginInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDepthBiasRepresentationInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRobustness2FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRobustness2PropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerCustomBorderColorCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentBarrierFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesPresentBarrierNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainPresentBarrierCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceDiagnosticsConfigCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueryLowLatencySupportNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkGraphicsPipelineLibraryCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureMotionInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkCopyCommandTransformInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageCompressionControlEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageCompressionPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevice4444FormatsFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFaultFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMutableDescriptorTypeCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDrmPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceAddressBindingCallbackDataEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImportMemoryZirconHandleInfoFUCHSIA*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassResolvePerformanceQueryEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMultisampledRenderToSingleSampledInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineColorWriteCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewMinLodCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCorePropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewSlicedCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRenderPassStripedFeaturesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRenderPassStripedPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassStripeSubmitInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkComputePipelineIndirectBufferInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageViewSampleWeightCreateInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryAcquireUnmodifiedEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassCreationControlEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassCreationFeedbackCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDirectDriverLoadingListLUNARG*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpticalFlowFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpticalFlowPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkOpticalFlowImageFormatInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkOpticalFlowSessionCreatePrivateDataInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAntiLagFeaturesAMD*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkAmigoProfilingSubmitInfoSEC*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkLayerSettingsCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkLatencySubmissionPresentIdNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainLatencyCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkLatencySurfaceCapabilitiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerCubicWeightsCreateInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkBlitImageCubicWeightsInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDisplaySurfaceStereoCreateInfoNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDisplayModeStereoPropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMMAND_BUFFER_INHERITANCE_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsPipelineInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsShaderInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkImageAlignmentControlCreateInfoMESA*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkHdrVividDynamicMetadataHUAWEI*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayQueryFeaturesKHR*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderFeaturesEXT*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkWriteDescriptorSetInlineUniformBlock*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

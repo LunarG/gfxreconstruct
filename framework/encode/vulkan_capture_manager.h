@@ -1,6 +1,6 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
- ** Copyright (c) 2018-2023 LunarG, Inc.
+ ** Copyright (c) 2018-2025 LunarG, Inc.
  ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -298,6 +298,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
                                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
 
+    void OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer                           command_buffer,
+                                                 const VkCopyAccelerationStructureInfoKHR* pInfo);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer commandBuffer,
+                                                             uint32_t        accelerationStructureCount,
+                                                             const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                             VkQueryType                       queryType,
+                                                             VkQueryPool                       queryPool,
+                                                             uint32_t                          firstQuery);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,
@@ -479,10 +489,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*         pAllocator,
                                               VkSurfaceKHR*                        pSurface);
 
-    void PreProcess_vkCreateSwapchain(VkDevice                        device,
-                                      const VkSwapchainCreateInfoKHR* pCreateInfo,
-                                      const VkAllocationCallbacks*    pAllocator,
-                                      VkSwapchainKHR*                 pSwapchain);
+    void PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
+                                         const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                         const VkAllocationCallbacks*    pAllocator,
+                                         VkSwapchainKHR*                 pSwapchain);
+
+    void PostProcess_vkCreateSwapchainKHR(VkResult                        result,
+                                          VkDevice                        device,
+                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                          const VkAllocationCallbacks*    pAllocator,
+                                          VkSwapchainKHR*                 pSwapchain);
 
     void PostProcess_vkAcquireNextImageKHR(VkResult result,
                                            VkDevice,
@@ -769,62 +785,24 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
+    void ProcessImportFdForBuffer(VkDevice device, VkBuffer buffer, VkDeviceSize memoryOffset);
+    void ProcessImportFdForImage(VkDevice device, VkImage image, VkDeviceSize memoryOffset);
+
     void PostProcess_vkBindBufferMemory(
-        VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS))
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
-        }
-    }
+        VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void PostProcess_vkBindBufferMemory2(VkResult                      result,
                                          VkDevice                      device,
                                          uint32_t                      bindInfoCount,
-                                         const VkBindBufferMemoryInfo* pBindInfos)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
-        {
-            assert(state_tracker_ != nullptr);
-
-            for (uint32_t i = 0; i < bindInfoCount; ++i)
-            {
-                state_tracker_->TrackBufferMemoryBinding(device,
-                                                         pBindInfos[i].buffer,
-                                                         pBindInfos[i].memory,
-                                                         pBindInfos[i].memoryOffset,
-                                                         pBindInfos[i].pNext);
-            }
-        }
-    }
+                                         const VkBindBufferMemoryInfo* pBindInfos);
 
     void PostProcess_vkBindImageMemory(
-        VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS))
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
-        }
-    }
+        VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void PostProcess_vkBindImageMemory2(VkResult                     result,
                                         VkDevice                     device,
                                         uint32_t                     bindInfoCount,
-                                        const VkBindImageMemoryInfo* pBindInfos)
-    {
-        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pBindInfos != nullptr))
-        {
-            assert(state_tracker_ != nullptr);
-
-            for (uint32_t i = 0; i < bindInfoCount; ++i)
-            {
-                state_tracker_->TrackImageMemoryBinding(
-                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
-            }
-        }
-    }
+                                        const VkBindImageMemoryInfo* pBindInfos);
 
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
@@ -1260,9 +1238,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
                                                           const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
 
-    void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
-        VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
-
     void PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice                                  device,
                                                                 const struct AHardwareBuffer*             buffer,
                                                                 VkAndroidHardwareBufferPropertiesANDROID* pProperties);
@@ -1300,12 +1275,6 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                    const VkDebugUtilsLabelEXT* pLabelInfo);
-
-    void PostProcess_vkCreateShaderModule(VkResult                        result,
-                                          VkDevice                        device,
-                                          const VkShaderModuleCreateInfo* pCreateInfo,
-                                          const VkAllocationCallbacks*    pAllocator,
-                                          VkShaderModule*                 pShaderModule);
 
     void PostProcess_vkCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
                                              VkPipelineBindPoint    pipelineBindPoint,
@@ -1406,31 +1375,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                        VkPipelineBindPoint pipelineBindPoint,
                                        VkPipeline          pipeline);
-
-    void PostProcess_vkCreateGraphicsPipelines(VkResult                            result,
-                                               VkDevice                            device,
-                                               VkPipelineCache                     pipelineCache,
-                                               uint32_t                            createInfoCount,
-                                               const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                               const VkAllocationCallbacks*        pAllocator,
-                                               VkPipeline*                         pPipelines);
-
-    void PostProcess_vkCreateComputePipelines(VkResult                           result,
-                                              VkDevice                           device,
-                                              VkPipelineCache                    pipelineCache,
-                                              uint32_t                           createInfoCount,
-                                              const VkComputePipelineCreateInfo* pCreateInfos,
-                                              const VkAllocationCallbacks*       pAllocator,
-                                              VkPipeline*                        pPipelines);
-
-    void PostProcess_vkCreateRayTracingPipelinesKHR(VkResult                                 result,
-                                                    VkDevice                                 device,
-                                                    VkDeferredOperationKHR                   deferredOperation,
-                                                    VkPipelineCache                          pipelineCache,
-                                                    uint32_t                                 createInfoCount,
-                                                    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-                                                    const VkAllocationCallbacks*             pAllocator,
-                                                    VkPipeline*                              pPipelines);
 
     void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
                                uint32_t        vertexCount,
@@ -1610,16 +1554,16 @@ class VulkanCaptureManager : public ApiCaptureManager
         state_tracker_ = nullptr;
     }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 
     virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                format::ThreadId        thread_id,
+                                                util::ThreadData*       thread_data,
                                                 util::FileOutputStream* asset_file_stream,
                                                 const std::string*      asset_file_name) override;
 
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,
-                             format::ThreadId        thread_id) override;
+                             util::ThreadData*       thread_data) override;
 
   private:
     struct HardwareBufferInfo

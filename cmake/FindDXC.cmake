@@ -28,7 +28,7 @@ if (${D3D12_SUPPORT})
         set(DXC_SDK_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2407/dxc_2024_07_31.zip")
         
         # Suppress warning on newer versions of CMake related to FetchContent file timestamp behavior.
-        if (${CMAKE_VERSION} VERSION_GREATER "3.24")
+        if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
             cmake_policy(SET CMP0135 NEW)
         endif()
 

@@ -200,9 +200,12 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         }
         if (!state_handle_table_.InsertWrapper(wrapper))
         {
-            GFXRECON_LOG_WARNING("Create a duplicated Handle: %" PRIu64
-                                 ". This wrapper can't be written into VulkanStateHandleTable.",
-                                 *handle);
+            auto existing_wrapper = state_handle_table_.GetWrapper<Wrapper>(wrapper->handle);
+            GFXRECON_LOG_WARNING("Cannot add duplicate entry to VulkanStateHandleTable for handle 0x%" PRIx64
+                                 " with ID %" PRIu64 ". This handle is already wrapped with ID %" PRIu64 ".",
+                                 wrapper->handle,
+                                 wrapper->handle_id,
+                                 existing_wrapper->handle_id);
         }
     }
 }
@@ -219,9 +222,12 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
         wrapper->handle_id = get_id();
         if (!state_handle_table_.InsertWrapper(wrapper))
         {
-            GFXRECON_LOG_WARNING("Create a duplicated Handle: %" PRIu64
-                                 ". This wrapper can't be written into VulkanStateHandleTable.",
-                                 *handle);
+            auto existing_wrapper = state_handle_table_.GetWrapper<Wrapper>(wrapper->handle);
+            GFXRECON_LOG_WARNING("Cannot add duplicate entry to VulkanStateHandleTable for handle 0x%" PRIx64
+                                 " with ID %" PRIu64 ". This handle is already wrapped with ID %" PRIu64 ".",
+                                 wrapper->handle,
+                                 wrapper->handle_id,
+                                 existing_wrapper->handle_id);
         }
     }
 }
@@ -441,7 +447,9 @@ inline void CreateWrappedHandle<DeviceWrapper,
 
     auto parent_wrapper = GetWrapper<SwapchainKHRWrapper>(co_parent);
 
-    // Filter duplicate display retrieval.
+    GFXRECON_ASSERT(!parent_wrapper->retired);
+
+    // Filter duplicate image retrieval.
     ImageWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_images)
     {
@@ -457,7 +465,6 @@ inline void CreateWrappedHandle<DeviceWrapper,
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
         wrapper                     = GetWrapper<ImageWrapper>(*handle);
         wrapper->is_swapchain_image = true;
-        wrapper->parent_swapchains.insert(co_parent);
         parent_wrapper->child_images.push_back(wrapper);
     }
 }
@@ -649,12 +656,8 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
 
         for (auto image_wrapper : wrapper->child_images)
         {
-            image_wrapper->parent_swapchains.erase(handle);
-            if (image_wrapper->parent_swapchains.empty())
-            {
-                RemoveWrapper<ImageWrapper>(image_wrapper);
-                delete image_wrapper;
-            }
+            RemoveWrapper<ImageWrapper>(image_wrapper);
+            delete image_wrapper;
         }
 
         RemoveWrapper<SwapchainKHRWrapper>(wrapper);

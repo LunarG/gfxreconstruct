@@ -2,6 +2,7 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.h
@@ -45,6 +46,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h

@@ -69,13 +69,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.pnext_structs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         # The following functions require custom implementations
         self.customImplementationRequired = {
             'CmdPushDescriptorSetKHR'
@@ -101,11 +94,12 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        command_info = dict()  # Map of Vulkan commands to parameter info
         for cmd in self.get_all_filtered_cmd_names():
-            self.command_info[cmd] = self.all_cmd_params[cmd]
+            command_info[cmd] = self.all_cmd_params[cmd]
 
-        wrapper_prefix = self.get_wrapper_prefix_from_type()
-        for cmd, info in self.command_info.items():
+        for cmd, info in command_info.items():
+            wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
             if not cmd[2:] in self.customImplementationRequired:
                 params = info[2]
                 if params and params[0].base_type == 'VkCommandBuffer':
@@ -136,22 +130,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
-            # Track this struct if it can be present in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    self.pnext_structs[typename] = stype
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
@@ -206,7 +184,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         if self.is_handle(value.base_type):
             type_enum_value = '{}Handle'.format(value.base_type[2:])
-            wrapper_prefix = self.get_wrapper_prefix_from_type()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             value_name = value_prefix + value.name
             if value.is_array:
                 value_name = '{}[{}]'.format(value_name, index_name)
@@ -251,7 +229,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         indent = indent[:-self.INDENT_SIZE]
                         for ext_struct in ext_structs_with_handles:
                             body += indent + 'case {}:\n'.format(
-                                self.pnext_structs[ext_struct]
+                                self.struct_type_names[ext_struct]
                             )
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE

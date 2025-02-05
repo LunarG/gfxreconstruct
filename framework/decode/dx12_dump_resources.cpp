@@ -87,7 +87,7 @@ static const char* Dx12ResourceTypeToString(Dx12DumpResourceType type)
     }
 }
 
-static const char* Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourcePos pos)
+static const std::string Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourcePos pos)
 {
     switch (pos)
     {
@@ -97,6 +97,8 @@ static const char* Dx12DumpResourcePosToString(graphics::dx12::Dx12DumpResourceP
             return "draw_call";
         case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall:
             return "after";
+        case graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall_NoBefore:
+            return "";
         default:
             return "";
     }
@@ -206,16 +208,21 @@ bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                       
                     // processes, for exmaples: finding resource by GPU VA, getting the resource infomation, and
                     // write resource id, offset, size. But those duplicated processes shouldn't hurt the
                     // performance.
-                    CopyDrawCallResources(replay_object_info,
-                                          front_command_list_ids,
-                                          graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall);
+                    if (options_.dump_resources_before)
+                    {
+                        CopyDrawCallResources(replay_object_info,
+                                              front_command_list_ids,
+                                              graphics::dx12::Dx12DumpResourcePos::kBeforeDrawCall);
+                    }
 
                     ID3D12CommandList* ppCommandLists[] = { track_dump_resources_.split_command_sets[1].list };
                     replay_object->ExecuteCommandLists(1, ppCommandLists);
 
                     CopyDrawCallResources(replay_object_info,
                                           front_command_list_ids,
-                                          graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall);
+                                          options_.dump_resources_before
+                                              ? graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall
+                                              : graphics::dx12::Dx12DumpResourcePos::kAfterDrawCall_NoBefore);
 
                     FinishDump(replay_object_info);
 
@@ -270,8 +277,8 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                                             Decoded_GUID                 riid,
                                             HandlePointerDecoder<void*>* root_signature_decoder)
 {
-    bool is_complete = false;
-    auto handld_id   = *root_signature_decoder->GetPointer();
+    bool                                              is_complete           = false;
+    auto                                              handld_id             = *root_signature_decoder->GetPointer();
     std::unordered_map<uint32_t, TrackRootParameter>* track_root_parameters = nullptr;
 
     if (track_dump_resources_.target.bundle_target_draw_call != nullptr)
@@ -303,13 +310,13 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
         auto device = static_cast<ID3D12Device*>(device_object_info->object);
 
         // Trimming doesn't track D3D12SerializeVersionedRootSignature.
-        // Use D3D12CreateVersionedRootSignatureDeserializer to get info. 
+        // Use D3D12CreateVersionedRootSignatureDeserializer to get info.
         // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
         graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
         HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
             blob_with_root_signature_decoder->GetPointer(), blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
 
-        const D3D12_VERSIONED_ROOT_SIGNATURE_DESC *versioned_root_sig = nullptr;
+        const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* versioned_root_sig = nullptr;
         root_sig_deserializer->GetRootSignatureDescAtVersion(D3D_ROOT_SIGNATURE_VERSION_1_2, &versioned_root_sig);
         auto modified_root_sig = *versioned_root_sig;
 
@@ -324,7 +331,7 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
         for (uint32_t pi = 0; pi < param_size; ++pi)
         {
             TrackRootParameter root_param;
-            auto param_entry = track_root_parameters->find(pi);
+            auto               param_entry = track_root_parameters->find(pi);
             if (param_entry != track_root_parameters->end())
             {
                 root_param = param_entry->second;
@@ -351,8 +358,7 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                         if (ranges[pi][ri].Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
                         {
                             ranges[pi][ri].Flags &= ~D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
-                            ranges[pi][ri].Flags |=
-                                D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
+                            ranges[pi][ri].Flags |= D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
                             is_modified = true;
                             GFXRECON_LOG_WARNING(
                                 "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC could cause error for dump resources. "
@@ -381,8 +387,8 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
 
             ID3D10Blob* p_modified_blob       = nullptr;
             ID3D10Blob* p_modified_error_blob = nullptr;
-            replay_result                     = D3D12SerializeVersionedRootSignature(
-                &modified_root_sig, &p_modified_blob, &p_modified_error_blob);
+            replay_result =
+                D3D12SerializeVersionedRootSignature(&modified_root_sig, &p_modified_blob, &p_modified_error_blob);
 
             GFXRECON_ASSERT(SUCCEEDED(replay_result));
 
@@ -1061,9 +1067,9 @@ bool ReplayCPUAddrMatchDescriptorHeap(const D3D12_CPU_DESCRIPTOR_HANDLE replay_c
     auto increment           = (*heap_info.replay_increments)[heap_info.descriptor_type];
     auto replay_cpu_addr_end = heap_info.replay_cpu_addr_begin + heap_info.descriptor_count * increment;
 
-    bool is_match = true ? (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr &&
-                            replay_cpu_addr.ptr <= replay_cpu_addr_end)
-                         : false;
+    bool is_match =
+        true ? (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr && replay_cpu_addr.ptr <= replay_cpu_addr_end)
+             : false;
     if (is_match)
     {
         if (increment == 0)
@@ -1088,7 +1094,7 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                                             uint32_t                                     root_heap_index,
                                             const D3D12_DESCRIPTOR_RANGE1*               range)
 {
-    const std::vector<uint32_t> sub_indices_emptry{ 0 };
+    const std::vector<uint32_t>                  sub_indices_emptry{ 0 };
     std::vector<std::pair<std::string, int32_t>> json_path_sub;
 
     uint32_t num_descriptors = 1;
@@ -1249,7 +1255,7 @@ void Dx12DumpResources::WriteRootParameters(DxObjectInfo*                       
 {
     std::vector<std::pair<std::string, int32_t>> json_path;
     std::vector<std::pair<std::string, int32_t>> json_path_sub;
-    auto json_index = 0;
+    auto                                         json_index = 0;
     for (const auto& param : root_parameters)
     {
         json_path.clear();
@@ -1426,15 +1432,15 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
                 json_path.clear();
                 json_path.emplace_back("vertices", json_index);
 
-                if(CopyDrawCallResourceByGPUVA(queue_object_info,
-                                            front_command_list_ids,
-                                            view.BufferLocation,
-                                            view.SizeInBytes,
-                                            json_path,
-                                            Dx12DumpResourceType::kVertex,
-                                            pos,
-                                            format::kNullHandleId,
-                                            0))
+                if (CopyDrawCallResourceByGPUVA(queue_object_info,
+                                                front_command_list_ids,
+                                                view.BufferLocation,
+                                                view.SizeInBytes,
+                                                json_path,
+                                                Dx12DumpResourceType::kVertex,
+                                                pos,
+                                                format::kNullHandleId,
+                                                0))
                 {
                     ++json_index;
                 }
@@ -1488,7 +1494,7 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
     if (descriptor_heap_ids && !descriptor_heap_ids->empty())
     {
         bool bundle_write_root_params = false;
-    
+
         if (bundle_target_draw_call)
         {
             switch (bundle_target_draw_call->drawcall_type)
@@ -1625,7 +1631,7 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
     {
         // render target
         // render target isn't available in Bundle.
-        json_index        = 0;
+        json_index   = 0;
         auto rt_size = track_dump_resources_.replay_render_target_handles.size();
         for (uint32_t i = 0; i < rt_size; ++i)
         {
@@ -2161,7 +2167,7 @@ std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDum
              (track_dump_resources_.target.begin_block_index <= block_index) &&
              (track_dump_resources_.target.close_block_index >= block_index))
     {
-        command_sets  = &track_dump_resources_.split_command_sets;
+        command_sets   = &track_dump_resources_.split_command_sets;
         draw_call_info = &track_dump_resources_.target;
     }
     else
@@ -2324,7 +2330,7 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     // prepare for output data
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = util::filepath::GetFilename(capture_file_name);
+    json_filename_ = util::filepath::GetFilename(capture_file_name);
 
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
@@ -2358,7 +2364,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     WriteBlockStart();
 
     util::FieldToJson(draw_call_["block_index"], track_dump_resources.target.draw_call_block_index, json_options_);
-    util::FieldToJson(draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
+    util::FieldToJson(
+        draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
 }
 
 void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr resource_data)
@@ -2466,7 +2473,8 @@ void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
     util::FieldToJson((*jdata_node)["root_parameter_index"], root_parameter_index, json_options_);
-    util::FieldToJson((*jdata_node)["root_signature_type"],util::ToString(root_parameter.root_signature_type), json_options_);
+    util::FieldToJson(
+        (*jdata_node)["root_signature_type"], util::ToString(root_parameter.root_signature_type), json_options_);
     util::FieldToJson((*jdata_node)["cmd_bind_type"], util::ToString(root_parameter.cmd_bind_type), json_options_);
 
     if (root_parameter.root_signature_type != root_parameter.cmd_bind_type)
@@ -2556,8 +2564,8 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
     util::FieldToJson(jdata["dimension"], util::ToString(resource_data->desc.Dimension), json_options_);
 
-    std::string suffix    = Dx12DumpResourcePosToString(resource_data->dump_position);
-    std::string json_path = suffix + "_file";
+    std::string suffix         = Dx12DumpResourcePosToString(resource_data->dump_position);
+    std::string json_path      = (suffix == "" ? "file" : (suffix + "_file"));
     auto        json_sub_index = 0;
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -2572,7 +2580,8 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
         // Write data.
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
-        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".bin";
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".bin" : ("_" + suffix + ".bin"));
         util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str(), json_options_);
 
         std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
@@ -2621,9 +2630,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteFloatResource(const std::string&
             data += "\n";
         }
 
-        const char* suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
-        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".txt";
-        std::string file_path     = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        std::string suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".txt" : ("_" + suffix + ".txt"));
+        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
         FILE*       file_handle;
         util::platform::FileOpen(&file_handle, file_path.c_str(), "w");
         util::platform::FilePuts(data.c_str(), file_handle);
@@ -2641,7 +2651,9 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         auto offset = resource_data->subresource_offsets[sub_index];
         auto size   = resource_data->subresource_sizes[sub_index];
 
+        std::string suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
         std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
+        file_name_sub += (suffix == "" ? ".bmp" : ("_" + suffix + ".bmp"));
 
         // WriteBmpImage expects 4 bytes per pixel.
         uint64_t row_pitch_aligned_size = ((size + (resource_data->footprints[sub_index].Footprint.RowPitch - 1)) /
@@ -2651,13 +2663,10 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
                                  (static_cast<double>(resource_data->footprints[sub_index].Footprint.RowPitch / 4) *
                                   resource_data->footprints[sub_index].Footprint.Height);
 
-        std::string suffix = Dx12DumpResourcePosToString(resource_data->dump_position);
-        file_name_sub += "_" + suffix + ".bmp ";
-
         if (bytes_per_pixel != 4.0)
         {
-            std::string msg = "Dump images could not be created for before and after resource of " + file_name_sub +
-                              ".Only formats with 4 bytes per pixel are supported.Current format " +
+            std::string msg = "Dump images could not be created for resource " + file_name_sub +
+                              ". Only formats with 4 bytes per pixel are supported.Current format " +
                               util::ToString(resource_data->footprints[sub_index].Footprint.Format) + "is " +
                               std::to_string(bytes_per_pixel) + " bytes per pixel.";
             GFXRECON_LOG_ERROR(msg.c_str());

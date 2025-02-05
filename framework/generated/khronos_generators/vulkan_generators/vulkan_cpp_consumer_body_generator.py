@@ -578,30 +578,8 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             'vkCreateAccelerationStructureNV'
         ]
 
-        self.stype_values = dict()
-        self.structs_with_handle_ptrs = []
-        self.structs_with_handles = dict()
-
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """
-        Process struct information
-
-        Note: Using method from replay consumer generator
-        """
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            )
-
-            stype = self.make_structure_type_enum(typeinfo, typename)
-            if stype:
-                self.stype_values[typename] = stype
 
     def beginFile(self, gen_opts):
         """Method override."""

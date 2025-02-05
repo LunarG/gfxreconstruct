@@ -25,7 +25,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
+from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
@@ -62,7 +62,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayConsumerBodyGenerator(
-    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
     Generates C++ member definitions for the VulkanReplayConsumer class responsible for
@@ -98,14 +98,6 @@ class VulkanReplayConsumerBodyGenerator(
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # Map of struct types to associated VkStructureType.
-        self.stype_values = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -146,6 +138,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        KhronosReplayConsumerBodyGenerator.endFile(self)
         self.newline()
         write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
         write('{', file=self.outFile)
@@ -153,8 +146,8 @@ class VulkanReplayConsumerBodyGenerator(
         write('    {', file=self.outFile)
         write('        switch(in_pnext->sType)', file=self.outFile)
         write('        {', file=self.outFile)
-        for struct in self.stype_values:
-            struct_type = self.stype_values[struct]
+        for struct in self.struct_type_names:
+            struct_type = self.struct_type_names[struct]
             if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
                 write('            case {}:'.format(struct_type), file=self.outFile)
                 write('            {', file=self.outFile)
@@ -197,29 +190,11 @@ class VulkanReplayConsumerBodyGenerator(
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            )
-
-            stype = self.make_structure_type_enum(typeinfo, typename)
-            if stype:
-                self.stype_values[typename] = stype
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
@@ -735,12 +710,12 @@ class VulkanReplayConsumerBodyGenerator(
                         elif self.is_struct(value.base_type):
                             # Generate the expression to allocate the output array.
                             alloc_expr = ''
-                            if value.base_type in self.stype_values:
+                            if value.base_type in self.struct_type_names:
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 # TODO: recreate pNext value read from the capture file.
                                 alloc_expr += 'AllocateOutputData({}, {}{{ {}, nullptr }});'.format(
                                     length_name, value.base_type,
-                                    self.stype_values[value.base_type]
+                                    self.struct_type_names[value.base_type]
                                 )
                             else:
                                 alloc_expr += 'AllocateOutputData({});'.format(
@@ -893,9 +868,9 @@ class VulkanReplayConsumerBodyGenerator(
                                     )
                             elif self.is_struct(value.base_type):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
-                                if value.base_type in self.stype_values:
+                                if value.base_type in self.struct_type_names:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
-                                        self.stype_values[value.base_type],
+                                        self.struct_type_names[value.base_type],
                                         paramname=value.name
                                     )
                                     need_initialize_output_pnext_struct = value.name

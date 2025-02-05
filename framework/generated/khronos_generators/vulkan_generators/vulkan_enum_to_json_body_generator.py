@@ -20,9 +20,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import sys, textwrap
-from pickle import NONE
+import sys
 from base_generator import *
+from khronos_enum_to_json_body_generator import KhronosEnumToJsonBodyGenerator
 from reformat_code import format_cpp_code
 
 
@@ -55,7 +55,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
 
 # VulkanEnumToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
-class VulkanEnumToJsonBodyGenerator(BaseGenerator):
+class VulkanEnumToJsonBodyGenerator(BaseGenerator, KhronosEnumToJsonBodyGenerator):
     """Generate C++ functions for Vulkan FieldToJson() functions"""
 
     SKIP_ENUM = [
@@ -75,9 +75,6 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         #   referenced by extensions multiple times.  This list is prepopulated with
         #   enums that should be skipped.
         self.processedEnums = set()
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagEnumBitsType = dict()
 
     # Method override
     # yapf: disable
@@ -89,42 +86,15 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-
-            using util::JsonOptions;
-            using util::to_hex_fixed_width;
-
-            template<typename TFlags, typename ToStringFunctionType>
-            std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
-            {
-                if (flags == 0)
-                {
-                    return to_hex_fixed_width(flags);
-                }
-                uint32_t bit_number = 0;
-                bool first = true;
-                std::ostringstream ostr;
-                while (flags != 0)
-                {
-                    if (flags & 1)
-                    {
-                        if (!first) ostr << "|";
-                        ostr << toString((flags & 1) << bit_number);
-                        first = false;
-                    }
-                    bit_number++;
-                    flags = flags >> 1;
-                }
-                return ostr.str();
-            }
         ''')
         write(body, file=self.outFile)
+        self.newline()
     # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
-        write('\n', file=self.outFile)
-        self.make_decls()
+        KhronosEnumToJsonBodyGenerator.make_decls(self)
         body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
@@ -141,86 +111,3 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagEnumBitsType[name] = bittype
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def make_decls(self):
-        for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM and not enum in self.flagEnumBitsType:
-                self.processedEnums.add(enum)
-                bitwidth = 'VkFlags'
-
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                body += '{{\n'
-                if len(self.enumEnumerants[enum]):
-                    body += '    switch (value) {{\n'
-                    for enumerant in self.enumEnumerants[enum]:
-                        body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
-                        case {0}:
-                            jdata = "{0}";
-                            break;
-                        '''.format(enumerant)))
-                    body += '        default:\n'
-                    body += '            jdata = to_hex_fixed_width(value);\n'
-                    body += '            break;\n'
-                    body += '    }}\n'
-                else:
-                    body += '    jdata = to_hex_fixed_width(value);\n'
-
-                body += '}}\n'
-                body = body.format(enum, bitwidth)
-                write(body, file=self.outFile)
-
-        for enum in sorted(self.flagsType):
-            bittype = None
-            if enum in self.flagEnumBitsType:
-                bittype = self.flagEnumBitsType[enum]
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
-            body += '{{\n'
-            if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
-                body += "    if (!options.expand_flags)\n"
-                body += "    {{\n"
-                body += "        jdata = to_hex_fixed_width(flags);\n"
-                body += "        return;\n"
-                body += "    }}\n"
-                body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
-                body += "    {{\n"
-                body += '        switch (flags)\n'
-                body += '        {{\n'
-                for enumerant in self.enumEnumerants[bittype]:
-                    body += textwrap.indent(prefix='            ', text=textwrap.dedent('''\
-                    case {0}:
-                        return std::string("{0}");
-                    '''.format(enumerant)))
-                body += '        }}\n'
-                body += '        return to_hex_fixed_width(flags);\n'
-                body += '    }});\n'
-            else:
-                body += '    jdata = to_hex_fixed_width(flags);\n'
-
-            body += '}}\n'
-            write(body.format(enum, self.flags_types[enum]), file=self.outFile)
-
-    # yapf: enable

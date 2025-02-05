@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-DisplayWindow::DisplayWindow(DisplayContext* display_context) : display_context_(display_context)
+DisplayWindow::DisplayWindow(DisplayContext* display_context) : display_context_(display_context), width_(0), height_(0)
 {
     assert(display_context_ != nullptr);
 }
@@ -195,9 +195,20 @@ VkResult DisplayWindow::SelectPlane(const encode::VulkanInstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
+void DisplayWindow::SetSize(const uint32_t width, const uint32_t height)
+{
+    width_  = width;
+    height_ = height;
+}
+
 std::string DisplayWindow::GetWsiExtension() const
 {
     return VK_KHR_DISPLAY_EXTENSION_NAME;
+}
+
+VkExtent2D DisplayWindow::GetSize() const
+{
+    return { width_, height_ };
 }
 
 VkResult DisplayWindow::CreateSurface(const encode::VulkanInstanceTable* table,
@@ -240,6 +251,9 @@ VkResult DisplayWindow::CreateSurface(const encode::VulkanInstanceTable* table,
             GFXRECON_LOG_ERROR("Failed to select display plane");
             return error;
         }
+
+        width_  = mode_props.parameters.visibleRegion.width;
+        height_ = mode_props.parameters.visibleRegion.height;
 
         VkExtent2D image_extent;
         image_extent.width  = mode_props.parameters.visibleRegion.width;

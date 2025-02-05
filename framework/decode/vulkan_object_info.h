@@ -166,7 +166,8 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties;
 
     // extensions
-    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> raytracing_properties;
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
+    std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
 };
 
 template <typename T>
@@ -619,13 +620,13 @@ struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                is_frame_boundary{ false };
-    std::vector<format::HandleId>                       frame_buffer_ids;
-    std::unordered_map<format::HandleId, VkImageLayout> image_layout_barriers;
-    format::HandleId                                    bound_pipeline_id = format::kNullHandleId;
-    std::vector<uint8_t>                                push_constant_data;
-    VkShaderStageFlags                                  push_constant_stage_flags     = 0;
-    VkPipelineLayout                                    push_constant_pipeline_layout = VK_NULL_HANDLE;
+    bool                                                      is_frame_boundary{ false };
+    std::vector<format::HandleId>                             frame_buffer_ids;
+    std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
+    std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
+    std::vector<uint8_t>                                      push_constant_data;
+    VkShaderStageFlags                                        push_constant_stage_flags     = 0;
+    VkPipelineLayout                                          push_constant_pipeline_layout = VK_NULL_HANDLE;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
@@ -707,6 +708,11 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
 {
     VkDeviceAddress capture_address = 0;
     VkDeviceAddress replay_address  = 0;
+
+    VkAccelerationStructureTypeKHR type = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
+
+    //! associated buffer
+    VkBuffer buffer = VK_NULL_HANDLE;
 };
 
 //

@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_struct_decoders_header_generator import KhronosBaseStructDecodersHeaderGenerator
+from khronos_struct_decoders_header_generator import KhronosStructDecodersHeaderGenerator
 
 
 class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -54,7 +54,7 @@ class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanStructDecodersHeaderGenerator(
-    KhronosBaseStructDecodersHeaderGenerator, BaseGenerator
+    KhronosStructDecodersHeaderGenerator, BaseGenerator
 ):
     """VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ type declarations for the decoded Vulkan API structure wrappers.
@@ -102,6 +102,7 @@ class VulkanStructDecodersHeaderGenerator(
 
     def endFile(self):
         """Method override."""
+        KhronosStructDecodersHeaderGenerator.endFile(self)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-
+from khronos_decoder_header_generator import KhronosDecoderHeaderGenerator
 
 class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class declaration for Vulkan API parameter decoding."""
@@ -52,7 +52,7 @@ class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanDecoderHeaderGenerator(BaseGenerator):
+class VulkanDecoderHeaderGenerator(BaseGenerator, KhronosDecoderHeaderGenerator):
     """VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
     Generates C++ member declarations for the VulkanDecoder class responsible for decoding
     Vulkan API call parameter data.
@@ -81,42 +81,11 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write(
-            'class VulkanDecoder : public VulkanDecoderBase',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        write('    VulkanDecoder() { }\n', file=self.outFile)
-        write('    virtual ~VulkanDecoder() override { }\n', file=self.outFile)
-        write(
-            '    virtual void DecodeFunctionCall(format::ApiCallId             call_id,',
-            file=self.outFile
-        )
-        write(
-            '                                    const ApiCallInfo&            call_info,',
-            file=self.outFile
-        )
-        write(
-            '                                    const uint8_t*                parameter_buffer,',
-            file=self.outFile
-        )
-        write(
-            '                                    size_t                        buffer_size) override;\n',
-            file=self.outFile
-        )
-        write('  private:', end='', file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        for cmd in self.get_all_filtered_cmd_names():
-            cmddef = '\n'
-            cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
-                cmd
-            )
-            write(cmddef, file=self.outFile)
+        KhronosDecoderHeaderGenerator.write_decoder_header_content(self)
 
-        write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

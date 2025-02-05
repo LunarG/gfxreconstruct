@@ -78,6 +78,7 @@ struct HandleWrapper
 //
 
 // clang-format off
+struct ShaderModuleWrapper                            : public HandleWrapper<VkShaderModule> {};
 struct SamplerYcbcrConversionWrapper                  : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper                  : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper                  : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
@@ -114,11 +115,6 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 // Declarations for handle wrappers that require additional state info.
 //
 
-struct ShaderModuleWrapper : public HandleWrapper<VkShaderModule>
-{
-    vulkan_state_info::ShaderReflectionDescriptorSetsInfos used_descriptors_info;
-};
-
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent
 // VkPhysicalDevice handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is
 // destroyed.
@@ -146,8 +142,9 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 
-    // Track RayTracingPipelinePropertiesKHR
-    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> ray_tracing_pipeline_properties;
+    // Track RayTracingPipeline / AccelerationStructure properties
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    ray_tracing_pipeline_properties;
+    std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
@@ -227,7 +224,6 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkImageTiling            tiling{};
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
-    std::set<VkSwapchainKHR> parent_swapchains;
 
     std::set<ImageViewWrapper*> image_views;
 };
@@ -255,6 +251,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     AHardwareBuffer* hardware_buffer{ nullptr };
     format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
+    int              imported_fd{ -1 };
 
     // State tracking info for memory with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
@@ -387,8 +384,6 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
-
-    std::vector<ShaderModuleWrapper> bound_shaders;
 };
 
 struct AccelerationStructureKHRWrapper;
@@ -530,6 +525,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
     // Members for general wrapper support.
     std::vector<ImageWrapper*> child_images;
+    bool                       retired{ false };
 
     // Members for trimming state tracking.
     DeviceWrapper*                                    device{ nullptr };
@@ -586,7 +582,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
         VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
         std::unique_ptr<uint8_t[]>                            geometry_info_memory;
         std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
-        std::vector<ASInputBuffer>                            input_buffers;
+        std::unordered_map<format::HandleId, ASInputBuffer>   input_buffers;
     };
     std::optional<AccelerationStructureKHRBuildCommandData> latest_update_command_{ std::nullopt };
     std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };

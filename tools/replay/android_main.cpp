@@ -325,11 +325,13 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
             }
             case APP_CMD_GAINED_FOCUS:
             {
+                GFXRECON_LOG_INFO("Application gained focus.")
                 application->SetPaused(false);
                 break;
             }
             case APP_CMD_LOST_FOCUS:
             {
+                GFXRECON_LOG_INFO("Application lost focus.")
                 application->SetPaused(true);
                 break;
             }

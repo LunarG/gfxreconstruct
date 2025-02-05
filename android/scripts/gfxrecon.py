@@ -51,6 +51,29 @@ adb_sdk_version = 'adb shell getprop ro.build.version.sdk'
 adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_action, app_category)
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
+adb_devices = 'adb devices'
+
+# Environment variable for android serial number
+android_serial = 'ANDROID_SERIAL'
+
+class DeviceSelectionException(Exception):
+    pass
+
+def QueryAvailableDevices():
+    result = subprocess.run(shlex.split(adb_devices, posix='win' not in sys.platform), capture_output=True, check=True)
+    devices = result.stdout.decode().strip().splitlines()[1:]
+    return [device.split('\t')[0] for device in devices]
+
+def CheckDeviceSelection():
+    devices = QueryAvailableDevices()
+    if len(devices) <= 1:
+        return
+
+    selection = os.getenv(android_serial)
+    if selection is None or selection == '':
+        raise DeviceSelectionException('Multiple devices detected - you must specify which one to use by setting ANDROID_SERIAL environment variable.')
+    if selection not in devices:
+        raise DeviceSelectionException(f'Selected ({selection}) device not present. Available devices: {devices}')
 
 def CreateCommandParser():
     parser = argparse.ArgumentParser(description='GFXReconstruct utility launcher for Android.')
@@ -61,6 +84,7 @@ def CreateCommandParser():
 def CreateInstallApkParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' install-apk', description='Install the replay tool.')
     parser.add_argument('file', help='APK file to install')
+    parser.add_argument('-s', '--select', metavar='DEVICE_ID', help='Specify the destination device id. Needed if multiple devices are attached.')
     return parser
 
 def CreateReplayParser():
@@ -120,6 +144,7 @@ def CreateReplayParser():
     parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
+
     return parser
 
 def MakeExtrasString(args):
@@ -323,6 +348,9 @@ def InstallApk(install_args):
     sdk = int(subprocess.check_output(shlex.split(adb_sdk_version)).decode())
     force_queryable = ' --force-queryable' if sdk >= 30 else ''
     cmd = adb_install + force_queryable + ' ' + args.file
+
+    CheckDeviceSelection()
+
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
@@ -331,6 +359,8 @@ def Replay(replay_args):
     args = replay_parser.parse_args(replay_args)
 
     extras = MakeExtrasString(args)
+
+    CheckDeviceSelection()
 
     if extras:
         if args.push_file:
@@ -348,6 +378,8 @@ def Replay(replay_args):
         subprocess.check_call(shlex.split(cmd, posix=False))
 
 if __name__ == '__main__':
+    devices = QueryAvailableDevices()
+
     command_parser = CreateCommandParser()
     command = command_parser.parse_args()
 

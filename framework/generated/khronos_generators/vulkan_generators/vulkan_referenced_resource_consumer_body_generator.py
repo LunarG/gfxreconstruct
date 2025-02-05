@@ -79,13 +79,6 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.pnext_structs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     def beginFile(self, gen_opts):
@@ -104,12 +97,17 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
+            if self.is_cmd_black_listed(cmd):
+                continue
+
             return_type = info[0]
             params = info[2]
+
             if params and params[0].base_type == 'VkCommandBuffer':
+
                 # Check for parameters with resource handle types.
-                handles = self.get_param_list_handles(params[1:])
+                handles = self.get_param_list_handles(cmd, params[1:])
 
                 if (handles):
                     # Generate a function to add handles to the command buffer's referenced handle list.
@@ -153,32 +151,11 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles
-            )
-
-            # Track this struct if it can be present in a pNext chain.
-            parent_structs = typeinfo.elem.get('structextends')
-            if parent_structs:
-                stype = self.make_structure_type_enum(typeinfo, typename)
-                if stype:
-                    self.pnext_structs[typename] = stype
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""
@@ -189,7 +166,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
         else:
             return BaseGenerator.is_handle(self, base_type)
 
-    def get_param_list_handles(self, values):
+    def get_param_list_handles(self, cmd, values):
         """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:

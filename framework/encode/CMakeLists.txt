@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2022 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -36,6 +36,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/command_writer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/command_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_encoder_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.cpp
@@ -122,12 +124,12 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_encoder.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h

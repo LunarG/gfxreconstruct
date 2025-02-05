@@ -24,19 +24,22 @@
 from khronos_base_generator import write
 
 
-class KhronosBaseReplayConsumerBodyGenerator():
+class KhronosReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
+    def endFile(self):
+        self.generate_replay_dump_resources_body()
+
+    def generate_replay_dump_resources_body(self):
+        """Performs C++ code generation for the replay dump resources."""
         platform_type = self.get_api_prefix()
 
-        for cmd in self.get_filtered_cmd_names():
+        for cmd in self.get_all_filtered_cmd_names():
 
             if self.is_resource_dump_class() and self.is_dump_resources_api_call(cmd) == False:
                 continue
 
-            info = self.feature_cmd_params[cmd]
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 

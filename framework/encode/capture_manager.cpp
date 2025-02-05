@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -55,45 +55,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 const uint32_t kFirstFrame           = 1;
 const size_t   kFileStreamBufferSize = 256 * 1024;
 
-std::mutex                                     CommonCaptureManager::ThreadData::count_lock_;
-format::ThreadId                               CommonCaptureManager::ThreadData::thread_count_ = 0;
-std::unordered_map<uint64_t, format::ThreadId> CommonCaptureManager::ThreadData::id_map_;
-
-CommonCaptureManager*                                          CommonCaptureManager::singleton_;
-std::mutex                                                     CommonCaptureManager::instance_lock_;
-thread_local std::unique_ptr<CommonCaptureManager::ThreadData> CommonCaptureManager::thread_data_;
-CommonCaptureManager::ApiCallMutexT                            CommonCaptureManager::api_call_mutex_;
+CommonCaptureManager*                          CommonCaptureManager::singleton_;
+std::mutex                                     CommonCaptureManager::instance_lock_;
+thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
+CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 
 std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
-
-CommonCaptureManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
-    block_index_(0)
-{
-    parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
-    parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
-}
-
-format::ThreadId CommonCaptureManager::ThreadData::GetThreadId()
-{
-    format::ThreadId id  = 0;
-    uint64_t         tid = util::platform::GetCurrentThreadId();
-
-    // Using a uint64_t sequence number associated with the thread ID.
-    std::lock_guard<std::mutex> lock(count_lock_);
-    auto                        entry = id_map_.find(tid);
-    if (entry != id_map_.end())
-    {
-        id = entry->second;
-    }
-    else
-    {
-        id = ++thread_count_;
-        id_map_.insert(std::make_pair(tid, id));
-    }
-
-    return id;
-}
 
 CommonCaptureManager::CommonCaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
@@ -491,14 +458,19 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         capture_mode_ = kModeDisabled;
     }
 
+    if (success)
+    {
+        command_writer_ = std::make_unique<CommandWriter>(GetThreadData(), file_stream_.get(), compressor_.get());
+    }
+
     return success;
 }
 
-CommonCaptureManager::ThreadData* CommonCaptureManager::GetThreadData()
+util::ThreadData* CommonCaptureManager::GetThreadData()
 {
     if (!thread_data_)
     {
-        thread_data_ = std::make_unique<ThreadData>();
+        thread_data_ = std::make_unique<util::ThreadData>();
     }
     return thread_data_.get();
 }
@@ -834,15 +806,15 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
     {
         capture_mode_ |= kModeWrite;
 
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
+        auto* thread_data = GetThreadData();
+        GFXRECON_ASSERT(thread_data != nullptr);
 
         std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
         if (asset_file_stream)
         {
             for (auto& manager : api_capture_managers_)
             {
-                manager.first->WriteAssets(asset_file_stream.get(), &asset_file_name_, thread_data->thread_id_);
+                manager.first->WriteAssets(asset_file_stream.get(), &asset_file_name_, thread_data);
             }
         }
 
@@ -1053,7 +1025,7 @@ std::unique_ptr<util::FileOutputStream> CommonCaptureManager::CreateAssetFile()
     }
 
     std::unique_ptr<util::FileOutputStream> asset_file_stream =
-        std::make_unique<util::FileOutputStream>(asset_file_name_, kFileStreamBufferSize, true);
+        std::make_unique<CaptureFileOutputStream>(this, asset_file_name_, kFileStreamBufferSize, true);
     if (!asset_file_stream->IsValid())
     {
         GFXRECON_LOG_ERROR("Failed opening asset file %s", asset_file_name_.c_str())
@@ -1084,7 +1056,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         capture_filename_ = util::filepath::GenerateTimestampedFilename(capture_filename_);
     }
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename_, kFileStreamBufferSize);
+    file_stream_ = std::make_unique<CaptureFileOutputStream>(this, capture_filename_, kFileStreamBufferSize);
 
     if (file_stream_->IsValid())
     {
@@ -1226,22 +1198,22 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
 
         capture_mode_ |= kModeWrite;
 
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
+        auto* thread_data = GetThreadData();
+        GFXRECON_ASSERT(thread_data != nullptr);
         if (use_asset_file_)
         {
             std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
             for (auto& manager : api_capture_managers_)
             {
                 manager.first->WriteTrackedStateWithAssetFile(
-                    file_stream_.get(), thread_data->thread_id_, asset_file_stream.get(), &asset_file_name_);
+                    file_stream_.get(), thread_data, asset_file_stream.get(), &asset_file_name_);
             }
         }
         else
         {
             for (auto& manager : api_capture_managers_)
             {
-                manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+                manager.first->WriteTrackedState(file_stream_.get(), thread_data);
             }
         }
     }
@@ -1457,6 +1429,56 @@ void CommonCaptureManager::WriteFillMemoryCmd(
     }
 }
 
+void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
+                                                     format::HandleId    device_id,
+                                                     uint64_t            max_resource_size)
+{
+    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    {
+        return;
+    }
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
+
+    format::BeginResourceInitCommand init_cmd;
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    init_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
+    init_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family, format::MetaDataType::kBeginResourceInitCommand);
+    init_cmd.thread_id         = thread_data->thread_id_;
+    init_cmd.device_id         = device_id;
+    init_cmd.max_resource_size = max_resource_size;
+    init_cmd.max_copy_size     = max_resource_size;
+
+    WriteToFile(&init_cmd, sizeof(init_cmd));
+}
+
+void CommonCaptureManager::WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id)
+{
+    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    {
+        return;
+    }
+
+    format::EndResourceInitCommand init_cmd;
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    init_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
+    init_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family, format::MetaDataType::kEndResourceInitCommand);
+    init_cmd.thread_id = thread_data->thread_id_;
+    init_cmd.device_id = device_id;
+
+    WriteToFile(&init_cmd, sizeof(init_cmd));
+}
+
 void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family,
                                                         uint64_t            allocation_id,
                                                         uint64_t            allocation_size)
@@ -1482,44 +1504,7 @@ void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_
 
 void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream)
 {
-    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
-    {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        if (manager)
-        {
-            // fwrite hides a lock inside to synchronize writes to files. If a thread is in the middle
-            // of a write to the capture file and the uffd mechanism interupts it, it will cause
-            // a deadlock as uffd will also try to write to the capture file as well. For this
-            // reason RT signal needs to be disabled while writing.
-            // This can be removed once writing to the capture file(s) is delegated to a separate thread.
-            manager->UffdBlockRtSignal();
-        }
-    }
-
-    util::FileOutputStream* output_stream = (file_stream != nullptr) ? file_stream : file_stream_.get();
-
-    output_stream->Write(data, size);
-    if (force_file_flush_)
-    {
-        output_stream->Flush();
-    }
-
-    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
-    {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        if (manager)
-        {
-            // Enable again signal
-            manager->UffdUnblockRtSignal();
-        }
-    }
-
-    // Increment block index
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
-
-    ++block_index_;
-    thread_data->block_index_ = block_index_.load();
+    file_stream ? file_stream->Write(data, size) : file_stream_->Write(data, size);
 }
 
 void CommonCaptureManager::AtExit()
@@ -1638,6 +1623,53 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     operation_annotation += "\": \n    {";
     operation_annotation += buffer;
     operation_annotation += "\n    }";
+}
+
+CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_manager,
+                                                 const std::string&    filename,
+                                                 size_t                buffer_size,
+                                                 bool                  append) :
+    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
+{}
+
+bool CaptureFileOutputStream::Write(const void* data, size_t len)
+{
+    GFXRECON_ASSERT(capture_manager_);
+
+    if (capture_manager_->GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        if (manager)
+        {
+            // fwrite hides a lock inside to synchronize writes to files. If a thread is in the middle
+            // of a write to the capture file and the uffd mechanism interupts it, it will cause
+            // a deadlock as uffd will also try to write to the capture file as well. For this
+            // reason RT signal needs to be disabled while writing.
+            // This can be removed once writing to the capture file(s) is delegated to a separate thread.
+            manager->UffdBlockRtSignal();
+        }
+    }
+
+    bool ret = FileOutputStream::Write(data, len);
+
+    if (capture_manager_->GetForceFileFlush())
+    {
+        Flush();
+    }
+
+    if (capture_manager_->GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        if (manager)
+        {
+            // Enable again signal
+            manager->UffdUnblockRtSignal();
+        }
+    }
+
+    capture_manager_->IncrementBlockIndex(1);
+
+    return ret;
 }
 
 GFXRECON_END_NAMESPACE(encode)

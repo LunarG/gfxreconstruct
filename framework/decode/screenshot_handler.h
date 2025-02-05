@@ -100,10 +100,6 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                                    uint32_t                         width,
                                    uint32_t                         height) const;
 
-    uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                uint32_t                                type_bits,
-                                VkMemoryPropertyFlags                   property_flags) const;
-
     VkResult CreateCopyResource(VkDevice                                device,
                                 const encode::VulkanDeviceTable*        device_table,
                                 const VkPhysicalDeviceMemoryProperties& memory_properties,

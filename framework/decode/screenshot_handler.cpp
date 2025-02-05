@@ -539,25 +539,6 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
     return memory_requirements.size;
 }
 
-uint32_t ScreenshotHandler::GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                               uint32_t                                type_bits,
-                                               VkMemoryPropertyFlags                   property_flags) const
-{
-    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
-
-    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-    {
-        if ((type_bits & (1 << i)) &&
-            ((memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags))
-        {
-            memory_type_index = i;
-            break;
-        }
-    }
-
-    return memory_type_index;
-}
-
 VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
                                                const encode::VulkanDeviceTable*        device_table,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties,
@@ -597,17 +578,17 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         device_table->GetBufferMemoryRequirements(device, copy_resource->buffer, &memory_requirements);
 
         uint32_t memory_type_index =
-            GetMemoryTypeIndex(memory_properties,
-                               memory_requirements.memoryTypeBits,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+            graphics::GetMemoryTypeIndex(memory_properties,
+                                         memory_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
 
         if (memory_type_index == std::numeric_limits<uint32_t>::max())
         {
             /* fallback to coherent */
-            memory_type_index =
-                GetMemoryTypeIndex(memory_properties,
-                                   memory_requirements.memoryTypeBits,
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            memory_type_index = graphics::GetMemoryTypeIndex(memory_properties,
+                                                             memory_requirements.memoryTypeBits,
+                                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         }
 
         assert(memory_type_index != std::numeric_limits<uint32_t>::max());
@@ -660,9 +641,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
             VkMemoryRequirements memory_requirements;
             device_table->GetImageMemoryRequirements(device, copy_resource->convert_image, &memory_requirements);
 
-            uint32_t memory_type_index = GetMemoryTypeIndex(
+            uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
                 memory_properties, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
             assert(memory_type_index != std::numeric_limits<uint32_t>::max());
 
             VkMemoryAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };

@@ -29,41 +29,46 @@
 #include <QuartzCore/QuartzCore.h>
 
 #if !__has_feature(objc_arc)
-    #error "Compile this with -fobjc-arc"
+#error "Compile this with -fobjc-arc"
 #endif
 
-typedef void(^GFXReconKeyCallback)(gfxrecon::application::Application*);
+typedef void (^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
-@interface GFXReconWindowDelegate : NSObject<NSWindowDelegate>
+@interface GFXReconWindowDelegate : NSObject <NSWindowDelegate>
 - (void)windowWillClose:(NSNotification*)notification;
 @end
 
 @implementation GFXReconWindowDelegate
-- (void)windowWillClose:(NSNotification*)notification {
+- (void)windowWillClose:(NSNotification*)notification
+{
     GFXRECON_LOG_DEBUG_ONCE("User closed window");
     [NSApp terminate:self];
 }
 @end
 
-@interface GFXReconView : NSView
-@property (nonatomic) gfxrecon::application::Application* app;
+@interface                                               GFXReconView : NSView
+@property(nonatomic) gfxrecon::application::Application* app;
 - (instancetype)initWithFrame:(NSRect)frame app:(gfxrecon::application::Application*)app;
 @end
 
 @implementation GFXReconView
 
-- (instancetype)initWithFrame:(NSRect)frame app:(gfxrecon::application::Application *)app {
+- (instancetype)initWithFrame:(NSRect)frame app:(gfxrecon::application::Application*)app
+{
     self = [super initWithFrame:frame];
-    if (self) {
+    if (self)
+    {
         _app = app;
     }
     return self;
 }
 
-- (void)keyDown:(NSEvent *)event {
+- (void)keyDown:(NSEvent*)event
+{
     if (!_app)
         return;
-    switch ([event keyCode]) {
+    switch ([event keyCode])
+    {
         case kVK_Space:
         case kVK_ANSI_P:
             _app->SetPaused(!_app->GetPaused());
@@ -81,7 +86,8 @@ typedef void(^GFXReconKeyCallback)(gfxrecon::application::Application*);
     }
 }
 
-- (BOOL)acceptsFirstResponder {
+- (BOOL)acceptsFirstResponder
+{
     return YES;
 }
 
@@ -95,21 +101,26 @@ static NSString* NSStringFromStdString(const std::string& std_string)
     return [[NSString alloc] initWithBytes:std_string.data() length:std_string.size() encoding:NSUTF8StringEncoding];
 }
 
-MetalWindow::MetalWindow(MetalContext* metal_context)
-    : metal_context_(metal_context), window_(nil), window_delegate_(nil), layer_(nil), width_(0), height_(0)
-{
-}
+MetalWindow::MetalWindow(MetalContext* metal_context) :
+    metal_context_(metal_context), window_(nil), window_delegate_(nil), layer_(nil), width_(0), height_(0)
+{}
 
 MetalWindow::~MetalWindow() = default;
 
-bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height, bool force_windowed)
+bool MetalWindow::Create(const std::string& title,
+                         const int32_t      xpos,
+                         const int32_t      ypos,
+                         const uint32_t     width,
+                         const uint32_t     height,
+                         bool               force_windowed)
 {
     @autoreleasepool
     {
-        window_delegate_ = [GFXReconWindowDelegate new];
-        NSScreen* screen = [NSScreen mainScreen];
-        NSRect screen_frame = [screen convertRectToBacking:[screen frame]];
-        NSWindowStyleMask style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+        window_delegate_               = [GFXReconWindowDelegate new];
+        NSScreen*         screen       = [NSScreen mainScreen];
+        NSRect            screen_frame = [screen convertRectToBacking:[screen frame]];
+        NSWindowStyleMask style        = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                                  NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
         if (width >= screen_frame.size.width && height >= screen_frame.size.height)
             style |= NSWindowStyleMaskFullScreen;
 
@@ -151,7 +162,7 @@ bool MetalWindow::Destroy()
         [window_ close];
         metal_context_->UnregisterWindow(this);
     }
-    layer_ = nil;
+    layer_  = nil;
     window_ = nil;
     return true;
 }
@@ -170,11 +181,13 @@ void MetalWindow::SetPosition(const int32_t x, const int32_t y)
     {
         if ([window_ styleMask] & NSWindowStyleMaskFullScreen)
             return;
-        NSScreen* screen = [window_ screen];
-        NSRect screen_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[screen frame]]];
-        NSRect window_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
-        window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(x, screen_frame.size.width - window_frame.size.width));
-        window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(y, screen_frame.size.height - window_frame.size.height));
+        NSScreen* screen       = [window_ screen];
+        NSRect    screen_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[screen frame]]];
+        NSRect    window_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
+        window_frame.origin.x =
+            std::max<CGFloat>(0, std::min<CGFloat>(x, screen_frame.size.width - window_frame.size.width));
+        window_frame.origin.y =
+            std::max<CGFloat>(0, std::min<CGFloat>(y, screen_frame.size.height - window_frame.size.height));
         [window_ setFrameOrigin:[window_ frameRectForContentRect:[screen convertRectFromBacking:window_frame]].origin];
     }
 }
@@ -185,12 +198,12 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
         return;
     @autoreleasepool
     {
-        width_ = width;
-        height_ = height;
-        NSScreen* screen = [window_ screen];
-        NSRect screen_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[screen frame]]];
-        bool fullscreen = width >= screen_frame.size.width && height >= screen_frame.size.height;
-        NSWindowStyleMask style = [window_ styleMask];
+        width_                         = width;
+        height_                        = height;
+        NSScreen*         screen       = [window_ screen];
+        NSRect            screen_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[screen frame]]];
+        bool              fullscreen   = width >= screen_frame.size.width && height >= screen_frame.size.height;
+        NSWindowStyleMask style        = [window_ styleMask];
         if (fullscreen)
         {
             if (!(style & NSWindowStyleMaskFullScreen))
@@ -200,11 +213,13 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
         {
             if (style & NSWindowStyleMaskFullScreen)
                 [window_ toggleFullScreen:nil];
-            NSRect window_frame = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
-            window_frame.size.width = std::min<CGFloat>(screen_frame.size.width, width);
+            NSRect window_frame      = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
+            window_frame.size.width  = std::min<CGFloat>(screen_frame.size.width, width);
             window_frame.size.height = std::min<CGFloat>(screen_frame.size.height, height);
-            window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
-            window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
+            window_frame.origin.x    = std::max<CGFloat>(
+                0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
+            window_frame.origin.y = std::max<CGFloat>(
+                0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
             [window_ setFrame:[window_ frameRectForContentRect: window_frame] display:YES];
 
             NSSize content_size;
@@ -248,6 +263,11 @@ std::string MetalWindow::GetWsiExtension() const
     return VK_EXT_METAL_SURFACE_EXTENSION_NAME;
 }
 
+VkExtent2D MetalWindow::GetSize() const
+{
+    return { width_, height_ };
+}
+
 VkResult MetalWindow::CreateSurface(const encode::VulkanInstanceTable* table,
                                     VkInstance                         instance,
                                     VkFlags                            flags,
@@ -256,7 +276,7 @@ VkResult MetalWindow::CreateSurface(const encode::VulkanInstanceTable* table,
     if (table)
     {
         VkMetalSurfaceCreateInfoEXT create_info = { VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT };
-        create_info.pLayer = layer_;
+        create_info.pLayer                      = layer_;
 
         return table->CreateMetalSurfaceEXT(instance, &create_info, nullptr, pSurface);
     }
@@ -275,11 +295,12 @@ MetalWindowFactory::MetalWindowFactory(MetalContext* metal_context) : metal_cont
     assert(metal_context_);
 }
 
-decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
+decode::Window* MetalWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(metal_context_);
-    decode::Window* window = new MetalWindow(metal_context_);
-    Application* application = metal_context_->GetApplication();
+    decode::Window* window      = new MetalWindow(metal_context_);
+    Application*    application = metal_context_->GetApplication();
     window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }

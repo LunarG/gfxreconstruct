@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -56,7 +56,7 @@ class VulkanStateTracker
     ~VulkanStateTracker();
 
     uint64_t WriteState(util::FileOutputStream*           file_stream,
-                        format::ThreadId                  thread_id,
+                        util::ThreadData*                 thread_data,
                         std::function<format::HandleId()> get_unique_id_fn,
                         util::Compressor*                 compressor,
                         uint64_t                          frame_number,
@@ -65,7 +65,7 @@ class VulkanStateTracker
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
-                                       thread_id,
+                                       thread_data,
                                        get_unique_id_fn,
                                        asset_file_stream,
                                        asset_file_name,
@@ -77,15 +77,20 @@ class VulkanStateTracker
 
     uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
                          const std::string*                asset_file_name,
-                         format::ThreadId                  thread_id,
+                         util::ThreadData*                 thread_data,
                          std::function<format::HandleId()> get_unique_id_fn,
                          util::Compressor*                 compressor)
     {
         assert(asset_file_stream != nullptr);
         assert(asset_file_name != nullptr);
 
-        VulkanStateWriter state_writer(
-            nullptr, compressor, thread_id, get_unique_id_fn, asset_file_stream, asset_file_name, &asset_file_offsets_);
+        VulkanStateWriter state_writer(nullptr,
+                                       compressor,
+                                       thread_data,
+                                       get_unique_id_fn,
+                                       asset_file_stream,
+                                       asset_file_name,
+                                       &asset_file_offsets_);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteAssets(state_table_);
@@ -380,7 +385,8 @@ class VulkanStateTracker
                            void*            mapped_data,
                            VkDeviceSize     mapped_offset,
                            VkDeviceSize     mapped_size,
-                           VkMemoryMapFlags mapped_flags);
+                           VkMemoryMapFlags mapped_flags,
+                           bool             track_assets);
 
     void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
 
@@ -454,10 +460,24 @@ class VulkanStateTracker
                                            const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
                                            const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
+    void TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                               const VkCopyAccelerationStructureInfoKHR* info);
+
+    void TrackWriteAccelerationStructuresPropertiesCommand(VkCommandBuffer                   commandBuffer,
+                                                           uint32_t                          accelerationStructureCount,
+                                                           const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                           VkQueryType                       queryType,
+                                                           VkQueryPool                       queryPool,
+                                                           uint32_t                          firstQuery);
+
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
     void TrackRayTracingPipelineProperties(VkPhysicalDevice                                 physicalDevice,
                                            VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties);
+
+    void TrackAccelerationStructureProperties(
+        VkPhysicalDevice                                    physicalDevice,
+        VkPhysicalDeviceAccelerationStructurePropertiesKHR* acceleration_structure_properties);
 
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
 
@@ -719,9 +739,9 @@ class VulkanStateTracker
                                                uint32_t        maxDrawCount,
                                                uint32_t        stride);
 
-    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 
-    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
+    void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 

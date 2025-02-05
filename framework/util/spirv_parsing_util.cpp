@@ -33,8 +33,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 // used to enable type as key for std::set/map
 bool operator<(const SpirVParsingUtil::BufferReferenceInfo& lhs, const SpirVParsingUtil::BufferReferenceInfo& rhs)
 {
-    return std::make_tuple(lhs.set, lhs.binding, lhs.push_constant_block, lhs.buffer_offset, lhs.array_stride) <
-           std::make_tuple(rhs.set, rhs.binding, rhs.push_constant_block, rhs.buffer_offset, rhs.array_stride);
+    return std::make_tuple(lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride) <
+           std::make_tuple(rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride);
 }
 
 // Instruction represents a single Spv::Op instruction.
@@ -134,10 +134,28 @@ bool SpirVParsingUtil::GetVariableDecorations(const Instruction*   variable_insn
     const uint32_t variable_id   = variable_insn->resultId();
     const uint32_t storage_class = variable_insn->operand(0);
 
-    if (storage_class == spv::StorageClassPushConstant)
+    switch (storage_class)
     {
-        buffer_reference_info.push_constant_block = true;
-        return true;
+
+        case spv::StorageClassUniform:
+            buffer_reference_info.source = BufferReferenceLocation::UNIFORM_BUFFER;
+            break;
+
+        case spv::StorageClassStorageBuffer:
+            buffer_reference_info.source = BufferReferenceLocation::STORAGE_BUFFER;
+            break;
+
+        case spv::StorageClassShaderRecordBufferKHR:
+            buffer_reference_info.source = BufferReferenceLocation::SHADER_RECORD_BUFFER;
+            break;
+
+        case spv::StorageClassPushConstant:
+            buffer_reference_info.source = BufferReferenceLocation::PUSH_CONSTANT_BLOCK;
+            return true;
+
+        default:
+            GFXRECON_LOG_WARNING_ONCE("Storage class %u not handled\n", storage_class);
+            return false;
     }
 
     for (const Instruction* insn : decorations_instructions_)
@@ -155,16 +173,7 @@ bool SpirVParsingUtil::GetVariableDecorations(const Instruction*   variable_insn
             buffer_reference_info.binding = insn->operand(2);
         }
     }
-
-    if (storage_class == spv::StorageClassStorageBuffer || storage_class == spv::StorageClassUniform)
-    {
-        return true;
-    }
-    else
-    {
-        printf("Storage class %u not handled\n", storage_class);
-        return false;
-    }
+    return true;
 }
 
 bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, size_t spirv_num_bytes)
@@ -274,23 +283,25 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
                         if (GetVariableDecorations(object_insn, buffer_reference_info))
                         {
+                            SpvReflectResult spv_result;
                             if (spv_shader_module == std::nullopt)
                             {
                                 // spirv-reflect parsing only on-demand
                                 spv_shader_module = SpvReflectShaderModule();
-                                spvReflectCreateShaderModule(spirv_num_bytes, spirv_code, &spv_shader_module.value());
+                                spv_result        = spvReflectCreateShaderModule(
+                                    spirv_num_bytes, spirv_code, &spv_shader_module.value());
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                             }
-
-                            SpvReflectResult                 spv_result;
                             const SpvReflectTypeDescription* td = nullptr;
 
                             // access-chain starts with descriptor-binding root
                             std::string root_name;
 
-                            if (buffer_reference_info.push_constant_block)
+                            if (buffer_reference_info.source == BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                             {
                                 const SpvReflectBlockVariable* block = spvReflectGetEntryPointPushConstantBlock(
                                     &spv_shader_module.value(), spv_shader_module->entry_point_name, &spv_result);
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                                 td = block->type_description;
                             }
                             else
@@ -300,6 +311,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                                                    buffer_reference_info.binding,
                                                                    buffer_reference_info.set,
                                                                    &spv_result);
+                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
                                 td = spv_descriptor_binding->type_description;
 
                                 // spirv_reflect sets the name by tracking SPIR-V instructions like OpName. Some
@@ -465,7 +477,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         name = name.substr(0, name.size() - 4);
 
         char buf[128];
-        if (buffer_reference_info.push_constant_block)
+        if (buffer_reference_info.source == BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
         {
             snprintf(buf, sizeof(buf), "push-constant-block");
         }

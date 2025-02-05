@@ -24,7 +24,7 @@
 import json
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from khronos_base_replay_consumer_body_generator import KhronosBaseReplayConsumerBodyGenerator
+from khronos_replay_consumer_body_generator import KhronosReplayConsumerBodyGenerator
 
 
 class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
@@ -57,7 +57,7 @@ class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
 
 
 class VulkanReplayDumpResourcesBodyGenerator(
-    KhronosBaseReplayConsumerBodyGenerator, BaseGenerator
+    KhronosReplayConsumerBodyGenerator, BaseGenerator
 ):
     """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
     """
@@ -90,14 +90,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
             diag_file=diag_file
         )
 
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # Map of struct types to associated VkStructureType.
-        self.stype_values = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -119,6 +111,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        KhronosReplayConsumerBodyGenerator.endFile(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -132,10 +125,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        KhronosBaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanReplayConsumer class member function definition."""

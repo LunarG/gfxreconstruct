@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -26,6 +26,7 @@
 #define GFXRECON_ENCODE_CAPTURE_MANAGER_H
 
 #include "encode/capture_settings.h"
+#include "encode/command_writer.h"
 #include "encode/handle_unwrap_memory.h"
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
@@ -36,6 +37,7 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
+#include "util/thread_data.h"
 
 #include <atomic>
 #include <cassert>
@@ -203,41 +205,9 @@ class CommonCaptureManager
 
     typedef uint32_t CaptureMode;
 
-    class ThreadData
-    {
-      public:
-        ThreadData();
-
-        ~ThreadData() {}
-
-        std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
-
-      public:
-        const format::ThreadId                   thread_id_;
-        format::ApiCallId                        call_id_;
-        format::HandleId                         object_id_;
-        std::unique_ptr<encode::ParameterBuffer> parameter_buffer_;
-        std::unique_ptr<ParameterEncoder>        parameter_encoder_;
-        std::vector<uint8_t>                     compressed_buffer_;
-        HandleUnwrapMemory                       handle_unwrap_memory_;
-        uint64_t                                 block_index_;
-
-      private:
-        static format::ThreadId GetThreadId();
-
-      private:
-        static std::mutex                                     count_lock_;
-        static format::ThreadId                               thread_count_;
-        static std::unordered_map<uint64_t, format::ThreadId> id_map_;
-
-      private:
-        // Used for combining multiple buffers for a single file write.
-        std::vector<uint8_t> scratch_buffer_;
-    };
-
-    ThreadData* GetThreadData();
-    bool        IsCaptureModeTrack() const;
-    bool        IsCaptureModeWrite() const;
+    util::ThreadData* GetThreadData();
+    bool              IsCaptureModeTrack() const;
+    bool              IsCaptureModeWrite() const;
 
     void DestroyInstance(ApiCaptureManager* singleton);
 
@@ -269,12 +239,14 @@ class CommonCaptureManager
     auto                                GetTrimBoundary() const { return trim_boundary_; }
     auto                                GetTrimDrawCalls() const { return trim_draw_calls_; }
     auto                                GetQueueSubmitCount() const { return queue_submit_count_; }
+    bool                                GetUseAssetFile() const { return use_asset_file_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
     util::Keyboard&        GetKeyboard() { return keyboard_; }
     const std::string&     GetScreenshotPrefix() const { return screenshot_prefix_; }
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
+    CommandWriter*         GetCommandWriter() { return command_writer_.get(); }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateTrimDrawCallsFilename(const std::string&                    base_filename,
@@ -301,7 +273,18 @@ class CommonCaptureManager
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
+    void
+    WriteBeginResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id, uint64_t max_resource_size);
+
+    void WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id);
+
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
+
+    bool OutputStreamWrite(const void* data, size_t len)
+    {
+        WriteToFile(data, len);
+        return true;
+    }
 
     void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
 
@@ -309,19 +292,8 @@ class CommonCaptureManager
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N],
                                util::FileOutputStream* file_stream = nullptr)
     {
-        static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
-
-        // Combine buffers for a single write.
-        std::vector<uint8_t>& scratch_buffer = GetThreadData()->GetScratchBuffer();
-        scratch_buffer.clear();
-        for (size_t i = 0; i < N; ++i)
-        {
-            const uint8_t* const data = reinterpret_cast<const uint8_t*>(buffers[i].first);
-            const size_t         size = buffers[i].second;
-            scratch_buffer.insert(scratch_buffer.end(), data, data + size);
-        }
-
-        WriteToFile(scratch_buffer.data(), scratch_buffer.size(), file_stream);
+        file_stream ? file_stream->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer())
+                    : file_stream_->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer());
     }
 
     void IncrementBlockIndex(uint64_t blocks)
@@ -353,11 +325,11 @@ class CommonCaptureManager
     static void AtExit();
 
   private:
-    static std::mutex                               instance_lock_;
-    static CommonCaptureManager*                    singleton_;
-    static thread_local std::unique_ptr<ThreadData> thread_data_;
-    static std::atomic<format::HandleId>            unique_id_counter_;
-    static ApiCallMutexT                            api_call_mutex_;
+    static std::mutex                                     instance_lock_;
+    static CommonCaptureManager*                          singleton_;
+    static thread_local std::unique_ptr<util::ThreadData> thread_data_;
+    static std::atomic<format::HandleId>                  unique_id_counter_;
+    static ApiCallMutexT                                  api_call_mutex_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
@@ -426,6 +398,28 @@ class CommonCaptureManager
         uint16_t descriptor_mask{ RvAnnotationUtil::kDescriptorMask };
         uint64_t shaderid_mask{ RvAnnotationUtil::kShaderIDMask };
     } rv_annotation_info_;
+
+    std::unique_ptr<CommandWriter> command_writer_;
+};
+
+/**
+ * @brief `CaptureFileOutputStream` is a `FileOutputStream` decorator for `CommonCaptureManager`.
+ *
+ * It wraps calls to `FileOutputStream::Write` to perform some operations required by the capture manager before
+ * and after writing. At the same time it can be passed as input to the `CommandWriter` as an `OutputStream`.
+ */
+class CaptureFileOutputStream : public util::FileOutputStream
+{
+  public:
+    CaptureFileOutputStream(CommonCaptureManager* capture_manager,
+                            const std::string&    filename,
+                            size_t                buffer_size,
+                            bool                  append = false);
+
+    bool Write(const void* data, size_t len) override;
+
+  private:
+    CommonCaptureManager* capture_manager_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
