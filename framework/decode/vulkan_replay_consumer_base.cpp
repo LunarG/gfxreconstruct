@@ -5671,6 +5671,50 @@ void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
     allocator->DestroyVideoSession(session, GetAllocationCallbacks(pAllocator), allocator_datas);
 }
 
+void VulkanReplayConsumerBase::OverrideGetBufferMemoryRequirements(
+    PFN_vkGetBufferMemoryRequirements                   func,
+    const VulkanDeviceInfo*                             device_info,
+    const VulkanBufferInfo*                             buffer_info,
+    StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(buffer_info != nullptr);
+    GFXRECON_ASSERT(pMemoryRequirements != nullptr && pMemoryRequirements->GetPointer() != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetBufferMemoryRequirements(
+        buffer_info->handle, pMemoryRequirements->GetPointer(), buffer_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetBufferMemoryRequirements2(
+    PFN_vkGetBufferMemoryRequirements2                             func,
+    const VulkanDeviceInfo*                                        device_info,
+    StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
+    GFXRECON_ASSERT(pMemoryRequirements != nullptr && pMemoryRequirements->GetPointer() != nullptr);
+
+    auto decoded_info = pInfo->GetMetaStructPointer();
+    GFXRECON_ASSERT(decoded_info != nullptr);
+
+    auto buffer_info = GetObjectInfoTable().GetVkBufferInfo(decoded_info->buffer);
+    GFXRECON_ASSERT(buffer_info != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetBufferMemoryRequirements2(
+        decoded_info->decoded_value, pMemoryRequirements->GetPointer(), buffer_info->allocator_data);
+}
+
 void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
     PFN_vkGetImageSubresourceLayout                         func,
     const VulkanDeviceInfo*                                 device_info,
@@ -5692,6 +5736,74 @@ void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
                                          pLayout->GetOutputPointer(),
                                          pLayout->GetPointer(),
                                          image_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetImageMemoryRequirements(
+    PFN_vkGetImageMemoryRequirements                    func,
+    const VulkanDeviceInfo*                             device_info,
+    const VulkanImageInfo*                              image_info,
+    StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(image_info != nullptr);
+    GFXRECON_ASSERT(pMemoryRequirements != nullptr && pMemoryRequirements->GetPointer() != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetImageMemoryRequirements(
+        image_info->handle, pMemoryRequirements->GetPointer(), image_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetImageMemoryRequirements2(
+    PFN_vkGetImageMemoryRequirements2                             func,
+    const VulkanDeviceInfo*                                       device_info,
+    StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>*          pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr)
+    GFXRECON_ASSERT(pMemoryRequirements != nullptr && pMemoryRequirements->GetPointer() != nullptr);
+
+    auto decoded_info = pInfo->GetMetaStructPointer();
+    GFXRECON_ASSERT(decoded_info != nullptr);
+
+    auto image_info = GetObjectInfoTable().GetVkImageInfo(decoded_info->image);
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetImageMemoryRequirements2(
+        decoded_info->decoded_value, pMemoryRequirements->GetPointer(), image_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetVideoSessionMemoryRequirementsKHR(
+    PFN_vkGetVideoSessionMemoryRequirementsKHR                         func,
+    VkResult                                                           original_result,
+    const VulkanDeviceInfo*                                            device_info,
+    const VulkanVideoSessionKHRInfo*                                   video_session_info,
+    PointerDecoder<uint32_t>*                                          pMemoryRequirementsCount,
+    StructPointerDecoder<Decoded_VkVideoSessionMemoryRequirementsKHR>* pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(video_session_info != nullptr);
+    GFXRECON_ASSERT(pMemoryRequirementsCount != nullptr && pMemoryRequirementsCount->GetPointer() != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    return allocator->GetVideoSessionMemoryRequirementsKHR(
+        video_session_info->handle,
+        pMemoryRequirementsCount->GetPointer(),
+        pMemoryRequirements == nullptr ? nullptr : pMemoryRequirements->GetPointer(),
+        video_session_info->allocator_datas);
 }
 
 template <typename T>
