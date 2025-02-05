@@ -1178,7 +1178,12 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 
     if (arg_parser.IsOptionSet(kDxAgsMarkRenderPasses))
     {
+#ifdef GFXRECON_AGS_SUPPORT
         replay_options.ags_inject_markers = true;
+#else
+        GFXRECON_LOG_ERROR(
+            "Unsupported option --dx12-ags-inject-markers")
+#endif
     }
 
     const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);

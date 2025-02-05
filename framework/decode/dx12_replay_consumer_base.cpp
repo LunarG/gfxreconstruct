@@ -1138,7 +1138,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
         {
             GFXRECON_LOG_DEBUG("Created AGS device.");
 
-            device->SetHandlePointerData(returned_params.pDevice);
+            if (device->GetHandlePointer() != nullptr)
+            {
+                *device->GetHandlePointer() = returned_params.pDevice;
+            }
 
             replay_result = S_OK;
 

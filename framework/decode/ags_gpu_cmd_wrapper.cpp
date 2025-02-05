@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/gpu_cmd_wrapper.h"
+#include "decode/ags_gpu_cmd_wrapper.h"
 
 #include "generated/generated_dx12_call_id_to_string.h"
 #include "graphics/dx12_ags_marker_injector.h"
@@ -31,11 +31,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-GpuCmdWrapper::GpuCmdWrapper(DxReplayOptions*           options,
-                             ID3D12GraphicsCommandList* command_list,
-                             format::HandleId           capture_id,
-                             format::ApiCallId          call_id,
-                             uint64_t                   block_idx)
+AgsGpuCmdWrapper::AgsGpuCmdWrapper(DxReplayOptions*           options,
+                                   ID3D12GraphicsCommandList* command_list,
+                                   format::HandleId           capture_id,
+                                   format::ApiCallId          call_id,
+                                   uint64_t                   block_idx)
 {
     if ((options != nullptr))
     {
@@ -81,7 +81,7 @@ GpuCmdWrapper::GpuCmdWrapper(DxReplayOptions*           options,
     }
 }
 
-GpuCmdWrapper::~GpuCmdWrapper()
+AgsGpuCmdWrapper::~AgsGpuCmdWrapper()
 {
     if (current_options != nullptr)
     {

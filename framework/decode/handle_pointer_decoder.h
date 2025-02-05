@@ -88,14 +88,6 @@ class HandlePointerDecoder
 
     T* GetHandlePointer() { return handle_data_; }
 
-    void SetHandlePointerData(T data)
-    {
-        if (handle_data_ != nullptr)
-        {
-            *handle_data_ = data;
-        }
-    }
-
     const T* GetHandlePointer() const { return handle_data_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size) { return decoder_.DecodeHandleId(buffer, buffer_size); }

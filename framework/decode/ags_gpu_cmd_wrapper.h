@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_GPU_CMD_WRAPPER_H
-#define GFXRECON_GPU_CMD_WRAPPER_H
+#ifndef GFXRECON_AGS_GPU_CMD_WRAPPER_H
+#define GFXRECON_AGS_GPU_CMD_WRAPPER_H
 
 #include "util/defines.h"
 #include "format/format.h"
@@ -33,16 +33,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class GpuCmdWrapper
+class AgsGpuCmdWrapper
 {
   public:
-    GpuCmdWrapper(DxReplayOptions*           options,
-                  ID3D12GraphicsCommandList* command_list,
-                  format::HandleId           capture_id,
-                  format::ApiCallId          call_id,
-                  uint64_t                   block_idx);
+    AgsGpuCmdWrapper(DxReplayOptions*           options,
+                     ID3D12GraphicsCommandList* command_list,
+                     format::HandleId           capture_id,
+                     format::ApiCallId          call_id,
+                     uint64_t                   block_idx);
 
-    ~GpuCmdWrapper();
+    ~AgsGpuCmdWrapper();
 
   private:
     DxReplayOptions*           current_options{ nullptr };
@@ -53,4 +53,4 @@ class GpuCmdWrapper
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DX12_GPU_CMD_WRAPPER_H
+#endif // GFXRECON_AGS_GPU_CMD_WRAPPER_H

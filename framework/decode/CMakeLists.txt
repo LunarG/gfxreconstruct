@@ -271,8 +271,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/ags_detection_consumer.h
-                    ${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.h
-                    ${CMAKE_CURRENT_LIST_DIR}/gpu_cmd_wrapper.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/ags_gpu_cmd_wrapper.h
+                    ${CMAKE_CURRENT_LIST_DIR}/ags_gpu_cmd_wrapper.cpp
                )
 endif()
 

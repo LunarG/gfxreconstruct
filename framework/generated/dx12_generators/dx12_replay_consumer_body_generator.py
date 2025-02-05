@@ -120,7 +120,7 @@ class Dx12ReplayConsumerBodyGenerator(
             file=self.outFile
         )
         write(
-            '#include "decode/gpu_cmd_wrapper.h"',
+            '#include "decode/ags_gpu_cmd_wrapper.h"',
             file=self.outFile
         )
         write(
@@ -182,7 +182,7 @@ class Dx12ReplayConsumerBodyGenerator(
                     cmddef += ("#ifdef GFXRECON_AGS_SUPPORT\n".format(method)
                     )
                     cmddef += (
-                        "        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_{0}, GetCurrentBlockIndex());\n".format(method)
+                        "        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_{0}, GetCurrentBlockIndex());\n".format(method)
                     )
                     cmddef += ("#endif\n\n".format(method)
                     )

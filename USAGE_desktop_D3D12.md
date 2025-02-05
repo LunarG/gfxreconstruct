@@ -290,6 +290,9 @@ Optional arguments:
   --dx12-override-object-names
                         Generates unique names for all ID3D12Objects and assigns each object the generated
                         name.  This is intended to assist replay debugging.
+  --dx12-ags-inject-markers
+                        Label each API calls as block index of the trace
+                        Radeon GPU Detective could dump the label for debugging.
   --batching-memory-usage <pct>
                         Limits the max amount of additional memory that can be used to batch resource data
                         uploads during trim state load. Batching resource data uploads may reduce the number

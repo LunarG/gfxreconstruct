@@ -32,7 +32,7 @@
 #include "generated/generated_dx12_struct_object_mappers.h"
 
 #ifdef GFXRECON_AGS_SUPPORT
-#include "decode/gpu_cmd_wrapper.h"
+#include "decode/ags_gpu_cmd_wrapper.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -6062,7 +6062,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
@@ -6100,7 +6100,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset>::Dispatch(
@@ -6136,7 +6136,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearState(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
@@ -6175,7 +6175,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>::Dispatch(
@@ -6226,7 +6226,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>::Dispatch(
@@ -6279,7 +6279,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>::Dispatch(
@@ -6326,7 +6326,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion>::Dispatch(
@@ -6372,7 +6372,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion>::Dispatch(
@@ -6417,7 +6417,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource>::Dispatch(
@@ -6454,7 +6454,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles>::Dispatch(
@@ -6515,7 +6515,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource>::Dispatch(
@@ -6568,7 +6568,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopolog
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology>::Dispatch(
@@ -6604,7 +6604,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports>::Dispatch(
@@ -6644,7 +6644,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects>::Dispatch(
@@ -6683,7 +6683,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor>::Dispatch(
@@ -6718,7 +6718,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef>::Dispatch(
@@ -6753,7 +6753,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
@@ -6790,7 +6790,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
@@ -6830,7 +6830,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
@@ -6859,7 +6859,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
@@ -6899,7 +6899,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatu
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
@@ -6935,7 +6935,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignat
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
@@ -6972,7 +6972,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescrip
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
@@ -7013,7 +7013,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescri
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
@@ -7055,7 +7055,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant>::Dispatch(
@@ -7100,7 +7100,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant>::Dispatch(
@@ -7146,7 +7146,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants>::Dispatch(
@@ -7196,7 +7196,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants>::Dispatch(
@@ -7244,7 +7244,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstan
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
@@ -7285,7 +7285,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConsta
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
@@ -7326,7 +7326,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderR
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
@@ -7367,7 +7367,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShader
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
@@ -7408,7 +7408,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorder
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
@@ -7449,7 +7449,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorde
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
@@ -7489,7 +7489,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer>::Dispatch(
@@ -7519,7 +7519,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers>::Dispatch(
@@ -7555,7 +7555,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
@@ -7602,7 +7602,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>::Dispatch(
@@ -7656,7 +7656,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView>::Dispatch(
@@ -7715,7 +7715,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView>::Dispatch(
@@ -7768,7 +7768,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
@@ -7831,7 +7831,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
@@ -7890,7 +7890,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
@@ -7932,7 +7932,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery>::Dispatch(
@@ -7978,7 +7978,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery>::Dispatch(
@@ -8027,7 +8027,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
@@ -8086,7 +8086,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication>::Dispatch(
@@ -8132,7 +8132,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker>::Dispatch(
@@ -8177,7 +8177,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent>::Dispatch(
@@ -8219,7 +8219,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent>::Dispatch(
@@ -8257,7 +8257,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>::Dispatch(
@@ -8308,7 +8308,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
@@ -8378,7 +8378,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
@@ -8443,7 +8443,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds>::Dispatch(
@@ -8486,7 +8486,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions>::Dispatch(
@@ -8539,7 +8539,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRe
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion>::Dispatch(
@@ -8610,7 +8610,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask>::Dispatch(
@@ -8649,7 +8649,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
@@ -12834,7 +12834,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResource
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
@@ -12904,7 +12904,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass>::Dispatch(
@@ -12941,7 +12941,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass>::Dispatch(
@@ -12978,7 +12978,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaComman
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
@@ -13026,7 +13026,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
@@ -13074,7 +13074,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccel
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>::Dispatch(
@@ -13111,7 +13111,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccele
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
@@ -13163,7 +13163,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccele
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
@@ -13210,7 +13210,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1>::Dispatch(
@@ -13238,7 +13238,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays>::Dispatch(
@@ -14376,7 +14376,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate>::Dispatch(
@@ -14417,7 +14417,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImag
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
@@ -14457,7 +14457,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh>::Dispatch(
@@ -14503,7 +14503,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList7_Barrier(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>::Dispatch(
@@ -14546,7 +14546,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackSte
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef>::Dispatch(
@@ -14589,7 +14589,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias>::Dispatch(
@@ -14634,7 +14634,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStri
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
 #ifdef GFXRECON_AGS_SUPPORT
-        GpuCmdWrapper gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue, GetCurrentBlockIndex());
+        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue, GetCurrentBlockIndex());
 #endif
 
         CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue>::Dispatch(
