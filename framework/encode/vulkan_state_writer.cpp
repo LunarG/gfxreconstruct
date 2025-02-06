@@ -2282,6 +2282,8 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                                                          image_wrapper->samples,
                                                                          image_wrapper->current_layout,
                                                                          image_wrapper->queue_family_index,
+                                                                         image_wrapper->external_format,
+                                                                         image_wrapper->size,
                                                                          snapshot_entry.aspect,
                                                                          data,
                                                                          subresource_offsets,
@@ -2391,6 +2393,8 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                                                                              image_wrapper->samples,
                                                                              image_wrapper->current_layout,
                                                                              image_wrapper->queue_family_index,
+                                                                             image_wrapper->external_format,
+                                                                             image_wrapper->size,
                                                                              snapshot_entry.aspect,
                                                                              data,
                                                                              subresource_offsets,
@@ -2728,17 +2732,26 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     snapshot_info.need_staging_copy = need_staging_copy;
                     snapshot_info.aspect            = aspect;
 
-                    snapshot_info.resource_size = resource_util.GetImageResourceSizesOptimal(wrapper->handle,
-                                                                                             wrapper->format,
-                                                                                             wrapper->image_type,
-                                                                                             wrapper->extent,
-                                                                                             wrapper->mip_levels,
-                                                                                             wrapper->array_layers,
-                                                                                             wrapper->tiling,
-                                                                                             aspect,
-                                                                                             nullptr,
-                                                                                             &snapshot_info.level_sizes,
-                                                                                             true);
+                    if (wrapper->external_format)
+                    {
+                        snapshot_info.resource_size = wrapper->size;
+                        snapshot_info.level_sizes.push_back(wrapper->size);
+                    }
+                    else
+                    {
+                        snapshot_info.resource_size =
+                            resource_util.GetImageResourceSizesOptimal(wrapper->handle,
+                                                                       wrapper->format,
+                                                                       wrapper->image_type,
+                                                                       wrapper->extent,
+                                                                       wrapper->mip_levels,
+                                                                       wrapper->array_layers,
+                                                                       wrapper->tiling,
+                                                                       aspect,
+                                                                       nullptr,
+                                                                       &snapshot_info.level_sizes,
+                                                                       true);
+                    }
 
                     if ((*max_resource_size) < snapshot_info.resource_size)
                     {

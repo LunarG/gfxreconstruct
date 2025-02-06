@@ -647,11 +647,20 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
 
-    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
-    VkMemoryRequirements     image_mem_reqs;
-    assert(wrapper->handle != VK_NULL_HANDLE);
-    device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
-    wrapper->size = image_mem_reqs.size;
+    auto* external_format_android = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
+    if (external_format_android != nullptr && external_format_android->externalFormat != 0)
+    {
+        wrapper->external_format = true;
+        wrapper->size            = 0;
+    }
+    else
+    {
+        const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
+        VkMemoryRequirements     image_mem_reqs;
+        assert(wrapper->handle != VK_NULL_HANDLE);
+        device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
+        wrapper->size = image_mem_reqs.size;
+    }
 }
 
 template <>

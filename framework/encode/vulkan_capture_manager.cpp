@@ -1922,6 +1922,8 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                                      image_wrapper->samples,
                                                                      image_wrapper->current_layout,
                                                                      image_wrapper->queue_family_index,
+                                                                     image_wrapper->external_format,
+                                                                     image_wrapper->size,
                                                                      aspect,
                                                                      data,
                                                                      subresource_offsets,

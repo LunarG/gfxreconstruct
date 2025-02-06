@@ -4765,6 +4765,15 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
             image_info->handle, image_info->allocator_data, memory_info->allocator_data);
     }
 
+    // Memory requirements for image with external format can only be queried after the memory is bound
+    if (image_info->external_format)
+    {
+        VkMemoryRequirements image_mem_reqs;
+        GetDeviceTable(device_info->handle)
+            ->GetImageMemoryRequirements(device_info->handle, image_info->handle, &image_mem_reqs);
+        image_info->size = image_mem_reqs.size;
+    }
+
     return result;
 }
 
@@ -5132,6 +5141,20 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         else
         {
             image_info->queue_family_index = 0;
+        }
+
+        // Memory requirements for image with external format can only be queried after the memory is bound
+        auto* external_format_android = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(replay_create_info);
+        if (external_format_android != nullptr && external_format_android->externalFormat != 0)
+        {
+            image_info->external_format = true;
+        }
+        else
+        {
+            VkMemoryRequirements image_mem_reqs;
+            GetDeviceTable(device_info->handle)
+                ->GetImageMemoryRequirements(device_info->handle, *replay_image, &image_mem_reqs);
+            image_info->size = image_mem_reqs.size;
         }
     }
 
