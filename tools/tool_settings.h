@@ -1181,8 +1181,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 #ifdef GFXRECON_AGS_SUPPORT
         replay_options.ags_inject_markers = true;
 #else
-        GFXRECON_LOG_ERROR(
-            "Unsupported option --dx12-ags-inject-markers")
+        GFXRECON_LOG_ERROR("Unsupported option --dx12-ags-inject-markers");
 #endif
     }
 
