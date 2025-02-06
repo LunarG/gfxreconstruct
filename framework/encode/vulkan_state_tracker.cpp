@@ -600,6 +600,15 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     {
         wrapper->bind_pnext = vulkan_trackers::TrackStruct(bind_info_pnext, wrapper->bind_pnext_memory);
     }
+
+    // AHB image memory requirements can only be queried after the memory is bound
+    if (wrapper->external_format)
+    {
+        const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+        VkMemoryRequirements     image_mem_reqs;
+        device_table->GetImageMemoryRequirements(device, image, &image_mem_reqs);
+        wrapper->size = image_mem_reqs.size;
+    }
 }
 
 void VulkanStateTracker::TrackMappedMemory(VkDevice         device,

@@ -110,6 +110,8 @@ class VulkanResourcesUtil
                                           VkSampleCountFlags     samples,
                                           VkImageLayout          layout,
                                           uint32_t               queue_family_index,
+                                          bool                   external_format,
+                                          VkDeviceSize           size,
                                           VkImageAspectFlagBits  aspect,
                                           std::vector<uint8_t>&  data,
                                           std::vector<uint64_t>& subresource_offsets,
