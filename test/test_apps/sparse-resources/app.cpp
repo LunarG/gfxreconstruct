@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(sparse_resources)
 
-const size_t MAX_FRAMES_IN_FLIGHT = 2;
+const size_t MAX_FRAMES_IN_FLIGHT = 1;
 const size_t STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
 const VkFormat IMAGE_FORMAT     = VK_FORMAT_R8G8B8A8_SRGB;
 
@@ -58,7 +58,7 @@ class App : public gfxrecon::test::TestAppBase
     VkImageView    image0_view_;
     const uint32_t image_size_       = 16;
     const uint32_t mip_levels_ = 1;
-    VkSparseImageMemoryRequirements image_mem_reqs;
+    //VkSparseImageMemoryRequirements image_mem_reqs;
     VkDeviceMemory image_backing_memory_;
     VkDeviceMemory staging_backing_memory_;
     uint32_t       device_memory_type_;
@@ -70,10 +70,12 @@ class App : public gfxrecon::test::TestAppBase
     VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
 
     size_t current_frame_ = 0;
+    size_t last_frame_ = MAX_FRAMES_IN_FLIGHT - 1;
 
     gfxrecon::test::Sync sync_;
     std::vector<VkSemaphore> sparse_binding_semaphores_;
     VkFence dirty_fence_;
+    VkFence sparse_binding_fence_;
 
     void create_render_pass();
     void create_graphics_pipeline();
@@ -103,6 +105,8 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
     phys_device_selector.set_required_features(feats);
 
     phys_device_selector.add_required_extension("VK_KHR_maintenance2");
+
+    phys_device_selector.prefer_gpu_device_type(test::PreferredDeviceType::discrete);
 }
 
 void App::create_render_pass()
@@ -292,10 +296,8 @@ void App::create_descriptor_set() {
     pool_info.maxSets = 1;
     pool_info.poolSizeCount = 2;
     pool_info.pPoolSizes = pool_sizes;
-    VERIFY_VK_RESULT(
-        "Failed to create descriptor pool",
-        init.disp.createDescriptorPool(&pool_info, nullptr, &descriptor_pool_)
-    );
+    VkResult result = init.disp.createDescriptorPool(&pool_info, nullptr, &descriptor_pool_);
+    VERIFY_VK_RESULT("Failed to create descriptor pool", result);
 
     // Create immutable sampler
     VkSamplerCreateInfo sampler_info = {};
@@ -319,7 +321,8 @@ void App::create_descriptor_set() {
     sampler_info.unnormalizedCoordinates = VK_FALSE;
 
     VkSampler sampler;
-    VERIFY_VK_RESULT("Failed to create sampler.", init.disp.createSampler(&sampler_info, nullptr, &sampler));
+    result = init.disp.createSampler(&sampler_info, nullptr, &sampler);
+    VERIFY_VK_RESULT("Failed to create sampler.", result);
 
     VkDescriptorSetLayoutBinding bindings[2] = {};
     bindings[0].binding = 0;
@@ -339,10 +342,8 @@ void App::create_descriptor_set() {
     layout_info.flags = 0;
     layout_info.bindingCount = 2;
     layout_info.pBindings = bindings;
-    VERIFY_VK_RESULT(
-        "Failed to create descriptor set layout",
-        init.disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_layout_)
-    );
+    result = init.disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_layout_);
+    VERIFY_VK_RESULT("Failed to create descriptor set layout", result);
 
     VkDescriptorSetAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -351,7 +352,8 @@ void App::create_descriptor_set() {
     alloc_info.descriptorSetCount = 1;
     alloc_info.pSetLayouts = &descriptor_layout_;
 
-    VERIFY_VK_RESULT("Failed to allocate descriptor sets", init.disp.allocateDescriptorSets(&alloc_info, &descriptor_set_));
+    result = init.disp.allocateDescriptorSets(&alloc_info, &descriptor_set_);
+    VERIFY_VK_RESULT("Failed to allocate descriptor sets", result);
 }
 
 void App::determine_memory_heaps()
@@ -396,8 +398,8 @@ void App::create_staging_buffer()
     buffer_info.queueFamilyIndexCount = 1;
     uint32_t idx                      = init.device.get_queue_index(test::QueueType::graphics).value();
     buffer_info.pQueueFamilyIndices   = &idx;
-    VERIFY_VK_RESULT("failed to create staging buffer",
-                     init.disp.createBuffer(&buffer_info, nullptr, &staging_buffer_));
+    VkResult result = init.disp.createBuffer(&buffer_info, nullptr, &staging_buffer_);
+    VERIFY_VK_RESULT("failed to create staging buffer", result);
 
     // Allocate and bind buffer memory
     VkMemoryRequirements mem_reqs = {};
@@ -407,10 +409,10 @@ void App::create_staging_buffer()
     alloc_info.pNext                = nullptr;
     alloc_info.allocationSize       = mem_reqs.size;
     alloc_info.memoryTypeIndex      = staging_memory_type_;
-    VERIFY_VK_RESULT("failed to allocate staging buffer memory",
-                     init.disp.allocateMemory(&alloc_info, nullptr, &staging_backing_memory_));
-    VERIFY_VK_RESULT("failed to bind staging buffer memory",
-                     init.disp.bindBufferMemory(staging_buffer_, staging_backing_memory_, 0));
+    result = init.disp.allocateMemory(&alloc_info, nullptr, &staging_backing_memory_);
+    VERIFY_VK_RESULT("failed to allocate staging buffer memory", result);
+    result = init.disp.bindBufferMemory(staging_buffer_, staging_backing_memory_, 0);
+    VERIFY_VK_RESULT("failed to bind staging buffer memory", result);
 
     // Map buffer
     init.disp.mapMemory(staging_backing_memory_, 0, STAGING_BUFFER_SIZE, 0, (void**)&staging_buffer_ptr_);
@@ -453,7 +455,7 @@ void App::create_images()
     VkImageCreateInfo image_info     = {};
     image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_info.pNext                 = nullptr;
-    image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+    image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT;
     image_info.imageType             = VK_IMAGE_TYPE_2D;
     image_info.format                = IMAGE_FORMAT;
     image_info.extent.width          = image_size_;
@@ -469,19 +471,20 @@ void App::create_images()
     uint32_t idx                     = init.device.get_queue_index(test::QueueType::graphics).value();
     image_info.pQueueFamilyIndices   = &idx;
     image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-    VERIFY_VK_RESULT("failed to create image", init.disp.createImage(&image_info, nullptr, &image0_));
+    VkResult result = init.disp.createImage(&image_info, nullptr, &image0_);
+    VERIFY_VK_RESULT("failed to create image", result);
 
     // Get memory requirements
     VkMemoryRequirements image0_reqs = {};
     init.disp.getImageMemoryRequirements(image0_, &image0_reqs);
     
-    uint32_t sparse_reqs_count = 0;
-    init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, nullptr);
-    std::vector<VkSparseImageMemoryRequirements> sparse_reqs;
-    sparse_reqs.resize(sparse_reqs_count);
-    init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, sparse_reqs.data());
-    assert(sparse_reqs.size() == 1);
-    image_mem_reqs = sparse_reqs[0];
+    // uint32_t sparse_reqs_count = 0;
+    // init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, nullptr);
+    // std::vector<VkSparseImageMemoryRequirements> sparse_reqs;
+    // sparse_reqs.resize(sparse_reqs_count);
+    // init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, sparse_reqs.data());
+    // assert(sparse_reqs.size() == 1);
+    // image_mem_reqs = sparse_reqs[0];
 
     // Allocate image backing memory
     VkMemoryAllocateInfo alloc_info = {};
@@ -523,7 +526,7 @@ void App::create_images()
     VkCommandBuffer cmd = command_buffers_[0];
     VkCommandBufferBeginInfo begin_info = {};
     begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    VkResult result                     = init.disp.beginCommandBuffer(cmd, &begin_info);
+    result                     = init.disp.beginCommandBuffer(cmd, &begin_info);
     VERIFY_VK_RESULT("failed to begin command buffer", result);
 
 
@@ -609,6 +612,8 @@ void App::create_images()
     // Wait for submission
     result = init.disp.waitForFences(1, &dirty_fence_, VK_TRUE, ~0);
     VERIFY_VK_RESULT("failed to wait for upload fence", result);
+    result = init.disp.resetFences(1, &dirty_fence_);
+    VERIFY_VK_RESULT("failed to reset upload fence", result);
 
     // Update descriptor set
     VkDescriptorImageInfo desc_image = {};
@@ -652,13 +657,18 @@ void App::setup()
         init.disp.createSemaphore(&info, nullptr, &sparse_binding_semaphores_[i]);
     }
 
-    // Create fence
+    // Create fences
     {
         VkFenceCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         info.pNext = nullptr;
         info.flags = 0;
         init.disp.createFence(&info, nullptr, &dirty_fence_);
+        VkFenceCreateInfo info2 = {};
+        info2.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        info2.pNext = nullptr;
+        info2.flags = 0;
+        init.disp.createFence(&info2, nullptr, &sparse_binding_fence_);
     }
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
@@ -706,11 +716,11 @@ bool App::frame(const int frame_num)
         throw gfxrecon::test::vulkan_exception("failed to acquire next image", result);
     }
 
-    if (sync_.image_in_flight[image_index] != VK_NULL_HANDLE)
+    if (sync_.image_in_flight[current_frame_] != VK_NULL_HANDLE)
     {
-        init.disp.waitForFences(1, &sync_.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+        init.disp.waitForFences(1, &sync_.image_in_flight[current_frame_], VK_TRUE, UINT64_MAX);
     }
-    sync_.image_in_flight[image_index] = sync_.in_flight_fences[current_frame_];
+    sync_.image_in_flight[current_frame_] = sync_.in_flight_fences[current_frame_];
 
     init.disp.resetCommandPool(command_pools_[current_frame_], 0);
     VkCommandBuffer command_buffer = command_buffers_[current_frame_];
@@ -813,22 +823,30 @@ bool App::frame(const int frame_num)
     }
 
     // Bind sparse memory
-    {
-        VkSparseImageMemoryBind bind = {};
-        bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        bind.subresource.mipLevel = 0;
-        bind.subresource.arrayLayer = 0;
-        bind.offset.x = 0;
-        bind.offset.y = 0;
-        bind.offset.z = 0;
-        bind.extent.width = image_size_;
-        bind.extent.height = image_size_;
-        bind.extent.depth = 1;
+    static bool first_frame = true;
+    if (first_frame) {
+        // VkSparseImageMemoryBind bind = {};
+        // bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        // bind.subresource.mipLevel = 0;
+        // bind.subresource.arrayLayer = 0;
+        // bind.offset.x = 0;
+        // bind.offset.y = 0;
+        // bind.offset.z = 0;
+        // bind.extent.width = image_size_;
+        // bind.extent.height = image_size_;
+        // bind.extent.depth = 1;
+        // bind.memory = image_backing_memory_;
+        // bind.memoryOffset = 0;
+        // bind.flags = 0;
+
+        VkSparseMemoryBind bind = {};
+        bind.resourceOffset = 0;
+        bind.size = 4 * image_size_ * image_size_;
         bind.memory = image_backing_memory_;
         bind.memoryOffset = 0;
         bind.flags = 0;
 
-        VkSparseImageMemoryBindInfo im_bind_info = {};
+        VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
         im_bind_info.image = image0_;
         im_bind_info.bindCount = 1;
         im_bind_info.pBinds = &bind;
@@ -836,31 +854,33 @@ bool App::frame(const int frame_num)
         VkBindSparseInfo sparse_info = {};
         sparse_info.sType = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
         sparse_info.pNext = nullptr;
-        sparse_info.waitSemaphoreCount = 0;
-        sparse_info.pWaitSemaphores = nullptr;
+
         sparse_info.bufferBindCount = 0;
         sparse_info.pBufferBinds = nullptr;
-        sparse_info.imageOpaqueBindCount = 0;
-        sparse_info.pImageOpaqueBinds = nullptr;
-        sparse_info.imageBindCount = 1;
-        sparse_info.pImageBinds = &im_bind_info;
-        sparse_info.signalSemaphoreCount = 1;
-        sparse_info.pSignalSemaphores = &sparse_binding_semaphores_[current_frame_];
-        VERIFY_VK_RESULT("Failed to bind sparse memory", init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, nullptr));
+        sparse_info.imageOpaqueBindCount = 1;
+        sparse_info.pImageOpaqueBinds = &im_bind_info;
+        sparse_info.imageBindCount = 0;
+        sparse_info.pImageBinds = nullptr;
+        result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, sparse_binding_fence_);
+        VERIFY_VK_RESULT("Failed to bind sparse memory", result);
+
+        result = init.disp.waitForFences(1, &sparse_binding_fence_, VK_TRUE, ~0);
+        VERIFY_VK_RESULT("Failed to wait for sparse binding fence.", result);
+        result = init.disp.resetFences(1, &sparse_binding_fence_);
+        VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
     }
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     VkSemaphore wait_semaphores[] = {
-        sync_.available_semaphores[current_frame_],
-        sparse_binding_semaphores_[current_frame_] 
+        sync_.available_semaphores[current_frame_]
     };
     VkPipelineStageFlags wait_stages[]     = {
         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
     };
-    submitInfo.waitSemaphoreCount          = 2;
+    submitInfo.waitSemaphoreCount          = 1;
     submitInfo.pWaitSemaphores             = wait_semaphores;
     submitInfo.pWaitDstStageMask           = wait_stages;
 
@@ -897,9 +917,11 @@ bool App::frame(const int frame_num)
     }
     VERIFY_VK_RESULT("failed to present queue", result);
 
+    last_frame_ = current_frame_;
     current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     // return IS_RUNNING(frame_num);
+    first_frame = false;
     return true;
 }
 
