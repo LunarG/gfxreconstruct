@@ -1348,7 +1348,6 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                         VkImageViewCreateInfo view_info         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
                         view_info.pNext                         = nullptr;
                         view_info.flags                         = 0;
-                        view_info.image                         = staging_image;
                         view_info.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
                         view_info.format                        = format;
                         view_info.components.r                  = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -1366,6 +1365,7 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                             VkImageView   destination_view = VK_NULL_HANDLE;
                             VkImageView   staging_view     = VK_NULL_HANDLE;
 
+                            view_info.image                           = staging_image;
                             view_info.subresourceRange.baseArrayLayer = layer;
 
                             result = device_table_->CreateImageView(device_, &view_info, nullptr, &staging_view);
