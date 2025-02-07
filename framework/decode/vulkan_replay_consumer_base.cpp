@@ -9351,7 +9351,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
     VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;
     VkImage     image     = image_info ? image_info->handle : VK_NULL_HANDLE;
 
-    if (screenshot_handler_ != nullptr)
+    if (screenshot_handler_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
         decode::BeginInjectedCommands();
 

@@ -130,6 +130,9 @@ const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range
 const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
+
+const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
+
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
@@ -1077,6 +1080,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+    if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
+    {
+        replay_options.screenshot_ignore_frameBoundaryAndroid = true;
+    }
 
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {

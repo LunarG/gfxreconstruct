@@ -1270,7 +1270,10 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             VkSemaphore                                            semaphore,
                                             VkImage                                                image)
     {
-        EndFrame(current_lock);
+        if (!common_manager_->GetIgnoreFrameBoundaryAndroid())
+        {
+            EndFrame(current_lock);
+        }
     }
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
@@ -1544,15 +1547,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override
-    {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
-    }
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
 
-    virtual void DestroyStateTracker() override
-    {
-        state_tracker_ = nullptr;
-    }
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
 

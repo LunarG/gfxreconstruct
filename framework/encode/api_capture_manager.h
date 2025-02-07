@@ -188,7 +188,7 @@ class ApiCaptureManager
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }
     CommonCaptureManager::CaptureMode GetCaptureMode() const { return common_manager_->GetCaptureMode(); }
     void SetCaptureMode(CommonCaptureManager::CaptureMode mode) { common_manager_->SetCaptureMode(mode); }
-    bool                              GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
+    bool GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
     bool GetDisableDxrSetting() const { return common_manager_->GetDisableDxrSetting(); }
     auto GetAccelStructPaddingSetting() const { return common_manager_->GetAccelStructPaddingSetting(); }
@@ -234,6 +234,7 @@ class ApiCaptureManager
     auto                   GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
     bool                   GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
     CommandWriter*         GetCommandWriter() { return common_manager_->GetCommandWriter(); }
+    bool GetIgnoreFrameBoundaryAndroid() const { return common_manager_->GetIgnoreFrameBoundaryAndroid(); }
 
   protected:
     const format::ApiFamilyId api_family_;
