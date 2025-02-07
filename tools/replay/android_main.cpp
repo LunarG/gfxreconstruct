@@ -231,7 +231,7 @@ void android_main(struct android_app* app)
                 }
             }
         }
-        catch (std::runtime_error error)
+        catch (std::runtime_error& error)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
         }
