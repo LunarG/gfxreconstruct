@@ -36,6 +36,11 @@ CommonObjectInfoTable* CommonObjectInfoTable::GetSingleton()
         singleton_          = new CommonObjectInfoTable();
         singleton_refcount_ = 1;
     }
+    else
+    {
+        assert(singleton_refcount_ > 0);
+        singleton_refcount_++;
+    }
     return singleton_;
 }
 
