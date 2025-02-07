@@ -143,6 +143,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
 #define FORCE_FIFO_PRESENT_MODE_LOWER                        "force_fifo_present_mode"
 #define FORCE_FIFO_PRESENT_MODE_UPPER                        "FORCE_FIFO_PRESENT_MODE"
+#define IGNORE_FRAME_BOUNDARY_ANDROID_LOWER                  "ignore_frame_boundary_android"
+#define IGNORE_FRAME_BOUNDARY_ANDROID_UPPER                  "IGNORE_FRAME_BOUNDARY_ANDROID"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -200,6 +202,7 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_LOWER;
+const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_ENV_VAR_PREFIX IGNORE_FRAME_BOUNDARY_ANDROID_LOWER;
 
 #else
 // Desktop environment settings
@@ -255,6 +258,7 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_UPPER;
+const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_ENV_VAR_PREFIX IGNORE_FRAME_BOUNDARY_ANDROID_UPPER;
 
 #endif
 
@@ -309,6 +313,7 @@ const std::string kOptionKeyAnnotationRand                           = std::stri
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
 const std::string kOptionForceFifoPresentModeEnvVar                  = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
+const std::string kOptionIgnoreFrameBoundaryAndroid                  = std::string(kSettingsFilter) + std::string(IGNORE_FRAME_BOUNDARY_ANDROID_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -478,6 +483,8 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
     LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
     LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentModeEnvVar);
+
+    LoadSingleOptionEnvVar(options, kIgnoreFrameBoundaryAndroidEnvVar, kOptionIgnoreFrameBoundaryAndroid);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -691,6 +698,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
                                      settings->trace_settings_.rv_anotation_info.descriptor_mask);
     settings->trace_settings_.force_fifo_present_mode = ParseBoolString(
         FindOption(options, kOptionForceFifoPresentModeEnvVar), settings->trace_settings_.force_fifo_present_mode);
+
+    settings->trace_settings_.ignore_frame_boundary_android =
+        ParseBoolString(FindOption(options, kOptionIgnoreFrameBoundaryAndroid),
+                        settings->trace_settings_.ignore_frame_boundary_android);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)

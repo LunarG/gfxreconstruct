@@ -236,6 +236,7 @@ class CommonCaptureManager
     auto                                GetTrimDrawCalls() const { return trim_draw_calls_; }
     auto                                GetQueueSubmitCount() const { return queue_submit_count_; }
     bool                                GetUseAssetFile() const { return use_asset_file_; }
+    bool                                GetIgnoreFrameBoundaryAndroid() const { return ignore_frame_boundary_android_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
@@ -385,6 +386,7 @@ class CommonCaptureManager
     bool                                    write_assets_;
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
+    bool                                    ignore_frame_boundary_android_;
 
     struct
     {
