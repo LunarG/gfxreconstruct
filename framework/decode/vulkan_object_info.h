@@ -656,7 +656,7 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<VkSubpassDependency> dependencies;
 
     // Multiview info
-    bool has_multiview;
+    bool has_multiview{ false };
 
     struct
     {
