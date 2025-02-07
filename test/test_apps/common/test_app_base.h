@@ -1047,11 +1047,11 @@ VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vec
 
 VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename);
 
-#define VERIFY_VK_RESULT(message, result)                            \
-    {                                                                \
-        if (result != VK_SUCCESS) {                                  \
-            throw gfxrecon::test::vulkan_exception(message, result); \
-        }                                                            \
+#define VERIFY_VK_RESULT(message, result)                                             \
+    {                                                                                 \
+        VkResult verify_vk_result_result = result;                                    \
+        if (verify_vk_result_result != VK_SUCCESS)                                    \
+            throw gfxrecon::test::vulkan_exception(message, verify_vk_result_result); \
     }
 
 struct InitInfo
