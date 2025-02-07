@@ -1049,9 +1049,9 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 
 #define VERIFY_VK_RESULT(message, result)                                             \
     {                                                                                 \
-        VkResult verify_vk_result_result = result;                                    \
+        VkResult verify_vk_result_result = (result);                                    \
         if (verify_vk_result_result != VK_SUCCESS)                                    \
-            throw gfxrecon::test::vulkan_exception(message, verify_vk_result_result); \
+            throw gfxrecon::test::vulkan_exception((message), verify_vk_result_result); \
     }
 
 struct InitInfo
