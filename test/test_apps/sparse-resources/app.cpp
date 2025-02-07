@@ -64,6 +64,7 @@ class App : public gfxrecon::test::TestAppBase
     uint32_t       device_memory_type_;
     uint32_t       staging_memory_type_;
 
+    uint32_t sparse_binding_granularity_;
     VkExtent3D sparse_block_granularity_;
 
     VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
@@ -74,8 +75,7 @@ class App : public gfxrecon::test::TestAppBase
 
     gfxrecon::test::Sync sync_;
     std::vector<VkSemaphore> sparse_binding_semaphores_;
-    VkFence dirty_fence_;
-    VkFence sparse_binding_fence_;
+    VkFence immediate_fence_;
 
     void create_render_pass();
     void create_graphics_pipeline();
@@ -477,6 +477,7 @@ void App::create_images()
     // Get memory requirements
     VkMemoryRequirements image0_reqs = {};
     init.disp.getImageMemoryRequirements(image0_, &image0_reqs);
+    sparse_binding_granularity_ = image0_reqs.alignment;
     
     // uint32_t sparse_reqs_count = 0;
     // init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, nullptr);
@@ -492,7 +493,8 @@ void App::create_images()
     alloc_info.pNext                = nullptr;
     alloc_info.allocationSize       = image0_reqs.size;
     alloc_info.memoryTypeIndex      = device_memory_type_;
-    init.disp.allocateMemory(&alloc_info, nullptr, &image_backing_memory_);
+    result = init.disp.allocateMemory(&alloc_info, nullptr, &image_backing_memory_);
+    VERIFY_VK_RESULT("Failed to allocate image memory", result);
 
     // Create image view object
     VkImageViewCreateInfo view_info           = {};
@@ -508,7 +510,8 @@ void App::create_images()
     view_info.subresourceRange.levelCount     = mip_levels_;
     view_info.subresourceRange.baseArrayLayer = 0;
     view_info.subresourceRange.layerCount     = 1;
-    init.disp.createImageView(&view_info, nullptr, &image0_view_);
+    result = init.disp.createImageView(&view_info, nullptr, &image0_view_);
+    VERIFY_VK_RESULT("Failed to create image view", result);
 
     // Write image data to staging buffer
     for (int y = 0; y < image_size_; ++y) {
@@ -607,12 +610,12 @@ void App::create_images()
     submit_info.signalSemaphoreCount = 0;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &cmd;
-    init.disp.queueSubmit(graphics_queue_, 1, &submit_info, dirty_fence_);
+    init.disp.queueSubmit(graphics_queue_, 1, &submit_info, immediate_fence_);
 
     // Wait for submission
-    result = init.disp.waitForFences(1, &dirty_fence_, VK_TRUE, ~0);
+    result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
     VERIFY_VK_RESULT("failed to wait for upload fence", result);
-    result = init.disp.resetFences(1, &dirty_fence_);
+    result = init.disp.resetFences(1, &immediate_fence_);
     VERIFY_VK_RESULT("failed to reset upload fence", result);
 
     // Update descriptor set
@@ -663,12 +666,12 @@ void App::setup()
         info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         info.pNext = nullptr;
         info.flags = 0;
-        init.disp.createFence(&info, nullptr, &dirty_fence_);
+        init.disp.createFence(&info, nullptr, &immediate_fence_);
         VkFenceCreateInfo info2 = {};
         info2.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         info2.pNext = nullptr;
         info2.flags = 0;
-        init.disp.createFence(&info2, nullptr, &sparse_binding_fence_);
+        init.disp.createFence(&info2, nullptr, &immediate_fence_);
     }
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
@@ -841,10 +844,12 @@ bool App::frame(const int frame_num)
 
         VkSparseMemoryBind bind = {};
         bind.resourceOffset = 0;
-        bind.size = 4 * image_size_ * image_size_;
+        //bind.size = 4 * image_size_ * image_size_;
+        bind.size = sparse_binding_granularity_;
         bind.memory = image_backing_memory_;
         bind.memoryOffset = 0;
         bind.flags = 0;
+        //bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
         VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
         im_bind_info.image = image0_;
@@ -861,14 +866,15 @@ bool App::frame(const int frame_num)
         sparse_info.pImageOpaqueBinds = &im_bind_info;
         sparse_info.imageBindCount = 0;
         sparse_info.pImageBinds = nullptr;
-        result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, sparse_binding_fence_);
+        result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, immediate_fence_);
         VERIFY_VK_RESULT("Failed to bind sparse memory", result);
 
-        result = init.disp.waitForFences(1, &sparse_binding_fence_, VK_TRUE, ~0);
+        result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
         VERIFY_VK_RESULT("Failed to wait for sparse binding fence.", result);
-        result = init.disp.resetFences(1, &sparse_binding_fence_);
+        result = init.disp.resetFences(1, &immediate_fence_);
         VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
     }
+    first_frame = false;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -921,7 +927,6 @@ bool App::frame(const int frame_num)
     current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     // return IS_RUNNING(frame_num);
-    first_frame = false;
     return true;
 }
 
