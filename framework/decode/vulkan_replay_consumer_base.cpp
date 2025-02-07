@@ -5393,6 +5393,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     }
 
     // Copy multiview information
+    render_pass_info->has_multiview  = false;
     const VkBaseInStructure* current = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
     while (current != nullptr)
     {
