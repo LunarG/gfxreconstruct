@@ -540,9 +540,12 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                                            image_file_format,
                                                                            dump_image_raw);
 
-        const util::imagewriter::DataFormats image_writer_format = VkFormatToImageWriterDataFormat(dst_format);
-        assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
-
+        util::imagewriter::DataFormats image_writer_format = util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
+        if (output_image_format != KFormatRaw)
+        {
+            image_writer_format = VkFormatToImageWriterDataFormat(dst_format);
+            assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
+        }
         for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -629,10 +632,12 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                 }
                 else
                 {
-                    GFXRECON_LOG_WARNING(
-                        "%s format is not handled. Images with that format will be dump as a plain binary file.",
-                        util::ToString<VkFormat>(image_info->format).c_str());
-
+                    if (!dump_image_raw)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "%s format is not handled. Images with that format will be dump as a plain binary file.",
+                            util::ToString<VkFormat>(image_info->format).c_str());
+                    }
                     util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
                 }
 
