@@ -2076,7 +2076,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideEnqueueMakeResident(DxObjectInfo*       
 
     if (SUCCEEDED(replay_result))
     {
-        ProcessFenceSignal(fence_info, fence_value);
+        ProcessFenceSignal(fence_info, fence_value, false);
     }
 
     return replay_result;
@@ -2475,16 +2475,37 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
         auto fence_info = GetExtraInfo<D3D12FenceInfo>(replay_object_info);
         if (fence_info != nullptr)
         {
-            if (value <= fence_info->last_signaled_value)
+            // If the fence's value from a `ID3D12CommandQueue::Signal` call is greater than the fence's
+            // `last_signaled_value`, check what the actual value of the fence is and skip the wait if it is not needed.
+            bool wait_on_event = true;
+            if (fence_info->last_signaled_value_gpu > fence_info->last_signaled_value &&
+                fence_info->last_signaled_value_gpu >= value)
             {
-                // The value has already been signaled, so wait operations can be processed immediately.
-                WaitForFenceEvent(replay_object_info->capture_id, event_object);
+                if (replay_object->GetCompletedValue() >= value)
+                {
+                    wait_on_event = false;
+                }
+            }
+
+            if (wait_on_event)
+            {
+                if (value <= fence_info->last_signaled_value)
+                {
+                    // The value has already been signaled, so wait operations can be processed immediately.
+                    WaitForFenceEvent(replay_object_info->capture_id, event_object);
+                }
+                else
+                {
+                    // The value has not been signaled, so process the wait operation when the value is signaled.
+                    auto& waiting_objects = fence_info->waiting_objects[value];
+                    waiting_objects.wait_events.push_back(event_object);
+                }
             }
             else
             {
-                // The value has not been signaled, so process the wait operation when the value is signaled.
-                auto& waiting_objects = fence_info->waiting_objects[value];
-                waiting_objects.wait_events.push_back(event_object);
+                GFXRECON_LOG_DEBUG_ONCE("The fence that called `SetEventOnCompletion(signal_value, event_object)` is "
+                                        "already signaled to a value greater than or equal to `signal_value` so no "
+                                        "wait will be performed on `event_object` for this call.");
             }
         }
     }
@@ -2510,7 +2531,7 @@ Dx12ReplayConsumerBase::OverrideFenceSignal(DxObjectInfo* replay_object_info, HR
 
     if (SUCCEEDED(replay_result))
     {
-        ProcessFenceSignal(replay_object_info, value);
+        ProcessFenceSignal(replay_object_info, value, false);
     }
 
     return replay_result;
@@ -3106,7 +3127,7 @@ void Dx12ReplayConsumerBase::ProcessQueueSignal(DxObjectInfo* queue_info, DxObje
         // processed immediately.
         if (queue_extra_info->pending_events.empty())
         {
-            ProcessFenceSignal(fence_info, value);
+            ProcessFenceSignal(fence_info, value, true);
         }
         else
         {
@@ -3138,15 +3159,19 @@ void Dx12ReplayConsumerBase::ProcessQueueWait(DxObjectInfo* queue_info, DxObject
     }
 }
 
-void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t value)
+void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t value, bool from_queue_signal)
 {
     auto fence_info = GetExtraInfo<D3D12FenceInfo>(info);
     if (fence_info != nullptr)
     {
         // Process objects waiting for the fence's value up through the new value.
         fence_info->last_signaled_value = value;
-        auto range_begin                = fence_info->waiting_objects.begin();
-        auto range_end                  = fence_info->waiting_objects.upper_bound(value);
+        if (from_queue_signal)
+        {
+            fence_info->last_signaled_value_gpu = value;
+        }
+        auto range_begin = fence_info->waiting_objects.begin();
+        auto range_end   = fence_info->waiting_objects.upper_bound(value);
         if (range_begin != range_end)
         {
             while (range_begin != range_end)
@@ -4317,7 +4342,7 @@ QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
 {
     return QueueSyncEventInfo{ false, false, nullptr, 0, [this, fence_info, value]() {
-                                  ProcessFenceSignal(fence_info, value);
+                                  ProcessFenceSignal(fence_info, value, true);
                               } };
 }
 
