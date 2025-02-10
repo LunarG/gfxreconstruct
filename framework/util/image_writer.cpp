@@ -273,8 +273,8 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 for (uint32_t x = 0; x < width; ++x)
                 {
                     const uint32_t normalized_depth = bytes_u32[x] & 0x00FFFFFF;
-                    const float    float_depth      = static_cast<float>(normalized_depth) / 8388607.0f;
-                    const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
+                    const float    float_depth = static_cast<float>(normalized_depth) / static_cast<float>(0xffffff);
+                    const uint8_t  depth       = static_cast<uint8_t>(float_depth * 255.0f);
 
                     *(temp_buffer++) = depth;
                     *(temp_buffer++) = depth;
@@ -301,7 +301,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 for (uint32_t x = 0; x < width; ++x)
                 {
                     const uint16_t normalized_depth = bytes_u16[x];
-                    const float    float_depth      = static_cast<float>(normalized_depth) / 32767.0f;
+                    const float    float_depth      = static_cast<float>(normalized_depth) / static_cast<float>(0xffff);
                     const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
 
                     *(temp_buffer++) = depth;
