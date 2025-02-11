@@ -261,7 +261,6 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
 
                         if (capture_result == S_OK)
                         {
-                            auto        datasize = static_cast<int>(buffer_byte_size);
                             std::string filename = filename_prefix;
 
                             filename += "_frame_";
@@ -277,7 +276,6 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
                                                                           static_cast<unsigned int>(fb_desc.Width),
                                                                           static_cast<unsigned int>(fb_desc.Height),
-                                                                          datasize,
                                                                           std::data(captured_image.data),
                                                                           static_cast<unsigned int>(pitch)))
                                     {
@@ -290,7 +288,6 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     if (!util::imagewriter::WritePngImage(filename + ".png",
                                                                           static_cast<unsigned int>(fb_desc.Width),
                                                                           static_cast<unsigned int>(fb_desc.Height),
-                                                                          datasize,
                                                                           std::data(captured_image.data),
                                                                           static_cast<unsigned int>(pitch),
                                                                           util::imagewriter::kFormat_RGBA))
