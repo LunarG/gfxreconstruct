@@ -939,8 +939,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                                                        const std::vector<uint64_t>& level_sizes,
                                                        const uint8_t*               data)
 {
-    VulkanDeviceInfo*      device_info = object_info_table_->GetVkDeviceInfo(device_id);
-    const VulkanImageInfo* image_info  = object_info_table_->GetVkImageInfo(image_id);
+    VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
+    VulkanImageInfo*  image_info  = object_info_table_->GetVkImageInfo(image_id);
 
     if ((device_info != nullptr) && (image_info != nullptr))
     {
@@ -1032,6 +1032,9 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                                                       image_info->layer_count,
                                                       image_info->level_count);
             }
+
+            image_info->intermediate_layout = static_cast<VkImageLayout>(layout);
+            image_info->current_layout      = static_cast<VkImageLayout>(layout);
 
             if (result != VK_SUCCESS)
             {

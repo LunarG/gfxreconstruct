@@ -2684,7 +2684,6 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         if (!util::imagewriter::WriteBmpImage(file_path,
                                               resource_data->footprints[sub_index].Footprint.Width,
                                               resource_data->footprints[sub_index].Footprint.Height,
-                                              size,
                                               resource_data->datas[sub_index].data() + offset,
                                               resource_data->footprints[sub_index].Footprint.RowPitch))
         {
