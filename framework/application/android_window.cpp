@@ -66,27 +66,14 @@ void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t hei
         // current orientation, unless a pre-transform has been applied to the swapchain, in which case the orientation
         // will be adjusted to match the pre-transform.
         if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
-            (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
+            (pre_transform != pre_transform_))
         {
-            const std::array<AndroidContext::ScreenOrientation, 2> kOrientations{
-                AndroidContext::ScreenOrientation::kLandscape, AndroidContext::ScreenOrientation::kPortrait
-            };
+            AndroidContext::ScreenOrientation orientation = height <= width
+                                                                ? AndroidContext::ScreenOrientation::kLandscape
+                                                                : AndroidContext::ScreenOrientation::kPortrait;
 
-            uint32_t orientation_index = 0;
 
-            if (height > width)
-            {
-                orientation_index = 1;
-            }
-
-            // Toggle orientation between landscape and portrait for 90 and 270 degree pre-transform values.
-            if ((pre_transform == format::ResizeWindowPreTransform::kPreTransform90) ||
-                (pre_transform == format::ResizeWindowPreTransform::kPreTransform270))
-            {
-                orientation_index ^= 1;
-            }
-
-            android_context_->SetOrientation(kOrientations[orientation_index]);
+            android_context_->SetOrientation(orientation);
         }
 
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
