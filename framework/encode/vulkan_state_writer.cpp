@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <limits>
 #include <unordered_map>
