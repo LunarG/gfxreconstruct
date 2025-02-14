@@ -47,6 +47,8 @@ class KhronosStructHandleWrappersBodyGenerator():
 
             # Loop over each possible child
             for child in self.children_structs[type]:
+                if child not in self.structs_with_handles:
+                    continue
                 switch_type = self.struct_type_names[child]
 
                 body += f'            case {switch_type}:\n'
@@ -71,7 +73,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         for struct in self.get_all_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles) or
-                (struct in self.GENERIC_HANDLE_STRUCTS)
+                (struct in self.GENERIC_HANDLE_STRUCTS) or
+                (struct in self.structs_with_handle_ptrs)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
@@ -153,8 +156,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         # Generate the extended struct handle wrapping code.
         self.newline()
         write(
-            '{}void* Unwrap{}StructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)'
-            .format(const_prefix, ext_struct_name),
+            '{const}void* Unwrap{struct}StructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)'
+            .format(const=const_prefix, struct=ext_struct_name),
             file=self.outFile
         )
         write('{', file=self.outFile)

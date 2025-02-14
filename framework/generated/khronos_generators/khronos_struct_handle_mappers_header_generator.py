@@ -60,7 +60,10 @@ class KhronosStructHandleMappersHeaderGenerator():
 
         self.newline()
         write(
-            'void Map{}StructHandles(PNextNode* value, const CommonObjectInfoTable& object_info_table);'.format(extended_struct_func_name),
+            'void Map{func}StructHandles({node}Node* value, const CommonObjectInfoTable& object_info_table);'.format(
+                    func=self.get_extended_struct_func_prefix(),
+                    node=self.get_extended_struct_node_prefix()
+                ),
             file=self.outFile
         )
         self.newline()

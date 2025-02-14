@@ -532,7 +532,7 @@ void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, 
 }
 
 template <typename T>
-const  T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))
     {

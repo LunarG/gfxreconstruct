@@ -55,7 +55,12 @@ class PNextNode
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
-struct MetaStructHeader
+//  NOTE:
+// This functions as if it were a base class to all DecodedStruct_<SomeStruct>
+// As all DecodedStruct_<SomeStruct> are of the form SomeStruct *decoded_value; PNextNode *pNext;
+// And since the first element of SomeStruct *must* be the sType, the decoded_value pointer
+// can also be treated as a pointer to VkStructureType
+struct VulkanMetaStructHeader
 {
     VkStructureType* sType;
     PNextNode*       pNext;
@@ -66,7 +71,7 @@ const T* GetPNextMetaStruct(const PNextNode* pnext)
 {
     while (pnext != nullptr)
     {
-        const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());
+        const auto* header = reinterpret_cast<const VulkanMetaStructHeader*>(pnext->GetMetaStructPointer());
         if (*header->sType == gfxrecon::util::GetSType<typename T::struct_type>())
         {
             return reinterpret_cast<const T*>(header);

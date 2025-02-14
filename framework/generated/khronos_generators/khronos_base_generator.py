@@ -42,8 +42,8 @@ import os
 import re
 import sys
 import json
+import copy
 from collections import OrderedDict
-from copy import deepcopy
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures
 
 def write(*args, **kwargs):
@@ -127,6 +127,7 @@ class ApiData():
         base_out_struct             - The base output structure defined in this Khronos API
         extended_struct_variable    - The extended struct varible name used in this Khronos API
         extended_struct_func_prefix - The function prefix to use for extended struct functions for this Khronos API.
+        extended_struct_node_prefix - The type prefix to use for extended struct nodes for this Khronos API.
         boolean_type                - The type used by the API for booleans
         flags_type                  - The type used for general flags in the API
         flags_64_type               - The type used for 64-bit flags in the API
@@ -152,6 +153,7 @@ class ApiData():
         destroy_device_func         - The name of the function to destroy a device
         has_pool_allocations        - Boolean indicating if pool allocations are supported
         default_handle_atom_value   - Default value for handles and atoms
+        default_value_for_type      - Default values for specific types
         length_cast_to_size_t       - Types that must be cast to size_t when used as length
     """
     def __init__(
@@ -171,6 +173,7 @@ class ApiData():
             base_out_struct,
             extended_struct_variable,
             extended_struct_func_prefix,
+            extended_struct_node_prefix,
             boolean_type,
             flags_type,
             flags_64_type,
@@ -196,6 +199,7 @@ class ApiData():
             destroy_device_func,
             has_pool_allocations,
             default_handle_atom_value,
+            default_value_for_type,
             length_cast_to_size_t,
     ):
         self.api_name = api_name
@@ -213,6 +217,7 @@ class ApiData():
         self.base_out_struct = base_out_struct
         self.extended_struct_variable = extended_struct_variable
         self.extended_struct_func_prefix = extended_struct_func_prefix
+        self.extended_struct_node_prefix = extended_struct_node_prefix
         self.boolean_type = boolean_type
         self.flags_type = flags_type
         self.flags_64_type = flags_64_type
@@ -238,6 +243,7 @@ class ApiData():
         self.destroy_device_func = destroy_device_func
         self.has_pool_allocations = has_pool_allocations
         self.default_handle_atom_value = default_handle_atom_value
+        self.default_value_for_type = { **default_value_for_type }
         self.length_cast_to_size_t = length_cast_to_size_t
 
 class BeginEndFileData():
@@ -346,6 +352,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
       replay_async_overrides - Path to JSON file listing Vulkan API calls
         to override on replay.
       extra_headers - headers to include in addition to the standard Khronos API
+      extra_manual_commands - Commands to suppress generation of for this generator
       begin_end_file_data - Includes and namespace needed at begin/end file time
     """
 
@@ -410,8 +417,8 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         self.indent_func_proto = indent_func_proto
         self.align_func_param = align_func_param
         self.code_generator = True
-        self.extra_headers = extra_headers
-        self.extra_manual_commands = extra_manual_commands
+        self.extra_headers = copy.copy(extra_headers)
+        self.extra_manual_commands = copy.copy(extra_manual_commands)
         self.begin_end_file_data = BeginEndFileData()
 
 class KhronosBaseGenerator(OutputGenerator):
@@ -552,6 +559,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_out_struct='VkBaseOutStructure',
                 extended_struct_variable='pNext',
                 extended_struct_func_prefix='PNext',
+                extended_struct_node_prefix='PNext',
                 boolean_type='VkBool32',
                 flags_type='VkFlags',
                 flags_64_type='VkFlags64',
@@ -577,6 +585,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 destroy_device_func='vkDestroyDevice',
                 has_pool_allocations=True,
                 default_handle_atom_value='VK_NULL_HANDLE',
+                default_value_for_type = { },
                 length_cast_to_size_t = { 'VkDeviceSize' },
             )
         )
@@ -598,6 +607,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 base_out_struct='XrBaseOutStructure',
                 extended_struct_variable='next',
                 extended_struct_func_prefix='Next',
+                extended_struct_node_prefix='OpenXrNext',
                 boolean_type='XrBool32',
                 flags_type='',
                 flags_64_type='XrFlags64',
@@ -623,6 +633,18 @@ class KhronosBaseGenerator(OutputGenerator):
                 destroy_device_func='',
                 has_pool_allocations=False,
                 default_handle_atom_value='XR_NULL_HANDLE',
+                default_value_for_type={
+                    # There doesn't seem to be an automated way to get this from the registry
+                    # These were found by searching for 'define XR_NULL_' in the OpenXr spec
+                    'XrSystemId': 'XR_NULL_SYSTEM_ID',
+                    'XrPath': 'XR_NULL_PATH',
+                    'XrRenderModelKeyFB': 'XR_NULL_RENDER_MODEL_KEY_FB',
+                    'XrControllerModelKeyMSFT': 'XR_NULL_CONTROLLER_MODEL_KEY_MSFT',
+                    # No default value is given in the spec for ATOM or OPAQUE, but this maintains
+                    # consistency with the openxr-experimental branch
+                    'XR_DEFINE_ATOM': '0',
+                    'XR_DEFINE_OPAQUE_64': '0',
+                },
                 length_cast_to_size_t = set(),
             )
         )
@@ -1436,12 +1458,6 @@ class KhronosBaseGenerator(OutputGenerator):
                     values = current_xml_member.attrib.get('values')
                     if values:
                         self.struct_type_names[typename] = values
-                    elif (
-                        not self.is_base_input_structure_type(typename)
-                        and not self.is_base_output_structure_type(typename)
-                    ):
-                        self.struct_type_names[
-                            typename] = self.generate_structure_type(typename)
 
                 # If this is the extended struct member, and we already have this structure
                 # in the list of handled structs, it means one of the structs that extends
@@ -1460,18 +1476,18 @@ class KhronosBaseGenerator(OutputGenerator):
                                 # Have to loop through all to ensure we pick up ...pointers
                                 has_handle_pointers = True
                     if append_member:
-                        handles.append(deepcopy(append_member))
+                        handles.append(copy.deepcopy(append_member))
 
                 # If this member is a handle, of course we have handles in this struct
                 elif self.is_handle(current_struct_member.base_type):
-                    handles.append(deepcopy(current_struct_member))
+                    handles.append(copy.deepcopy(current_struct_member))
                     if current_struct_member.is_pointer or current_struct_member.is_array:
                         has_handle_pointers = True
 
                 # If the struct is one we already know about and it has handles, record that
                 elif self.is_struct(current_struct_member.base_type):
                     if current_struct_member.base_type in self.structs_with_handles:
-                        handles.append(deepcopy(current_struct_member))
+                        handles.append(copy.deepcopy(current_struct_member))
                         if current_struct_member.base_type in self.structs_with_handle_ptrs:
                             has_handle_pointers = True
 
@@ -1479,7 +1495,7 @@ class KhronosBaseGenerator(OutputGenerator):
                     # See if any of the children structures have handles
                     for child in self.children_structs[current_struct_member.base_type]:
                         if child in self.structs_with_handles:
-                            handles.append(deepcopy(current_struct_member))
+                            handles.append(copy.deepcopy(current_struct_member))
                             break
 
             if len(handles) > 0:
@@ -1799,6 +1815,12 @@ class KhronosBaseGenerator(OutputGenerator):
             return api_data.extended_struct_func_prefix
         return ''
 
+    def get_extended_struct_node_prefix(self):
+        api_data = self.get_api_data()
+        if api_data is not None:
+            return api_data.extended_struct_node_prefix
+        return ''
+
     def get_wrapper_prefix(self):
         api_data = self.get_api_data()
         if api_data is not None:
@@ -1845,9 +1867,16 @@ class KhronosBaseGenerator(OutputGenerator):
         api_data = None
         if (base_type) :
             api_data=self.get_api_data_from_type(base_type)
+            if base_type in api_data.default_value_for_type:
+                return api_data.default_value_for_type[base_type]
+            elif self.is_atom(base_type):
+                return api_data.default_value_for_type['XR_DEFINE_ATOM']
+            elif self.is_opaque(base_type):
+                return api_data.default_value_for_type['XR_DEFINE_OPAQUE_64']
         else:
             api_data = self.get_api_data()
-        return 'VK_NULL_HANDLE'
+
+        return api_data.default_handle_atom_value
 
     def get_atom_encode_text(self, type_name):
         return type_name
@@ -1914,25 +1943,6 @@ class KhronosBaseGenerator(OutputGenerator):
         ):
             return True
         return False
-
-    def generate_structure_type(self, type_name):
-        # Make the type all upper case
-        upper_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).upper()
-        type_with_prefix = upper_type
-
-        # Apply any structure type prefix first
-        for api_data in self.valid_khronos_supported_api_data:
-            upper_prefix = api_data.type_prefix.upper()
-            if upper_type.startswith(upper_prefix):
-                type_with_prefix = api_data.struct_type_prefix + upper_type
-
-        type_with_prefix = type_with_prefix.replace('_OPEN_GLES', '_OPENGL_ES_')
-        type_with_prefix = type_with_prefix.replace('_OPEN_GL', '_OPENGL_')
-        type_with_prefix = type_with_prefix.replace('_D3_D11', '_D3D11')
-        type_with_prefix = type_with_prefix.replace('_D3_D12', '_D3D12')
-        type_with_prefix = type_with_prefix.replace('_EGL', '_EGL_')
-        type_with_prefix = type_with_prefix.replace('Device_IDProp', 'Device_ID_Prop')
-        return type_with_prefix
 
     def make_simple_var_name(self, type_name):
         lower_type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', type_name).lower()
@@ -2278,8 +2288,12 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def make_array2d_length_expression(self, value, values, prefix=''):
         length_exprs = value.array_length.split(',')
-        if len(length_exprs) == value.pointer_count:
+        is_parent_struct = value.base_type in self.children_structs
+        if is_parent_struct or len(length_exprs) == value.pointer_count:
             # All dimensions are provided in the xml
+            # -- OR --
+            # Parent types are of unknown size without knowing the underlying
+            # as type as realized, and will be handled dynamically with overloads
             lengths = []
             for length_expr in length_exprs:
                 # Prefix members
@@ -2289,6 +2303,9 @@ class KhronosBaseGenerator(OutputGenerator):
                         length_expr
                     )
                 lengths.append(length_expr)
+            if is_parent_struct:
+                # the final dimensional size is unknown, but present
+                lengths.append('1')
             return lengths
         else:
             # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes

@@ -2284,8 +2284,8 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
     const PNextNode* meta_pnext = meta_allocate_info->pNext;
     while (current_struct != nullptr && meta_pnext != nullptr)
     {
-        const MetaStructHeader* meta_header =
-            reinterpret_cast<const MetaStructHeader*>(meta_pnext->GetMetaStructPointer());
+        const VulkanMetaStructHeader* meta_header =
+            reinterpret_cast<const VulkanMetaStructHeader*>(meta_pnext->GetMetaStructPointer());
 
         if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
         {

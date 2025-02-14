@@ -50,12 +50,14 @@ class KhronosEncodeExtendedStructGenerator():
 
         begin_end.namespaces.extend(('gfxrecon', 'encode'))
 
-    def write_encode_struct_while_loop_statement(self, current_api_data):
+    def get_encode_struct_while_loop_statement(self, current_api_data):
         """
         Method intended to be overridden.
         This is because some of the loop determination is API-specific
+        or may not be needed at all
         """
-        write('    while (base != nullptr)', file=self.outFile)
+        return ''
+
 
     def write_encode_struct_definition_prefix(self):
         # Get the current API and generate the items relavent to that
@@ -76,21 +78,25 @@ class KhronosEncodeExtendedStructGenerator():
             file=self.outFile
         )
         self.newline()
-        write(
-            '    // Ignore the structures added to the {} chain by the loader.'
-            .format(current_api_data.extended_struct_variable),
-            file=self.outFile
-        )
-        self.write_encode_struct_while_loop_statement(current_api_data)
-        write('    {', file=self.outFile)
-        write(
-            '        base = base->{};'.format(
-                current_api_data.extended_struct_variable
-            ),
-            file=self.outFile
-        )
-        write('    }', file=self.outFile)
-        self.newline()
+
+        loop_statement = self.get_encode_struct_while_loop_statement(current_api_data)
+        if loop_statement:
+            write(
+                '    // Ignore the structures added to the {} chain by the loader.'
+                .format(current_api_data.extended_struct_variable),
+                file=self.outFile
+            )
+            write(loop_statement, file=self.outFile)
+            write('    {', file=self.outFile)
+            write(
+                '        base = base->{};'.format(
+                    current_api_data.extended_struct_variable
+                ),
+                file=self.outFile
+            )
+            write('    }', file=self.outFile)
+            self.newline()
+
         write('    if (base != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write(

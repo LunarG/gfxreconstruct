@@ -90,13 +90,8 @@ class EncodePNextStructGenerator(VulkanBaseGenerator, KhronosEncodeExtendedStruc
             return True
         return False
 
-    def write_encode_struct_while_loop_statement(self, current_api_data):
+    def get_encode_struct_while_loop_statement(self, current_api_data):
         """Method Override"""
-        write(
-            '    while ((base != nullptr) && ((base->{} == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||'.format(current_api_data.struct_type_variable),
-            file=self.outFile
-        )
-        write(
-            '                                 (base->{} == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'.format(current_api_data.struct_type_variable),
-            file=self.outFile
-        )
+        loop = '    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||\n'
+        loop += '                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))'
+        return loop

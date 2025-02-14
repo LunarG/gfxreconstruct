@@ -73,7 +73,7 @@ class KhronosStructToJsonBodyGenerator():
                 write(body, file=self.outFile)
 
         stype_var = self.get_struct_type_var_name()
-        extended_type_prefix = self.get_extended_struct_func_prefix()
+        extended_node_prefix = self.get_extended_struct_node_prefix()
         stype_auto = self.get_local_type_var_name()
         base_in_struct = self.get_base_input_structure_name()
         
@@ -82,7 +82,7 @@ class KhronosStructToJsonBodyGenerator():
             {{
                 if (data && data->GetPointer())
                 {{
-        '''.format(extended_type_prefix)
+        '''.format(extended_node_prefix)
         body += '            const auto {} = reinterpret_cast<const {}*>(data->GetPointer())->{};'.format(
             stype_auto, base_in_struct, stype_var
         )
