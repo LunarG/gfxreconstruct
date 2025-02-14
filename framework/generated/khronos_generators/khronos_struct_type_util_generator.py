@@ -63,9 +63,16 @@ class KhronosStructTypeUtilGenerator():
         )
         self.newline()
 
+    def skip_struct_type(self, struct):
+        """ Maybe be overridden """
+        return struct in self.children_structs
+
     def write_struct_type_data(self):
         current_api_data = self.get_api_data()
         for struct in self.all_struct_members.keys():
+            if self.skip_struct_type(struct):
+                continue
+
             if struct in self.struct_type_names:
                 write(
                     'template <> constexpr {} Get{}<{}>(){{ return {}; }}'.

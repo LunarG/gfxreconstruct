@@ -73,7 +73,7 @@ class KhronosStructToJsonHeaderGenerator():
             self.write_parent_child_to_json_func()
 
         var_name = self.get_extended_struct_var_name()
-        prefix = self.get_extended_struct_func_prefix()
+        prefix = self.get_extended_struct_node_prefix()
         if len(var_name) > 0 and len(prefix) > 0:
             write(f'/// Works out the type of the struct at the end of a {var_name} pointer and dispatches', file=self.outFile)
             write('/// recursively to the FieldToJson for that.', file=self.outFile)

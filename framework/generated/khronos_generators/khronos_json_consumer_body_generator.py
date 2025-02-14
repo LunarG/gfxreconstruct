@@ -91,6 +91,15 @@ class KhronosExportJsonConsumerBodyGenerator():
         """Method may be overriden"""
         return False
 
+
+    def has_special_case_json_export(self, name):
+        """Method may be overridden."""
+        return False
+
+    def get_special_case_json_export(self, name):
+        """Method may be overridden."""
+        return
+
     def make_consumer_func_body(self, return_type, name, values):
         """Return ExportJsonConsumer class member function definition."""
         body = ''
@@ -119,7 +128,13 @@ class KhronosExportJsonConsumerBodyGenerator():
                 to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
 
                 # Special cases:
-                if self.is_boolean_type(value.base_type):
+                if self.has_special_case_json_export(value.base_type):
+                    to_json = self.get_special_case_json_export(value.base_type)
+                elif not (value.is_pointer or value.is_array) and self.is_struct(value.base_type):
+                    to_json = 'FieldToJson(args["{0}"], &{0}, json_options)'
+                elif value.is_array and value.base_type in self.children_structs:
+                    to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+                elif self.is_boolean_type(value.base_type):
                     to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'

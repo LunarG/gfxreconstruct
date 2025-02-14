@@ -35,10 +35,11 @@ class KhronosStructDecodersBodyGenerator():
         api_data = self.get_api_data()
 
         write(
-            'size_t Decode{0}Struct(const uint8_t* buffer, size_t buffer_size, {0}Node** {1});'
+            'size_t Decode{func}Struct(const uint8_t* buffer, size_t buffer_size, {node}Node** {var});'
             .format(
-                api_data.extended_struct_func_prefix,
-                api_data.extended_struct_variable
+                func=api_data.extended_struct_func_prefix,
+                node=api_data.extended_struct_node_prefix,
+                var=api_data.extended_struct_variable
             ),
             file=self.outFile
         )
@@ -135,13 +136,13 @@ class KhronosStructDecodersBodyGenerator():
 
                 if value.base_type in self.children_structs.keys():
                     if value.pointer_count == 1:
-                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeChildren((buffer + bytes_read), (buffer_size - bytes_read));\n'
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));\n'
                     else:
                         main_body += '\n'
                         main_body += '    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first\n'
                         main_body += '    // and then read the array attributes so we can jump right in to decoding the contents\n'
                         main_body += f'    wrapper->{value.name} = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_{value.base_type}*>>();\n'
-                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeChildren((buffer + bytes_read), (buffer_size - bytes_read));\n'
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));\n'
                         main_body += f'    value->{value.name} = wrapper->{value.name}->GetPointer();\n'
                 else:
                     if is_struct:

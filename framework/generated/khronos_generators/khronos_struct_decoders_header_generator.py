@@ -248,10 +248,10 @@ class KhronosStructDecodersHeaderGenerator():
             # If it is an extended struct name, it requires special treatment
             if self.is_extended_struct_definition(value):
                 extended_struct_name = self.get_extended_struct_var_name()
-                extended_struct_func_prefix = self.get_extended_struct_func_prefix(
+                extended_struct_node_prefix = self.get_extended_struct_node_prefix(
                 )
                 body += '    {}Node* {}{{ nullptr }};\n'.format(
-                    extended_struct_func_prefix, extended_struct_name
+                    extended_struct_node_prefix, extended_struct_name
                 )
             elif self.needs_member_declaration(name, value):
                 type_name = self.make_decoded_param_type(value)

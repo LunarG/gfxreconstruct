@@ -42,6 +42,22 @@ class KhronosDispatchTableGenerator():
         """ Method must overridden. """
         raise NotImplementedError
 
+
+    def create_load_function(self, api_data):
+        """ Assumes gpa matches Vulkan Get.*ProcAddr signature, override as needed """
+        lines =[]
+        lines.append('template <typename GetProcAddr, typename Handle, typename FuncP>')
+        lines.append('static void Load{}Function(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)'
+            .format(api_data.api_class_prefix))
+        lines.append('{')
+        lines.append('    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));')
+        lines.append('    if (result != nullptr)')
+        lines.append('    {')
+        lines.append('        (*funcp) = result;')
+        lines.append('    }')
+        lines.append('}')
+        return '\n'.join(lines)
+
     def generateDispatchTable(self, gen_dispatch_key=True):
         api_data = self.get_api_data()
 
@@ -123,25 +139,7 @@ class KhronosDispatchTableGenerator():
             self.generate_device_cmd_table(api_data)
             self.newline()
 
-        write(
-            'template <typename GetProcAddr, typename Handle, typename FuncP>',
-            file=self.outFile
-        )
-        write(
-            'static void Load{}Function(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)'
-            .format(api_data.api_class_prefix),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));',
-            file=self.outFile
-        )
-        write('    if (result != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        (*funcp) = result;', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
+        write(self.create_load_function(api_data), file=self.outFile)
 
         self.newline()
         self.generate_load_instance_table_func(api_data)

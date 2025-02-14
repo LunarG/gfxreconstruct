@@ -33,7 +33,7 @@ class KhronosEnumToStringBodyGenerator():
         """ Method may be overridden"""
         return False
 
-    def write_enum_to_string_body(self):
+    def write_enum_to_string_body(self, use_flags_for_64bit_enum=False):
         api_data = self.get_api_data()
         flags_type = api_data.flags_type
         flags64_type = api_data.flags_64_type
@@ -44,7 +44,10 @@ class KhronosEnumToStringBodyGenerator():
             if self.is_flags_enum_64bit(enum):
                 # Since every caller needs to know exactly what it is calling, we may as well
                 # dispense with the parameters that are always ignored:
-                body = 'std::string {0}ToString(const {0} value)\n'
+                if use_flags_for_64bit_enum:
+                    body = 'std::string {0}ToString(const {1} value)\n'
+                else:
+                    body = 'std::string {0}ToString(const {0} value)\n'
             else:
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
             body += '{{\n'
@@ -63,7 +66,10 @@ class KhronosEnumToStringBodyGenerator():
                 if self.is_flags_enum_64bit(enum):
                     body += '\nstd::string {1}ToString({2} {3})\n'
                     body += '{{\n'
-                    body += '    return BitmaskToString<{0}>({3}, {0}ToString);\n'
+                    if use_flags_for_64bit_enum:
+                        body += '    return BitmaskToString<{1}>({3}, {0}ToString);\n'
+                    else:
+                        body += '    return BitmaskToString<{0}>({3}, {0}ToString);\n'
                     body += '}}\n'
                 else:
                     # Original version(these are never actually being called which is part of issue #620):

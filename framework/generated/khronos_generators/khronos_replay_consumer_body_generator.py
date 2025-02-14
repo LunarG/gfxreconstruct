@@ -356,6 +356,10 @@ class KhronosReplayConsumerBodyGenerator():
         write('}', file=self.outFile)
 
         self.newline()
+
+    def generate_extended_struct_initialize_template(self, api_data):
+        var_name = 'in_' + api_data.extended_struct_variable.lower()
+
         write('template <typename T>', file=self.outFile)
         write(
             'void InitializeOutputStruct{}(StructPointerDecoder<T> *decoder)'.
@@ -518,6 +522,10 @@ class KhronosReplayConsumerBodyGenerator():
         """ Method may be overridden. """
         return ''
 
+    def treat_as_struct(self, value):
+        """ Method may be overridden. """
+        return False
+
     def make_body_expression(self, api_data, return_type, name, values, is_override):
         """"
         Generating expressions for mapping decoded parameters to arguments used in the API call.
@@ -552,7 +560,7 @@ class KhronosReplayConsumerBodyGenerator():
             if value.is_pointer or value.is_array:
                 full_type = value.full_type if not value.platform_full_type else value.platform_full_type
                 is_input = self.is_input_pointer(value)
-                is_extenal_object = False
+                is_external_object = False
                 need_temp_value = True
                 expr = ''
 
@@ -561,13 +569,13 @@ class KhronosReplayConsumerBodyGenerator():
                 ) and not value.is_array:
                     # Currently, all arrays of external object types are 'void*' values that represent arrays
                     # of bytes, so we only have a pointer to an external object when the value is not an array.
-                    is_extenal_object = True
+                    is_external_object = True
 
                 if (value.is_array and not value.is_dynamic):
                     # Use dynamic pointer syntax for static arrays.
                     full_type += '*'
 
-                if is_override and not is_extenal_object:
+                if is_override and not is_external_object:
                     # Overrides receive the PointerDecoder object instead of the actual Khronos pointer, so
                     # the temporary value used to hold the pointer returned by PointerDecoder::GetPointer()
                     # is not needed for most cases.
@@ -618,7 +626,7 @@ class KhronosReplayConsumerBodyGenerator():
 
                 if is_input:
                     # Assign avalue to the temporary variable based on type.  Some array variables require temporary allocations.
-                    if is_extenal_object:
+                    if is_external_object:
                         # If this was an array with the 'void*' type, it was encoded as an array of bytes.
                         # If not (this case), it is a pointer to an unknown object type that was encoded as a uint64_t ID value.
                         # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
@@ -845,6 +853,12 @@ class KhronosReplayConsumerBodyGenerator():
                                             basetype=value.base_type
                                         )
                                     )
+                        elif value.base_type in ['char', 'wchar_t']:
+                            # TODO: Does this need to be re-allocated?  The decoder should read in the proper size. But needs verification.
+                            expr += '{paramname}->GetPointer();'.format(
+                                length_name, paramname=value.name
+                            )
+
                         else:
                             if need_temp_value:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(
@@ -855,7 +869,7 @@ class KhronosReplayConsumerBodyGenerator():
                                     length_name, paramname=value.name
                                 )
                     else:
-                        if is_extenal_object:
+                        if is_external_object:
                             # Map the object ID to the new object
                             if value.platform_full_type:
                                 expr += '{paramname}->IsNull() ? nullptr : reinterpret_cast<{}>({paramname}->AllocateOutputData(1));'.format(
@@ -958,12 +972,11 @@ class KhronosReplayConsumerBodyGenerator():
                                     ] = '*{}->GetOutputPointer()'.format(
                                         value.name
                                     )
-                            elif self.is_struct(value.base_type):
+                            elif self.is_struct(value.base_type) or self.treat_as_struct(value):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.base_type in self.struct_type_names:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
-                                        self.struct_type_names[value.base_type
-                                                               ],
+                                        self.struct_type_names[value.base_type],
                                         paramname=value.name
                                     )
                                     need_initialize_output_pnext_struct = value.name

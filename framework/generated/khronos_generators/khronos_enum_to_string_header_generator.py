@@ -33,7 +33,7 @@ class KhronosEnumToStringHeaderGenerator():
         """ Method may be overridden"""
         return False
 
-    def write_enum_to_string_header(self):
+    def write_enum_to_string_header(self, use_flags_for_64bit_enum=False):
         api_data = self.get_api_data()
         flags_type = api_data.flags_type
         flags64_type = api_data.flags_64_type
@@ -45,7 +45,10 @@ class KhronosEnumToStringHeaderGenerator():
             ):
                 continue
             if self.is_flags_enum_64bit(enum):
-                body = 'std::string {0}ToString(const {0} value);'
+                if use_flags_for_64bit_enum:
+                    body = 'std::string {0}ToString(const {1} value);'
+                else:
+                    body = 'std::string {0}ToString(const {0} value);'
                 body += '\nstd::string {1}ToString({2} {3});'
             else:
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
