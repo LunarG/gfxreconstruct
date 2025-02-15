@@ -1129,6 +1129,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
             replay_options.dump_resources_target.command_index   = std::stoi(values[1]);
             replay_options.dump_resources_target.draw_call_index = std::stoi(values[2]);
             replay_options.enable_dump_resources                 = true;
+            replay_options.using_dump_resources_target           = true;
         }
     }
 
@@ -1220,6 +1221,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
             replay_options.dump_resources_target.command_index   = std::stoi(values[1]);
             replay_options.dump_resources_target.draw_call_index = std::stoi(values[2]);
             replay_options.enable_dump_resources                 = true;
+            replay_options.using_dump_resources_target           = true;
         }
     }
 

@@ -81,6 +81,7 @@ struct ReplayOptions
     std::string                  dump_resources_output_dir;
     bool                         dump_resources_before{ false };
     DumpResourcesTarget          dump_resources_target{};
+    bool                         using_dump_resources_target{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

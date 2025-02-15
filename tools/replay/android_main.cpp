@@ -71,9 +71,7 @@ void RunVulkanPreProcessConsumer(const std::string&                      input_f
     {
         gfxrecon::decode::VulkanPreProcessConsumer pre_process_consumer;
 
-        bool process_dump_resources =
-            replay_options.enable_dump_resources && replay_options.dump_resources_block_indices.empty();
-        if (process_dump_resources)
+        if (replay_options.using_dump_resources_target)
         {
             pre_process_consumer.EnableDumpResources(replay_options.dump_resources_target);
         }
@@ -87,7 +85,7 @@ void RunVulkanPreProcessConsumer(const std::string&                      input_f
 
         if (replay_options.enable_vulkan)
         {
-            if (process_dump_resources)
+            if (replay_options.using_dump_resources_target)
             {
                 replay_options.dump_resources_block_indices = pre_process_consumer.GetDumpResourcesBlockIndices();
             }
