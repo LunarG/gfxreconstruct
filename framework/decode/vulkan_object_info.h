@@ -479,9 +479,17 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
-    // The following information is populated and used only when the
-    // dump resources feature is in use
+    // shader modules used during creation of this pipeline,
+    // NOTE: this can be circumvented by inlined SPIRV
     std::unordered_map<VkShaderStageFlagBits, VulkanShaderModuleInfo> shaders;
+
+    // keep track of existing usage of buffer-references
+    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
+
+    // map capture- to replay-time shader-group-handles
+    std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
+
+    // The following information is populated and used only when the dump resources feature is in use
 
     struct InputBindingDescription
     {
@@ -509,12 +517,6 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 
     // Is VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT enabled
     bool dynamic_vertex_binding_stride{ false };
-
-    // keep track of existing usage of buffer-references
-    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
-
-    // map capture- to replay-time shader-group-handles
-    std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
 };
 
 struct VulkanDescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
