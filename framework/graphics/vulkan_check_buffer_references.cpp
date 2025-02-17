@@ -27,8 +27,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
 template <>
-void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count)
+void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos,
+                                    uint32_t                            create_info_count,
+                                    decode::VulkanPipelineInfo**        out_info_structs)
 {
+    GFXRECON_ASSERT(out_info_structs != nullptr);
+    gfxrecon::util::SpirVParsingUtil spirv_util;
+
     for (uint32_t i = 0; i < create_info_count; ++i)
     {
         for (uint32_t j = 0; j < create_infos[i].stageCount; ++j)
@@ -36,20 +41,27 @@ void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_i
             if (auto module_create_info =
                     vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(create_infos[i].pStages + j))
             {
-                graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
+                graphics::vulkan_check_buffer_references(
+                    module_create_info->pCode, module_create_info->codeSize, out_info_structs[i]);
             }
         }
     }
 }
 
 template <>
-void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count)
+void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos,
+                                    uint32_t                           create_info_count,
+                                    decode::VulkanPipelineInfo**       out_info_structs)
 {
+    GFXRECON_ASSERT(out_info_structs != nullptr);
+    gfxrecon::util::SpirVParsingUtil spirv_util;
+
     for (uint32_t i = 0; i < create_info_count; ++i)
     {
         if (auto module_create_info = vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&create_infos[i].stage))
         {
-            graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
+            graphics::vulkan_check_buffer_references(
+                module_create_info->pCode, module_create_info->codeSize, out_info_structs[i]);
         }
     }
 }

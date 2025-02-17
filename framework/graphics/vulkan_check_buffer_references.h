@@ -26,6 +26,7 @@
 #include "format/platform_types.h"
 #include "util/spirv_parsing_util.h"
 #include "util/logging.h"
+#include "decode/vulkan_object_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -37,8 +38,11 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
  * @param   spirv_code  SPIRV-bytecode
  * @param   num_bytes   number of bytes
  */
-static void vulkan_check_buffer_references(const uint32_t* const spirv_code, size_t num_bytes)
+template <typename T>
+static void vulkan_check_buffer_references(const uint32_t* const spirv_code, size_t num_bytes, T* out_info_struct)
 {
+    GFXRECON_ASSERT(out_info_struct != nullptr);
+
     // check for buffer-references, issue warning
     gfxrecon::util::SpirVParsingUtil spirv_util;
 
@@ -48,6 +52,7 @@ static void vulkan_check_buffer_references(const uint32_t* const spirv_code, siz
 
         if (!buffer_reference_infos.empty())
         {
+            out_info_struct->buffer_reference_infos = buffer_reference_infos;
             GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
                                       "Resource tracking for buffers accessed via references is currently "
                                       "unsupported, so replay may fail.");
@@ -69,13 +74,19 @@ static void vulkan_check_buffer_references(const uint32_t* const spirv_code, siz
  * @param   create_info_count   create-infos' array-count
  */
 template <typename T>
-void vulkan_check_buffer_references(const T* create_infos, uint32_t create_info_count) = delete;
+void vulkan_check_buffer_references(const T*                     create_infos,
+                                    uint32_t                     create_info_count,
+                                    decode::VulkanPipelineInfo** out_info_structs) = delete;
 
 template <>
-void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count);
+void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos,
+                                    uint32_t                            create_info_count,
+                                    decode::VulkanPipelineInfo**        out_info_structs);
 
 template <>
-void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count);
+void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos,
+                                    uint32_t                           create_info_count,
+                                    decode::VulkanPipelineInfo**       out_info_structs);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

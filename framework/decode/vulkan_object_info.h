@@ -32,6 +32,7 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "util/defines.h"
+#include "util/spirv_parsing_util.h"
 
 #include "vulkan/vulkan.h"
 
@@ -469,6 +470,9 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
     using ShaderDescriptorSetsInfos = std::map<uint32_t, ShaderDescriptorSetInfo>;
 
     ShaderDescriptorSetsInfos used_descriptors_info;
+
+    // keep track of existing usage of buffer-references
+    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 };
 
 struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
@@ -505,6 +509,9 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 
     // Is VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT enabled
     bool dynamic_vertex_binding_stride{ false };
+
+    // keep track of existing usage of buffer-references
+    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 
     // map capture- to replay-time shader-group-handles
     std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
@@ -620,6 +627,9 @@ struct VulkanVideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
 struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    // keep track of existing usage of buffer-references
+    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 };
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
