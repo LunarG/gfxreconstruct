@@ -10112,6 +10112,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (replay_result == VK_SUCCESS)
     {
+        // populate all VulkanPipelineInfo structs with information related to shader-modules
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+
         if (options_.dumping_resources)
         {
             resource_dumper_->DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
@@ -10177,30 +10180,17 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
 
     if (replay_result == VK_SUCCESS)
     {
-        const Decoded_VkComputePipelineCreateInfo* create_info_meta = pCreateInfos->GetMetaStructPointer();
-        assert(create_info_meta);
+        // populate all VulkanPipelineInfo structs with information related to shader-modules
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
 
-        for (uint32_t i = 0; i < create_info_count; ++i)
+        std::vector<VulkanPipelineInfo*> pipeline_infos(pPipelines->GetLength());
+        for (uint32_t i = 0; i < pPipelines->GetLength(); ++i)
         {
-            GFXRECON_ASSERT(create_info_meta[i].stage != nullptr);
-
-            if (create_info_meta[i].stage->module != gfxrecon::format::kNullHandleId)
-            {
-                VulkanShaderModuleInfo* module_info =
-                    object_info_table_->GetVkShaderModuleInfo(create_info_meta[i].stage->module);
-                assert(module_info);
-
-                auto pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
-                assert(pipeline_info);
-
-                pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
-            }
-            else if (auto module_create_info =
-                         graphics::vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&in_p_create_infos->stage))
-            {
-                // TODO: handle inlined SPIRV here, it should be in the pNext-chain of VkPipelineShaderStageCreateInfo
-            }
+            pipeline_infos[i] = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
         }
+
+        // check potentially inlined spirv
+        graphics::vulkan_check_buffer_references(in_p_create_infos, create_info_count, pipeline_infos.data());
     }
     return replay_result;
 }
@@ -10428,6 +10418,9 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     VkPipelineCache                     pipeline_cache_handle =
         (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
+    // populate VulkanPipelineInfo structs with information related to shader-modules
+    graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (returnValue == VK_SUCCESS && options_.dumping_resources)
     {
@@ -10520,6 +10513,9 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     VkDevice                           device_handle   = device_info->handle;
     VkPipelineCache                    pipeline_cache_handle =
         (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // populate VulkanPipelineInfo structs with information related to shader-modules
+    graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
 
     // replace with deep-copy of create-info array
     uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);

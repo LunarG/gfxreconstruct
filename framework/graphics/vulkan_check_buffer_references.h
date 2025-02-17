@@ -24,12 +24,39 @@
 #define GFXRECON_GRAPHICS_CHECK_BUFFER_REFERENCES_H
 
 #include "format/platform_types.h"
+#include "decode/vulkan_object_info.h"
+#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/common_object_info_table.h"
 #include "util/spirv_parsing_util.h"
 #include "util/logging.h"
-#include "decode/vulkan_object_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+/**
+ * @brief   Populate all VulkanPipelineInfo structs, in pPipelines's UserData,
+ *          with information related to shader-modules.
+ *
+ * @param   pCreateInfos
+ * @param   pPipelines
+ * @param   object_info_table
+ */
+template <typename T>
+void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInfos,
+                            decode::HandlePointerDecoder<VkPipeline>* pPipelines,
+                            const decode::CommonObjectInfoTable&      object_info_table) = delete;
+
+template <>
+void populate_shader_stages(
+    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+    decode::HandlePointerDecoder<VkPipeline>*                                         pPipelines,
+    const decode::CommonObjectInfoTable&                                              object_info_table);
+
+template <>
+void populate_shader_stages(
+    const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+    decode::HandlePointerDecoder<VkPipeline>*                                        pPipelines,
+    const decode::CommonObjectInfoTable&                                             object_info_table);
 
 /**
  * @brief   vulkan_check_buffer_references can be used to check provided SPIRV-bytecode for usage of buffer-references.
