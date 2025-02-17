@@ -6560,6 +6560,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         {
             SetSwapchainWindowSize(meta_info);
 
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+            // On Android, SetSwapchainWindowSize will take care of non identity transformations by requesting the
+            // appropriate orientation with setRequestedOrientation
+            modified_create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+#endif
+
             const auto surface_info = object_info_table_->GetVkSurfaceKHRInfo(meta_info->surface);
 
             if (surface_info && (surface_info->window != nullptr))

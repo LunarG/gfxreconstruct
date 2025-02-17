@@ -5248,8 +5248,8 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     }
     auto in_physicalDevice = GetObjectInfoTable().GetVkPhysicalDeviceInfo(physicalDevice);
 
-    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     MapStructHandles(pSurfaceInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     auto in_pSurfaceInfo_meta = pSurfaceInfo->GetMetaStructPointer();
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface)->surface_creation_skipped) { return; }
     pSurfaceCapabilities->IsNull() ? nullptr : pSurfaceCapabilities->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR, nullptr });
@@ -5274,8 +5274,8 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     }
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = pSurfaceInfo->GetPointer();
-    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     MapStructHandles(pSurfaceInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     auto in_pSurfaceInfo_meta = pSurfaceInfo->GetMetaStructPointer();
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface)->surface_creation_skipped) { return; }
     uint32_t* out_pSurfaceFormatCount = pSurfaceFormatCount->IsNull() ? nullptr : pSurfaceFormatCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceSurfaceFormats2KHR", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceSurfaceFormats2KHR, pSurfaceFormatCount, pSurfaceFormats, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
@@ -8400,8 +8400,8 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
     }
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = pSurfaceInfo->GetPointer();
-    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     MapStructHandles(pSurfaceInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     auto in_pSurfaceInfo_meta = pSurfaceInfo->GetMetaStructPointer();
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface)->surface_creation_skipped) { return; }
     uint32_t* out_pPresentModeCount = pPresentModeCount->IsNull() ? nullptr : pPresentModeCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceSurfacePresentModes2EXT", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceSurfacePresentModes2EXT, pPresentModeCount, pPresentModes, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
@@ -8465,8 +8465,8 @@ void VulkanReplayConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
     }
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = pSurfaceInfo->GetPointer();
-    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     MapStructHandles(pSurfaceInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (pSurfaceInfo->GetPointer()->surface == VK_NULL_HANDLE) { return; }
     auto in_pSurfaceInfo_meta = pSurfaceInfo->GetMetaStructPointer();
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(in_pSurfaceInfo_meta->surface)->surface_creation_skipped) { return; }
     VkDeviceGroupPresentModeFlagsKHR* out_pModes = pModes->IsNull() ? nullptr : pModes->AllocateOutputData(1, static_cast<VkDeviceGroupPresentModeFlagsKHR>(0));
