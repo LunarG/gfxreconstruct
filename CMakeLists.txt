@@ -139,7 +139,7 @@ endif()
 
 option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
 
-option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" ON)
+option(GFXRECON_INCLUDE_TEST_APPS "Build and install test apps" OFF)
 
 if(MSVC)
 
