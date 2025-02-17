@@ -3749,5 +3749,13 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain4_SetHDRMetaData(
     }
 }
 
+void D3D12CaptureManager::PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackSetName(wrapper, result, Name);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
