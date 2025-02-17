@@ -5877,6 +5877,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     assert((device_info != nullptr) && (pCreateInfo != nullptr) && !pCreateInfo->IsNull() &&
            (pShaderModule != nullptr) && !pShaderModule->IsNull());
 
+    // grab pointer to our resulting info-struct
+    auto* shader_module_info = reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+    GFXRECON_ASSERT(shader_module_info != nullptr);
+
     auto original_info = pCreateInfo->GetPointer();
     if (original_result < 0 || options_.replace_shader_dir.empty())
     {
@@ -5886,25 +5890,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         if (vk_res == VK_SUCCESS)
         {
             // check for buffer-references, issue warning
-            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize);
+            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
 
             if (options_.dumping_resources)
             {
-                auto shader_info = reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
-                assert(shader_info);
-
                 const VulkanPhysicalDeviceInfo* phys_dev =
                     object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
                 assert(phys_dev);
                 assert(phys_dev->replay_device_info);
 
-                SPIRVReflectPerformReflectionOnShaderModule(shader_info,
+                SPIRVReflectPerformReflectionOnShaderModule(shader_module_info,
                                                             original_info->codeSize,
                                                             original_info->pCode,
                                                             phys_dev->replay_device_info->properties->limits);
             }
         }
-
         return vk_res;
     }
 
@@ -5938,7 +5938,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     if (vk_res == VK_SUCCESS)
     {
         // check for buffer-references, issue warning
-        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize);
+        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
 
         if (vk_res == VK_SUCCESS && options_.dumping_resources)
         {
@@ -5956,7 +5956,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
                                                         phys_dev->replay_device_info->properties->limits);
         }
     }
-
     return vk_res;
 }
 
@@ -10118,8 +10117,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
             resource_dumper_->DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
         }
 
+        std::vector<VulkanPipelineInfo*> pipeline_infos(pPipelines->GetLength());
+        for (uint32_t i = 0; i < pPipelines->GetLength(); ++i)
+        {
+            pipeline_infos[i] = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+        }
+
         // check potentially inlined spirv
-        graphics::vulkan_check_buffer_references(maybe_replaced_create_infos, create_info_count);
+        graphics::vulkan_check_buffer_references(maybe_replaced_create_infos, create_info_count, pipeline_infos.data());
     }
     return replay_result;
 }
@@ -10161,7 +10166,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
                                   out_pipelines);
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
-
     if (in_pipeline_cache != override_pipeline_cache && replay_result == VK_SUCCESS)
     {
         TrackNewPipelineCache(device_info,
@@ -10178,18 +10182,26 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
 
         for (uint32_t i = 0; i < create_info_count; ++i)
         {
-            assert(create_info_meta[i].stage);
-            VulkanShaderModuleInfo* module_info =
-                object_info_table_->GetVkShaderModuleInfo(create_info_meta[i].stage->module);
-            assert(module_info);
+            GFXRECON_ASSERT(create_info_meta[i].stage != nullptr);
 
-            auto pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
-            assert(pipeline_info);
+            if (create_info_meta[i].stage->module != gfxrecon::format::kNullHandleId)
+            {
+                VulkanShaderModuleInfo* module_info =
+                    object_info_table_->GetVkShaderModuleInfo(create_info_meta[i].stage->module);
+                assert(module_info);
 
-            pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
+                auto pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+                assert(pipeline_info);
+
+                pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
+            }
+            else if (auto module_create_info =
+                         graphics::vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&in_p_create_infos->stage))
+            {
+                // TODO: handle inlined SPIRV here, it should be in the pNext-chain of VkPipelineShaderStageCreateInfo
+            }
         }
     }
-
     return replay_result;
 }
 
@@ -10268,9 +10280,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
         {
             if (maybe_replaced_create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
             {
+                auto* shader_ext_info = reinterpret_cast<VulkanShaderEXTInfo*>(pShaders->GetConsumerData(i));
+                GFXRECON_ASSERT(shader_ext_info != nullptr);
+
                 graphics::vulkan_check_buffer_references(
                     reinterpret_cast<const uint32_t*>(maybe_replaced_create_infos[i].pCode),
-                    maybe_replaced_create_infos[i].codeSize);
+                    maybe_replaced_create_infos[i].codeSize,
+                    shader_ext_info);
             }
         }
     }
@@ -10437,6 +10453,13 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     }
     TrackAsyncHandles(handle_deps, sync_fn);
 
+    // assemble array of info-structs
+    std::vector<VulkanPipelineInfo*> pipeline_infos(pPipelines->GetLength());
+    for (uint32_t i = 0; i < pPipelines->GetLength(); ++i)
+    {
+        pipeline_infos[i] = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+    }
+
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
                  device_handle,
@@ -10448,7 +10471,8 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
-                 pipelines        = std::move(pipelines)]() mutable -> handle_create_result_t<VkPipeline> {
+                 pipelines        = std::move(pipelines),
+                 pipeline_infos   = std::move(pipeline_infos)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto                    create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
 
@@ -10465,7 +10489,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
         if (replay_result == VK_SUCCESS)
         {
             // check potentially inlined spirv
-            graphics::vulkan_check_buffer_references(create_infos, createInfoCount);
+            graphics::vulkan_check_buffer_references(create_infos, createInfoCount, pipeline_infos.data());
         }
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
@@ -10513,6 +10537,13 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     }
     TrackAsyncHandles(handle_deps, sync_fn);
 
+    // assemble array of info-structs
+    std::vector<VulkanPipelineInfo*> pipeline_infos(pPipelines->GetLength());
+    for (uint32_t i = 0; i < pPipelines->GetLength(); ++i)
+    {
+        pipeline_infos[i] = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+    }
+
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
                  device_handle,
@@ -10523,7 +10554,8 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                  in_pAllocator,
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
-                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
+                 handle_deps      = std::move(handle_deps),
+                 pipeline_infos   = std::move(pipeline_infos)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto     create_infos  = reinterpret_cast<const VkComputePipelineCreateInfo*>(create_info_data.data());
         VkResult replay_result = func(
@@ -10533,7 +10565,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         if (replay_result == VK_SUCCESS)
         {
             // check potentially inlined spirv
-            graphics::vulkan_check_buffer_references(create_infos, createInfoCount);
+            graphics::vulkan_check_buffer_references(create_infos, createInfoCount, pipeline_infos.data());
         }
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
@@ -10575,6 +10607,13 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
     }
     TrackAsyncHandles(handle_deps, sync_fn);
 
+    // assemble array of info-structs
+    std::vector<VulkanShaderEXTInfo*> shader_ext_infos(pShaders->GetLength());
+    for (uint32_t i = 0; i < pShaders->GetLength(); ++i)
+    {
+        shader_ext_infos[i] = reinterpret_cast<VulkanShaderEXTInfo*>(pShaders->GetConsumerData(i));
+    }
+
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
                  device_handle,
@@ -10585,7 +10624,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
-                 shaders          = std::move(shaders)]() mutable -> handle_create_result_t<VkShaderEXT> {
+                 shaders          = std::move(shaders),
+                 shader_ext_infos = std::move(shader_ext_infos)]() mutable -> handle_create_result_t<VkShaderEXT> {
         std::vector<VkShaderEXT> out_shaders(createInfoCount);
         auto                     create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
 
@@ -10605,7 +10645,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                 if (create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
                 {
                     graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(create_infos[i].pCode),
-                                                             create_infos[i].codeSize);
+                                                             create_infos[i].codeSize,
+                                                             shader_ext_infos[i]);
                 }
             }
         }
