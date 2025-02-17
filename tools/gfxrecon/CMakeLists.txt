@@ -1,8 +1,6 @@
-add_custom_target(gfxrecon.py ALL)
-
-add_custom_command(TARGET gfxrecon.py
-                   DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon.py
-                   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon.py)
+add_custom_target(gfxrecon.py ALL
+                  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon.py
+                  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon.py)
 
 install(FILES gfxrecon.py DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
