@@ -292,12 +292,12 @@ class VulkanReplayConsumerBodyGenerator(
         # If surface was not created, need to automatically ignore for non-overrides queries
         # Swapchain also need to check if a dummy swapchain was created instead
         if value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR':
-            expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
+            expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
                 value.name
             )
             preexpr.append(expr)
 
-            expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(
+            expr = 'if ({}->GetPointer()->surface == VK_NULL_HANDLE) {{ return; }}'.format(
                 value.name
             )
             preexpr.append(expr)
