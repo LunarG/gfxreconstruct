@@ -1636,6 +1636,23 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
     const VkDescriptorSet* in_pDescriptorSets = MapHandles<VulkanDescriptorSetInfo>(pDescriptorSets, descriptorSetCount, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
     const uint32_t* in_pDynamicOffsets = pDynamicOffsets->GetPointer();
 
+    uint32_t num_sets = pDescriptorSets->GetLength();
+
+    auto *cmd_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    for(const auto &[bind_point, pipeline_id] : cmd_buffer_info->bound_pipelines)
+    {
+        auto *pipeline_info = GetObjectInfoTable().GetVkPipelineInfo(pipeline_id);
+        for(const auto &buffer_ref_info : pipeline_info->buffer_reference_infos)
+        {
+            GFXRECON_LOG_INFO("%s(): buffer-reference found, repl8cer required", __func__);
+            // TODO: implement another override here, hook for repl8cer
+
+            GFXRECON_ASSERT(buffer_ref_info.set <= num_sets);
+            auto *descriptor_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+            GFXRECON_ASSERT(descriptor_set_info);
+            GFXRECON_ASSERT(!descriptor_set_info->descriptors[buffer_ref_info.binding].buffer_info.empty());
+        }
+    }
     GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets(in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, in_pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
 
     if (options_.dumping_resources)

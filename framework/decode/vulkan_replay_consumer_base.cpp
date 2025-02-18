@@ -4018,7 +4018,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
     VkResult result = func(device_info->handle, create_info, GetAllocationCallbacks(pAllocator), replay_set_layout);
 
     // The information gathered here is only relevant to the dump resources feature
-    if (result >= 0 && options_.dumping_resources)
+    if (result >= 0 /*&& options_.dumping_resources*/)
     {
         auto layout_info = reinterpret_cast<VulkanDescriptorSetLayoutInfo*>(pSetLayout->GetConsumerData(0));
         assert(layout_info != nullptr);
@@ -4196,7 +4196,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
         }
 
         // The information gathered here is only relevant to the dump resources feature
-        if (result == VK_SUCCESS && options_.dumping_resources)
+        if (result == VK_SUCCESS /*&& options_.dumping_resources*/)
         {
             auto meta_info = pAllocateInfo->GetMetaStructPointer();
             assert(meta_info->decoded_value != nullptr);
