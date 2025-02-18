@@ -65,7 +65,7 @@ class App : public gfxrecon::test::TestAppBase
     uint32_t       staging_memory_type_;
 
     uint32_t sparse_binding_granularity_;
-    VkExtent3D sparse_block_granularity_;
+    //VkExtent3D sparse_block_granularity_;
 
     VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
     VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
@@ -421,35 +421,35 @@ void App::create_staging_buffer()
 void App::create_images()
 {
     // Get VkSparseImageFormatProperties for 2D R8G8B8A8_SRGB images
-    VkPhysicalDevice pd = init.physical_device.physical_device;
-    uint32_t prop_count = 0;
-    init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
-        pd,
-        IMAGE_FORMAT,
-        VK_IMAGE_TYPE_2D,
-        VK_SAMPLE_COUNT_1_BIT,
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-        VK_IMAGE_TILING_OPTIMAL,
-        &prop_count,
-        nullptr
-    );
-    std::vector<VkSparseImageFormatProperties> props;
-    props.resize(prop_count);
-    init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
-        pd,
-        IMAGE_FORMAT,
-        VK_IMAGE_TYPE_2D,
-        VK_SAMPLE_COUNT_1_BIT,
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-        VK_IMAGE_TILING_OPTIMAL,
-        &prop_count,
-        props.data()
-    );
-    for (VkSparseImageFormatProperties prop : props) {
-        if (prop.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT) {
-            sparse_block_granularity_ = prop.imageGranularity;
-        }
-    }
+    // VkPhysicalDevice pd = init.physical_device.physical_device;
+    // uint32_t prop_count = 0;
+    // init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
+    //     pd,
+    //     IMAGE_FORMAT,
+    //     VK_IMAGE_TYPE_2D,
+    //     VK_SAMPLE_COUNT_1_BIT,
+    //     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+    //     VK_IMAGE_TILING_OPTIMAL,
+    //     &prop_count,
+    //     nullptr
+    // );
+    // std::vector<VkSparseImageFormatProperties> props;
+    // props.resize(prop_count);
+    // init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
+    //     pd,
+    //     IMAGE_FORMAT,
+    //     VK_IMAGE_TYPE_2D,
+    //     VK_SAMPLE_COUNT_1_BIT,
+    //     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+    //     VK_IMAGE_TILING_OPTIMAL,
+    //     &prop_count,
+    //     props.data()
+    // );
+    // for (VkSparseImageFormatProperties prop : props) {
+    //     if (prop.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT) {
+    //         sparse_block_granularity_ = prop.imageGranularity;
+    //     }
+    // }
 
     // Create image object
     VkImageCreateInfo image_info     = {};
@@ -514,109 +514,109 @@ void App::create_images()
     VERIFY_VK_RESULT("Failed to create image view", result);
 
     // Write image data to staging buffer
-    for (int y = 0; y < image_size_; ++y) {
-        for (int x = 0; x < image_size_; ++x) {
-            // Pointer to first byte of current pixel
-            // This is an R8G8B8A8 format
-            uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
-            bool is_purple = x % 2 + y % 2 == 1;
-            first_byte[0] = is_purple ? 0xFF : 0x00;
-            first_byte[2] = is_purple ? 0xFF : 0x00;
-        }
-    }
+    // for (int y = 0; y < image_size_; ++y) {
+    //     for (int x = 0; x < image_size_; ++x) {
+    //         // Pointer to first byte of current pixel
+    //         // This is an R8G8B8A8 format
+    //         uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
+    //         bool is_purple = x % 2 + y % 2 == 1;
+    //         first_byte[0] = is_purple ? 0xFF : 0x00;
+    //         first_byte[2] = is_purple ? 0xFF : 0x00;
+    //     }
+    // }
     
     // Need to start command buffer for image upload
-    VkCommandBuffer cmd = command_buffers_[0];
-    VkCommandBufferBeginInfo begin_info = {};
-    begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    result                     = init.disp.beginCommandBuffer(cmd, &begin_info);
-    VERIFY_VK_RESULT("failed to begin command buffer", result);
+    // VkCommandBuffer cmd = command_buffers_[0];
+    // VkCommandBufferBeginInfo begin_info = {};
+    // begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    // result                     = init.disp.beginCommandBuffer(cmd, &begin_info);
+    // VERIFY_VK_RESULT("failed to begin command buffer", result);
 
 
-    // Memory barrier to transition into transfer dst optimal
-    {
-        VkImageMemoryBarrier image_barrier        = {};
-        image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        image_barrier.image                       = image0_;
-        image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
-        image_barrier.newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        image_barrier.subresourceRange.layerCount = 1;
-        image_barrier.subresourceRange.levelCount = 1;
-        image_barrier.srcAccessMask               = VK_ACCESS_NONE;
-        image_barrier.dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-        init.disp.cmdPipelineBarrier(cmd,
-                                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        0,
-                                        0,
-                                        nullptr,
-                                        0,
-                                        nullptr,
-                                        1,
-                                        &image_barrier);
-    }
+    // // Memory barrier to transition into transfer dst optimal
+    // {
+    //     VkImageMemoryBarrier image_barrier        = {};
+    //     image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //     image_barrier.image                       = image0_;
+    //     image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+    //     image_barrier.newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    //     image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //     image_barrier.subresourceRange.layerCount = 1;
+    //     image_barrier.subresourceRange.levelCount = 1;
+    //     image_barrier.srcAccessMask               = VK_ACCESS_NONE;
+    //     image_barrier.dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+    //     init.disp.cmdPipelineBarrier(cmd,
+    //                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+    //                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+    //                                     0,
+    //                                     0,
+    //                                     nullptr,
+    //                                     0,
+    //                                     nullptr,
+    //                                     1,
+    //                                     &image_barrier);
+    // }
 
-    // Copy image data from staging buffer
-    VkBufferImageCopy image_copy = {};
-    image_copy.bufferOffset = 0;
-    image_copy.bufferRowLength = 0;
-    image_copy.bufferImageHeight = 0;
-    image_copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    image_copy.imageSubresource.mipLevel = 0;
-    image_copy.imageSubresource.baseArrayLayer = 0;
-    image_copy.imageSubresource.layerCount = 1;
-    image_copy.imageOffset.x = 0;
-    image_copy.imageOffset.y = 0;
-    image_copy.imageOffset.z = 0;
-    image_copy.imageExtent.width = image_size_;
-    image_copy.imageExtent.height = image_size_;
-    image_copy.imageExtent.depth = 1;
+    // // Copy image data from staging buffer
+    // VkBufferImageCopy image_copy = {};
+    // image_copy.bufferOffset = 0;
+    // image_copy.bufferRowLength = 0;
+    // image_copy.bufferImageHeight = 0;
+    // image_copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    // image_copy.imageSubresource.mipLevel = 0;
+    // image_copy.imageSubresource.baseArrayLayer = 0;
+    // image_copy.imageSubresource.layerCount = 1;
+    // image_copy.imageOffset.x = 0;
+    // image_copy.imageOffset.y = 0;
+    // image_copy.imageOffset.z = 0;
+    // image_copy.imageExtent.width = image_size_;
+    // image_copy.imageExtent.height = image_size_;
+    // image_copy.imageExtent.depth = 1;
 
-    init.disp.cmdCopyBufferToImage(cmd, staging_buffer_, image0_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
+    // init.disp.cmdCopyBufferToImage(cmd, staging_buffer_, image0_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
 
-    // Memory barrier to transition into read-only optimal
-    {
-        VkImageMemoryBarrier image_barrier        = {};
-        image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        image_barrier.image                       = image0_;
-        image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        image_barrier.newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        image_barrier.subresourceRange.layerCount = 1;
-        image_barrier.subresourceRange.levelCount = 1;
-        image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-        image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        init.disp.cmdPipelineBarrier(cmd,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                        0,
-                                        0,
-                                        nullptr,
-                                        0,
-                                        nullptr,
-                                        1,
-                                        &image_barrier);
-    }
+    // // Memory barrier to transition into read-only optimal
+    // {
+    //     VkImageMemoryBarrier image_barrier        = {};
+    //     image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //     image_barrier.image                       = image0_;
+    //     image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    //     image_barrier.newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    //     image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //     image_barrier.subresourceRange.layerCount = 1;
+    //     image_barrier.subresourceRange.levelCount = 1;
+    //     image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+    //     image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    //     init.disp.cmdPipelineBarrier(cmd,
+    //                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+    //                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    //                                     0,
+    //                                     0,
+    //                                     nullptr,
+    //                                     0,
+    //                                     nullptr,
+    //                                     1,
+    //                                     &image_barrier);
+    // }
 
-    result = init.disp.endCommandBuffer(cmd);
-    VERIFY_VK_RESULT("failed to end command buffer", result);
+    // result = init.disp.endCommandBuffer(cmd);
+    // VERIFY_VK_RESULT("failed to end command buffer", result);
 
-    // Queue submit
-    VkSubmitInfo submit_info = {};
-    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submit_info.pNext = nullptr;
-    submit_info.waitSemaphoreCount = 0;
-    submit_info.signalSemaphoreCount = 0;
-    submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &cmd;
-    init.disp.queueSubmit(graphics_queue_, 1, &submit_info, immediate_fence_);
+    // // Queue submit
+    // VkSubmitInfo submit_info = {};
+    // submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    // submit_info.pNext = nullptr;
+    // submit_info.waitSemaphoreCount = 0;
+    // submit_info.signalSemaphoreCount = 0;
+    // submit_info.commandBufferCount = 1;
+    // submit_info.pCommandBuffers = &cmd;
+    // init.disp.queueSubmit(graphics_queue_, 1, &submit_info, immediate_fence_);
 
-    // Wait for submission
-    result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
-    VERIFY_VK_RESULT("failed to wait for upload fence", result);
-    result = init.disp.resetFences(1, &immediate_fence_);
-    VERIFY_VK_RESULT("failed to reset upload fence", result);
+    // // Wait for submission
+    // result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
+    // VERIFY_VK_RESULT("failed to wait for upload fence", result);
+    // result = init.disp.resetFences(1, &immediate_fence_);
+    // VERIFY_VK_RESULT("failed to reset upload fence", result);
 
     // Update descriptor set
     VkDescriptorImageInfo desc_image = {};
@@ -734,6 +734,135 @@ bool App::frame(const int frame_num)
         result                              = init.disp.beginCommandBuffer(command_buffer, &begin_info);
         VERIFY_VK_RESULT("failed to create command buffer", result);
 
+        // Bind sparse memory
+        static bool first_frame = true;
+        if (first_frame) {
+            // VkSparseImageMemoryBind bind = {};
+            // bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            // bind.subresource.mipLevel = 0;
+            // bind.subresource.arrayLayer = 0;
+            // bind.offset.x = 0;
+            // bind.offset.y = 0;
+            // bind.offset.z = 0;
+            // bind.extent.width = image_size_;
+            // bind.extent.height = image_size_;
+            // bind.extent.depth = 1;
+            // bind.memory = image_backing_memory_;
+            // bind.memoryOffset = 0;
+            // bind.flags = 0;
+
+            VkSparseMemoryBind bind = {};
+            bind.resourceOffset = 0;
+            bind.size = sparse_binding_granularity_;
+            bind.memory = image_backing_memory_;
+            bind.memoryOffset = 0;
+            bind.flags = 0;
+            //bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
+
+            VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
+            im_bind_info.image = image0_;
+            im_bind_info.bindCount = 1;
+            im_bind_info.pBinds = &bind;
+
+            VkBindSparseInfo sparse_info = {};
+            sparse_info.sType = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+            sparse_info.pNext = nullptr;
+            sparse_info.bufferBindCount = 0;
+            sparse_info.pBufferBinds = nullptr;
+            sparse_info.imageOpaqueBindCount = 1;
+            sparse_info.pImageOpaqueBinds = &im_bind_info;
+            sparse_info.imageBindCount = 0;
+            sparse_info.pImageBinds = nullptr;
+            result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, immediate_fence_);
+            VERIFY_VK_RESULT("Failed to bind sparse memory", result);
+
+            result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
+            VERIFY_VK_RESULT("Failed to wait for sparse binding fence.", result);
+            result = init.disp.resetFences(1, &immediate_fence_);
+            VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
+
+            // Upload image data after bind
+
+            // Write pixels to staging buffer
+            for (int y = 0; y < image_size_; ++y) {
+                for (int x = 0; x < image_size_; ++x) {
+                    // Pointer to first byte of current pixel
+                    // This is an R8G8B8A8 format
+                    uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
+                    bool is_purple = x % 2 + y % 2 == 1;
+                    first_byte[0] = is_purple ? 0xFF : 0x00;
+                    first_byte[2] = is_purple ? 0xFF : 0x00;
+                }
+            }
+
+            // Memory barrier to transition into transfer dst optimal
+            {
+                VkImageMemoryBarrier image_barrier        = {};
+                image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barrier.image                       = image0_;
+                image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_barrier.newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barrier.subresourceRange.layerCount = 1;
+                image_barrier.subresourceRange.levelCount = 1;
+                image_barrier.srcAccessMask               = VK_ACCESS_NONE;
+                image_barrier.dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+                init.disp.cmdPipelineBarrier(command_buffer,
+                                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                0,
+                                                0,
+                                                nullptr,
+                                                0,
+                                                nullptr,
+                                                1,
+                                                &image_barrier);
+            }
+
+            // Copy image data from staging buffer
+            VkBufferImageCopy image_copy = {};
+            image_copy.bufferOffset = 0;
+            image_copy.bufferRowLength = 0;
+            image_copy.bufferImageHeight = 0;
+            image_copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            image_copy.imageSubresource.mipLevel = 0;
+            image_copy.imageSubresource.baseArrayLayer = 0;
+            image_copy.imageSubresource.layerCount = 1;
+            image_copy.imageOffset.x = 0;
+            image_copy.imageOffset.y = 0;
+            image_copy.imageOffset.z = 0;
+            image_copy.imageExtent.width = image_size_;
+            image_copy.imageExtent.height = image_size_;
+            image_copy.imageExtent.depth = 1;
+
+            init.disp.cmdCopyBufferToImage(command_buffer, staging_buffer_, image0_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
+
+            // Memory barrier to transition into read-only optimal
+            {
+                VkImageMemoryBarrier image_barrier        = {};
+                image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barrier.image                       = image0_;
+                image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barrier.newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barrier.subresourceRange.layerCount = 1;
+                image_barrier.subresourceRange.levelCount = 1;
+                image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+                image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                init.disp.cmdPipelineBarrier(command_buffer,
+                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                0,
+                                                0,
+                                                nullptr,
+                                                0,
+                                                nullptr,
+                                                1,
+                                                &image_barrier);
+            }
+            first_frame = false;
+        }
+
         {
             VkImageMemoryBarrier image_barrier        = {};
             image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -825,57 +954,6 @@ bool App::frame(const int frame_num)
         VERIFY_VK_RESULT("failed to end command buffer", result);
     }
 
-    // Bind sparse memory
-    static bool first_frame = true;
-    if (first_frame) {
-        // VkSparseImageMemoryBind bind = {};
-        // bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        // bind.subresource.mipLevel = 0;
-        // bind.subresource.arrayLayer = 0;
-        // bind.offset.x = 0;
-        // bind.offset.y = 0;
-        // bind.offset.z = 0;
-        // bind.extent.width = image_size_;
-        // bind.extent.height = image_size_;
-        // bind.extent.depth = 1;
-        // bind.memory = image_backing_memory_;
-        // bind.memoryOffset = 0;
-        // bind.flags = 0;
-
-        VkSparseMemoryBind bind = {};
-        bind.resourceOffset = 0;
-        //bind.size = 4 * image_size_ * image_size_;
-        bind.size = sparse_binding_granularity_;
-        bind.memory = image_backing_memory_;
-        bind.memoryOffset = 0;
-        bind.flags = 0;
-        //bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
-
-        VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
-        im_bind_info.image = image0_;
-        im_bind_info.bindCount = 1;
-        im_bind_info.pBinds = &bind;
-
-        VkBindSparseInfo sparse_info = {};
-        sparse_info.sType = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
-        sparse_info.pNext = nullptr;
-
-        sparse_info.bufferBindCount = 0;
-        sparse_info.pBufferBinds = nullptr;
-        sparse_info.imageOpaqueBindCount = 1;
-        sparse_info.pImageOpaqueBinds = &im_bind_info;
-        sparse_info.imageBindCount = 0;
-        sparse_info.pImageBinds = nullptr;
-        result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, immediate_fence_);
-        VERIFY_VK_RESULT("Failed to bind sparse memory", result);
-
-        result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
-        VERIFY_VK_RESULT("Failed to wait for sparse binding fence.", result);
-        result = init.disp.resetFences(1, &immediate_fence_);
-        VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
-    }
-    first_frame = false;
-
     VkSubmitInfo submitInfo = {};
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -892,7 +970,6 @@ bool App::frame(const int frame_num)
 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &command_buffer;
-    
 
     VkSemaphore signal_semaphores[] = { sync_.finished_semaphore[current_frame_] };
     submitInfo.signalSemaphoreCount = 1;
