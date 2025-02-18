@@ -453,16 +453,6 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
         bool             is_array;
     };
 
-    VulkanShaderModuleInfo() = default;
-    VulkanShaderModuleInfo(const VulkanShaderModuleInfo& other)
-    {
-        handle                = other.handle;
-        parent_id             = other.parent_id;
-        capture_id            = other.capture_id;
-        used_descriptors_info = other.used_descriptors_info;
-    }
-    VulkanShaderModuleInfo& operator=(const VulkanShaderModuleInfo& other) = default;
-
     // One entry per descriptor binding
     using ShaderDescriptorSetInfo = std::map<uint32_t, ShaderDescriptorInfo>;
 
