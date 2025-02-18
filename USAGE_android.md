@@ -891,10 +891,10 @@ optional arguments:
               <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
               NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
               QueueSubmit=<u>
-              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR
+              Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR
               is replayed. The parameter for each is a block index from the capture file. The
               additional parameters are used to identify during which occurence of the
-              vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can
+              vkCmdDraw/vkCmdDispath/vkCmdTraceRaysKHR resources will be dumped.  NextSubPass can
               be repeated 0 or more times to indicate subpasses within a render pass.  Note that
               the minimal set of parameters must be one of:
                   BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
