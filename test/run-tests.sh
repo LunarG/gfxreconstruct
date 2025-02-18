@@ -11,6 +11,7 @@ VK_LOADER_LAYERS_ENABLE=*gfxreconstruct* \
 DISPLAY=:0 \
 GFXRECON_TESTAPP_HEADLESS=true \
 GFXRECON_TESTAPP_MOCK_ICD="$PWD/test_apps/libVkICD_mock_icd.so" \
-GFXRECON_LOG_LEVEL="info" \
-VK_LOADER_DEBUG="all" \
 ./gfxrecon-testapp-runner
+
+#GFXRECON_LOG_LEVEL="info" \
+#VK_LOADER_DEBUG="all" \

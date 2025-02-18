@@ -11,6 +11,7 @@ VK_LOADER_LAYERS_ENABLE=VK_LAYER_LUNARG_gfxreconstruct \
 DISPLAY=:0 \
 GFXRECON_TESTAPP_HEADLESS=true \
 GFXRECON_TESTAPP_MOCK_ICD="$PWD/test_apps/libVkICD_mock_icd.dylib" \
-GFXRECON_LOG_LEVEL="info" \
-VK_LOADER_DEBUG="layer" \
 ./gfxrecon-testapp-runner
+
+#GFXRECON_LOG_LEVEL="info" \
+#VK_LOADER_DEBUG="layer" \
