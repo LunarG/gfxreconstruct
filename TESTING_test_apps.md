@@ -39,11 +39,11 @@ Test apps are built as part of the default build CMAKE build process. In order t
 
 ## **Test App Verification**
 
-To run the test apps and validate output against known good '.gfxr' files, build the project using ./scripts/build.py,
-and then run the test script from within the 'test' install directory.
+To run the test apps and validate output against known good '.gfxr' files, build the project and then run the test script from within the 'test' install directory.
 
-|Operating System|Test Directory|Test Script|
-|---------------|---------------|------------|
-|Windows|build/windows/x64/output/test|run-tests.ps1|
-|Linux|build/linux/x64/output/test|run-tests.sh|
-|MacOs|build/darwin/universal/output/test|run-tests_macos.sh|
+
+|Operating System| ./scripts/build.py Test Directory  |Test Script|
+|---------------|------------------------------------|------------|
+|Windows| build/windows/x64/output/test      |run-tests.ps1|
+|Linux| build/linux/x64/output/test        |run-tests.sh|
+|MacOs| build/darwin/universal/output/test |run-tests_macos.sh|
