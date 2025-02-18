@@ -830,6 +830,16 @@ Instance InstanceBuilder::build() const
         extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
     }
 
+#if defined(VK_KHR_portability_enumeration)
+    bool portability_enumeration_support = detail::check_extension_supported(system.available_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    if (portability_enumeration_support)
+    {
+        extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    }
+#else
+    bool portability_enumeration_support = false;
+#endif
+
     if (!info.headless_context)
     {
         auto check_add_window_ext = [&](const char* name) -> bool {
