@@ -119,7 +119,7 @@ void RunVulkanPreProcessConsumer(const std::string&                      input_f
 
             if (replay_options.enable_dump_resources)
             {
-                // Process --dump-resources-block-indices arg.
+                // Process --dump-resources block indices arg.
                 if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
                 {
                     GFXRECON_LOG_FATAL("There was an error while parsing dump resources indices. Terminating.");

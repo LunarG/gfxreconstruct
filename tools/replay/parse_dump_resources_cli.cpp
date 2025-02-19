@@ -87,7 +87,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
             if (!AreIndicesSorted(indices))
             {
-                GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources-block-indices parameters");
+                GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources block indices parameters");
                 GFXRECON_LOG_ERROR("Draw indices are not sorted")
                 return true;
             }
@@ -95,7 +95,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
         if (!is_complete)
         {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources-block-indices parameters");
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources block indices parameters");
             GFXRECON_LOG_ERROR("Draw indices should be a 2 dimensional array");
             return true;
         }
@@ -112,7 +112,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
                 if (!AreIndicesSorted(indices1))
                 {
-                    GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources-block-indices parameters");
+                    GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources block indices parameters");
                     GFXRECON_LOG_ERROR("Render pass indices are not sorted")
                     return true;
                 }
@@ -121,7 +121,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
         if (!is_complete)
         {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources-block-indices parameters");
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources block indices parameters");
             GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimensional array");
             return true;
         }
@@ -133,7 +133,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         {
             if (!AreIndicesSorted(indices))
             {
-                GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources-block-indices parameters");
+                GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources block indices parameters");
                 GFXRECON_LOG_ERROR("Dispatch indices are not sorted")
                 return true;
             }
