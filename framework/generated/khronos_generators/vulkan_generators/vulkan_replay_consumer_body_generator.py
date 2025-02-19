@@ -343,13 +343,16 @@ class VulkanReplayConsumerBodyGenerator(
                             dump_resource_arglist += val.name + '->GetPointer()'
                     elif self.is_handle(val.base_type):
                         if val.is_pointer:
-                            dump_resource_arglist += val.name + '->GetHandlePointer()'
-                        elif val.base_type in ["VkPipeline"]:
+                            if is_dr_override:
+                                dump_resource_arglist += val.name
+                            else:
+                                dump_resource_arglist += val.name + '->GetHandlePointer()'
+                        elif val.base_type in ["VkPipeline", "VkPipelineLayout"] and name != "vkCmdPushConstants":
                             dump_resource_arglist += 'in_' + val.name
                         else:
                             dump_resource_arglist += 'in_' + val.name + '->handle'
                     else:
-                        if val.is_pointer and val.base_type == "void":
+                        if val.is_pointer and val.base_type in ["void", "uint32_t"]:
                             # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
                             # -> dump-resource API expects raw void*
                             dump_resource_arglist += val.name + '->GetPointer()'

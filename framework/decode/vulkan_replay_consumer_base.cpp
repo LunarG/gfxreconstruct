@@ -4284,6 +4284,50 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescriptorSets            func,
+                                                             VulkanCommandBufferInfo*               in_commandBuffer,
+                                                             VkPipelineBindPoint                    pipelineBindPoint,
+                                                             VulkanPipelineLayoutInfo*              in_layout,
+                                                             uint32_t                               firstSet,
+                                                             uint32_t                               descriptorSetCount,
+                                                             HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
+                                                             uint32_t                               dynamicOffsetCount,
+                                                             PointerDecoder<uint32_t>*              pDynamicOffsets)
+{
+    GFXRECON_ASSERT(in_commandBuffer != nullptr && in_layout != nullptr && pDescriptorSets != nullptr &&
+                    pDynamicOffsets != nullptr);
+
+    VkCommandBuffer        command_buffer  = VK_NULL_HANDLE;
+    VkPipelineLayout       pipeline_layout = VK_NULL_HANDLE;
+    const VkDescriptorSet* descriptor_sets = pDescriptorSets->GetHandlePointer();
+    command_buffer                         = in_commandBuffer->handle;
+    pipeline_layout                        = in_layout->handle;
+
+    // TODO: add replacer-logic here
+    for (const auto& [bind_point, pipeline_id] : in_commandBuffer->bound_pipelines)
+    {
+        auto* pipeline_info = GetObjectInfoTable().GetVkPipelineInfo(pipeline_id);
+        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+        {
+            GFXRECON_LOG_INFO("%s(): buffer-reference found, repl8cer required", __func__);
+            GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+            auto* descriptor_set_info =
+                GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+            GFXRECON_ASSERT(descriptor_set_info);
+            GFXRECON_ASSERT(!descriptor_set_info->descriptors[buffer_ref_info.binding].buffer_info.empty());
+        }
+    }
+
+    func(command_buffer,
+         pipelineBindPoint,
+         pipeline_layout,
+         firstSet,
+         descriptorSetCount,
+         descriptor_sets,
+         dynamicOffsetCount,
+         pDynamicOffsets->GetPointer());
+}
+
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     PFN_vkAllocateCommandBuffers                                     func,
     VkResult                                                         original_result,
