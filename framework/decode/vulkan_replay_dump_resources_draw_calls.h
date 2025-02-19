@@ -612,7 +612,7 @@ class DrawCallsDumpingContext
                            uint32_t                max_draw_count,
                            uint32_t                stride) :
             dc_params_union(buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride),
-            type(type)
+            type(type), index_buffer_dumped_at_offset(0)
         {
             assert(type == DrawCallTypes::kDrawIndirectCount || type == DrawCallTypes::kDrawIndexedIndirectCount ||
                    type == DrawCallTypes::kDrawIndirectCountKHR || type == DrawCallTypes::kDrawIndexedIndirectCountKHR);
@@ -632,6 +632,11 @@ class DrawCallsDumpingContext
         std::unordered_map<VkShaderStageFlagBits,
                            std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>>
             referenced_descriptors;
+
+        // These is used to store the offset at which the vertex and index buffers are dumped in order to include the
+        // offset information in the output json
+        std::unordered_map<uint32_t, size_t> vertex_buffer_dumped_at_offset;
+        size_t                               index_buffer_dumped_at_offset;
     };
 
   private:
