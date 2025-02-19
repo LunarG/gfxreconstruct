@@ -4328,6 +4328,23 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
          pDynamicOffsets->GetPointer());
 }
 
+void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
+    PFN_vkCmdBindDescriptorSets2                            func,
+    VulkanCommandBufferInfo*                                in_commandBuffer,
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
+{
+    GFXRECON_ASSERT(in_commandBuffer != nullptr && pBindDescriptorSetsInfo != nullptr);
+
+    VkCommandBuffer           command_buffer            = in_commandBuffer->handle;
+    VkBindDescriptorSetsInfo* bind_descriptor_sets_info = pBindDescriptorSetsInfo->GetPointer();
+
+    // TODO: add replacer-logic here
+//    auto *device_info = GetObjectInfoTable().GetVkDeviceInfo(in_commandBuffer->parent_id);
+//    GFXRECON_ASSERT(device_info != nullptr);
+
+    func(command_buffer, bind_descriptor_sets_info);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     PFN_vkAllocateCommandBuffers                                     func,
     VkResult                                                         original_result,

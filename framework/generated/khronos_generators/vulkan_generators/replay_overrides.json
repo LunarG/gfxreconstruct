@@ -134,6 +134,8 @@
     "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
     "vkCmdBindPipeline" : "OverrideCmdBindPipeline",
     "vkCmdPushConstants" : "OverrideCmdPushConstants",
-    "vkCmdBindDescriptorSets" : "OverrideCmdBindDescriptorSets"
+    "vkCmdBindDescriptorSets" : "OverrideCmdBindDescriptorSets",
+    "vkCmdBindDescriptorSets2KHR" : "OverrideCmdBindDescriptorSets2",
+    "vkCmdBindDescriptorSets2" : "OverrideCmdBindDescriptorSets2"
   }
 }
