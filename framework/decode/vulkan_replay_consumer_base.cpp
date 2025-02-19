@@ -4297,11 +4297,12 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
     GFXRECON_ASSERT(in_commandBuffer != nullptr && in_layout != nullptr && pDescriptorSets != nullptr &&
                     pDynamicOffsets != nullptr);
 
-    VkCommandBuffer        command_buffer  = VK_NULL_HANDLE;
-    VkPipelineLayout       pipeline_layout = VK_NULL_HANDLE;
+    const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(in_commandBuffer->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkCommandBuffer        command_buffer  = in_commandBuffer->handle;
+    VkPipelineLayout       pipeline_layout = in_layout->handle;
     const VkDescriptorSet* descriptor_sets = pDescriptorSets->GetHandlePointer();
-    command_buffer                         = in_commandBuffer->handle;
-    pipeline_layout                        = in_layout->handle;
 
     // TODO: add replacer-logic here
     for (const auto& [bind_point, pipeline_id] : in_commandBuffer->bound_pipelines)
@@ -4314,7 +4315,22 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
             auto* descriptor_set_info =
                 GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
             GFXRECON_ASSERT(descriptor_set_info);
-            GFXRECON_ASSERT(!descriptor_set_info->descriptors[buffer_ref_info.binding].buffer_info.empty());
+            const auto& descriptor = descriptor_set_info->descriptors[buffer_ref_info.binding];
+            GFXRECON_ASSERT(!descriptor.buffer_info.empty());
+
+            for (const auto& desc_buffer_info : descriptor.buffer_info)
+            {
+                auto* buffer_info = desc_buffer_info.buffer_info;
+                GFXRECON_ASSERT(buffer_info != nullptr);
+
+                // we only track buffers with device-addresses here
+                if (auto* tracked_buffer = GetDeviceAddressTracker(device_info)
+                                               .GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
+                {
+                    // assert we got buffer-tracking correct
+                    GFXRECON_ASSERT(tracked_buffer == buffer_info);
+                }
+            }
         }
     }
 
@@ -4339,8 +4355,6 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
     VkBindDescriptorSetsInfo* bind_descriptor_sets_info = pBindDescriptorSetsInfo->GetPointer();
 
     // TODO: add replacer-logic here
-//    auto *device_info = GetObjectInfoTable().GetVkDeviceInfo(in_commandBuffer->parent_id);
-//    GFXRECON_ASSERT(device_info != nullptr);
 
     func(command_buffer, bind_descriptor_sets_info);
 }
@@ -9943,7 +9957,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
         device_info->handle, descriptor_write_count, in_pDescriptorWrites, descriptor_copy_count, in_pDescriptorCopies);
 
     // The information gathered here is only relevant to the dump resources feature
-    if (options_.dumping_resources)
+//    if (options_.dumping_resources)
     {
         const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
         for (uint32_t s = 0; s < descriptor_write_count; ++s)
