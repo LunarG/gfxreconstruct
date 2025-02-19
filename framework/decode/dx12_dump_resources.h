@@ -27,7 +27,7 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/dx_replay_options.h"
 #include "decode/dx12_object_info.h"
-#include "decode/dx12_pre_process_consumer.h"
+#include "decode/dx12_browse_consumer.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_gpu_va_map.h"

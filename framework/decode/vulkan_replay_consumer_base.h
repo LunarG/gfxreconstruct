@@ -302,8 +302,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // Need the side effects from this when creating vulkan devices from OpenXr
     void GetMatchingDevice(VulkanPhysicalDeviceInfo* physical_device_info);
 
-    void InitializeReplayDumpResources();
-
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
@@ -1434,9 +1432,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                           StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                           HandlePointerDecoder<VkShaderEXT>*                   pShaders);
 
-    const VulkanReplayOptions& options_;
+    const VulkanReplayOptions options_;
 
-    VulkanReplayDumpResources* resource_dumper_{ nullptr };
+    VulkanReplayDumpResources* resource_dumper_;
 
   private:
     void RaiseFatalError(const char* message) const;

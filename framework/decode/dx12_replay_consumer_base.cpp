@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -75,11 +75,10 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
-    application_(application),
-    options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
-    frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
-    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr), frame_end_marker_count_(0)
+    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
+    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
+    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr), frame_end_marker_count_(0)
 {
     if (options_.enable_validation_layer)
     {
@@ -390,7 +389,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         // 2. One ExecuteCommandLists could work for only one swapchain buffer.
         // 3. The current back buffer index has to match the swapchain buffer.
         // 4. After ExecuteCommandLists, the current back buffer index has to back init.
-        // 5. It shouldn't change resource states until all Presnt are done since Present require 
+        // 5. It shouldn't change resource states until all Presnt are done since Present require
         //    D3D12_RESOURCE_STATE_PRESENT. The before_states supposes to be PRESENT.
 
         // Although it has only one swapchain mostly, it probably has a plural in some cases.
@@ -404,7 +403,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
             auto swapchain             = reinterpret_cast<IDXGISwapChain3*>(swapchain_info->object);
             swapchain_infos[swapchain] = swapchain_extra_info;
 
-            for (auto &state : resource_info.second->before_states)
+            for (auto& state : resource_info.second->before_states)
             {
                 if (state.states != D3D12_RESOURCE_STATE_PRESENT)
                 {
@@ -2737,7 +2736,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     DxObjectInfo*                                                  restrict_to_output_info,
     HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain)
 {
-    assert(desc != nullptr);
+    assert((device_info != nullptr) && (device_info->object != nullptr) && (desc != nullptr));
 
     auto    desc_pointer   = desc->GetPointer();
     HRESULT result         = E_FAIL;
@@ -2761,26 +2760,23 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
         if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
         {
             assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
-                   (full_screen_desc != nullptr) && (swapchain != nullptr));
+                   (swapchain != nullptr));
 
-            auto         replay_object      = static_cast<IDXGIFactory2*>(replay_object_info->object);
-            IUnknown*    device             = nullptr;
+            auto replay_object = static_cast<IDXGIFactory2*>(replay_object_info->object);
+            auto device        = device_info->object;
+
             IDXGIOutput* restrict_to_output = nullptr;
-
-            if (device_info != nullptr)
-            {
-                device = device_info->object;
-            }
 
             if (restrict_to_output_info != nullptr)
             {
                 restrict_to_output = static_cast<IDXGIOutput*>(restrict_to_output_info->object);
             }
 
-            auto full_screen_desc_ptr = full_screen_desc->GetPointer();
-            if ((options_.force_windowed) || (options_.force_windowed_origin))
+            DXGI_SWAP_CHAIN_FULLSCREEN_DESC* full_screen_desc_ptr = nullptr;
+            if ((full_screen_desc != nullptr) && (options_.force_windowed != true) &&
+                (options_.force_windowed_origin != true))
             {
-                full_screen_desc_ptr = nullptr;
+                full_screen_desc_ptr = full_screen_desc->GetPointer();
             }
             result = replay_object->CreateSwapChainForHwnd(
                 device, hwnd, desc_pointer, full_screen_desc_ptr, restrict_to_output, swapchain->GetHandlePointer());
@@ -4633,7 +4629,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     }
     else
     {
-        srv_info.desc     = *(pDesc->GetMetaStructPointer()->decoded_value);
+        srv_info.desc         = *(pDesc->GetMetaStructPointer()->decoded_value);
         srv_info.is_desc_null = false;
 
         if (options_.enable_dump_resources)
