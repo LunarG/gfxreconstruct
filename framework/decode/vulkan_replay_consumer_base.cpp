@@ -4304,13 +4304,22 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
     VkPipelineLayout       pipeline_layout = in_layout->handle;
     const VkDescriptorSet* descriptor_sets = pDescriptorSets->GetHandlePointer();
 
-    // TODO: add replacer-logic here
-    for (const auto& [bind_point, pipeline_id] : in_commandBuffer->bound_pipelines)
     {
-        auto* pipeline_info = GetObjectInfoTable().GetVkPipelineInfo(pipeline_id);
+        // collect buffer-addresses of locations to replace
+        std::vector<VkDeviceAddress> replacer_addresses;
+
+        // get device-address
+        auto* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+        GFXRECON_ASSERT(physical_device_info != nullptr);
+
+        auto get_device_address_fn = physical_device_info->parent_api_version >= VK_API_VERSION_1_2
+                                         ? GetDeviceTable(device_info->handle)->GetBufferDeviceAddress
+                                         : GetDeviceTable(device_info->handle)->GetBufferDeviceAddressKHR;
+
+        auto* pipeline_info =
+            GetObjectInfoTable().GetVkPipelineInfo(in_commandBuffer->bound_pipelines[pipelineBindPoint]);
         for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
         {
-            GFXRECON_LOG_INFO("%s(): buffer-reference found, repl8cer required", __func__);
             GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
             auto* descriptor_set_info =
                 GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
@@ -4318,9 +4327,9 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
             const auto& descriptor = descriptor_set_info->descriptors[buffer_ref_info.binding];
             GFXRECON_ASSERT(!descriptor.buffer_info.empty());
 
-            for (const auto& desc_buffer_info : descriptor.buffer_info)
+            for (auto& desc_buffer_info : descriptor.buffer_info)
             {
-                auto* buffer_info = desc_buffer_info.buffer_info;
+                auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.buffer_info);
                 GFXRECON_ASSERT(buffer_info != nullptr);
 
                 // we only track buffers with device-addresses here
@@ -4330,8 +4339,42 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
                     // assert we got buffer-tracking correct
                     GFXRECON_ASSERT(tracked_buffer == buffer_info);
                 }
+                else
+                {
+                    // patch an existing uniform-buffer and retrieve a buffer-address for it
+                    VkBufferDeviceAddressInfo address_info = {};
+                    address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                    address_info.buffer                    = buffer_info->handle;
+                    buffer_info->capture_address           = buffer_info->replay_address =
+                        get_device_address_fn(device_info->handle, &address_info);
+                    GFXRECON_ASSERT(buffer_info->replay_address != 0);
+
+                    // track newly acquired buffer/address
+                    GetDeviceAddressTracker(device_info).TrackBuffer(buffer_info);
+                }
+
+                VkDeviceAddress address =
+                    buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+                VkDeviceAddress range_end =
+                    buffer_info->replay_address + desc_buffer_info.offset + desc_buffer_info.range;
+                replacer_addresses.push_back(address);
+
+                if (buffer_ref_info.array_stride)
+                {
+                    for (; address < range_end; address += buffer_ref_info.array_stride)
+                    {
+                        replacer_addresses.push_back(address);
+                    }
+                }
             }
         }
+
+        // update buffer-addresses at collected locations
+        GetDeviceAddressReplacer(device_info)
+            .UpdateBufferAddresses(in_commandBuffer,
+                                   replacer_addresses.data(),
+                                   replacer_addresses.size(),
+                                   GetDeviceAddressTracker(device_info));
     }
 
     func(command_buffer,
@@ -5040,9 +5083,15 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto                                  replay_create_info = pCreateInfo->GetPointer();
 
     // Check for a buffer device address.
-    bool                uses_address         = false;
+    bool uses_address  = false;
+    bool force_address = /*!device_info->allocator->SupportsOpaqueDeviceAddresses() &&*/
+                         (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
+                          replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
+    auto* buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
+    GFXRECON_ASSERT(buffer_info != nullptr);
 
     if (replaying_trimmed_capture_)
     {
@@ -5102,6 +5151,13 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         result = allocator->CreateBuffer(
             &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
+    else if (force_address)
+    {
+        VkBufferCreateInfo modified_create_info = (*replay_create_info);
+        modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        result = allocator->CreateBuffer(
+            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+    }
     else
     {
         result = allocator->CreateBuffer(
@@ -5110,9 +5166,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
-        auto buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
-        assert(buffer_info != nullptr);
-
         buffer_info->allocator_data = allocator_data;
         buffer_info->usage          = replay_create_info->usage;
         buffer_info->size           = replay_create_info->size;

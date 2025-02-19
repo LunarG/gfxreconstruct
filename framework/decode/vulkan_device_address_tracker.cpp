@@ -35,6 +35,7 @@ void decode::VulkanDeviceAddressTracker::TrackBuffer(const decode::VulkanBufferI
     if (buffer_info != nullptr && buffer_info->capture_address != 0)
     {
         buffer_capture_addresses_[buffer_info->capture_address] = buffer_info->capture_id;
+        buffer_replay_addresses_[buffer_info->replay_address]   = buffer_info->capture_id;
         buffer_handles_[buffer_info->handle]                    = buffer_info->capture_id;
     }
 }
@@ -44,6 +45,7 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const VulkanBufferInfo* buffer_inf
     if (buffer_info != nullptr)
     {
         buffer_capture_addresses_.erase(buffer_info->capture_address);
+        buffer_replay_addresses_.erase(buffer_info->replay_address);
     }
 }
 
@@ -74,6 +76,12 @@ const decode::VulkanBufferInfo*
 decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const
 {
     return GetBufferInfo(capture_address, buffer_capture_addresses_);
+}
+
+const decode::VulkanBufferInfo*
+decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress capture_address) const
+{
+    return GetBufferInfo(capture_address, buffer_replay_addresses_);
 }
 
 const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle) const
