@@ -21,6 +21,6 @@ $env:GFXRECON_CAPTURE_FILE_TIMESTAMP="false"
 $env:GFXRECON_CAPTURE_FILE="actual.gfxr"
 $env:GFXRECON_TESTAPP_HEADLESS="true"
 $env:GFXRECON_TESTAPP_MOCK_ICD="$pwd\test_apps\VkICD_mock_icd.dll"
-$env:GFXRECON_LOG_LEVEL=""
-$env:VK_LOADER_DEBUG=""
+#$env:GFXRECON_LOG_LEVEL=""
+#$env:VK_LOADER_DEBUG=""
 ./gfxrecon-testapp-runner.exe
