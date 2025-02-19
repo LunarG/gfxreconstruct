@@ -204,8 +204,7 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     MarkInjectedCommandsHelper mark_injected_commands_helper;
 
     // explicitly free resources here, in order to mark destruction API-calls as injected
-    pipeline_sbt_context_map_ = {};
-    build_as_context_map_     = {};
+    pipeline_context_map_ = {};
 
     shadow_sbt_map_ = {};
     shadow_as_map_  = {};
@@ -239,6 +238,24 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     if (command_pool_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyCommandPool(device_, command_pool_, nullptr);
+    }
+}
+
+void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
+                                                  const VkDeviceAddress*                    addresses,
+                                                  uint32_t                                  num_addresses,
+                                                  const decode::VulkanDeviceAddressTracker& address_tracker)
+{
+    if (addresses != nullptr && num_addresses > 0)
+    {
+        GFXRECON_LOG_INFO("%s(): running repl8cer (%d addresses)", __func__, num_addresses);
+
+        hashmap_bda_.clear();
+
+        // TODO: populate hashmap
+
+        run_compute_replace(
+            command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     }
 }
 
@@ -338,7 +355,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
 
         // get a context for this command-buffer
-        auto& pipeline_context_sbt = pipeline_sbt_context_map_[command_buffer_info->handle];
+        auto& pipeline_context_sbt = pipeline_context_map_[command_buffer_info->handle];
 
         if (!create_buffer(pipeline_context_sbt.hashmap_storage, hashmap_sbt_.get_storage(nullptr)))
         {
@@ -770,99 +787,11 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             }
         }
 
-        if (!hashmap_bda_.empty())
-        {
-            // mark injected commands
-            MarkInjectedCommandsHelper mark_injected_commands_helper;
-
-            if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
-            {
-                GFXRECON_LOG_WARNING_ONCE("ProcessCmdBuildAccelerationStructuresKHR: internal pipeline-creation failed")
-                return;
-            }
-
-            auto& pipeline_context_bda = build_as_context_map_[command_buffer_info->handle];
-
-            if (!create_buffer(pipeline_context_bda.hashmap_storage, hashmap_bda_.get_storage(nullptr)))
-            {
-                GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
-                return;
-            }
-            hashmap_bda_.get_storage(pipeline_context_bda.hashmap_storage.mapped_data);
-
-            uint32_t num_bytes = addresses_to_replace.size() * sizeof(VkDeviceAddress);
-
-            if (!create_buffer(pipeline_context_bda.input_handle_buffer, num_bytes))
-            {
-                GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
-                return;
-            }
-            memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses_to_replace.data(), num_bytes);
-
-            replacer_params_t replacer_params = {};
-            replacer_params.hashmap.storage   = pipeline_context_bda.hashmap_storage.device_address;
-            replacer_params.hashmap.size      = hashmap_bda_.size();
-            replacer_params.hashmap.capacity  = hashmap_bda_.capacity();
-
-            // in-place
-            replacer_params.input_handles  = pipeline_context_bda.input_handle_buffer.device_address;
-            replacer_params.output_handles = pipeline_context_bda.input_handle_buffer.device_address;
-
-            replacer_params.num_handles = addresses_to_replace.size();
-
-            device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
-
-            // NOTE: using push-constants here requires us to re-establish the previous data, if any
-            device_table_->CmdPushConstants(command_buffer_info->handle,
-                                            pipeline_layout_,
-                                            VK_SHADER_STAGE_COMPUTE_BIT,
-                                            0,
-                                            sizeof(replacer_params_t),
-                                            &replacer_params);
-            // dispatch workgroups
-            constexpr uint32_t wg_size = 32;
-            device_table_->CmdDispatch(
-                command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
-
-            // post memory-barrier
-            for (const auto& buf : buffer_set)
-            {
-                barrier(command_buffer_info->handle,
-                        buf,
-                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                        VK_ACCESS_SHADER_WRITE_BIT,
-                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                        VK_ACCESS_SHADER_READ_BIT);
-            }
-
-            // set previous compute-pipeline, if any
-            if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
-            {
-                auto* previous_pipeline = object_table_->GetVkPipelineInfo(
-                    command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
-                GFXRECON_ASSERT(previous_pipeline);
-
-                if (previous_pipeline != nullptr)
-                {
-                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is "
-                                           "injecting compute-dispatches, "
-                                           "originally bound compute-pipelines are restored.");
-                    device_table_->CmdBindPipeline(
-                        command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
-                }
-            }
-
-            // set previous push-constant data, if any
-            if (!command_buffer_info->push_constant_data.empty())
-            {
-                device_table_->CmdPushConstants(command_buffer_info->handle,
-                                                command_buffer_info->push_constant_pipeline_layout,
-                                                command_buffer_info->push_constant_stage_flags,
-                                                0,
-                                                command_buffer_info->push_constant_data.size(),
-                                                command_buffer_info->push_constant_data.data());
-            }
-        } // !hashmap_bda_.empty()
+        run_compute_replace(command_buffer_info,
+                            addresses_to_replace.data(),
+                            addresses_to_replace.size(),
+                            address_tracker,
+                            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR);
     }
 }
 
@@ -1409,14 +1338,6 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
-        auto remove_context_it = build_as_context_map_.find(handle);
-
-        if (remove_context_it != build_as_context_map_.end())
-        {
-            MarkInjectedCommandsHelper mark_injected_commands_helper;
-            build_as_context_map_.erase(remove_context_it);
-        }
-
         auto shadow_sbt_it = shadow_sbt_map_.find(handle);
 
         if (shadow_sbt_it != shadow_sbt_map_.end())
@@ -1425,12 +1346,12 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
             shadow_sbt_map_.erase(shadow_sbt_it);
         }
 
-        auto pipeline_sbt_it = pipeline_sbt_context_map_.find(handle);
+        auto pipeline_sbt_it = pipeline_context_map_.find(handle);
 
-        if (pipeline_sbt_it != pipeline_sbt_context_map_.end())
+        if (pipeline_sbt_it != pipeline_context_map_.end())
         {
             MarkInjectedCommandsHelper mark_injected_commands_helper;
-            pipeline_sbt_context_map_.erase(pipeline_sbt_it);
+            pipeline_context_map_.erase(pipeline_sbt_it);
         }
     }
 }
@@ -1474,6 +1395,120 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
     as_asset.address = device_table_->GetAccelerationStructureDeviceAddressKHR(device_, &acceleration_address_info);
     GFXRECON_ASSERT(as_asset.address != 0);
     return true;
+}
+
+void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
+                                                const VkDeviceAddress*                    addresses,
+                                                uint32_t                                  num_addresses,
+                                                const decode::VulkanDeviceAddressTracker& address_tracker,
+                                                VkPipelineStageFlags                      sync_stage)
+{
+    if (!num_addresses || hashmap_bda_.empty())
+    {
+        return;
+    }
+
+    std::unordered_set<VkBuffer> buffer_set;
+    for (uint32_t i = 0; i < num_addresses; ++i)
+    {
+        auto buffer_info = address_tracker.GetBufferByReplayDeviceAddress(addresses[i]);
+
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        {
+            // keep track of used handles
+            buffer_set.insert(buffer_info->handle);
+        }
+    };
+
+    // mark injected commands
+    MarkInjectedCommandsHelper mark_injected_commands_helper;
+
+    if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
+    {
+        GFXRECON_LOG_WARNING_ONCE("ProcessCmdBuildAccelerationStructuresKHR: internal pipeline-creation failed")
+        return;
+    }
+
+    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle];
+
+    if (!create_buffer(pipeline_context_bda.hashmap_storage, hashmap_bda_.get_storage(nullptr)))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
+        return;
+    }
+    hashmap_bda_.get_storage(pipeline_context_bda.hashmap_storage.mapped_data);
+
+    uint32_t num_bytes = num_addresses * sizeof(VkDeviceAddress);
+
+    if (!create_buffer(pipeline_context_bda.input_handle_buffer, num_bytes))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
+        return;
+    }
+    memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses, num_bytes);
+
+    replacer_params_t replacer_params = {};
+    replacer_params.hashmap.storage   = pipeline_context_bda.hashmap_storage.device_address;
+    replacer_params.hashmap.size      = hashmap_bda_.size();
+    replacer_params.hashmap.capacity  = hashmap_bda_.capacity();
+
+    // in-place
+    replacer_params.input_handles  = pipeline_context_bda.input_handle_buffer.device_address;
+    replacer_params.output_handles = pipeline_context_bda.input_handle_buffer.device_address;
+
+    replacer_params.num_handles = num_addresses;
+
+    device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
+
+    // NOTE: using push-constants here requires us to re-establish the previous data, if any
+    device_table_->CmdPushConstants(command_buffer_info->handle,
+                                    pipeline_layout_,
+                                    VK_SHADER_STAGE_COMPUTE_BIT,
+                                    0,
+                                    sizeof(replacer_params_t),
+                                    &replacer_params);
+    // dispatch workgroups
+    constexpr uint32_t wg_size = 32;
+    device_table_->CmdDispatch(command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
+
+    // post memory-barrier
+    for (const auto& buf : buffer_set)
+    {
+        barrier(command_buffer_info->handle,
+                buf,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_ACCESS_SHADER_WRITE_BIT,
+                sync_stage,
+                VK_ACCESS_SHADER_READ_BIT);
+    }
+
+    // set previous compute-pipeline, if any
+    if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
+    {
+        auto* previous_pipeline =
+            object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
+        GFXRECON_ASSERT(previous_pipeline);
+
+        if (previous_pipeline != nullptr)
+        {
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is "
+                                   "injecting compute-dispatches, "
+                                   "originally bound compute-pipelines are restored.");
+            device_table_->CmdBindPipeline(
+                command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
+        }
+    }
+
+    // set previous push-constant data, if any
+    if (!command_buffer_info->push_constant_data.empty())
+    {
+        device_table_->CmdPushConstants(command_buffer_info->handle,
+                                        command_buffer_info->push_constant_pipeline_layout,
+                                        command_buffer_info->push_constant_stage_flags,
+                                        0,
+                                        command_buffer_info->push_constant_data.size(),
+                                        command_buffer_info->push_constant_data.data());
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

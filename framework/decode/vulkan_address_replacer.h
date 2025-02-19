@@ -63,6 +63,11 @@ class VulkanAddressReplacer
      */
     void SetRaytracingProperties(const decode::VulkanPhysicalDeviceInfo* physical_device_info);
 
+    void UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
+                               const VkDeviceAddress*                    addresses,
+                               uint32_t                                  num_addresses,
+                               const decode::VulkanDeviceAddressTracker& address_tracker);
+
     /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
      *          like buffer-device-addresses and shader-group-handles.
@@ -277,6 +282,12 @@ class VulkanAddressReplacer
 
     [[nodiscard]] bool init_queue_assets();
 
+    void run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
+                             const VkDeviceAddress*                    addresses,
+                             uint32_t                                  num_addresses,
+                             const decode::VulkanDeviceAddressTracker& address_tracker,
+                             VkPipelineStageFlags                      sync_stage);
+
     [[nodiscard]] bool create_buffer(buffer_context_t& buffer_context,
                                      size_t            num_bytes,
                                      uint32_t          usage_flags   = 0,
@@ -328,14 +339,11 @@ class VulkanAddressReplacer
     util::linear_hashmap<VkDeviceAddress, VkDeviceAddress>                                 hashmap_bda_;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
 
-    // pipeline-contexts dealing with shader-binding-tables, per command-buffer
-    std::unordered_map<VkCommandBuffer, pipeline_context_t> pipeline_sbt_context_map_;
+    // pipeline-contexts per command-buffer
+    std::unordered_map<VkCommandBuffer, pipeline_context_t> pipeline_context_map_;
 
     // resources related to acceleration-structures
     std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> shadow_as_map_;
-
-    // pipeline-contexts dealing with acceleration-structure builds, per command-buffer
-    std::unordered_map<VkCommandBuffer, pipeline_context_t> build_as_context_map_;
 
     // currently running compaction queries. pool -> AS -> query-pool-index
     std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> as_compact_queries_;
