@@ -746,8 +746,8 @@ Optional arguments:
               of instrumentation data on some platforms.
   --dump-resources <submit-index,command-index,draw-call-index>
               The capture file will be examined, and <submit-index,command-index,draw-call-index>
-              will be converted to <arg> as used in --dump-resources <arg>.
-              The converted args will be used used as the args for dump resources.
+              will be converted to <arg> as used in --dump-resources <arg> below.
+              The converted args will be used as the args for dump resources.
   --dump-resources <arg>
               <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
               NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,

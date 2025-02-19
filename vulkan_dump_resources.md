@@ -230,10 +230,13 @@ Dump resources feature can be control in several ways. To do so, a number of par
 
 ```text
   --dump-resources <submit-index,command-index,draw-call-index>
-              Please read --dump-resources <arg> for detail.
-              <submit-index,command-index,draw-call-index> will be translated to <arg>,
-              and then do what --dump-resources <arg> do.
-  --dump-resources BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,NextSubPass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,QueueSubmit=<u>
+              The capture file will be examined, and <submit-index,command-index,draw-call-index>
+              will be converted to <arg> as used in --dump-resources <arg> below.
+              The converted args will be used as the args for dump resources.
+  --dump-resources <arg>
+              <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
+              NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
+              QueueSubmit=<u>
               Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence
               of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
