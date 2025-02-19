@@ -1631,33 +1631,15 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
     uint32_t                                    dynamicOffsetCount,
     PointerDecoder<uint32_t>*                   pDynamicOffsets)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkPipelineLayout in_layout = MapHandle<VulkanPipelineLayoutInfo>(layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    const VkDescriptorSet* in_pDescriptorSets = MapHandles<VulkanDescriptorSetInfo>(pDescriptorSets, descriptorSetCount, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
-    const uint32_t* in_pDynamicOffsets = pDynamicOffsets->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    auto in_layout = GetObjectInfoTable().GetVkPipelineLayoutInfo(layout);
+    MapHandles<VulkanDescriptorSetInfo>(pDescriptorSets, descriptorSetCount, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
 
-    uint32_t num_sets = pDescriptorSets->GetLength();
-
-    auto *cmd_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
-    for(const auto &[bind_point, pipeline_id] : cmd_buffer_info->bound_pipelines)
-    {
-        auto *pipeline_info = GetObjectInfoTable().GetVkPipelineInfo(pipeline_id);
-        for(const auto &buffer_ref_info : pipeline_info->buffer_reference_infos)
-        {
-            GFXRECON_LOG_INFO("%s(): buffer-reference found, repl8cer required", __func__);
-            // TODO: implement another override here, hook for repl8cer
-
-            GFXRECON_ASSERT(buffer_ref_info.set <= num_sets);
-            auto *descriptor_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
-            GFXRECON_ASSERT(descriptor_set_info);
-            GFXRECON_ASSERT(!descriptor_set_info->descriptors[buffer_ref_info.binding].buffer_info.empty());
-        }
-    }
-    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets(in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, in_pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+    OverrideCmdBindDescriptorSets(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, GetObjectInfoTable().GetVkPipelineLayoutInfo(layout), firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+        resource_dumper_->Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets, in_commandBuffer->handle, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets->GetPointer());
     }
 }
 
