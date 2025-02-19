@@ -273,8 +273,8 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 for (uint32_t x = 0; x < width; ++x)
                 {
                     const uint32_t normalized_depth = bytes_u32[x] & 0x00FFFFFF;
-                    const float    float_depth      = static_cast<float>(normalized_depth) / 8388607.0f;
-                    const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
+                    const float    float_depth = static_cast<float>(normalized_depth) / static_cast<float>(0xffffff);
+                    const uint8_t  depth       = static_cast<uint8_t>(float_depth * 255.0f);
 
                     *(temp_buffer++) = depth;
                     *(temp_buffer++) = depth;
@@ -301,7 +301,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                 for (uint32_t x = 0; x < width; ++x)
                 {
                     const uint16_t normalized_depth = bytes_u16[x];
-                    const float    float_depth      = static_cast<float>(normalized_depth) / 32767.0f;
+                    const float    float_depth      = static_cast<float>(normalized_depth) / static_cast<float>(0xffff);
                     const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
 
                     *(temp_buffer++) = depth;
@@ -405,7 +405,6 @@ static bool WriteBmpHeader(FILE* file, uint32_t width, uint32_t height, bool wri
 bool WriteBmpImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
-                   uint64_t           data_size,
                    const void*        data,
                    uint32_t           data_pitch,
                    DataFormats        format,
@@ -480,28 +479,20 @@ bool WriteBmpImage(const std::string& filename,
 bool WriteBmpImageSeparateAlpha(const std::string& filename,
                                 uint32_t           width,
                                 uint32_t           height,
-                                uint64_t           data_size,
                                 const void*        data,
                                 uint32_t           data_pitch,
                                 DataFormats        data_format)
 {
-    bool success = WriteBmpImage(filename, width, height, data_size, data, data_pitch, data_format, false);
+    bool success = WriteBmpImage(filename, width, height, data, data_pitch, data_format, false);
 
     if (success && DataFormatHasAlpha(data_format))
     {
-        const uint8_t*    alpha_channel    = ExtractAlphaChannel(width, height, data, data_pitch, true);
-        const std::string alpha_filename   = util::filepath::InsertFilenamePostfix(filename, "_alpha");
-        const size_t      alpha_pitch      = width * kImageBppNoAlpha;
-        const size_t      alpha_image_size = alpha_pitch * height;
-        const DataFormats alpha_format     = data_format == kFormat_BGRA ? kFormat_BGR : kFormat_RGB;
-        success                            = WriteBmpImage(alpha_filename,
-                                width,
-                                height,
-                                alpha_image_size,
-                                alpha_channel,
-                                static_cast<uint32_t>(alpha_pitch),
-                                alpha_format,
-                                false);
+        const uint8_t*    alpha_channel  = ExtractAlphaChannel(width, height, data, data_pitch, true);
+        const std::string alpha_filename = util::filepath::InsertFilenamePostfix(filename, "_alpha");
+        const size_t      alpha_pitch    = width * kImageBppNoAlpha;
+        const DataFormats alpha_format   = data_format == kFormat_BGRA ? kFormat_BGR : kFormat_RGB;
+        success                          = WriteBmpImage(
+            alpha_filename, width, height, alpha_channel, static_cast<uint32_t>(alpha_pitch), alpha_format, false);
     }
 
     return success;
@@ -510,7 +501,6 @@ bool WriteBmpImageSeparateAlpha(const std::string& filename,
 bool WritePngImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
-                   uint64_t           data_size,
                    const void*        data,
                    uint32_t           data_pitch,
                    DataFormats        format,
@@ -557,12 +547,11 @@ bool WritePngImage(const std::string& filename,
 bool WritePngImageSeparateAlpha(const std::string& filename,
                                 uint32_t           width,
                                 uint32_t           height,
-                                uint64_t           data_size,
                                 const void*        data,
                                 uint32_t           data_pitch,
                                 DataFormats        format)
 {
-    bool success = WritePngImage(filename, width, height, data_size, data, data_pitch, format, false);
+    bool success = WritePngImage(filename, width, height, data, data_pitch, format, false);
     if (success && DataFormatHasAlpha(format))
     {
         const std::string alpha_filename = util::filepath::InsertFilenamePostfix(filename, "_alpha");

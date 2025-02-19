@@ -42,7 +42,6 @@ inline void WriteImageFile(const std::string&     filename,
                            util::ScreenshotFormat file_format,
                            uint32_t               width,
                            uint32_t               height,
-                           uint64_t               size,
                            void*                  data)
 {
     switch (file_format)
@@ -51,14 +50,14 @@ inline void WriteImageFile(const std::string&     filename,
             GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
             // Intentional fall-through
         case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, size, data))
+            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
             }
             break;
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
         case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, size, data))
+            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
             }
@@ -409,7 +408,6 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                        screenshot_format_,
                                        copy_width,
                                        copy_height,
-                                       copy_resource.buffer_size,
                                        data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);

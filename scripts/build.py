@@ -120,6 +120,10 @@ def parse_args():
         metavar='BASE', action='store', default='HEAD',
         help='Git branch name or commit ID to use as the base for C++ code style comparison')
     arg_parser.add_argument(
+        '--test-apps', dest='test_apps',
+        action='store_true', default=False,
+        help='Build test apps')
+    arg_parser.add_argument(
         '--cmake-system-version', dest='cmake_system_version',
         type=str, default="10.0.20348.0",help='Select SDK version')
     arg_parser.add_argument(
@@ -218,7 +222,7 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DRUN_TESTS={}'.format('OFF' if args.skip_tests else 'ON'))
         generate_options.append(
-            '-DGFXRECON_INCLUDE_TEST_APPS={}'.format('OFF' if args.skip_tests else 'ON'))
+            '-DGFXRECON_INCLUDE_TEST_APPS={}'.format('ON' if args.test_apps else 'OFF'))
         generate_options.append(
             '-DGENERATE_TEST_ARCHIVE={}'.format(
                 'ON' if args.test_archive else 'OFF'))

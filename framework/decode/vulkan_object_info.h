@@ -397,6 +397,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     VkImageUsageFlags     usage{ 0 };
     VkImageType           type{};
     VkFormat              format{};
+    bool                  external_format{ false };
     VkExtent3D            extent{ 0, 0, 0 };
     VkImageTiling         tiling{};
     VkSampleCountFlagBits sample_count{};
@@ -407,6 +408,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 
     VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+
+    VkDeviceSize size{ 0 };
 };
 
 struct VulkanPipelineCacheData
@@ -653,7 +656,7 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<VkSubpassDependency> dependencies;
 
     // Multiview info
-    bool has_multiview;
+    bool has_multiview{ false };
 
     struct
     {

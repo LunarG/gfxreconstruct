@@ -1642,6 +1642,8 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                                                            VkSampleCountFlags     samples,
                                                            VkImageLayout          layout,
                                                            uint32_t               queue_family_index,
+                                                           bool                   external_format,
+                                                           VkDeviceSize           size,
                                                            VkImageAspectFlagBits  aspect,
                                                            std::vector<uint8_t>&  data,
                                                            std::vector<uint64_t>& subresource_offsets,
@@ -1691,17 +1693,25 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     subresource_offsets.clear();
     subresource_sizes.clear();
 
-    resource_size = GetImageResourceSizesOptimal(image,
-                                                 use_blit ? dst_format : format,
-                                                 type,
-                                                 use_blit ? scaled_extent : extent,
-                                                 mip_levels,
-                                                 array_layers,
-                                                 tiling,
-                                                 aspect,
-                                                 &subresource_offsets,
-                                                 &subresource_sizes,
-                                                 all_layers_per_level);
+    if (external_format)
+    {
+        resource_size = size;
+        subresource_sizes.push_back(resource_size);
+    }
+    else
+    {
+        resource_size = GetImageResourceSizesOptimal(image,
+                                                     use_blit ? dst_format : format,
+                                                     type,
+                                                     use_blit ? scaled_extent : extent,
+                                                     mip_levels,
+                                                     array_layers,
+                                                     tiling,
+                                                     aspect,
+                                                     &subresource_offsets,
+                                                     &subresource_sizes,
+                                                     all_layers_per_level);
+    }
 
     queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
@@ -1794,16 +1804,23 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     assert(scaled_image != VK_NULL_HANDLE);
 
-    // Copy image to staging buffer
-    CopyImageBuffer(scaled_image,
-                    staging_buffer_.buffer,
-                    use_blit ? scaled_extent : extent,
-                    mip_levels,
-                    array_layers,
-                    aspect,
-                    subresource_sizes,
-                    all_layers_per_level,
-                    kImageToBuffer);
+    if (external_format)
+    {
+        // Todo
+    }
+    else
+    {
+        // Copy image to staging buffer
+        CopyImageBuffer(scaled_image,
+                        staging_buffer_.buffer,
+                        use_blit ? scaled_extent : extent,
+                        mip_levels,
+                        array_layers,
+                        aspect,
+                        subresource_sizes,
+                        all_layers_per_level,
+                        kImageToBuffer);
+    }
 
     // Cache flushing barrier. Make results visible to host
     VkBufferMemoryBarrier buffer_barrier;

@@ -2826,7 +2826,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     DxObjectInfo*                                                  restrict_to_output_info,
     HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain)
 {
-    assert(desc != nullptr);
+    assert((device_info != nullptr) && (device_info->object != nullptr) && (desc != nullptr));
 
     auto    desc_pointer   = desc->GetPointer();
     HRESULT result         = E_FAIL;
@@ -2850,26 +2850,23 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
         if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
         {
             assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
-                   (full_screen_desc != nullptr) && (swapchain != nullptr));
+                   (swapchain != nullptr));
 
-            auto         replay_object      = static_cast<IDXGIFactory2*>(replay_object_info->object);
-            IUnknown*    device             = nullptr;
+            auto replay_object = static_cast<IDXGIFactory2*>(replay_object_info->object);
+            auto device        = device_info->object;
+
             IDXGIOutput* restrict_to_output = nullptr;
-
-            if (device_info != nullptr)
-            {
-                device = device_info->object;
-            }
 
             if (restrict_to_output_info != nullptr)
             {
                 restrict_to_output = static_cast<IDXGIOutput*>(restrict_to_output_info->object);
             }
 
-            auto full_screen_desc_ptr = full_screen_desc->GetPointer();
-            if ((options_.force_windowed) || (options_.force_windowed_origin))
+            DXGI_SWAP_CHAIN_FULLSCREEN_DESC* full_screen_desc_ptr = nullptr;
+            if ((full_screen_desc != nullptr) && (options_.force_windowed != true) &&
+                (options_.force_windowed_origin != true))
             {
-                full_screen_desc_ptr = nullptr;
+                full_screen_desc_ptr = full_screen_desc->GetPointer();
             }
             result = replay_object->CreateSwapChainForHwnd(
                 device, hwnd, desc_pointer, full_screen_desc_ptr, restrict_to_output, swapchain->GetHandlePointer());

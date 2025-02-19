@@ -506,6 +506,8 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
             image_info->sample_count,
             (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout,
             image_info->queue_family_index,
+            image_info->external_format,
+            image_info->size,
             aspect,
             data,
             subresource_offsets,
@@ -538,9 +540,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                                            image_file_format,
                                                                            dump_image_raw);
 
-        const util::imagewriter::DataFormats image_writer_format = VkFormatToImageWriterDataFormat(dst_format);
-        assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
-
         for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -557,6 +556,10 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
 
                 if (output_image_format != KFormatRaw)
                 {
+                    const util::imagewriter::DataFormats image_writer_format =
+                        VkFormatToImageWriterDataFormat(dst_format);
+                    assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
+
                     VkExtent3D scaled_extent;
                     if (scale != 1.0f && scaled)
                     {
@@ -583,7 +586,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                             util::imagewriter::WriteBmpImageSeparateAlpha(filename,
                                                                           scaled_extent.width,
                                                                           scaled_extent.height,
-                                                                          subresource_sizes[0],
                                                                           offsetted_data,
                                                                           stride,
                                                                           image_writer_format);
@@ -593,7 +595,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                             util::imagewriter::WriteBmpImage(filename,
                                                              scaled_extent.width,
                                                              scaled_extent.height,
-                                                             subresource_sizes[0],
                                                              offsetted_data,
                                                              stride,
                                                              image_writer_format,
@@ -607,7 +608,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                             util::imagewriter::WritePngImageSeparateAlpha(filename,
                                                                           scaled_extent.width,
                                                                           scaled_extent.height,
-                                                                          subresource_sizes[0],
                                                                           offsetted_data,
                                                                           stride,
                                                                           image_writer_format);
@@ -617,7 +617,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                             util::imagewriter::WritePngImage(filename,
                                                              scaled_extent.width,
                                                              scaled_extent.height,
-                                                             subresource_sizes[0],
                                                              offsetted_data,
                                                              stride,
                                                              image_writer_format,
@@ -627,11 +626,14 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                 }
                 else
                 {
-                    GFXRECON_LOG_WARNING(
-                        "%s format is not handled. Images with that format will be dump as a plain binary file.",
-                        util::ToString<VkFormat>(image_info->format).c_str());
+                    if (!dump_image_raw)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "%s format is not handled. Images with that format will be dump as a plain binary file.",
+                            util::ToString<VkFormat>(image_info->format).c_str());
+                    }
 
-                    util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+                    util::bufferwriter::WriteBuffer(filename, offsetted_data, subresource_sizes[sub_res_idx]);
                 }
 
                 if (!dump_all_subresources)
