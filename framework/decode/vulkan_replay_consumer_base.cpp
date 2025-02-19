@@ -181,6 +181,9 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
     assert(object_info_table_);
 
+    resource_dumper_ = new VulkanReplayDumpResources(options, object_info_table_);
+    assert(resource_dumper_);
+
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
 
@@ -1716,15 +1719,6 @@ void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       insta
                 }
             }
         }
-    }
-}
-
-void VulkanReplayConsumerBase::InitializeReplayDumpResources()
-{
-    if (resource_dumper_ == nullptr)
-    {
-        resource_dumper_ = new VulkanReplayDumpResources(options_, object_info_table_);
-        GFXRECON_ASSERT(resource_dumper_);
     }
 }
 
