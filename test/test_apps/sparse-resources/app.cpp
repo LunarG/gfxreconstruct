@@ -54,18 +54,20 @@ class App : public gfxrecon::test::TestAppBase
 
     VkBuffer       staging_buffer_;
     uint8_t*       staging_buffer_ptr_;
-    VkImage        image0_;
-    VkImageView    image0_view_;
+    VkImage        sparse_bind_image_;
+    VkImage        sparse_resident_image_;
+    VkImageView    sparse_bind_image_view_;
+    VkImageView    sparse_resident_image_view_;
     const uint32_t image_size_       = 16;
     const uint32_t mip_levels_ = 1;
-    //VkSparseImageMemoryRequirements image_mem_reqs;
+    VkSparseImageMemoryRequirements image_mem_reqs_;
     VkDeviceMemory image_backing_memory_;
     VkDeviceMemory staging_backing_memory_;
     uint32_t       device_memory_type_;
     uint32_t       staging_memory_type_;
 
     uint32_t sparse_binding_granularity_;
-    //VkExtent3D sparse_block_granularity_;
+    VkExtent3D sparse_block_granularity_;
 
     VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
     VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
@@ -285,7 +287,7 @@ void App::create_framebuffers()
 void App::create_descriptor_set() {
     VkDescriptorPoolSize pool_sizes[2] = {};
     pool_sizes[0].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    pool_sizes[0].descriptorCount = 1;
+    pool_sizes[0].descriptorCount = 2;
     pool_sizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
     pool_sizes[1].descriptorCount = 1;
 
@@ -324,23 +326,28 @@ void App::create_descriptor_set() {
     result = init.disp.createSampler(&sampler_info, nullptr, &sampler);
     VERIFY_VK_RESULT("Failed to create sampler.", result);
 
-    VkDescriptorSetLayoutBinding bindings[2] = {};
+    VkDescriptorSetLayoutBinding bindings[3] = {};
     bindings[0].binding = 0;
     bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     bindings[0].descriptorCount = 1;
     bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     bindings[0].pImmutableSamplers = nullptr;
     bindings[1].binding = 1;
-    bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     bindings[1].descriptorCount = 1;
     bindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings[1].pImmutableSamplers = &sampler;
+    bindings[1].pImmutableSamplers = nullptr;
+    bindings[2].binding = 2;
+    bindings[2].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    bindings[2].descriptorCount = 1;
+    bindings[2].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    bindings[2].pImmutableSamplers = &sampler;
 
     VkDescriptorSetLayoutCreateInfo layout_info = {};
     layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layout_info.pNext = nullptr;
     layout_info.flags = 0;
-    layout_info.bindingCount = 2;
+    layout_info.bindingCount = 3;
     layout_info.pBindings = bindings;
     result = init.disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_layout_);
     VERIFY_VK_RESULT("Failed to create descriptor set layout", result);
@@ -421,208 +428,167 @@ void App::create_staging_buffer()
 void App::create_images()
 {
     // Get VkSparseImageFormatProperties for 2D R8G8B8A8_SRGB images
-    // VkPhysicalDevice pd = init.physical_device.physical_device;
-    // uint32_t prop_count = 0;
-    // init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
-    //     pd,
-    //     IMAGE_FORMAT,
-    //     VK_IMAGE_TYPE_2D,
-    //     VK_SAMPLE_COUNT_1_BIT,
-    //     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-    //     VK_IMAGE_TILING_OPTIMAL,
-    //     &prop_count,
-    //     nullptr
-    // );
-    // std::vector<VkSparseImageFormatProperties> props;
-    // props.resize(prop_count);
-    // init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
-    //     pd,
-    //     IMAGE_FORMAT,
-    //     VK_IMAGE_TYPE_2D,
-    //     VK_SAMPLE_COUNT_1_BIT,
-    //     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-    //     VK_IMAGE_TILING_OPTIMAL,
-    //     &prop_count,
-    //     props.data()
-    // );
-    // for (VkSparseImageFormatProperties prop : props) {
-    //     if (prop.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT) {
-    //         sparse_block_granularity_ = prop.imageGranularity;
-    //     }
-    // }
+    VkPhysicalDevice pd = init.physical_device.physical_device;
+    uint32_t prop_count = 0;
+    init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
+        pd,
+        IMAGE_FORMAT,
+        VK_IMAGE_TYPE_2D,
+        VK_SAMPLE_COUNT_1_BIT,
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        VK_IMAGE_TILING_OPTIMAL,
+        &prop_count,
+        nullptr
+    );
+    std::vector<VkSparseImageFormatProperties> props;
+    props.resize(prop_count);
+    init.inst_disp.getPhysicalDeviceSparseImageFormatProperties(
+        pd,
+        IMAGE_FORMAT,
+        VK_IMAGE_TYPE_2D,
+        VK_SAMPLE_COUNT_1_BIT,
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        VK_IMAGE_TILING_OPTIMAL,
+        &prop_count,
+        props.data()
+    );
+    for (VkSparseImageFormatProperties prop : props) {
+        if (prop.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT) {
+            sparse_block_granularity_ = prop.imageGranularity;
+        }
+    }
 
-    // Create image object
-    VkImageCreateInfo image_info     = {};
-    image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_info.pNext                 = nullptr;
-    image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT;
-    image_info.imageType             = VK_IMAGE_TYPE_2D;
-    image_info.format                = IMAGE_FORMAT;
-    image_info.extent.width          = image_size_;
-    image_info.extent.height         = image_size_;
-    image_info.extent.depth          = 1;
-    image_info.mipLevels             = mip_levels_;
-    image_info.arrayLayers           = 1;
-    image_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    image_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
-    image_info.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-    image_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    image_info.queueFamilyIndexCount = 1;
-    uint32_t idx                     = init.device.get_queue_index(test::QueueType::graphics).value();
-    image_info.pQueueFamilyIndices   = &idx;
-    image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkResult result = init.disp.createImage(&image_info, nullptr, &image0_);
-    VERIFY_VK_RESULT("failed to create image", result);
+    // Create sparsely bound image object
+    {
+        VkImageCreateInfo image_info     = {};
+        image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_info.pNext                 = nullptr;
+        image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT;
+        image_info.imageType             = VK_IMAGE_TYPE_2D;
+        image_info.format                = IMAGE_FORMAT;
+        image_info.extent.width          = image_size_;
+        image_info.extent.height         = image_size_;
+        image_info.extent.depth          = 1;
+        image_info.mipLevels             = mip_levels_;
+        image_info.arrayLayers           = 1;
+        image_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+        image_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+        image_info.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        image_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+        image_info.queueFamilyIndexCount = 1;
+        uint32_t idx                     = init.device.get_queue_index(test::QueueType::graphics).value();
+        image_info.pQueueFamilyIndices   = &idx;
+        image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkResult result = init.disp.createImage(&image_info, nullptr, &sparse_bind_image_);
+        VERIFY_VK_RESULT("failed to create image", result);
+    }
+
+    // Create sparsely resident image
+    {
+        VkImageCreateInfo image_info     = {};
+        image_info.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_info.pNext                 = nullptr;
+        image_info.flags                 = VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+        image_info.imageType             = VK_IMAGE_TYPE_2D;
+        image_info.format                = IMAGE_FORMAT;
+        image_info.extent.width          = image_size_;
+        image_info.extent.height         = image_size_;
+        image_info.extent.depth          = 1;
+        image_info.mipLevels             = mip_levels_;
+        image_info.arrayLayers           = 1;
+        image_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+        image_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+        image_info.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        image_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+        image_info.queueFamilyIndexCount = 1;
+        uint32_t idx                     = init.device.get_queue_index(test::QueueType::graphics).value();
+        image_info.pQueueFamilyIndices   = &idx;
+        image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkResult result = init.disp.createImage(&image_info, nullptr, &sparse_resident_image_);
+        VERIFY_VK_RESULT("failed to create image", result);
+    }
 
     // Get memory requirements
-    VkMemoryRequirements image0_reqs = {};
-    init.disp.getImageMemoryRequirements(image0_, &image0_reqs);
-    sparse_binding_granularity_ = image0_reqs.alignment;
-    
-    // uint32_t sparse_reqs_count = 0;
-    // init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, nullptr);
-    // std::vector<VkSparseImageMemoryRequirements> sparse_reqs;
-    // sparse_reqs.resize(sparse_reqs_count);
-    // init.disp.getImageSparseMemoryRequirements(image0_, &sparse_reqs_count, sparse_reqs.data());
-    // assert(sparse_reqs.size() == 1);
-    // image_mem_reqs = sparse_reqs[0];
+    VkMemoryRequirements total_reqs = {};
+    {
+        VkMemoryRequirements sparse_bind_image_reqs = {};
+        init.disp.getImageMemoryRequirements(sparse_bind_image_, &sparse_bind_image_reqs);
+        sparse_binding_granularity_ = sparse_bind_image_reqs.alignment;
+
+        VkMemoryRequirements sparse_resident_image_reqs = {};
+        init.disp.getImageMemoryRequirements(sparse_resident_image_, &sparse_resident_image_reqs);
+
+        total_reqs.memoryTypeBits = sparse_bind_image_reqs.memoryTypeBits | sparse_resident_image_reqs.memoryTypeBits;
+        total_reqs.size = sparse_bind_image_reqs.size + sparse_resident_image_reqs.size;
+        total_reqs.alignment = std::max(sparse_bind_image_reqs.alignment, sparse_resident_image_reqs.alignment);
+    }
+
+    uint32_t sparse_reqs_count = 0;
+    init.disp.getImageSparseMemoryRequirements(sparse_resident_image_, &sparse_reqs_count, nullptr);
+    std::vector<VkSparseImageMemoryRequirements> sparse_reqs;
+    sparse_reqs.resize(sparse_reqs_count);
+    init.disp.getImageSparseMemoryRequirements(sparse_resident_image_, &sparse_reqs_count, sparse_reqs.data());
+    assert(sparse_reqs.size() == 1);
+    image_mem_reqs_ = sparse_reqs[0];
 
     // Allocate image backing memory
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.pNext                = nullptr;
-    alloc_info.allocationSize       = image0_reqs.size;
-    alloc_info.memoryTypeIndex      = device_memory_type_;
-    result = init.disp.allocateMemory(&alloc_info, nullptr, &image_backing_memory_);
-    VERIFY_VK_RESULT("Failed to allocate image memory", result);
+    {
+        VkMemoryAllocateInfo alloc_info = {};
+        alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        alloc_info.pNext                = nullptr;
+        alloc_info.allocationSize       = total_reqs.size;
+        alloc_info.memoryTypeIndex      = device_memory_type_;
+        VkResult result = init.disp.allocateMemory(&alloc_info, nullptr, &image_backing_memory_);
+        VERIFY_VK_RESULT("Failed to allocate image memory", result);
+    }
 
-    // Create image view object
-    VkImageViewCreateInfo view_info           = {};
-    view_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    view_info.pNext                           = nullptr;
-    view_info.flags                           = 0;
-    view_info.image                           = image0_;
-    view_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-    view_info.format                          = IMAGE_FORMAT;
-    view_info.components                      = {};
-    view_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-    view_info.subresourceRange.baseMipLevel   = 0;
-    view_info.subresourceRange.levelCount     = mip_levels_;
-    view_info.subresourceRange.baseArrayLayer = 0;
-    view_info.subresourceRange.layerCount     = 1;
-    result = init.disp.createImageView(&view_info, nullptr, &image0_view_);
-    VERIFY_VK_RESULT("Failed to create image view", result);
+    // Create sparsely bound image view object
+    {
+        VkImageViewCreateInfo view_info           = {};
+        view_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        view_info.pNext                           = nullptr;
+        view_info.flags                           = 0;
+        view_info.image                           = sparse_bind_image_;
+        view_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+        view_info.format                          = IMAGE_FORMAT;
+        view_info.components                      = {};
+        view_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        view_info.subresourceRange.baseMipLevel   = 0;
+        view_info.subresourceRange.levelCount     = mip_levels_;
+        view_info.subresourceRange.baseArrayLayer = 0;
+        view_info.subresourceRange.layerCount     = 1;
+        VkResult result = init.disp.createImageView(&view_info, nullptr, &sparse_bind_image_view_);
+        VERIFY_VK_RESULT("Failed to create image view", result);
+    }
 
-    // Write image data to staging buffer
-    // for (int y = 0; y < image_size_; ++y) {
-    //     for (int x = 0; x < image_size_; ++x) {
-    //         // Pointer to first byte of current pixel
-    //         // This is an R8G8B8A8 format
-    //         uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
-    //         bool is_purple = x % 2 + y % 2 == 1;
-    //         first_byte[0] = is_purple ? 0xFF : 0x00;
-    //         first_byte[2] = is_purple ? 0xFF : 0x00;
-    //     }
-    // }
-    
-    // Need to start command buffer for image upload
-    // VkCommandBuffer cmd = command_buffers_[0];
-    // VkCommandBufferBeginInfo begin_info = {};
-    // begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    // result                     = init.disp.beginCommandBuffer(cmd, &begin_info);
-    // VERIFY_VK_RESULT("failed to begin command buffer", result);
-
-
-    // // Memory barrier to transition into transfer dst optimal
-    // {
-    //     VkImageMemoryBarrier image_barrier        = {};
-    //     image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    //     image_barrier.image                       = image0_;
-    //     image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
-    //     image_barrier.newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    //     image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    //     image_barrier.subresourceRange.layerCount = 1;
-    //     image_barrier.subresourceRange.levelCount = 1;
-    //     image_barrier.srcAccessMask               = VK_ACCESS_NONE;
-    //     image_barrier.dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-    //     init.disp.cmdPipelineBarrier(cmd,
-    //                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-    //                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-    //                                     0,
-    //                                     0,
-    //                                     nullptr,
-    //                                     0,
-    //                                     nullptr,
-    //                                     1,
-    //                                     &image_barrier);
-    // }
-
-    // // Copy image data from staging buffer
-    // VkBufferImageCopy image_copy = {};
-    // image_copy.bufferOffset = 0;
-    // image_copy.bufferRowLength = 0;
-    // image_copy.bufferImageHeight = 0;
-    // image_copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    // image_copy.imageSubresource.mipLevel = 0;
-    // image_copy.imageSubresource.baseArrayLayer = 0;
-    // image_copy.imageSubresource.layerCount = 1;
-    // image_copy.imageOffset.x = 0;
-    // image_copy.imageOffset.y = 0;
-    // image_copy.imageOffset.z = 0;
-    // image_copy.imageExtent.width = image_size_;
-    // image_copy.imageExtent.height = image_size_;
-    // image_copy.imageExtent.depth = 1;
-
-    // init.disp.cmdCopyBufferToImage(cmd, staging_buffer_, image0_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
-
-    // // Memory barrier to transition into read-only optimal
-    // {
-    //     VkImageMemoryBarrier image_barrier        = {};
-    //     image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    //     image_barrier.image                       = image0_;
-    //     image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    //     image_barrier.newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    //     image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    //     image_barrier.subresourceRange.layerCount = 1;
-    //     image_barrier.subresourceRange.levelCount = 1;
-    //     image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-    //     image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    //     init.disp.cmdPipelineBarrier(cmd,
-    //                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-    //                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-    //                                     0,
-    //                                     0,
-    //                                     nullptr,
-    //                                     0,
-    //                                     nullptr,
-    //                                     1,
-    //                                     &image_barrier);
-    // }
-
-    // result = init.disp.endCommandBuffer(cmd);
-    // VERIFY_VK_RESULT("failed to end command buffer", result);
-
-    // // Queue submit
-    // VkSubmitInfo submit_info = {};
-    // submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    // submit_info.pNext = nullptr;
-    // submit_info.waitSemaphoreCount = 0;
-    // submit_info.signalSemaphoreCount = 0;
-    // submit_info.commandBufferCount = 1;
-    // submit_info.pCommandBuffers = &cmd;
-    // init.disp.queueSubmit(graphics_queue_, 1, &submit_info, immediate_fence_);
-
-    // // Wait for submission
-    // result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
-    // VERIFY_VK_RESULT("failed to wait for upload fence", result);
-    // result = init.disp.resetFences(1, &immediate_fence_);
-    // VERIFY_VK_RESULT("failed to reset upload fence", result);
+    // Create sparsely resident image view object
+    {
+        VkImageViewCreateInfo view_info           = {};
+        view_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        view_info.pNext                           = nullptr;
+        view_info.flags                           = 0;
+        view_info.image                           = sparse_resident_image_;
+        view_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+        view_info.format                          = IMAGE_FORMAT;
+        view_info.components                      = {};
+        view_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        view_info.subresourceRange.baseMipLevel   = 0;
+        view_info.subresourceRange.levelCount     = mip_levels_;
+        view_info.subresourceRange.baseArrayLayer = 0;
+        view_info.subresourceRange.layerCount     = 1;
+        VkResult result = init.disp.createImageView(&view_info, nullptr, &sparse_resident_image_view_);
+        VERIFY_VK_RESULT("Failed to create image view", result);
+    }
 
     // Update descriptor set
-    VkDescriptorImageInfo desc_image = {};
-    desc_image.sampler = 0;
-    desc_image.imageView = image0_view_;
-    desc_image.imageLayout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+    VkDescriptorImageInfo desc_images[2] = {};
+    desc_images[0].sampler = 0;
+    desc_images[0].imageView = sparse_bind_image_view_;
+    desc_images[0].imageLayout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+
+    desc_images[1].sampler = 0;
+    desc_images[1].imageView = sparse_resident_image_view_;
+    desc_images[1].imageLayout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
 
     VkWriteDescriptorSet write = {};
     write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -630,9 +596,9 @@ void App::create_images()
     write.dstSet = descriptor_set_;
     write.dstBinding = 0;
     write.dstArrayElement = 0;
-    write.descriptorCount = 1;
+    write.descriptorCount = 2;
     write.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    write.pImageInfo = &desc_image;
+    write.pImageInfo = desc_images;
     write.pBufferInfo = nullptr;
     write.pTexelBufferView = nullptr;
     init.disp.updateDescriptorSets(1, &write, 0, nullptr);
@@ -667,11 +633,6 @@ void App::setup()
         info.pNext = nullptr;
         info.flags = 0;
         init.disp.createFence(&info, nullptr, &immediate_fence_);
-        VkFenceCreateInfo info2 = {};
-        info2.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        info2.pNext = nullptr;
-        info2.flags = 0;
-        init.disp.createFence(&info2, nullptr, &immediate_fence_);
     }
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
@@ -737,32 +698,38 @@ bool App::frame(const int frame_num)
         // Bind sparse memory
         static bool first_frame = true;
         if (first_frame) {
-            // VkSparseImageMemoryBind bind = {};
-            // bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            // bind.subresource.mipLevel = 0;
-            // bind.subresource.arrayLayer = 0;
-            // bind.offset.x = 0;
-            // bind.offset.y = 0;
-            // bind.offset.z = 0;
-            // bind.extent.width = image_size_;
-            // bind.extent.height = image_size_;
-            // bind.extent.depth = 1;
-            // bind.memory = image_backing_memory_;
-            // bind.memoryOffset = 0;
-            // bind.flags = 0;
+            VkSparseImageMemoryBind sparse_resident_bind = {};
+            sparse_resident_bind.subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            sparse_resident_bind.subresource.mipLevel = 0;
+            sparse_resident_bind.subresource.arrayLayer = 0;
+            sparse_resident_bind.offset.x = 0;
+            sparse_resident_bind.offset.y = 0;
+            sparse_resident_bind.offset.z = 0;
+            sparse_resident_bind.extent.width = image_size_;
+            sparse_resident_bind.extent.height = image_size_;
+            sparse_resident_bind.extent.depth = 1;
+            sparse_resident_bind.memory = image_backing_memory_;
+            //sparse_resident_bind.memoryOffset = 4 * image_size_ * image_size_;
+            sparse_resident_bind.memoryOffset = sparse_binding_granularity_;
+            sparse_resident_bind.flags = 0;
 
-            VkSparseMemoryBind bind = {};
-            bind.resourceOffset = 0;
-            bind.size = sparse_binding_granularity_;
-            bind.memory = image_backing_memory_;
-            bind.memoryOffset = 0;
-            bind.flags = 0;
+            VkSparseImageMemoryBindInfo res_bind_info = {};
+            res_bind_info.image = sparse_resident_image_;
+            res_bind_info.bindCount = 1;
+            res_bind_info.pBinds = &sparse_resident_bind;
+
+            VkSparseMemoryBind sparse_bind = {};
+            sparse_bind.resourceOffset = 0;
+            sparse_bind.size = sparse_binding_granularity_;
+            sparse_bind.memory = image_backing_memory_;
+            sparse_bind.memoryOffset = 0;
+            sparse_bind.flags = 0;
             //bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
             VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
-            im_bind_info.image = image0_;
+            im_bind_info.image = sparse_bind_image_;
             im_bind_info.bindCount = 1;
-            im_bind_info.pBinds = &bind;
+            im_bind_info.pBinds = &sparse_bind;
 
             VkBindSparseInfo sparse_info = {};
             sparse_info.sType = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
@@ -771,8 +738,8 @@ bool App::frame(const int frame_num)
             sparse_info.pBufferBinds = nullptr;
             sparse_info.imageOpaqueBindCount = 1;
             sparse_info.pImageOpaqueBinds = &im_bind_info;
-            sparse_info.imageBindCount = 0;
-            sparse_info.pImageBinds = nullptr;
+            sparse_info.imageBindCount = 1;
+            sparse_info.pImageBinds = &res_bind_info;
             result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, immediate_fence_);
             VERIFY_VK_RESULT("Failed to bind sparse memory", result);
 
@@ -783,30 +750,54 @@ bool App::frame(const int frame_num)
 
             // Upload image data after bind
 
-            // Write pixels to staging buffer
+            // Write pixels to staging buffer for sparse bound image
             for (int y = 0; y < image_size_; ++y) {
                 for (int x = 0; x < image_size_; ++x) {
                     // Pointer to first byte of current pixel
                     // This is an R8G8B8A8 format
                     uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
-                    bool is_purple = x % 2 + y % 2 == 1;
-                    first_byte[0] = is_purple ? 0xFF : 0x00;
-                    first_byte[2] = is_purple ? 0xFF : 0x00;
+                    if (x % 2 + y % 2 == 1) {
+                        first_byte[0] = 0xFF;
+                        first_byte[2] = 0xFF;
+                    }
+                }
+            }
+
+            // Write pixels to staging buffer for sparse resident image
+            for (int y = 0; y < image_size_; ++y) {
+                for (int x = 0; x < image_size_; ++x) {
+                    // Pointer to first byte of current pixel
+                    // This is an R8G8B8A8 format
+                    uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x + image_size_ * image_size_);
+                    if (x % 2 + y % 2 == 1) {
+                        first_byte[0] = 0xFF;
+                    }
                 }
             }
 
             // Memory barrier to transition into transfer dst optimal
             {
-                VkImageMemoryBarrier image_barrier        = {};
-                image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                image_barrier.image                       = image0_;
-                image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
-                image_barrier.newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                image_barrier.subresourceRange.layerCount = 1;
-                image_barrier.subresourceRange.levelCount = 1;
-                image_barrier.srcAccessMask               = VK_ACCESS_NONE;
-                image_barrier.dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+                VkImageMemoryBarrier image_barriers[2]        = {};
+                image_barriers[0].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barriers[0].image                       = sparse_bind_image_;
+                image_barriers[0].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_barriers[0].newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barriers[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barriers[0].subresourceRange.layerCount = 1;
+                image_barriers[0].subresourceRange.levelCount = 1;
+                image_barriers[0].srcAccessMask               = VK_ACCESS_NONE;
+                image_barriers[0].dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+                image_barriers[1].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barriers[1].image                       = sparse_resident_image_;
+                image_barriers[1].oldLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_barriers[1].newLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barriers[1].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barriers[1].subresourceRange.layerCount = 1;
+                image_barriers[1].subresourceRange.levelCount = 1;
+                image_barriers[1].srcAccessMask               = VK_ACCESS_NONE;
+                image_barriers[1].dstAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+
                 init.disp.cmdPipelineBarrier(command_buffer,
                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -815,40 +806,65 @@ bool App::frame(const int frame_num)
                                                 nullptr,
                                                 0,
                                                 nullptr,
-                                                1,
-                                                &image_barrier);
+                                                2,
+                                                image_barriers);
             }
 
             // Copy image data from staging buffer
-            VkBufferImageCopy image_copy = {};
-            image_copy.bufferOffset = 0;
-            image_copy.bufferRowLength = 0;
-            image_copy.bufferImageHeight = 0;
-            image_copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            image_copy.imageSubresource.mipLevel = 0;
-            image_copy.imageSubresource.baseArrayLayer = 0;
-            image_copy.imageSubresource.layerCount = 1;
-            image_copy.imageOffset.x = 0;
-            image_copy.imageOffset.y = 0;
-            image_copy.imageOffset.z = 0;
-            image_copy.imageExtent.width = image_size_;
-            image_copy.imageExtent.height = image_size_;
-            image_copy.imageExtent.depth = 1;
+            VkBufferImageCopy image_copies[2] = {};
+            image_copies[0].bufferOffset = 0;
+            image_copies[0].bufferRowLength = 0;
+            image_copies[0].bufferImageHeight = 0;
+            image_copies[0].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            image_copies[0].imageSubresource.mipLevel = 0;
+            image_copies[0].imageSubresource.baseArrayLayer = 0;
+            image_copies[0].imageSubresource.layerCount = 1;
+            image_copies[0].imageOffset.x = 0;
+            image_copies[0].imageOffset.y = 0;
+            image_copies[0].imageOffset.z = 0;
+            image_copies[0].imageExtent.width = image_size_;
+            image_copies[0].imageExtent.height = image_size_;
+            image_copies[0].imageExtent.depth = 1;
 
-            init.disp.cmdCopyBufferToImage(command_buffer, staging_buffer_, image0_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copy);
+            image_copies[1].bufferOffset = 4 * image_size_ * image_size_;
+            image_copies[1].bufferRowLength = 0;
+            image_copies[1].bufferImageHeight = 0;
+            image_copies[1].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            image_copies[1].imageSubresource.mipLevel = 0;
+            image_copies[1].imageSubresource.baseArrayLayer = 0;
+            image_copies[1].imageSubresource.layerCount = 1;
+            image_copies[1].imageOffset.x = 0;
+            image_copies[1].imageOffset.y = 0;
+            image_copies[1].imageOffset.z = 0;
+            image_copies[1].imageExtent.width = image_size_;
+            image_copies[1].imageExtent.height = image_size_;
+            image_copies[1].imageExtent.depth = 1;
+
+            init.disp.cmdCopyBufferToImage(command_buffer, staging_buffer_, sparse_bind_image_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copies[0]);
+            init.disp.cmdCopyBufferToImage(command_buffer, staging_buffer_, sparse_resident_image_, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_copies[1]);
 
             // Memory barrier to transition into read-only optimal
             {
-                VkImageMemoryBarrier image_barrier        = {};
-                image_barrier.sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                image_barrier.image                       = image0_;
-                image_barrier.oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                image_barrier.newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                image_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                image_barrier.subresourceRange.layerCount = 1;
-                image_barrier.subresourceRange.levelCount = 1;
-                image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-                image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                VkImageMemoryBarrier image_barriers[2]        = {};
+                image_barriers[0].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barriers[0].image                       = sparse_bind_image_;
+                image_barriers[0].oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barriers[0].newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                image_barriers[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barriers[0].subresourceRange.layerCount = 1;
+                image_barriers[0].subresourceRange.levelCount = 1;
+                image_barriers[0].srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+                image_barriers[0].dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+                image_barriers[1].sType                       = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                image_barriers[1].image                       = sparse_resident_image_;
+                image_barriers[1].oldLayout                   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                image_barriers[1].newLayout                   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                image_barriers[1].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barriers[1].subresourceRange.layerCount = 1;
+                image_barriers[1].subresourceRange.levelCount = 1;
+                image_barriers[1].srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
+                image_barriers[1].dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                 init.disp.cmdPipelineBarrier(command_buffer,
                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -857,8 +873,8 @@ bool App::frame(const int frame_num)
                                                 nullptr,
                                                 0,
                                                 nullptr,
-                                                1,
-                                                &image_barrier);
+                                                2,
+                                                image_barriers);
             }
             first_frame = false;
         }
@@ -923,7 +939,7 @@ bool App::frame(const int frame_num)
         );
         init.disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_);
 
-        init.disp.cmdDraw(command_buffer, 3, 1, 0, 0);
+        init.disp.cmdDraw(command_buffer, 6, 1, 0, 0);
 
         init.disp.cmdEndRenderPass(command_buffer);
 
