@@ -563,8 +563,12 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--no-debug-popup] [--use-colorspace-fallback]
                         [--wait-before-present]
-                        [--dump-resources <arg>] [--dump-resources-before-draw]
-                        [--dump-resources-scale <scale>] [--dump-resources-dir <dir>]
+                        [--dump-resources <submit-index,command-index,draw-call-index>]
+                        [--dump-resources-block-indices <arg>]
+                        [--dump-resources-block-indices <filename>]
+                        [--dump-resources-block-indices <filename>.json]
+                        [--dump-resources-before-draw] [--dump-resources-scale <scale>]
+                        [--dump-resources-dir <dir>]
                         [--dump-resources-image-format <format>]
                         [--dump-resources-dump-depth-attachment]
                         [--dump-resources-dump-color-attachment-index <index>]
@@ -740,36 +744,43 @@ Optional arguments:
               Force wait on completion of queue operations for all queues
               before calling Present. This is needed for accurate acquisition
               of instrumentation data on some platforms.
-   --dump-resources <arg>
+  --dump-resources <submit-index,command-index,draw-call-index>
+              The capture file will be examined, and <submit-index,command-index,draw-call-index>
+              will be converted to <arg> as used in --dump-resources-block-indices <arg>.
+              The converted args will be used used as the args for dump resources.
+  --dump-resources-block-indices <arg>
               <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
               NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
               QueueSubmit=<u>
-              GPU resources are dumped after the given vkCmdDraw*,
-              vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
-              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
-              each is a block index from the capture file.  The additional parameters are used to identify during which occurence
-              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
-              indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
+              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR
+              is replayed. The parameter for each is a block index from the capture file. The
+              additional parameters are used to identify during which occurence of the
+              vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can
+              be repeated 0 or more times to indicate subpasses within a render pass.  Note that
+              the minimal set of parameters must be one of:
                   BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
                   BeginCmdBuffer, Dispatch and QueueSubmit
                   BeginCmdBuffer, TraceRays and QueueSubmit
-  --dump-resources <filename>
-              Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
-              list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
-  --dump-resources <filename>.json
-              Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
-              in the gfxreconstruct documentation.
+  --dump-resources-block-indices <filename>
+              Extract --dump-resources-block-indices args from the specified file, with each line in
+              the file containing a comma or space separated list of the parameters to
+              --dump-resources-block-indices. The file can contain multiple lines specifying multiple dumps.
+  --dump-resources-block-indices <filename>.json
+              Extract --dump-resources-block-indices args from the specified json file. The format for the
+              json file is documented in detail in the gfxreconstruct documentation.
   --dump-resources-image-format <format>
               Image file format to use for image resource dumping.
               Available formats are:
                   bmp         Bitmap file format.  This is the default format.
                   png         Png file format.
   --dump-resources-before-draw
-              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
-              --dump-resources argument, also dump resources before those calls.
+              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls
+              specified by the --dump-resources-block-indices argument, also dump resources before those
+              calls.
   --dump-resources-scale <scale>
-              Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number
-              greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.
+              Scale images generated by dump resources by the given scale factor. The scale factor must
+              be a floating point number greater than 0. Values greater than 10 are capped at 10. Default
+              value is 1.0.
   --dump-resources-dir <dir>
               Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-image-format <format>

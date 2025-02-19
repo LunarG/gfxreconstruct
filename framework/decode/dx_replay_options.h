@@ -39,13 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
 
-struct DumpResourcesTarget
-{
-    uint32_t submit_index{ 0 };
-    uint32_t command_index{ 0 };
-    uint32_t draw_call_index{ 0 };
-};
-
 struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
@@ -54,8 +47,6 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
-    bool                 enable_dump_resources{ false };
-    DumpResourcesTarget  dump_resources_target{};
     int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
 };
 
