@@ -39,6 +39,13 @@ struct ScreenshotRange
     uint32_t last{ 0 };  // Last frame to capture.
 };
 
+struct DumpResourcesTarget
+{
+    uint32_t submit_index{ 0 };
+    uint32_t command_index{ 0 };
+    uint32_t draw_call_index{ 0 };
+};
+
 struct ReplayOptions
 {
     bool                         enable_validation_layer{ false };
@@ -70,8 +77,11 @@ struct ReplayOptions
     uint32_t                     screenshot_width, screenshot_height;
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
+    bool                         enable_dump_resources{ false };
     std::string                  dump_resources_output_dir;
     bool                         dump_resources_before{ false };
+    DumpResourcesTarget          dump_resources_target{};
+    bool                         using_dump_resources_target{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

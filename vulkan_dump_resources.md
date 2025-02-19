@@ -229,7 +229,14 @@ In this example two command buffers are submitted for dumping, one with object I
 Dump resources feature can be control in several ways. To do so, a number of parameters can be provided to either to the `gfxrecon-replay` tool or to the Android application through the `gfxrecon.py` script:
 
 ```text
---dump-resources BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,NextSubPass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,QueueSubmit=<u>
+  --dump-resources <submit-index,command-index,draw-call-index>
+              The capture file will be examined, and <submit-index,command-index,draw-call-index>
+              will be converted to <arg> as used in --dump-resources <arg> below.
+              The converted args will be used as the args for dump resources.
+  --dump-resources <arg>
+              <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
+              NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
+              QueueSubmit=<u>
               Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence
               of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
@@ -238,11 +245,12 @@ Dump resources feature can be control in several ways. To do so, a number of par
                   BeginCmdBuffer, Dispatch, QueueSubmit
                   BeginCmdBuffer, TraceRays, QueueSubmit
   --dump-resources <filename>
-              Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
-              list of the parameters as in the above --dump-resources description. The file can contain multiple lines specifying multiple dumps.
+              Extract --dump-resources block indices args from the specified file, with each line in the file containing a comma 
+              or space separated list of the parameters to --dump-resources <arg>. The file can contain multiple lines 
+              specifying multiple dumps.
   --dump-resources <filename>.json
-              Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
-              in the gfxreconstruct documentation.
+              Extract --dump-resources block indices args from the specified json file. The format for the json file is 
+              documented in detail in the gfxreconstruct documentation.
   --dump-resources-image-format <format>
               Image file format to use for image resource dumping.
               Available formats are:
