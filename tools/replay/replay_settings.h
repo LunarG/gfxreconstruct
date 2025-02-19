@@ -43,7 +43,8 @@ const char kArguments[] =
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
-    "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
+    "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-"
+    "image-format,--dump-resources-dir,"
     "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
     "pipeline-cache,--quit-after-frame";
 
@@ -83,9 +84,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
-#if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
-#endif
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <arg>] [--dump-resources <file>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-before-draw] [--dump-resources-scale <scale>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dir <dir>] [--dump-resources-image-format <format>]");
@@ -171,6 +170,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIn addition to dumping GPU resources after the draw calls");
     GFXRECON_WRITE_CONSOLE("          \t\tspecified by the --dump-resources argument, also dump resources");
     GFXRECON_WRITE_CONSOLE("          \t\tbefore the draw calls.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump resources for a specific drawcall.");
+    GFXRECON_WRITE_CONSOLE(
+        "          \t\tThis can include vertex, index, const buffer, shader resource, render target,");
+    GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil resources. Resources are dumped after the drawcall.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dir <dir>");
     GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write dump resources output files.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is the current working directory.");
@@ -300,7 +304,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tGPU resources are dumped after the given vkCmdDraw*,");
     GFXRECON_WRITE_CONSOLE("          \t\tvkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <file>");
-    GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file. Can be");
+    GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources block indices args from the specified file. Can be");
     GFXRECON_WRITE_CONSOLE("          \t\teither a json or a text file. If a text file is used, each");
     GFXRECON_WRITE_CONSOLE("          \t\tline of the file should contain comma separated indices as in");
     GFXRECON_WRITE_CONSOLE("          \t\t--dump-resources <arg> above.");
@@ -368,12 +372,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
-    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a specific drawcall.");
-    GFXRECON_WRITE_CONSOLE("          \t\tInclude vertex, index, const buffer, shader resource, render target,");
-    GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
-    GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
-    GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
 #endif
 }
 
