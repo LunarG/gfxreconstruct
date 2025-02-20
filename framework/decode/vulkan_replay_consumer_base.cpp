@@ -3732,6 +3732,34 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
         fence = fence_info->handle;
     }
 
+    // Fabian
+    auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    if (UseExtraDescriptorInfo(device_info) && submit_info_data != nullptr)
+    {
+        std::vector<VkDeviceAddress> addresses_to_replace;
+
+        for (uint32_t i = 0; i < submitCount; i++)
+        {
+            uint32_t num_command_buffers = submit_info_data[i].pCommandBufferInfos->GetLength();
+            auto*    cmd_buf_info_metas  = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            for (uint32_t c = 0; c < num_command_buffers; ++c)
+            {
+                auto* command_buffer_info =
+                    GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_info_metas[c].commandBuffer);
+                GFXRECON_ASSERT(command_buffer_info != nullptr);
+                addresses_to_replace.insert(addresses_to_replace.end(),
+                                            command_buffer_info->addresses_to_replace.begin(),
+                                            command_buffer_info->addresses_to_replace.end());
+            }
+        }
+
+        if (!addresses_to_replace.empty())
+        {
+            GFXRECON_LOG_INFO("need to replace %d addresses", addresses_to_replace.size());
+        }
+    }
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
@@ -4340,12 +4368,14 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
                 else
                 {
                     // patch an existing uniform-buffer and retrieve a buffer-address for it
+                    decode::BeginInjectedCommands();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = buffer_info->handle;
                     buffer_info->capture_address           = buffer_info->replay_address =
                         get_device_address_fn(device_info->handle, &address_info);
                     GFXRECON_ASSERT(buffer_info->replay_address != 0);
+                    decode::EndInjectedCommands();
 
                     // track newly acquired buffer/address
                     GetDeviceAddressTracker(device_info).TrackBuffer(buffer_info);
@@ -4359,6 +4389,7 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
 
                 if (buffer_ref_info.array_stride)
                 {
+                    address += buffer_ref_info.array_stride;
                     for (; address < range_end; address += buffer_ref_info.array_stride)
                     {
                         in_commandBuffer->addresses_to_replace.push_back(address);
@@ -4366,13 +4397,6 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
                 }
             }
         }
-
-        //        // update buffer-addresses at collected locations
-        //        GetDeviceAddressReplacer(device_info)
-        //            .UpdateBufferAddresses(in_commandBuffer,
-        //                                   in_commandBuffer->addresses_to_replace.data(),
-        //                                   in_commandBuffer->addresses_to_replace.size(),
-        //                                   GetDeviceAddressTracker(device_info));
     }
 
     func(command_buffer,
@@ -4398,6 +4422,31 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
     // TODO: add replacer-logic here
 
     func(command_buffer, bind_descriptor_sets_info);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteCommands               func,
+                                                          VulkanCommandBufferInfo*               in_commandBuffer,
+                                                          uint32_t                               commandBufferCount,
+                                                          HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
+{
+    GFXRECON_ASSERT(in_commandBuffer != nullptr && pCommandBuffers != nullptr);
+
+    VkCommandBuffer  command_buffer  = in_commandBuffer->handle;
+    VkCommandBuffer* command_buffers = pCommandBuffers->GetHandlePointer();
+
+    // collect information from secondary command-buffers
+    for (uint32_t i = 0; i < commandBufferCount; ++i)
+    {
+        auto* secondary_cmd_buffer_info = object_info_table_->GetVkCommandBufferInfo(pCommandBuffers->GetPointer()[i]);
+        GFXRECON_ASSERT(secondary_cmd_buffer_info != nullptr);
+        if(!secondary_cmd_buffer_info->addresses_to_replace.empty())
+        {
+            in_commandBuffer->addresses_to_replace.insert(in_commandBuffer->addresses_to_replace.end(),
+                                                          secondary_cmd_buffer_info->addresses_to_replace.begin(),
+                                                          secondary_cmd_buffer_info->addresses_to_replace.end());
+        }
+    }
+    func(command_buffer, commandBufferCount, command_buffers);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
@@ -8619,6 +8668,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->push_constant_data.clear();
     command_buffer_info->push_constant_stage_flags     = 0;
     command_buffer_info->push_constant_pipeline_layout = VK_NULL_HANDLE;
+    command_buffer_info->addresses_to_replace.clear();
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
@@ -9735,7 +9785,8 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const
 {
-    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
+    return true;
+//    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
@@ -10987,7 +11038,6 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
         pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }
 }
-
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
