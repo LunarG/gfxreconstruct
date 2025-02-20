@@ -4546,6 +4546,24 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
             nullptr, [&](void* memory) { util::platform::FreeRawMemory(memory, host_pointer_size); });
 
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
+        auto dedicated_alloc_info =
+            graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(modified_allocate_info);
+        auto import_ahb_info =
+            graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(modified_allocate_info);
+        if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE &&
+            import_ahb_info == nullptr)
+        {
+            // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
+            VkMemoryRequirements memory_requirements = {};
+            VkDevice             device              = device_info->handle;
+            GetDeviceTable(device)->GetImageMemoryRequirements(
+                device, dedicated_alloc_info->image, &memory_requirements);
+            modified_allocate_info->allocationSize = memory_requirements.size;
+        }
+#endif
+
         while (current_struct != nullptr)
         {
             if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
