@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -57,6 +57,8 @@ struct VulkanDevicePropertyFeatureInfo
     VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
     VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
     VkBool32 feature_rayTracingPipelineShaderGroupHandleCaptureReplay{ VK_FALSE };
+
+    VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
 };
 
 class VulkanDeviceUtil
@@ -88,6 +90,12 @@ class VulkanDeviceUtil
                                                        const VkPhysicalDevice             physical_device,
                                                        T*                                 feature_struct);
 
+    template <typename T>
+    VkBool32 EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo&      instance_info,
+                                                  const encode::VulkanInstanceTable* instance_table,
+                                                  const VkPhysicalDevice             physical_device,
+                                                  T*                                 feature_struct);
+
   private:
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
@@ -100,6 +108,10 @@ class VulkanDeviceUtil
     // VkPhysicalDeviceRayTracingPipelineFeaturesKHR::rayTracingPipelineShaderGroupHandleCaptureReplay
     VkBool32* rayTracingPipelineShaderGroupHandleCaptureReplay_ptr{ nullptr };
     VkBool32  rayTracingPipelineShaderGroupHandleCaptureReplay_original{ VK_FALSE };
+
+    // VkPhysicalDeviceSamplerYcbcrConversionFeatures
+    VkBool32* samplerYcbcrConversion_ptr{ nullptr };
+    VkBool32  samplerYcbcrConversion_original{ VK_FALSE };
 };
 
 GFXRECON_END_NAMESPACE(graphics)

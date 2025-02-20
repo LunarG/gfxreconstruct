@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -135,6 +135,36 @@ VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const Vulka
     return feature_struct->bufferDeviceAddressCaptureReplay;
 }
 
+template <typename T>
+VkBool32 VulkanDeviceUtil::EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo&      instance_info,
+                                                                const encode::VulkanInstanceTable* instance_table,
+                                                                const VkPhysicalDevice             physical_device,
+                                                                T*                                 feature_struct)
+{
+    // Type must be feature struct type that contains samplerYcbcrConversion
+    static_assert(std::is_same<T, VkPhysicalDeviceVulkan11Features>::value ||
+                      std::is_same<T, VkPhysicalDeviceSamplerYcbcrConversionFeatures>::value,
+                  "Unexpected type for EnableSamplerYcbcrConversionFeatures");
+
+    // Save original application's feature state
+    samplerYcbcrConversion_original = feature_struct->samplerYcbcrConversion;
+    samplerYcbcrConversion_ptr      = (&feature_struct->samplerYcbcrConversion);
+
+    // Enable the sampler Ycbcr conversion feature if it supported by the device
+    if (!feature_struct->samplerYcbcrConversion)
+    {
+        T supported_features{ feature_struct->sType, nullptr };
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+
+        if (supported_features.samplerYcbcrConversion)
+        {
+            feature_struct->samplerYcbcrConversion = VK_TRUE;
+        }
+    }
+
+    return feature_struct->samplerYcbcrConversion;
+}
+
 VulkanDevicePropertyFeatureInfo
 VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                                        const encode::VulkanInstanceTable* instance_table,
@@ -142,9 +172,18 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                                                        const VkDeviceCreateInfo*          create_info)
 {
     VulkanDevicePropertyFeatureInfo result;
-    VkBaseOutStructure*             current_struct = reinterpret_cast<const VkBaseOutStructure*>(create_info)->pNext;
-    while (current_struct != nullptr)
+    GFXRECON_ASSERT(create_info != nullptr);
+    VkBaseOutStructure* current_struct =
+        const_cast<VkBaseOutStructure*>(reinterpret_cast<const VkBaseOutStructure*>(create_info));
+
+    // If the pNext chain includes a VkPhysicalDeviceVulkan11Features structure, then it must not include a
+    // VkPhysicalDeviceSamplerYcbcrConversionFeatures structure
+    bool vulkan_1_1_features_found               = false;
+    bool sampler_ycbcr_conversion_features_found = false;
+
+    while (current_struct->pNext != nullptr)
     {
+        current_struct = current_struct->pNext;
         switch (current_struct->sType)
         {
             // Enable bufferDeviceAddressCaptureReplay if bufferDeviceAddress feature is enabled
@@ -153,6 +192,24 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                 auto vulkan_1_2_features = reinterpret_cast<VkPhysicalDeviceVulkan12Features*>(current_struct);
                 result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
                     instance_info, instance_table, physical_device, vulkan_1_2_features);
+            }
+            break;
+            // samplerYcbcrConversion is required for sampling images with external format
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
+            {
+                sampler_ycbcr_conversion_features_found = true;
+                auto* sampler_ycbcr_conversion_features =
+                    reinterpret_cast<VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(current_struct);
+                result.feature_samplerYcbcrConversion = EnableSamplerYcbcrConversionFeatures(
+                    instance_info, instance_table, physical_device, sampler_ycbcr_conversion_features);
+            }
+            break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
+            {
+                vulkan_1_1_features_found = true;
+                auto* vulkan_1_1_features = reinterpret_cast<VkPhysicalDeviceVulkan11Features*>(current_struct);
+                result.feature_samplerYcbcrConversion = EnableSamplerYcbcrConversionFeatures(
+                    instance_info, instance_table, physical_device, vulkan_1_1_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
@@ -235,7 +292,20 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             default:
                 break;
         }
-        current_struct = current_struct->pNext;
+    }
+
+    if (!vulkan_1_1_features_found && !sampler_ycbcr_conversion_features_found)
+    {
+        // If the app is not requesting any Vulkan 1.1 feature or sampler YCbCr conversion feature, inject our own.
+        static VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_features = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES
+        };
+        result.feature_samplerYcbcrConversion = EnableSamplerYcbcrConversionFeatures(
+            instance_info, instance_table, physical_device, &sampler_ycbcr_conversion_features);
+        if (result.feature_samplerYcbcrConversion == VK_TRUE)
+        {
+            current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&sampler_ycbcr_conversion_features);
+        }
     }
 
     return result;
