@@ -171,5 +171,20 @@ VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
     return ret;
 }
 
+std::unordered_map<VkDeviceAddress, VkDeviceAddress> VulkanDeviceAddressTracker::GetBufferDeviceAddressMap() const
+{
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> ret;
+    for (const auto& [address, handleId] : buffer_capture_addresses_)
+    {
+        const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(handleId);
+
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        {
+            ret[address] = buffer_info->replay_address;
+        }
+    }
+    return ret;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

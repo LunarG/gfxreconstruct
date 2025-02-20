@@ -122,6 +122,13 @@ class VulkanDeviceAddressTracker
      */
     [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
 
+    /**
+     * @brief   Create and return a lookup-table containing all internally stored buffer-device-addresses.
+     *
+     * @return  a lookup-table for buffer-device-addresses.
+     */
+    [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetBufferDeviceAddressMap() const;
+
   private:
     //! use a sorted (BST-based) map
     using buffer_address_map_t = std::map<VkDeviceAddress, format::HandleId>;
