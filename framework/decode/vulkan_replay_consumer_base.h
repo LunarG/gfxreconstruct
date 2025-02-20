@@ -1582,6 +1582,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
 
+    /**
+     * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
+     *          should be collected and used during replay.
+     *
+     * This information is generally required for the dump-resource feature but also for portable replays
+     * using -m rebind flag.
+     *
+     * @return true if extra information wrt. descriptors can be used
+     */
+    bool UseExtraDescriptorInfo(const VulkanDeviceInfo *device_info) const;
+
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,
                                                                       const format::HandleId*       pipelines) const;
