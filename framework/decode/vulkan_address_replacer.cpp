@@ -241,13 +241,15 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            /*command_buffer_info*/,
+void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
                                                   const VkDeviceAddress*                    addresses,
                                                   uint32_t                                  num_addresses,
                                                   const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     if (addresses != nullptr && num_addresses > 0)
     {
+        GFXRECON_LOG_INFO_ONCE(
+            "%s(): Replay is adjusting mismatching buffer-device-address in-place using a compute-dispatch", __func__);
         GFXRECON_LOG_DEBUG("%s(): running repl8cer (%d addresses)", __func__, num_addresses);
 
         hashmap_bda_.clear();
@@ -259,13 +261,18 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
             hashmap_bda_.put(capture_address, replay_address);
         }
 
-        if (init_queue_assets())
+        if (command_buffer_info != nullptr)
+        {
+            run_compute_replace(
+                command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
+        else if (init_queue_assets())
         {
             // reset/submit/sync command-buffer
             QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
-            VulkanCommandBufferInfo    fake_info = {};
-            fake_info.handle                     = command_buffer_;
+            VulkanCommandBufferInfo fake_info = {};
+            fake_info.handle                  = command_buffer_;
             run_compute_replace(
                 &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         }

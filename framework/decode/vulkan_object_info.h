@@ -636,6 +636,7 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // collect buffer-device-addresses of locations to replace before submit
     std::vector<VkDeviceAddress> addresses_to_replace;
+    bool                         inside_renderpass = false;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
