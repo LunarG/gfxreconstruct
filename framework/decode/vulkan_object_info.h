@@ -632,6 +632,9 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::vector<uint8_t>                                      push_constant_data;
     VkShaderStageFlags                                        push_constant_stage_flags     = 0;
     VkPipelineLayout                                          push_constant_pipeline_layout = VK_NULL_HANDLE;
+
+    // collect buffer-device-addresses of locations to replace before submit
+    std::vector<VkDeviceAddress> addresses_to_replace;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>

@@ -248,7 +248,7 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
 {
     if (addresses != nullptr && num_addresses > 0)
     {
-        GFXRECON_LOG_INFO("%s(): running repl8cer (%d addresses)", __func__, num_addresses);
+        GFXRECON_LOG_DEBUG("%s(): running repl8cer (%d addresses)", __func__, num_addresses);
 
         hashmap_bda_.clear();
 
@@ -259,7 +259,7 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
             hashmap_bda_.put(capture_address, replay_address);
         }
         run_compute_replace(
-            command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+            command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     }
 }
 
@@ -1407,7 +1407,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                                 const decode::VulkanDeviceAddressTracker& address_tracker,
                                                 VkPipelineStageFlags                      sync_stage)
 {
-    if (!num_addresses || hashmap_bda_.empty())
+    if (addresses == nullptr || !num_addresses || hashmap_bda_.empty())
     {
         return;
     }
@@ -1429,7 +1429,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
     {
-        GFXRECON_LOG_WARNING_ONCE("ProcessCmdBuildAccelerationStructuresKHR: internal pipeline-creation failed")
+        GFXRECON_LOG_WARNING_ONCE("%s(): internal pipeline-creation failed", __func__)
         return;
     }
 
@@ -1495,9 +1495,9 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
         if (previous_pipeline != nullptr)
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is "
-                                   "injecting compute-dispatches, "
-                                   "originally bound compute-pipelines are restored.");
+            GFXRECON_LOG_INFO_ONCE("%s(): Replay is injecting compute-dispatches, "
+                                   "originally bound compute-pipelines are restored.",
+                                   __func__);
             device_table_->CmdBindPipeline(
                 command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
         }
