@@ -253,6 +253,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::vector<const char*> modified_layers;
         std::vector<const char*> modified_extensions;
         VkInstanceCreateInfo     modified_create_info;
+        VkDebugUtilsMessengerCreateInfoEXT messenger_create_info;
     };
     // create_state passed in by reference to conserve pointers to member variable
     // Not initialized in a CreateDeviceInfoState constructor as *many* VulkanReplayConsumerBase
