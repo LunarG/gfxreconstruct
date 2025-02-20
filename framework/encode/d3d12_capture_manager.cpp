@@ -326,6 +326,10 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     info->layout          = layout;
     info->heap_offset     = heap_offset;
     info->heap_wrapper    = heap_wrapper;
+    if (heap_wrapper != nullptr)
+    {
+        info->heap_id = heap_wrapper->GetCaptureId();
+    }
 
     if (dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
