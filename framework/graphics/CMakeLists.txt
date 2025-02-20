@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2025 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -56,6 +57,14 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.cpp
               )
+
+if (${GFXRECON_AGS_SUPPORT_FINAL})
+target_sources(gfxrecon_graphics
+               PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.h
+                    ${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.cpp
+               )
+endif()
 
 target_include_directories(gfxrecon_graphics
                            PUBLIC

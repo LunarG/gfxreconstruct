@@ -115,6 +115,19 @@ class Dx12ReplayConsumerBodyGenerator(
             file=self.outFile
         )
         self.newline()
+        write(
+            '#ifdef GFXRECON_AGS_SUPPORT',
+            file=self.outFile
+        )
+        write(
+            '#include "decode/ags_gpu_cmd_wrapper.h"',
+            file=self.outFile
+        )
+        write(
+            '#endif',
+            file=self.outFile
+        )
+        self.newline()
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
@@ -164,6 +177,15 @@ class Dx12ReplayConsumerBodyGenerator(
                 " (replay_object->object != nullptr))\n"
                 "    {\n"
             )
+
+            if 'ID3D12GraphicsCommandList' in class_name:
+                    cmddef += ("#ifdef GFXRECON_AGS_SUPPORT\n".format(method)
+                    )
+                    cmddef += (
+                        "        AgsGpuCmdWrapper ags_gpu_cmd_wrapper(&options_, static_cast<ID3D12GraphicsCommandList*>(replay_object->object), object_id, format::ApiCallId::ApiCall_{0}, GetCurrentBlockIndex());\n".format(method)
+                    )
+                    cmddef += ("#endif\n\n".format(method)
+                    )
 
             body = self.make_consumer_func_body(return_type, method, values)
             code_list = body.split('\n')

@@ -117,12 +117,53 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
+#ifdef GFXRECON_AGS_SUPPORT
+    SetAgsMarkerInjector();
+#endif
+
     DetectAdapters();
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
     resource_value_mapper_ =
         std::make_unique<Dx12ResourceValueMapper>(get_object_func, shader_id_map_, gpu_va_map_, descriptor_map_);
 }
+
+#ifdef GFXRECON_AGS_SUPPORT
+void Dx12ReplayConsumerBase::SetAgsMarkerInjector(AGSContext* ags_context)
+{
+    if (options_.ags_inject_markers)
+    {
+        ags_marker_injector_ = graphics::Dx12AgsMarkerInjector::Create();
+
+        if (ags_marker_injector_ != nullptr)
+        {
+            AGSConfiguration ags_config   = {};
+            AGSGPUInfo       ags_gpu_info = {};
+
+            if (ags_context == nullptr)
+            {
+                AGSReturnCode ags_return =
+                    agsInitialize(AGS_MAKE_VERSION(AMD_AGS_VERSION_MAJOR, AMD_AGS_VERSION_MINOR, AMD_AGS_VERSION_PATCH),
+                                  &ags_config,
+                                  &ags_context,
+                                  &ags_gpu_info);
+
+                if (ags_return != AGS_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Failed to initialize AGS. Marker injection disabled.");
+
+                    options_.ags_inject_markers = false;
+                    ags_marker_injector_        = nullptr;
+                }
+            }
+            if (ags_context != nullptr)
+            {
+                ags_marker_injector_->SetContext(ags_context);
+            }
+        }
+    }
+}
+#endif
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
 {
@@ -1077,8 +1118,57 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
 
-    auto replay_result =
-        D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+    auto replay_result = E_FAIL;
+#ifdef GFXRECON_AGS_SUPPORT
+    if (options_.ags_inject_markers)
+    {
+        AGSDX12DeviceCreationParams creation_params = {};
+        creation_params.pAdapter                    = GetAdapter();
+        creation_params.iid                         = IID_ID3D12Device;
+        creation_params.FeatureLevel                = minimum_feature_level;
+
+        AGSDX12ExtensionParams extension_params = {};
+        AGSDX12ReturnedParams  returned_params  = {};
+
+        // Create AGS device for marker injection
+        AGSReturnCode ags_return = agsDriverExtensionsDX12_CreateDevice(
+            ags_marker_injector_->Context(), &creation_params, &extension_params, &returned_params);
+
+        if (ags_return == AGS_SUCCESS)
+        {
+            GFXRECON_LOG_DEBUG("Created AGS device.");
+
+            if (device->GetHandlePointer() != nullptr)
+            {
+                *device->GetHandlePointer() = returned_params.pDevice;
+            }
+
+            replay_result = S_OK;
+
+            if (returned_params.extensionsSupported.userMarkers == 0)
+            {
+                GFXRECON_LOG_WARNING("Device does not support the AGS marker extension. Marker injection disabled.");
+
+                options_.ags_inject_markers = false;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to create AGS device, so falling back to creation of regular ID3D12Device. "
+                                 "Marker injection disabled.");
+
+            options_.ags_inject_markers = false;
+
+            replay_result =
+                D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+        }
+    }
+    else
+#endif
+    {
+        replay_result =
+            D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+    }
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {

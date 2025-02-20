@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,36 +20,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-
-#include "decode/replay_options.h"
+#ifndef GFXRECON_DX12_AGS_MARKER_INJECTOR_H
+#define GFXRECON_DX12_AGS_MARKER_INJECTOR_H
 
 #include "util/defines.h"
-#include "util/options.h"
-#include "util/logging.h"
 
-#include <vector>
 #include <string>
+#include <d3d12.h>
+#include <amd_ags.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 
-static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
-
-struct DxReplayOptions : public ReplayOptions
+class Dx12AgsMarkerInjector
 {
-    bool                 enable_d3d12{ true };
-    bool                 enable_d3d12_two_pass_replay{ false };
-    bool                 use_cached_psos{ false };
-    std::vector<int32_t> AllowedDebugMessages;
-    std::vector<int32_t> DeniedDebugMessages;
-    bool                 override_object_names{ false };
-    bool                 ags_inject_markers{ false };
-    int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
+  public:
+    static Dx12AgsMarkerInjector* Get();
+    static Dx12AgsMarkerInjector* Create();
+    bool                          PushMarker(ID3D12GraphicsCommandList* command_list, const std::string& marker);
+    bool                          PopMarker(ID3D12GraphicsCommandList* command_list);
+    bool                          SetMarker(ID3D12GraphicsCommandList* command_list, const std::string& marker);
+    void                          SetContext(AGSContext* context) { ags_context_ = context; }
+    AGSContext*                   Context() { return ags_context_; }
+
+  private:
+    AGSContext* ags_context_{ nullptr };
 };
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#endif // GFXRECON_DX12_AGS_MARKER_INJECTOR_H

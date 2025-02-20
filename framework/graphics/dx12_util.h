@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -135,6 +135,8 @@ static const uint8_t  kAdapterTypeMask  = 0x3;
 static const uint32_t kAdapterTypeShift = 0;
 static const uint32_t kAdapterIdMask    = 0xFFFFFFFc;
 static const uint32_t kAdapterIdShift   = 2;
+
+static const uint32_t kMaxMarkerStrLength = 1024;
 
 struct AdapterSubmissionMapping
 {
