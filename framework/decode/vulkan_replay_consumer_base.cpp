@@ -3553,6 +3553,37 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
         fence = fence_info->handle;
     }
 
+    auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    if (UseExtraDescriptorInfo(device_info) && submit_info_data != nullptr)
+    {
+        std::vector<VkDeviceAddress> addresses_to_replace;
+
+        for (uint32_t i = 0; i < submitCount; i++)
+        {
+            uint32_t num_command_buffers = submit_info_data[i].pCommandBuffers.GetLength();
+            auto*    cmd_buf_handles     = submit_info_data[i].pCommandBuffers.GetPointer();
+            for (uint32_t c = 0; c < num_command_buffers; ++c)
+            {
+                auto* command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_handles[c]);
+                GFXRECON_ASSERT(command_buffer_info != nullptr);
+                addresses_to_replace.insert(addresses_to_replace.end(),
+                                            command_buffer_info->addresses_to_replace.begin(),
+                                            command_buffer_info->addresses_to_replace.end());
+            }
+        }
+
+        if (!addresses_to_replace.empty())
+        {
+            auto& address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.UpdateBufferAddresses(nullptr,
+                                                   addresses_to_replace.data(),
+                                                   addresses_to_replace.size(),
+                                                   GetDeviceAddressTracker(device_info));
+        }
+    }
+
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
@@ -3732,7 +3763,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
         fence = fence_info->handle;
     }
 
-    // Fabian
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
@@ -3757,12 +3787,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
 
         if (!addresses_to_replace.empty())
         {
-            GFXRECON_LOG_INFO("need to replace %d addresses", addresses_to_replace.size());
-            GetDeviceAddressReplacer(device_info)
-                .UpdateBufferAddresses(nullptr,
-                                       addresses_to_replace.data(),
-                                       addresses_to_replace.size(),
-                                       GetDeviceAddressTracker(device_info));
+            auto& address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.UpdateBufferAddresses(nullptr,
+                                                   addresses_to_replace.data(),
+                                                   addresses_to_replace.size(),
+                                                   GetDeviceAddressTracker(device_info));
         }
     }
     // Only attempt to filter imported semaphores if we know at least one has been imported.
@@ -4401,6 +4430,15 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
                     }
                 }
             }
+        }
+        if (!in_commandBuffer->inside_renderpass)
+        {
+            auto& address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.UpdateBufferAddresses(in_commandBuffer,
+                                                   in_commandBuffer->addresses_to_replace.data(),
+                                                   in_commandBuffer->addresses_to_replace.size(),
+                                                   GetDeviceAddressTracker(device_info));
+            in_commandBuffer->addresses_to_replace.clear();
         }
     }
 
@@ -8674,6 +8712,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->push_constant_stage_flags     = 0;
     command_buffer_info->push_constant_pipeline_layout = VK_NULL_HANDLE;
     command_buffer_info->addresses_to_replace.clear();
+    command_buffer_info->inside_renderpass = false;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
@@ -8687,6 +8726,11 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
 
     VkCommandBuffer                 command_buffer = command_buffer_info->handle;
     const VkCommandBufferBeginInfo* begin_info     = begin_info_decoder->GetPointer();
+
+    if (begin_info->pInheritanceInfo != nullptr)
+    {
+        command_buffer_info->inside_renderpass = begin_info->pInheritanceInfo->renderPass != VK_NULL_HANDLE;
+    }
 
     VkResult res = VK_SUCCESS;
     if (options_.dumping_resources && resource_dumper_->DumpingBeginCommandBufferIndex(index))
@@ -8857,6 +8901,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->inside_renderpass = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
@@ -8912,6 +8957,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->inside_renderpass = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
