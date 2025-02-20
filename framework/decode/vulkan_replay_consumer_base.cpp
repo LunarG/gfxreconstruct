@@ -2545,7 +2545,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     }
 
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
-    VkDebugUtilsMessengerCreateInfoEXT messenger_create_info{};
     if (options_.enable_validation_layer)
     {
         std::vector<VkLayerProperties> available_layers;
@@ -2563,17 +2562,17 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 {
                     modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-                    messenger_create_info.sType       = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-                    messenger_create_info.pNext       = modified_create_info.pNext;
-                    messenger_create_info.flags       = 0;
-                    messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                    messenger_create_info.messageSeverity =
+                    create_state.messenger_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+                    create_state.messenger_create_info.pNext       = modified_create_info.pNext;
+                    create_state.messenger_create_info.flags       = 0;
+                    create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                                                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+                    create_state.messenger_create_info.messageSeverity =
                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                    messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-                    messenger_create_info.pUserData       = nullptr;
+                    create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+                    create_state.messenger_create_info.pUserData       = nullptr;
 
-                    modified_create_info.pNext = &messenger_create_info;
+                    modified_create_info.pNext = &create_state.messenger_create_info;
                 }
                 else
                 {
