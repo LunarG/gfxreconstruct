@@ -851,10 +851,15 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             // Add CopyBufferRegion(s) and ResourceBarrier(s) to command list to save the build input resource data.
             auto curr_entry_iter = inputs_buffer_entries.begin();
             auto end_entry_iter  = inputs_buffer_entries.end();
+            ID3D12Resource_Wrapper*             src_resource_wrapper = nullptr;
+            std::shared_ptr<ID3D12ResourceInfo> src_resource_info;
             while (!build_info.is_tlas_with_array_of_pointers && curr_entry_iter != end_entry_iter)
             {
-                ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
+                gfxrecon::util::GpuVaRange range = { *curr_entry_iter->desc_gpu_va,
+                                                     *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
+                if ((src_resource_wrapper == nullptr) || !DoesResourceCoverGpuVaRange(src_resource_wrapper, range))
                 {
+                    // Find the resource object that contains the GPU VA of the current entry.
                     std::unique_lock<std::mutex> lock(state_table_mutex_);
                     src_resource_wrapper = GetResourceWrapperForGpuVa(
                         *curr_entry_iter->desc_gpu_va, *curr_entry_iter->desc_gpu_va + curr_entry_iter->size);
@@ -871,7 +876,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     continue;
                 }
 
-                auto src_resource_info = src_resource_wrapper->GetObjectInfo();
+                src_resource_info = src_resource_wrapper->GetObjectInfo();
                 GFXRECON_ASSERT(src_resource_info != nullptr);
                 GFXRECON_ASSERT(src_resource_info->subresource_sizes[0] > 0);
 
@@ -918,22 +923,15 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     list_wrapper->ResourceBarrier(1, &pre_barrier);
                 }
 #endif
-                // Copy all inputs data from the current resource to the inputs_data_resource.
-                auto end_gpu_va = src_resource_info->gpu_va + src_resource_info->subresource_sizes[0];
-                while ((curr_entry_iter != end_entry_iter) && (*curr_entry_iter->desc_gpu_va < end_gpu_va))
-                {
-                    auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
-                    auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
-
-                    // Copy the inputs data to the inputs_data_resource.
-                    list_wrapper->CopyBufferRegion(inputs_data_resource,
-                                                   curr_entry_iter->offset,
-                                                   src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
-                                                   src_offset,
-                                                   curr_entry_iter->size);
-
-                    ++curr_entry_iter;
-                }
+                // Copy the inputs data to the inputs_data_resource.
+                auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
+                auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
+                list_wrapper->CopyBufferRegion(inputs_data_resource,
+                                               curr_entry_iter->offset,
+                                               src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                                               src_offset,
+                                               curr_entry_iter->size);
+                ++curr_entry_iter;
 
 #if GFXRECON_ACCEL_STRUCT_TRIM_BARRIER
                 // Add a resource transition after the copy, restoring the original state.
@@ -1058,6 +1056,29 @@ void Dx12StateTracker::TrackRootSignatureWithStateObject(const D3D12_STATE_OBJEC
                 root_signature_wrapper->GetObjectInfo();
         }
     }
+}
+
+bool Dx12StateTracker::DoesResourceCoverGpuVaRange(ID3D12Resource_Wrapper*     resource_wrapper,
+                                                   gfxrecon::util::GpuVaRange& range)
+{
+    if ((resource_wrapper != nullptr) && (range.start < range.end))
+    {
+        auto resource_info = resource_wrapper->GetObjectInfo();
+        if (resource_info != nullptr)
+        {
+            return (range.start >= resource_info->gpu_va) &&
+                   (range.end <= resource_info->gpu_va + resource_info->subresource_sizes[0] - 1);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING_ONCE("Detected invalid resource when tracking BuildAS");
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING_ONCE("Detected invalid resource GpuVA range when tracking BuildAS");
+    }
+    return false;
 }
 
 void Dx12StateTracker::TrackAddToStateObject(ID3D12Device7_Wrapper*         device5_wrapper,

@@ -33,6 +33,7 @@
 #include "generated/generated_dx12_wrapper_creators.h"
 #include "generated/generated_dx12_add_entries.h"
 #include "util/defines.h"
+#include "util/gpu_va_range.h"
 
 #include <guiddef.h>
 #include <mutex>
@@ -270,6 +271,8 @@ class Dx12StateTracker
 
     // Track root signatures associated with state object.
     void TrackRootSignatureWithStateObject(const D3D12_STATE_OBJECT_DESC* desc, void** state_object_void_ptr);
+
+    bool DoesResourceCoverGpuVaRange(ID3D12Resource_Wrapper* resource_wrapper, gfxrecon::util::GpuVaRange& range);
 
 #ifdef GFXRECON_AGS_SUPPORT
     void AddAgsInitializeEntry(AGSContext*                     context,
