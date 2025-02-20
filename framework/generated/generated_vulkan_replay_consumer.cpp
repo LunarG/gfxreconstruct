@@ -2286,14 +2286,14 @@ void VulkanReplayConsumer::Process_vkCmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkCommandBuffer* in_pCommandBuffers = MapHandles<VulkanCommandBufferInfo>(pCommandBuffers, commandBufferCount, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    MapHandles<VulkanCommandBufferInfo>(pCommandBuffers, commandBufferCount, &CommonObjectInfoTable::GetVkCommandBufferInfo);
 
-    GetDeviceTable(in_commandBuffer)->CmdExecuteCommands(in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+    OverrideCmdExecuteCommands(GetDeviceTable(in_commandBuffer->handle)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, pCommandBuffers);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+        resource_dumper_->Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdExecuteCommands, in_commandBuffer->handle, commandBufferCount, pCommandBuffers->GetHandlePointer());
     }
 }
 

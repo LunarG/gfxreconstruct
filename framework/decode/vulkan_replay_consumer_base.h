@@ -771,6 +771,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     OverrideCmdBindDescriptorSets2(PFN_vkCmdBindDescriptorSets2                            func,
                                    VulkanCommandBufferInfo*                                in_commandBuffer,
                                    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
+
+    void OverrideCmdExecuteCommands(PFN_vkCmdExecuteCommands               func,
+                                    VulkanCommandBufferInfo*               in_commandBuffer,
+                                    uint32_t                               commandBufferCount,
+                                    HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers);
+
     VkResult
     OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
                                    VkResult                                                         original_result,
