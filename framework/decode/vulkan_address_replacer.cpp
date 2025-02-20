@@ -241,7 +241,7 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
+void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            /*command_buffer_info*/,
                                                   const VkDeviceAddress*                    addresses,
                                                   uint32_t                                  num_addresses,
                                                   const decode::VulkanDeviceAddressTracker& address_tracker)
@@ -258,8 +258,17 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         {
             hashmap_bda_.put(capture_address, replay_address);
         }
-        run_compute_replace(
-            command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+        if (init_queue_assets())
+        {
+            // reset/submit/sync command-buffer
+            QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+
+            VulkanCommandBufferInfo    fake_info = {};
+            fake_info.handle                     = command_buffer_;
+            run_compute_replace(
+                &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
     }
 }
 

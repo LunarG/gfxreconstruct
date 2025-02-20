@@ -3758,6 +3758,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
         if (!addresses_to_replace.empty())
         {
             GFXRECON_LOG_INFO("need to replace %d addresses", addresses_to_replace.size());
+            GetDeviceAddressReplacer(device_info)
+                .UpdateBufferAddresses(nullptr,
+                                       addresses_to_replace.data(),
+                                       addresses_to_replace.size(),
+                                       GetDeviceAddressTracker(device_info));
         }
     }
     // Only attempt to filter imported semaphores if we know at least one has been imported.
