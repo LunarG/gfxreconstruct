@@ -243,6 +243,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         {
             switch (object_insn->opcode())
             {
+                case spv::OpFunctionParameter:
                 case spv::OpConvertUToPtr:
                 case spv::OpCopyLogical:
                 case spv::OpLoad:
@@ -272,7 +273,8 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                 case spv::OpVariable:
                 {
                     const uint32_t storage_class = object_insn->operand(0);
-                    if (storage_class == spv::StorageClassFunction)
+                    if (storage_class == spv::StorageClassFunction ||
+                        storage_class == spv::StorageClassShaderRecordBufferKHR)
                     {
                         // When casting to a struct, can get a 2nd function variable, just keep following
                         object_insn = FindVariableStoring(object_insn->resultId());
@@ -363,7 +365,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                         else if (member.op == SpvOpTypeArray || member.op == SpvOpTypeRuntimeArray)
                                         {
                                             num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
-                                            assert(false); // not handled
+                                            //                                            assert(false); // not handled
                                         }
                                         buffer_reference_info.buffer_offset += num_scalar_bytes;
                                     }

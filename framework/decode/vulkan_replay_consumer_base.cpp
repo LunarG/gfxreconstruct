@@ -5081,10 +5081,10 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto                                  replay_create_info = pCreateInfo->GetPointer();
 
     // Check for a buffer device address.
-    bool uses_address  = false;
-    bool force_address = !device_info->allocator->SupportsOpaqueDeviceAddresses() &&
-                         (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
-                          replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    bool uses_address = false;
+    bool force_address =
+        UseExtraDescriptorInfo(device_info) && (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
+                                                replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
 
@@ -9735,9 +9735,7 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const
 {
-    // TODO: testing with an override here
-    return true;
-//    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
+    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
