@@ -1036,6 +1036,22 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         }
     }
 
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    // If image is not VK_NULL_HANDLE and the memory is not an imported Android Hardware Buffer
+    auto dedicated_alloc_info =
+        graphics::vulkan_struct_get_pnext<VkMemoryDedicatedAllocateInfo>(pAllocateInfo_unwrapped);
+    auto import_ahb_info =
+        graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(pAllocateInfo_unwrapped);
+    if (dedicated_alloc_info != nullptr && dedicated_alloc_info->image != VK_NULL_HANDLE && import_ahb_info == nullptr)
+    {
+        // allocationSize needs to be equal to VkMemoryDedicatedAllocateInfo::image VkMemoryRequirements::size
+        VkMemoryRequirements memory_requirements = {};
+        vulkan_wrappers::GetDeviceTable(device)->GetImageMemoryRequirements(
+            device, dedicated_alloc_info->image, &memory_requirements);
+        pAllocateInfo_unwrapped->allocationSize = memory_requirements.size;
+    }
+#endif
+
     if (IsPageGuardMemoryModeExternal())
     {
         VkMemoryPropertyFlags properties = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
