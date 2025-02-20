@@ -356,7 +356,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                             num_scalar_bytes =
                                                 std::max(num_scalar_bytes, member.traits.numeric.matrix.stride);
                                         }
-                                        else if (member.op == SpvOpTypeForwardPointer)
+                                        else if (member.op == SpvOpTypePointer || member.op == SpvOpTypeForwardPointer)
                                         {
                                             num_scalar_bytes = sizeof(uint64_t);
                                         }

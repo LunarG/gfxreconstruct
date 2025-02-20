@@ -252,8 +252,12 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
 
         hashmap_bda_.clear();
 
-        // TODO: populate hashmap
-
+        // populate hashmap
+        auto address_map = address_tracker.GetBufferDeviceAddressMap();
+        for (const auto& [capture_address, replay_address] : address_map)
+        {
+            hashmap_bda_.put(capture_address, replay_address);
+        }
         run_compute_replace(
             command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     }
