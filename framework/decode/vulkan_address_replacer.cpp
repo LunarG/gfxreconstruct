@@ -114,6 +114,32 @@ struct replacer_params_t
     uint32_t        num_handles;
 };
 
+decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept :
+    buffer_context_t()
+{
+    swap(other);
+}
+
+decode::VulkanAddressReplacer::buffer_context_t&
+decode::VulkanAddressReplacer::buffer_context_t::operator=(buffer_context_t other)
+{
+    swap(other);
+    return *this;
+}
+
+void decode::VulkanAddressReplacer::buffer_context_t::swap(buffer_context_t& other)
+{
+    std::swap(resource_allocator, other.resource_allocator);
+    std::swap(num_bytes, other.num_bytes);
+    std::swap(device_memory, other.device_memory);
+    std::swap(buffer, other.buffer);
+    std::swap(allocator_data, other.allocator_data);
+    std::swap(memory_data, other.memory_data);
+    std::swap(device_address, other.device_address);
+    std::swap(mapped_data, other.mapped_data);
+    std::swap(name, other.name);
+}
+
 decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
 {
     if (resource_allocator != nullptr)
@@ -206,10 +232,9 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     MarkInjectedCommandsHelper mark_injected_commands_helper;
 
     // explicitly free resources here, in order to mark destruction API-calls as injected
-    pipeline_context_map_ = {};
-
-    shadow_sbt_map_ = {};
-    shadow_as_map_  = {};
+    pipeline_context_map_.clear();
+    shadow_sbt_map_.clear();
+    shadow_as_map_.clear();
 
     if (pipeline_bda_ != VK_NULL_HANDLE)
     {
