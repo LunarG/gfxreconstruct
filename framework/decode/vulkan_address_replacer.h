@@ -256,6 +256,7 @@ class VulkanAddressReplacer
         decode::VulkanResourceAllocator::MemoryData   memory_data{};
         VkDeviceAddress                               device_address = 0;
         void*                                         mapped_data    = nullptr;
+        std::string                                   name;
         ~buffer_context_t();
     };
 
@@ -288,11 +289,12 @@ class VulkanAddressReplacer
                              const decode::VulkanDeviceAddressTracker& address_tracker,
                              VkPipelineStageFlags                      sync_stage);
 
-    [[nodiscard]] bool create_buffer(buffer_context_t& buffer_context,
-                                     size_t            num_bytes,
-                                     uint32_t          usage_flags   = 0,
-                                     uint32_t          min_alignment = 0,
-                                     bool              use_host_mem  = true);
+    [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
+                                     size_t             num_bytes,
+                                     uint32_t           usage_flags   = 0,
+                                     uint32_t           min_alignment = 0,
+                                     bool               use_host_mem  = true,
+                                     const std::string& name          = "VulkanAddressReplacer buffer");
 
     [[nodiscard]] bool create_acceleration_asset(acceleration_structure_asset_t& as_asset,
                                                  VkAccelerationStructureTypeKHR  type,
@@ -352,6 +354,7 @@ class VulkanAddressReplacer
     // required function pointers
     PFN_vkGetBufferDeviceAddress       get_device_address_fn_             = nullptr;
     PFN_vkGetPhysicalDeviceProperties2 get_physical_device_properties_fn_ = nullptr;
+    PFN_vkSetDebugUtilsObjectNameEXT   set_debug_utils_object_name_fn_    = nullptr;
 };
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

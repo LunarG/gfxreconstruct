@@ -159,6 +159,8 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
                                  : device_table->GetBufferDeviceAddressKHR;
 
     get_physical_device_properties_fn_ = instance_table->GetPhysicalDeviceProperties2;
+    set_debug_utils_object_name_fn_    = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
+        device_table_->GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
     SetRaytracingProperties(physical_device_info_);
 }
 
@@ -1198,7 +1200,8 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
                                           size_t                                   num_bytes,
                                           uint32_t                                 usage_flags,
                                           uint32_t                                 min_alignment,
-                                          bool                                     use_host_mem)
+                                          bool                                     use_host_mem,
+                                          const std::string&                       name)
 {
     GFXRECON_ASSERT(util::is_pow_2(min_alignment));
 
@@ -1216,6 +1219,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     buffer_context                    = {};
     buffer_context.resource_allocator = resource_allocator_;
     buffer_context.num_bytes          = num_bytes;
+    buffer_context.name               = name;
 
     VkBufferCreateInfo buffer_create_info = {};
     buffer_create_info.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1294,6 +1298,16 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     GFXRECON_ASSERT(!min_alignment || !(aligned_address % min_alignment));
     auto offset                   = aligned_address - buffer_context.device_address;
     buffer_context.device_address = aligned_address;
+
+    if (set_debug_utils_object_name_fn_)
+    {
+        VkDebugUtilsObjectNameInfoEXT object_name_info = {};
+        object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        object_name_info.objectType                    = VK_OBJECT_TYPE_BUFFER;
+        object_name_info.objectHandle                  = reinterpret_cast<uint64_t>(buffer_context.buffer);
+        object_name_info.pObjectName                   = name.c_str();
+        set_debug_utils_object_name_fn_(device_, &object_name_info);
+    }
 
     if (use_host_mem)
     {
@@ -1451,7 +1465,8 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle];
 
-    if (!create_buffer(pipeline_context_bda.hashmap_storage, hashmap_bda_.get_storage(nullptr)))
+    if (!create_buffer(
+            pipeline_context_bda.hashmap_storage, hashmap_bda_.get_storage(nullptr), 0, 0, true, "hashmap_storage_bda"))
     {
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
         return;
@@ -1460,7 +1475,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     uint32_t num_bytes = num_addresses * sizeof(VkDeviceAddress);
 
-    if (!create_buffer(pipeline_context_bda.input_handle_buffer, num_bytes))
+    if (!create_buffer(pipeline_context_bda.input_handle_buffer, num_bytes, 0, 0, true, "input_handle_buffer_bda"))
     {
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
         return;
