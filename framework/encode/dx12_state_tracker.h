@@ -272,7 +272,7 @@ class Dx12StateTracker
     // Track root signatures associated with state object.
     void TrackRootSignatureWithStateObject(const D3D12_STATE_OBJECT_DESC* desc, void** state_object_void_ptr);
 
-    bool DoesResourceCoverGpuVaRange(ID3D12Resource_Wrapper* resource_wrapper, gfxrecon::util::GpuVaRange& range);
+    bool DoesResourceCoverGpuVaRange(ID3D12ResourceInfo* resource_info, gfxrecon::util::GpuVaRange& range);
 
 #ifdef GFXRECON_AGS_SUPPORT
     void AddAgsInitializeEntry(AGSContext*                     context,
