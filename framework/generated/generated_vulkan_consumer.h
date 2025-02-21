@@ -4260,6 +4260,25 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
 
+    virtual void Process_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pPropertyCount,
+        StructPointerDecoder<Decoded_VkCooperativeVectorPropertiesNV>* pProperties) {}
+
+    virtual void Process_vkConvertCooperativeVectorMatrixNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfo) {}
+
+    virtual void Process_vkCmdConvertCooperativeVectorMatrixNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfos) {}
+
     virtual void Process_vkSetLatencySleepModeNV(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -4295,6 +4314,17 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkImageAspectFlags                          aspectMask) {}
+
+    virtual void Process_vkGetPartitionedAccelerationStructuresBuildSizesNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPartitionedAccelerationStructureInstancesInputNV>* pInfo,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo) {}
+
+    virtual void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBuildPartitionedAccelerationStructureInfoNV>* pBuildInfo) {}
 
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsEXT(
         const ApiCallInfo&                          call_info,
@@ -4362,6 +4392,21 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixFlexibleDimensionsPropertiesNV>* pProperties) {}
+
+    virtual void Process_vkGetMemoryMetalHandleEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryGetMetalHandleInfoEXT>* pGetMetalHandleInfo,
+        PointerDecoder<uint64_t, void*>*            pHandle) {}
+
+    virtual void Process_vkGetMemoryMetalHandlePropertiesEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkExternalMemoryHandleTypeFlagBits          handleType,
+        uint64_t                                    pHandle,
+        StructPointerDecoder<Decoded_VkMemoryMetalHandlePropertiesEXT>* pMemoryMetalHandleProperties) {}
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
