@@ -257,7 +257,13 @@ class VulkanAddressReplacer
         VkDeviceAddress                               device_address = 0;
         void*                                         mapped_data    = nullptr;
         std::string                                   name;
+
+        buffer_context_t()                        = default;
+        buffer_context_t(const buffer_context_t&) = delete;
+        buffer_context_t(buffer_context_t&& other) noexcept;
         ~buffer_context_t();
+        buffer_context_t& operator=(buffer_context_t other);
+        void              swap(buffer_context_t& other);
     };
 
     struct pipeline_context_t
