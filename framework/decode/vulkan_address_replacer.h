@@ -63,10 +63,39 @@ class VulkanAddressReplacer
      */
     void SetRaytracingProperties(const decode::VulkanPhysicalDeviceInfo* physical_device_info);
 
+    /**
+     * @brief   UpdateBufferAddresses will replace all buffer-device-address in gpu-memory,
+     *          at locations pointed to by @param addresses.
+     *
+     * Replacement will be performed using a compute-dispatch injected in @param command_buffer_info.
+     *
+     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr to use an internal command-buffer
+     * @param   addresses           array of device-addresses
+     * @param   num_addresses       number of addresses
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
     void UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
                                const VkDeviceAddress*                    addresses,
                                uint32_t                                  num_addresses,
                                const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
+     *          replacing any used buffer-device-addresses in-place.
+     *
+     * @param   command_buffer_info a provided VulkanCommandBufferInfo
+     * @param   stage_flags         provided VkShaderStageFlags
+     * @param   offset              data offset
+     * @param   size                data size
+     * @param   data                provided pointer to push-constant data
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ProcessCmdPushConstants(const VulkanCommandBufferInfo*            command_buffer_info,
+                                 VkShaderStageFlags                        stage_flags,
+                                 uint32_t                                  offset,
+                                 uint32_t                                  size,
+                                 void*                                     data,
+                                 const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',
