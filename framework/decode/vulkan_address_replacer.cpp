@@ -306,6 +306,40 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
     }
 }
 
+void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInfo*            command_buffer_info,
+                                                    VkShaderStageFlags                        stage_flags,
+                                                    uint32_t                                  offset,
+                                                    uint32_t                                  size,
+                                                    void*                                     data,
+                                                    const decode::VulkanDeviceAddressTracker& address_tracker)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(stage_flags);
+    GFXRECON_UNREFERENCED_PARAMETER(size);
+    GFXRECON_ASSERT(command_buffer_info != nullptr && data != nullptr);
+    for (const auto& [bind_point, pipeline_id] : command_buffer_info->bound_pipelines)
+    {
+        auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
+        GFXRECON_ASSERT(pipeline_info != nullptr);
+        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+        {
+            if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
+            {
+                // find addresses in push-constant memory and replace in-place.
+                auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
+                                                                   buffer_ref_info.buffer_offset);
+
+                auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+                GFXRECON_ASSERT(buffer_info != nullptr);
+                if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                {
+                    uint32_t address_offset = *address - buffer_info->capture_address;
+                    *address                = buffer_info->replay_address + address_offset;
+                }
+            }
+        }
+    }
+}
+
 void VulkanAddressReplacer::ProcessCmdTraceRays(
     const VulkanCommandBufferInfo*                                                              command_buffer_info,
     VkStridedDeviceAddressRegionKHR*                                                            raygen_sbt,
@@ -742,20 +776,24 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     }
                 }
 
-                // create a replacement scratch-buffer
-                if (!create_buffer(
-                        replacement_as.scratch,
-                        scratch_size,
-                        0,
-                        replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment,
-                        false))
+                if (!scratch_buffer_usable)
                 {
-                    GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
-                    return;
-                }
+                    // create a replacement scratch-buffer
+                    if (!create_buffer(
+                            replacement_as.scratch,
+                            scratch_size,
+                            0,
+                            replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment,
+                            false,
+                            "VulkanAddressReplacer::acceleration_structure_asset_t::scratch"))
+                    {
+                        GFXRECON_LOG_ERROR("ProcessCmdBuildAccelerationStructuresKHR: scratch-buffer creation failed");
+                        return;
+                    }
 
-                // hot swap scratch-buffer
-                build_geometry_info.scratchData.deviceAddress = replacement_as.scratch.device_address;
+                    // hot swap scratch-buffer
+                    build_geometry_info.scratchData.deviceAddress = replacement_as.scratch.device_address;
+                }
             }
         }
 
@@ -1424,8 +1462,12 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
     as_asset.destroy_fn = device_table_->DestroyAccelerationStructureKHR;
 
     // create a replacement acceleration-structure with proper sized buffer
-    bool success = create_buffer(
-        as_asset.storage, num_buffer_bytes, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR, 0, false);
+    bool success = create_buffer(as_asset.storage,
+                                 num_buffer_bytes,
+                                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
+                                 0,
+                                 false,
+                                 "VulkanAddressReplacer::acceleration_structure_asset_t::storage");
 
     if (!success)
     {

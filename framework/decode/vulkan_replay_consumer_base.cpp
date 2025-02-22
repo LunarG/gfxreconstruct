@@ -8875,12 +8875,23 @@ void VulkanReplayConsumerBase::OverrideCmdPushConstants(PFN_vkCmdPushConstants  
 {
     VkCommandBuffer  command_buffer  = VK_NULL_HANDLE;
     VkPipelineLayout pipeline_layout = VK_NULL_HANDLE;
-    const void*      data            = data_decoder->GetPointer();
+    void*            data            = data_decoder->GetPointer();
 
     if (command_buffer_info != nullptr && pipeline_layout_info != nullptr)
     {
         command_buffer  = command_buffer_info->handle;
         pipeline_layout = pipeline_layout_info->handle;
+
+        auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        if (UseExtraDescriptorInfo(device_info))
+        {
+            const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+            auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.ProcessCmdPushConstants(
+                command_buffer_info, stage_flags, offset, size, data, address_tracker);
+        }
 
         // keep track of current push-constants
         command_buffer_info->push_constant_stage_flags     = stage_flags;
