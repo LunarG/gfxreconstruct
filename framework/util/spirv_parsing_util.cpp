@@ -23,6 +23,7 @@
 #include "spirv_parsing_util.h"
 #include <functional>
 #include <optional>
+#include <deque>
 #include "spirv_reflect.h"
 #include "util/spirv_helper.h"
 #include "util/logging.h"
@@ -233,8 +234,128 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
     instructions.shrink_to_fit();
 
-    auto track_back_instruction = [this, &spv_shader_module, spirv_code, spirv_num_bytes](
-                                      const Instruction* object_insn) {
+    if (spv_shader_module == std::nullopt)
+    {
+        // spirv-reflect parsing only on-demand
+        spv_shader_module = SpvReflectShaderModule();
+        spvReflectCreateShaderModule(spirv_num_bytes, spirv_code, &spv_shader_module.value());
+    }
+
+    // forward spirv-reflect-pass
+    {
+        // define a function to walk blocks breadth-first and check for buffer-references
+        auto check_buffer_references = [this](const SpvReflectTypeDescription* type,
+                                              BufferReferenceLocation          source,
+                                              uint32_t                         set,
+                                              uint32_t                         binding) {
+            // bfs: (type, offset)
+            std::deque<std::pair<const SpvReflectTypeDescription*, uint32_t>> queue = { { type, 0 } };
+
+            while (!queue.empty())
+            {
+                auto [td, offset] = queue.front();
+                queue.pop_front();
+
+                if (td)
+                {
+                    if (td->storage_class == spv::StorageClassPhysicalStorageBuffer)
+                    {
+                        BufferReferenceInfo ref_info;
+                        ref_info.source        = source;
+                        ref_info.set           = set;
+                        ref_info.binding       = binding;
+                        ref_info.buffer_offset = offset;
+
+                        if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
+                        {
+                            ref_info.array_stride = td->traits.array.stride;
+                        }
+
+                        // insert into map
+                        buffer_reference_map_[ref_info] = { td->struct_member_name };
+                    }
+
+                    for (uint32_t j = 0; j < td->member_count; ++j)
+                    {
+                        auto* member = td->members + j;
+                        queue.emplace_back(member, offset);
+
+                        uint32_t num_scalar_bytes = member->traits.numeric.scalar.width / 8;
+
+                        if (member->op == SpvOpTypeVector)
+                        {
+                            num_scalar_bytes *= member->traits.numeric.vector.component_count;
+                        }
+                        else if (member->op == SpvOpTypeMatrix)
+                        {
+                            num_scalar_bytes *= member->traits.numeric.matrix.column_count;
+                            num_scalar_bytes *= member->traits.numeric.matrix.row_count;
+                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.numeric.matrix.stride);
+                        }
+                        else if (member->op == SpvOpTypePointer || member->op == SpvOpTypeForwardPointer)
+                        {
+                            num_scalar_bytes = sizeof(uint64_t);
+                        }
+                        else if (member->op == SpvOpTypeArray || member->op == SpvOpTypeRuntimeArray)
+                        {
+                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.array.stride);
+                            for (uint32_t d = 0; d < member->traits.array.dims_count; ++d)
+                            {
+                                num_scalar_bytes *= member->traits.array.dims[d] == spv::OpTypeRuntimeArray
+                                                        ? 1
+                                                        : member->traits.array.dims[d];
+                            }
+                        }
+                        offset += num_scalar_bytes;
+                    }
+                }
+            }
+        };
+
+        // check descriptor sets
+        uint32_t num_descriptor_set;
+        spvReflectEnumerateDescriptorSets(&*spv_shader_module, &num_descriptor_set, nullptr);
+        std::vector<SpvReflectDescriptorSet*> descriptor_sets(num_descriptor_set);
+        spvReflectEnumerateDescriptorSets(&*spv_shader_module, &num_descriptor_set, descriptor_sets.data());
+
+        for (const auto& descriptor_set : descriptor_sets)
+        {
+            for (uint32_t i = 0; i < descriptor_set->binding_count; ++i)
+            {
+                auto*                   binding = descriptor_set->bindings[i];
+                BufferReferenceLocation source  = BufferReferenceLocation::INVALID;
+
+                switch (binding->descriptor_type)
+                {
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        source = BufferReferenceLocation::UNIFORM_BUFFER;
+                        break;
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                        source = BufferReferenceLocation::STORAGE_BUFFER;
+                        break;
+                    default:
+                        break;
+                }
+                check_buffer_references(binding->type_description, source, descriptor_set->set, binding->binding);
+            }
+        }
+
+        // check push-constants
+        uint32_t num_push_constant_blocks;
+        spvReflectEnumeratePushConstantBlocks(&*spv_shader_module, &num_push_constant_blocks, nullptr);
+        std::vector<SpvReflectBlockVariable*> push_constant_blocks(num_push_constant_blocks);
+        spvReflectEnumeratePushConstantBlocks(
+            &*spv_shader_module, &num_push_constant_blocks, push_constant_blocks.data());
+
+        for (const auto& block : push_constant_blocks)
+        {
+            check_buffer_references(block->type_description, BufferReferenceLocation::PUSH_CONSTANT_BLOCK, 0, 0);
+        }
+    } // forward spirv-reflect pass
+
+    auto track_back_instruction = [this, &spv_shader_module](const Instruction* object_insn) {
         // keep track of access-chain
         std::vector<uint32_t> access_indices;
 
@@ -285,15 +406,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
                         if (GetVariableDecorations(object_insn, buffer_reference_info))
                         {
-                            SpvReflectResult spv_result;
-                            if (spv_shader_module == std::nullopt)
-                            {
-                                // spirv-reflect parsing only on-demand
-                                spv_shader_module = SpvReflectShaderModule();
-                                spv_result        = spvReflectCreateShaderModule(
-                                    spirv_num_bytes, spirv_code, &spv_shader_module.value());
-                                GFXRECON_ASSERT(spv_result == SPV_REFLECT_RESULT_SUCCESS);
-                            }
+                            SpvReflectResult                 spv_result;
                             const SpvReflectTypeDescription* td = nullptr;
 
                             // access-chain starts with descriptor-binding root
@@ -415,7 +528,8 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         }
     };
 
-    // Now we can walk the SPIR-V one more time to find what we need
+    // now we walk the SPIR-V one more time to find remaining occurances of buffer-references.
+    // that's e.g. cases when a uint64_t is casted. we can only tell by following back the dereferencing spv::OpLoad
     for (const Instruction& insn : instructions)
     {
         // because it is SSA, we can build this up as we are looping in this pass

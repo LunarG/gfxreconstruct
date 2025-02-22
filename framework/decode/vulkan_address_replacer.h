@@ -64,10 +64,10 @@ class VulkanAddressReplacer
     void SetRaytracingProperties(const decode::VulkanPhysicalDeviceInfo* physical_device_info);
 
     /**
-     * @brief   UpdateBufferAddresses will replace all buffer-device-address in gpu-memory,
+     * @brief   UpdateBufferAddresses will replace buffer-device-address in gpu-memory,
      *          at locations pointed to by @param addresses.
      *
-     * Replacement will be performed using a compute-dispatch injected in @param command_buffer_info.
+     * Replacement will be performed using a compute-dispatch injected into @param command_buffer_info.
      *
      * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr to use an internal command-buffer
      * @param   addresses           array of device-addresses
