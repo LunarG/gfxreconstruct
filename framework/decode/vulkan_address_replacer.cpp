@@ -1591,7 +1591,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
             object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
         GFXRECON_ASSERT(previous_pipeline);
 
-        if (previous_pipeline != nullptr)
+        if (previous_pipeline != nullptr && previous_pipeline->handle != VK_NULL_HANDLE)
         {
             GFXRECON_LOG_INFO_ONCE("%s(): Replay is injecting compute-dispatches, "
                                    "originally bound compute-pipelines are restored.",

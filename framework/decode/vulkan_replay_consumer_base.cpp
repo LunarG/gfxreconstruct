@@ -5244,7 +5244,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     else if (force_address)
     {
         VkBufferCreateInfo modified_create_info = (*replay_create_info);
-        modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         result = allocator->CreateBuffer(
             &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
@@ -5269,8 +5269,12 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         {
             buffer_info->queue_family_index = 0;
         }
-    }
 
+        // track buffer-handle
+        buffer_info->capture_id = capture_id;
+        buffer_info->handle     = *replay_buffer;
+        GetDeviceAddressTracker(device_info).TrackBuffer(buffer_info);
+    }
     return result;
 }
 
@@ -8068,8 +8072,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto* acceleration_structure_info =
         reinterpret_cast<VulkanAccelerationStructureKHRInfo*>(pAccelerationStructureKHR->GetConsumerData(0));
     GFXRECON_ASSERT(acceleration_structure_info);
-    acceleration_structure_info->type   = replay_create_info->type;
-    acceleration_structure_info->buffer = replay_create_info->buffer;
+    acceleration_structure_info->capture_id = capture_id;
+    acceleration_structure_info->type       = replay_create_info->type;
+    acceleration_structure_info->buffer     = replay_create_info->buffer;
 
     // even when available, the feature also requires allocator-support
     bool use_capture_replay_feature = device_info->property_feature_info.feature_accelerationStructureCaptureReplay &&
@@ -8104,6 +8109,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     }
 
     // track newly created acceleration-structure
+    acceleration_structure_info->handle = replay_accel_struct ? *replay_accel_struct : VK_NULL_HANDLE;
     GetDeviceAddressTracker(device_info).TrackAccelerationStructure(acceleration_structure_info);
     return result;
 }
