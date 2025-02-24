@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
 /**
- * @brief   Populate all VulkanPipelineInfo structs, in pPipelines's UserData,
+ * @brief   Populate all VulkanPipelineInfo structs, retrieved via pPipelines->GetConsumerData(i),
  *          with information related to shader-modules.
  *
  * @param   pCreateInfos
@@ -44,19 +44,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 template <typename T>
 void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInfos,
                             decode::HandlePointerDecoder<VkPipeline>* pPipelines,
-                            const decode::CommonObjectInfoTable&      object_info_table) = delete;
-
-template <>
-void populate_shader_stages(
-    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
-    decode::HandlePointerDecoder<VkPipeline>*                                         pPipelines,
-    const decode::CommonObjectInfoTable&                                              object_info_table);
-
-template <>
-void populate_shader_stages(
-    const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-    decode::HandlePointerDecoder<VkPipeline>*                                        pPipelines,
-    const decode::CommonObjectInfoTable&                                             object_info_table);
+                            const decode::CommonObjectInfoTable&      object_info_table);
 
 /**
  * @brief   vulkan_check_buffer_references can be used to check provided SPIRV-bytecode for usage of buffer-references.

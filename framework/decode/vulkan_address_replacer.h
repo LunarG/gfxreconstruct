@@ -83,7 +83,7 @@ class VulkanAddressReplacer
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
      *          replacing any used buffer-device-addresses in-place.
      *
-     * @param   command_buffer_info a provided VulkanCommandBufferInfo
+     * @param   command_buffer_info a provided const VulkanCommandBufferInfo*
      * @param   stage_flags         provided VkShaderStageFlags
      * @param   offset              data offset
      * @param   size                data size
@@ -96,6 +96,33 @@ class VulkanAddressReplacer
                                  uint32_t                                  size,
                                  void*                                     data,
                                  const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   ProcessCmdBindDescriptorSets will check the bound descriptor-sets for presence of buffer-references
+     *          and collect all addresses that will require replacement.
+     *
+     * The collected VkDeviceAddresses will be stored in @param command_buffer_info and depending on situation:
+     *
+     * a) if @param command_buffer_info is currently recording commands inside a renderpass:
+     * - keep the data, delay replacement to QueueSubmit
+     *
+     * b) if @param command_buffer_info is outside any renderpasses:
+     * - consume collected addresses, inject call to UpdateBufferAddresses into @param command_buffer_info
+     *
+     * @param   command_buffer_info a provided const VulkanCommandBufferInfo*
+     * @param   pipelineBindPoint   the pipeline bind-point
+     * @param   firstSet            index of first set
+     * @param   descriptorSetCount  number of descriptor-sets
+     * @param   pDescriptorSets     provided HandlePointerDecoder, containing descriptor-sets
+     * @param   address_tracker     reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     *                              and storing newly created addresses
+     */
+    void ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo*               command_buffer_info,
+                                      VkPipelineBindPoint                    pipelineBindPoint,
+                                      uint32_t                               firstSet,
+                                      uint32_t                               descriptorSetCount,
+                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
+                                      decode::VulkanDeviceAddressTracker&    address_tracker);
 
     /**
      * @brief   ProcessCmdTraceRays will check and potentially correct input-parameters to 'vkCmdTraceRays',

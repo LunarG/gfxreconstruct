@@ -29,7 +29,6 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
 #include "util/logging.h"
-#include "graphics/vulkan_check_buffer_references.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -2090,12 +2089,30 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
     const VkGraphicsPipelineCreateInfo*         in_p_create_infos = pCreateInfos->GetPointer();
     const Decoded_VkGraphicsPipelineCreateInfo* create_info_meta  = pCreateInfos->GetMetaStructPointer();
 
-    // extract information about shader-modules, store in pPipelines
-    graphics::populate_shader_stages(pCreateInfos, pPipelines, *object_info_table_);
-
     for (uint32_t i = 0; i < createInfoCount; ++i)
     {
         VulkanPipelineInfo* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+
+        // Copy shader stage information
+        const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
+            create_info_meta[i].pStages->GetMetaStructPointer();
+        const size_t stages_count = create_info_meta->pStages->GetLength();
+
+        if (stages_info_meta != nullptr)
+        {
+            for (size_t s = 0; s < stages_count; ++s)
+            {
+                if (stages_info_meta[s].module != format::kNullHandleId)
+                {
+                    VulkanShaderModuleInfo* module_info =
+                        object_info_table_->GetVkShaderModuleInfo(stages_info_meta[s].module);
+                    assert(module_info);
+                    assert(pipeline_info);
+
+                    pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
+                }
+            }
+        }
 
         // Copy vertex input state information
         if (in_p_create_infos != nullptr && in_p_create_infos[i].pVertexInputState)

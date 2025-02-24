@@ -340,6 +340,94 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     }
 }
 
+void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo*               command_buffer_info,
+                                                         VkPipelineBindPoint                    pipelineBindPoint,
+                                                         uint32_t                               firstSet,
+                                                         uint32_t                               descriptorSetCount,
+                                                         HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
+                                                         VulkanDeviceAddressTracker&            address_tracker)
+{
+    auto* pipeline_info = object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines[pipelineBindPoint]);
+    GFXRECON_ASSERT(pipeline_info != nullptr);
+
+    for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+    {
+        if (buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER &&
+            buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::STORAGE_BUFFER)
+        {
+            // non-buffer descriptor, handled elsewhere
+            continue;
+        }
+        GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+        auto* descriptor_set_info =
+            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+        GFXRECON_ASSERT(descriptor_set_info);
+
+        auto it = descriptor_set_info->descriptors.find(buffer_ref_info.binding);
+        if (it == descriptor_set_info->descriptors.end())
+        {
+            GFXRECON_LOG_WARNING_ONCE("%s(): could not find a descriptor while sanitizing buffer-references.",
+                                      __func__);
+            continue;
+        }
+        const auto& descriptor = it->second;
+
+        GFXRECON_ASSERT(!descriptor.buffer_info.empty());
+
+        for (auto& desc_buffer_info : descriptor.buffer_info)
+        {
+            auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.buffer_info);
+            GFXRECON_ASSERT(buffer_info != nullptr);
+
+            // we only track buffers with device-addresses here
+            if (auto* tracked_buffer = address_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
+            {
+                // assert we got buffer-tracking correct
+                GFXRECON_ASSERT(tracked_buffer == buffer_info);
+            }
+            else
+            {
+                // patch an existing uniform-buffer and retrieve a buffer-address for it
+                decode::BeginInjectedCommands();
+                VkBufferDeviceAddressInfo address_info = {};
+                address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                address_info.buffer                    = buffer_info->handle;
+                buffer_info->capture_address           = buffer_info->replay_address =
+                    get_device_address_fn_(device_, &address_info);
+                GFXRECON_ASSERT(buffer_info->replay_address != 0);
+                decode::EndInjectedCommands();
+
+                // track newly acquired buffer/address
+                address_tracker.TrackBuffer(buffer_info);
+            }
+
+            VkDeviceAddress address =
+                buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+            VkDeviceAddress range_end =
+                buffer_info->replay_address + desc_buffer_info.offset +
+                std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
+            command_buffer_info->addresses_to_replace.push_back(address);
+
+            if (buffer_ref_info.array_stride)
+            {
+                address += buffer_ref_info.array_stride;
+                for (; address < range_end; address += buffer_ref_info.array_stride)
+                {
+                    command_buffer_info->addresses_to_replace.push_back(address);
+                }
+            }
+        }
+    }
+    if (!command_buffer_info->inside_renderpass)
+    {
+        UpdateBufferAddresses(command_buffer_info,
+                              command_buffer_info->addresses_to_replace.data(),
+                              command_buffer_info->addresses_to_replace.size(),
+                              address_tracker);
+        command_buffer_info->addresses_to_replace.clear();
+    }
+}
+
 void VulkanAddressReplacer::ProcessCmdTraceRays(
     const VulkanCommandBufferInfo*                                                              command_buffer_info,
     VkStridedDeviceAddressRegionKHR*                                                            raygen_sbt,
@@ -1367,7 +1455,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         VkDebugUtilsObjectNameInfoEXT object_name_info = {};
         object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
         object_name_info.objectType                    = VK_OBJECT_TYPE_BUFFER;
-        object_name_info.objectHandle                  = reinterpret_cast<uint64_t>(buffer_context.buffer);
+        object_name_info.objectHandle                  = (uint64_t)buffer_context.buffer;
         object_name_info.pObjectName                   = name.c_str();
         set_debug_utils_object_name_fn_(device_, &object_name_info);
     }

@@ -4366,80 +4366,15 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescri
     VkPipelineLayout       pipeline_layout = in_layout->handle;
     const VkDescriptorSet* descriptor_sets = pDescriptorSets->GetHandlePointer();
 
-    if (UseExtraDescriptorInfo(device_info))
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
-        // get device-address
-        auto* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
-        GFXRECON_ASSERT(physical_device_info != nullptr);
-
-        auto get_device_address_fn = physical_device_info->parent_api_version >= VK_API_VERSION_1_2
-                                         ? GetDeviceTable(device_info->handle)->GetBufferDeviceAddress
-                                         : GetDeviceTable(device_info->handle)->GetBufferDeviceAddressKHR;
-
-        auto* pipeline_info =
-            GetObjectInfoTable().GetVkPipelineInfo(in_commandBuffer->bound_pipelines[pipelineBindPoint]);
-        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
-        {
-            GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
-            auto* descriptor_set_info =
-                GetObjectInfoTable().GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
-            GFXRECON_ASSERT(descriptor_set_info);
-            const auto& descriptor = descriptor_set_info->descriptors[buffer_ref_info.binding];
-            GFXRECON_ASSERT(!descriptor.buffer_info.empty());
-
-            for (auto& desc_buffer_info : descriptor.buffer_info)
-            {
-                auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.buffer_info);
-                GFXRECON_ASSERT(buffer_info != nullptr);
-
-                // we only track buffers with device-addresses here
-                if (auto* tracked_buffer = GetDeviceAddressTracker(device_info)
-                                               .GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
-                {
-                    // assert we got buffer-tracking correct
-                    GFXRECON_ASSERT(tracked_buffer == buffer_info);
-                }
-                else
-                {
-                    // patch an existing uniform-buffer and retrieve a buffer-address for it
-                    decode::BeginInjectedCommands();
-                    VkBufferDeviceAddressInfo address_info = {};
-                    address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-                    address_info.buffer                    = buffer_info->handle;
-                    buffer_info->capture_address           = buffer_info->replay_address =
-                        get_device_address_fn(device_info->handle, &address_info);
-                    GFXRECON_ASSERT(buffer_info->replay_address != 0);
-                    decode::EndInjectedCommands();
-
-                    // track newly acquired buffer/address
-                    GetDeviceAddressTracker(device_info).TrackBuffer(buffer_info);
-                }
-
-                VkDeviceAddress address =
-                    buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
-                VkDeviceAddress range_end =
-                    buffer_info->replay_address + desc_buffer_info.offset + desc_buffer_info.range;
-                in_commandBuffer->addresses_to_replace.push_back(address);
-
-                if (buffer_ref_info.array_stride)
-                {
-                    address += buffer_ref_info.array_stride;
-                    for (; address < range_end; address += buffer_ref_info.array_stride)
-                    {
-                        in_commandBuffer->addresses_to_replace.push_back(address);
-                    }
-                }
-            }
-        }
-        if (!in_commandBuffer->inside_renderpass)
-        {
-            auto& address_replacer = GetDeviceAddressReplacer(device_info);
-            address_replacer.UpdateBufferAddresses(in_commandBuffer,
-                                                   in_commandBuffer->addresses_to_replace.data(),
-                                                   in_commandBuffer->addresses_to_replace.size(),
-                                                   GetDeviceAddressTracker(device_info));
-            in_commandBuffer->addresses_to_replace.clear();
-        }
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
+                                                      pipelineBindPoint,
+                                                      firstSet,
+                                                      descriptorSetCount,
+                                                      pDescriptorSets,
+                                                      GetDeviceAddressTracker(device_info));
     }
 
     func(command_buffer,
@@ -4459,11 +4394,24 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
 {
     GFXRECON_ASSERT(in_commandBuffer != nullptr && pBindDescriptorSetsInfo != nullptr);
 
+    const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(in_commandBuffer->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
     VkCommandBuffer           command_buffer            = in_commandBuffer->handle;
     VkBindDescriptorSetsInfo* bind_descriptor_sets_info = pBindDescriptorSetsInfo->GetPointer();
 
-    // TODO: add replacer-logic here
-
+    if (bind_descriptor_sets_info != nullptr && UseExtraDescriptorInfo(device_info))
+    {
+        auto*               bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+        VkPipelineBindPoint pipelineBindPoint              = in_commandBuffer->bound_pipelines.begin()->first;
+        auto&               address_replacer               = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
+                                                      pipelineBindPoint,
+                                                      bind_descriptor_sets_info->firstSet,
+                                                      bind_descriptor_sets_info->descriptorSetCount,
+                                                      &bind_descriptor_sets_info_meta->pDescriptorSets,
+                                                      GetDeviceAddressTracker(device_info));
+    }
     func(command_buffer, bind_descriptor_sets_info);
 }
 
@@ -4482,7 +4430,7 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
     {
         auto* secondary_cmd_buffer_info = object_info_table_->GetVkCommandBufferInfo(pCommandBuffers->GetPointer()[i]);
         GFXRECON_ASSERT(secondary_cmd_buffer_info != nullptr);
-        if(!secondary_cmd_buffer_info->addresses_to_replace.empty())
+        if (!secondary_cmd_buffer_info->addresses_to_replace.empty())
         {
             in_commandBuffer->addresses_to_replace.insert(in_commandBuffer->addresses_to_replace.end(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.begin(),
@@ -8410,26 +8358,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
     if (result >= 0)
     {
-        const Decoded_VkRayTracingPipelineCreateInfoKHR* create_info_meta = pCreateInfos->GetMetaStructPointer();
-
-        for (uint32_t i = 0; i < createInfoCount; ++i)
-        {
-            auto* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
-
-            const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
-                create_info_meta[i].pStages->GetMetaStructPointer();
-            const size_t stages_count = create_info_meta->pStages->GetLength();
-
-            for (size_t s = 0; s < stages_count; ++s)
-            {
-                VulkanShaderModuleInfo* module_info =
-                    object_info_table_->GetVkShaderModuleInfo(stages_info_meta[s].module);
-                assert(module_info);
-                assert(pipeline_info);
-
-                pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
-            }
-        }
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
     }
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
@@ -9853,8 +9782,7 @@ VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const 
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const
 {
-    return true;
-//    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
+    return options_.dumping_resources || !device_info->allocator->SupportsOpaqueDeviceAddresses();
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
