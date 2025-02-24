@@ -1964,7 +1964,6 @@ bool Dx12DumpResources::CopyResourceAsyncQueue(const std::vector<format::HandleI
         // Determine subresource states in order to transition to D3D12_RESOURCE_STATE_COPY_SOURCE.
         std::vector<graphics::dx12::ResourceStateInfo> res_infos = source_resource_extra_info->resource_state_infos;
         auto                                           size      = front_command_list_ids.size();
-
         for (uint32_t i = 0; i < size; ++i)
         {
             auto cmd_list_extra_info =

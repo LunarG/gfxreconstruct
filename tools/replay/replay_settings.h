@@ -377,15 +377,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
-    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a specific drawcall.");
-    GFXRECON_WRITE_CONSOLE("          \t\tInclude vertex, index, const buffer, shader resource, render target,");
-    GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
-    GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
-    GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources-dir <dir>");
-    GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write dump resources output files.");
-    GFXRECON_WRITE_CONSOLE("          \t\tDefault is the current working directory.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-modifiable-state-only");
     GFXRECON_WRITE_CONSOLE(
         "          \t\tOnly dump resources that are in a modifiable state set by D3D12 ResourceBarrier")
