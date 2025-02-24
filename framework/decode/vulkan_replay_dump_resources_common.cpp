@@ -58,15 +58,19 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
 {
     switch (format)
     {
+        case VK_FORMAT_R8G8B8_SRGB:
         case VK_FORMAT_R8G8B8_UNORM:
             return util::imagewriter::DataFormats::kFormat_RGB;
 
+        case VK_FORMAT_R8G8B8A8_SRGB:
         case VK_FORMAT_R8G8B8A8_UNORM:
             return util::imagewriter::DataFormats::kFormat_RGBA;
 
+        case VK_FORMAT_B8G8R8_SRGB:
         case VK_FORMAT_B8G8R8_UNORM:
             return util::imagewriter::DataFormats::kFormat_BGR;
 
+        case VK_FORMAT_B8G8R8A8_SRGB:
         case VK_FORMAT_B8G8R8A8_UNORM:
             return util::imagewriter::DataFormats::kFormat_BGRA;
 
@@ -108,7 +112,11 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
 {
     VkFormat dst_format;
 
-    if (vkuFormatIsDepthOrStencil(format))
+    if (vkuFormatIsSRGB(format))
+    {
+        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8_SRGB;
+    }
+    else if (vkuFormatIsDepthOrStencil(format))
     {
         // Converting depth format with vkCmdBlit is not allowed.
         // We will do the conversion on the cpu.
