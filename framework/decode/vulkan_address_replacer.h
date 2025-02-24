@@ -356,7 +356,7 @@ class VulkanAddressReplacer
                                      uint32_t           usage_flags   = 0,
                                      uint32_t           min_alignment = 0,
                                      bool               use_host_mem  = true,
-                                     const std::string& name          = "VulkanAddressReplacer buffer");
+                                     const std::string& name          = "GFXR VulkanAddressReplacer Buffer");
 
     [[nodiscard]] bool create_acceleration_asset(acceleration_structure_asset_t& as_asset,
                                                  VkAccelerationStructureTypeKHR  type,

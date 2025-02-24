@@ -478,7 +478,6 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                         else if (member.op == SpvOpTypeArray || member.op == SpvOpTypeRuntimeArray)
                                         {
                                             num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
-                                            //                                            assert(false); // not handled
                                         }
                                         buffer_reference_info.buffer_offset += num_scalar_bytes;
                                     }
