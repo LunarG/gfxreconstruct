@@ -65,6 +65,14 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                                                                      module_info->buffer_reference_infos.begin(),
                                                                      module_info->buffer_reference_infos.end());
                     }
+
+                    // check potentially inlined spirv
+                    if (auto module_create_info =
+                            vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(pCreateInfos->GetPointer()->pStages + s))
+                    {
+                        graphics::vulkan_check_buffer_references(
+                            module_create_info->pCode, module_create_info->codeSize, pipeline_info);
+                    }
                 }
             }
         }
@@ -110,46 +118,14 @@ void populate_shader_stages(
             pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
                                                          module_info->buffer_reference_infos.begin(),
                                                          module_info->buffer_reference_infos.end());
-        }
-    }
-}
 
-template <>
-void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos,
-                                    uint32_t                            create_info_count,
-                                    decode::VulkanPipelineInfo**        out_info_structs)
-{
-    GFXRECON_ASSERT(out_info_structs != nullptr);
-    gfxrecon::util::SpirVParsingUtil spirv_util;
-
-    for (uint32_t i = 0; i < create_info_count; ++i)
-    {
-        for (uint32_t j = 0; j < create_infos[i].stageCount; ++j)
-        {
+            // check potentially inlined spirv
             if (auto module_create_info =
-                    vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(create_infos[i].pStages + j))
+                    vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()->stage))
             {
                 graphics::vulkan_check_buffer_references(
-                    module_create_info->pCode, module_create_info->codeSize, out_info_structs[i]);
+                    module_create_info->pCode, module_create_info->codeSize, pipeline_info);
             }
-        }
-    }
-}
-
-template <>
-void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos,
-                                    uint32_t                           create_info_count,
-                                    decode::VulkanPipelineInfo**       out_info_structs)
-{
-    GFXRECON_ASSERT(out_info_structs != nullptr);
-    gfxrecon::util::SpirVParsingUtil spirv_util;
-
-    for (uint32_t i = 0; i < create_info_count; ++i)
-    {
-        if (auto module_create_info = vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&create_infos[i].stage))
-        {
-            graphics::vulkan_check_buffer_references(
-                module_create_info->pCode, module_create_info->codeSize, out_info_structs[i]);
         }
     }
 }

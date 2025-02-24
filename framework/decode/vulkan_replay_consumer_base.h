@@ -1600,6 +1600,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const;
 
+    /**
+     * @brief   UseAddressReplacement returns true if address-sanitizing for various resources
+     *          like buffer-device-addresses, shader-binding-tables, acceleration-structures, etc. is used.
+     *
+     * This is generally the case when opaque addresses cannot be used or when replaying on another device.
+     *
+     * @param   device_info a device info struct
+     * @return true if address-replacement features will be used.
+     */
+    bool UseAddressReplacement(const VulkanDeviceInfo* device_info) const;
+
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,
                                                                       const format::HandleId*       pipelines) const;
