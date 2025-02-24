@@ -46,7 +46,6 @@ class ThreadData
     std::unique_ptr<encode::ParameterEncoder> parameter_encoder_;
     std::vector<uint8_t>                      compressed_buffer_;
     encode::HandleUnwrapMemory                handle_unwrap_memory_;
-    uint64_t                                  block_index_;
 
   private:
     static format::ThreadId GetThreadId();

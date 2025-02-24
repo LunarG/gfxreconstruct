@@ -1272,9 +1272,6 @@ void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
     // File header does not count as a block
     assert(block_index_ > 0);
     --block_index_;
-
-    auto thread_data          = GetThreadData();
-    thread_data->block_index_ = block_index_.load();
 }
 
 void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,

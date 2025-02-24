@@ -172,11 +172,7 @@ class CommonCaptureManager
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
 
-    uint64_t GetBlockIndex()
-    {
-        auto thread_data = GetThreadData();
-        return thread_data->block_index_ == 0 ? 0 : thread_data->block_index_ - 1;
-    }
+    uint64_t GetBlockIndex() { return block_index_.load(); }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
     template <typename Derived>
@@ -296,11 +292,7 @@ class CommonCaptureManager
                     : file_stream_->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer());
     }
 
-    void IncrementBlockIndex(uint64_t blocks)
-    {
-        block_index_ += blocks;
-        GetThreadData()->block_index_ = block_index_;
-    }
+    void IncrementBlockIndex(uint64_t blocks) { block_index_ += blocks; }
 
     void SetWriteAssets() { write_assets_ = true; }
 
