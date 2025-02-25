@@ -252,7 +252,7 @@ class linear_hashmap
     uint64_t                          m_capacity     = 0;
     uint64_t                          m_num_elements = 0;
     std::unique_ptr<storage_item_t[]> m_storage;
-    hash32_fn                         m_hash_fn = std::bind(hash::murmur3_32<key_t>, std::placeholders::_1, 0);
+    hash32_fn                         m_hash_fn = std::bind(hash::xxhash32<key_t>, std::placeholders::_1, 0);
 
     // reasonably low load-factor to keep average probe-lengths low
     float m_max_load_factor = 0.5f;
