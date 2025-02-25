@@ -1832,6 +1832,10 @@ void VulkanStateWriter::UpdateAddresses(AccelerationStructureBuildCommandData& c
                 insert_address(geometry->geometry.instances.data.deviceAddress);
                 break;
             }
+            case VK_GEOMETRY_TYPE_SPHERES_NV:
+            case VK_GEOMETRY_TYPE_LINEAR_SWEPT_SPHERES_NV:
+                GFXRECON_LOG_WARNING("Geometry type not supported at " __FILE__ ", line: %d.", __LINE__);
+                break;
             case VK_GEOMETRY_TYPE_MAX_ENUM_KHR:
                 break;
         }

@@ -89,7 +89,8 @@ const char* const kUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEUE_EXTE
                                                      VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
                                                      VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
                                                      VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
-                                                     VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME };
+                                                     VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
+                                                     VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME };
 
 static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
                              const char* const                   screenedExtensions[],

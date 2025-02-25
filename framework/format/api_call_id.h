@@ -756,6 +756,13 @@ enum ApiCallId : uint32_t
     ApiCall_vkTransitionImageLayout                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x130f),
     ApiCall_vkGetImageViewHandle64NVX                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1310),
     ApiCall_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV                    = MakeApiCallId(ApiFamily_Vulkan, 0x1311),
+    ApiCall_vkGetPhysicalDeviceCooperativeVectorPropertiesNV                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1312),
+    ApiCall_vkConvertCooperativeVectorMatrixNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1313),
+    ApiCall_vkCmdConvertCooperativeVectorMatrixNV                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1314),
+    ApiCall_vkCmdBuildPartitionedAccelerationStructuresNV                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1315),
+    ApiCall_vkGetPartitionedAccelerationStructuresBuildSizesNV                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1316),
+    ApiCall_vkGetMemoryMetalHandlePropertiesEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1317),
+    ApiCall_vkGetMemoryMetalHandleEXT                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1318),
 
     ApiCall_VulkanLast,
 

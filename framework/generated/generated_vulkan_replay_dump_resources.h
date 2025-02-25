@@ -1817,11 +1817,24 @@ void Process_vkCmdSetDepthClampRangeEXT(
     VkDepthClampModeEXT                         depthClampMode,
     const VkDepthClampRangeEXT*                 pDepthClampRange);
 
+void Process_vkCmdConvertCooperativeVectorMatrixNV(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdConvertCooperativeVectorMatrixNV   func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    infoCount,
+    const VkConvertCooperativeVectorMatrixInfoNV* pInfos);
+
 void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT func,
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
+
+void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBuildPartitionedAccelerationStructuresNV func,
+    VkCommandBuffer                             commandBuffer,
+    const VkBuildPartitionedAccelerationStructureInfoNV* pBuildInfo);
 
 void Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,

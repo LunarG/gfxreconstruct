@@ -435,12 +435,44 @@ struct VkMetalSurfaceCreateInfoEXT
     const CAMetalLayer*          pLayer;
 };
 
+struct VkImportMemoryMetalHandleInfoEXT
+{
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+    void*                              handle;
+};
+
+struct VkMemoryGetMetalHandleInfoEXT
+{
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkDeviceMemory                     memory;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+};
+
+struct VkMemoryMetalHandlePropertiesEXT
+{
+    VkStructureType sType;
+    void*           pNext;
+    uint32_t        memoryTypeBits;
+};
+
 extern "C"
 {
     typedef VkResult(VKAPI_PTR* PFN_vkCreateMetalSurfaceEXT)(VkInstance                         instance,
                                                              const VkMetalSurfaceCreateInfoEXT* pCreateInfo,
                                                              const VkAllocationCallbacks*       pAllocator,
                                                              VkSurfaceKHR*                      pSurface);
+
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryMetalHandleEXT)(VkDevice                             device,
+                                                               const VkMemoryGetMetalHandleInfoEXT* pGetMetalHandleInfo,
+                                                               void**                               pHandle);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryMetalHandlePropertiesEXT)(
+        VkDevice                           device,
+        VkExternalMemoryHandleTypeFlagBits handleType,
+        const void*                        pHandle,
+        VkMemoryMetalHandlePropertiesEXT*  pMemoryMetalHandleProperties);
 
     static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
                                                                   const VkMetalSurfaceCreateInfoEXT*,
