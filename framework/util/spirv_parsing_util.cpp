@@ -272,7 +272,8 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         }
 
                         // insert into map
-                        buffer_reference_map_[ref_info] = { td->struct_member_name };
+                        std::string name                = td->struct_member_name ? td->struct_member_name : "";
+                        buffer_reference_map_[ref_info] = { name };
                     }
 
                     for (uint32_t j = 0; j < td->member_count; ++j)

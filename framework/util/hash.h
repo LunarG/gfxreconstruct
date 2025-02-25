@@ -154,6 +154,49 @@ static inline uint32_t murmur3_32(const K& key, uint32_t seed)
     return h;
 }
 
+// Generate a random uint32_t from two uint32_t values
+// @see: "Mark Jarzynski and Marc Olano, Hash Functions for GPU Rendering, Journal of Computer Graphics Techniques
+// (JCGT), vol. 9, no. 3, 21-38, 2020" https://jcgt.org/published/0009/03/02/
+inline uint32_t xxhash32(uint32_t lhs, uint32_t rhs)
+{
+    constexpr uint32_t PRIME32_2 = 2246822519U, PRIME32_3 = 3266489917U;
+    constexpr uint32_t PRIME32_4 = 668265263U, PRIME32_5 = 374761393U;
+    uint32_t           h32 = lhs + PRIME32_5 + rhs * PRIME32_3;
+    h32                    = PRIME32_4 * ((h32 << 17) | (h32 >> (32 - 17)));
+    h32                    = PRIME32_2 * (h32 ^ (h32 >> 15));
+    h32                    = PRIME32_3 * (h32 ^ (h32 >> 13));
+    return h32 ^ (h32 >> 16);
+}
+
+template <typename K>
+static inline uint32_t xxhash32(const K& key, uint32_t seed)
+{
+    constexpr uint32_t num_hashes       = sizeof(K) / sizeof(uint32_t);
+    constexpr uint32_t num_excess_bytes = sizeof(K) % sizeof(uint32_t);
+    uint32_t           h                = seed;
+
+    if constexpr (num_hashes > 0u)
+    {
+        auto ptr = reinterpret_cast<const uint32_t*>(&key), end = ptr + num_hashes;
+        for (; ptr < end; ++ptr)
+        {
+            h = xxhash32(*ptr, h);
+        }
+    }
+    if constexpr (num_excess_bytes > 0u)
+    {
+        auto     end_u8 = reinterpret_cast<const uint8_t*>(&key) + sizeof(uint32_t) * num_hashes;
+        uint32_t k      = 0;
+        for (uint32_t i = num_excess_bytes; i; i--)
+        {
+            k <<= 8;
+            k |= end_u8[i - 1];
+        }
+        h = xxhash32(k, h);
+    }
+    return h;
+}
+
 GFXRECON_END_NAMESPACE(hash)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

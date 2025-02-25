@@ -120,8 +120,8 @@ TEST_CASE("linear_hashmap - probe_length", "[]")
     // test a load-factor of 0.25
     hashmap.max_load_factor(0.25f);
 
-    constexpr uint32_t test_capacity  = 512;
-    constexpr uint32_t num_insertions = 128;
+    constexpr uint32_t test_capacity  = 8192;
+    constexpr uint32_t num_insertions = 1024;
     hashmap.reserve(test_capacity);
 
     float probe_length_sum = 0.f;
