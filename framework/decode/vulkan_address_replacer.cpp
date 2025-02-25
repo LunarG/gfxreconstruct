@@ -1482,7 +1482,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         VkDebugUtilsObjectNameInfoEXT object_name_info = {};
         object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
         object_name_info.objectType                    = VK_OBJECT_TYPE_BUFFER;
-        object_name_info.objectHandle                  = (uint64_t)buffer_context.buffer;
+        object_name_info.objectHandle                  = reinterpret_cast<uintptr_t>buffer_context.buffer;
         object_name_info.pObjectName                   = name.c_str();
         set_debug_utils_object_name_fn_(device_, &object_name_info);
     }
