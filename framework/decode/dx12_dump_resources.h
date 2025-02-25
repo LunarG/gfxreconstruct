@@ -160,7 +160,7 @@ class Dx12DumpResourcesDelegate
     virtual void BeginDumpResources(const std::string&        dump_resources_output_dir,
                                     const std::string&        capture_file_name,
                                     const TrackDumpResources& track_dump_resources)                                 = 0;
-    virtual void DumpResource(CopyResourceDataPtr resource_data, uint32_t subResourceModifiedMask)                  = 0;
+    virtual void DumpResource(CopyResourceDataPtr resource_data, const std::vector<bool> modifiableResources)       = 0;
     virtual void EndDumpResources()                                                                                 = 0;
     virtual void WriteSingleData(const std::vector<std::pair<std::string, int32_t>>& json_path,
                                  const std::string&                                  key,
@@ -194,7 +194,7 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
     virtual void BeginDumpResources(const std::string&        dump_resources_output_dir,
                                     const std::string&        capture_file_name,
                                     const TrackDumpResources& track_dump_resources) override;
-    virtual void DumpResource(CopyResourceDataPtr resource_data, uint32_t subResourceModifiedMask) override;
+    virtual void DumpResource(CopyResourceDataPtr resource_data, const std::vector<bool> modifiableResources) override;
     virtual void EndDumpResources() override;
     virtual void WriteSingleData(const std::vector<std::pair<std::string, int32_t>>& json_path,
                                  const std::string&                                  key,
@@ -221,11 +221,11 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
                                          uint32_t                                            heap_index) override;
 
   private:
-    void WriteResource(const CopyResourceDataPtr resource_data, uint32_t subResourceModifiedMask);
+    void WriteResource(const CopyResourceDataPtr resource_data, const std::vector<bool> modifiableResources);
     void WriteResource(nlohmann::ordered_json&   jdata,
                        const std::string&        prefix_file_name,
                        const CopyResourceDataPtr resource_data,
-                       uint32_t                  subResourceModifiedMask);
+                       const std::vector<bool>   modifiableResources);
 
     void StartFile();
     void EndFile();
