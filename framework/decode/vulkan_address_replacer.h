@@ -104,10 +104,10 @@ class VulkanAddressReplacer
      * The collected VkDeviceAddresses will be stored in @param command_buffer_info and depending on situation:
      *
      * a) if @param command_buffer_info is currently recording commands inside a renderpass:
-     * - keep the data, delay replacement to QueueSubmit
+     * - keep the data, defer replacement until QueueSubmit
      *
-     * b) if @param command_buffer_info is outside any renderpasses:
-     * - consume collected addresses, inject call to UpdateBufferAddresses into @param command_buffer_info
+     * b) if @param command_buffer_info is outside any renderpass:
+     * - consume collected addresses, inject call to UpdateBufferAddresses() into @param command_buffer_info
      *
      * @param   command_buffer_info a provided const VulkanCommandBufferInfo*
      * @param   pipelineBindPoint   the pipeline bind-point

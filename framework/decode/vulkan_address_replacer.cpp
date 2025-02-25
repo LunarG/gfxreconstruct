@@ -275,9 +275,8 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
 {
     if (addresses != nullptr && num_addresses > 0)
     {
-        GFXRECON_LOG_INFO_ONCE(
-            "%s(): Replay is adjusting mismatching buffer-device-address in-place using a compute-dispatch", __func__);
-        GFXRECON_LOG_DEBUG("%s(): running repl8cer (%d addresses)", __func__, num_addresses);
+        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting mismatching "
+                               "buffer-device-addresses in-place using a compute-dispatch");
 
         hashmap_bda_.clear();
 
@@ -332,6 +331,8 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                 GFXRECON_ASSERT(buffer_info != nullptr);
                 if (buffer_info != nullptr && buffer_info->replay_address != 0)
                 {
+                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
+                                           "mismatching buffer-device-addresses in push-constants");
                     uint32_t address_offset = *address - buffer_info->capture_address;
                     *address                = buffer_info->replay_address + address_offset;
                 }
@@ -1717,9 +1718,6 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
         if (previous_pipeline != nullptr && previous_pipeline->handle != VK_NULL_HANDLE)
         {
-            GFXRECON_LOG_INFO_ONCE("%s(): Replay is injecting compute-dispatches, "
-                                   "originally bound compute-pipelines are restored.",
-                                   __func__);
             device_table_->CmdBindPipeline(
                 command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, previous_pipeline->handle);
         }
