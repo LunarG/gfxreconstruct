@@ -1043,9 +1043,8 @@ bool CaptureGPUAddrMatchDescriptorHeap(const D3D12_GPU_DESCRIPTOR_HANDLE capture
     auto increment            = (*heap_info.capture_increments)[heap_info.descriptor_type];
     auto capture_gpu_addr_end = heap_info.capture_gpu_addr_begin + heap_info.descriptor_count * increment;
 
-    bool is_match = true ? (heap_info.capture_gpu_addr_begin <= capture_gpu_addr.ptr &&
-                            capture_gpu_addr.ptr <= capture_gpu_addr_end)
-                         : false;
+    bool is_match =
+        (heap_info.capture_gpu_addr_begin <= capture_gpu_addr.ptr) && (capture_gpu_addr.ptr <= capture_gpu_addr_end);
     if (is_match)
     {
         if (increment == 0)
@@ -1068,8 +1067,7 @@ bool ReplayCPUAddrMatchDescriptorHeap(const D3D12_CPU_DESCRIPTOR_HANDLE replay_c
     auto replay_cpu_addr_end = heap_info.replay_cpu_addr_begin + heap_info.descriptor_count * increment;
 
     bool is_match =
-        true ? (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr && replay_cpu_addr.ptr <= replay_cpu_addr_end)
-             : false;
+        (heap_info.replay_cpu_addr_begin <= replay_cpu_addr.ptr) && (replay_cpu_addr.ptr <= replay_cpu_addr_end);
     if (is_match)
     {
         if (increment == 0)
