@@ -29,11 +29,14 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+namespace gfxrecon
+{
 
-GFXRECON_BEGIN_NAMESPACE(test_app)
+namespace test_app
+{
 
-GFXRECON_BEGIN_NAMESPACE(host_image_copy)
+namespace host_image_copy
+{
 
 class App : public gfxrecon::test::TestAppBase
 {
@@ -63,10 +66,12 @@ class App : public gfxrecon::test::TestAppBase
     VkCommandBuffer command_buffer_;
     VkFence         fence_;
 
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector) override;
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
+                                            vkmock::TestConfig*) override;
 
     void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device) override;
+                                  test::PhysicalDevice const& physical_device,
+                                  vkmock::TestConfig*) override;
 
     uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
     void     create_buffers_and_images();
@@ -76,14 +81,16 @@ class App : public gfxrecon::test::TestAppBase
     void     setup() override;
 };
 
-void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector)
+void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig*)
 {
     phys_device_selector.add_required_extension("VK_KHR_copy_commands2");
     phys_device_selector.add_required_extension("VK_KHR_format_feature_flags2");
     phys_device_selector.add_required_extension("VK_EXT_host_image_copy");
 }
 
-void App::configure_device_builder(test::DeviceBuilder& device_builder, test::PhysicalDevice const& physical_device)
+void App::configure_device_builder(test::DeviceBuilder&        device_builder,
+                                   test::PhysicalDevice const& physical_device,
+                                   vkmock::TestConfig*)
 {
     host_image_copy_features_.sType         = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT;
     host_image_copy_features_.pNext         = nullptr;
@@ -469,11 +476,11 @@ void App::setup()
     init.disp.createFence(&fence_create_info, nullptr, &fence_);
 }
 
-GFXRECON_END_NAMESPACE(host_image_copy)
+} // namespace host_image_copy
 
-GFXRECON_END_NAMESPACE(test_app)
+} // namespace test_app
 
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace gfxrecon
 
 int main(int argc, char* argv[])
 {
@@ -483,7 +490,7 @@ int main(int argc, char* argv[])
         app.run("host image copy");
         return 0;
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         return -1;

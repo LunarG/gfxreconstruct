@@ -26,6 +26,46 @@
 
 
 cmake_minimum_required(VERSION 3.24.0)
-add_subdirectory(test_apps)
 
-# TODO: runner goes here
+if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
+    set(GFXRECON_INSTALL_TESTDIR ${CMAKE_INSTALL_PREFIX}/test)
+
+    add_subdirectory(icd)
+    add_subdirectory(test_apps)
+
+    enable_testing()
+    set(INSTALL_GTEST OFF)
+    find_package(GoogleTest REQUIRED)
+    include(GoogleTest)
+    add_executable(gfxrecon-testapp-runner
+            test_cases/triangle.cpp
+            test_cases/multisample-depth.cpp
+            test_cases/shader-objects.cpp
+            test_cases/pipeline-binaries.cpp
+            verify-gfxr.cpp
+    )
+    add_dependencies(gfxrecon-testapp-runner gfxrecon-testapps VkICD_mock_icd gfxrecon-convert VkLayer_gfxreconstruct)
+    target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_link_libraries(gfxrecon-testapp-runner
+            nlohmann_json::nlohmann_json
+            GTest::gtest GTest::gtest_main)
+    gtest_discover_tests(gfxrecon-testapp-runner)
+
+    install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    install(DIRECTORY known_good DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    install(TARGETS gfxrecon-convert RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    if (APPLE)
+        install(PROGRAMS run-tests_macos.sh DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d)
+        install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d LIBRARY DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d)
+    elseif (UNIX)
+        install(PROGRAMS run-tests.sh DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d)
+        install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d LIBRARY DESTINATION ${GFXRECON_INSTALL_TESTDIR}/vulkan/explicit_layer.d)
+    else ()
+        install(PROGRAMS run-tests.ps1 DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+        install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR} LIBRARY DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    endif ()
+
+endif ()
