@@ -210,7 +210,7 @@ def get_command_path(args):
     '''
     # Replace ~ or ~user with the user's home path before calling shutil.which()
     programName = os.path.expanduser(args.program_and_args[0])
-    return shutil.which(programName)
+    return programName, shutil.which(programName)
 
 
 def validate_args(args):
@@ -229,7 +229,8 @@ def validate_args(args):
         print_error_and_exit('<program> must be specified')
 
     # Verify programName exists and is executable.
-    if get_command_path(args) is None:
+    programName, programWhich = get_command_path(args)
+    if programWhich is None:
         print_error_and_exit('Cannot find program ' +
                              programName + ' to execute')
 
