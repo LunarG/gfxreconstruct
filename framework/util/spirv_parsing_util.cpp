@@ -248,38 +248,52 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                               BufferReferenceLocation          source,
                                               uint32_t                         set,
                                               uint32_t                         binding) {
-            // bfs: (type, offset)
-            std::deque<std::pair<const SpvReflectTypeDescription*, uint32_t>> queue = { { type, 0 } };
+            struct queue_item_t
+            {
+                const SpvReflectTypeDescription* type_description = nullptr;
+                uint32_t                         offset           = 0;
+                uint32_t                         stride           = 0;
+                std::vector<std::string>         member_names;
+            };
+            // iterate bfs
+            std::deque<queue_item_t> queue = { { type } };
 
             while (!queue.empty())
             {
-                auto [td, offset] = queue.front();
+                auto queue_item = std::move(queue.front());
                 queue.pop_front();
+                auto& [td, offset, stride, member_names] = queue_item;
 
                 if (td)
                 {
-                    if (td->storage_class == spv::StorageClassPhysicalStorageBuffer)
+                    member_names.emplace_back(td->struct_member_name ? td->struct_member_name : "unknown");
+
+                    if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
+                    {
+                        stride = td->traits.array.stride;
+                    }
+
+                    // we pick up potential buffer-references here and confirm later.
+                    bool is_potential_ref = td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 &&
+                                            !td->traits.numeric.scalar.signedness;
+
+                    if (td->storage_class == spv::StorageClassPhysicalStorageBuffer || is_potential_ref)
                     {
                         BufferReferenceInfo ref_info;
                         ref_info.source        = source;
                         ref_info.set           = set;
                         ref_info.binding       = binding;
                         ref_info.buffer_offset = offset;
-
-                        if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
-                        {
-                            ref_info.array_stride = td->traits.array.stride;
-                        }
+                        ref_info.array_stride  = stride;
 
                         // insert into map
-                        std::string name                = td->struct_member_name ? td->struct_member_name : "";
-                        buffer_reference_map_[ref_info] = { name };
+                        buffer_reference_map_[ref_info] = member_names;
                     }
 
                     for (uint32_t j = 0; j < td->member_count; ++j)
                     {
                         auto* member = td->members + j;
-                        queue.emplace_back(member, offset);
+                        queue.push_back({ member, offset, stride, member_names });
 
                         uint32_t num_scalar_bytes = member->traits.numeric.scalar.width / 8;
 
