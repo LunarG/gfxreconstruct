@@ -404,7 +404,7 @@ class VulkanAddressReplacer
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
 
     // pipeline-contexts per command-buffer
-    std::unordered_map<VkCommandBuffer, pipeline_context_t> pipeline_context_map_;
+    std::unordered_map<VkCommandBuffer, std::vector<pipeline_context_t>> pipeline_context_map_;
 
     // resources related to acceleration-structures
     std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> shadow_as_map_;

@@ -535,7 +535,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
 
         // get a context for this command-buffer
-        auto& pipeline_context_sbt = pipeline_context_map_[command_buffer_info->handle];
+        auto& pipeline_context_sbt = pipeline_context_map_[command_buffer_info->handle].emplace_back();
 
         if (!create_buffer(pipeline_context_sbt.hashmap_storage,
                            hashmap_sbt_.get_storage(nullptr),
@@ -1647,7 +1647,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
         return;
     }
 
-    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle];
+    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
 
     if (!create_buffer(pipeline_context_bda.hashmap_storage,
                        hashmap_bda_.get_storage(nullptr),

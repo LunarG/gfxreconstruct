@@ -8650,6 +8650,11 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->push_constant_pipeline_layout = VK_NULL_HANDLE;
     command_buffer_info->addresses_to_replace.clear();
     command_buffer_info->inside_renderpass = false;
+
+    // free potential shadow-resources associated with this command-buffer
+    auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+    GetDeviceAddressReplacer(device_info).DestroyShadowResources(command_buffer_info->handle);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
