@@ -106,23 +106,25 @@ void VulkanVirtualSwapchain::CleanSwapchainResourceData(const VulkanDeviceInfo* 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
 
-        for (const VulkanImageInfo& image_info : swapchain_info->image_infos)
-        {
-            allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
-            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
-        }
-
         // Delete the virtual swapchain-specific swapchain resource data
         if (swapchain_resources_.find(swapchain) != swapchain_resources_.end())
         {
-            auto& swapchain_resources = swapchain_resources_[swapchain];
+            const auto& swapchain_resources = swapchain_resources_[swapchain];
+            for (const auto& copy_cmd_data : swapchain_resources->copy_cmd_data)
+            {
+                for (const auto& fence : copy_cmd_data.second.fences)
+                {
+                    device_table_->WaitForFences(device, 1, &fence, VK_TRUE, ~0UL);
+                }
+            }
+
             for (const VirtualImage& image_info : swapchain_resources->virtual_swapchain_images)
             {
                 allocator->DestroyImageDirect(image_info.image, nullptr, image_info.resource_allocator_data);
                 allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
             }
 
-            for (auto& copy_cmd_data : swapchain_resources->copy_cmd_data)
+            for (const auto& copy_cmd_data : swapchain_resources->copy_cmd_data)
             {
                 if (copy_cmd_data.second.command_pool != VK_NULL_HANDLE)
                 {
@@ -133,17 +135,23 @@ void VulkanVirtualSwapchain::CleanSwapchainResourceData(const VulkanDeviceInfo* 
                         copy_cmd_data.second.command_buffers.data());
                     device_table_->DestroyCommandPool(device, copy_cmd_data.second.command_pool, nullptr);
                 }
-                for (auto& semaphore : copy_cmd_data.second.semaphores)
+                for (const auto& semaphore : copy_cmd_data.second.semaphores)
                 {
                     device_table_->DestroySemaphore(device, semaphore, nullptr);
                 }
-                for (auto& fence : copy_cmd_data.second.fences)
+                for (const auto& fence : copy_cmd_data.second.fences)
                 {
                     device_table_->DestroyFence(device, fence, nullptr);
                 }
             }
 
             swapchain_resources_.erase(swapchain);
+        }
+
+        for (const VulkanImageInfo& image_info : swapchain_info->image_infos)
+        {
+            allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
     }
 }
