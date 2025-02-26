@@ -185,6 +185,8 @@ class Dx12StateWriter
                                        const ID3D12StateObjectInfo*          state_object_info,
                                        std::unordered_set<format::HandleId>& written_objs);
 
+    void WriteSetName(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
+
 #ifdef GFXRECON_AGS_SUPPORT
     void WriteAgsInitialize(const AgsStateTable& ags_state_table);
 

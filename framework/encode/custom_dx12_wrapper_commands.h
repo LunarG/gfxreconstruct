@@ -824,6 +824,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMe
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetName>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_SetName(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

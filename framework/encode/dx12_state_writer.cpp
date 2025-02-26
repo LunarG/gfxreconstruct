@@ -216,6 +216,11 @@ void Dx12StateWriter::StandardCreateWrite(format::HandleId object_id, const DxWr
         written_objects_.insert(object_id);
 #endif
 
+        if (wrapper_info.object_name.empty() == false)
+        {
+            WriteSetName(object_id, wrapper_info);
+        }
+
         // Release any temporarily created parent object.
         if (create_temp_object_dependency)
         {
@@ -1769,6 +1774,14 @@ void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& stat
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
     });
+}
+
+void Dx12StateWriter::WriteSetName(format::HandleId handle_id, const DxWrapperInfo& wrapper_info)
+{
+    encoder_.EncodeWString(wrapper_info.object_name.c_str());
+    encoder_.EncodeInt32Value(S_OK);
+    WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetName, handle_id, &parameter_stream_);
+    parameter_stream_.Clear();
 }
 
 #ifdef GFXRECON_AGS_SUPPORT

@@ -231,6 +231,8 @@ class Dx12StateTracker
     void TrackSetHDRMetaData(
         IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData);
 
+    void TrackSetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name);
+
 #ifdef GFXRECON_AGS_SUPPORT
     void
     TrackAgsCalls(void* object_ptr, format::ApiCallId call_id, const util::MemoryOutputStream* create_parameter_buffer);

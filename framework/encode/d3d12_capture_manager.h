@@ -839,6 +839,8 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_IDXGISwapChain4_SetHDRMetaData(
         IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData);
 
+    void PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name);
+
   protected:
     D3D12CaptureManager();
 

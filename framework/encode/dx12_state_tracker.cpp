@@ -1234,6 +1234,24 @@ void Dx12StateTracker::TrackSetHDRMetaData(
     }
 }
 
+void Dx12StateTracker::TrackSetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto* info = GetWrapperInfo(wrapper);
+    if (info)
+    {
+        if (Name != nullptr)
+        {
+            info->object_name = Name;
+        }
+        else
+        {
+            info->object_name = L"";
+        }
+    }
+}
+
 #ifdef GFXRECON_AGS_SUPPORT
 void Dx12StateTracker::TrackAgsCalls(void*                           object_ptr,
                                      format::ApiCallId               call_id,
