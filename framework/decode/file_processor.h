@@ -109,6 +109,11 @@ class FileProcessor
 
     bool EntireFileWasProcessed() const
     {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+
         const auto file_entry = active_files_.find(file_stack_.front().filename);
         if (file_entry != active_files_.end())
         {
