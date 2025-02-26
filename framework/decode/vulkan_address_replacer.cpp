@@ -286,6 +286,18 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         for (const auto& [capture_address, replay_address] : address_map)
         {
             hashmap_bda_.put(capture_address, replay_address);
+
+            // NOTE: this is correct but very slow.
+            // TODO: switch from hashmap to binary-search lookup to support offset-addresses
+            // generate offset-addresses for entire buffer-range
+            //            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+            //            if (buffer_info != nullptr)
+            //            {
+            //                for (uint32_t offset = 0; offset < buffer_info->size; offset += sizeof(VkDeviceAddress))
+            //                {
+            //                    hashmap_bda_.put(capture_address + offset, replay_address + offset);
+            //                }
+            //            }
         }
 
         if (command_buffer_info != nullptr)
@@ -329,7 +341,6 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                                                                    buffer_ref_info.buffer_offset);
 
                 auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
-                GFXRECON_ASSERT(buffer_info != nullptr);
                 if (buffer_info != nullptr && buffer_info->replay_address != 0)
                 {
                     GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
@@ -415,26 +426,25 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             VkDeviceAddress address =
                 buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
             VkDeviceAddress range_end =
-                buffer_info->replay_address + desc_buffer_info.offset +
-                std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
-            command_buffer_info->addresses_to_replace.push_back(address);
+                address + std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
+            command_buffer_info->addresses_to_replace.insert(address);
 
             if (buffer_ref_info.array_stride)
             {
                 address += buffer_ref_info.array_stride;
                 for (; address < range_end; address += buffer_ref_info.array_stride)
                 {
-                    command_buffer_info->addresses_to_replace.push_back(address);
+                    command_buffer_info->addresses_to_replace.insert(address);
                 }
             }
         }
     }
     if (!command_buffer_info->inside_renderpass)
     {
-        UpdateBufferAddresses(command_buffer_info,
-                              command_buffer_info->addresses_to_replace.data(),
-                              command_buffer_info->addresses_to_replace.size(),
-                              address_tracker);
+        std::vector<VkDeviceAddress> addresses_to_replace(command_buffer_info->addresses_to_replace.begin(),
+                                                          command_buffer_info->addresses_to_replace.end());
+        UpdateBufferAddresses(
+            command_buffer_info, addresses_to_replace.data(), addresses_to_replace.size(), address_tracker);
         command_buffer_info->addresses_to_replace.clear();
     }
 }
@@ -605,7 +615,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 barrier(command_buffer_info->handle,
                         buf,
-                        VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR,
+                        VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR,
                         VK_ACCESS_SHADER_READ_BIT,
                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                         VK_ACCESS_SHADER_WRITE_BIT);

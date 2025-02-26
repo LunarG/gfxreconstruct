@@ -4432,8 +4432,7 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
         GFXRECON_ASSERT(secondary_cmd_buffer_info != nullptr);
         if (!secondary_cmd_buffer_info->addresses_to_replace.empty())
         {
-            in_commandBuffer->addresses_to_replace.insert(in_commandBuffer->addresses_to_replace.end(),
-                                                          secondary_cmd_buffer_info->addresses_to_replace.begin(),
+            in_commandBuffer->addresses_to_replace.insert(secondary_cmd_buffer_info->addresses_to_replace.begin(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
     }
@@ -5143,7 +5142,8 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         modified_create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
-    if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay &&
+        !UseAddressReplacement(device_info))
     {
         if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)

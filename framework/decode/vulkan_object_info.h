@@ -635,8 +635,8 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     VkPipelineLayout                                          push_constant_pipeline_layout = VK_NULL_HANDLE;
 
     // collect buffer-device-addresses of locations to replace before submit
-    std::vector<VkDeviceAddress> addresses_to_replace;
-    bool                         inside_renderpass = false;
+    std::unordered_set<VkDeviceAddress> addresses_to_replace;
+    bool                                inside_renderpass = false;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
