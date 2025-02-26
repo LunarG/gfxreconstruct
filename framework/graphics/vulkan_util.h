@@ -29,6 +29,14 @@
 
 #include "vulkan/vulkan.h"
 
+#if VK_USE_64_BIT_PTR_DEFINES == 1
+#define VK_HANDLE_TO_UINT64(value) reinterpret_cast<uint64_t>(value)
+#define UINT64_TO_VK_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
+#else
+#define VK_HANDLE_TO_UINT64(value) (value)
+#define UINT64_TO_VK_HANDLE(handle_type, value) static_cast<handle_type>(value)
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
