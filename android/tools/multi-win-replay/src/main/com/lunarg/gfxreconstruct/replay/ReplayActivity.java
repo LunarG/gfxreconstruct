@@ -78,14 +78,12 @@ public class ReplayActivity extends NativeActivity
 
         @Override public void surfaceDestroyed(SurfaceHolder holder)
         {
-            mSurface = holder.getSurface();
-            Log.i(TAG, "SurfaceHolder.Callback: surfaceDestroyed:" + mSurface);
+            Log.i(TAG, "SurfaceHolder.Callback: surfaceDestroyed:" + holder.getSurface());
         }
 
         @Override public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
         {
-            mSurface = holder.getSurface();
-            Log.i(TAG, "SurfaceHolder.Callback: surfaceChanged:" + mSurface + " " + w + " " + h);
+            Log.i(TAG, "SurfaceHolder.Callback: surfaceChanged:" + holder.getSurface() + " " + w + " " + h);
         }
     }
 
