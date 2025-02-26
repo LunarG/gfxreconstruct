@@ -1359,10 +1359,9 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(VulkanInstanceInfo*
 {
     assert((instance_info != nullptr) && (physical_device_info != nullptr));
 
-    physical_device_info->parent                    = instance_info->handle;
-    physical_device_info->parent_api_version        = instance_info->api_version;
-    physical_device_info->parent_enabled_extensions = instance_info->enabled_extensions;
-    physical_device_info->replay_device_info        = &instance_info->replay_device_info[replay_device];
+    physical_device_info->parent             = instance_info->handle;
+    physical_device_info->parent_info        = instance_info->util_info;
+    physical_device_info->replay_device_info = &instance_info->replay_device_info[replay_device];
 }
 
 void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceInfo*         physical_device_info,
@@ -1540,7 +1539,7 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(VulkanInstanceInfo*       insta
 
         if (replay_device_info->properties == std::nullopt)
         {
-            graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+            graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                   GetInstanceTable(physical_device_info->handle),
                                                                   physical_device_info->handle,
                                                                   replay_device_info);
@@ -1626,7 +1625,7 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(VulkanInstanceInfo*       
 
             if (replay_device_info->properties == std::nullopt)
             {
-                graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                       GetInstanceTable(physical_device_info->handle),
                                                                       physical_device_info->handle,
                                                                       replay_device_info);
@@ -1681,7 +1680,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       insta
 
     if (replay_device_info->properties == std::nullopt)
     {
-        graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+        graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                               GetInstanceTable(physical_device_info->handle),
                                                               physical_device_info->handle,
                                                               replay_device_info);
@@ -1705,7 +1704,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       insta
             {
                 if (replay_info.properties == std::nullopt)
                 {
-                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                           GetInstanceTable(physical_device),
                                                                           physical_device,
                                                                           &replay_info);
@@ -1993,7 +1992,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.set_debug_utils_object_name                 = instance_table->SetDebugUtilsObjectNameEXT;
     functions.set_debug_utils_object_tag                  = instance_table->SetDebugUtilsObjectTagEXT;
 
-    if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
         functions.get_buffer_memory_requirements2        = device_table->GetBufferMemoryRequirements2;
@@ -2003,7 +2002,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     }
     else
     {
-        const auto& instance_extensions = physical_device_info->parent_enabled_extensions;
+        const auto& instance_extensions = physical_device_info->parent_info.enabled_extensions;
 
         if (std::find(instance_extensions.begin(),
                       instance_extensions.end(),
@@ -2032,7 +2031,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info->memory_properties);
 
-    VkResult result = allocator->Initialize(std::min(physical_device_info->parent_api_version,
+    VkResult result = allocator->Initialize(std::min(physical_device_info->parent_info.api_version,
                                                      physical_device_info->replay_device_info->properties->apiVersion),
                                             physical_device_info->parent,
                                             physical_device_info->handle,
@@ -2444,7 +2443,6 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
 void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo, CreateInstanceInfoState& create_state)
 {
-
     const VkInstanceCreateInfo* replay_create_info = pCreateInfo->GetPointer();
 
     if (loader_handle_ == nullptr)
@@ -2523,6 +2521,14 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 modified_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
                 modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
+        }
+
+        // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
+        // otherwise always enable it if available.
+        if (modified_create_info.pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
+        {
+            feature_util::EnableExtensionIfSupported(
+                available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
         if (options_.remove_unsupported_features)
@@ -2642,10 +2648,10 @@ void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance   
 
     if (modified_create_info.pApplicationInfo != nullptr)
     {
-        instance_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
-        instance_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                modified_create_info.ppEnabledExtensionNames +
-                                                    modified_create_info.enabledExtensionCount);
+        instance_info.util_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
+        instance_info.util_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
+                                                          modified_create_info.ppEnabledExtensionNames +
+                                                              modified_create_info.enabledExtensionCount);
     }
 }
 
@@ -2816,7 +2822,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 
     // Enable necessary features
     create_state.property_feature_info = create_state.device_util.EnableRequiredPhysicalDeviceFeatures(
-        physical_device_info->parent_api_version, instance_table, physical_device, &modified_create_info);
+        physical_device_info->parent_info, instance_table, physical_device, &modified_create_info);
 
     // Abort on/Remove unsupported features
     feature_util::CheckUnsupportedFeatures(physical_device,
@@ -6485,11 +6491,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
         if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
         {
-            auto supported_extension_iterator = std::find(instance_info->enabled_extensions.begin(),
-                                                          instance_info->enabled_extensions.end(),
+            auto supported_extension_iterator = std::find(instance_info->util_info.enabled_extensions.begin(),
+                                                          instance_info->util_info.enabled_extensions.end(),
                                                           colorspace_extension_map_iterator->second);
             colorspace_extension_used_unsupported =
-                supported_extension_iterator == instance_info->enabled_extensions.end();
+                supported_extension_iterator == instance_info->util_info.enabled_extensions.end();
         }
 
         if (colorspace_extension_used_unsupported)
@@ -9006,7 +9012,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
     PointerDecoder<uint32_t>*                                     pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
-    const auto& instance_extensions = physical_device_info->parent_enabled_extensions;
+    const auto& instance_extensions = physical_device_info->parent_info.enabled_extensions;
     if (std::find(instance_extensions.begin(), instance_extensions.end(), VK_EXT_TOOLING_INFO_EXTENSION_NAME) !=
         instance_extensions.end())
     {

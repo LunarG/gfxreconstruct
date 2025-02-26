@@ -181,7 +181,7 @@ VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*            
     GFXRECON_ASSERT(physical_device_info_ != nullptr);
     device_                = device_info->handle;
     resource_allocator_    = device_info->allocator.get();
-    get_device_address_fn_ = physical_device_info_->parent_api_version >= VK_API_VERSION_1_2
+    get_device_address_fn_ = physical_device_info_->parent_info.api_version >= VK_API_VERSION_1_2
                                  ? device_table->GetBufferDeviceAddress
                                  : device_table->GetBufferDeviceAddressKHR;
 
