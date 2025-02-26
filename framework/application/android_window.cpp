@@ -186,8 +186,21 @@ decode::Window* AndroidWindowFactory::Create(
 void AndroidWindowFactory::Destroy(decode::Window* window)
 {
 #ifdef GFXR_MULTI_WINDOW_REPLAY
-    int32_t windowidx = created_window_.at(window);
-    android_context_->destroyNativeWindow(windowidx);
+    if (window)
+    {
+        ANativeWindow* native_window = nullptr;
+        if (window->GetNativeHandle(decode::Window::kAndroidNativeWindow, reinterpret_cast<void**>(&native_window)))
+        {
+            ANativeWindow_release(native_window);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Couldn't retrieve Android native window from window %p for destruction", window)
+        }
+
+        int32_t window_index = created_window_.at(window);
+        android_context_->destroyNativeWindow(window_index);
+    }
 #else // !GFXR_MULTI_WINDOW_REPLAY
     // Standard replay app only has a single window whose lifetime is managed by AndroidContext.
     GFXRECON_UNREFERENCED_PARAMETER(window);

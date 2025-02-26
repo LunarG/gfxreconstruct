@@ -34,7 +34,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_lunarg_gfxreconstruct_replay_ReplayAc
                                                                                                   jobject surface)
 {
     gfxrecon::application::tmp_window = ANativeWindow_fromSurface(env, surface);
-    GFXRECON_LOG_INFO("Created new window %p", gfxrecon::application::tmp_window);
+    GFXRECON_LOG_INFO("Created new window %p from surface %p", gfxrecon::application::tmp_window, surface);
 }
 
 #endif // GFXR_MULTI_WINDOW_REPLAY
