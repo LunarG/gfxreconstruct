@@ -851,7 +851,6 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             // Add CopyBufferRegion(s) and ResourceBarrier(s) to command list to save the build input resource data.
             auto curr_entry_iter = inputs_buffer_entries.begin();
             auto end_entry_iter  = inputs_buffer_entries.end();
-
             while (!build_info.is_tlas_with_array_of_pointers && curr_entry_iter != end_entry_iter)
             {
                 ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
@@ -924,19 +923,18 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 {
                     gfxrecon::util::GpuVaRange range       = { *curr_entry_iter->desc_gpu_va,
                                                                *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
-                    auto                       curr_gpu_va = *curr_entry_iter->desc_gpu_va;
-                    auto                       dst_offset  = curr_entry_iter->offset;
-                    auto                       num_bytes   = curr_entry_iter->size;
-                    auto                       src_offset  = curr_gpu_va - src_resource_info->gpu_va;
-                    ++curr_entry_iter;
                     if (DoesResourceCoverGpuVaRange(src_resource_info.get(), range))
                     {
-
+                        auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
+                        auto dst_offset  = curr_entry_iter->offset;
+                        auto num_bytes   = curr_entry_iter->size;
+                        auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
                         list_wrapper->CopyBufferRegion(inputs_data_resource,
                                                        dst_offset,
                                                        src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
                                                        src_offset,
                                                        num_bytes);
+                        ++curr_entry_iter;
                     }
                     else
                     {
