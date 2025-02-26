@@ -109,7 +109,7 @@ class FileProcessor
 
     bool EntireFileWasProcessed() const
     {
-        if(file_stack_.empty())
+        if (file_stack_.empty())
         {
             return true;
         }
