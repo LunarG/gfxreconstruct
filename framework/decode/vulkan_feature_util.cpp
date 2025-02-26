@@ -161,6 +161,22 @@ bool IsSupportedExtension(const std::vector<const char*>& extensions_names, cons
     return false;
 }
 
+bool EnableExtensionIfSupported(const std::vector<VkExtensionProperties>& properties,
+                                std::vector<const char*>*                 extensions,
+                                const char*                               extension)
+{
+    GFXRECON_ASSERT(extensions != nullptr);
+    GFXRECON_ASSERT(extension != nullptr);
+
+    if (IsSupportedExtension(properties, extension))
+    {
+        extensions->push_back(extension);
+        return true;
+    }
+
+    return false;
+}
+
 bool IsIgnorableExtension(const char* extension)
 {
     return kIgnorableExtensions.count(extension) > 0;

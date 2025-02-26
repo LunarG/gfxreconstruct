@@ -21,6 +21,7 @@
 */
 
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_instance_util.h"
 #include "decode/vulkan_object_info.h"
 
 #include "util/logging.h"
@@ -51,7 +52,7 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // feature_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+static void GetPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                       const encode::VulkanInstanceTable* instance_table,
                                       const VkPhysicalDevice             physical_device,
                                       T&                                 feature_struct)
@@ -60,11 +61,11 @@ static void GetPhysicalDeviceFeatures(uint32_t                           instanc
     feature_struct.pNext = nullptr;
     VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
     features2.pNext = &feature_struct;
-    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
     }
-    else
+    else if (instance_info.IsEnabledExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
     {
         instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
     }
@@ -74,7 +75,7 @@ static void GetPhysicalDeviceFeatures(uint32_t                           instanc
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // properties_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceProperties(uint32_t                           instance_api_version,
+static void GetPhysicalDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
                                         const encode::VulkanInstanceTable* instance_table,
                                         const VkPhysicalDevice             physical_device,
                                         T&                                 properties_struct)
@@ -83,18 +84,18 @@ static void GetPhysicalDeviceProperties(uint32_t                           insta
     properties_struct.pNext = nullptr;
     VkPhysicalDeviceProperties2 properties2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
     properties2.pNext = &properties_struct;
-    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         instance_table->GetPhysicalDeviceProperties2(physical_device, &properties2);
     }
-    else
+    else if (instance_info.IsEnabledExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
     {
         instance_table->GetPhysicalDeviceProperties2KHR(physical_device, &properties2);
     }
 }
 
 template <typename T>
-VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t instance_api_version,
+VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                                                      const encode::VulkanInstanceTable* instance_table,
                                                                      const VkPhysicalDevice             physical_device,
                                                                      T*                                 feature_struct)
@@ -122,7 +123,7 @@ VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t in
     {
         // Get buffer_address properties
         T supported_features{ feature_struct->sType, nullptr };
-        GetPhysicalDeviceFeatures(instance_api_version, instance_table, physical_device, supported_features);
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
 
         // Enable bufferDeviceAddressCaptureReplay if it is supported
         if (supported_features.bufferDeviceAddressCaptureReplay)
@@ -135,7 +136,7 @@ VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t in
 }
 
 VulkanDevicePropertyFeatureInfo
-VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                                        const encode::VulkanInstanceTable* instance_table,
                                                        const VkPhysicalDevice             physical_device,
                                                        const VkDeviceCreateInfo*          create_info)
@@ -151,7 +152,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
             {
                 auto vulkan_1_2_features = reinterpret_cast<VkPhysicalDeviceVulkan12Features*>(current_struct);
                 result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
-                    instance_api_version, instance_table, physical_device, vulkan_1_2_features);
+                    instance_info, instance_table, physical_device, vulkan_1_2_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
@@ -159,7 +160,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                 auto buffer_address_features =
                     reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
                 result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
-                    instance_api_version, instance_table, physical_device, buffer_address_features);
+                    instance_info, instance_table, physical_device, buffer_address_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
@@ -178,8 +179,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR, nullptr
                     };
-                    GetPhysicalDeviceFeatures(
-                        instance_api_version, instance_table, physical_device, supported_features);
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
 
                     // Enable accelerationStructureCaptureReplay if it is supported
                     if (supported_features.accelerationStructureCaptureReplay)
@@ -209,8 +209,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     VkPhysicalDeviceRayTracingPipelineFeaturesKHR supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR, nullptr
                     };
-                    GetPhysicalDeviceFeatures(
-                        instance_api_version, instance_table, physical_device, supported_features);
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
 
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay =
                         supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay;
@@ -223,7 +222,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                 VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
                     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR, nullptr
                 };
-                GetPhysicalDeviceProperties(instance_api_version, instance_table, physical_device, rt_properties);
+                GetPhysicalDeviceProperties(instance_info, instance_table, physical_device, rt_properties);
                 result.property_shaderGroupHandleSize = rt_properties.shaderGroupHandleSize;
 
                 if (result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
@@ -262,7 +261,7 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
     }
 }
 
-void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                           instance_api_version,
+void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
                                                  const encode::VulkanInstanceTable* instance_table,
                                                  VkPhysicalDevice                   physical_device,
                                                  decode::VulkanReplayDeviceInfo*    replay_device_info)
@@ -273,7 +272,7 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                       
     VkPhysicalDeviceProperties2 device_properties2;
     device_properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 
-    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         // pNext-chaining
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties;

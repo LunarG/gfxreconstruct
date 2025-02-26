@@ -48,6 +48,8 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h

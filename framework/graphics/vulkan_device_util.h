@@ -37,9 +37,17 @@ struct VulkanReplayDeviceInfo;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+struct VulkanInstanceUtilInfo;
+
 uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
                             uint32_t                                type_bits,
                             VkMemoryPropertyFlags                   property_flags);
+
+struct VulkanInstanceVersionExtensionInfo
+{
+    uint32_t                 api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    std::vector<std::string> enabled_extensions;
+};
 
 struct VulkanDevicePropertyFeatureInfo
 {
@@ -59,7 +67,7 @@ class VulkanDeviceUtil
     // to revert incoming data to original values (e.g., prior to writing to the capture file).
     // feature_* property_* members store the state of the features/properties after this call.
     VulkanDevicePropertyFeatureInfo
-    EnableRequiredPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+    EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                          const encode::VulkanInstanceTable* instance_table,
                                          const VkPhysicalDevice             physical_device,
                                          const VkDeviceCreateInfo*          create_info);
@@ -68,14 +76,14 @@ class VulkanDeviceUtil
     void RestoreModifiedPhysicalDeviceFeatures();
 
     // Populates various property-structs in the provided replay_device_info
-    static void GetReplayDeviceProperties(uint32_t                           instance_api_version,
+    static void GetReplayDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
                                           const encode::VulkanInstanceTable* instance_table,
                                           VkPhysicalDevice                   physical_device,
                                           decode::VulkanReplayDeviceInfo*    replay_device_info);
 
   private:
     template <typename T>
-    VkBool32 EnableRequiredBufferDeviceAddressFeatures(uint32_t                           instance_api_version,
+    VkBool32 EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo&      instance_info,
                                                        const encode::VulkanInstanceTable* instance_table,
                                                        const VkPhysicalDevice             physical_device,
                                                        T*                                 feature_struct);
