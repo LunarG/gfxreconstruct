@@ -309,11 +309,11 @@ uint32_t VkIndexTypeToBytes(VkIndexType type)
     }
 }
 
-std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
-                                                      uint32_t                    index_count,
-                                                      uint32_t                    first_index,
-                                                      int32_t                     vertex_offset,
-                                                      VkIndexType                 type)
+MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
+                                          uint32_t                    index_count,
+                                          uint32_t                    first_index,
+                                          int32_t                     vertex_offset,
+                                          VkIndexType                 type)
 {
     switch (type)
     {
@@ -329,7 +329,7 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
 
             if (i == index_count)
             {
-                return std::make_pair(0, 0);
+                return MinMaxVertexIndex({ 0, 0 });
             }
 
             uint8_t min = indices[first_index + i];
@@ -353,8 +353,8 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
                 }
             }
 
-            return std::make_pair(static_cast<uint32_t>(min) + vertex_offset,
-                                  static_cast<uint32_t>(max) + vertex_offset);
+            return MinMaxVertexIndex{ static_cast<uint32_t>(min) + vertex_offset,
+                                      static_cast<uint32_t>(max) + vertex_offset };
         }
         break;
 
@@ -370,7 +370,7 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
 
             if (i == index_count)
             {
-                return std::make_pair(0, 0);
+                return MinMaxVertexIndex{ 0, 0 };
             }
 
             uint16_t min = indices[first_index + i];
@@ -394,8 +394,8 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
                 }
             }
 
-            return std::make_pair(static_cast<uint32_t>(min) + vertex_offset,
-                                  static_cast<uint32_t>(max) + vertex_offset);
+            return MinMaxVertexIndex{ static_cast<uint32_t>(min) + vertex_offset,
+                                      static_cast<uint32_t>(max) + vertex_offset };
         }
         break;
 
@@ -411,7 +411,7 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
 
             if (i == index_count)
             {
-                return std::make_pair(0, 0);
+                return MinMaxVertexIndex{ 0, 0 };
             }
 
             uint32_t min = indices[first_index + i];
@@ -435,7 +435,7 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
                 }
             }
 
-            return std::make_pair(min + vertex_offset, max + vertex_offset);
+            return MinMaxVertexIndex{ min + vertex_offset, max + vertex_offset };
         }
         break;
 
@@ -444,7 +444,7 @@ std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>
             GFXRECON_LOG_ERROR("%s() Unrecognized/unhandled index type (%u)", __func__, static_cast<uint32_t>(type));
             assert(0);
 
-            return std::make_pair(0, 0);
+            return MinMaxVertexIndex{ 0, 0 };
             break;
     }
 }
