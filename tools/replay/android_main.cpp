@@ -72,6 +72,17 @@ struct ApiReplayConsumer
     gfxrecon::decode::VulkanReplayConsumer* vk_replay_consumer{ nullptr };
 };
 
+bool IsRunPreProcessConsumer(ApiReplayOptions& replay_options)
+{
+    GFXRECON_ASSERT(replay_options.vk_replay_options != nullptr);
+
+    if (replay_options.vk_replay_options->enable_dump_resources)
+    {
+        return true;
+    }
+    return false;
+}
+
 void RunPreProcessConsumer(const std::string& input_filename,
                            ApiReplayOptions&  replay_options,
                            ApiReplayConsumer& replay_consumer)
@@ -200,7 +211,10 @@ void android_main(struct android_app* app)
                 api_replay_options.vk_replay_options   = &replay_options;
                 api_replay_consumer.vk_replay_consumer = &vulkan_replay_consumer;
 
-                RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
+                if (IsRunPreProcessConsumer(api_replay_options))
+                {
+                    RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
+                }
 
                 uint32_t                               start_frame, end_frame;
                 bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);

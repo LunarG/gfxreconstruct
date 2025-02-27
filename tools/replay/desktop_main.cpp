@@ -107,6 +107,26 @@ struct ApiReplayConsumer
 #endif
 };
 
+bool IsRunPreProcessConsumer(ApiReplayOptions& replay_options)
+{
+    GFXRECON_ASSERT(replay_options.vk_replay_options != nullptr);
+
+    if (replay_options.vk_replay_options->enable_dump_resources)
+    {
+        return true;
+    }
+
+#if defined(D3D12_SUPPORT)
+    GFXRECON_ASSERT(replay_options.dx12_replay_options != nullptr);
+
+    if (replay_options.dx12_replay_options->enable_dump_resources)
+    {
+        return true;
+    }
+#endif
+    return false;
+}
+
 void RunPreProcessConsumer(const std::string& input_filename,
                            ApiReplayOptions&  replay_options,
                            ApiReplayConsumer& replay_consumer)
@@ -309,7 +329,10 @@ int main(int argc, const char** argv)
             gfxrecon::decode::AgsDecoder        ags_decoder;
 #endif // GFXRECON_AGS_SUPPORT
 
-            RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
+            if (IsRunPreProcessConsumer(api_replay_options))
+            {
+                RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
+            }
 
             if (vulkan_replay_options.enable_vulkan)
             {
