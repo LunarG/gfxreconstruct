@@ -757,6 +757,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                    HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets);
 
+    void OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescriptorSets            func,
+                                       VulkanCommandBufferInfo*               in_commandBuffer,
+                                       VkPipelineBindPoint                    pipelineBindPoint,
+                                       VulkanPipelineLayoutInfo*              in_layout,
+                                       uint32_t                               firstSet,
+                                       uint32_t                               descriptorSetCount,
+                                       HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
+                                       uint32_t                               dynamicOffsetCount,
+                                       PointerDecoder<uint32_t>*              pDynamicOffsets);
+
+    void
+    OverrideCmdBindDescriptorSets2(PFN_vkCmdBindDescriptorSets2                            func,
+                                   VulkanCommandBufferInfo*                                in_commandBuffer,
+                                   StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
+
+    void OverrideCmdExecuteCommands(PFN_vkCmdExecuteCommands               func,
+                                    VulkanCommandBufferInfo*               in_commandBuffer,
+                                    uint32_t                               commandBufferCount,
+                                    HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers);
+
     VkResult
     OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
                                    VkResult                                                         original_result,
@@ -1567,6 +1587,29 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
+
+    /**
+     * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
+     *          should be collected and can be used during replay.
+     *
+     * This information is generally required for the dump-resources feature but also for portable replays
+     * using -m rebind flag.
+     *
+     * @param   device_info a device info struct
+     * @return true if extra information wrt. descriptors can be used
+     */
+    bool UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const;
+
+    /**
+     * @brief   UseAddressReplacement returns true if address-sanitizing for various resources
+     *          like buffer-device-addresses, shader-binding-tables, acceleration-structures, etc. is used.
+     *
+     * This is generally the case when opaque addresses cannot be used or when replaying on another device.
+     *
+     * @param   device_info a device info struct
+     * @return true if address-replacement features will be used.
+     */
+    bool UseAddressReplacement(const VulkanDeviceInfo* device_info) const;
 
     [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
                                                                       VkGraphicsPipelineCreateInfo* create_infos,

@@ -58,18 +58,13 @@
 #include "format/format_util.h"
 #include "util/alignment_utils.h"
 #include "util/platform.h"
+#include "graphics/vulkan_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
 #include <algorithm>
 #include <cassert>
-
-#if VK_USE_64_BIT_PTR_DEFINES == 1
-#define VK_HANDLE_TO_UINT64(value) reinterpret_cast<uint64_t>(value)
-#else
-#define VK_HANDLE_TO_UINT64(value) (value)
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

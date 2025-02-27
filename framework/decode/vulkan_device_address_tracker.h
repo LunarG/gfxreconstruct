@@ -82,6 +82,14 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
     /**
+     * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
+     *
+     * @param   replay_address  a replay-time VkDeviceAddress pointing inside a buffer.
+     * @return  a const-pointer to a found BufferInfo or nullptr.
+     */
+    [[nodiscard]] const VulkanBufferInfo* GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const;
+
+    /**
      * @brief   Retrieve a buffer info-struct by providing its vulkan-handle.
      *
      * @param   handle  a capture-time VkBuffer handle.
@@ -114,6 +122,13 @@ class VulkanDeviceAddressTracker
      */
     [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
 
+    /**
+     * @brief   Create and return a lookup-table containing all internally stored buffer-device-addresses.
+     *
+     * @return  a lookup-table for buffer-device-addresses.
+     */
+    [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetBufferDeviceAddressMap() const;
+
   private:
     //! use a sorted (BST-based) map
     using buffer_address_map_t = std::map<VkDeviceAddress, format::HandleId>;
@@ -122,7 +137,7 @@ class VulkanDeviceAddressTracker
                                                         const buffer_address_map_t& address_map) const;
 
     const VulkanObjectInfoTable&                          object_info_table_;
-    buffer_address_map_t                                  buffer_capture_addresses_;
+    buffer_address_map_t                                  buffer_capture_addresses_, buffer_replay_addresses_;
     std::unordered_map<VkDeviceAddress, format::HandleId> acceleration_structure_capture_addresses_;
 
     std::unordered_map<VkBuffer, format::HandleId>                   buffer_handles_;

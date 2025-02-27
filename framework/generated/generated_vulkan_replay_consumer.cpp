@@ -1631,16 +1631,15 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
     uint32_t                                    dynamicOffsetCount,
     PointerDecoder<uint32_t>*                   pDynamicOffsets)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkPipelineLayout in_layout = MapHandle<VulkanPipelineLayoutInfo>(layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
-    const VkDescriptorSet* in_pDescriptorSets = MapHandles<VulkanDescriptorSetInfo>(pDescriptorSets, descriptorSetCount, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
-    const uint32_t* in_pDynamicOffsets = pDynamicOffsets->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    auto in_layout = GetObjectInfoTable().GetVkPipelineLayoutInfo(layout);
+    MapHandles<VulkanDescriptorSetInfo>(pDescriptorSets, descriptorSetCount, &CommonObjectInfoTable::GetVkDescriptorSetInfo);
 
-    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets(in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, in_pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+    OverrideCmdBindDescriptorSets(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, GetObjectInfoTable().GetVkPipelineLayoutInfo(layout), firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+        resource_dumper_->Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets, in_commandBuffer->handle, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets->GetPointer());
     }
 }
 
@@ -2287,14 +2286,14 @@ void VulkanReplayConsumer::Process_vkCmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkCommandBuffer* in_pCommandBuffers = MapHandles<VulkanCommandBufferInfo>(pCommandBuffers, commandBufferCount, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    MapHandles<VulkanCommandBufferInfo>(pCommandBuffers, commandBufferCount, &CommonObjectInfoTable::GetVkCommandBufferInfo);
 
-    GetDeviceTable(in_commandBuffer)->CmdExecuteCommands(in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+    OverrideCmdExecuteCommands(GetDeviceTable(in_commandBuffer->handle)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, pCommandBuffers);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+        resource_dumper_->Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdExecuteCommands, in_commandBuffer->handle, commandBufferCount, pCommandBuffers->GetHandlePointer());
     }
 }
 
@@ -3689,15 +3688,15 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkBindDescriptorSetsInfo* in_pBindDescriptorSetsInfo = pBindDescriptorSetsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pBindDescriptorSetsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2(in_commandBuffer, in_pBindDescriptorSetsInfo);
+    OverrideCmdBindDescriptorSets2(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2, in_commandBuffer, pBindDescriptorSetsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets2(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2, in_commandBuffer, in_pBindDescriptorSetsInfo);
+        resource_dumper_->Process_vkCmdBindDescriptorSets2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2, in_commandBuffer->handle, pBindDescriptorSetsInfo->GetPointer());
     }
 }
 
@@ -6419,15 +6418,15 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkBindDescriptorSetsInfo* in_pBindDescriptorSetsInfo = pBindDescriptorSetsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pBindDescriptorSetsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2KHR(in_commandBuffer, in_pBindDescriptorSetsInfo);
+    OverrideCmdBindDescriptorSets2(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2KHR, in_commandBuffer, pBindDescriptorSetsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2KHR, in_commandBuffer, in_pBindDescriptorSetsInfo);
+        resource_dumper_->Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2KHR, in_commandBuffer->handle, pBindDescriptorSetsInfo->GetPointer());
     }
 }
 
