@@ -65,6 +65,12 @@ enum DumpedImageFormat
     KFormatRaw
 };
 
+struct MinMaxVertexIndex
+{
+    uint32_t min = 0;
+    uint32_t max = 0;
+};
+
 DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device_info,
                                        const encode::VulkanDeviceTable*   device_table,
                                        const encode::VulkanInstanceTable* instance_table,
@@ -98,11 +104,11 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
 
 uint32_t VkIndexTypeToBytes(VkIndexType type);
 
-std::pair<uint32_t, uint32_t> FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
-                                                      uint32_t                    index_count,
-                                                      uint32_t                    first_index,
-                                                      int32_t                     vertex_offset,
-                                                      VkIndexType                 type);
+MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data,
+                                          uint32_t                    index_count,
+                                          uint32_t                    first_index,
+                                          int32_t                     vertex_offset,
+                                          VkIndexType                 type);
 
 VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          const VulkanDeviceInfo*            device_info,
