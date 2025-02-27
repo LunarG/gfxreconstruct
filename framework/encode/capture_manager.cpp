@@ -1505,6 +1505,13 @@ void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_
 void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream)
 {
     file_stream ? file_stream->Write(data, size) : file_stream_->Write(data, size);
+
+    // Increment block index
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    ++block_index_;
+    thread_data->block_index_ = block_index_.load();
 }
 
 void CommonCaptureManager::AtExit()
@@ -1666,8 +1673,6 @@ bool CaptureFileOutputStream::Write(const void* data, size_t len)
             manager->UffdUnblockRtSignal();
         }
     }
-
-    capture_manager_->IncrementBlockIndex(1);
 
     return ret;
 }
