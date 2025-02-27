@@ -1269,12 +1269,9 @@ void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
                             { option_list.data(), option_list.size() * sizeof(format::FileOptionPair) } },
                           file_stream);
 
-    // File header does not count as a block
-    assert(block_index_ > 0);
+    // File header does not count as a block when replaying
+    GFXRECON_ASSERT(block_index_ > 0);
     --block_index_;
-
-    auto thread_data          = GetThreadData();
-    thread_data->block_index_ = block_index_.load();
 }
 
 void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -1507,11 +1504,7 @@ void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::File
     file_stream ? file_stream->Write(data, size) : file_stream_->Write(data, size);
 
     // Increment block index
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
-
     ++block_index_;
-    thread_data->block_index_ = block_index_.load();
 }
 
 void CommonCaptureManager::AtExit()
