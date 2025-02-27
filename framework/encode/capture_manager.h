@@ -294,6 +294,13 @@ class CommonCaptureManager
     {
         file_stream ? file_stream->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer())
                     : file_stream_->CombineAndWrite<N>(buffers, GetThreadData()->GetScratchBuffer());
+
+        // Increment block index
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 
     void IncrementBlockIndex(uint64_t blocks)
