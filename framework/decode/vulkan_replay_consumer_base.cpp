@@ -4562,6 +4562,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 device, dedicated_alloc_info->image, &memory_requirements);
             modified_allocate_info->allocationSize = memory_requirements.size;
         }
+
+        // On the other hand, if it is importing an Android Hardware Buffer
+        if (import_ahb_info)
+        {
+            // allocationSize needs to be equal to VkAndroidHardwareBufferPropertiesANDROID::allocationSize
+            VkAndroidHardwareBufferPropertiesANDROID properties = {};
+            properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+            VkDevice device  = device_info->handle;
+            GetDeviceTable(device)->GetAndroidHardwareBufferPropertiesANDROID(
+                device, import_ahb_info->buffer, &properties);
+            modified_allocate_info->allocationSize = properties.allocationSize;
+        }
 #endif
 
         while (current_struct != nullptr)
