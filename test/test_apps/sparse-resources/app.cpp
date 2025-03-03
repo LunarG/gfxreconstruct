@@ -29,9 +29,12 @@
 
 #include <SDL3/SDL_main.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(test_app)
-GFXRECON_BEGIN_NAMESPACE(sparse_resources)
+namespace gfxrecon
+{
+namespace test_app
+{
+namespace sparse_resources
+{
 
 const size_t MAX_FRAMES_IN_FLIGHT = 1;
 const size_t STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
@@ -1046,9 +1049,10 @@ bool App::frame(const int frame_num)
     return true;
 }
 
-GFXRECON_END_NAMESPACE(sparse_resources)
-GFXRECON_END_NAMESPACE(test_app)
-GFXRECON_END_NAMESPACE(gfxrecon)
+// End namespaces
+}
+}
+}
 
 int main(int argc, char* argv[])
 {
