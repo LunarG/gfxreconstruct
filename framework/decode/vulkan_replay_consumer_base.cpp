@@ -8206,7 +8206,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
     // NOTE: as of early 2025, rayTracingPipelineShaderGroupHandleCaptureReplay is not widely supported.
     // e.g. newest nvidia desktop-drivers do not support this feature
-    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay &&
+        !UseAddressReplacement(device_info))
     {
         // Modify pipeline create infos with capture replay flag and data.
         std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
