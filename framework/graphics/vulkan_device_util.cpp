@@ -203,7 +203,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                 rayTracingPipelineShaderGroupHandleCaptureReplay_original =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
-                if (rt_pipeline_features->rayTracingPipeline)
+                if (rt_pipeline_features->rayTracingPipeline &&
+                    !rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay)
                 {
                     VkPhysicalDeviceRayTracingPipelineFeaturesKHR supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR, nullptr
@@ -211,10 +212,12 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     GetPhysicalDeviceFeatures(
                         instance_api_version, instance_table, physical_device, supported_features);
 
-                    result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
-                        rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay &&
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay =
                         supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay;
                 }
+
+                result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
                 // retrieve raytracing-pipeline-properties
                 VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
