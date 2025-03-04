@@ -918,21 +918,28 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     list_wrapper->ResourceBarrier(1, &pre_barrier);
                 }
 #endif
-                // Copy all inputs data from the current resource to the inputs_data_resource.
-                auto end_gpu_va = src_resource_info->gpu_va + src_resource_info->subresource_sizes[0];
-                while ((curr_entry_iter != end_entry_iter) && (*curr_entry_iter->desc_gpu_va < end_gpu_va))
+                // Copy the inputs data to the inputs_data_resource.
+                while (curr_entry_iter != end_entry_iter)
                 {
-                    auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
-                    auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
-
-                    // Copy the inputs data to the inputs_data_resource.
-                    list_wrapper->CopyBufferRegion(inputs_data_resource,
-                                                   curr_entry_iter->offset,
-                                                   src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
-                                                   src_offset,
-                                                   curr_entry_iter->size);
-
-                    ++curr_entry_iter;
+                    gfxrecon::util::GpuVaRange range       = { *curr_entry_iter->desc_gpu_va,
+                                                               *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
+                    if (DoesResourceCoverGpuVaRange(src_resource_info.get(), range))
+                    {
+                        auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
+                        auto dst_offset  = curr_entry_iter->offset;
+                        auto num_bytes   = curr_entry_iter->size;
+                        auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
+                        list_wrapper->CopyBufferRegion(inputs_data_resource,
+                                                       dst_offset,
+                                                       src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                                                       src_offset,
+                                                       num_bytes);
+                        ++curr_entry_iter;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
 #if GFXRECON_ACCEL_STRUCT_TRIM_BARRIER
@@ -1058,6 +1065,16 @@ void Dx12StateTracker::TrackRootSignatureWithStateObject(const D3D12_STATE_OBJEC
                 root_signature_wrapper->GetObjectInfo();
         }
     }
+}
+
+bool Dx12StateTracker::DoesResourceCoverGpuVaRange(ID3D12ResourceInfo* resource_info, gfxrecon::util::GpuVaRange& range)
+{
+    if ((resource_info != nullptr) && (range.start < range.end))
+    {
+        return (range.start >= resource_info->gpu_va) &&
+               (range.end <= resource_info->gpu_va + resource_info->subresource_sizes[0] - 1);
+    }
+    return false;
 }
 
 void Dx12StateTracker::TrackAddToStateObject(ID3D12Device7_Wrapper*         device5_wrapper,
