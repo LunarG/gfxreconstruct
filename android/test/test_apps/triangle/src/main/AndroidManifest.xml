@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
+    <!-- This .apk has no Java code itself, so set hasCode to false. -->
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme"
+        android:supportsRtl="true"
+        android:extractNativeLibs="true"
+        android:hasCode="false">
+        <activity android:name="android.app.NativeActivity"
+                  android:exported="true"
+                  android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout"
+                  android:screenOrientation="unspecified">
+            <meta-data android:name="android.app.lib_name"
+                       android:value="gfxrecon-testapp-triangle" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

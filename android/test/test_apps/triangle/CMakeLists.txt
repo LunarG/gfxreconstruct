@@ -1,0 +1,41 @@
+# For more information about using CMake with Android Studio, read the
+# documentation: https://d.android.com/studio/projects/add-native-code.html
+
+cmake_minimum_required(VERSION 3.4.1)
+
+get_filename_component(GFXRECON_SOURCE_DIR ../../../.. ABSOLUTE)
+
+set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/cmake" "${GFXRECON_SOURCE_DIR}/external/cmake-modules")
+
+project(gfxrecon-testapp-triangle)
+
+add_library(native_app_glue STATIC
+        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+
+add_subdirectory(../common ${CMAKE_SOURCE_DIR}/../common/build/testapps/triangle/${ANDROID_ABI})
+
+# Export ANativeActivity_onCreate(),
+# Refer to: https://github.com/android-ndk/ndk/issues/381.
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
+include(../../../framework/cmake-config/PlatformConfig.cmake)
+
+add_library(gfxrecon-testapp-triangle
+            SHARED
+                ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle/app.cpp)
+
+add_custom_target(gfxrecon-testapp-triangle-assets ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle/shaders ${CMAKE_SOURCE_DIR}/src/main/assets/shaders)
+add_dependencies(gfxrecon-testapp-triangle gfxrecon-testapp-triangle-assets)
+
+target_include_directories(gfxrecon-testapp-triangle
+                           PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${CMAKE_BINARY_DIR})
+
+target_link_libraries(
+        gfxrecon-testapp-triangle
+        gfxrecon-testapp-base
+        native_app_glue
+        android
+        log)
