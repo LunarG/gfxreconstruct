@@ -1798,7 +1798,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
     // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex
     // for write access to these maps.
-    std::mutex                                      sparse_resource_mutex;
+    std::mutex sparse_resource_mutex;
 
 #if ENABLE_OPENXR_SUPPORT
     std::set<VkFence> valid_fences_;
