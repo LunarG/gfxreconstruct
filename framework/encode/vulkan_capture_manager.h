@@ -916,7 +916,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     {
         if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
         {
-            assert(state_tracker_ != nullptr);
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
 
             auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
 
@@ -938,7 +938,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     {
         if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
         {
-            assert(state_tracker_ != nullptr);
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
 
             auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
 

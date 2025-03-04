@@ -2020,7 +2020,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                                             graphics::VulkanResourcesUtil&         resource_util)
 {
-    assert(device_wrapper != nullptr);
+    GFXRECON_ASSERT(device_wrapper != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
@@ -2031,7 +2031,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         const uint8_t*                              bytes          = nullptr;
         std::vector<uint8_t>                        data;
 
-        assert(buffer_wrapper != nullptr);
+        GFXRECON_ASSERT(buffer_wrapper != nullptr);
 
         if (snapshot_entry.need_staging_copy)
         {
@@ -2045,8 +2045,8 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         }
         else
         {
-            assert(memory_wrapper != nullptr);
-            assert((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
+            GFXRECON_ASSERT(memory_wrapper != nullptr);
+            GFXRECON_ASSERT((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
 
             VkResult result = VK_SUCCESS;
 
@@ -2547,10 +2547,10 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                                                VkDeviceSize*           max_staging_copy_size,
                                                bool                    write_memory_state)
 {
-    assert((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
+    GFXRECON_ASSERT((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* wrapper) {
-        assert(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper != nullptr);
         if (!wrapper->is_sparse_buffer)
         {
             // Perform memory binding for non-sparse buffer.
@@ -2562,7 +2562,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
                 const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
 
-                assert((device_wrapper != nullptr) && (device_table != nullptr));
+                GFXRECON_ASSERT((device_wrapper != nullptr) && (device_table != nullptr));
 
                 // Write memory requirements query before bind command.
                 VkMemoryRequirements memory_requirements;
@@ -2634,7 +2634,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             // Perform memory binding for sparse buffer.
             const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
             const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
-            assert((device_wrapper != nullptr) && (device_table != nullptr));
+            GFXRECON_ASSERT((device_wrapper != nullptr) && (device_table != nullptr));
 
             // We do not need to use sparse_resource_mutex for the access to the following sparse resource maps, as the
             // writing states operation is included in the trim start handling, which is protected by an exclusive lock.
