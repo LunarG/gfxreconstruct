@@ -561,9 +561,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           pBindInfo[i].pSignalSemaphores);
             }
 
-            // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
-            // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex
-            // for write access to these maps.
             const std::lock_guard<std::mutex> lock(sparse_resource_mutex);
             for (uint32_t bind_info_index = 0; bind_info_index < bindInfoCount; bind_info_index++)
             {
@@ -1797,6 +1794,10 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+
+    // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
+    // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex
+    // for write access to these maps.
     std::mutex                                      sparse_resource_mutex;
 
 #if ENABLE_OPENXR_SUPPORT
