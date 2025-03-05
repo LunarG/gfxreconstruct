@@ -1,7 +1,7 @@
 include(FetchContent)
 
 set(SDL_GIT "https://github.com/libsdl-org/SDL.git")
-set(SDL_GIT_TAG "preview-3.1.3")
+set(SDL_GIT_TAG "release-3.2.8")
 message(STATUS "Fetching SDL3 files from ${SDL_GIT} ${SDL_GIT_TAG}")
 
 set(SDL_STATIC ON)
