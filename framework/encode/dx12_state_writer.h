@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -165,6 +165,8 @@ class Dx12StateWriter
     bool CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address);
 
     bool CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table);
+
+    bool CheckResourceObject(const ID3D12ResourceInfo* resource_info, const Dx12StateTable& state_table);
 
     void WriteSwapChainState(const Dx12StateTable& state_table);
 

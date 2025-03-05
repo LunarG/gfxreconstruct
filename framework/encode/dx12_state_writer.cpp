@@ -573,12 +573,18 @@ void Dx12StateWriter::WriteResourceCreationState(
         assert(resource_wrapper->GetWrappedObject() != nullptr);
         assert(resource_wrapper->GetObjectInfo() != nullptr);
         assert(resource_wrapper->GetObjectInfo()->create_parameters != nullptr);
+        assert(resource_wrapper->GetObjectInfo()->create_object_id != format::kNullHandleId);
 
         auto        resource      = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
         auto        resource_info = resource_wrapper->GetObjectInfo();
         const auto& resource_desc = resource->GetDesc();
 
-        assert(resource_info->create_object_id != format::kNullHandleId);
+        if (!CheckResourceObject(resource_info.get(), state_table))
+        {
+            // Skipping invalid resource data capture.
+            GFXRECON_LOG_WARNING_ONCE("Encountered invalid resource during state write");
+            return;
+        }
 
         // Write the resource creation call to capture file.
         StandardCreateWrite(resource_wrapper);
@@ -1305,6 +1311,20 @@ bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_
     }
 
     return true;
+}
+
+bool Dx12StateWriter::CheckResourceObject(const ID3D12ResourceInfo* resource_info, const Dx12StateTable& state_table)
+{
+    switch (resource_info->create_call_id)
+    {
+        case format::ApiCall_ID3D12Device_CreatePlacedResource:
+        case format::ApiCall_ID3D12Device8_CreatePlacedResource1:
+        case format::ApiCall_ID3D12Device10_CreatePlacedResource2:
+            // Placed resource have to have valid Heap object.
+            return (state_table.GetID3D12Heap_Wrapper(resource_info->heap_id) != nullptr);
+        default:
+            return true;
+    }
 }
 
 void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)

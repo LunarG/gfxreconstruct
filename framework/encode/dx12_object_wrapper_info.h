@@ -425,6 +425,7 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
 
     ID3D12Heap_Wrapper* heap_wrapper{ nullptr };
     uint64_t            heap_offset;
+    uint64_t            heap_id{ format::kNullHandleId };
 
     IDXGISwapChain_Wrapper* swapchain_wrapper{ nullptr };
 };
