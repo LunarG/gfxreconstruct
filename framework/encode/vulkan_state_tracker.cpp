@@ -423,6 +423,9 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     auto cmd_buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
     auto device_wrapper  = cmd_buf_wrapper->parent_pool->device;
 
+    // scratch space for buffer-addresses. we extract and keep track of associated buffers.
+    std::vector<VkDeviceAddress> to_extract;
+
     for (uint32_t i = 0; i < info_count; ++i)
     {
         const VkAccelerationStructureBuildGeometryInfoKHR& build_info = p_infos[i];
@@ -433,8 +436,6 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
             continue;
         }
 
-        std::vector<VkDeviceAddress> to_extract = { build_info.scratchData.deviceAddress };
-
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
             build_info.dstAccelerationStructure);
 
@@ -443,6 +444,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
             auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
+            to_extract.clear();
 
             switch (geometry->geometryType)
             {
@@ -485,17 +487,19 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     device_address_trackers_[device_wrapper->handle].GetBufferByDeviceAddress(address));
 
                 GFXRECON_ASSERT(target_buffer_wrapper != nullptr);
+                if (target_buffer_wrapper != nullptr)
+                {
+                    vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer =
+                        dst_command.input_buffers[target_buffer_wrapper->handle_id];
 
-                vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer =
-                    dst_command.input_buffers[target_buffer_wrapper->handle_id];
-
-                buffer.capture_address    = address;
-                buffer.handle             = target_buffer_wrapper->handle;
-                buffer.handle_id          = target_buffer_wrapper->handle_id;
-                buffer.bind_device        = target_buffer_wrapper->bind_device;
-                buffer.queue_family_index = target_buffer_wrapper->queue_family_index;
-                buffer.created_size       = target_buffer_wrapper->size;
-                buffer.usage              = target_buffer_wrapper->usage;
+                    buffer.capture_address    = address;
+                    buffer.handle             = target_buffer_wrapper->handle;
+                    buffer.handle_id          = target_buffer_wrapper->handle_id;
+                    buffer.bind_device        = target_buffer_wrapper->bind_device;
+                    buffer.queue_family_index = target_buffer_wrapper->queue_family_index;
+                    buffer.created_size       = target_buffer_wrapper->size;
+                    buffer.usage              = target_buffer_wrapper->usage;
+                }
             }
 
             dst_command.geometry_info                     = build_info;
