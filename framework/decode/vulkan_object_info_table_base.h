@@ -50,6 +50,23 @@ struct has_handle_future<T, decltype((void)T::future, 0)>
 template <typename T>
 inline constexpr bool has_handle_future_v = has_handle_future<T>::value;
 
+/**
+ * @brief   sync_handle will block and wait for pending handle-creation operations, then populate the object's handle.
+ *
+ * @tparam  T       object-type
+ * @param   object  a provided pointer to an asynchronous object-wrapper
+ */
+template <typename T>
+static inline void sync_handle(T* object)
+{
+    static_assert(has_handle_future_v<T>);
+    if (object != nullptr && object->handle == VK_NULL_HANDLE && object->future.valid())
+    {
+        const auto& [result, async_handles] = object->future.get();
+        object->handle                      = async_handles[object->future_handle_index];
+    }
+}
+
 // NOTE: There's nothing VulkanSpecific in these utilities
 // TODO: Find a better home for these
 
@@ -99,7 +116,13 @@ struct ObjectInfoGetter : public ObjectInfoGetterBase
     template <typename Map, typename MappedTypePtr = ConstCorrectMappedTypePtr<Map>>
     MappedTypePtr operator()(format::HandleId id, Map* map)
     {
-        return GetObjectInfoImpl<Map, MappedTypePtr>(id, map);
+        auto* object_info = GetObjectInfoImpl<Map, MappedTypePtr>(id, map);
+
+        if constexpr (has_handle_future_v<T>)
+        {
+            sync_handle(const_cast<T*>(object_info));
+        }
+        return object_info;
     }
 };
 

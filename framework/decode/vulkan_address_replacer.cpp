@@ -1301,6 +1301,16 @@ bool VulkanAddressReplacer::init_pipeline()
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: pipeline creation failed");
         }
 
+        if (set_debug_utils_object_name_fn_)
+        {
+            VkDebugUtilsObjectNameInfoEXT object_name_info = {};
+            object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+            object_name_info.objectType                    = VK_OBJECT_TYPE_PIPELINE;
+            object_name_info.objectHandle                  = VK_HANDLE_TO_UINT64(out_pipeline);
+            object_name_info.pObjectName                   = "VulkanAddressReplacer internal pipeline";
+            set_debug_utils_object_name_fn_(device_, &object_name_info);
+        }
+
         if (compute_module != VK_NULL_HANDLE)
         {
             device_table_->DestroyShaderModule(device_, compute_module, nullptr);
