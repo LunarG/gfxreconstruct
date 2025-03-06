@@ -25,7 +25,7 @@
 **
 */
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 
 #include "generated_dx12_struct_decoders_to_json.h"
 #include "generated_dx12_enum_to_json.h"
@@ -5147,4 +5147,4 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPT
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif // defined(D3D12_SUPPORT)

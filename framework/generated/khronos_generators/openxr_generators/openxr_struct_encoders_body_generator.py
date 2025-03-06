@@ -82,6 +82,10 @@ class OpenXrStructEncodersBodyGenerator(OpenXrBaseGenerator, KhronosStructEncode
             diag_file=diag_file
         )
 
+    def skip_struct_type(self, struct_type):
+        """Override as needed"""
+        return struct_type == "XrEventDataBuffer"
+
     def beginFile(self, gen_opts):
         """Method override."""
         OpenXrBaseGenerator.beginFile(self, gen_opts)

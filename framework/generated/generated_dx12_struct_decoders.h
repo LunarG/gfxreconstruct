@@ -28,7 +28,7 @@
 #ifndef  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 
 #ifdef WIN32
 #include <dxgiformat.h>
@@ -2460,6 +2460,6 @@ struct Decoded__SECURITY_ATTRIBUTES
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif // defined(D3D12_SUPPORT)
 
 #endif

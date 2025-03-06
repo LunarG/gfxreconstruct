@@ -200,7 +200,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, co
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 
 // const char * might be better to avoid two copies of each string in the process at runtime (one in the static data
 // section for the literal string and one on the heap in the map). Even better would be for this to be a const array of

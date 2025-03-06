@@ -38,6 +38,13 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/common_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_object_info_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders_forward.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_mappers.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_mappers.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_to_json.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_to_json.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
@@ -74,6 +81,36 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/json_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.cpp
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_consumer_base.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_decoder_base.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_decoder_base.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_detection_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_enum_util.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_feature_util.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_feature_util.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_handle_mapping_util.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_handle_mapping_util.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_json_consumer_base.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_json_consumer_base.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_next_node.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_next_typed_node.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_object_info.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_object_info_table_base.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_common_state.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_session_state.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_session_state.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_swapchain_state.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_swapchain_state.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer_base.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer_base.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_replay_options.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_resource_tracking_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_resource_tracking_consumer.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_stats_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_tracked_object_info.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_tracked_object_info_table.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_tracked_object_info.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_tracked_object_info_table.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
@@ -212,6 +249,24 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_decoder.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_decoder.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_json.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_json.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_json_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_json_consumer.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_object_info_table.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_replay_consumer.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_replay_consumer.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_mappers.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_mappers.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_decoder.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_to_json.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_struct_to_json.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.h>
@@ -360,9 +415,11 @@ target_link_libraries(gfxrecon_decode
                         gfxrecon_util
                         vulkan_registry
                         vulkan_memory_allocator
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
                         platform_specific
                         spirv-reflect-static
                         nlohmann_json::nlohmann_json
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR::openxr_loader>
                         $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)

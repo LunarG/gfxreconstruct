@@ -81,11 +81,13 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = (
+            "#if defined(D3D12_SUPPORT)\n"
             "\n"
             "#include \"decode/dx12_consumer_base.h\"\n"
             "#include \"generated_dx12_struct_decoders.h\"\n"
             "#include \"decode/custom_dx12_struct_decoders.h\"\n"
             "\n"
+            "#endif\n"
         )
         write(code, file=self.outFile)
 

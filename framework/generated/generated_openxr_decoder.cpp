@@ -89,26 +89,6 @@ size_t OpenXrDecoder::Decode_xrGetInstanceProperties(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t OpenXrDecoder::Decode_xrPollEvent(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId instance;
-    StructPointerDecoder<Decoded_XrEventDataBuffer> eventData;
-    XrResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += eventData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_xrPollEvent(call_info, return_value, instance, &eventData);
-    }
-
-    return bytes_read;
-}
-
 size_t OpenXrDecoder::Decode_xrResultToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;

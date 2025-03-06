@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/pointer_decoder.h"
@@ -371,6 +371,6 @@ struct Decoded_D3D12_DISPATCH_GRAPH_DESC
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif // defined(D3D12_SUPPORT)
 
 #endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H

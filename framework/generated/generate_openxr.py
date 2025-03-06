@@ -78,41 +78,7 @@ generate_targets = [
 'generated_openxr_struct_to_json.cpp',
 'generated_openxr_type_util.h',
 ]
-"""
-DONE: 'generated_openxr_dispatch_table.h',
-DONE: 'generated_openxr_layer_func_table.h',
-DONE: 'generated_openxr_api_call_encoders.h',
-DONE: 'generated_openxr_api_call_encoders.cpp',
-DONE: 'generated_openxr_consumer.h',
-DONE: 'generated_openxr_decoder.h',
-DONE: 'generated_openxr_decoder.cpp',
-DONE: 'generated_openxr_enum_to_json.h',
-DONE: 'generated_openxr_enum_to_json.cpp',
-DONE: 'generated_openxr_enum_to_string.h',
-DONE: 'generated_openxr_enum_to_string.cpp',
-DONE: 'generated_openxr_json_consumer.h',
-DONE: 'generated_openxr_json_consumer.cpp',
-DONE: 'generated_openxr_object_info_table.h',
-DONE: 'generated_openxr_replay_consumer.h',
-DONE: 'generated_openxr_replay_consumer.cpp',
-DONE: 'generated_openxr_state_table.h',
-DONE: 'generated_openxr_struct_encoders.h',
-DONE: 'generated_openxr_struct_encoders.cpp',
-DONE: 'generated_openxr_struct_decoders.h',
-DONE: 'generated_openxr_struct_decoders.cpp',
-DONE: 'generated_openxr_struct_decoders_forward.h',
-DONE: 'generated_openxr_struct_handle_mappers.h',
-DONE: 'generated_openxr_struct_handle_mappers.cpp',
-DONE: 'generated_openxr_struct_handle_wrappers.h',
-DONE: 'generated_openxr_struct_handle_wrappers.cpp',
-DONE: 'generated_openxr_struct_next_decoder.cpp',
-DONE: 'generated_openxr_struct_next_encoder.cpp',
-DONE:'generated_openxr_struct_to_json.h',
-DONE:'generated_openxr_struct_to_json.cpp',
-DELETE: 'generated_openxr_struct_trackers.h',
-DELETE: 'generated_openxr_struct_trackers.cpp',
-WIP:'generated_openxr_type_util.h',
-"""
+
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=__doc__)
     arg_parser.add_argument(

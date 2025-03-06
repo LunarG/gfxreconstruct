@@ -29,10 +29,15 @@ class KhronosStructEncodersBodyGenerator():
     """KhronosStructEncodersBodyGenerator.
     Generates C++ functions for encoding Khronos API structures.
     """
+    def skip_struct_type(self, struct_type):
+        """Override as needed"""
+        return False
 
     def write_encoder_content(self):
         api_data = self.get_api_data()
         for struct in self.get_all_filtered_struct_names():
+            if self.skip_struct_type(struct):
+                continue
             self.generate_struct_bodies(api_data, struct, self.all_struct_members[struct])
 
     def generate_struct_bodies(self, api_data, struct, struct_members):

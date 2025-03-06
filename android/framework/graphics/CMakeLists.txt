@@ -22,6 +22,11 @@ target_sources(gfxrecon_graphics
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_extract_handles.cpp
               )
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_graphics PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_graphics PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external

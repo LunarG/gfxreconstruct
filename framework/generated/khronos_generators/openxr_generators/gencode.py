@@ -268,6 +268,7 @@ def make_gen_opts(args):
             extra_headers=extra_headers
         )
     ]
+
     gen_opts['generated_openxr_api_call_encoders.cpp'] = [
         OpenXrApiCallEncodersBodyGenerator,
         OpenXrApiCallEncodersBodyGeneratorOptions(
@@ -296,6 +297,10 @@ def make_gen_opts(args):
             protect_file=True,
             protect_feature=False,
             extra_headers=extra_headers,
+            extra_manual_commands=[
+                'xrPollEvent',
+                'xrEnumerateSwapchainImages',
+            ],
         )
     ]
 
@@ -309,7 +314,11 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extra_headers=extra_headers
+            extra_headers=extra_headers,
+            extra_manual_commands=[
+                'xrPollEvent',
+                'xrEnumerateSwapchainImages',
+            ],
         )
     ]
 

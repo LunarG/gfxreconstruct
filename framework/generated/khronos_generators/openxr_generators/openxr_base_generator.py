@@ -138,7 +138,7 @@ class OpenXrBaseGeneratorOptions(KhronosBaseGeneratorOptions):
         dump_resources_overrides=None,
         replay_async_overrides=None,
         extra_headers=[],
-        extra_manual_commands=[]
+        extra_manual_commands=[],
     ):
         KhronosBaseGeneratorOptions.__init__(
             self,

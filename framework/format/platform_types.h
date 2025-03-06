@@ -165,14 +165,31 @@ struct LARGE_INTEGER
 typedef void* jobject;
 #endif
 
-#if defined(XR_USE_PLATFORM_XLIB) && !defined(WIN32)
+#if !defined(WIN32)
+#if defined(XR_USE_PLATFORM_XLIB)
 #include <X11/Xlib.h>
-#include "GL/glx.h"
-#else
-typedef void*        GLXFBConfig;
-typedef size_t       GLXDrawable;
-typedef void*        GLXContext;
-#endif // XR_USE_PLATFORM_XLIB
+#endif
+#if defined(XR_USE_PLATFORM_XCB)
+#include <xcb/xcb.h>
+#endif
+#endif
+
+#ifdef XR_USE_GRAPHICS_API_OPENGL
+#if defined(XR_USE_PLATFORM_XLIB) || defined(XR_USE_PLATFORM_XCB)
+#include <GL/glx.h>
+#define PLATFORM_TYPES_GL_GLX_INCLUDED
+#endif // (XR_USE_PLATFORM_XLIB || XR_USE_PLATFORM_XCB)
+#ifdef XR_USE_PLATFORM_XCB
+#include <xcb/glx.h>
+#define PLATFORM_TYPES_XCB_GLX_INCLUDED
+#endif // XR_USE_PLATFORM_XCB
+#endif
+
+#if !(defined(PLATFORM_TYPES_GL_GLX_INCLUDED) || defined(PLATFORM_TYPES_XCB_GLX_INCLUDED))
+typedef void*  GLXFBConfig;
+typedef size_t GLXDrawable;
+typedef void*  GLXContext;
+#endif // ! GLX included
 
 #ifdef XR_USE_GRAPHICS_API_OPENGL_ES
 #include "EGL/egl.h"
@@ -183,25 +200,20 @@ typedef void*        EGLConfig;
 typedef void*        EGLContext;
 #endif // XR_USE_GRAPHICS_API_OPENGL_ES
 
-#ifdef XR_USE_PLATFORM_XCB
-#include <xcb/xcb.h>
-#include "xcb/glx.h"
-#endif
-
 #if !defined(XR_USE_PLATFORM_XLIB)
 typedef void*  GLXFBConfig;
 typedef size_t GLXDrawable;
 typedef void*  GLXContext;
 #endif // !XR_USE_PLATFORM_XLIB
 
-#if !defined(VK_USE_PLATFORM_XCB_KHR) && !defined(XR_USE_PLATFORM_XCB)
+#if !defined(PLATFORM_TYPES_XCB_GLX_INCLUDED)
 struct xcb_connection_t;
 typedef uint32_t xcb_glx_fbconfig_t;
 typedef uint32_t xcb_glx_drawable_t;
 typedef uint32_t xcb_glx_context_t;
 typedef uint32_t xcb_window_t;
 typedef uint32_t xcb_visualid_t;
-#endif // !VK_USE_PLATFORM_XCB_KHR && !XR_USE_PLATFORM_XCB
+#endif // !PLATFORM_TYPES_XCB_GLX_INCLUDED
 
 #if !defined(VK_USE_PLATFORM_WAYLAND_KHR) && !defined(XR_USE_PLATFORM_WAYLAND)
 struct wl_display;

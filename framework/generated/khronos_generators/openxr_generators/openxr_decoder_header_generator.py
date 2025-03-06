@@ -60,8 +60,6 @@ class OpenXrDecoderHeaderGeneratorOptions(OpenXrBaseGeneratorOptions):
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
-        self.extra_manual_commands.append('xrEnumerateSwapchainImages')
-
 class OpenXrDecoderHeaderGenerator(OpenXrBaseGenerator, KhronosDecoderHeaderGenerator):
     """OpenXrDecoderHeaderGenerator - subclass of OpenXrBaseGenerator.
     Generates C++ member declarations for the OpenXrDecoder class responsible for decoding
