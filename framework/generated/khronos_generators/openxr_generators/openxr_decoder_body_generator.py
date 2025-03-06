@@ -38,7 +38,8 @@ class OpenXrDecoderBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extra_headers=[]
+        extra_headers=[],
+        extra_manual_commands=[],
     ):
         OpenXrBaseGeneratorOptions.__init__(
             self,
@@ -49,7 +50,8 @@ class OpenXrDecoderBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extra_headers=extra_headers
+            extra_headers=extra_headers,
+            extra_manual_commands=extra_manual_commands,
         )
 
         self.begin_end_file_data.specific_headers.extend((
@@ -66,8 +68,6 @@ class OpenXrDecoderBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
         ))
         self.begin_end_file_data.system_headers.append('cstddef')
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
-
-        self.extra_manual_commands.append('xrEnumerateSwapchainImages')
 
 class OpenXrDecoderBodyGenerator(OpenXrBaseGenerator, KhronosDecoderBodyGenerator):
     """OpenXrDecoderBodyGenerator - subclass of OpenXrBaseGenerator.

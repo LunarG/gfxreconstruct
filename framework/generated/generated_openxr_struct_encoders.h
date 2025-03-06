@@ -52,7 +52,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrExtensionProperties& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrApplicationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrInstanceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrInstanceProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBuffer& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemGetInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemGraphicsProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemTrackingProperties& value);

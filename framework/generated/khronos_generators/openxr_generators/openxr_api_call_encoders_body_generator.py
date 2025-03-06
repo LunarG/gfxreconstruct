@@ -142,9 +142,10 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
         if has_outputs or (return_type and return_type != 'void'):
             encode_after = True
 
+        omit_output_param = None
         if has_outputs and (return_type and return_type != 'void'):
             omit_output_param = 'omit_output_data'
-            body += indent + 'bool omit_output_data = false;\n'
+            body += f'{indent}bool {omit_output_param} = false;\n'
             body += '\n'
 
         top_indent = indent
@@ -197,6 +198,9 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                 name, values, return_type, top_indent, omit_output_param
             )
 
+        # Some API calls have different Success criteria for outputting data
+        emit_output_check = f'CustomCallResult<format::ApiCallId::ApiCall_{name}>::Succeeded ({capture_manager}, result)'
+
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
             # Construct the function call to dispatch to the next layer.
@@ -211,10 +215,7 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                 body += indent + '{};\n'.format(call_expr)
 
             if has_outputs and (return_type and return_type != 'void'):
-                body += indent + 'if (result < 0)\n'
-                body += indent + '{\n'
-                body += indent + '    omit_output_data = true;\n'
-                body += indent + '}\n'
+                body += f'{indent}{omit_output_param} = !{emit_output_check};\n'
         else:
             # Unwrap handles that need unwrapping
             if unwrap_list:
@@ -263,22 +264,19 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
             if wrap_expr:
                 body += '\n'
                 if return_type and return_type != 'void':
-                    body += indent + 'if (result >= 0)\n'
+                    body += f'{indent}if ({emit_output_check})\n'
                     body += indent + '{\n'
                     body += '    ' + wrap_expr
                     body += indent + '}\n'
                     if has_outputs:
-                        body += indent + 'else\n'
-                        body += indent + '{\n'
-                        body += indent + '    omit_output_data = true;\n'
-                        body += indent + '}\n'
+                        body += f'{indent}else\n'
+                        body += f'{indent}{{\n'
+                        body += f'{indent}    {omit_output_param} = true;\n'
+                        body += f'{indent}}}\n'
                 else:
                     body += wrap_expr
             elif has_outputs and (return_type and return_type != 'void'):
-                body += indent + 'if (result < 0)\n'
-                body += indent + '{\n'
-                body += indent + '    omit_output_data = true;\n'
-                body += indent + '}\n'
+                body += f'{indent}{omit_output_param} = !{emit_output_check};\n'
 
         if encode_after:
             body += self.make_parameter_encoding(

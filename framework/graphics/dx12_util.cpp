@@ -22,7 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 #include "graphics/dx12_util.h"
 
 #include "util/image_writer.h"
@@ -1476,4 +1476,4 @@ GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif // defined(D3D12_SUPPORT)

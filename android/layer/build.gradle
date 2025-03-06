@@ -26,6 +26,13 @@ android {
             cmake {
                 cppFlags "-fexceptions", "-std=c++17", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
+                if (project.hasProperty("DisableOpenXR")) {
+                    logger.info('GFXReconstruct layer built with NO OpenXr Support! [DisableOpenXR found]')
+                }
+                else {
+                    logger.info('GFXReconstruct layer built with OpenXr Support.')
+                    arguments.add("-DGFXRECON_ENABLE_OPENXR=ON")
+                }
             }
         }
     }
@@ -39,5 +46,11 @@ android {
         cmake {
             path "CMakeLists.txt"
         }
+    }
+
+    sourceSets {
+       main {
+           assets.srcDirs = ['assets']
+       }
     }
 }

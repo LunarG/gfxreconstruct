@@ -31,6 +31,12 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_tracked_object_info_table.h"
+#include "generated/generated_openxr_decoder.h"
+#include "generated/generated_openxr_replay_consumer.h"
+#endif
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
@@ -78,6 +84,7 @@ extern "C"
 
 void android_main(struct android_app* app)
 {
+    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
     gfxrecon::util::Log::Init();
 
     // Keep screen on while window is active.
@@ -190,6 +197,16 @@ void android_main(struct android_app* app)
                                                       replay_options.block_index_to);
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+#if ENABLE_OPENXR_SUPPORT
+                gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
+                gfxrecon::decode::OpenXrDecoder        openxr_decoder;
+                gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
+                openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+                openxr_replay_consumer.SetAndroidApp(app);
+                openxr_decoder.AddConsumer(&openxr_replay_consumer);
+                file_processor->AddDecoder(&openxr_decoder);
+#endif
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);

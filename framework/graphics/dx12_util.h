@@ -25,7 +25,7 @@
 #ifndef GFXRECON_GRAPHICS_DX12_UTIL_H
 #define GFXRECON_GRAPHICS_DX12_UTIL_H
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 
 #include "util/defines.h"
 #include "util/logging.h"
@@ -366,6 +366,6 @@ GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif // defined(D3D12_SUPPORT)
 
 #endif // GFXRECON_GRAPHICS_DX12_UTIL_H

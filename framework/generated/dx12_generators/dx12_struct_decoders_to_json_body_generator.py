@@ -85,7 +85,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     def beginFile(self, gen_opts):
         Dx12BaseGenerator.beginFile(self, gen_opts)
         code = format_cpp_code('''
-            #if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+            #if defined(D3D12_SUPPORT)
 
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "generated_dx12_enum_to_json.h"
@@ -1064,7 +1064,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
         code += 'GFXRECON_END_NAMESPACE(decode)\n'
         code += 'GFXRECON_END_NAMESPACE(gfxrecon)\n' 
         code += '\n'
-        code += '#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)' 
+        code += '#endif // defined(D3D12_SUPPORT)' 
 
         write(code, file=self.outFile)
 

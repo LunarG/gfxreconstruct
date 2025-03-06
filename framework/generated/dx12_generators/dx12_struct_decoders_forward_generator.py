@@ -47,7 +47,7 @@ class Dx12StructDecodersForwardGenerator(
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        write('#if defined(D3D12_SUPPORT)', file=self.outFile)
         self.newline()
 
         self.write_include()
@@ -114,7 +114,7 @@ class Dx12StructDecodersForwardGenerator(
         code += 'GFXRECON_END_NAMESPACE(decode)\n'
         code += 'GFXRECON_END_NAMESPACE(gfxrecon)\n'
         code += '\n'
-        code += '#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)'
+        code += '#endif // defined(D3D12_SUPPORT)'
         write(code, file=self.outFile)
 
         # Finish processing in superclass

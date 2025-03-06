@@ -105,6 +105,9 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
@@ -199,6 +202,11 @@ endif()
 if (TARGET ZSTD::ZSTD)
     target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_ZSTD_COMPRESSION)
     target_link_libraries(gfxrecon_util ZSTD::ZSTD)
+endif()
+
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_util PUBLIC ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
 endif()
 
 common_build_directives(gfxrecon_util)

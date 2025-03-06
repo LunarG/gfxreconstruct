@@ -198,7 +198,7 @@ void HandleToJson(nlohmann::ordered_json&  jdata,
                   size_t                   num_elements,
                   const util::JsonOptions& options = util::JsonOptions());
 
-#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#if defined(D3D12_SUPPORT)
 /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
 /// sequence as the identifier of the C macro defining it in a header like
 /// winerror.h.

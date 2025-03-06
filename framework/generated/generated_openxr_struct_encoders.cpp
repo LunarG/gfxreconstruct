@@ -104,13 +104,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInstanceProperties& value)
     encoder->EncodeString(value.runtimeName);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBuffer& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
-    encoder->EncodeUInt8Array(value.varying, 4000);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemGetInfo& value)
 {
     encoder->EncodeEnumValue(value.type);

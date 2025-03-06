@@ -113,10 +113,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetInstanceProperties(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetInstanceProperties>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetInstanceProperties);
     if (encoder)
@@ -155,10 +152,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPollEvent(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrPollEvent>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPollEvent);
     if (encoder)
@@ -198,10 +192,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrResultToString(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrResultToString>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrResultToString);
     if (encoder)
@@ -242,10 +233,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStructureTypeToString(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrStructureTypeToString>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrStructureTypeToString);
     if (encoder)
@@ -287,7 +275,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetSystem>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper>(instance, systemId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -336,7 +324,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystemProperties(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetSystemProperties>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper>(instance, systemId, properties, OpenXrCaptureManager::GetUniqueId);
     }
@@ -387,10 +375,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentBlendModes(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes);
     if (encoder)
@@ -440,7 +425,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSession(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSession>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SessionWrapper>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, session, OpenXrCaptureManager::GetUniqueId);
     }
@@ -526,10 +511,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReferenceSpaces(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces);
     if (encoder)
@@ -572,7 +554,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateReferenceSpace(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -620,10 +602,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetReferenceSpaceBoundsRect(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetReferenceSpaceBoundsRect>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetReferenceSpaceBoundsRect);
     if (encoder)
@@ -670,7 +649,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSpace(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateActionSpace>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -719,10 +698,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpace>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpace);
     if (encoder)
@@ -803,10 +779,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurations(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateViewConfigurations>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateViewConfigurations);
     if (encoder)
@@ -850,10 +823,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetViewConfigurationProperties(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetViewConfigurationProperties>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetViewConfigurationProperties);
     if (encoder)
@@ -898,10 +868,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurationViews(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateViewConfigurationViews>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateViewConfigurationViews);
     if (encoder)
@@ -946,10 +913,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainFormats(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats);
     if (encoder)
@@ -992,7 +956,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchain(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSwapchain>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SwapchainWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
@@ -1078,10 +1042,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateSwapchainImages);
     if (encoder)
@@ -1123,10 +1084,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrAcquireSwapchainImage(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrAcquireSwapchainImage);
     if (encoder)
@@ -1343,10 +1301,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrWaitFrame(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrWaitFrame>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrWaitFrame);
     if (encoder)
@@ -1431,10 +1386,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateViews(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateViews>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateViews);
     if (encoder)
@@ -1479,7 +1431,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStringToPath(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrStringToPath>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::PathWrapper>(instance, path, OpenXrCaptureManager::GetUniqueId);
     }
@@ -1529,10 +1481,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPathToString(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrPathToString>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPathToString);
     if (encoder)
@@ -1576,7 +1525,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSet(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateActionSet>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::ActionSetWrapper>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, actionSet, OpenXrCaptureManager::GetUniqueId);
     }
@@ -1667,7 +1616,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateAction(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateAction>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::ActionSetWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::ActionWrapper>(actionSet, openxr_wrappers::NoParentWrapper::kHandleValue, action, OpenXrCaptureManager::GetUniqueId);
     }
@@ -1835,7 +1784,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetCurrentInteractionProfile(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, topLevelUserPath, interactionProfile, OpenXrCaptureManager::GetUniqueId);
     }
@@ -1888,10 +1837,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateBoolean(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetActionStateBoolean>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetActionStateBoolean);
     if (encoder)
@@ -1937,10 +1883,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateFloat(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetActionStateFloat>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetActionStateFloat);
     if (encoder)
@@ -1986,10 +1929,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateVector2f(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetActionStateVector2f>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetActionStateVector2f);
     if (encoder)
@@ -2035,10 +1975,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStatePose(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetActionStatePose>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetActionStatePose);
     if (encoder)
@@ -2128,7 +2065,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateBoundSourcesForAction>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, sources, sourceCapacityInput, OpenXrCaptureManager::GetUniqueId);
     }
@@ -2185,10 +2122,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName);
     if (encoder)
@@ -2303,10 +2237,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(OpenXrCaptureManager::Get(), info, layerInfo, instance);
     XrResult result = OpenXrCaptureManager::OverrideCreateApiLayerInstance(info, layerInfo, instance);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Succeeded (OpenXrCaptureManager::Get(), result);
 
     auto encoder = OpenXrCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateApiLayerInstance);
     if (encoder)
@@ -2352,10 +2283,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpaces(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpaces>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpaces);
     if (encoder)
@@ -2436,7 +2364,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SwapchainWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
@@ -2485,10 +2413,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLGraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetOpenGLGraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetOpenGLGraphicsRequirementsKHR);
     if (encoder)
@@ -2529,10 +2454,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLESGraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetOpenGLESGraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetOpenGLESGraphicsRequirementsKHR);
     if (encoder)
@@ -2575,10 +2497,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanInstanceExtensionsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR);
     if (encoder)
@@ -2623,10 +2542,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanDeviceExtensionsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR);
     if (encoder)
@@ -2669,10 +2585,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirementsKHR);
     if (encoder)
@@ -2713,10 +2626,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D11GraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetD3D11GraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetD3D11GraphicsRequirementsKHR);
     if (encoder)
@@ -2757,10 +2667,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR);
     if (encoder)
@@ -2801,10 +2708,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMetalGraphicsRequirementsKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR);
     if (encoder)
@@ -2847,10 +2751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR);
     if (encoder)
@@ -2893,10 +2794,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrConvertWin32PerformanceCounterToTimeKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrConvertWin32PerformanceCounterToTimeKHR);
     if (encoder)
@@ -2937,10 +2835,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrConvertTimeToWin32PerformanceCounterKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrConvertTimeToWin32PerformanceCounterKHR);
     if (encoder)
@@ -2981,10 +2876,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimespecTimeToTimeKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrConvertTimespecTimeToTimeKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrConvertTimespecTimeToTimeKHR);
     if (encoder)
@@ -3025,10 +2917,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR);
     if (encoder)
@@ -3069,10 +2958,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR);
     if (encoder)
@@ -3118,10 +3004,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpacesKHR(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpacesKHR>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpacesKHR);
     if (encoder)
@@ -3202,10 +3085,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrThermalGetTemperatureTrendEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrThermalGetTemperatureTrendEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrThermalGetTemperatureTrendEXT);
     if (encoder)
@@ -3285,7 +3165,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::DebugUtilsMessengerEXTWrapper>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, messenger, OpenXrCaptureManager::GetUniqueId);
     }
@@ -3522,7 +3402,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
@@ -3576,7 +3456,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorSpaceMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorSpaceMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -3864,7 +3744,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialGraphNodeSpaceMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -3918,7 +3798,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrTryCreateSpatialGraphStaticNodeBindingMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpatialGraphNodeBindingMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, nodeBinding, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4003,10 +3883,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialGraphNodeBindingPropertiesMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT);
     if (encoder)
@@ -4048,7 +3925,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandTrackerEXT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::HandTrackerEXTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, handTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4138,10 +4015,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateHandJointsEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateHandJointsEXT);
     if (encoder)
@@ -4183,7 +4057,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandMeshSpaceMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::HandTrackerEXTWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(handTracker, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4231,10 +4105,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdateHandMeshMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT);
     if (encoder)
@@ -4276,7 +4147,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelKeyMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, topLevelUserPath, controllerModelKeyState, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4326,10 +4197,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadControllerModelMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLoadControllerModelMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLoadControllerModelMSFT);
     if (encoder)
@@ -4372,10 +4240,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelPropertiesMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT);
     if (encoder)
@@ -4416,10 +4281,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelStateMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetControllerModelStateMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetControllerModelStateMSFT);
     if (encoder)
@@ -4461,7 +4323,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4509,10 +4371,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT);
     if (encoder)
@@ -4556,10 +4415,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReprojectionModesMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT);
     if (encoder)
@@ -4638,10 +4494,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSwapchainStateFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSwapchainStateFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSwapchainStateFB);
     if (encoder)
@@ -4682,7 +4535,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::BodyTrackerFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, bodyTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4772,10 +4625,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateBodyJointsFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateBodyJointsFB);
     if (encoder)
@@ -4815,10 +4665,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetBodySkeletonFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetBodySkeletonFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetBodySkeletonFB);
     if (encoder)
@@ -4860,10 +4707,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSceneComputeFeaturesMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT);
     if (encoder)
@@ -4907,7 +4751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneObserverMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SceneObserverMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, sceneObserver, OpenXrCaptureManager::GetUniqueId);
     }
@@ -4993,7 +4837,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SceneObserverMSFTWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SceneMSFTWrapper>(sceneObserver, openxr_wrappers::NoParentWrapper::kHandleValue, scene, OpenXrCaptureManager::GetUniqueId);
     }
@@ -5118,10 +4962,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComputeStateMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSceneComputeStateMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSceneComputeStateMSFT);
     if (encoder)
@@ -5161,10 +5002,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComponentsMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT);
     if (encoder)
@@ -5210,10 +5048,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSceneComponentsMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSceneComponentsMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSceneComponentsMSFT);
     if (encoder)
@@ -5254,10 +5089,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT);
     if (encoder)
@@ -5336,10 +5168,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSerializedSceneFragmentDataMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT);
     if (encoder)
@@ -5383,10 +5212,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateDisplayRefreshRatesFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB);
     if (encoder)
@@ -5427,10 +5253,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetDisplayRefreshRateFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetDisplayRefreshRateFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetDisplayRefreshRateFB);
     if (encoder)
@@ -5508,7 +5331,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructArrayHandles<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, XrViveTrackerPathsHTCX>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, paths, pathCapacityInput, OpenXrCaptureManager::GetUniqueId);
     }
@@ -5558,7 +5381,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFacialTrackerHTC(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::FacialTrackerHTCWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, facialTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -5642,10 +5465,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFacialExpressionsHTC(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetFacialExpressionsHTC>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetFacialExpressionsHTC);
     if (encoder)
@@ -5686,10 +5506,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateColorSpacesFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB);
     if (encoder)
@@ -5766,10 +5583,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetHandMeshFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetHandMeshFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetHandMeshFB);
     if (encoder)
@@ -5815,7 +5629,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -5862,10 +5676,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUuidFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceUuidFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceUuidFB);
     if (encoder)
@@ -5906,10 +5717,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSpaceSupportedComponentsFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB);
     if (encoder)
@@ -5952,7 +5760,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SpaceWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(space, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6000,10 +5808,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceComponentStatusFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceComponentStatusFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceComponentStatusFB);
     if (encoder)
@@ -6045,7 +5850,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFoveationProfileFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::FoveationProfileFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, profile, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6130,10 +5935,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySystemTrackedKeyboardFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB);
     if (encoder)
@@ -6175,7 +5977,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6294,10 +6096,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginVertexBufferUpdateFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrTriangleMeshBeginVertexBufferUpdateFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTriangleMeshBeginVertexBufferUpdateFB);
     if (encoder)
@@ -6372,7 +6171,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::PassthroughFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, outPassthrough, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6531,7 +6330,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughLayerFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreatePassthroughLayerFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::PassthroughLayerFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, outLayer, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6731,7 +6530,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateGeometryInstanceFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateGeometryInstanceFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::GeometryInstanceFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, outGeometryInstance, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6859,7 +6658,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateRenderModelPathsFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructArrayHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, XrRenderModelPathInfoFB>(session, openxr_wrappers::NoParentWrapper::kHandleValue, paths, pathCapacityInput, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6909,7 +6708,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetRenderModelPropertiesFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, path, properties, OpenXrCaptureManager::GetUniqueId);
     }
@@ -6962,10 +6761,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLoadRenderModelFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLoadRenderModelFB);
     if (encoder)
@@ -7154,10 +6950,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerSizeVARJO(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerSizeVARJO>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerSizeVARJO);
     if (encoder)
@@ -7199,7 +6992,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -7284,7 +7077,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceFromCoordinateFrameUIDML(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -7333,7 +7126,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerDetectorML(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::MarkerDetectorMLWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, markerDetector, OpenXrCaptureManager::GetUniqueId);
     }
@@ -7417,10 +7210,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSnapshotMarkerDetectorML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrSnapshotMarkerDetectorML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSnapshotMarkerDetectorML);
     if (encoder)
@@ -7459,10 +7249,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerDetectorStateML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerDetectorStateML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerDetectorStateML);
     if (encoder)
@@ -7504,7 +7291,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkersML(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkersML>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::MarkerDetectorMLWrapper, openxr_wrappers::MarkerMLWrapper>(markerDetector, markers, markerCapacityInput, OpenXrCaptureManager::GetUniqueId);
     }
@@ -7553,10 +7340,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerReprojectionErrorML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerReprojectionErrorML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerReprojectionErrorML);
     if (encoder)
@@ -7597,10 +7381,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerLengthML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerLengthML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerLengthML);
     if (encoder)
@@ -7641,10 +7422,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerNumberML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerNumberML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerNumberML);
     if (encoder)
@@ -7687,10 +7465,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerStringML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetMarkerStringML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMarkerStringML);
     if (encoder)
@@ -7739,7 +7514,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceML(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateMarkerSpaceML>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
@@ -7825,10 +7600,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQueryLocalizationMapsML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrQueryLocalizationMapsML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrQueryLocalizationMapsML);
     if (encoder)
@@ -7907,10 +7679,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrImportLocalizationMapML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrImportLocalizationMapML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrImportLocalizationMapML);
     if (encoder)
@@ -7952,7 +7721,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateExportedLocalizationMapML(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateExportedLocalizationMapML>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::ExportedLocalizationMapMLWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, map, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8038,10 +7807,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetExportedLocalizationMapDataML(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetExportedLocalizationMapDataML>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetExportedLocalizationMapDataML);
     if (encoder)
@@ -8083,7 +7849,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorStoreConnectionMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorStoreConnectionMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, spatialAnchorStore, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8209,10 +7975,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePersistedSpatialAnchorNamesMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumeratePersistedSpatialAnchorNamesMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumeratePersistedSpatialAnchorNamesMSFT);
     if (encoder)
@@ -8260,7 +8023,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPersistedNameMSFT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPersistedNameMSFT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, spatialAnchor, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8380,10 +8143,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerRawDataMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT);
     if (encoder)
@@ -8428,10 +8188,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerDecodedStringMSFT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT);
     if (encoder)
@@ -8475,7 +8232,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrQuerySpacesFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8524,7 +8281,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, results, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8578,7 +8335,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrSaveSpaceFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8632,7 +8389,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrEraseSpaceFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8679,10 +8436,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioOutputDeviceGuidOculus(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetAudioOutputDeviceGuidOculus>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetAudioOutputDeviceGuidOculus);
     if (encoder)
@@ -8721,10 +8475,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioInputDeviceGuidOculus(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetAudioInputDeviceGuidOculus>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetAudioInputDeviceGuidOculus);
     if (encoder)
@@ -8770,7 +8521,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrShareSpacesFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -8818,10 +8569,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox2DFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox2DFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceBoundingBox2DFB);
     if (encoder)
@@ -8862,10 +8610,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox3DFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox3DFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceBoundingBox3DFB);
     if (encoder)
@@ -8906,10 +8651,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceSemanticLabelsFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB);
     if (encoder)
@@ -8950,10 +8692,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundary2DFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceBoundary2DFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceBoundary2DFB);
     if (encoder)
@@ -8994,10 +8733,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceRoomLayoutFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceRoomLayoutFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceRoomLayoutFB);
     if (encoder)
@@ -9075,7 +8811,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -9123,10 +8859,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceContainerFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceContainerFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceContainerFB);
     if (encoder)
@@ -9166,10 +8899,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFoveationEyeTrackedStateMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetFoveationEyeTrackedStateMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetFoveationEyeTrackedStateMETA);
     if (encoder)
@@ -9210,7 +8940,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::FaceTrackerFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -9295,10 +9025,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB);
     if (encoder)
@@ -9340,7 +9067,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::EyeTrackerFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, eyeTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -9430,10 +9157,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetEyeGazesFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetEyeGazesFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetEyeGazesFB);
     if (encoder)
@@ -9515,10 +9239,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetDeviceSampleRateFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetDeviceSampleRateFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetDeviceSampleRateFB);
     if (encoder)
@@ -9558,10 +9279,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPassthroughPreferencesMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetPassthroughPreferencesMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetPassthroughPreferencesMETA);
     if (encoder)
@@ -9602,7 +9320,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::VirtualKeyboardMETAWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, keyboard, OpenXrCaptureManager::GetUniqueId);
     }
@@ -9694,7 +9412,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardSpaceMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardSpaceMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::VirtualKeyboardMETAWrapper, openxr_wrappers::SpaceWrapper>(session, keyboard, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
     }
@@ -9783,10 +9501,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardScaleMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVirtualKeyboardScaleMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVirtualKeyboardScaleMETA);
     if (encoder)
@@ -9861,10 +9576,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardModelAnimationStatesMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA);
     if (encoder)
@@ -9905,10 +9617,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardDirtyTexturesMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA);
     if (encoder)
@@ -9950,10 +9659,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardTextureDataMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetVirtualKeyboardTextureDataMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVirtualKeyboardTextureDataMETA);
     if (encoder)
@@ -9999,10 +9705,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSendVirtualKeyboardInputMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrSendVirtualKeyboardInputMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSendVirtualKeyboardInputMETA);
     if (encoder)
@@ -10080,10 +9783,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateExternalCamerasOCULUS(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateExternalCamerasOCULUS>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateExternalCamerasOCULUS);
     if (encoder)
@@ -10127,7 +9827,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrEnumeratePerformanceMetricsCounterPathsMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::InstanceWrapper, openxr_wrappers::PathWrapper>(instance, counterPaths, counterPathCapacityInput, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10211,10 +9911,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPerformanceMetricsStateMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetPerformanceMetricsStateMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetPerformanceMetricsStateMETA);
     if (encoder)
@@ -10254,10 +9951,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQueryPerformanceMetricsCounterMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrQueryPerformanceMetricsCounterMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrQueryPerformanceMetricsCounterMETA);
     if (encoder)
@@ -10304,7 +9998,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrSaveSpaceListFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10353,7 +10047,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceUserFBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, user, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10400,10 +10094,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUserIdFB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceUserIdFB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceUserIdFB);
     if (encoder)
@@ -10485,10 +10176,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetRecommendedLayerResolutionMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetRecommendedLayerResolutionMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetRecommendedLayerResolutionMETA);
     if (encoder)
@@ -10530,7 +10218,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughColorLutMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::PassthroughFBWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::PassthroughColorLutMETAWrapper>(passthrough, openxr_wrappers::NoParentWrapper::kHandleValue, colorLut, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10651,10 +10339,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA);
     if (encoder)
@@ -10696,7 +10381,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::FaceTracker2FBWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10781,10 +10466,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB);
     if (encoder)
@@ -10826,7 +10508,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthProviderMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, environmentDepthProvider, OpenXrCaptureManager::GetUniqueId);
     }
@@ -10980,7 +10662,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthSwapchainMETA(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::EnvironmentDepthProviderMETAWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(environmentDepthProvider, openxr_wrappers::NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
@@ -11066,10 +10748,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentDepthSwapchainImagesMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA);
     if (encoder)
@@ -11110,10 +10789,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetEnvironmentDepthSwapchainStateMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA);
     if (encoder)
@@ -11158,10 +10834,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrAcquireEnvironmentDepthImageMETA(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA);
     if (encoder)
@@ -11277,7 +10950,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::PassthroughHTCWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, passthrough, OpenXrCaptureManager::GetUniqueId);
     }
@@ -11409,7 +11082,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorHTC(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreateSpatialAnchorHTC>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::SpaceWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
@@ -11456,10 +11129,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialAnchorNameHTC(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetSpatialAnchorNameHTC>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetSpatialAnchorNameHTC);
     if (encoder)
@@ -11536,7 +11206,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePlaneDetectorEXT(
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
 
-    if (result >= 0)
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::Succeeded (manager, result))
     {
         openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::PlaneDetectorEXTWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, planeDetector, OpenXrCaptureManager::GetUniqueId);
     }
@@ -11661,10 +11331,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionStateEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetPlaneDetectionStateEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetPlaneDetectionStateEXT);
     if (encoder)
@@ -11709,10 +11376,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionsEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT);
     if (encoder)
@@ -11754,10 +11418,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT);
     if (encoder)
@@ -11804,10 +11465,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPollFutureEXT(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
+    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrPollFutureEXT>::Succeeded (manager, result);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPollFutureEXT);
     if (encoder)

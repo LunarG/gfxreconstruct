@@ -223,7 +223,7 @@ class StructPointerDecoder : public PointerDecoderBase
                 }
             }
 
-            decoded_structs_ = T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len);
+            decoded_structs_ = T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len, true);
 
             if (HasData())
             {
@@ -381,8 +381,8 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
                     bytes_read += ValueDecoder::DecodeSizeTValue(
                         (buffer + bytes_read), (buffer_size - bytes_read), &inner_lens_[i]);
 
-                    typename T::struct_type* inner_struct_memory =
-                        DecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
+                    typename T::struct_type* inner_struct_memory = reinterpret_cast<typename T::struct_type*>(
+                        DecodeAllocator::Allocate<typename T::union_size_type>(inner_lens_[i]));
                     // TODO: We initialize == true because the next field isn't always cleared on kIsNull in the lower
                     //       level decoders.  If this is a performance bottleneck, can clean up the lower decoders to
                     //       initialize all fields.

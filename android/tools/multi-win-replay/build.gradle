@@ -48,6 +48,9 @@ android {
             path "CMakeLists.txt"
         }
     }
+    androidResources {
+        ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
+    }
 }
 
 dependencies {
