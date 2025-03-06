@@ -1457,7 +1457,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VulkanReplayOptions& options_;
 
-    VulkanReplayDumpResources* resource_dumper_{ nullptr };
+    std::unique_ptr<VulkanReplayDumpResources> resource_dumper_;
 
   private:
     void RaiseFatalError(const char* message) const;
