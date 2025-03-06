@@ -449,7 +449,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     }
     void* map_addr = malloc((size_t)size);
     mapped_memory_map[memory].push_back(map_addr);
-    *ppData = map_addr;
+    if (test_config.map_addr_override) {
+        *ppData = test_config.map_addr_override;
+    } else {
+        *ppData = map_addr;
+    }
     return VK_SUCCESS;
 }
 
