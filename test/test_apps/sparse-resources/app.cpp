@@ -469,7 +469,7 @@ void App::create_sparse_bound_buffer()
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.pNext                = nullptr;
-    alloc_info.allocationSize       = mem_reqs.size;
+    alloc_info.allocationSize       = 2 * mem_reqs.size;
     alloc_info.memoryTypeIndex      = device_memory_type_;
     result                          = init.disp.allocateMemory(&alloc_info, nullptr, &sparse_buffer_backing_memory_);
     VERIFY_VK_RESULT("failed to allocate sparse buffer memory", result);
@@ -772,6 +772,36 @@ bool App::frame(const int frame_num)
         bool      reverse_bind      = (current_frame_ / frames_per_switch) % 2 == 1;
         if (do_memory_bind)
         {
+            // Sparse buffer bind
+            VkSparseMemoryBind sparse_buffer_bind = {};
+            sparse_buffer_bind.resourceOffset     = 0;
+            // sparse_buffer_bind.size = sizeof(Uniforms);
+            sparse_buffer_bind.size         = sparse_binding_granularity_;
+            sparse_buffer_bind.memory       = sparse_buffer_backing_memory_;
+            sparse_buffer_bind.memoryOffset = 0;
+            if (reverse_bind)
+                sparse_buffer_bind.memoryOffset = sparse_binding_granularity_;
+            sparse_buffer_bind.flags = 0;
+
+            VkSparseBufferMemoryBindInfo buf_bind_info = {};
+            buf_bind_info.buffer                       = sparse_bound_buffer_;
+            buf_bind_info.bindCount                    = 1;
+            buf_bind_info.pBinds                       = &sparse_buffer_bind;
+
+            VkBindSparseInfo sparse_info = {};
+            sparse_info.sType            = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+            sparse_info.pNext            = nullptr;
+            sparse_info.bufferBindCount  = 1;
+            sparse_info.pBufferBinds     = &buf_bind_info;
+
+            result = init.disp.queueBindSparse(graphics_queue_, 1, &sparse_info, immediate_fence_);
+            VERIFY_VK_RESULT("Failed to bind sparse memory", result);
+
+            result = init.disp.waitForFences(1, &immediate_fence_, VK_TRUE, ~0);
+            VERIFY_VK_RESULT("Failed to wait for sparse binding fence.", result);
+            result = init.disp.resetFences(1, &immediate_fence_);
+            VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
+
             VkSparseImageMemoryBind sparse_resident_bind = {};
             sparse_resident_bind.subresource.aspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
             sparse_resident_bind.subresource.mipLevel    = 0;
@@ -795,24 +825,21 @@ bool App::frame(const int frame_num)
             res_bind_info.bindCount                   = 1;
             res_bind_info.pBinds                      = &sparse_resident_bind;
 
-            VkSparseMemoryBind sparse_bind = {};
-            sparse_bind.resourceOffset     = 0;
-            sparse_bind.size               = sparse_binding_granularity_;
-            sparse_bind.memory             = image_backing_memory_;
-            sparse_bind.memoryOffset       = 0;
+            VkSparseMemoryBind sparse_image_bind = {};
+            sparse_image_bind.resourceOffset     = 0;
+            sparse_image_bind.size               = sparse_binding_granularity_;
+            sparse_image_bind.memory             = image_backing_memory_;
+            sparse_image_bind.memoryOffset       = 0;
             if (reverse_bind)
-                sparse_bind.memoryOffset = sparse_binding_granularity_;
-            sparse_bind.flags = 0;
+                sparse_image_bind.memoryOffset = sparse_binding_granularity_;
+            sparse_image_bind.flags = 0;
             // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
             VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
             im_bind_info.image                             = sparse_bind_image_;
             im_bind_info.bindCount                         = 1;
-            im_bind_info.pBinds                            = &sparse_bind;
+            im_bind_info.pBinds                            = &sparse_image_bind;
 
-            VkBindSparseInfo sparse_info     = {};
-            sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
-            sparse_info.pNext                = nullptr;
             sparse_info.bufferBindCount      = 0;
             sparse_info.pBufferBinds         = nullptr;
             sparse_info.imageOpaqueBindCount = 1;
