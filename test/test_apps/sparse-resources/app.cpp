@@ -36,13 +36,16 @@ namespace test_app
 namespace sparse_resources
 {
 
-const size_t   MAX_FRAMES_IN_FLIGHT = 1;
+const size_t   MAX_FRAMES_IN_FLIGHT = 2;
 const size_t   STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
 const VkFormat IMAGE_FORMAT         = VK_FORMAT_R8G8B8A8_SRGB;
 
+struct Uniforms {
+    float rotation;
+};
+
 class App : public gfxrecon::test::TestAppBase
 {
-  private:
     VkQueue graphics_queue_;
     VkQueue present_queue_;
 
@@ -57,6 +60,7 @@ class App : public gfxrecon::test::TestAppBase
 
     VkBuffer                        staging_buffer_;
     uint8_t*                        staging_buffer_ptr_;
+    VkBuffer                        sparse_bound_buffer_;
     VkImage                         sparse_bind_image_;
     VkImage                         sparse_resident_image_;
     VkImageView                     sparse_bind_image_view_;
@@ -66,8 +70,10 @@ class App : public gfxrecon::test::TestAppBase
     VkSparseImageMemoryRequirements image_mem_reqs_;
     VkDeviceMemory                  image_backing_memory_;
     VkDeviceMemory                  staging_backing_memory_;
+    VkDeviceMemory                  sparse_buffer_backing_memory_;
     uint32_t                        device_memory_type_;
     uint32_t                        staging_memory_type_;
+    Uniforms                        uniforms_;
 
     uint32_t   sparse_binding_granularity_;
     VkExtent3D sparse_block_dimensions_;
@@ -88,20 +94,21 @@ class App : public gfxrecon::test::TestAppBase
     void create_framebuffers();
     void create_descriptor_set();
     void create_staging_buffer();
+    void create_sparse_bound_buffer();
     void create_images();
     void determine_memory_heaps();
-    void configure_instance_builder(test::InstanceBuilder& instance_builder);
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector);
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config);
+    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig* test_config);
     bool frame(const int frame_num);
     void setup();
 };
 
-void App::configure_instance_builder(test::InstanceBuilder& instance_builder)
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
     instance_builder.desire_api_version(VK_MAKE_VERSION(1, 3, 0));
 }
 
-void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector)
+void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig* test_config)
 {
     VkPhysicalDeviceFeatures feats = {};
     feats.sparseBinding            = true;
@@ -290,18 +297,20 @@ void App::create_framebuffers()
 
 void App::create_descriptor_set()
 {
-    VkDescriptorPoolSize pool_sizes[2] = {};
+    VkDescriptorPoolSize pool_sizes[3] = {};
     pool_sizes[0].type                 = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     pool_sizes[0].descriptorCount      = 2;
     pool_sizes[1].type                 = VK_DESCRIPTOR_TYPE_SAMPLER;
     pool_sizes[1].descriptorCount      = 1;
+    pool_sizes[2].type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    pool_sizes[2].descriptorCount      = 1;
 
     VkDescriptorPoolCreateInfo pool_info = {};
     pool_info.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     pool_info.pNext                      = nullptr;
     pool_info.flags                      = 0;
     pool_info.maxSets                    = 1;
-    pool_info.poolSizeCount              = 2;
+    pool_info.poolSizeCount              = 3;
     pool_info.pPoolSizes                 = pool_sizes;
     VkResult result                      = init.disp.createDescriptorPool(&pool_info, nullptr, &descriptor_pool_);
     VERIFY_VK_RESULT("Failed to create descriptor pool", result);
@@ -331,7 +340,7 @@ void App::create_descriptor_set()
     result = init.disp.createSampler(&sampler_info, nullptr, &sampler);
     VERIFY_VK_RESULT("Failed to create sampler.", result);
 
-    VkDescriptorSetLayoutBinding bindings[3] = {};
+    VkDescriptorSetLayoutBinding bindings[4] = {};
     bindings[0].binding                      = 0;
     bindings[0].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     bindings[0].descriptorCount              = 1;
@@ -347,12 +356,17 @@ void App::create_descriptor_set()
     bindings[2].descriptorCount              = 1;
     bindings[2].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     bindings[2].pImmutableSamplers           = &sampler;
+    bindings[3].binding                      = 3;
+    bindings[3].descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    bindings[3].descriptorCount              = 1;
+    bindings[3].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    bindings[3].pImmutableSamplers           = nullptr;
 
     VkDescriptorSetLayoutCreateInfo layout_info = {};
     layout_info.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layout_info.pNext                           = nullptr;
     layout_info.flags                           = 0;
-    layout_info.bindingCount                    = 3;
+    layout_info.bindingCount                    = 4;
     layout_info.pBindings                       = bindings;
     result = init.disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_layout_);
     VERIFY_VK_RESULT("Failed to create descriptor set layout", result);
@@ -428,6 +442,52 @@ void App::create_staging_buffer()
 
     // Map buffer
     init.disp.mapMemory(staging_backing_memory_, 0, STAGING_BUFFER_SIZE, 0, (void**)&staging_buffer_ptr_);
+}
+
+void App::create_sparse_bound_buffer() {
+    // Create buffer object
+    VkBufferCreateInfo buffer_info    = {};
+    buffer_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.pNext                 = nullptr;
+    buffer_info.flags                 = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
+    buffer_info.size                  = 2 * sizeof(Uniforms);
+    buffer_info.usage                 = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    buffer_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    buffer_info.queueFamilyIndexCount = 1;
+    uint32_t idx                      = init.device.get_queue_index(test::QueueType::graphics).value();
+    buffer_info.pQueueFamilyIndices   = &idx;
+    VkResult result                   = init.disp.createBuffer(&buffer_info, nullptr, &sparse_bound_buffer_);
+    VERIFY_VK_RESULT("failed to create sparse buffer", result);
+
+    // Allocate and bind buffer memory
+    VkMemoryRequirements mem_reqs = {};
+    init.disp.getBufferMemoryRequirements(sparse_bound_buffer_, &mem_reqs);
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = mem_reqs.size;
+    alloc_info.memoryTypeIndex      = device_memory_type_;
+    result                          = init.disp.allocateMemory(&alloc_info, nullptr, &sparse_buffer_backing_memory_);
+    VERIFY_VK_RESULT("failed to allocate sparse buffer memory", result);
+
+    // Update descriptor set
+    VkDescriptorBufferInfo desc_buffer = {};
+    desc_buffer.buffer = sparse_bound_buffer_;
+    desc_buffer.offset = 0;
+    desc_buffer.range = sizeof(Uniforms);
+
+    VkWriteDescriptorSet write = {};
+    write.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.pNext                = nullptr;
+    write.dstSet               = descriptor_set_;
+    write.dstBinding           = 3;
+    write.dstArrayElement      = 0;
+    write.descriptorCount      = 1;
+    write.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    write.pImageInfo           = nullptr;
+    write.pBufferInfo          = &desc_buffer;
+    write.pTexelBufferView     = nullptr;
+    init.disp.updateDescriptorSets(1, &write, 0, nullptr);
 }
 
 void App::create_images()
@@ -665,6 +725,7 @@ void App::setup()
     create_graphics_pipeline();
     create_framebuffers();
     create_staging_buffer();
+    create_sparse_bound_buffer();
     create_images();
 }
 
@@ -778,6 +839,42 @@ bool App::frame(const int frame_num)
             static bool first_frame = true;
             if (first_frame)
             {
+                // Write uniform data to staging buffer for sparse bound uniform buffer
+                {
+                    float* rot_ptr = (float*)staging_buffer_ptr_;
+                    rot_ptr[0] = 3.1415926 / 2.0;
+                    rot_ptr[1] = 3.1415926;
+
+                    VkBufferCopy region = {};
+                    region.srcOffset = 0;
+                    region.dstOffset = 0;
+                    region.size = 2 * sizeof(Uniforms);
+                    init.disp.cmdCopyBuffer(command_buffer, staging_buffer_, sparse_bound_buffer_, 1, &region);
+
+                    // Memory barrier to make this write available/visible
+
+                    VkBufferMemoryBarrier barrier = {};
+                    barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+                    barrier.pNext = nullptr;
+                    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    barrier.buffer = sparse_bound_buffer_;
+                    barrier.offset = 0;
+                    barrier.size = 2 * sizeof(Uniforms);
+                    init.disp.cmdPipelineBarrier(
+                        command_buffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+                        0,
+                        0,
+                        nullptr,
+                        1,
+                        &barrier,
+                        0,
+                        nullptr
+                    );
+                }
+
                 // Write pixels to staging buffer for sparse bound image
                 for (int y = 0; y < image_size_; ++y)
                 {
