@@ -298,7 +298,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         graphics::ReleaseLoader(loader_handle_);
     }
 
-    delete resource_dumper_;
     resource_dumper_ = nullptr;
 
     CommonObjectInfoTable::ReleaseSingleton();
@@ -1725,7 +1724,7 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
 {
     if (resource_dumper_ == nullptr)
     {
-        resource_dumper_ = new VulkanReplayDumpResources(options_, object_info_table_);
+        resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(options_, object_info_table_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
