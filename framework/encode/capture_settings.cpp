@@ -123,6 +123,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define DEBUG_LAYER_UPPER                                    "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER                              "debug_device_lost"
 #define DEBUG_DEVICE_LOST_UPPER                              "DEBUG_DEVICE_LOST"
+#define DEBUG_SET_OBJECTS_NAME_LOWER                         "debug_set_objects_name"
+#define DEBUG_SET_OBJECTS_NAME_UPPER                         "DEBUG_SET_OBJECTS_NAME"
 #define DISABLE_DXR_LOWER                                    "disable_dxr"
 #define DISABLE_DXR_UPPER                                    "DISABLE_DXR"
 #define ACCEL_STRUCT_PADDING_LOWER                           "accel_struct_padding"
@@ -188,6 +190,7 @@ const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER;
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
+const char kDebugSetObjectsNameEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX DEBUG_SET_OBJECTS_NAME_LOWER;
 const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
 const char kCaptureAndroidDumpAssetsEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_DUMP_ASSETS_LOWER;
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
@@ -245,6 +248,7 @@ const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_QUEUE_SUBMITS_UPPER;
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
+const char kDebugSetObjectsNameEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX DEBUG_SET_OBJECTS_NAME_UPPER;
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_UPPER;
@@ -299,6 +303,7 @@ const std::string kOptionKeyPageGuardSignalHandlerWatcher            = std::stri
 const std::string kOptionKeyPageGuardSignalHandlerWatcherMaxRestores = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER);
 const std::string kDebugLayer                                        = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                                   = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
+const std::string kDebugSetObjectsName                               = std::string(kSettingsFilter) + std::string(DEBUG_SET_OBJECTS_NAME_LOWER);
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
@@ -455,6 +460,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     // Debug environment variables
     LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
     LoadSingleOptionEnvVar(options, kDebugDeviceLostEnvVar, kDebugDeviceLost);
+    LoadSingleOptionEnvVar(options, kDebugSetObjectsNameEnvVar, kDebugSetObjectsName);
 
     // Screenshot environment variables
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);

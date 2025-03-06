@@ -69,6 +69,9 @@ inline format::HandleId GetTempWrapperId<CommandPoolWrapper>(const VkCommandPool
     return 0;
 }
 
+template <typename WrapperType>
+VkObjectType GetObjectType();
+
 template <typename Wrapper>
 format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle, bool log_warning = true)
 {
