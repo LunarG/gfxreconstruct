@@ -37,6 +37,7 @@ namespace sparse_resources
 {
 
 const size_t   MAX_FRAMES_IN_FLIGHT = 2;
+const size_t   FRAMES_UNTIL_EXIT = 200;
 const size_t   STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
 const VkFormat IMAGE_FORMAT         = VK_FORMAT_R8G8B8A8_SRGB;
 
@@ -68,13 +69,13 @@ class App : public gfxrecon::test::TestAppBase
     VkImageView                     sparse_resident_image_view_;
     const uint32_t                  image_size_ = 16;
     const uint32_t                  mip_levels_ = 1;
+    VkSampler                       sampler_;
     VkSparseImageMemoryRequirements image_mem_reqs_;
     VkDeviceMemory                  image_backing_memory_;
     VkDeviceMemory                  staging_backing_memory_;
     VkDeviceMemory                  sparse_buffer_backing_memory_;
     uint32_t                        device_memory_type_;
     uint32_t                        staging_memory_type_;
-    Uniforms                        uniforms_;
 
     uint32_t   sparse_binding_granularity_;
     VkExtent3D sparse_block_dimensions_;
@@ -87,7 +88,6 @@ class App : public gfxrecon::test::TestAppBase
     size_t last_in_flight_frame_    = MAX_FRAMES_IN_FLIGHT - 1;
 
     gfxrecon::test::Sync     sync_;
-    std::vector<VkSemaphore> sparse_binding_semaphores_;
     VkFence                  immediate_fence_;
 
     void create_render_pass();
@@ -103,6 +103,7 @@ class App : public gfxrecon::test::TestAppBase
                                             vkmock::TestConfig*           test_config);
     bool frame(const int frame_num);
     void setup();
+    void cleanup();
 };
 
 void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
@@ -339,8 +340,7 @@ void App::create_descriptor_set()
     sampler_info.borderColor             = {};
     sampler_info.unnormalizedCoordinates = VK_FALSE;
 
-    VkSampler sampler;
-    result = init.disp.createSampler(&sampler_info, nullptr, &sampler);
+    result = init.disp.createSampler(&sampler_info, nullptr, &sampler_);
     VERIFY_VK_RESULT("Failed to create sampler.", result);
 
     VkDescriptorSetLayoutBinding bindings[4] = {};
@@ -358,7 +358,7 @@ void App::create_descriptor_set()
     bindings[2].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLER;
     bindings[2].descriptorCount              = 1;
     bindings[2].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings[2].pImmutableSamplers           = &sampler;
+    bindings[2].pImmutableSamplers           = &sampler_;
     bindings[3].binding                      = 3;
     bindings[3].descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     bindings[3].descriptorCount              = 1;
@@ -684,17 +684,6 @@ void App::setup()
     if (!present_queue.has_value())
         throw std::runtime_error("could not get present queue");
     present_queue_ = *present_queue;
-
-    // Create semaphore for sparse binding
-    sparse_binding_semaphores_.resize(MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        VkSemaphoreCreateInfo info = {};
-        info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        info.pNext                 = nullptr;
-        info.flags                 = 0;
-        init.disp.createSemaphore(&info, nullptr, &sparse_binding_semaphores_[i]);
-    }
 
     // Create fences
     {
@@ -1182,8 +1171,50 @@ bool App::frame(const int frame_num)
     current_in_flight_frame_ = (current_in_flight_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
     current_frame_ += 1;
 
-    // return IS_RUNNING(frame_num);
-    return true;
+    return frame_num < FRAMES_UNTIL_EXIT;
+}
+
+void App::cleanup()
+{
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        init.disp.destroySemaphore(sync_.finished_semaphore[i], nullptr);
+        init.disp.destroySemaphore(sync_.available_semaphores[i], nullptr);
+        init.disp.destroyFence(sync_.in_flight_fences[i], nullptr);
+    }
+
+    for (auto command_pool : command_pools_)
+    {
+        init.disp.destroyCommandPool(command_pool, nullptr);
+    }
+
+    for (auto framebuffer : framebuffers_)
+    {
+        init.disp.destroyFramebuffer(framebuffer, nullptr);
+    }
+
+    init.disp.destroyPipeline(graphics_pipeline_, nullptr);
+    init.disp.destroyPipelineLayout(pipeline_layout_, nullptr);
+    init.disp.destroyRenderPass(render_pass_, nullptr);
+
+    init.disp.destroyBuffer(staging_buffer_, nullptr);
+    init.disp.destroyBuffer(sparse_bound_buffer_, nullptr);
+    
+    init.disp.destroyImageView(sparse_bind_image_view_, nullptr);
+    init.disp.destroyImageView(sparse_resident_image_view_, nullptr);
+    init.disp.destroyImage(sparse_bind_image_, nullptr);
+    init.disp.destroyImage(sparse_resident_image_, nullptr);
+    init.disp.destroySampler(sampler_, nullptr);
+
+    init.disp.destroyFence(immediate_fence_, nullptr);
+
+    init.disp.freeMemory(image_backing_memory_, nullptr);
+    init.disp.freeMemory(staging_backing_memory_, nullptr);
+    init.disp.freeMemory(sparse_buffer_backing_memory_, nullptr);
+
+    init.disp.destroyDescriptorPool(descriptor_pool_, nullptr);
+    init.disp.destroyDescriptorSetLayout(descriptor_layout_, nullptr);
+
 }
 
 // End namespaces
