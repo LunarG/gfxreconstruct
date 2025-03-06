@@ -49,6 +49,7 @@
 #include "graphics/dx12_util.h"
 #endif
 #include "parse_dump_resources_cli.h"
+#include "replay_pre_processing.h"
 
 #include <exception>
 #include <memory>
@@ -88,83 +89,6 @@ void WaitForExit() {}
 #endif
 
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
-
-void RunVulkanPreProcessConsumer(const std::string&                      input_filename,
-                                 gfxrecon::decode::VulkanReplayOptions&  replay_options,
-                                 gfxrecon::decode::VulkanReplayConsumer& replay_consumer)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::VulkanPreProcessConsumer pre_process_consumer;
-
-        if (replay_options.using_dump_resources_target)
-        {
-            pre_process_consumer.EnableDumpResources(replay_options.dump_resources_target);
-        }
-
-        gfxrecon::decode::VulkanDecoder decoder;
-        decoder.AddConsumer(&pre_process_consumer);
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
-
-        replay_options.enable_vulkan = pre_process_consumer.WasVulkanAPIDetected();
-
-        if (replay_options.enable_vulkan)
-        {
-            if (replay_options.using_dump_resources_target)
-            {
-                replay_options.dump_resources_block_indices = pre_process_consumer.GetDumpResourcesBlockIndices();
-            }
-
-            if (replay_options.enable_dump_resources)
-            {
-                // Process --dump-resources block indices arg.
-                if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
-                {
-                    GFXRECON_LOG_FATAL("There was an error while parsing dump resources indices. Terminating.");
-                    exit(0);
-                }
-            }
-        }
-    }
-    replay_consumer.InitializeReplayDumpResources();
-}
-
-#if defined(D3D12_SUPPORT)
-void RunDx12PreProcessConsumer(const std::string&                    input_filename,
-                               gfxrecon::decode::DxReplayOptions&    replay_options,
-                               gfxrecon::decode::Dx12ReplayConsumer& replay_consumer)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::Dx12PreProcessConsumer pre_process_consumer;
-
-        if (replay_options.enable_dump_resources)
-        {
-            pre_process_consumer.EnableDumpResources(replay_options.dump_resources_target);
-        }
-
-        gfxrecon::decode::Dx12Decoder decoder;
-        decoder.AddConsumer(&pre_process_consumer);
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
-
-        replay_options.enable_d3d12 = pre_process_consumer.WasD3D12APIDetected();
-
-        if (replay_options.enable_d3d12)
-        {
-            if (replay_options.enable_dump_resources)
-            {
-                auto track_dump_target = pre_process_consumer.GetTrackDumpTarget();
-                GFXRECON_ASSERT(track_dump_target != nullptr);
-                replay_consumer.SetDumpTarget(*track_dump_target);
-            }
-        }
-    }
-}
-#endif
 
 int main(int argc, const char** argv)
 {
@@ -275,7 +199,29 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
             gfxrecon::decode::VulkanDecoder        vulkan_decoder;
 
-            RunVulkanPreProcessConsumer(filename, vulkan_replay_options, vulkan_replay_consumer);
+            ApiReplayOptions  api_replay_options;
+            ApiReplayConsumer api_replay_consumer;
+            api_replay_options.vk_replay_options   = &vulkan_replay_options;
+            api_replay_consumer.vk_replay_consumer = &vulkan_replay_consumer;
+
+#if defined(D3D12_SUPPORT)
+            gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
+            gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
+            gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+            api_replay_options.dx12_replay_options   = &dx_replay_options;
+            api_replay_consumer.dx12_replay_consumer = &dx12_replay_consumer;
+#endif // D3D12_SUPPORT
+
+#ifdef GFXRECON_AGS_SUPPORT
+            gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
+            gfxrecon::decode::AgsDecoder        ags_decoder;
+#endif // GFXRECON_AGS_SUPPORT
+
+            if (IsRunPreProcessConsumer(api_replay_options))
+            {
+                RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
+            }
 
             if (vulkan_replay_options.enable_vulkan)
             {
@@ -285,23 +231,13 @@ int main(int argc, const char** argv)
 
                 vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
                 file_processor->AddDecoder(&vulkan_decoder);
+
+                file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
+                                                      vulkan_replay_options.block_index_from,
+                                                      vulkan_replay_options.block_index_to);
             }
-            file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
-                                                  vulkan_replay_options.block_index_from,
-                                                  vulkan_replay_options.block_index_to);
 
 #if defined(D3D12_SUPPORT)
-            gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
-            gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
-            gfxrecon::decode::Dx12Decoder        dx12_decoder;
-
-#ifdef GFXRECON_AGS_SUPPORT
-            gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
-            gfxrecon::decode::AgsDecoder        ags_decoder;
-#endif // GFXRECON_AGS_SUPPORT
-
-            RunDx12PreProcessConsumer(filename, dx_replay_options, dx12_replay_consumer);
-
             if (dx_replay_options.enable_d3d12)
             {
                 application->InitializeDx12WsiContext();
@@ -342,7 +278,7 @@ int main(int argc, const char** argv)
                 file_processor->AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
             }
-#endif
+#endif // D3D12_SUPPORT
 
             // Warn if the capture layer is active.
             CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
