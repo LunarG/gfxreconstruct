@@ -45,7 +45,7 @@ if (${D3D12_SUPPORT})
             message("Current DXC_INCLUDE_DIR '${DXC_INCLUDE_DIR}' does not contain 'dxcapi.h'. Resetting DXC_INCLUDE_DIR.")
             unset(DXC_INCLUDE_DIR CACHE)
         endif()
-        find_path(DXC_INCLUDE_DIR NAME "dxcapi.h" PATHS "${DXC_SDK_DIR}/inc")
+        find_path(DXC_INCLUDE_DIR NAME "dxcapi.h" PATHS "${DXC_SDK_DIR}/inc" NO_DEFAULT_PATH)
         mark_as_advanced(DXC_INCLUDE_DIR)
 
         # If the cached library path doesn't exist or arch doesn't match, unset variable.
