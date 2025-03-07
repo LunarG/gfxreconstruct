@@ -149,117 +149,75 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #if defined(__ANDROID__)
 // Android Properties
 #define GFXRECON_ENV_VAR_PREFIX "debug.gfxrecon."
-
+#define GFXRECON_POSTFIX LOWER
 const char CaptureSettings::kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-
-const char kCaptureCompressionTypeEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_LOWER;
-const char kCaptureFileFlushEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_LOWER;
-const char kCaptureFileNameEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_LOWER;
-const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_LOWER;
-const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
-const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
-const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
-const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
-const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
-const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
-const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
-const char kLogFileKeepFileOpenEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_LOWER;
-const char kLogLevelEnvVar[]                                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_LOWER;
-const char kLogOutputToConsoleEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_LOWER;
-const char kLogOutputToOsDebugStringEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
-const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
-const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_DIR_LOWER;
-const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_LOWER;
-const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_LOWER;
-const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
-const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_DRAW_CALLS_LOWER;
-const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_LOWER;
-const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
-const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
-const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_LOWER;
-const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_QUEUE_SUBMITS_LOWER;
-const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_LOWER;
-const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
-const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
-const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
-const char kPageGuardAlignBufferSizesEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER;
-const char kPageGuardTrackAhbMemoryEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_LOWER;
-const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
-const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER;
-const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
-const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER;
-const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
-const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
-const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
-const char kCaptureAndroidDumpAssetsEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_DUMP_ASSETS_LOWER;
-const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
-const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
-const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
-const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX QUEUE_ZERO_ONLY_LOWER;
-const char kAllowPipelineCompileRequiredEnvVar[]             = GFXRECON_ENV_VAR_PREFIX ALLOW_PIPELINE_COMPILE_REQUIRED_LOWER;
-const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_LOWER;
-const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_LOWER;
-const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
-const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
-const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_LOWER;
-const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_ENV_VAR_PREFIX IGNORE_FRAME_BOUNDARY_ANDROID_LOWER;
-
 #else
 // Desktop environment settings
 #define GFXRECON_ENV_VAR_PREFIX "GFXRECON_"
-
+#define GFXRECON_POSTFIX UPPER
 const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+#endif
 
-const char kCaptureCompressionTypeEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
-const char kCaptureFileFlushEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
-const char kCaptureFileNameEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
-const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
-const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_UPPER;
-const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
-const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
-const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
-const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
-const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
-const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
-const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
-const char kLogFileKeepFileOpenEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
-const char kLogLevelEnvVar[]                                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
-const char kLogOutputToConsoleEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
-const char kLogOutputToOsDebugStringEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
-const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
-const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_DIR_UPPER;
-const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_UPPER;
-const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_UPPER;
-const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
-const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_DRAW_CALLS_UPPER;
-const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_UPPER;
-const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
-const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
-const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_UPPER;
-const char kPageGuardAlignBufferSizesEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER;
-const char kPageGuardTrackAhbMemoryEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
-const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
-const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_UPPER;
-const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_UPPER;
-const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_UPPER;
-const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
-const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_UPPER;
-const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_UPPER;
-const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_QUEUE_SUBMITS_UPPER;
-const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
-const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
-const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
-const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
-const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_UPPER;
-const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX QUEUE_ZERO_ONLY_UPPER;
-const char kAllowPipelineCompileRequiredEnvVar[]             = GFXRECON_ENV_VAR_PREFIX ALLOW_PIPELINE_COMPILE_REQUIRED_UPPER;
-const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_UPPER;
-const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_UPPER;
-const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
-const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
-const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_UPPER;
-const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_ENV_VAR_PREFIX IGNORE_FRAME_BOUNDARY_ANDROID_UPPER;
+#define GFXRECON_PASTER(x,y) x ## _ ## y
+#define GFXRECON_EVALUATOR(x,y)  GFXRECON_PASTER(x,y)
 
+#define GFXRECON_OPTION_STR(OPTION) GFXRECON_ENV_VAR_PREFIX GFXRECON_EVALUATOR(OPTION, GFXRECON_POSTFIX)
+
+// Common capture settings
+const char kCaptureCompressionTypeEnvVar[]                   = GFXRECON_OPTION_STR(CAPTURE_COMPRESSION_TYPE);
+const char kCaptureFileFlushEnvVar[]                         = GFXRECON_OPTION_STR(CAPTURE_FILE_FLUSH);
+const char kCaptureFileNameEnvVar[]                          = GFXRECON_OPTION_STR(CAPTURE_FILE_NAME);
+const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_OPTION_STR(CAPTURE_FILE_USE_TIMESTAMP);
+const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_OPTION_STR(CAPTURE_USE_ASSET_FILE);
+const char kLogAllowIndentsEnvVar[]                          = GFXRECON_OPTION_STR(LOG_ALLOW_INDENTS);
+const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_OPTION_STR(LOG_BREAK_ON_ERROR);
+const char kLogDetailedEnvVar[]                              = GFXRECON_OPTION_STR(LOG_DETAILED);
+const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_OPTION_STR(LOG_ERRORS_TO_STDERR);
+const char kLogFileNameEnvVar[]                              = GFXRECON_OPTION_STR(LOG_FILE_NAME);
+const char kLogFileCreateNewEnvVar[]                         = GFXRECON_OPTION_STR(LOG_FILE_CREATE_NEW);
+const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_OPTION_STR(LOG_FILE_FLUSH_AFTER_WRITE);
+const char kLogFileKeepFileOpenEnvVar[]                      = GFXRECON_OPTION_STR(LOG_FILE_KEEP_OPEN);
+const char kLogLevelEnvVar[]                                 = GFXRECON_OPTION_STR(LOG_LEVEL);
+const char kLogOutputToConsoleEnvVar[]                       = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_CONSOLE);
+const char kLogOutputToOsDebugStringEnvVar[]                 = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_OS_DEBUG_STRING);
+const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_OPTION_STR(MEMORY_TRACKING_MODE);
+const char kScreenshotDirEnvVar[]                            = GFXRECON_OPTION_STR(SCREENSHOT_DIR);
+const char kScreenshotFormatEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FORMAT);
+const char kScreenshotFramesEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FRAMES);
+const char kCaptureFramesEnvVar[]                            = GFXRECON_OPTION_STR(CAPTURE_FRAMES);
+const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_OPTION_STR(CAPTURE_DRAW_CALLS);
+const char kQuitAfterFramesEnvVar[]                          = GFXRECON_OPTION_STR(QUIT_AFTER_CAPTURE_FRAMES);
+const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_OPTION_STR(PAGE_GUARD_COPY_ON_MAP);
+const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_OPTION_STR(PAGE_GUARD_SEPARATE_READ);
+const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_OPTION_STR(PAGE_GUARD_PERSISTENT_MEMORY);
+const char kPageGuardAlignBufferSizesEnvVar[]                = GFXRECON_OPTION_STR(PAGE_GUARD_ALIGN_BUFFER_SIZES);
+const char kPageGuardTrackAhbMemoryEnvVar[]                  = GFXRECON_OPTION_STR(PAGE_GUARD_TRACK_AHB_MEMORY);
+const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_OPTION_STR(PAGE_GUARD_EXTERNAL_MEMORY);
+const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_OPTION_STR(PAGE_GUARD_UNBLOCK_SIGSEGV);
+const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER);
+const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES);
+const char kCaptureTriggerEnvVar[]                           = GFXRECON_OPTION_STR(CAPTURE_TRIGGER);
+const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_OPTION_STR(CAPTURE_TRIGGER_FRAMES);
+const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_OPTION_STR(CAPTURE_IUNKNOWN_WRAPPING);
+const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_OPTION_STR(CAPTURE_QUEUE_SUBMITS);
+const char kDebugLayerEnvVar[]                               = GFXRECON_OPTION_STR(DEBUG_LAYER);
+const char kDebugDeviceLostEnvVar[]                          = GFXRECON_OPTION_STR(DEBUG_DEVICE_LOST);
+const char kDisableDxrEnvVar[]                               = GFXRECON_OPTION_STR(DISABLE_DXR);
+const char kAccelStructPaddingEnvVar[]                       = GFXRECON_OPTION_STR(ACCEL_STRUCT_PADDING);
+const char kForceCommandSerializationEnvVar[]                = GFXRECON_OPTION_STR(FORCE_COMMAND_SERIALIZATION);
+const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_OPTION_STR(QUEUE_ZERO_ONLY);
+const char kAllowPipelineCompileRequiredEnvVar[]             = GFXRECON_OPTION_STR(ALLOW_PIPELINE_COMPILE_REQUIRED);
+const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_OPTION_STR(RV_ANNOTATION_EXPERIMENTAL);
+const char kAnnotationRandEnvVar[]                           = GFXRECON_OPTION_STR(RV_ANNOTATION_RAND);
+const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_OPTION_STR(RV_ANNOTATION_GPUVA);
+const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_OPTION_STR(RV_ANNOTATION_DESCRIPTOR);
+const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_OPTION_STR(FORCE_FIFO_PRESENT_MODE);
+const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_OPTION_STR(IGNORE_FRAME_BOUNDARY_ANDROID);
+
+#if defined(__ANDROID__)
+// Android-specific capture options
+const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_OPTION_STR(CAPTURE_ANDROID_TRIGGER);
+const char kCaptureAndroidDumpAssetsEnvVar[]                 = GFXRECON_OPTION_STR(CAPTURE_ANDROID_DUMP_ASSETS);
 #endif
 
 // Capture options for settings file.
