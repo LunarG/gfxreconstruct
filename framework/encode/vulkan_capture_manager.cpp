@@ -3186,8 +3186,7 @@ void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkDevice            
     }
 }
 
-void VulkanCaptureManager::PostProcess_vkCreateGraphicsPipelines(VkResult                            result,
-                                                                 VkDevice                            device,
+void VulkanCaptureManager::PostProcess_vkCreateGraphicsPipelines(VkDevice                            device,
                                                                  VkPipelineCache                     pipelineCache,
                                                                  uint32_t                            createInfoCount,
                                                                  const VkGraphicsPipelineCreateInfo* pCreateInfos,

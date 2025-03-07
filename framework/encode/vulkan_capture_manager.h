@@ -1587,13 +1587,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                           const VkShaderModuleCreateInfo* pCreateInfo,
                                           const VkAllocationCallbacks*    pAllocator,
                                           VkShaderModule*                 pShaderModule);
-    void PostProcess_vkCreateGraphicsPipelines(VkResult                            result,
-                                               VkDevice                            device,
-                                               VkPipelineCache                     pipelineCache,
-                                               uint32_t                            createInfoCount,
-                                               const VkGraphicsPipelineCreateInfo* pCreateInfos,
-                                               const VkAllocationCallbacks*        pAllocator,
-                                               VkPipeline*                         pPipelines);
     void PostProcess_vkCreatePipelineLayout(VkDevice                          device,
                                             const VkPipelineLayoutCreateInfo* pCreateInfo,
                                             const VkAllocationCallbacks*      pAllocator,
