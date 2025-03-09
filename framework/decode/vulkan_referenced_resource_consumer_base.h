@@ -258,6 +258,24 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
     bool WasNotOptimizable() { return not_optimizable_; }
 
+    virtual void
+    Process_vkGetBufferDeviceAddress(const ApiCallInfo&                                       call_info,
+                                     VkDeviceAddress                                          returnValue,
+                                     format::HandleId                                         device,
+                                     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void
+    Process_vkGetBufferDeviceAddressKHR(const ApiCallInfo&                                       call_info,
+                                        VkDeviceAddress                                          returnValue,
+                                        format::HandleId                                         device,
+                                        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void
+    Process_vkGetBufferDeviceAddressEXT(const ApiCallInfo&                                       call_info,
+                                        VkDeviceAddress                                          returnValue,
+                                        format::HandleId                                         device,
+                                        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
   protected:
     bool IsStateLoading() const { return loading_state_; }
 

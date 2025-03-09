@@ -89,6 +89,8 @@ class ReferencedResourceTable
     void GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
                                   std::unordered_set<format::HandleId>* unreferenced_ids) const;
 
+    void MarkResourceAsUsed(format::HandleId resource);
+
   private:
     // Track the referenced/used state of a resource (buffer, image, view, framebuffer).
     struct ResourceInfo
