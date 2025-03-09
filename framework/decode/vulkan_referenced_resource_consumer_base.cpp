@@ -1158,5 +1158,39 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
     }
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddress(
+    const ApiCallInfo&                                       call_info,
+    VkDeviceAddress                                          returnValue,
+    format::HandleId                                         device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    if (pInfo != nullptr && pInfo->GetMetaStructPointer() != nullptr)
+    {
+        const auto* buffer_device_address = pInfo->GetMetaStructPointer();
+        if (buffer_device_address != nullptr)
+        {
+            table_.MarkResourceAsUsed(buffer_device_address->buffer);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressKHR(
+    const ApiCallInfo&                                       call_info,
+    VkDeviceAddress                                          returnValue,
+    format::HandleId                                         device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    Process_vkGetBufferDeviceAddress(call_info, returnValue, device, pInfo);
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressEXT(
+    const ApiCallInfo&                                       call_info,
+    VkDeviceAddress                                          returnValue,
+    format::HandleId                                         device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    Process_vkGetBufferDeviceAddress(call_info, returnValue, device, pInfo);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
