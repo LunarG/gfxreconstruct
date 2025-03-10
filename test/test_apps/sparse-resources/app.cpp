@@ -828,7 +828,7 @@ bool App::frame(const int frame_num)
             sparse_resident_bind.memoryOffset  = sparse_binding_granularity_;
             // if (reverse_bind)
             sparse_resident_bind.memoryOffset = 0;
-            sparse_resident_bind.flags = 0;
+            sparse_resident_bind.flags        = 0;
 
             VkSparseImageMemoryBindInfo res_bind_info = {};
             res_bind_info.image                       = sparse_resident_image_;
@@ -842,7 +842,7 @@ bool App::frame(const int frame_num)
             sparse_image_bind.memoryOffset       = 0;
             // if (reverse_bind)
             sparse_image_bind.memoryOffset = sparse_binding_granularity_;
-            sparse_image_bind.flags = 0;
+            sparse_image_bind.flags        = 0;
             // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
             VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
