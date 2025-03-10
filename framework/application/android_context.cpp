@@ -110,6 +110,7 @@ void AndroidContext::SetOrientation(ScreenOrientation orientation)
 
 void AndroidContext::requestNativeWindow(int width, int height)
 {
+#ifdef GFXR_MULTI_WINDOW_REPLAY
     JavaVM* jni_vm       = nullptr;
     jobject jni_activity = nullptr;
     JNIEnv* env          = nullptr;
@@ -125,10 +126,12 @@ void AndroidContext::requestNativeWindow(int width, int height)
         env->CallVoidMethod(jni_activity, createsufaceview, width, height);
         jni_vm->DetachCurrentThread();
     }
+#endif
 }
 
 void AndroidContext::destroyNativeWindow(int window_index)
 {
+#ifdef GFXR_MULTI_WINDOW_REPLAY
     JavaVM* jni_vm       = nullptr;
     jobject jni_activity = nullptr;
     JNIEnv* env          = nullptr;
@@ -144,6 +147,7 @@ void AndroidContext::destroyNativeWindow(int window_index)
         env->CallVoidMethod(jni_activity, removesurfaceview, window_index);
         jni_vm->DetachCurrentThread();
     }
+#endif
 }
 
 GFXRECON_END_NAMESPACE(application)
