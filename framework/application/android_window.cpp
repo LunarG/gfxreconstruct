@@ -164,6 +164,7 @@ decode::Window* AndroidWindowFactory::Create(
     GFXRECON_UNREFERENCED_PARAMETER(height);
     GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
 
+#ifdef GFXR_MULTI_WINDOW_REPLAY
     tmp_window = nullptr;
     android_context_->requestNativeWindow(width, height);
     AndroidWindow* tmpwin = nullptr;
@@ -177,12 +178,20 @@ decode::Window* AndroidWindowFactory::Create(
         GFXRECON_LOG_WARNING("Get android window failed");
     }
     return tmpwin;
+#else // !GFXR_MULTI_WINDOW_REPLAY
+    return android_context_->GetWindow();
+#endif
 }
 
 void AndroidWindowFactory::Destroy(decode::Window* window)
 {
+#ifdef GFXR_MULTI_WINDOW_REPLAY
     int32_t windowidx = created_window_.at(window);
     android_context_->destroyNativeWindow(windowidx);
+#else // !GFXR_MULTI_WINDOW_REPLAY
+    // Standard replay app only has a single window whose lifetime is managed by AndroidContext.
+    GFXRECON_UNREFERENCED_PARAMETER(window);
+#endif
 }
 
 VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,

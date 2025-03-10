@@ -32,23 +32,25 @@ argc = len(sys.argv)
 # Supported commands
 valid_commands = [
     'install-apk',
+    'multiwin-replay',
     'replay'
 ]
 
 # Arguments
 # gfxrecon install-apk <file>
 # gfxrecon replay [-p | --push-file <file-on-desktop>] <file-on-device>
+# gfxrecon multiwin-replay [-p | --push-file <file-on-desktop>] <file-on-device>
 
 # Application info
 app_name = 'com.lunarg.gfxreconstruct.replay'
-app_activity = '"com.lunarg.gfxreconstruct.replay/.ReplayActivity"'
+app_activity = '"com.lunarg.gfxreconstruct.replay/android.app.NativeActivity"'
+multiwin_app_activity = '"com.lunarg.gfxreconstruct.replay/.ReplayActivity"'
 app_action = 'android.intent.action.MAIN'
 app_category = 'android.intent.category.LAUNCHER'
 
 # ADB commands
 adb_install = 'adb install -g -t -r'
 adb_sdk_version = 'adb shell getprop ro.build.version.sdk'
-adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_action, app_category)
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
 adb_devices = 'adb devices'
@@ -359,7 +361,7 @@ def InstallApk(install_args):
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
-def Replay(replay_args):
+def ReplayCommon(replay_args, activity):
     replay_parser = CreateReplayParser()
     args = replay_parser.parse_args(replay_args)
 
@@ -376,11 +378,19 @@ def Replay(replay_args):
         print('Executing:', adb_stop)
         subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
 
+        adb_start = 'adb shell am start -n {} -a {} -c {}'.format(activity, app_action, app_category)
+
         cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
         print('Executing:', cmd)
 
         # Specify posix=False to prevent removal of quotes from adb extras.
         subprocess.check_call(shlex.split(cmd, posix=False))
+
+def Replay(replay_args):
+    ReplayCommon(replay_args, app_activity)
+
+def MultiWinReplay(replay_args):
+    ReplayCommon(replay_args, multiwin_app_activity)
 
 if __name__ == '__main__':
     devices = QueryAvailableDevices()
@@ -392,3 +402,5 @@ if __name__ == '__main__':
         InstallApk(command.args)
     elif command.command == 'replay':
         Replay(command.args)
+    elif command.command == 'multiwin-replay':
+        MultiWinReplay(command.args)

@@ -21,6 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#ifdef GFXR_MULTI_WINDOW_REPLAY
+
 #include <jni.h>
 #include <android/log.h>
 #include "application/android_window.h"
@@ -34,3 +36,5 @@ extern "C" JNIEXPORT void JNICALL Java_com_lunarg_gfxreconstruct_replay_ReplayAc
     gfxrecon::application::tmp_window = ANativeWindow_fromSurface(env, surface);
     GFXRECON_LOG_INFO("Created new window %p", gfxrecon::application::tmp_window);
 }
+
+#endif // GFXR_MULTI_WINDOW_REPLAY
