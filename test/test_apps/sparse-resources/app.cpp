@@ -412,6 +412,25 @@ void App::determine_memory_heaps()
             }
         }
     }
+
+    // Also determine sparse binding block size by creating
+    // dummy object
+    VkBufferCreateInfo buffer_info  = {};
+    buffer_info.sType               = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.pNext               = nullptr;
+    buffer_info.flags               = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
+    buffer_info.size                = 1;
+    buffer_info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    uint32_t idx                    = init.device.get_queue_index(test::QueueType::graphics).value();
+    buffer_info.pQueueFamilyIndices = &idx;
+    VkBuffer dummy;
+    VkResult result = init.disp.createBuffer(&buffer_info, nullptr, &dummy);
+    VERIFY_VK_RESULT("failed to create dummy buffer", result);
+
+    VkMemoryRequirements mem_reqs = {};
+    init.disp.getBufferMemoryRequirements(dummy, &mem_reqs);
+    sparse_binding_granularity_ = mem_reqs.alignment;
+    init.disp.destroyBuffer(dummy, nullptr);
 }
 
 void App::create_staging_buffer()
@@ -454,7 +473,7 @@ void App::create_sparse_bound_buffer()
     buffer_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     buffer_info.pNext                 = nullptr;
     buffer_info.flags                 = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
-    buffer_info.size                  = 2 * sizeof(Uniforms);
+    buffer_info.size                  = 2 * sparse_binding_granularity_;
     buffer_info.usage                 = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     buffer_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     buffer_info.queueFamilyIndexCount = 1;
@@ -469,7 +488,7 @@ void App::create_sparse_bound_buffer()
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.pNext                = nullptr;
-    alloc_info.allocationSize       = 2 * mem_reqs.size;
+    alloc_info.allocationSize       = 2 * sparse_binding_granularity_;
     alloc_info.memoryTypeIndex      = device_memory_type_;
     result                          = init.disp.allocateMemory(&alloc_info, nullptr, &sparse_buffer_backing_memory_);
     VERIFY_VK_RESULT("failed to allocate sparse buffer memory", result);
@@ -582,7 +601,7 @@ void App::create_images()
     {
         VkMemoryRequirements sparse_bind_image_reqs = {};
         init.disp.getImageMemoryRequirements(sparse_bind_image_, &sparse_bind_image_reqs);
-        sparse_binding_granularity_ = sparse_bind_image_reqs.alignment;
+        // sparse_binding_granularity_ = sparse_bind_image_reqs.alignment;
 
         VkMemoryRequirements sparse_resident_image_reqs = {};
         init.disp.getImageMemoryRequirements(sparse_resident_image_, &sparse_resident_image_reqs);
@@ -758,9 +777,11 @@ bool App::frame(const int frame_num)
         // Bind sparse memory
         const int frames_per_switch = 20;
         bool      do_memory_bind    = current_frame_ % frames_per_switch == 0;
-        bool      reverse_bind      = (current_frame_ / frames_per_switch) % 2 == 1;
         if (do_memory_bind)
         {
+            bool reverse_bind = (current_frame_ / frames_per_switch) % 2 == 1;
+            bool upload_data  = current_frame_ <= frames_per_switch;
+
             // Sparse buffer bind
             VkSparseMemoryBind sparse_buffer_bind = {};
             sparse_buffer_bind.resourceOffset     = 0;
@@ -805,8 +826,8 @@ bool App::frame(const int frame_num)
             sparse_resident_bind.extent.depth  = 1;
             sparse_resident_bind.memory        = image_backing_memory_;
             sparse_resident_bind.memoryOffset  = sparse_binding_granularity_;
-            if (reverse_bind)
-                sparse_resident_bind.memoryOffset = 0;
+            // if (reverse_bind)
+            sparse_resident_bind.memoryOffset = 0;
             sparse_resident_bind.flags = 0;
 
             VkSparseImageMemoryBindInfo res_bind_info = {};
@@ -819,8 +840,8 @@ bool App::frame(const int frame_num)
             sparse_image_bind.size               = sparse_binding_granularity_;
             sparse_image_bind.memory             = image_backing_memory_;
             sparse_image_bind.memoryOffset       = 0;
-            if (reverse_bind)
-                sparse_image_bind.memoryOffset = sparse_binding_granularity_;
+            // if (reverse_bind)
+            sparse_image_bind.memoryOffset = sparse_binding_granularity_;
             sparse_image_bind.flags = 0;
             // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
@@ -856,19 +877,28 @@ bool App::frame(const int frame_num)
             VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
 
             // Upload image data after bind
-            static bool first_frame = true;
-            if (first_frame)
+            if (upload_data)
             {
                 // Write uniform data to staging buffer for sparse bound uniform buffer
                 {
                     float* rot_ptr = (float*)staging_buffer_ptr_;
                     rot_ptr[0]     = 3.1415926 / 2.0;
-                    rot_ptr[1]     = 3.1415926;
+                    if (current_frame_ == frames_per_switch)
+                        rot_ptr[0] = 3.0 * 3.1415926 / 2.0;
 
+                    // rot_ptr[1]     = 3.1415926;
+
+                    // VkBufferCopy regions[2] = {};
+                    // regions[0].srcOffset    = 0;
+                    // regions[0].dstOffset    = 0;
+                    // regions[0].size         = sizeof(Uniforms);
+                    // regions[1].srcOffset    = sizeof(Uniforms);
+                    // regions[1].dstOffset    = sparse_binding_granularity_;
+                    // regions[1].size         = sizeof(Uniforms);
                     VkBufferCopy region = {};
                     region.srcOffset    = 0;
                     region.dstOffset    = 0;
-                    region.size         = 2 * sizeof(Uniforms);
+                    region.size         = sizeof(Uniforms);
                     init.disp.cmdCopyBuffer(command_buffer, staging_buffer_, sparse_bound_buffer_, 1, &region);
 
                     // Memory barrier to make this write available/visible
@@ -894,13 +924,15 @@ bool App::frame(const int frame_num)
                 }
 
                 // Write pixels to staging buffer for sparse bound image
+                uint32_t image_staging_offset = 2 * sizeof(Uniforms);
+                uint8_t* image_staging_ptr    = staging_buffer_ptr_ + image_staging_offset;
                 for (int y = 0; y < image_size_; ++y)
                 {
                     for (int x = 0; x < image_size_; ++x)
                     {
                         // Pointer to first byte of current pixel
                         // This is an R8G8B8A8 format
-                        uint8_t* first_byte = staging_buffer_ptr_ + 4 * (y * image_size_ + x);
+                        uint8_t* first_byte = image_staging_ptr + 4 * (y * image_size_ + x);
                         if (x % 2 + y % 2 == 1)
                         {
                             first_byte[0] = 0xFF;
@@ -908,6 +940,7 @@ bool App::frame(const int frame_num)
                         }
                     }
                 }
+                image_staging_ptr += 4 * image_size_ * image_size_;
 
                 // Write pixels to staging buffer for sparse resident image
                 for (int y = 0; y < image_size_; ++y)
@@ -916,8 +949,7 @@ bool App::frame(const int frame_num)
                     {
                         // Pointer to first byte of current pixel
                         // This is an R8G8B8A8 format
-                        uint8_t* first_byte =
-                            staging_buffer_ptr_ + 4 * (y * image_size_ + x + image_size_ * image_size_);
+                        uint8_t* first_byte = image_staging_ptr + 4 * (y * image_size_ + x);
                         if (x % 2 + y % 2 == 1)
                         {
                             first_byte[0] = 0xFF;
@@ -962,7 +994,7 @@ bool App::frame(const int frame_num)
 
                 // Copy image data from staging buffer
                 VkBufferImageCopy image_copies[2]               = {};
-                image_copies[0].bufferOffset                    = 0;
+                image_copies[0].bufferOffset                    = image_staging_offset;
                 image_copies[0].bufferRowLength                 = 0;
                 image_copies[0].bufferImageHeight               = 0;
                 image_copies[0].imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -976,7 +1008,7 @@ bool App::frame(const int frame_num)
                 image_copies[0].imageExtent.height              = image_size_;
                 image_copies[0].imageExtent.depth               = 1;
 
-                image_copies[1].bufferOffset                    = 4 * image_size_ * image_size_;
+                image_copies[1].bufferOffset                    = image_staging_offset + 4 * image_size_ * image_size_;
                 image_copies[1].bufferRowLength                 = 0;
                 image_copies[1].bufferImageHeight               = 0;
                 image_copies[1].imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -1036,7 +1068,6 @@ bool App::frame(const int frame_num)
                                                  2,
                                                  image_barriers);
                 }
-                first_frame = false;
             }
         }
 
@@ -1171,7 +1202,8 @@ bool App::frame(const int frame_num)
     current_in_flight_frame_ = (current_in_flight_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
     current_frame_ += 1;
 
-    return frame_num < FRAMES_UNTIL_EXIT;
+    // return frame_num < FRAMES_UNTIL_EXIT;
+    return true;
 }
 
 void App::cleanup()
