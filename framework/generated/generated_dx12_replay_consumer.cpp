@@ -7513,9 +7513,12 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
             CreationParametersDataSizeInBytes,
             riid,
             ppMetaCommand);
-        if(!ppMetaCommand->IsNull()) ppMetaCommand->SetHandleLength(1);
         DxObjectInfo object_info_ppMetaCommand{};
-        ppMetaCommand->SetConsumerData(0, &object_info_ppMetaCommand);
+        if(!ppMetaCommand->IsNull())
+        {
+            ppMetaCommand->SetHandleLength(1);
+            ppMetaCommand->SetConsumerData(0, &object_info_ppMetaCommand);
+        }
         auto replay_result = OverrideCreateMetaCommand(replay_object,
                                                        return_value,
                                                        CommandId,
