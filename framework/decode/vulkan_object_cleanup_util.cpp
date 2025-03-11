@@ -74,7 +74,13 @@ void FreeChildObjects(CommonObjectInfoTable* table,
     // Visit all table entries and sort them by parent ID.  Using unordered_map to filter duplicate handles.
     std::unordered_map<format::HandleId, std::unordered_map<typename T::HandleType, const T*>> objects;
 
-    (table->*VisitFunc)([&](const T* info) { AddChildObject(&objects, info); });
+    (table->*VisitFunc)([&](const T* info) {
+        if constexpr (has_handle_future_v<T>)
+        {
+            sync_handle(const_cast<T*>(info));
+        }
+        AddChildObject(&objects, info);
+    });
 
     for (const auto& entry : objects)
     {
