@@ -7514,17 +7514,19 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
             riid,
             ppMetaCommand);
         if(!ppMetaCommand->IsNull()) ppMetaCommand->SetHandleLength(1);
-        auto out_p_ppMetaCommand    = ppMetaCommand->GetPointer();
-        auto out_hp_ppMetaCommand   = ppMetaCommand->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12Device5*>(replay_object->object)->CreateMetaCommand(*CommandId.decoded_value,
-                                                                                                        NodeMask,
-                                                                                                        pCreationParametersData->GetPointer(),
-                                                                                                        CreationParametersDataSizeInBytes,
-                                                                                                        *riid.decoded_value,
-                                                                                                        out_hp_ppMetaCommand);
+        DxObjectInfo object_info_ppMetaCommand{};
+        ppMetaCommand->SetConsumerData(0, &object_info_ppMetaCommand);
+        auto replay_result = OverrideCreateMetaCommand(replay_object,
+                                                       return_value,
+                                                       CommandId,
+                                                       NodeMask,
+                                                       pCreationParametersData,
+                                                       CreationParametersDataSizeInBytes,
+                                                       riid,
+                                                       ppMetaCommand);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppMetaCommand, out_hp_ppMetaCommand, format::ApiCall_ID3D12Device5_CreateMetaCommand);
+            AddObject(ppMetaCommand->GetPointer(), ppMetaCommand->GetHandlePointer(), std::move(object_info_ppMetaCommand), format::ApiCall_ID3D12Device5_CreateMetaCommand);
         }
         CheckReplayResult("ID3D12Device5_CreateMetaCommand", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateMetaCommand>::Dispatch(
@@ -8631,23 +8633,11 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaComman
             pMetaCommand,
             pInitializationParametersData,
             InitializationParametersDataSizeInBytes);
-        auto in_pMetaCommand = MapObject<ID3D12MetaCommand>(pMetaCommand);
-        reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->InitializeMetaCommand(in_pMetaCommand,
-                                                                                                    pInitializationParametersData->GetPointer(),
-                                                                                                    InitializationParametersDataSizeInBytes);
-        if(options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand);
-            for (auto& command_set : dump_command_sets)
-            {
-                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
-                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-                command_list4->InitializeMetaCommand(in_pMetaCommand,
-                                                     pInitializationParametersData->GetPointer(),
-                                                     InitializationParametersDataSizeInBytes);
-            }
-        }
+        auto in_pMetaCommand = GetObjectInfo(pMetaCommand);
+        OverrideInitializeMetaCommand(replay_object,
+                                      in_pMetaCommand,
+                                      pInitializationParametersData,
+                                      InitializationParametersDataSizeInBytes);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
             this,
             call_info,
@@ -8679,23 +8669,11 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
             pMetaCommand,
             pExecutionParametersData,
             ExecutionParametersDataSizeInBytes);
-        auto in_pMetaCommand = MapObject<ID3D12MetaCommand>(pMetaCommand);
-        reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->ExecuteMetaCommand(in_pMetaCommand,
-                                                                                                 pExecutionParametersData->GetPointer(),
-                                                                                                 ExecutionParametersDataSizeInBytes);
-        if(options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand);
-            for (auto& command_set : dump_command_sets)
-            {
-                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
-                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-                command_list4->ExecuteMetaCommand(in_pMetaCommand,
-                                                  pExecutionParametersData->GetPointer(),
-                                                  ExecutionParametersDataSizeInBytes);
-            }
-        }
+        auto in_pMetaCommand = GetObjectInfo(pMetaCommand);
+        OverrideExecuteMetaCommand(replay_object,
+                                   in_pMetaCommand,
+                                   pExecutionParametersData,
+                                   ExecutionParametersDataSizeInBytes);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
             this,
             call_info,

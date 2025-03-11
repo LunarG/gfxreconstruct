@@ -55,7 +55,8 @@
     },
     "ID3D12Device5": {
       "CreateStateObject": "OverrideCreateStateObject",
-      "GetRaytracingAccelerationStructurePrebuildInfo": "OverrideGetRaytracingAccelerationStructurePrebuildInfo"
+      "GetRaytracingAccelerationStructurePrebuildInfo": "OverrideGetRaytracingAccelerationStructurePrebuildInfo",
+      "CreateMetaCommand": "OverrideCreateMetaCommand"
     },
     "ID3D12Device7": {
       "AddToStateObject": "OverrideAddToStateObject"
@@ -116,7 +117,9 @@
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
       "DispatchRays": "OverrideDispatchRays",
       "SetPipelineState1": "OverrideSetPipelineState1",
-      "BeginRenderPass": "OverrideBeginRenderPass"
+      "BeginRenderPass": "OverrideBeginRenderPass",
+      "InitializeMetaCommand": "OverrideInitializeMetaCommand",
+      "ExecuteMetaCommand": "OverrideExecuteMetaCommand"
     },
     "ID3D12GraphicsCommandList10": {
       "SetProgram": "OverrideSetProgram",
