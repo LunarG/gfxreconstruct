@@ -28,6 +28,8 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
+#include "decode/vulkan_pnext_node.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"
 
 #include <cstddef>
@@ -2130,6 +2132,31 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                          VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT)
                 {
                     pipeline_info->dynamic_vertex_binding_stride = true;
+                }
+            }
+        }
+
+        // Graphics pipeline library
+        const auto gpl_info =
+            graphics::vulkan_struct_get_pnext<VkGraphicsPipelineLibraryCreateInfoEXT>(in_p_create_infos);
+        if (gpl_info != nullptr)
+        {
+            pipeline_info->gpl_flags = gpl_info->flags;
+        }
+
+        const auto pl_info = GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
+        if (pl_info != nullptr)
+        {
+            const uint32_t          library_count = pl_info->pLibraries.GetLength();
+            const format::HandleId* ppl_ids       = pl_info->pLibraries.GetPointer();
+            for (uint32_t i = 0; i < library_count; ++i)
+            {
+                const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[i]);
+                if ((gpl_ppl->gpl_flags & VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT) ==
+                    VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT)
+                {
+                    pipeline_info->vertex_input_attribute_map = gpl_ppl->vertex_input_attribute_map;
+                    pipeline_info->vertex_input_binding_map   = gpl_ppl->vertex_input_binding_map;
                 }
             }
         }
