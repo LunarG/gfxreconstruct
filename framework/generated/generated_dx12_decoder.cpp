@@ -57,6 +57,9 @@ void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
         Decode_DXGIDeclareAdapterRemovalSupport(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization:
+        Decode_DXGIDisableVBlankVirtualization(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_D3D12SerializeRootSignature:
         Decode_D3D12SerializeRootSignature(call_info, parameter_buffer, buffer_size);
         break;
@@ -1617,6 +1620,22 @@ size_t Dx12Decoder::Decode_DXGIDeclareAdapterRemovalSupport(const ApiCallInfo& c
     for (auto consumer : GetConsumers())
     {
         consumer->Process_DXGIDeclareAdapterRemovalSupport(call_info, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_DXGIDisableVBlankVirtualization(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_DXGIDisableVBlankVirtualization(call_info, return_value);
     }
 
     return bytes_read;

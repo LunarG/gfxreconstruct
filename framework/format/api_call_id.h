@@ -936,6 +936,7 @@ enum ApiCallId : uint32_t
     ApiCall_IUnknown_QueryInterface                                                               = MakeApiCallId(ApiFamily_Dxgi, 0x1099),
     ApiCall_IUnknown_AddRef                                                                       = MakeApiCallId(ApiFamily_Dxgi, 0x109a),
     ApiCall_IUnknown_Release                                                                      = MakeApiCallId(ApiFamily_Dxgi, 0x109b),
+    ApiCall_DXGIDisableVBlankVirtualization                                                       = MakeApiCallId(ApiFamily_Dxgi, 0x109c),
 
     ApiCall_DXGILast,
 
@@ -1229,7 +1230,7 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12InfoQueue_SetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x1119),
     ApiCall_ID3D12InfoQueue_GetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x111a),
 
-    //win10 sdk 10.0.20348.0
+    //win10 sdk 10.0.26100.0
     ApiCall_D3D12GetInterface                                                                     = MakeApiCallId(ApiFamily_D3D12, 0x111b),
     ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2                        = MakeApiCallId(ApiFamily_D3D12, 0x111c),
     ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState                                       = MakeApiCallId(ApiFamily_D3D12, 0x111d),

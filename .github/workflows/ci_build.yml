@@ -120,13 +120,13 @@ jobs:
       run: pip install ply
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
-    - name: Install SDK 20348
+    - name: Install SDK 26100
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
-        sdk-version: 20348
+        sdk-version: 26100
     - name: Set WindowsSDKVersion
       run:
-        echo ("WindowsSDKVersion=10.0.20348.0\") >> $env:GITHUB_ENV
+        echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
     - name: Clone repository from merge of PR branch and dev branch
       uses: actions/checkout@v4
       with:

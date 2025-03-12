@@ -186,6 +186,22 @@ void Dx12ReplayConsumer::Process_DXGIDeclareAdapterRemovalSupport(
         replay_result);
 }
 
+void Dx12ReplayConsumer::Process_DXGIDisableVBlankVirtualization(
+    const ApiCallInfo&                          call_info,
+    HRESULT                                     return_value)
+{
+    CustomReplayPreCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
+        this,
+        call_info);
+    auto replay_result = DXGIDisableVBlankVirtualization();
+    CheckReplayResult("DXGIDisableVBlankVirtualization", return_value, replay_result);
+    CustomReplayPostCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
+        this,
+        call_info,
+        return_value,
+        replay_result);
+}
+
 void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
     const ApiCallInfo&                          call_info,
     HRESULT                                     return_value,

@@ -178,7 +178,7 @@ ID3D12InfoQueue_Wrapper::ObjectMap ID3D12InfoQueue_Wrapper::object_map_;
 std::mutex ID3D12InfoQueue_Wrapper::object_map_lock_;
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -3667,7 +3667,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -6258,7 +6258,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -7864,7 +7864,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -8670,7 +8670,7 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -9039,7 +9039,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -9079,6 +9079,49 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
     else
     {
         result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT WINAPI DXGIDisableVBlankVirtualization()
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
+            manager);
+
+        result = manager->GetDxgiDispatchTable().DXGIDisableVBlankVirtualization();
+
+        Encode_DXGIDisableVBlankVirtualization(
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
+            manager,
+            result);
+    }
+    else
+    {
+        result = manager->GetDxgiDispatchTable().DXGIDisableVBlankVirtualization();
     }
 
     manager->DecrementCallScope();
@@ -9445,25 +9488,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -26956,7 +26999,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DSRDeviceFactory_Wrapper::CreateDSRDevice(
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -27210,7 +27253,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -31314,25 +31357,25 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::UnregisterMessageCallback(
 
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.20348.0
+** This part is generated from windef.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 

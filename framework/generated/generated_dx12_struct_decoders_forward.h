@@ -322,7 +322,7 @@ struct Decoded__SECURITY_ATTRIBUTES;
 struct Decoded_LARGE_INTEGER;
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS* wrapper);
@@ -346,7 +346,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DISPLAY_COLOR_SPACE* wrapper);
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_MOVE_RECT* wrapper);
@@ -370,7 +370,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_PRES
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC2* wrapper);
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MATRIX_3X2_F* wrapper);
@@ -380,13 +380,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DECO
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS_MEDIA* wrapper);
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* wrapper);
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10* wrapper);
@@ -394,7 +394,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10PLUS* wrapper);
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC3* wrapper);
@@ -402,7 +402,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTPUT_DESC1* wrapper);
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RATIONAL* wrapper);
@@ -410,7 +410,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RATI
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SAMPLE_DESC* wrapper);
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RGB* wrapper);
@@ -430,7 +430,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_QUANTIZATION_TABLE* wrapper);
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COMMAND_QUEUE_DESC* wrapper);
@@ -858,13 +858,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEV
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DISPATCH_MESH_ARGUMENTS* wrapper);
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D_SHADER_MACRO* wrapper);
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS* wrapper);
@@ -880,13 +880,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INF
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INFO_QUEUE_FILTER* wrapper);
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_GUID* wrapper);
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.20348.0
+** This part is generated from windef.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagRECT* wrapper);
@@ -894,7 +894,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagRECT* 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagPOINT* wrapper);
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded__SECURITY_ATTRIBUTES* wrapper);

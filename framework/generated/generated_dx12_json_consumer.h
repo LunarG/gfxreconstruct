@@ -41,7 +41,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
     Dx12JsonConsumer(){}
     virtual ~Dx12JsonConsumer() override {}
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_CreateDXGIFactory(
@@ -427,7 +427,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         PointerDecoder<UINT>* pMaxLatency) override;
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -727,7 +727,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_CreateDXGIFactory2(
@@ -908,7 +908,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         PointerDecoder<UINT>* pFlags) override;
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -1006,7 +1006,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         DWORD dwCookie) override;
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGIOutput5_DuplicateOutput1(
@@ -1045,10 +1045,14 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults) override;
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_DXGIDeclareAdapterRemovalSupport(
+        const ApiCallInfo& call_info,
+        HRESULT return_value) override;
+
+    virtual void Process_DXGIDisableVBlankVirtualization(
         const ApiCallInfo& call_info,
         HRESULT return_value) override;
 
@@ -1093,7 +1097,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         DWORD dwCookie) override;
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_D3D12SerializeRootSignature(
@@ -2914,7 +2918,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         HandlePointerDecoder<void*>* ppvDSRDevice) override;
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_ID3D10Blob_GetBufferPointer(
@@ -2942,7 +2946,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         UINT callbackID) override;
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_ID3D12Debug_EnableDebugLayer(
@@ -3389,7 +3393,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         DWORD CallbackCookie) override;
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IUnknown_QueryInterface(

@@ -188,7 +188,7 @@ if (MSVC)
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.
-        set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
+        set(EXPECTED_WIN_SDK_VER "10.0.26100.0")
         if (NOT ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} STREQUAL ${EXPECTED_WIN_SDK_VER})
             message(WARNING
                     "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
