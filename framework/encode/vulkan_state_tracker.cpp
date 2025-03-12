@@ -423,9 +423,6 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     auto cmd_buf_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
     auto device_wrapper  = cmd_buf_wrapper->parent_pool->device;
 
-    // scratch space for buffer-addresses. we extract and keep track of associated buffers.
-    std::vector<VkDeviceAddress> to_extract;
-
     for (uint32_t i = 0; i < info_count; ++i)
     {
         const VkAccelerationStructureBuildGeometryInfoKHR& build_info = p_infos[i];
@@ -444,7 +441,9 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
             auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
-            to_extract.clear();
+
+            // scratch space for buffer-addresses. we extract and keep track of associated buffers.
+            std::vector<VkDeviceAddress> to_extract;
 
             switch (geometry->geometryType)
             {
