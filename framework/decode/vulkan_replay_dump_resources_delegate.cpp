@@ -1077,7 +1077,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
     {
         filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after" : "") << "_set_" << resource_info.set << "_binding_"
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << resource_info.set << "_binding_"
                  << resource_info.binding << "_index_" << resource_info.array_index;
         if (output_image_format != KFormatRaw)
         {
@@ -1124,7 +1124,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferF
     {
         filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
                  << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after" : "") << "_set_" << resource_info.set << "_binding_"
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << resource_info.set << "_binding_"
                  << resource_info.binding << "_index_" << resource_info.array_index << "_buffer.bin";
     }
 
