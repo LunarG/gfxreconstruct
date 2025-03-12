@@ -189,7 +189,7 @@ struct ResourceValueInfo
                       uint64_t                in_size,
                       D3D12StateObjectInfo*   in_state_object,
                       ArgumentBufferExtraInfo in_arg_buffer_extra_info,
-                      uint32_t                in_max_command_count = 0)
+                      uint32_t                in_max_command_count)
     {
         offset                = in_offset;
         type                  = in_type;
