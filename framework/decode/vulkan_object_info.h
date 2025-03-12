@@ -645,9 +645,8 @@ struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLa
 {
     struct DescriptorBindingLayout
     {
-        VkDescriptorType   type;
         uint32_t           binding;
-        uint32_t           count;
+        VkDescriptorType   type;
         VkShaderStageFlags stage_flags;
     };
 
@@ -669,12 +668,15 @@ struct VulkanDescriptorTypeBufferInfo
 
 struct VulkanDescriptorSetBindingInfo
 {
-    VkDescriptorType                            desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
-    VkShaderStageFlags                          stage_flags{ 0 };
-    std::vector<VulkanDescriptorTypeImageInfo>  image_info;
-    std::vector<VulkanDescriptorTypeBufferInfo> buffer_info;
-    std::vector<const VulkanBufferViewInfo*>    texel_buffer_view_info;
-    std::vector<uint8_t>                        inline_uniform_block;
+    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    VkShaderStageFlags stage_flags{ 0 };
+
+    // Use a map to represent array as many entries can be left unpopulated.
+    // Use a sorted map so that array indices are printed in order in the json output
+    std::map<uint32_t, VulkanDescriptorTypeImageInfo>  image_info;
+    std::map<uint32_t, VulkanDescriptorTypeBufferInfo> buffer_info;
+    std::map<uint32_t, const VulkanBufferViewInfo*>    texel_buffer_view_info;
+    std::vector<uint8_t>                               inline_uniform_block;
 };
 
 struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>

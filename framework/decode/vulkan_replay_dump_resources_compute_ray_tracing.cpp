@@ -483,13 +483,13 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                     uint32_t array_index = 0;
                     for (const auto& img_desc : desc.second.image_info)
                     {
-                        if (img_desc.image_view_info == nullptr)
+                        if (img_desc.second.image_view_info == nullptr)
                         {
                             continue;
                         }
 
                         const VulkanImageInfo* img_info =
-                            object_info_table.GetVkImageInfo(img_desc.image_view_info->image_id);
+                            object_info_table.GetVkImageInfo(img_desc.second.image_view_info->image_id);
                         assert(img_info);
 
                         auto& new_entry          = resource_backup_context.images.emplace_back();
@@ -526,7 +526,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                     uint32_t array_index = 0;
                     for (const auto& buf_desc : desc.second.buffer_info)
                     {
-                        const VulkanBufferInfo* buf_info = buf_desc.buffer_info;
+                        const VulkanBufferInfo* buf_info = buf_desc.second.buffer_info;
                         if (buf_info == nullptr)
                         {
                             continue;
@@ -555,7 +555,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc.offset, buf_desc.range, new_entry.buffer);
+                        CopyBufferResource(buf_info, buf_desc.second.offset, buf_desc.second.range, new_entry.buffer);
                     }
                 }
                 break;
@@ -1159,12 +1159,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        for (size_t i = 0; i < desc_binding.second.image_info.size(); ++i)
+                        for (const auto& img_desc : desc_binding.second.image_info)
                         {
-                            if (desc_binding.second.image_info[i].image_view_info != nullptr)
+                            if (img_desc.second.image_view_info != nullptr)
                             {
-                                const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                    desc_binding.second.image_info[i].image_view_info->image_id);
+                                const VulkanImageInfo* img_info =
+                                    object_info_table.GetVkImageInfo(img_desc.second.image_view_info->image_id);
                                 if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
                                                                dumped_descriptors.image_descriptors.end())
                                 {
@@ -1183,17 +1183,16 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        for (size_t i = 0; i < desc_binding.second.buffer_info.size(); ++i)
+                        for (const auto& buf_desc : desc_binding.second.buffer_info)
                         {
-                            const VulkanBufferInfo* buffer_info = desc_binding.second.buffer_info[i].buffer_info;
+                            const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
                             if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
                                                               dumped_descriptors.buffer_descriptors.end())
                             {
                                 buffer_descriptors.emplace(std::piecewise_construct,
                                                            std::forward_as_tuple(buffer_info),
                                                            std::forward_as_tuple(buffer_descriptor_info{
-                                                               desc_binding.second.buffer_info[i].offset,
-                                                               desc_binding.second.buffer_info[i].range }));
+                                                               buf_desc.second.offset, buf_desc.second.range }));
                                 dumped_descriptors.buffer_descriptors.insert(buffer_info);
                             }
                         }
@@ -1248,12 +1247,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        for (size_t i = 0; i < desc_binding.second.image_info.size(); ++i)
+                        for (const auto& img_desc : desc_binding.second.image_info)
                         {
-                            if (desc_binding.second.image_info[i].image_view_info != nullptr)
+                            if (img_desc.second.image_view_info != nullptr)
                             {
-                                const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                    desc_binding.second.image_info[i].image_view_info->image_id);
+                                const VulkanImageInfo* img_info =
+                                    object_info_table.GetVkImageInfo(img_desc.second.image_view_info->image_id);
                                 if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
                                                                dumped_descriptors.image_descriptors.end())
                                 {
@@ -1272,18 +1271,16 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        for (size_t i = 0; i < desc_binding.second.buffer_info.size(); ++i)
+                        for (const auto& buf_desc : desc_binding.second.buffer_info)
                         {
-                            const VulkanBufferInfo* buffer_info = desc_binding.second.buffer_info[i].buffer_info;
+                            const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
                             if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
                                                               dumped_descriptors.buffer_descriptors.end())
                             {
-                                buffer_descriptors.emplace(
-                                    std::piecewise_construct,
-                                    std::forward_as_tuple(desc_binding.second.buffer_info[i].buffer_info),
-                                    std::forward_as_tuple(
-                                        buffer_descriptor_info{ desc_binding.second.buffer_info[i].offset,
-                                                                desc_binding.second.buffer_info[i].range }));
+                                buffer_descriptors.emplace(std::piecewise_construct,
+                                                           std::forward_as_tuple(buf_desc.second.buffer_info),
+                                                           std::forward_as_tuple(buffer_descriptor_info{
+                                                               buf_desc.second.offset, buf_desc.second.range }));
                                 dumped_descriptors.buffer_descriptors.insert(buffer_info);
                             }
                         }

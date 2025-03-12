@@ -1094,16 +1094,15 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
+                    for (const auto& img_desc_info : desc_binding.second.image_info)
                     {
-                        if (desc_binding.second.image_info[img].image_view_info != nullptr)
+                        if (img_desc_info.second.image_view_info != nullptr)
                         {
-                            const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                desc_binding.second.image_info[img].image_view_info->image_id);
-                            assert(img_info);
-
-                            if (render_pass_dumped_descriptors[rp].image_descriptors.find(img_info) ==
-                                render_pass_dumped_descriptors[rp].image_descriptors.end())
+                            const VulkanImageInfo* img_info =
+                                object_info_table.GetVkImageInfo(img_desc_info.second.image_view_info->image_id);
+                            if (img_info != nullptr &&
+                                (render_pass_dumped_descriptors[rp].image_descriptors.find(img_info) ==
+                                 render_pass_dumped_descriptors[rp].image_descriptors.end()))
                             {
                                 image_descriptors.insert(img_info);
                                 render_pass_dumped_descriptors[rp].image_descriptors.insert(img_info);
@@ -1120,21 +1119,18 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
-                    for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
+                    for (const auto& buf_desc_info : desc_binding.second.buffer_info)
                     {
-                        const VulkanBufferInfo* buffer_info = desc_binding.second.buffer_info[buf].buffer_info;
-                        if (buffer_info != nullptr)
+                        const VulkanBufferInfo* buffer_info = buf_desc_info.second.buffer_info;
+                        if (buffer_info != nullptr &&
+                            (render_pass_dumped_descriptors[rp].buffer_descriptors.find(buffer_info) ==
+                             render_pass_dumped_descriptors[rp].buffer_descriptors.end()))
                         {
-                            if (render_pass_dumped_descriptors[rp].buffer_descriptors.find(buffer_info) ==
-                                render_pass_dumped_descriptors[rp].buffer_descriptors.end())
-                            {
-                                buffer_descriptors.emplace(std::piecewise_construct,
-                                                           std::forward_as_tuple(buffer_info),
-                                                           std::forward_as_tuple(buffer_descriptor_info{
-                                                               desc_binding.second.buffer_info[buf].offset,
-                                                               desc_binding.second.buffer_info[buf].range }));
-                                render_pass_dumped_descriptors[rp].buffer_descriptors.insert(buffer_info);
-                            }
+                            buffer_descriptors.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(buffer_info),
+                                                       std::forward_as_tuple(buffer_descriptor_info{
+                                                           buf_desc_info.second.offset, buf_desc_info.second.range }));
+                            render_pass_dumped_descriptors[rp].buffer_descriptors.insert(buffer_info);
                         }
                     }
                 }
