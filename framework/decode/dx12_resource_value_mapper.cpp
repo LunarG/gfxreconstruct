@@ -178,8 +178,8 @@ Dx12ResourceValueMapper::Dx12ResourceValueMapper(std::function<DxObjectInfo*(for
                                                  const graphics::Dx12ShaderIdMap&                  shader_id_map,
                                                  const graphics::Dx12GpuVaMap&                     gpu_va_map,
                                                  const decode::Dx12DescriptorMap&                  descriptor_map) :
-    get_object_info_func_(get_object_info_func),
-    shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map), descriptor_map_(descriptor_map), do_value_mapping_(true)
+    get_object_info_func_(get_object_info_func), shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map),
+    descriptor_map_(descriptor_map), do_value_mapping_(true)
 {}
 
 void Dx12ResourceValueMapper::EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func,
@@ -480,7 +480,8 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
                   ResourceValueType::kExecuteIndirectCountBuffer,
                   sizeof(uint32_t),
                   state_object_extra_info,
-                  { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
+                  { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset },
+                  max_command_count });
         }
         else
         {
@@ -1329,6 +1330,10 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         // Insert new ArgumentBuffer RV infos, which will queue them for translation.
         if (command_count != 0)
         {
+            if (value_info.max_command_count > 0)
+            {
+                command_count = std::min(value_info.max_command_count, command_count);
+            }
             GetExecuteIndirectResourceValues(
                 indirect_values_map[value_info.arg_buffer_extra_info.argument_buffer],
                 value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
