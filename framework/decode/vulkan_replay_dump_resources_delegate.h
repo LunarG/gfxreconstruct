@@ -80,10 +80,10 @@ struct VulkanDumpResourceInfo
     VkIndexType index_type;
     int         attachment_index;
 
-    bool                  is_dispatch;
-    bool                  before_cmd;
-    uint32_t              array_index;
-    VkShaderStageFlagBits stage;
+    bool               is_dispatch;
+    bool               before_cmd;
+    uint32_t           array_index;
+    VkShaderStageFlags stages;
 
     VulkanDumpResourceInfo& operator=(const VulkanDumpDrawCallInfo& draw_call_info)
     {

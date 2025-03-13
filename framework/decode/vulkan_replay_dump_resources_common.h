@@ -28,20 +28,12 @@
 #include "util/defines.h"
 #include "util/image_writer.h"
 #include "util/options.h"
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 using CommandBufferIterator = std::vector<VkCommandBuffer>::const_iterator;
-
-enum PipelineBindPoints
-{
-    kBindPoint_graphics = 0,
-    kBindPoint_compute,
-    kBindPoint_ray_tracing,
-
-    kBindPoint_count
-};
 
 template <typename T>
 static bool IsInsideRange(const std::vector<T>& vec, T value)
@@ -55,8 +47,6 @@ static bool IsInsideRange(const std::vector<T>& vec, T value)
         return (value >= *(vec.begin()) && value <= *(vec.end() - 1));
     }
 }
-
-PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bind_point);
 
 enum DumpedImageFormat
 {
@@ -124,8 +114,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                          bool                               dump_separate_alpha   = false,
                          VkImageLayout                      layout                = VK_IMAGE_LAYOUT_MAX_ENUM);
 
-bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType desc_type_b);
-
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
 std::string ImageAspectToStr(VkImageAspectFlagBits aspect);
@@ -143,6 +131,10 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
                         VkDeviceMemory*                         new_memory);
 
 void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
+
+std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
+
+void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::string>& stage_names);
 
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;

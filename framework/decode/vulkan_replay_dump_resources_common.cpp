@@ -26,33 +26,15 @@
 #include "util/buffer_writer.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
+#include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-PipelineBindPoints VkPipelineBindPointToPipelineBindPoint(VkPipelineBindPoint bind_point)
-{
-    switch (bind_point)
-    {
-        case VK_PIPELINE_BIND_POINT_GRAPHICS:
-            return kBindPoint_graphics;
-
-        case VK_PIPELINE_BIND_POINT_COMPUTE:
-            return kBindPoint_compute;
-
-        case VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR:
-            return kBindPoint_ray_tracing;
-
-        default:
-            GFXRECON_LOG_ERROR("Unrecognized pipeline bind point (%d)", bind_point);
-            assert(0);
-            return kBindPoint_count;
-    }
-}
 
 static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
 {
@@ -656,42 +638,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
     return VK_SUCCESS;
 }
 
-bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType desc_type_b)
-{
-    switch (desc_type_a)
-    {
-        case VK_DESCRIPTOR_TYPE_SAMPLER:
-        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
-        case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
-        case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
-        case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
-        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            return desc_type_a == desc_type_b;
-
-        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            return desc_type_b == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
-                   desc_type_b == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
-                   desc_type_b == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ||
-                   desc_type_b == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-
-        default:
-            assert(0);
-            GFXRECON_LOG_ERROR(
-                "%s() Unrecognized/unhandled index type (%u)", __func__, static_cast<uint32_t>(desc_type_a));
-            return false;
-    }
-}
-
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage)
 {
     const std::string shader_stage_name_whole = util::ToString<VkShaderStageFlagBits>(shader_stage);
@@ -877,6 +823,303 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device
     }
 
     return KFormatRaw;
+}
+
+std::string ShaderStageFlagsToString(VkShaderStageFlags flags)
+{
+    if (flags == static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_ALL))
+    {
+        return util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_ALL);
+    }
+
+    if (flags == static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_ALL_GRAPHICS))
+    {
+        return util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_ALL_GRAPHICS);
+    }
+
+    std::stringstream flags_string_stream;
+    bool              first_stage = true;
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_VERTEX_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_VERTEX_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_VERTEX_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_GEOMETRY_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_GEOMETRY_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_GEOMETRY_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_FRAGMENT_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_FRAGMENT_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_FRAGMENT_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_COMPUTE_BIT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_COMPUTE_BIT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_COMPUTE_BIT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_RAYGEN_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_RAYGEN_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_RAYGEN_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_ANY_HIT_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_MISS_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_MISS_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_MISS_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_INTERSECTION_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_INTERSECTION_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_INTERSECTION_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CALLABLE_BIT_KHR)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CALLABLE_BIT_KHR))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_CALLABLE_BIT_KHR);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TASK_BIT_EXT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_TASK_BIT_EXT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_TASK_BIT_EXT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_MESH_BIT_EXT)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_MESH_BIT_EXT))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_MESH_BIT_EXT);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_SUBPASS_SHADING_BIT_HUAWEI)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_SUBPASS_SHADING_BIT_HUAWEI))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_SUBPASS_SHADING_BIT_HUAWEI);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI);
+        first_stage = false;
+    }
+
+    if ((flags & static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_RAYGEN_BIT_NV)) ==
+        static_cast<VkShaderStageFlags>(VK_SHADER_STAGE_RAYGEN_BIT_NV))
+    {
+        if (!first_stage)
+        {
+            flags_string_stream << " | ";
+        }
+
+        flags_string_stream << util::ToString<VkShaderStageFlagBits>(VK_SHADER_STAGE_RAYGEN_BIT_NV);
+        first_stage = false;
+    }
+
+    return flags_string_stream.str();
+}
+
+void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::string>& stage_names)
+{
+    stage_names.clear();
+
+    if ((flags & VK_SHADER_STAGE_VERTEX_BIT) == VK_SHADER_STAGE_VERTEX_BIT)
+    {
+        stage_names.push_back("vertex");
+    }
+
+    if ((flags & VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT) == VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT)
+    {
+        stage_names.push_back("tessellation_control");
+    }
+
+    if ((flags & VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT) == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
+    {
+        stage_names.push_back("tessellation_evaluation");
+    }
+
+    if ((flags & VK_SHADER_STAGE_GEOMETRY_BIT) == VK_SHADER_STAGE_GEOMETRY_BIT)
+    {
+        stage_names.push_back("geometry");
+    }
+
+    if ((flags & VK_SHADER_STAGE_FRAGMENT_BIT) == VK_SHADER_STAGE_FRAGMENT_BIT)
+    {
+        stage_names.push_back("fragment");
+    }
+
+    if ((flags & VK_SHADER_STAGE_COMPUTE_BIT) == VK_SHADER_STAGE_COMPUTE_BIT)
+    {
+        stage_names.push_back("compute");
+    }
+
+    if ((flags & VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR) == VK_SHADER_STAGE_RAYGEN_BIT_KHR)
+    {
+        stage_names.push_back("raygen");
+    }
+
+    if ((flags & VK_SHADER_STAGE_MISS_BIT_KHR) == VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
+    {
+        stage_names.push_back("any_hit");
+    }
+
+    if ((flags & VK_SHADER_STAGE_INTERSECTION_BIT_KHR) == VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+    {
+        stage_names.push_back("closest_hit");
+    }
+
+    if ((flags & VK_SHADER_STAGE_CALLABLE_BIT_KHR) == VK_SHADER_STAGE_MISS_BIT_KHR)
+    {
+        stage_names.push_back("miss");
+    }
+
+    if ((flags & VK_SHADER_STAGE_TASK_BIT_EXT) == VK_SHADER_STAGE_INTERSECTION_BIT_KHR)
+    {
+        stage_names.push_back("intersection");
+    }
+
+    if ((flags & VK_SHADER_STAGE_MESH_BIT_EXT) == VK_SHADER_STAGE_CALLABLE_BIT_KHR)
+    {
+        stage_names.push_back("callable");
+    }
+
+    if ((flags & VK_SHADER_STAGE_ALL_GRAPHICS) == VK_SHADER_STAGE_TASK_BIT_EXT)
+    {
+        stage_names.push_back("task");
+    }
+
+    if ((flags & VK_SHADER_STAGE_ALL) == VK_SHADER_STAGE_MESH_BIT_EXT)
+    {
+        stage_names.push_back("mesh");
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

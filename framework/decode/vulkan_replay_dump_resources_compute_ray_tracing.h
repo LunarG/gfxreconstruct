@@ -59,8 +59,6 @@ class DispatchTraceRaysDumpingContext
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer; }
 
-    void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
-
     bool IsRecording() const;
 
     bool MustDumpDispatch(uint64_t index) const;
@@ -138,7 +136,6 @@ class DispatchTraceRaysDumpingContext
     VkCommandBuffer                DR_command_buffer;
     std::vector<uint64_t>          dispatch_indices;
     std::vector<uint64_t>          trace_rays_indices;
-    const VulkanPipelineInfo*      bound_pipelines[kBindPoint_count];
     bool                           dump_resources_before;
     VulkanDumpResourcesDelegate&   delegate_;
     bool                           dump_immutable_resources;
@@ -157,13 +154,13 @@ class DispatchTraceRaysDumpingContext
         struct ImageContext
         {
             const VulkanImageInfo* original_image{ nullptr };
-            VkImage               image{ VK_NULL_HANDLE };
-            VkDeviceMemory        image_memory{ VK_NULL_HANDLE };
-            VkShaderStageFlagBits stage;
-            VkDescriptorType      desc_type;
-            uint32_t              desc_set;
-            uint32_t              desc_binding;
-            uint32_t              array_index;
+            VkImage                image{ VK_NULL_HANDLE };
+            VkDeviceMemory         image_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlags     stages;
+            VkDescriptorType       desc_type;
+            uint32_t               desc_set;
+            uint32_t               desc_binding;
+            uint32_t               array_index;
         };
 
         std::vector<ImageContext> images;
@@ -171,13 +168,13 @@ class DispatchTraceRaysDumpingContext
         struct BufferContext
         {
             const VulkanBufferInfo* original_buffer{ nullptr };
-            VkBuffer              buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
-            VkShaderStageFlagBits stage;
-            VkDescriptorType      desc_type;
-            uint32_t              desc_set;
-            uint32_t              desc_binding;
-            uint32_t              array_index;
+            VkBuffer                buffer{ VK_NULL_HANDLE };
+            VkDeviceMemory          buffer_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlags      stages;
+            VkDescriptorType        desc_type;
+            uint32_t                desc_set;
+            uint32_t                desc_binding;
+            uint32_t                array_index;
         };
 
         std::vector<BufferContext> buffers;
@@ -382,9 +379,7 @@ class DispatchTraceRaysDumpingContext
 
         TraceRaysTypes type;
 
-        std::unordered_map<VkShaderStageFlagBits,
-                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>>
-            referenced_descriptors;
+        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
         MutableResourcesBackupContext mutable_resources_clones;

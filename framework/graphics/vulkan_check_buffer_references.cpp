@@ -22,6 +22,7 @@
 
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/logging.h"
 
 #include "vulkan_check_buffer_references.h"
 
@@ -54,12 +55,9 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                 {
                     const decode::VulkanShaderModuleInfo* module_info =
                         object_info_table.GetVkShaderModuleInfo(stages_info_meta[s].module);
-                    GFXRECON_ASSERT(module_info);
 
                     if (pipeline_info != nullptr && module_info != nullptr)
                     {
-                        pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
-
                         // extract information about buffer-references, present in shadermodule-info structs
                         pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
                                                                      module_info->buffer_reference_infos.begin(),
@@ -109,22 +107,28 @@ void populate_shader_stages(
         {
             const decode::VulkanShaderModuleInfo* module_info =
                 object_info_table.GetVkShaderModuleInfo(stage_info_meta->module);
-            GFXRECON_ASSERT(module_info);
             GFXRECON_ASSERT(pipeline_info);
 
-            pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
-
-            // extract information about buffer-references, present in shadermodule-info structs
-            pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
-                                                         module_info->buffer_reference_infos.begin(),
-                                                         module_info->buffer_reference_infos.end());
+            if (module_info != nullptr)
+            {
+                // extract information about buffer-references, present in shadermodule-info structs
+                pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
+                                                             module_info->buffer_reference_infos.begin(),
+                                                             module_info->buffer_reference_infos.end());
+            }
 
             // check potentially inlined spirv
-            if (auto module_create_info =
-                    vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()->stage))
+            auto module_create_info =
+                vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()->stage);
+            if (module_create_info != nullptr)
             {
                 graphics::vulkan_check_buffer_references(
                     module_create_info->pCode, module_create_info->codeSize, pipeline_info);
+            }
+
+            if (module_info == nullptr && module_create_info == nullptr)
+            {
+                GFXRECON_LOG_WARNING("No spirv available");
             }
         }
     }

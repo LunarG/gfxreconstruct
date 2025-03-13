@@ -1007,10 +1007,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&  
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer, pipelineBindPoint, pipeline->handle);
-
-        DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(original_command_buffer);
-        assert(context);
-        context->BindPipeline(pipelineBindPoint, pipeline);
     }
 }
 
@@ -1028,7 +1024,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     assert(IsRecording(original_command_buffer));
     assert(descriptor_sets_ids);
 
-    PipelineBindPoints           bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
     std::vector<VkDescriptorSet> desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
     std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(descriptor_sets_count, nullptr);
 
@@ -2092,27 +2087,6 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
     for (uint32_t i = 0; i < createInfoCount; ++i)
     {
         VulkanPipelineInfo* pipeline_info = reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
-
-        // Copy shader stage information
-        const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
-            create_info_meta[i].pStages->GetMetaStructPointer();
-        const size_t stages_count = create_info_meta->pStages->GetLength();
-
-        if (stages_info_meta != nullptr)
-        {
-            for (size_t s = 0; s < stages_count; ++s)
-            {
-                if (stages_info_meta[s].module != format::kNullHandleId)
-                {
-                    VulkanShaderModuleInfo* module_info =
-                        object_info_table_->GetVkShaderModuleInfo(stages_info_meta[s].module);
-                    assert(module_info);
-                    assert(pipeline_info);
-
-                    pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
-                }
-            }
-        }
 
         // Copy vertex input state information
         if (in_p_create_infos != nullptr && in_p_create_infos[i].pVertexInputState)
