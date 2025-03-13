@@ -752,7 +752,7 @@ bool App::frame(const int frame_num)
             sparse_image_bind.memoryOffset       = 0;
             // if (reverse_bind)
             //     sparse_image_bind.memoryOffset = sparse_binding_granularity_;
-            sparse_image_bind.flags        = 0;
+            sparse_image_bind.flags = 0;
             // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
             VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
@@ -871,10 +871,10 @@ bool App::frame(const int frame_num)
                 }
 
                 // Copy image data from staging buffer
-                VkBufferImageCopy image_copy               = {};
-                image_copy.bufferOffset                    = image_staging_offset;
+                VkBufferImageCopy image_copy = {};
+                image_copy.bufferOffset      = image_staging_offset;
                 if (current_frame_ == frames_per_switch)
-                    image_copy.bufferOffset                    = image_staging_offset + 4 * image_size_ * image_size_;
+                    image_copy.bufferOffset = image_staging_offset + 4 * image_size_ * image_size_;
                 image_copy.bufferRowLength                 = 0;
                 image_copy.bufferImageHeight               = 0;
                 image_copy.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
