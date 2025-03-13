@@ -71,6 +71,8 @@ class WaylandContext : public WsiContext
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
+    virtual const char* GetWsiName() override { return "WAYLAND"; }
+
   private:
     static void
     HandleRegistryGlobal(void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
