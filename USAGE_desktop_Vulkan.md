@@ -593,9 +593,10 @@ Optional arguments:
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
   --cpu-mask <binary-mask>
                         Set of CPU cores used by the replayer.
-                        `binary-mask` is a succession of '0' and '1' that specifies
-                        used/unused cores. For example '1010' activates the first and
-                        third cores and deactivate all other cores.
+                        `binary-mask` is a succession of '0' and '1' read from left
+                        to right that specifies used/unused cores.
+                        For example '10010' activates the first and
+                        fourth cores and deactivate all other cores.
                         If the option is not set, all cores can be used. If the option
                         is set only for some cores, the other cores are not used.
   --gpu <index>         Use the specified device for replay, where index
