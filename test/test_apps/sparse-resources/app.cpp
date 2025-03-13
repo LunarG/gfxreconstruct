@@ -301,7 +301,7 @@ void App::create_descriptor_set()
 {
     VkDescriptorPoolSize pool_sizes[3] = {};
     pool_sizes[0].type                 = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    pool_sizes[0].descriptorCount      = 2;
+    pool_sizes[0].descriptorCount      = 1;
     pool_sizes[1].type                 = VK_DESCRIPTOR_TYPE_SAMPLER;
     pool_sizes[1].descriptorCount      = 1;
     pool_sizes[2].type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -341,33 +341,28 @@ void App::create_descriptor_set()
     result = init.disp.createSampler(&sampler_info, nullptr, &sampler_);
     VERIFY_VK_RESULT("Failed to create sampler.", result);
 
-    VkDescriptorSetLayoutBinding bindings[4] = {};
+    VkDescriptorSetLayoutBinding bindings[3] = {};
     bindings[0].binding                      = 0;
     bindings[0].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     bindings[0].descriptorCount              = 1;
     bindings[0].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     bindings[0].pImmutableSamplers           = nullptr;
     bindings[1].binding                      = 1;
-    bindings[1].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    bindings[1].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLER;
     bindings[1].descriptorCount              = 1;
     bindings[1].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings[1].pImmutableSamplers           = nullptr;
+    bindings[1].pImmutableSamplers           = &sampler_;
     bindings[2].binding                      = 2;
-    bindings[2].descriptorType               = VK_DESCRIPTOR_TYPE_SAMPLER;
+    bindings[2].descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     bindings[2].descriptorCount              = 1;
     bindings[2].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings[2].pImmutableSamplers           = &sampler_;
-    bindings[3].binding                      = 3;
-    bindings[3].descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    bindings[3].descriptorCount              = 1;
-    bindings[3].stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings[3].pImmutableSamplers           = nullptr;
+    bindings[2].pImmutableSamplers           = nullptr;
 
     VkDescriptorSetLayoutCreateInfo layout_info = {};
     layout_info.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layout_info.pNext                           = nullptr;
     layout_info.flags                           = 0;
-    layout_info.bindingCount                    = 4;
+    layout_info.bindingCount                    = 3;
     layout_info.pBindings                       = bindings;
     result = init.disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_layout_);
     VERIFY_VK_RESULT("Failed to create descriptor set layout", result);
@@ -501,7 +496,7 @@ void App::create_sparse_bound_buffer()
     write.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     write.pNext                = nullptr;
     write.dstSet               = descriptor_set_;
-    write.dstBinding           = 3;
+    write.dstBinding           = 2;
     write.dstArrayElement      = 0;
     write.descriptorCount      = 1;
     write.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -750,31 +745,13 @@ bool App::frame(const int frame_num)
             result = init.disp.resetFences(1, &immediate_fence_);
             VERIFY_VK_RESULT("failed to reset sparse binding fence", result);
 
-            VkSparseImageMemoryBind sparse_resident_bind = {};
-            sparse_resident_bind.subresource.aspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
-            sparse_resident_bind.subresource.mipLevel    = 0;
-            sparse_resident_bind.subresource.arrayLayer  = 0;
-            sparse_resident_bind.offset.x                = 0;
-            sparse_resident_bind.offset.y                = 0;
-            sparse_resident_bind.offset.z                = 0;
-            // sparse_resident_bind.extent.width = image_size_;
-            // sparse_resident_bind.extent.height = image_size_;
-            sparse_resident_bind.extent.width  = sparse_block_dimensions_.width;
-            sparse_resident_bind.extent.height = sparse_block_dimensions_.height;
-            sparse_resident_bind.extent.depth  = 1;
-            sparse_resident_bind.memory        = image_backing_memory_;
-            sparse_resident_bind.memoryOffset  = sparse_binding_granularity_;
-            if (reverse_bind)
-                sparse_resident_bind.memoryOffset = 0;
-            sparse_resident_bind.flags        = 0;
-
             VkSparseMemoryBind sparse_image_bind = {};
             sparse_image_bind.resourceOffset     = 0;
             sparse_image_bind.size               = sparse_binding_granularity_;
             sparse_image_bind.memory             = image_backing_memory_;
             sparse_image_bind.memoryOffset       = 0;
-            if (reverse_bind)
-                sparse_image_bind.memoryOffset = sparse_binding_granularity_;
+            // if (reverse_bind)
+            //     sparse_image_bind.memoryOffset = sparse_binding_granularity_;
             sparse_image_bind.flags        = 0;
             // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
 
