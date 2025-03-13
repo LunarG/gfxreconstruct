@@ -163,9 +163,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
     GFXRECON_WRITE_CONSOLE("  --cpu-mask <binary-mask>");
     GFXRECON_WRITE_CONSOLE("          \t\tSet of CPU cores used by the replayer.");
-    GFXRECON_WRITE_CONSOLE("          \t\t`binary-mask` is a succession of '0' and '1' that specifies");
-    GFXRECON_WRITE_CONSOLE("          \t\tused/unused cores. For example '1010' activates the first and");
-    GFXRECON_WRITE_CONSOLE("          \t\tthird cores and deactivate all other cores.");
+    GFXRECON_WRITE_CONSOLE("          \t\t`binary-mask` is a succession of '0' and '1' read from left to right");
+    GFXRECON_WRITE_CONSOLE("          \t\tthat specifies used/unused cores.");
+    GFXRECON_WRITE_CONSOLE("          \t\tFor example '10010' activates the first and");
+    GFXRECON_WRITE_CONSOLE("          \t\tfourth cores and deactivate all other cores.");
     GFXRECON_WRITE_CONSOLE("          \t\tIf the option is not set, all cores can be used. If the option");
     GFXRECON_WRITE_CONSOLE("          \t\tis set only for some cores, the other cores are not used.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");

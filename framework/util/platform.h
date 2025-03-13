@@ -623,7 +623,7 @@ inline std::string GetCpuAffinity()
     std::string affinity;
 
 #ifdef __linux__
-    cpu_set_t   mask;
+    cpu_set_t mask;
     if (sched_getaffinity(0, sizeof(mask), &mask))
     {
         return affinity;
@@ -638,7 +638,7 @@ inline std::string GetCpuAffinity()
     {
         affinity.pop_back();
     }
-#endif
+#endif // __linux__
 
     return affinity;
 }
@@ -661,7 +661,7 @@ static bool SetCpuAffinity(const std::string& affinity)
     }
 
     return (sched_setaffinity(0, sizeof(mask), &mask) == 0);
-#else
+#else // !__linux__
     return false;
 #endif
 }
