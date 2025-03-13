@@ -53,6 +53,8 @@ class XlibContext : public WsiContext
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
+    virtual const char* GetWsiName() override { return "XLIB"; }
+
   private:
     Display*         display_{};
     size_t           display_open_count_{};
