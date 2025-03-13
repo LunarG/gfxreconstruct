@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,22 +21,16 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for test apps
+# Description: CMake script for sparse-resources test app
 ###############################################################################
 
-find_package(SDL3)
+add_executable(gfxrecon-testapp-sparse-resources app.cpp)
 
-add_custom_target(gfxrecon-testapps)
+target_link_libraries(gfxrecon-testapp-sparse-resources gfxrecon-testapp-base)
 
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+common_build_directives(gfxrecon-testapp-sparse-resources)
 
-add_subdirectory(common)
-add_subdirectory(triangle)
-add_subdirectory(multisample-depth)
-add_subdirectory(pipeline-binaries)
-add_subdirectory(host-image-copy)
-add_subdirectory(shader-objects)
-add_subdirectory(sparse-resources)
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd)
-endif()
+install(TARGETS gfxrecon-testapp-sparse-resources RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/sparse-resources)
+install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/sparse-resources)
+
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-sparse-resources)
