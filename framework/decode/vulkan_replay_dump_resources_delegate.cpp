@@ -864,7 +864,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                                 desc_json_entry["binding"]    = desc_set_binding_index;
                                 desc_json_entry["arrayIndex"] = img_desc.first;
 
-
                                 std::vector<VkImageAspectFlagBits> aspects;
                                 GetFormatAspects(image_info->format, aspects);
 
