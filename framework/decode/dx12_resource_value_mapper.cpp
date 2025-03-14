@@ -131,7 +131,7 @@ void CopyResourceValuesFromDstToSrc(std::set<ResourceValueInfo>&          src,
                      static_cast<uint64_t>((*dst_iter).size),
                      (*dst_iter).state_object,
                      (*dst_iter).arg_buffer_extra_info,
-                     0 });
+                     (*dst_iter).max_command_count });
     }
 }
 
