@@ -294,7 +294,14 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
             case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+            {
+                auto unwrapped_struct = MakeUnwrapStructs(
+                    reinterpret_cast<const D3D12_GENERIC_PROGRAM_DESC*>(value->pDesc), 1, unwrap_memory);
+                UnwrapStructObjects(
+                    unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
+                value->pDesc = unwrapped_struct;
                 break;
+            }
             case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
@@ -326,6 +333,25 @@ void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
         // The subobject was not found in the list of existing subobjects, so fall back on standard unwrapping.
         auto unwrapped_struct = MakeUnwrapStructs(value->pSubobjectToAssociate, 1, unwrap_memory);
         UnwrapStructObjects(unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
+    }
+}
+
+void UnwrapStructObjects(D3D12_GENERIC_PROGRAM_DESC*  value,
+                         HandleUnwrapMemory*          unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT* wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT* unwrapped_subobjects,
+                         UINT                         num_subobjects)
+{
+    if (value != nullptr)
+    {
+        auto unwrapped_structs =
+            const_cast<D3D12_STATE_SUBOBJECT**>(MakeUnwrapStructs(value->ppSubobjects, num_subobjects, unwrap_memory));
+
+        for (UINT i = 0; i < num_subobjects; ++i)
+        {
+            UnwrapStructObjects(
+                unwrapped_structs[i], unwrap_memory, &wrapped_subobjects[i], &unwrapped_subobjects[i], 1);
+        }
     }
 }
 

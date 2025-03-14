@@ -1583,8 +1583,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMON_COMPUTE_NODE_OVE
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_DESC& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_RANGE& value);

@@ -200,14 +200,6 @@ void MapStructObjects(Decoded_D3D12_EXISTING_COLLECTION_DESC* wrapper, const Dx1
     }
 }
 
-void MapStructObjects(Decoded_D3D12_GENERIC_PROGRAM_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayObjects<Decoded_D3D12_STATE_SUBOBJECT>(wrapper->ppSubobjects->GetMetaStructPointer(), wrapper->ppSubobjects->GetLength(), object_info_table, gpu_va_map);
-    }
-}
-
 void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

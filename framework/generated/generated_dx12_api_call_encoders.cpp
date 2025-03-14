@@ -4882,15 +4882,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_DESC& value)
     EncodeStructArray(encoder, value.pExplicitlyDefinedNodes, value.NumExplicitlyDefinedNodes);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value)
-{
-    encoder->EncodeWString(value.ProgramName);
-    encoder->EncodeUInt32Value(value.NumExports);
-    encoder->EncodeWStringArray(value.pExports, value.NumExports);
-    encoder->EncodeUInt32Value(value.NumSubobjects);
-    EncodeStructArray(encoder, value.ppSubobjects, value.NumSubobjects);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value)
 {
     encoder->EncodeUInt64Value(value.StartAddress);

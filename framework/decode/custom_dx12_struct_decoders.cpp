@@ -1243,6 +1243,28 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUB
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GENERIC_PROGRAM_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                      bytes_read = 0;
+    D3D12_GENERIC_PROGRAM_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->ProgramName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->ProgramName = wrapper->ProgramName.GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExports));
+    bytes_read += wrapper->pExports.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExports = const_cast<LPCWSTR*>(wrapper->pExports.GetPointer());
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumSubobjects));
+    wrapper->ppSubobjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT*>>();
+    bytes_read += wrapper->ppSubobjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->ppSubobjects = wrapper->ppSubobjects->GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BARRIER_GROUP* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

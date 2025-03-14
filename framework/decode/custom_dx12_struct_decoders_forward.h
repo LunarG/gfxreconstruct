@@ -93,6 +93,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_OBJECT_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_SUBOBJECT* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GENERIC_PROGRAM_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BARRIER_GROUP* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAMPLER_DESC2* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHADER_NODE* wrapper);

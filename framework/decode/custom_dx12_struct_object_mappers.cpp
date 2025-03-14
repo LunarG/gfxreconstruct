@@ -291,6 +291,11 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
             case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+                MapStructObjects(wrapper->generic_program_desc->GetMetaStructPointer(),
+                                 subobjects,
+                                 subobject_stride,
+                                 object_info_table,
+                                 gpu_va_map);
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
                 break;
@@ -335,6 +340,24 @@ void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapp
                          subobject_stride,
                          object_info_table,
                          gpu_va_map);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_GENERIC_PROGRAM_DESC*                  wrapper,
+                      StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
+                      size_t                                               subobject_stride,
+                      const Dx12ObjectInfoTable&                           object_info_table,
+                      const graphics::Dx12GpuVaMap&                        gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        auto descs     = wrapper->ppSubobjects->GetMetaStructPointer();
+        auto num_descs = wrapper->ppSubobjects->GetLength();
+
+        for (size_t i = 0; i < num_descs; ++i)
+        {
+            MapStructObjects(descs[i], subobjects, subobject_stride, object_info_table, gpu_va_map);
+        }
     }
 }
 

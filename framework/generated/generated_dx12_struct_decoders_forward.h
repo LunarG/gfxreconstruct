@@ -718,8 +718,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COM
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_WORK_GRAPH_DESC* wrapper);
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GENERIC_PROGRAM_DESC* wrapper);
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* wrapper);

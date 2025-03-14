@@ -1480,17 +1480,6 @@ struct Decoded_D3D12_WORK_GRAPH_DESC
     StructPointerDecoder<Decoded_D3D12_NODE>* pExplicitlyDefinedNodes{ nullptr };
 };
 
-struct Decoded_D3D12_GENERIC_PROGRAM_DESC
-{
-    using struct_type = D3D12_GENERIC_PROGRAM_DESC;
-
-    D3D12_GENERIC_PROGRAM_DESC* decoded_value{ nullptr };
-
-    WStringDecoder ProgramName;
-    WStringArrayDecoder pExports;
-    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* ppSubobjects{ nullptr };
-};
-
 struct Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE
 {
     using struct_type = D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE;

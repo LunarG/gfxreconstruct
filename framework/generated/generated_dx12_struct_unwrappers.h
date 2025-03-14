@@ -67,8 +67,6 @@ void UnwrapStructObjects(D3D12_LOCAL_ROOT_SIGNATURE* value, HandleUnwrapMemory* 
 
 void UnwrapStructObjects(D3D12_EXISTING_COLLECTION_DESC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructObjects(D3D12_GENERIC_PROGRAM_DESC* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE1* value, HandleUnwrapMemory* unwrap_memory);

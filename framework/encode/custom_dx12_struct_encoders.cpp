@@ -924,6 +924,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_AS
     encoder->EncodeWStringArray(value.pExports, value.NumExports);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value)
+{
+    encoder->EncodeWString(value.ProgramName);
+    encoder->EncodeUInt32Value(value.NumExports);
+    encoder->EncodeWStringArray(value.pExports, value.NumExports);
+    encoder->EncodeUInt32Value(value.NumSubobjects);
+    EncodeStructArray2D(encoder, value.ppSubobjects, value.NumSubobjects, 1);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value)
 {
     encoder->EncodeEnumValue(value.Type);

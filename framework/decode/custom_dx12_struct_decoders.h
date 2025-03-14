@@ -291,6 +291,17 @@ struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
     WStringArrayDecoder                                  pExports;
 };
 
+struct Decoded_D3D12_GENERIC_PROGRAM_DESC
+{
+    using struct_type = D3D12_GENERIC_PROGRAM_DESC;
+
+    D3D12_GENERIC_PROGRAM_DESC* decoded_value{ nullptr };
+
+    WStringDecoder                                        ProgramName;
+    WStringArrayDecoder                                   pExports;
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT*>* ppSubobjects{ nullptr };
+};
+
 struct Decoded_D3D12_BARRIER_GROUP
 {
     using struct_type = D3D12_BARRIER_GROUP;

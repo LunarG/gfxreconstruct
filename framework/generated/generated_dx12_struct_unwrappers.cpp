@@ -117,14 +117,6 @@ void UnwrapStructObjects(D3D12_EXISTING_COLLECTION_DESC* value, HandleUnwrapMemo
     }
 }
 
-void UnwrapStructObjects(D3D12_GENERIC_PROGRAM_DESC* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->ppSubobjects = UnwrapStructArrayObjects(value->ppSubobjects, value->NumSubobjects, unwrap_memory);
-    }
-}
-
 void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
