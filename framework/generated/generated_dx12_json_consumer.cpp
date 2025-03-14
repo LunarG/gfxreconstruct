@@ -38,2963 +38,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_CreateDXGIFactory(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppFactory"], ppFactory, options);
-    }
-    writer_->WriteBlockEnd();
-
-}
-
-void Dx12JsonConsumer::Process_CreateDXGIFactory1(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppFactory"], ppFactory, options);
-    }
-    writer_->WriteBlockEnd();
-
-}
-
-void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        UINT DataSize,
-        PointerDecoder<uint8_t>* pData)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateData");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Name"], Name, options);
-        FieldToJson(args["DataSize"], DataSize, options);
-        FieldToJson(args["pData"], pData, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateDataInterface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        format::HandleId pUnknown)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateDataInterface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Name"], Name, options);
-        FieldToJson(args["pUnknown"], pUnknown, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIObject_GetPrivateData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        PointerDecoder<UINT>* pDataSize,
-        PointerDecoder<uint8_t>* pData)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetPrivateData");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Name"], Name, options);
-        FieldToJson(args["pDataSize"], pDataSize, options);
-        FieldToJson(args["pData"], pData, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIObject_GetParent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppParent)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetParent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppParent"], ppParent, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDeviceSubObject_GetDevice(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppDevice)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDeviceSubObject", object_id, "GetDevice");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppDevice"], ppDevice, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource_GetSharedHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pSharedHandle)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetSharedHandle");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pSharedHandle"], pSharedHandle, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource_GetUsage(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<DXGI_USAGE>* pUsage)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetUsage");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pUsage"], pUsage, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource_SetEvictionPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT EvictionPriority)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "SetEvictionPriority");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["EvictionPriority"], EvictionPriority, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource_GetEvictionPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pEvictionPriority)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetEvictionPriority");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pEvictionPriority"], pEvictionPriority, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIKeyedMutex_AcquireSync(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 Key,
-        DWORD dwMilliseconds)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "AcquireSync");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Key"], Key, options);
-        FieldToJson(args["dwMilliseconds"], dwMilliseconds, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 Key)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "ReleaseSync");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Key"], Key, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "GetDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface_Map(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
-        UINT MapFlags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Map");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pLockedRect"], pLockedRect, options);
-        FieldToJson(args["MapFlags"], MapFlags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface_Unmap(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Unmap");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface1_GetDC(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        BOOL Discard,
-        PointerDecoder<uint64_t, void*>* phdc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "GetDC");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        Bool32ToJson(args["Discard"], Discard, options);
-        FieldToJson(args["phdc"], phdc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface1_ReleaseDC(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "ReleaseDC");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDirtyRect"], pDirtyRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter_EnumOutputs(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Output,
-        HandlePointerDecoder<IDXGIOutput*>* ppOutput)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "EnumOutputs");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Output"], Output, options);
-        FieldToJson(args["ppOutput"], ppOutput, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "GetDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID InterfaceName,
-        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "CheckInterfaceSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["InterfaceName"], InterfaceName, options);
-        FieldToJson(args["pUMDVersion"], pUMDVersion, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplayModeList(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        PointerDecoder<UINT>* pNumModes,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplayModeList");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["EnumFormat"], EnumFormat, options);
-        FieldToJson(args["Flags"], Flags, options);
-        FieldToJson(args["pNumModes"], pNumModes, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
-        format::HandleId pConcernedDevice)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "FindClosestMatchingMode");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pModeToMatch"], pModeToMatch, options);
-        FieldToJson(args["pClosestMatch"], pClosestMatch, options);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_WaitForVBlank(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "WaitForVBlank");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_TakeOwnership(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        BOOL Exclusive)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "TakeOwnership");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        Bool32ToJson(args["Exclusive"], Exclusive, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_ReleaseOwnership(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "ReleaseOwnership");
-    const JsonOptions& options = writer_->GetOptions();
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControlCapabilities");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pGammaCaps"], pGammaCaps, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_SetGammaControl(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetGammaControl");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pArray"], pArray, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControl(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControl");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pArray"], pArray, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_SetDisplaySurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pScanoutSurface)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetDisplaySurface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pScanoutSurface"], pScanoutSurface, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDestination)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplaySurfaceData");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDestination"], pDestination, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput_GetFrameStatistics(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetFrameStatistics");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pStats"], pStats, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_Present(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT SyncInterval,
-        UINT Flags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "Present");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["SyncInterval"], SyncInterval, options);
-        FieldToJson(args["Flags"], Flags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetBuffer(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Buffer,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppSurface)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetBuffer");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Buffer"], Buffer, options);
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppSurface"], ppSurface, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_SetFullscreenState(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        BOOL Fullscreen,
-        format::HandleId pTarget)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "SetFullscreenState");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        Bool32ToJson(args["Fullscreen"], Fullscreen, options);
-        FieldToJson(args["pTarget"], pTarget, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetFullscreenState(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<BOOL>* pFullscreen,
-        HandlePointerDecoder<IDXGIOutput*>* ppTarget)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFullscreenState");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        Bool32ToJson(args["pFullscreen"], pFullscreen, options);
-        FieldToJson(args["ppTarget"], ppTarget, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeBuffers(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT NewFormat,
-        UINT SwapChainFlags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeBuffers");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["BufferCount"], BufferCount, options);
-        FieldToJson(args["Width"], Width, options);
-        FieldToJson(args["Height"], Height, options);
-        FieldToJson(args["NewFormat"], NewFormat, options);
-        FieldToJson(args["SwapChainFlags"], SwapChainFlags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeTarget(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeTarget");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pNewTargetParameters"], pNewTargetParameters, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetContainingOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIOutput*>* ppOutput)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetContainingOutput");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["ppOutput"], ppOutput, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetFrameStatistics(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFrameStatistics");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pStats"], pStats, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain_GetLastPresentCount(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pLastPresentCount)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetLastPresentCount");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pLastPresentCount"], pLastPresentCount, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory_EnumAdapters(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "EnumAdapters");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Adapter"], Adapter, options);
-        FieldToJson(args["ppAdapter"], ppAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory_MakeWindowAssociation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT Flags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "MakeWindowAssociation");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["WindowHandle"], WindowHandle, options);
-        FieldToJson(args["Flags"], Flags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory_GetWindowAssociation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pWindowHandle)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "GetWindowAssociation");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pWindowHandle"], pWindowHandle, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory_CreateSwapChain(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
-        HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSwapChain");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t Module,
-        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSoftwareAdapter");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Module"], Module, options);
-        FieldToJson(args["ppAdapter"], ppAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice_GetAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetAdapter");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pAdapter"], pAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice_CreateSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
-        UINT NumSurfaces,
-        DXGI_USAGE Usage,
-        StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE>* pSharedResource,
-        HandlePointerDecoder<IDXGISurface*>* ppSurface)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "CreateSurface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["NumSurfaces"], NumSurfaces, options);
-        FieldToJson(args["Usage"], Usage, options);
-        FieldToJson(args["pSharedResource"], pSharedResource, options);
-        FieldToJson(args["ppSurface"], ppSurface, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice_QueryResourceResidency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IUnknown*>* ppResources,
-        PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
-        UINT NumResources)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "QueryResourceResidency");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["ppResources"], ppResources, options);
-        FieldToJson(args["pResidencyStatus"], pResidencyStatus, options);
-        FieldToJson(args["NumResources"], NumResources, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        INT Priority)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "SetGPUThreadPriority");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Priority"], Priority, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<INT>* pPriority)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetGPUThreadPriority");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pPriority"], pPriority, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory1_EnumAdapters1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "EnumAdapters1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Adapter"], Adapter, options);
-        FieldToJson(args["ppAdapter"], ppAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory1_IsCurrent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "IsCurrent");
-    const JsonOptions& options = writer_->GetOptions();
-    Bool32ToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter1_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter1", object_id, "GetDesc1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MaxLatency)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "SetMaximumFrameLatency");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["MaxLatency"], MaxLatency, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pMaxLatency)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "GetMaximumFrameLatency");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pMaxLatency"], pMaxLatency, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDisplayControl", object_id, "IsStereoEnabled");
-    const JsonOptions& options = writer_->GetOptions();
-    Bool32ToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL enabled)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDisplayControl", object_id, "SetStereoEnabled");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        Bool32ToJson(args["enabled"], enabled, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT TimeoutInMilliseconds,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
-        HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "AcquireNextFrame");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["TimeoutInMilliseconds"], TimeoutInMilliseconds, options);
-        FieldToJson(args["pFrameInfo"], pFrameInfo, options);
-        FieldToJson(args["ppDesktopResource"], ppDesktopResource, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT DirtyRectsBufferSize,
-        StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
-        PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameDirtyRects");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["DirtyRectsBufferSize"], DirtyRectsBufferSize, options);
-        FieldToJson(args["pDirtyRectsBuffer"], pDirtyRectsBuffer, options);
-        FieldToJson(args["pDirtyRectsBufferSizeRequired"], pDirtyRectsBufferSizeRequired, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MoveRectsBufferSize,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
-        PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameMoveRects");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["MoveRectsBufferSize"], MoveRectsBufferSize, options);
-        FieldToJson(args["pMoveRectBuffer"], pMoveRectBuffer, options);
-        FieldToJson(args["pMoveRectsBufferSizeRequired"], pMoveRectsBufferSizeRequired, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT PointerShapeBufferSize,
-        PointerDecoder<uint8_t>* pPointerShapeBuffer,
-        PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFramePointerShape");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["PointerShapeBufferSize"], PointerShapeBufferSize, options);
-        FieldToJson(args["pPointerShapeBuffer"], pPointerShapeBuffer, options);
-        FieldToJson(args["pPointerShapeBufferSizeRequired"], pPointerShapeBufferSizeRequired, options);
-        FieldToJson(args["pPointerShapeInfo"], pPointerShapeInfo, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "MapDesktopSurface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pLockedRect"], pLockedRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "UnMapDesktopSurface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "ReleaseFrame");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISurface2_GetResource(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppParentResource,
-        PointerDecoder<UINT>* pSubresourceIndex)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface2", object_id, "GetResource");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppParentResource"], ppParentResource, options);
-        FieldToJson(args["pSubresourceIndex"], pSubresourceIndex, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT index,
-        HandlePointerDecoder<IDXGISurface2*>* ppSurface)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSubresourceSurface");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["index"], index, options);
-        FieldToJson(args["ppSurface"], ppSurface, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIResource1_CreateSharedHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
-        DWORD dwAccess,
-        WStringDecoder* lpName,
-        PointerDecoder<uint64_t, void*>* pHandle)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSharedHandle");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pAttributes"], pAttributes, options);
-        FieldToJson(args["dwAccess"], dwAccess, options);
-        FieldToJson(args["lpName"], lpName, options);
-        FieldToJson(args["pHandle"], pHandle, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice2_OfferResources(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "OfferResources");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NumResources"], NumResources, options);
-        FieldToJson(args["ppResources"], ppResources, options);
-        FieldToJson(args["Priority"], Priority, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice2_ReclaimResources(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        PointerDecoder<BOOL>* pDiscarded)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "ReclaimResources");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NumResources"], NumResources, options);
-        FieldToJson(args["ppResources"], ppResources, options);
-        Bool32ToJson(args["pDiscarded"], pDiscarded, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "EnqueueSetEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetDesc1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetFullscreenDesc");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetHwnd(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pHwnd)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetHwnd");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pHwnd"], pHwnd, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetCoreWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID refiid,
-        HandlePointerDecoder<void*>* ppUnk)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetCoreWindow");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["refiid"], refiid, options);
-        FieldToJson(args["ppUnk"], ppUnk, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_Present1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT SyncInterval,
-        UINT PresentFlags,
-        StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "Present1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["SyncInterval"], SyncInterval, options);
-        FieldToJson(args["PresentFlags"], PresentFlags, options);
-        FieldToJson(args["pPresentParameters"], pPresentParameters, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "IsTemporaryMonoSupported");
-    const JsonOptions& options = writer_->GetOptions();
-    Bool32ToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRestrictToOutput");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["ppRestrictToOutput"], ppRestrictToOutput, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetBackgroundColor");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pColor"], pColor, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetBackgroundColor");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pColor"], pColor, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_SetRotation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_MODE_ROTATION Rotation)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetRotation");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Rotation"], Rotation, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRotation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRotation");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pRotation"], pRotation, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "IsWindowedStereoEnabled");
-    const JsonOptions& options = writer_->GetOptions();
-    Bool32ToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hWnd,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForHwnd");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["hWnd"], hWnd, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["pFullscreenDesc"], pFullscreenDesc, options);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        format::HandleId pWindow,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForCoreWindow");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["pWindow"], pWindow, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hResource,
-        StructPointerDecoder<Decoded_LUID>* pLuid)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "GetSharedResourceAdapterLuid");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hResource"], hResource, options);
-        FieldToJson(args["pLuid"], pLuid, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT wMsg,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusWindow");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["WindowHandle"], WindowHandle, options);
-        FieldToJson(args["wMsg"], wMsg, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterStereoStatus");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["dwCookie"], dwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT wMsg,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusWindow");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["WindowHandle"], WindowHandle, options);
-        FieldToJson(args["wMsg"], wMsg, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterOcclusionStatus");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["dwCookie"], dwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForComposition");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter2_GetDesc2(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter2", object_id, "GetDesc2");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        PointerDecoder<UINT>* pNumModes,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplayModeList1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["EnumFormat"], EnumFormat, options);
-        FieldToJson(args["Flags"], Flags, options);
-        FieldToJson(args["pNumModes"], pNumModes, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
-        format::HandleId pConcernedDevice)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "FindClosestMatchingMode1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pModeToMatch"], pModeToMatch, options);
-        FieldToJson(args["pClosestMatch"], pClosestMatch, options);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDestination)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplaySurfaceData1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDestination"], pDestination, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "DuplicateOutput");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_CreateDXGIFactory2(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        UINT Flags,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory2");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-        FieldToJson(args["Flags"], Flags, options);
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppFactory"], ppFactory, options);
-    }
-    writer_->WriteBlockEnd();
-
-}
-
-void Dx12JsonConsumer::Process_DXGIGetDebugInterface1(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        UINT Flags,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* pDebug)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "DXGIGetDebugInterface1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-        FieldToJson(args["Flags"], Flags, options);
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["pDebug"], pDebug, options);
-    }
-    writer_->WriteBlockEnd();
-
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice3_Trim(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice3", object_id, "Trim");
-    const JsonOptions& options = writer_->GetOptions();
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_SetSourceSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Width,
-        UINT Height)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetSourceSize");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Width"], Width, options);
-        FieldToJson(args["Height"], Height, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_GetSourceSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pWidth,
-        PointerDecoder<UINT>* pHeight)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetSourceSize");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pWidth"], pWidth, options);
-        FieldToJson(args["pHeight"], pHeight, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MaxLatency)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMaximumFrameLatency");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["MaxLatency"], MaxLatency, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pMaxLatency)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMaximumFrameLatency");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pMaxLatency"], pMaxLatency, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        uint64_t return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetFrameLatencyWaitableObject");
-    const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMatrixTransform");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pMatrix"], pMatrix, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMatrixTransform");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pMatrix"], pMatrix, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput2_SupportsOverlays(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput2", object_id, "SupportsOverlays");
-    const JsonOptions& options = writer_->GetOptions();
-    Bool32ToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory3_GetCreationFlags(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory3", object_id, "GetCreationFlags");
-    const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferToPresent,
-        UINT SyncInterval,
-        UINT Flags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "PresentBuffer");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["BufferToPresent"], BufferToPresent, options);
-        FieldToJson(args["SyncInterval"], SyncInterval, options);
-        FieldToJson(args["Flags"], Flags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetSourceRect");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pRect"], pRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetTargetRect");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pRect"], pRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Width,
-        UINT Height)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetDestSize");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Width"], Width, options);
-        FieldToJson(args["Height"], Height, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetSourceRect");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pRect"], pRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetTargetRect");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pRect"], pRect, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pWidth,
-        PointerDecoder<UINT>* pHeight)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetDestSize");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pWidth"], pWidth, options);
-        FieldToJson(args["pHeight"], pHeight, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetColorSpace");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(args["ColorSpace"], ColorSpace, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetColorSpace");
-    const JsonOptions& options = writer_->GetOptions();
-    FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hSurface,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateSwapChainForCompositionSurfaceHandle");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["hSurface"], hSurface, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hSurface,
-        StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
-        format::HandleId pYuvDecodeBuffers,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateDecodeSwapChainForCompositionSurfaceHandle");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["hSurface"], hSurface, options);
-        FieldToJson(args["pDesc"], pDesc, options);
-        FieldToJson(args["pYuvDecodeBuffers"], pYuvDecodeBuffers, options);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
-        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "GetFrameStatisticsMedia");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pStats"], pStats, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Duration)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "SetPresentDuration");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Duration"], Duration, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT DesiredPresentDuration,
-        PointerDecoder<UINT>* pClosestSmallerPresentDuration,
-        PointerDecoder<UINT>* pClosestLargerPresentDuration)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "CheckPresentDurationSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["DesiredPresentDuration"], DesiredPresentDuration, options);
-        FieldToJson(args["pClosestSmallerPresentDuration"], pClosestSmallerPresentDuration, options);
-        FieldToJson(args["pClosestLargerPresentDuration"], pClosestLargerPresentDuration, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        format::HandleId pConcernedDevice,
-        PointerDecoder<UINT>* pFlags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput3", object_id, "CheckOverlaySupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["EnumFormat"], EnumFormat, options);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
-        FieldToJson(args["pFlags"], pFlags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "GetCurrentBackBufferIndex");
-    const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        PointerDecoder<UINT>* pColorSpaceSupport)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "CheckColorSpaceSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["ColorSpace"], ColorSpace, options);
-        FieldToJson(args["pColorSpaceSupport"], pColorSpaceSupport, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain3_SetColorSpace1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_COLOR_SPACE_TYPE ColorSpace)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "SetColorSpace1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["ColorSpace"], ColorSpace, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT Format,
-        UINT SwapChainFlags,
-        PointerDecoder<UINT>* pCreationNodeMask,
-        HandlePointerDecoder<IUnknown*>* ppPresentQueue)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "ResizeBuffers1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["BufferCount"], BufferCount, options);
-        FieldToJson(args["Width"], Width, options);
-        FieldToJson(args["Height"], Height, options);
-        FieldToJson(args["Format"], Format, options);
-        FieldToJson(args["SwapChainFlags"], SwapChainFlags, options);
-        FieldToJsonAsFixedWidthBinary(args["pCreationNodeMask"], pCreationNodeMask, options);
-        FieldToJson(args["ppPresentQueue"], ppPresentQueue, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT Format,
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        format::HandleId pConcernedDevice,
-        PointerDecoder<UINT>* pFlags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput4", object_id, "CheckOverlayColorSpaceSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Format"], Format, options);
-        FieldToJson(args["ColorSpace"], ColorSpace, options);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
-        FieldToJson(args["pFlags"], pFlags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_LUID AdapterLuid,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumAdapterByLuid");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["AdapterLuid"], AdapterLuid, options);
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumWarpAdapter");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterHardwareContentProtectionTeardownStatusEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterHardwareContentProtectionTeardownStatus");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["dwCookie"], dwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "QueryVideoMemoryInfo");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NodeIndex"], NodeIndex, options);
-        FieldToJson(args["MemorySegmentGroup"], MemorySegmentGroup, options);
-        FieldToJson(args["pVideoMemoryInfo"], pVideoMemoryInfo, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        UINT64 Reservation)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "SetVideoMemoryReservation");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NodeIndex"], NodeIndex, options);
-        FieldToJson(args["MemorySegmentGroup"], MemorySegmentGroup, options);
-        FieldToJson(args["Reservation"], Reservation, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterVideoMemoryBudgetChangeNotificationEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterVideoMemoryBudgetChangeNotification");
-    const JsonOptions& options = writer_->GetOptions();
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["dwCookie"], dwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        UINT Flags,
-        UINT SupportedFormatsCount,
-        PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
-        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput5", object_id, "DuplicateOutput1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDevice"], pDevice, options);
-        FieldToJson(args["Flags"], Flags, options);
-        FieldToJson(args["SupportedFormatsCount"], SupportedFormatsCount, options);
-        FieldToJson(args["pSupportedFormats"], pSupportedFormats, options);
-        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_HDR_METADATA_TYPE Type,
-        UINT Size,
-        PointerDecoder<uint8_t>* pMetaData)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain4", object_id, "SetHDRMetaData");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Type"], Type, options);
-        FieldToJson(args["Size"], Size, options);
-        FieldToJson(args["pMetaData"], pMetaData, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice4_OfferResources1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority,
-        UINT Flags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "OfferResources1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NumResources"], NumResources, options);
-        FieldToJson(args["ppResources"], ppResources, options);
-        FieldToJson(args["Priority"], Priority, options);
-        FieldToJson(args["Flags"], Flags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "ReclaimResources1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["NumResources"], NumResources, options);
-        FieldToJson(args["ppResources"], ppResources, options);
-        FieldToJson(args["pResults"], pResults, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
-**
-*/
-void Dx12JsonConsumer::Process_DXGIDeclareAdapterRemovalSupport(
-        const ApiCallInfo& call_info,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "DXGIDeclareAdapterRemovalSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-    }
-    writer_->WriteBlockEnd();
-
-}
-
-void Dx12JsonConsumer::Process_IDXGIAdapter4_GetDesc3(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter4", object_id, "GetDesc3");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput6_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "GetDesc1");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pDesc"], pDesc, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pFlags)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "CheckHardwareCompositionSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["pFlags"], pFlags, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        DXGI_GPU_PREFERENCE GpuPreference,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory6", object_id, "EnumAdapterByGpuPreference");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Adapter"], Adapter, options);
-        FieldToJson(args["GpuPreference"], GpuPreference, options);
-        FieldToJson(args["riid"], riid, options);
-        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "RegisterAdaptersChangedEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["hEvent"], hEvent, options);
-        FieldToJson(args["pdwCookie"], pdwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DWORD dwCookie)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "UnregisterAdaptersChangedEvent");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["dwCookie"], dwCookie, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
-/*
 ** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
@@ -3085,6 +128,32 @@ void Dx12JsonConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     {
         FieldToJson(args["pSrcData"], pSrcData, options);
         FieldToJson(args["SrcDataSizeInBytes"], SrcDataSizeInBytes, options);
+        FieldToJson(args["pRootSignatureDeserializerInterface"], pRootSignatureDeserializerInterface, options);
+        FieldToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pSrcData,
+        SIZE_T SrcDataSizeInBytes,
+        WStringDecoder* RootSignatureSubobjectName,
+        Decoded_GUID pRootSignatureDeserializerInterface,
+        PointerDecoder<uint64_t, void*>* ppRootSignatureDeserializer)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["pSrcData"], pSrcData, options);
+        FieldToJson(args["SrcDataSizeInBytes"], SrcDataSizeInBytes, options);
+        FieldToJson(args["RootSignatureSubobjectName"], RootSignatureSubobjectName, options);
         FieldToJson(args["pRootSignatureDeserializerInterface"], pRootSignatureDeserializerInterface, options);
         FieldToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer, options);
     }
@@ -6443,6 +3512,267 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12StateObjectProperties1_GetProgramIdentifier(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_PROGRAM_IDENTIFIER return_value,
+        WStringDecoder* pProgramName)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties1", object_id, "GetProgramIdentifier");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pProgramName"], pProgramName, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumWorkGraphs");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetProgramName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        WStringDecoder* return_value,
+        UINT WorkGraphIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetProgramName");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetWorkGraphIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        WStringDecoder* pProgramName)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetWorkGraphIndex");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pProgramName"], pProgramName, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumNodes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumNodes");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeID(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_NODE_ID return_value,
+        UINT WorkGraphIndex,
+        UINT NodeIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNodeID");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["NodeIndex"], NodeIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        Decoded_D3D12_NODE_ID NodeID)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNodeIndex");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["NodeID"], NodeID, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT NodeIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNodeLocalRootArgumentsTableIndex");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["NodeIndex"], NodeIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumEntrypoints(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumEntrypoints");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointID(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_NODE_ID return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointID");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["EntrypointIndex"], EntrypointIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        Decoded_D3D12_NODE_ID NodeID)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointIndex");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["NodeID"], NodeID, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointRecordSizeInBytes");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["EntrypointIndex"], EntrypointIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT WorkGraphIndex,
+        StructPointerDecoder<Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS>* pWorkGraphMemoryRequirements)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetWorkGraphMemoryRequirements");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["pWorkGraphMemoryRequirements"], pWorkGraphMemoryRequirements, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointRecordAlignmentInBytes");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex, options);
+        FieldToJson(args["EntrypointIndex"], EntrypointIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -7552,6 +4882,58 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12Device13_OpenExistingHeapFromAddress1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t pAddress,
+        SIZE_T size,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvHeap)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device13", object_id, "OpenExistingHeapFromAddress1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAddress"], pAddress, options);
+        FieldToJson(args["size"], size, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvHeap"], ppvHeap, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT nodeMask,
+        PointerDecoder<uint8_t>* pLibraryBlob,
+        SIZE_T blobLengthInBytes,
+        WStringDecoder* subobjectName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device14", object_id, "CreateRootSignatureFromSubobjectInLibrary");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
+        FieldToJson(args["pLibraryBlob"], pLibraryBlob, options);
+        FieldToJson(args["blobLengthInBytes"], blobLengthInBytes, options);
+        FieldToJson(args["subobjectName"], subobjectName, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvRootSignature"], ppvRootSignature, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -7620,6 +5002,71 @@ void Dx12JsonConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools", object_id, "ShaderInstrumentationEnabled");
     const JsonOptions& options = writer_->GetOptions();
     Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Tools1_ReserveGPUVARangesAtCreate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE>* pRanges,
+        UINT uiNumRanges)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools1", object_id, "ReserveGPUVARangesAtCreate");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRanges"], pRanges, options);
+        FieldToJson(args["uiNumRanges"], uiNumRanges, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12Tools1_ClearReservedGPUVARangesList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools1", object_id, "ClearReservedGPUVARangesList");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12PageableTools_GetAllocation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE>* pAllocation)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PageableTools", object_id, "GetAllocation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAllocation"], pAllocation, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools", object_id, "SetNextAllocationAddress");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJsonAsHex(args["nextAllocationVirtualAddress"], nextAllocationVirtualAddress, options);
+    }
     writer_->WriteBlockEnd();
 }
 
@@ -7884,6 +5331,32 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_CreateVersionedRootSign
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pLibraryBlob,
+        SIZE_T Size,
+        WStringDecoder* RootSignatureSubobjectName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDeserializer)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration1", object_id, "CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pLibraryBlob"], pLibraryBlob, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["RootSignatureSubobjectName"], RootSignatureSubobjectName, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvDeserializer"], ppvDeserializer, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -8010,6 +5483,38 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripC
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList10_SetProgram(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList10", object_id, "SetProgram");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList10_DispatchGraph(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList10", object_id, "DispatchGraph");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -8031,6 +5536,116 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
         FieldToJson(args["riid"], riid, options);
         FieldToJson(args["ppvDSRDevice"], ppvDSRDevice, options);
     }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        PointerDecoder<int>* pData,
+        UINT DataSize)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GetGBVEntireSubresourceStatesData");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource"], pResource, options);
+        FieldToJson(args["pData"], pData, options);
+        FieldToJson(args["DataSize"], DataSize, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVSubresourceState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        UINT Subresource,
+        PointerDecoder<int>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GetGBVSubresourceState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource"], pResource, options);
+        FieldToJson(args["Subresource"], Subresource, options);
+        FieldToJson(args["pData"], pData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVResourceUniformState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        PointerDecoder<int>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GetGBVResourceUniformState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource"], pResource, options);
+        FieldToJson(args["pData"], pData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVResourceInfo(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDesc,
+        PointerDecoder<UINT32>* pResourceHash,
+        PointerDecoder<UINT32>* pSubresourceStatesByteOffset)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GetGBVResourceInfo");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource"], pResource, options);
+        FieldToJson(args["pResourceDesc"], pResourceDesc, options);
+        FieldToJson(args["pResourceHash"], pResourceHash, options);
+        FieldToJson(args["pSubresourceStatesByteOffset"], pSubresourceStatesByteOffset, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GBVReserved0(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GBVReserved0");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GBVReserved1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GBVDiagnostics", object_id, "GBVReserved1");
+    const JsonOptions& options = writer_->GetOptions();
     writer_->WriteBlockEnd();
 }
 
@@ -9365,6 +6980,2963 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["CallbackCookie"], CallbackCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_CreateDXGIFactory(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppFactory"], ppFactory, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_CreateDXGIFactory1(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppFactory"], ppFactory, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateData");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Name"], Name, options);
+        FieldToJson(args["DataSize"], DataSize, options);
+        FieldToJson(args["pData"], pData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateDataInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        format::HandleId pUnknown)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateDataInterface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Name"], Name, options);
+        FieldToJson(args["pUnknown"], pUnknown, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIObject_GetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        PointerDecoder<UINT>* pDataSize,
+        PointerDecoder<uint8_t>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetPrivateData");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Name"], Name, options);
+        FieldToJson(args["pDataSize"], pDataSize, options);
+        FieldToJson(args["pData"], pData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIObject_GetParent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppParent)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetParent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppParent"], ppParent, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDeviceSubObject_GetDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppDevice)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDeviceSubObject", object_id, "GetDevice");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppDevice"], ppDevice, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource_GetSharedHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pSharedHandle)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetSharedHandle");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pSharedHandle"], pSharedHandle, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource_GetUsage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<DXGI_USAGE>* pUsage)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetUsage");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pUsage"], pUsage, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource_SetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT EvictionPriority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "SetEvictionPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["EvictionPriority"], EvictionPriority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource_GetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pEvictionPriority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetEvictionPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pEvictionPriority"], pEvictionPriority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIKeyedMutex_AcquireSync(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 Key,
+        DWORD dwMilliseconds)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "AcquireSync");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Key"], Key, options);
+        FieldToJson(args["dwMilliseconds"], dwMilliseconds, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 Key)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "ReleaseSync");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Key"], Key, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "GetDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface_Map(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
+        UINT MapFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Map");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pLockedRect"], pLockedRect, options);
+        FieldToJson(args["MapFlags"], MapFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface_Unmap(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Unmap");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface1_GetDC(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        BOOL Discard,
+        PointerDecoder<uint64_t, void*>* phdc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "GetDC");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["Discard"], Discard, options);
+        FieldToJson(args["phdc"], phdc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface1_ReleaseDC(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "ReleaseDC");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDirtyRect"], pDirtyRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter_EnumOutputs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Output,
+        HandlePointerDecoder<IDXGIOutput*>* ppOutput)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "EnumOutputs");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Output"], Output, options);
+        FieldToJson(args["ppOutput"], ppOutput, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "GetDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID InterfaceName,
+        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "CheckInterfaceSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["InterfaceName"], InterfaceName, options);
+        FieldToJson(args["pUMDVersion"], pUMDVersion, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplayModeList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        PointerDecoder<UINT>* pNumModes,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplayModeList");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["EnumFormat"], EnumFormat, options);
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["pNumModes"], pNumModes, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
+        format::HandleId pConcernedDevice)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "FindClosestMatchingMode");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pModeToMatch"], pModeToMatch, options);
+        FieldToJson(args["pClosestMatch"], pClosestMatch, options);
+        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_WaitForVBlank(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "WaitForVBlank");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_TakeOwnership(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        BOOL Exclusive)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "TakeOwnership");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        Bool32ToJson(args["Exclusive"], Exclusive, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_ReleaseOwnership(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "ReleaseOwnership");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControlCapabilities");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pGammaCaps"], pGammaCaps, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_SetGammaControl(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetGammaControl");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pArray"], pArray, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControl(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControl");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pArray"], pArray, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_SetDisplaySurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pScanoutSurface)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetDisplaySurface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pScanoutSurface"], pScanoutSurface, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDestination)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplaySurfaceData");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDestination"], pDestination, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput_GetFrameStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetFrameStatistics");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pStats"], pStats, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_Present(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SyncInterval,
+        UINT Flags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "Present");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["SyncInterval"], SyncInterval, options);
+        FieldToJson(args["Flags"], Flags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Buffer,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppSurface)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetBuffer");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Buffer"], Buffer, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppSurface"], ppSurface, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_SetFullscreenState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        BOOL Fullscreen,
+        format::HandleId pTarget)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "SetFullscreenState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["Fullscreen"], Fullscreen, options);
+        FieldToJson(args["pTarget"], pTarget, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetFullscreenState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<BOOL>* pFullscreen,
+        HandlePointerDecoder<IDXGIOutput*>* ppTarget)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFullscreenState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["pFullscreen"], pFullscreen, options);
+        FieldToJson(args["ppTarget"], ppTarget, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT NewFormat,
+        UINT SwapChainFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeBuffers");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["BufferCount"], BufferCount, options);
+        FieldToJson(args["Width"], Width, options);
+        FieldToJson(args["Height"], Height, options);
+        FieldToJson(args["NewFormat"], NewFormat, options);
+        FieldToJson(args["SwapChainFlags"], SwapChainFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeTarget(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeTarget");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pNewTargetParameters"], pNewTargetParameters, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetContainingOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIOutput*>* ppOutput)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetContainingOutput");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppOutput"], ppOutput, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetFrameStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFrameStatistics");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pStats"], pStats, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain_GetLastPresentCount(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pLastPresentCount)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetLastPresentCount");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pLastPresentCount"], pLastPresentCount, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory_EnumAdapters(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "EnumAdapters");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Adapter"], Adapter, options);
+        FieldToJson(args["ppAdapter"], ppAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory_MakeWindowAssociation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT Flags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "MakeWindowAssociation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WindowHandle"], WindowHandle, options);
+        FieldToJson(args["Flags"], Flags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory_GetWindowAssociation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pWindowHandle)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "GetWindowAssociation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pWindowHandle"], pWindowHandle, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory_CreateSwapChain(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
+        HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSwapChain");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t Module,
+        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSoftwareAdapter");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Module"], Module, options);
+        FieldToJson(args["ppAdapter"], ppAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice_GetAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetAdapter");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAdapter"], pAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice_CreateSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
+        UINT NumSurfaces,
+        DXGI_USAGE Usage,
+        StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE>* pSharedResource,
+        HandlePointerDecoder<IDXGISurface*>* ppSurface)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "CreateSurface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["NumSurfaces"], NumSurfaces, options);
+        FieldToJson(args["Usage"], Usage, options);
+        FieldToJson(args["pSharedResource"], pSharedResource, options);
+        FieldToJson(args["ppSurface"], ppSurface, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice_QueryResourceResidency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IUnknown*>* ppResources,
+        PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
+        UINT NumResources)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "QueryResourceResidency");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["pResidencyStatus"], pResidencyStatus, options);
+        FieldToJson(args["NumResources"], NumResources, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        INT Priority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "SetGPUThreadPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Priority"], Priority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<INT>* pPriority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetGPUThreadPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pPriority"], pPriority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory1_EnumAdapters1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "EnumAdapters1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Adapter"], Adapter, options);
+        FieldToJson(args["ppAdapter"], ppAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory1_IsCurrent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "IsCurrent");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter1", object_id, "GetDesc1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MaxLatency)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "SetMaximumFrameLatency");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["MaxLatency"], MaxLatency, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pMaxLatency)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "GetMaximumFrameLatency");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pMaxLatency"], pMaxLatency, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDisplayControl", object_id, "IsStereoEnabled");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL enabled)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDisplayControl", object_id, "SetStereoEnabled");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["enabled"], enabled, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT TimeoutInMilliseconds,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
+        HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "AcquireNextFrame");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["TimeoutInMilliseconds"], TimeoutInMilliseconds, options);
+        FieldToJson(args["pFrameInfo"], pFrameInfo, options);
+        FieldToJson(args["ppDesktopResource"], ppDesktopResource, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT DirtyRectsBufferSize,
+        StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
+        PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameDirtyRects");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["DirtyRectsBufferSize"], DirtyRectsBufferSize, options);
+        FieldToJson(args["pDirtyRectsBuffer"], pDirtyRectsBuffer, options);
+        FieldToJson(args["pDirtyRectsBufferSizeRequired"], pDirtyRectsBufferSizeRequired, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MoveRectsBufferSize,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
+        PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameMoveRects");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["MoveRectsBufferSize"], MoveRectsBufferSize, options);
+        FieldToJson(args["pMoveRectBuffer"], pMoveRectBuffer, options);
+        FieldToJson(args["pMoveRectsBufferSizeRequired"], pMoveRectsBufferSizeRequired, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT PointerShapeBufferSize,
+        PointerDecoder<uint8_t>* pPointerShapeBuffer,
+        PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFramePointerShape");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["PointerShapeBufferSize"], PointerShapeBufferSize, options);
+        FieldToJson(args["pPointerShapeBuffer"], pPointerShapeBuffer, options);
+        FieldToJson(args["pPointerShapeBufferSizeRequired"], pPointerShapeBufferSizeRequired, options);
+        FieldToJson(args["pPointerShapeInfo"], pPointerShapeInfo, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "MapDesktopSurface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pLockedRect"], pLockedRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "UnMapDesktopSurface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "ReleaseFrame");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISurface2_GetResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppParentResource,
+        PointerDecoder<UINT>* pSubresourceIndex)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface2", object_id, "GetResource");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppParentResource"], ppParentResource, options);
+        FieldToJson(args["pSubresourceIndex"], pSubresourceIndex, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT index,
+        HandlePointerDecoder<IDXGISurface2*>* ppSurface)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSubresourceSurface");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["index"], index, options);
+        FieldToJson(args["ppSurface"], ppSurface, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIResource1_CreateSharedHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        DWORD dwAccess,
+        WStringDecoder* lpName,
+        PointerDecoder<uint64_t, void*>* pHandle)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSharedHandle");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAttributes"], pAttributes, options);
+        FieldToJson(args["dwAccess"], dwAccess, options);
+        FieldToJson(args["lpName"], lpName, options);
+        FieldToJson(args["pHandle"], pHandle, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice2_OfferResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "OfferResources");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NumResources"], NumResources, options);
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["Priority"], Priority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice2_ReclaimResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        PointerDecoder<BOOL>* pDiscarded)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "ReclaimResources");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NumResources"], NumResources, options);
+        FieldToJson(args["ppResources"], ppResources, options);
+        Bool32ToJson(args["pDiscarded"], pDiscarded, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "EnqueueSetEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetDesc1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetFullscreenDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetHwnd(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pHwnd)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetHwnd");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pHwnd"], pHwnd, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetCoreWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID refiid,
+        HandlePointerDecoder<void*>* ppUnk)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetCoreWindow");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["refiid"], refiid, options);
+        FieldToJson(args["ppUnk"], ppUnk, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_Present1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SyncInterval,
+        UINT PresentFlags,
+        StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "Present1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["SyncInterval"], SyncInterval, options);
+        FieldToJson(args["PresentFlags"], PresentFlags, options);
+        FieldToJson(args["pPresentParameters"], pPresentParameters, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "IsTemporaryMonoSupported");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRestrictToOutput");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppRestrictToOutput"], ppRestrictToOutput, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetBackgroundColor");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pColor"], pColor, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetBackgroundColor");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pColor"], pColor, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_SetRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_MODE_ROTATION Rotation)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetRotation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Rotation"], Rotation, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRotation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRotation"], pRotation, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "IsWindowedStereoEnabled");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hWnd,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForHwnd");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["hWnd"], hWnd, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pFullscreenDesc"], pFullscreenDesc, options);
+        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        format::HandleId pWindow,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForCoreWindow");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["pWindow"], pWindow, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hResource,
+        StructPointerDecoder<Decoded_LUID>* pLuid)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "GetSharedResourceAdapterLuid");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hResource"], hResource, options);
+        FieldToJson(args["pLuid"], pLuid, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT wMsg,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusWindow");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WindowHandle"], WindowHandle, options);
+        FieldToJson(args["wMsg"], wMsg, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterStereoStatus");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT wMsg,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusWindow");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["WindowHandle"], WindowHandle, options);
+        FieldToJson(args["wMsg"], wMsg, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterOcclusionStatus");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForComposition");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter2_GetDesc2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter2", object_id, "GetDesc2");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        PointerDecoder<UINT>* pNumModes,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplayModeList1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["EnumFormat"], EnumFormat, options);
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["pNumModes"], pNumModes, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
+        format::HandleId pConcernedDevice)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "FindClosestMatchingMode1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pModeToMatch"], pModeToMatch, options);
+        FieldToJson(args["pClosestMatch"], pClosestMatch, options);
+        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDestination)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplaySurfaceData1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDestination"], pDestination, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "DuplicateOutput");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_CreateDXGIFactory2(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        UINT Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "CreateDXGIFactory2");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppFactory"], ppFactory, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_DXGIGetDebugInterface1(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        UINT Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* pDebug)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "DXGIGetDebugInterface1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["pDebug"], pDebug, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice3_Trim(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice3", object_id, "Trim");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_SetSourceSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Width,
+        UINT Height)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetSourceSize");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Width"], Width, options);
+        FieldToJson(args["Height"], Height, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_GetSourceSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pWidth,
+        PointerDecoder<UINT>* pHeight)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetSourceSize");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pWidth"], pWidth, options);
+        FieldToJson(args["pHeight"], pHeight, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MaxLatency)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMaximumFrameLatency");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["MaxLatency"], MaxLatency, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pMaxLatency)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMaximumFrameLatency");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pMaxLatency"], pMaxLatency, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        uint64_t return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetFrameLatencyWaitableObject");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMatrixTransform");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pMatrix"], pMatrix, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMatrixTransform");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pMatrix"], pMatrix, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput2_SupportsOverlays(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput2", object_id, "SupportsOverlays");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory3_GetCreationFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory3", object_id, "GetCreationFlags");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferToPresent,
+        UINT SyncInterval,
+        UINT Flags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "PresentBuffer");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["BufferToPresent"], BufferToPresent, options);
+        FieldToJson(args["SyncInterval"], SyncInterval, options);
+        FieldToJson(args["Flags"], Flags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetSourceRect");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRect"], pRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetTargetRect");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRect"], pRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Width,
+        UINT Height)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetDestSize");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Width"], Width, options);
+        FieldToJson(args["Height"], Height, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetSourceRect");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRect"], pRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetTargetRect");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pRect"], pRect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pWidth,
+        PointerDecoder<UINT>* pHeight)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetDestSize");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pWidth"], pWidth, options);
+        FieldToJson(args["pHeight"], pHeight, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetColorSpace");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(args["ColorSpace"], ColorSpace, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetColorSpace");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hSurface,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateSwapChainForCompositionSurfaceHandle");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["hSurface"], hSurface, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hSurface,
+        StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
+        format::HandleId pYuvDecodeBuffers,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateDecodeSwapChainForCompositionSurfaceHandle");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["hSurface"], hSurface, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pYuvDecodeBuffers"], pYuvDecodeBuffers, options);
+        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput, options);
+        FieldToJson(args["ppSwapChain"], ppSwapChain, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "GetFrameStatisticsMedia");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pStats"], pStats, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Duration)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "SetPresentDuration");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Duration"], Duration, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT DesiredPresentDuration,
+        PointerDecoder<UINT>* pClosestSmallerPresentDuration,
+        PointerDecoder<UINT>* pClosestLargerPresentDuration)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "CheckPresentDurationSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["DesiredPresentDuration"], DesiredPresentDuration, options);
+        FieldToJson(args["pClosestSmallerPresentDuration"], pClosestSmallerPresentDuration, options);
+        FieldToJson(args["pClosestLargerPresentDuration"], pClosestLargerPresentDuration, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        format::HandleId pConcernedDevice,
+        PointerDecoder<UINT>* pFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput3", object_id, "CheckOverlaySupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["EnumFormat"], EnumFormat, options);
+        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
+        FieldToJson(args["pFlags"], pFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "GetCurrentBackBufferIndex");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        PointerDecoder<UINT>* pColorSpaceSupport)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "CheckColorSpaceSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ColorSpace"], ColorSpace, options);
+        FieldToJson(args["pColorSpaceSupport"], pColorSpaceSupport, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain3_SetColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_COLOR_SPACE_TYPE ColorSpace)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "SetColorSpace1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ColorSpace"], ColorSpace, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT Format,
+        UINT SwapChainFlags,
+        PointerDecoder<UINT>* pCreationNodeMask,
+        HandlePointerDecoder<IUnknown*>* ppPresentQueue)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "ResizeBuffers1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["BufferCount"], BufferCount, options);
+        FieldToJson(args["Width"], Width, options);
+        FieldToJson(args["Height"], Height, options);
+        FieldToJson(args["Format"], Format, options);
+        FieldToJson(args["SwapChainFlags"], SwapChainFlags, options);
+        FieldToJsonAsFixedWidthBinary(args["pCreationNodeMask"], pCreationNodeMask, options);
+        FieldToJson(args["ppPresentQueue"], ppPresentQueue, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        format::HandleId pConcernedDevice,
+        PointerDecoder<UINT>* pFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput4", object_id, "CheckOverlayColorSpaceSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Format"], Format, options);
+        FieldToJson(args["ColorSpace"], ColorSpace, options);
+        FieldToJson(args["pConcernedDevice"], pConcernedDevice, options);
+        FieldToJson(args["pFlags"], pFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_LUID AdapterLuid,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumAdapterByLuid");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["AdapterLuid"], AdapterLuid, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumWarpAdapter");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterHardwareContentProtectionTeardownStatusEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterHardwareContentProtectionTeardownStatus");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "QueryVideoMemoryInfo");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NodeIndex"], NodeIndex, options);
+        FieldToJson(args["MemorySegmentGroup"], MemorySegmentGroup, options);
+        FieldToJson(args["pVideoMemoryInfo"], pVideoMemoryInfo, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        UINT64 Reservation)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "SetVideoMemoryReservation");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NodeIndex"], NodeIndex, options);
+        FieldToJson(args["MemorySegmentGroup"], MemorySegmentGroup, options);
+        FieldToJson(args["Reservation"], Reservation, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterVideoMemoryBudgetChangeNotificationEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterVideoMemoryBudgetChangeNotification");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        UINT Flags,
+        UINT SupportedFormatsCount,
+        PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
+        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput5", object_id, "DuplicateOutput1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["SupportedFormatsCount"], SupportedFormatsCount, options);
+        FieldToJson(args["pSupportedFormats"], pSupportedFormats, options);
+        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain4", object_id, "SetHDRMetaData");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Type"], Type, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["pMetaData"], pMetaData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice4_OfferResources1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority,
+        UINT Flags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "OfferResources1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NumResources"], NumResources, options);
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["Priority"], Priority, options);
+        FieldToJson(args["Flags"], Flags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "ReclaimResources1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["NumResources"], NumResources, options);
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["pResults"], pResults, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_DXGIDeclareAdapterRemovalSupport(
+        const ApiCallInfo& call_info,
+        HRESULT return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "DXGIDeclareAdapterRemovalSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_IDXGIAdapter4_GetDesc3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter4", object_id, "GetDesc3");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput6_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "GetDesc1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "CheckHardwareCompositionSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pFlags"], pFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        DXGI_GPU_PREFERENCE GpuPreference,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory6", object_id, "EnumAdapterByGpuPreference");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Adapter"], Adapter, options);
+        FieldToJson(args["GpuPreference"], GpuPreference, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvAdapter"], ppvAdapter, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "RegisterAdaptersChangedEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "UnregisterAdaptersChangedEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
     }
     writer_->WriteBlockEnd();
 }

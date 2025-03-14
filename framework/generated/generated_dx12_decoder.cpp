@@ -42,6 +42,33 @@ void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
     switch (call_id)
     {
+    case format::ApiCallId::ApiCall_D3D12SerializeRootSignature:
+        Decode_D3D12SerializeRootSignature(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer:
+        Decode_D3D12CreateRootSignatureDeserializer(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature:
+        Decode_D3D12SerializeVersionedRootSignature(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer:
+        Decode_D3D12CreateVersionedRootSignatureDeserializer(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
+        Decode_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateDevice:
+        Decode_D3D12CreateDevice(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12GetDebugInterface:
+        Decode_D3D12GetDebugInterface(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures:
+        Decode_D3D12EnableExperimentalFeatures(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_D3D12GetInterface:
+        Decode_D3D12GetInterface(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
         Decode_CreateDXGIFactory(call_info, parameter_buffer, buffer_size);
         break;
@@ -56,30 +83,6 @@ void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
         Decode_DXGIDeclareAdapterRemovalSupport(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12SerializeRootSignature:
-        Decode_D3D12SerializeRootSignature(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer:
-        Decode_D3D12CreateRootSignatureDeserializer(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature:
-        Decode_D3D12SerializeVersionedRootSignature(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer:
-        Decode_D3D12CreateVersionedRootSignatureDeserializer(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12CreateDevice:
-        Decode_D3D12CreateDevice(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12GetDebugInterface:
-        Decode_D3D12GetDebugInterface(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures:
-        Decode_D3D12EnableExperimentalFeatures(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_D3D12GetInterface:
-        Decode_D3D12GetInterface(call_info, parameter_buffer, buffer_size);
         break;
     default:
         Dx12DecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
@@ -97,447 +100,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
     switch (call_id)
     {
-    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData:
-        Decode_IDXGIObject_SetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface:
-        Decode_IDXGIObject_SetPrivateDataInterface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData:
-        Decode_IDXGIObject_GetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_GetParent:
-        Decode_IDXGIObject_GetParent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice:
-        Decode_IDXGIDeviceSubObject_GetDevice(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
-        Decode_IDXGIResource_GetSharedHandle(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetUsage:
-        Decode_IDXGIResource_GetUsage(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority:
-        Decode_IDXGIResource_SetEvictionPriority(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority:
-        Decode_IDXGIResource_GetEvictionPriority(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync:
-        Decode_IDXGIKeyedMutex_AcquireSync(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync:
-        Decode_IDXGIKeyedMutex_ReleaseSync(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_GetDesc:
-        Decode_IDXGISurface_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_Map:
-        Decode_IDXGISurface_Map(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_Unmap:
-        Decode_IDXGISurface_Unmap(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
-        Decode_IDXGISurface1_GetDC(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC:
-        Decode_IDXGISurface1_ReleaseDC(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs:
-        Decode_IDXGIAdapter_EnumOutputs(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc:
-        Decode_IDXGIAdapter_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport:
-        Decode_IDXGIAdapter_CheckInterfaceSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDesc:
-        Decode_IDXGIOutput_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList:
-        Decode_IDXGIOutput_GetDisplayModeList(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode:
-        Decode_IDXGIOutput_FindClosestMatchingMode(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank:
-        Decode_IDXGIOutput_WaitForVBlank(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership:
-        Decode_IDXGIOutput_TakeOwnership(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership:
-        Decode_IDXGIOutput_ReleaseOwnership(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities:
-        Decode_IDXGIOutput_GetGammaControlCapabilities(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl:
-        Decode_IDXGIOutput_SetGammaControl(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl:
-        Decode_IDXGIOutput_GetGammaControl(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface:
-        Decode_IDXGIOutput_SetDisplaySurface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData:
-        Decode_IDXGIOutput_GetDisplaySurfaceData(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics:
-        Decode_IDXGIOutput_GetFrameStatistics(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_Present:
-        Decode_IDXGISwapChain_Present(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer:
-        Decode_IDXGISwapChain_GetBuffer(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState:
-        Decode_IDXGISwapChain_SetFullscreenState(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState:
-        Decode_IDXGISwapChain_GetFullscreenState(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc:
-        Decode_IDXGISwapChain_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers:
-        Decode_IDXGISwapChain_ResizeBuffers(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget:
-        Decode_IDXGISwapChain_ResizeTarget(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput:
-        Decode_IDXGISwapChain_GetContainingOutput(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics:
-        Decode_IDXGISwapChain_GetFrameStatistics(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount:
-        Decode_IDXGISwapChain_GetLastPresentCount(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters:
-        Decode_IDXGIFactory_EnumAdapters(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
-        Decode_IDXGIFactory_MakeWindowAssociation(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
-        Decode_IDXGIFactory_GetWindowAssociation(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain:
-        Decode_IDXGIFactory_CreateSwapChain(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter:
-        Decode_IDXGIFactory_CreateSoftwareAdapter(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter:
-        Decode_IDXGIDevice_GetAdapter(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface:
-        Decode_IDXGIDevice_CreateSurface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency:
-        Decode_IDXGIDevice_QueryResourceResidency(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority:
-        Decode_IDXGIDevice_SetGPUThreadPriority(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority:
-        Decode_IDXGIDevice_GetGPUThreadPriority(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1:
-        Decode_IDXGIFactory1_EnumAdapters1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent:
-        Decode_IDXGIFactory1_IsCurrent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1:
-        Decode_IDXGIAdapter1_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency:
-        Decode_IDXGIDevice1_SetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency:
-        Decode_IDXGIDevice1_GetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled:
-        Decode_IDXGIDisplayControl_IsStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled:
-        Decode_IDXGIDisplayControl_SetStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc:
-        Decode_IDXGIOutputDuplication_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame:
-        Decode_IDXGIOutputDuplication_AcquireNextFrame(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects:
-        Decode_IDXGIOutputDuplication_GetFrameDirtyRects(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects:
-        Decode_IDXGIOutputDuplication_GetFrameMoveRects(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape:
-        Decode_IDXGIOutputDuplication_GetFramePointerShape(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface:
-        Decode_IDXGIOutputDuplication_MapDesktopSurface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface:
-        Decode_IDXGIOutputDuplication_UnMapDesktopSurface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame:
-        Decode_IDXGIOutputDuplication_ReleaseFrame(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface2_GetResource:
-        Decode_IDXGISurface2_GetResource(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface:
-        Decode_IDXGIResource1_CreateSubresourceSurface(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
-        Decode_IDXGIResource1_CreateSharedHandle(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources:
-        Decode_IDXGIDevice2_OfferResources(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources:
-        Decode_IDXGIDevice2_ReclaimResources(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent:
-        Decode_IDXGIDevice2_EnqueueSetEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1:
-        Decode_IDXGISwapChain1_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc:
-        Decode_IDXGISwapChain1_GetFullscreenDesc(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
-        Decode_IDXGISwapChain1_GetHwnd(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow:
-        Decode_IDXGISwapChain1_GetCoreWindow(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_Present1:
-        Decode_IDXGISwapChain1_Present1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported:
-        Decode_IDXGISwapChain1_IsTemporaryMonoSupported(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput:
-        Decode_IDXGISwapChain1_GetRestrictToOutput(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor:
-        Decode_IDXGISwapChain1_SetBackgroundColor(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor:
-        Decode_IDXGISwapChain1_GetBackgroundColor(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation:
-        Decode_IDXGISwapChain1_SetRotation(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation:
-        Decode_IDXGISwapChain1_GetRotation(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled:
-        Decode_IDXGIFactory2_IsWindowedStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd:
-        Decode_IDXGIFactory2_CreateSwapChainForHwnd(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow:
-        Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid:
-        Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow:
-        Decode_IDXGIFactory2_RegisterStereoStatusWindow(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
-        Decode_IDXGIFactory2_RegisterStereoStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus:
-        Decode_IDXGIFactory2_UnregisterStereoStatus(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow:
-        Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
-        Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus:
-        Decode_IDXGIFactory2_UnregisterOcclusionStatus(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition:
-        Decode_IDXGIFactory2_CreateSwapChainForComposition(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2:
-        Decode_IDXGIAdapter2_GetDesc2(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1:
-        Decode_IDXGIOutput1_GetDisplayModeList1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1:
-        Decode_IDXGIOutput1_FindClosestMatchingMode1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1:
-        Decode_IDXGIOutput1_GetDisplaySurfaceData1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput:
-        Decode_IDXGIOutput1_DuplicateOutput(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice3_Trim:
-        Decode_IDXGIDevice3_Trim(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize:
-        Decode_IDXGISwapChain2_SetSourceSize(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize:
-        Decode_IDXGISwapChain2_GetSourceSize(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency:
-        Decode_IDXGISwapChain2_SetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency:
-        Decode_IDXGISwapChain2_GetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject:
-        Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform:
-        Decode_IDXGISwapChain2_SetMatrixTransform(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform:
-        Decode_IDXGISwapChain2_GetMatrixTransform(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays:
-        Decode_IDXGIOutput2_SupportsOverlays(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags:
-        Decode_IDXGIFactory3_GetCreationFlags(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer:
-        Decode_IDXGIDecodeSwapChain_PresentBuffer(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect:
-        Decode_IDXGIDecodeSwapChain_SetSourceRect(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect:
-        Decode_IDXGIDecodeSwapChain_SetTargetRect(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize:
-        Decode_IDXGIDecodeSwapChain_SetDestSize(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect:
-        Decode_IDXGIDecodeSwapChain_GetSourceRect(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect:
-        Decode_IDXGIDecodeSwapChain_GetTargetRect(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize:
-        Decode_IDXGIDecodeSwapChain_GetDestSize(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace:
-        Decode_IDXGIDecodeSwapChain_SetColorSpace(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace:
-        Decode_IDXGIDecodeSwapChain_GetColorSpace(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle:
-        Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle:
-        Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia:
-        Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration:
-        Decode_IDXGISwapChainMedia_SetPresentDuration(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport:
-        Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport:
-        Decode_IDXGIOutput3_CheckOverlaySupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex:
-        Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport:
-        Decode_IDXGISwapChain3_CheckColorSpaceSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1:
-        Decode_IDXGISwapChain3_SetColorSpace1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1:
-        Decode_IDXGISwapChain3_ResizeBuffers1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport:
-        Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid:
-        Decode_IDXGIFactory4_EnumAdapterByLuid(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter:
-        Decode_IDXGIFactory4_EnumWarpAdapter(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
-        Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus:
-        Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo:
-        Decode_IDXGIAdapter3_QueryVideoMemoryInfo(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation:
-        Decode_IDXGIAdapter3_SetVideoMemoryReservation(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
-        Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification:
-        Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1:
-        Decode_IDXGIOutput5_DuplicateOutput1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData:
-        Decode_IDXGISwapChain4_SetHDRMetaData(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1:
-        Decode_IDXGIDevice4_OfferResources1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
-        Decode_IDXGIDevice4_ReclaimResources1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
-        Decode_IDXGIAdapter4_GetDesc3(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1:
-        Decode_IDXGIOutput6_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport:
-        Decode_IDXGIOutput6_CheckHardwareCompositionSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference:
-        Decode_IDXGIFactory6_EnumAdapterByGpuPreference(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
-        Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent:
-        Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(object_id, call_info, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_ID3D12Object_GetPrivateData:
         Decode_ID3D12Object_GetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1024,6 +586,48 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12StateObjectProperties_SetPipelineStackSize:
         Decode_ID3D12StateObjectProperties_SetPipelineStackSize(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties1_GetProgramIdentifier:
+        Decode_ID3D12StateObjectProperties1_GetProgramIdentifier(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumWorkGraphs:
+        Decode_ID3D12WorkGraphProperties_GetNumWorkGraphs(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetProgramName:
+        Decode_ID3D12WorkGraphProperties_GetProgramName(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetWorkGraphIndex:
+        Decode_ID3D12WorkGraphProperties_GetWorkGraphIndex(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumNodes:
+        Decode_ID3D12WorkGraphProperties_GetNumNodes(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeID:
+        Decode_ID3D12WorkGraphProperties_GetNodeID(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeIndex:
+        Decode_ID3D12WorkGraphProperties_GetNodeIndex(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex:
+        Decode_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumEntrypoints:
+        Decode_ID3D12WorkGraphProperties_GetNumEntrypoints(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointID:
+        Decode_ID3D12WorkGraphProperties_GetEntrypointID(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointIndex:
+        Decode_ID3D12WorkGraphProperties_GetEntrypointIndex(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes:
+        Decode_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements:
+        Decode_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes:
+        Decode_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device5_CreateLifetimeTracker:
         Decode_ID3D12Device5_CreateLifetimeTracker(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1186,6 +790,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3:
         Decode_ID3D12Device12_GetResourceAllocationInfo3(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device13_OpenExistingHeapFromAddress1:
+        Decode_ID3D12Device13_OpenExistingHeapFromAddress1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
+        Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         Decode_ID3D12VirtualizationGuestDevice_ShareWithHost(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1197,6 +807,18 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled:
         Decode_ID3D12Tools_ShaderInstrumentationEnabled(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Tools1_ReserveGPUVARangesAtCreate:
+        Decode_ID3D12Tools1_ReserveGPUVARangesAtCreate(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Tools1_ClearReservedGPUVARangesList:
+        Decode_ID3D12Tools1_ClearReservedGPUVARangesList(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
+        Decode_ID3D12PageableTools_GetAllocation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools_SetNextAllocationAddress:
+        Decode_ID3D12DeviceTools_SetNextAllocationAddress(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion:
         Decode_ID3D12SDKConfiguration_SetSDKVersion(object_id, call_info, parameter_buffer, buffer_size);
@@ -1240,6 +862,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer:
         Decode_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
+        Decode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1261,8 +886,32 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue:
         Decode_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_SetProgram:
+        Decode_ID3D12GraphicsCommandList10_SetProgram(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_DispatchGraph:
+        Decode_ID3D12GraphicsCommandList10_DispatchGraph(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice:
         Decode_ID3D12DSRDeviceFactory_CreateDSRDevice(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData:
+        Decode_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVSubresourceState:
+        Decode_ID3D12GBVDiagnostics_GetGBVSubresourceState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVResourceUniformState:
+        Decode_ID3D12GBVDiagnostics_GetGBVResourceUniformState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVResourceInfo:
+        Decode_ID3D12GBVDiagnostics_GetGBVResourceInfo(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved0:
+        Decode_ID3D12GBVDiagnostics_GBVReserved0(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved1:
+        Decode_ID3D12GBVDiagnostics_GBVReserved1(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer:
         Decode_ID3D10Blob_GetBufferPointer(object_id, call_info, parameter_buffer, buffer_size);
@@ -1498,6 +1147,447 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback:
         Decode_ID3D12InfoQueue1_UnregisterMessageCallback(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData:
+        Decode_IDXGIObject_SetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface:
+        Decode_IDXGIObject_SetPrivateDataInterface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData:
+        Decode_IDXGIObject_GetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_GetParent:
+        Decode_IDXGIObject_GetParent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice:
+        Decode_IDXGIDeviceSubObject_GetDevice(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
+        Decode_IDXGIResource_GetSharedHandle(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetUsage:
+        Decode_IDXGIResource_GetUsage(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority:
+        Decode_IDXGIResource_SetEvictionPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority:
+        Decode_IDXGIResource_GetEvictionPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync:
+        Decode_IDXGIKeyedMutex_AcquireSync(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync:
+        Decode_IDXGIKeyedMutex_ReleaseSync(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_GetDesc:
+        Decode_IDXGISurface_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_Map:
+        Decode_IDXGISurface_Map(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_Unmap:
+        Decode_IDXGISurface_Unmap(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
+        Decode_IDXGISurface1_GetDC(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC:
+        Decode_IDXGISurface1_ReleaseDC(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs:
+        Decode_IDXGIAdapter_EnumOutputs(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc:
+        Decode_IDXGIAdapter_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport:
+        Decode_IDXGIAdapter_CheckInterfaceSupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDesc:
+        Decode_IDXGIOutput_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList:
+        Decode_IDXGIOutput_GetDisplayModeList(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode:
+        Decode_IDXGIOutput_FindClosestMatchingMode(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank:
+        Decode_IDXGIOutput_WaitForVBlank(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership:
+        Decode_IDXGIOutput_TakeOwnership(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership:
+        Decode_IDXGIOutput_ReleaseOwnership(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities:
+        Decode_IDXGIOutput_GetGammaControlCapabilities(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl:
+        Decode_IDXGIOutput_SetGammaControl(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl:
+        Decode_IDXGIOutput_GetGammaControl(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface:
+        Decode_IDXGIOutput_SetDisplaySurface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData:
+        Decode_IDXGIOutput_GetDisplaySurfaceData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics:
+        Decode_IDXGIOutput_GetFrameStatistics(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_Present:
+        Decode_IDXGISwapChain_Present(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer:
+        Decode_IDXGISwapChain_GetBuffer(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState:
+        Decode_IDXGISwapChain_SetFullscreenState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState:
+        Decode_IDXGISwapChain_GetFullscreenState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc:
+        Decode_IDXGISwapChain_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers:
+        Decode_IDXGISwapChain_ResizeBuffers(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget:
+        Decode_IDXGISwapChain_ResizeTarget(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput:
+        Decode_IDXGISwapChain_GetContainingOutput(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics:
+        Decode_IDXGISwapChain_GetFrameStatistics(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount:
+        Decode_IDXGISwapChain_GetLastPresentCount(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters:
+        Decode_IDXGIFactory_EnumAdapters(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
+        Decode_IDXGIFactory_MakeWindowAssociation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
+        Decode_IDXGIFactory_GetWindowAssociation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain:
+        Decode_IDXGIFactory_CreateSwapChain(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter:
+        Decode_IDXGIFactory_CreateSoftwareAdapter(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter:
+        Decode_IDXGIDevice_GetAdapter(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface:
+        Decode_IDXGIDevice_CreateSurface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency:
+        Decode_IDXGIDevice_QueryResourceResidency(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority:
+        Decode_IDXGIDevice_SetGPUThreadPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority:
+        Decode_IDXGIDevice_GetGPUThreadPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1:
+        Decode_IDXGIFactory1_EnumAdapters1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent:
+        Decode_IDXGIFactory1_IsCurrent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1:
+        Decode_IDXGIAdapter1_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency:
+        Decode_IDXGIDevice1_SetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency:
+        Decode_IDXGIDevice1_GetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled:
+        Decode_IDXGIDisplayControl_IsStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled:
+        Decode_IDXGIDisplayControl_SetStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc:
+        Decode_IDXGIOutputDuplication_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame:
+        Decode_IDXGIOutputDuplication_AcquireNextFrame(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects:
+        Decode_IDXGIOutputDuplication_GetFrameDirtyRects(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects:
+        Decode_IDXGIOutputDuplication_GetFrameMoveRects(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape:
+        Decode_IDXGIOutputDuplication_GetFramePointerShape(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface:
+        Decode_IDXGIOutputDuplication_MapDesktopSurface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface:
+        Decode_IDXGIOutputDuplication_UnMapDesktopSurface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame:
+        Decode_IDXGIOutputDuplication_ReleaseFrame(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface2_GetResource:
+        Decode_IDXGISurface2_GetResource(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface:
+        Decode_IDXGIResource1_CreateSubresourceSurface(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
+        Decode_IDXGIResource1_CreateSharedHandle(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources:
+        Decode_IDXGIDevice2_OfferResources(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources:
+        Decode_IDXGIDevice2_ReclaimResources(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent:
+        Decode_IDXGIDevice2_EnqueueSetEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1:
+        Decode_IDXGISwapChain1_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc:
+        Decode_IDXGISwapChain1_GetFullscreenDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
+        Decode_IDXGISwapChain1_GetHwnd(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow:
+        Decode_IDXGISwapChain1_GetCoreWindow(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_Present1:
+        Decode_IDXGISwapChain1_Present1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported:
+        Decode_IDXGISwapChain1_IsTemporaryMonoSupported(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput:
+        Decode_IDXGISwapChain1_GetRestrictToOutput(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor:
+        Decode_IDXGISwapChain1_SetBackgroundColor(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor:
+        Decode_IDXGISwapChain1_GetBackgroundColor(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation:
+        Decode_IDXGISwapChain1_SetRotation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation:
+        Decode_IDXGISwapChain1_GetRotation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled:
+        Decode_IDXGIFactory2_IsWindowedStereoEnabled(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd:
+        Decode_IDXGIFactory2_CreateSwapChainForHwnd(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow:
+        Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid:
+        Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow:
+        Decode_IDXGIFactory2_RegisterStereoStatusWindow(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
+        Decode_IDXGIFactory2_RegisterStereoStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus:
+        Decode_IDXGIFactory2_UnregisterStereoStatus(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow:
+        Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
+        Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus:
+        Decode_IDXGIFactory2_UnregisterOcclusionStatus(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition:
+        Decode_IDXGIFactory2_CreateSwapChainForComposition(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2:
+        Decode_IDXGIAdapter2_GetDesc2(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1:
+        Decode_IDXGIOutput1_GetDisplayModeList1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1:
+        Decode_IDXGIOutput1_FindClosestMatchingMode1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1:
+        Decode_IDXGIOutput1_GetDisplaySurfaceData1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput:
+        Decode_IDXGIOutput1_DuplicateOutput(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice3_Trim:
+        Decode_IDXGIDevice3_Trim(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize:
+        Decode_IDXGISwapChain2_SetSourceSize(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize:
+        Decode_IDXGISwapChain2_GetSourceSize(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency:
+        Decode_IDXGISwapChain2_SetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency:
+        Decode_IDXGISwapChain2_GetMaximumFrameLatency(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject:
+        Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform:
+        Decode_IDXGISwapChain2_SetMatrixTransform(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform:
+        Decode_IDXGISwapChain2_GetMatrixTransform(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays:
+        Decode_IDXGIOutput2_SupportsOverlays(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags:
+        Decode_IDXGIFactory3_GetCreationFlags(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer:
+        Decode_IDXGIDecodeSwapChain_PresentBuffer(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect:
+        Decode_IDXGIDecodeSwapChain_SetSourceRect(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect:
+        Decode_IDXGIDecodeSwapChain_SetTargetRect(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize:
+        Decode_IDXGIDecodeSwapChain_SetDestSize(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect:
+        Decode_IDXGIDecodeSwapChain_GetSourceRect(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect:
+        Decode_IDXGIDecodeSwapChain_GetTargetRect(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize:
+        Decode_IDXGIDecodeSwapChain_GetDestSize(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace:
+        Decode_IDXGIDecodeSwapChain_SetColorSpace(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace:
+        Decode_IDXGIDecodeSwapChain_GetColorSpace(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle:
+        Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle:
+        Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia:
+        Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration:
+        Decode_IDXGISwapChainMedia_SetPresentDuration(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport:
+        Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport:
+        Decode_IDXGIOutput3_CheckOverlaySupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex:
+        Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport:
+        Decode_IDXGISwapChain3_CheckColorSpaceSupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1:
+        Decode_IDXGISwapChain3_SetColorSpace1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1:
+        Decode_IDXGISwapChain3_ResizeBuffers1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport:
+        Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid:
+        Decode_IDXGIFactory4_EnumAdapterByLuid(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter:
+        Decode_IDXGIFactory4_EnumWarpAdapter(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
+        Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus:
+        Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo:
+        Decode_IDXGIAdapter3_QueryVideoMemoryInfo(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation:
+        Decode_IDXGIAdapter3_SetVideoMemoryReservation(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
+        Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification:
+        Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1:
+        Decode_IDXGIOutput5_DuplicateOutput1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData:
+        Decode_IDXGISwapChain4_SetHDRMetaData(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1:
+        Decode_IDXGIDevice4_OfferResources1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
+        Decode_IDXGIDevice4_ReclaimResources1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
+        Decode_IDXGIAdapter4_GetDesc3(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1:
+        Decode_IDXGIOutput6_GetDesc1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport:
+        Decode_IDXGIOutput6_CheckHardwareCompositionSupport(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference:
+        Decode_IDXGIFactory6_EnumAdapterByGpuPreference(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
+        Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent:
+        Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_IUnknown_QueryInterface:
         Decode_IUnknown_QueryInterface(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1513,6 +1603,230 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     }
 }
 
+
+size_t Dx12Decoder::Decode_D3D12SerializeRootSignature(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC> pRootSignature;
+    D3D_ROOT_SIGNATURE_VERSION Version;
+    HandlePointerDecoder<ID3D10Blob*> ppBlob;
+    HandlePointerDecoder<ID3D10Blob*> ppErrorBlob;
+    HRESULT return_value;
+
+    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Version);
+    bytes_read += ppBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppErrorBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12SerializeRootSignature(call_info, return_value, &pRootSignature, Version, &ppBlob, &ppErrorBlob);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pSrcData;
+    SIZE_T SrcDataSizeInBytes;
+    Decoded_GUID pRootSignatureDeserializerInterface;
+    GUID value_pRootSignatureDeserializerInterface;
+    pRootSignatureDeserializerInterface.decoded_value = &value_pRootSignatureDeserializerInterface;
+    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
+    HRESULT return_value;
+
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
+    bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12CreateRootSignatureDeserializer(call_info, return_value, &pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, &ppRootSignatureDeserializer);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12SerializeVersionedRootSignature(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC> pRootSignature;
+    HandlePointerDecoder<ID3D10Blob*> ppBlob;
+    HandlePointerDecoder<ID3D10Blob*> ppErrorBlob;
+    HRESULT return_value;
+
+    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppErrorBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12SerializeVersionedRootSignature(call_info, return_value, &pRootSignature, &ppBlob, &ppErrorBlob);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pSrcData;
+    SIZE_T SrcDataSizeInBytes;
+    Decoded_GUID pRootSignatureDeserializerInterface;
+    GUID value_pRootSignatureDeserializerInterface;
+    pRootSignatureDeserializerInterface.decoded_value = &value_pRootSignatureDeserializerInterface;
+    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
+    HRESULT return_value;
+
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
+    bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12CreateVersionedRootSignatureDeserializer(call_info, return_value, &pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, &ppRootSignatureDeserializer);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pSrcData;
+    SIZE_T SrcDataSizeInBytes;
+    WStringDecoder RootSignatureSubobjectName;
+    Decoded_GUID pRootSignatureDeserializerInterface;
+    GUID value_pRootSignatureDeserializerInterface;
+    pRootSignatureDeserializerInterface.decoded_value = &value_pRootSignatureDeserializerInterface;
+    PointerDecoder<uint64_t, void*> ppRootSignatureDeserializer;
+    HRESULT return_value;
+
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
+    bytes_read += RootSignatureSubobjectName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
+    bytes_read += ppRootSignatureDeserializer.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(call_info, return_value, &pSrcData, SrcDataSizeInBytes, &RootSignatureSubobjectName, pRootSignatureDeserializerInterface, &ppRootSignatureDeserializer);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12CreateDevice(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pAdapter;
+    D3D_FEATURE_LEVEL MinimumFeatureLevel;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppDevice;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAdapter);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MinimumFeatureLevel);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12CreateDevice(call_info, return_value, pAdapter, MinimumFeatureLevel, riid, &ppDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12GetDebugInterface(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvDebug;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvDebug.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12GetDebugInterface(call_info, return_value, riid, &ppvDebug);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12EnableExperimentalFeatures(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NumFeatures;
+    StructPointerDecoder<Decoded_GUID> pIIDs;
+    PointerDecoder<uint8_t> pConfigurationStructs;
+    PointerDecoder<UINT> pConfigurationStructSizes;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumFeatures);
+    bytes_read += pIIDs.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pConfigurationStructs.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pConfigurationStructSizes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12EnableExperimentalFeatures(call_info, return_value, NumFeatures, &pIIDs, &pConfigurationStructs, &pConfigurationStructSizes);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12GetInterface(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID rclsid;
+    GUID value_rclsid;
+    rclsid.decoded_value = &value_rclsid;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvDebug;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rclsid);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvDebug.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12GetInterface(call_info, return_value, rclsid, riid, &ppvDebug);
+    }
+
+    return bytes_read;
+}
 
 size_t Dx12Decoder::Decode_CreateDXGIFactory(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -1617,3106 +1931,6 @@ size_t Dx12Decoder::Decode_DXGIDeclareAdapterRemovalSupport(const ApiCallInfo& c
     for (auto consumer : GetConsumers())
     {
         consumer->Process_DXGIDeclareAdapterRemovalSupport(call_info, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12SerializeRootSignature(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC> pRootSignature;
-    D3D_ROOT_SIGNATURE_VERSION Version;
-    HandlePointerDecoder<ID3D10Blob*> ppBlob;
-    HandlePointerDecoder<ID3D10Blob*> ppErrorBlob;
-    HRESULT return_value;
-
-    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Version);
-    bytes_read += ppBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppErrorBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12SerializeRootSignature(call_info, return_value, &pRootSignature, Version, &ppBlob, &ppErrorBlob);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<uint8_t> pSrcData;
-    SIZE_T SrcDataSizeInBytes;
-    Decoded_GUID pRootSignatureDeserializerInterface;
-    GUID value_pRootSignatureDeserializerInterface;
-    pRootSignatureDeserializerInterface.decoded_value = &value_pRootSignatureDeserializerInterface;
-    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
-    HRESULT return_value;
-
-    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
-    bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12CreateRootSignatureDeserializer(call_info, return_value, &pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, &ppRootSignatureDeserializer);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12SerializeVersionedRootSignature(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC> pRootSignature;
-    HandlePointerDecoder<ID3D10Blob*> ppBlob;
-    HandlePointerDecoder<ID3D10Blob*> ppErrorBlob;
-    HRESULT return_value;
-
-    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppErrorBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12SerializeVersionedRootSignature(call_info, return_value, &pRootSignature, &ppBlob, &ppErrorBlob);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<uint8_t> pSrcData;
-    SIZE_T SrcDataSizeInBytes;
-    Decoded_GUID pRootSignatureDeserializerInterface;
-    GUID value_pRootSignatureDeserializerInterface;
-    pRootSignatureDeserializerInterface.decoded_value = &value_pRootSignatureDeserializerInterface;
-    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
-    HRESULT return_value;
-
-    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
-    bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12CreateVersionedRootSignatureDeserializer(call_info, return_value, &pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, &ppRootSignatureDeserializer);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12CreateDevice(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pAdapter;
-    D3D_FEATURE_LEVEL MinimumFeatureLevel;
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppDevice;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAdapter);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MinimumFeatureLevel);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12CreateDevice(call_info, return_value, pAdapter, MinimumFeatureLevel, riid, &ppDevice);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12GetDebugInterface(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppvDebug;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppvDebug.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12GetDebugInterface(call_info, return_value, riid, &ppvDebug);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12EnableExperimentalFeatures(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumFeatures;
-    StructPointerDecoder<Decoded_GUID> pIIDs;
-    PointerDecoder<uint8_t> pConfigurationStructs;
-    PointerDecoder<UINT> pConfigurationStructSizes;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumFeatures);
-    bytes_read += pIIDs.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pConfigurationStructs.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pConfigurationStructSizes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12EnableExperimentalFeatures(call_info, return_value, NumFeatures, &pIIDs, &pConfigurationStructs, &pConfigurationStructSizes);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_D3D12GetInterface(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID rclsid;
-    GUID value_rclsid;
-    rclsid.decoded_value = &value_rclsid;
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppvDebug;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rclsid);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppvDebug.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_D3D12GetInterface(call_info, return_value, rclsid, riid, &ppvDebug);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID Name;
-    GUID value_Name;
-    Name.decoded_value = &value_Name;
-    UINT DataSize;
-    PointerDecoder<uint8_t> pData;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DataSize);
-    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIObject_SetPrivateData(call_info, object_id, return_value, Name, DataSize, &pData);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID Name;
-    GUID value_Name;
-    Name.decoded_value = &value_Name;
-    format::HandleId pUnknown;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pUnknown);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIObject_SetPrivateDataInterface(call_info, object_id, return_value, Name, pUnknown);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIObject_GetPrivateData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID Name;
-    GUID value_Name;
-    Name.decoded_value = &value_Name;
-    PointerDecoder<UINT> pDataSize;
-    PointerDecoder<uint8_t> pData;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
-    bytes_read += pDataSize.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIObject_GetPrivateData(call_info, object_id, return_value, Name, &pDataSize, &pData);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppParent;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppParent.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIObject_GetParent(call_info, object_id, return_value, riid, &ppParent);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppDevice;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDeviceSubObject_GetDevice(call_info, object_id, return_value, riid, &ppDevice);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<uint64_t, void*> pSharedHandle;
-    HRESULT return_value;
-
-    bytes_read += pSharedHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource_GetSharedHandle(call_info, object_id, return_value, &pSharedHandle);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource_GetUsage(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<DXGI_USAGE> pUsage;
-    HRESULT return_value;
-
-    bytes_read += pUsage.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource_GetUsage(call_info, object_id, return_value, &pUsage);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource_SetEvictionPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT EvictionPriority;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EvictionPriority);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource_SetEvictionPriority(call_info, object_id, return_value, EvictionPriority);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource_GetEvictionPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pEvictionPriority;
-    HRESULT return_value;
-
-    bytes_read += pEvictionPriority.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource_GetEvictionPriority(call_info, object_id, return_value, &pEvictionPriority);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIKeyedMutex_AcquireSync(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT64 Key;
-    DWORD dwMilliseconds;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Key);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwMilliseconds);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIKeyedMutex_AcquireSync(call_info, object_id, return_value, Key, dwMilliseconds);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIKeyedMutex_ReleaseSync(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT64 Key;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Key);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIKeyedMutex_ReleaseSync(call_info, object_id, return_value, Key);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_SURFACE_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface_GetDesc(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface_Map(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MAPPED_RECT> pLockedRect;
-    UINT MapFlags;
-    HRESULT return_value;
-
-    bytes_read += pLockedRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MapFlags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface_Map(call_info, object_id, return_value, &pLockedRect, MapFlags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface_Unmap(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface_Unmap(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL Discard;
-    PointerDecoder<uint64_t, void*> phdc;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Discard);
-    bytes_read += phdc.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface1_GetDC(call_info, object_id, return_value, Discard, &phdc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface1_ReleaseDC(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_tagRECT> pDirtyRect;
-    HRESULT return_value;
-
-    bytes_read += pDirtyRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface1_ReleaseDC(call_info, object_id, return_value, &pDirtyRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter_EnumOutputs(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Output;
-    HandlePointerDecoder<IDXGIOutput*> ppOutput;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Output);
-    bytes_read += ppOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter_EnumOutputs(call_info, object_id, return_value, Output, &ppOutput);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter_GetDesc(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID InterfaceName;
-    GUID value_InterfaceName;
-    InterfaceName.decoded_value = &value_InterfaceName;
-    StructPointerDecoder<Decoded_LARGE_INTEGER> pUMDVersion;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InterfaceName);
-    bytes_read += pUMDVersion.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter_CheckInterfaceSupport(call_info, object_id, return_value, InterfaceName, &pUMDVersion);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetDesc(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplayModeList(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_FORMAT EnumFormat;
-    UINT Flags;
-    PointerDecoder<UINT> pNumModes;
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += pNumModes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetDisplayModeList(call_info, object_id, return_value, EnumFormat, Flags, &pNumModes, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pModeToMatch;
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pClosestMatch;
-    format::HandleId pConcernedDevice;
-    HRESULT return_value;
-
-    bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_FindClosestMatchingMode(call_info, object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_WaitForVBlank(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_WaitForVBlank(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    BOOL Exclusive;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Exclusive);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_TakeOwnership(call_info, object_id, return_value, pDevice, Exclusive);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_ReleaseOwnership(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_ReleaseOwnership(call_info, object_id);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControlCapabilities(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES> pGammaCaps;
-    HRESULT return_value;
-
-    bytes_read += pGammaCaps.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetGammaControlCapabilities(call_info, object_id, return_value, &pGammaCaps);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_SetGammaControl(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL> pArray;
-    HRESULT return_value;
-
-    bytes_read += pArray.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_SetGammaControl(call_info, object_id, return_value, &pArray);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControl(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL> pArray;
-    HRESULT return_value;
-
-    bytes_read += pArray.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetGammaControl(call_info, object_id, return_value, &pArray);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pScanoutSurface;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pScanoutSurface);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_SetDisplaySurface(call_info, object_id, return_value, pScanoutSurface);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDestination;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetDisplaySurfaceData(call_info, object_id, return_value, pDestination);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput_GetFrameStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS> pStats;
-    HRESULT return_value;
-
-    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput_GetFrameStatistics(call_info, object_id, return_value, &pStats);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_Present(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT SyncInterval;
-    UINT Flags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_Present(call_info, object_id, return_value, SyncInterval, Flags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Buffer;
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppSurface;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Buffer);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetBuffer(call_info, object_id, return_value, Buffer, riid, &ppSurface);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL Fullscreen;
-    format::HandleId pTarget;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Fullscreen);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTarget);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_SetFullscreenState(call_info, object_id, return_value, Fullscreen, pTarget);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetFullscreenState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<BOOL> pFullscreen;
-    HandlePointerDecoder<IDXGIOutput*> ppTarget;
-    HRESULT return_value;
-
-    bytes_read += pFullscreen.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppTarget.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetFullscreenState(call_info, object_id, return_value, &pFullscreen, &ppTarget);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetDesc(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeBuffers(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT BufferCount;
-    UINT Width;
-    UINT Height;
-    DXGI_FORMAT NewFormat;
-    UINT SwapChainFlags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferCount);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NewFormat);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SwapChainFlags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_ResizeBuffers(call_info, object_id, return_value, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeTarget(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pNewTargetParameters;
-    HRESULT return_value;
-
-    bytes_read += pNewTargetParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_ResizeTarget(call_info, object_id, return_value, &pNewTargetParameters);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetContainingOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HandlePointerDecoder<IDXGIOutput*> ppOutput;
-    HRESULT return_value;
-
-    bytes_read += ppOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetContainingOutput(call_info, object_id, return_value, &ppOutput);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetFrameStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS> pStats;
-    HRESULT return_value;
-
-    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetFrameStatistics(call_info, object_id, return_value, &pStats);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain_GetLastPresentCount(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pLastPresentCount;
-    HRESULT return_value;
-
-    bytes_read += pLastPresentCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain_GetLastPresentCount(call_info, object_id, return_value, &pLastPresentCount);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory_EnumAdapters(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Adapter;
-    HandlePointerDecoder<IDXGIAdapter*> ppAdapter;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
-    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory_EnumAdapters(call_info, object_id, return_value, Adapter, &ppAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t WindowHandle;
-    UINT Flags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory_MakeWindowAssociation(call_info, object_id, return_value, WindowHandle, Flags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<uint64_t, void*> pWindowHandle;
-    HRESULT return_value;
-
-    bytes_read += pWindowHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory_GetWindowAssociation(call_info, object_id, return_value, &pWindowHandle);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC> pDesc;
-    HandlePointerDecoder<IDXGISwapChain*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory_CreateSwapChain(call_info, object_id, return_value, pDevice, &pDesc, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t Module;
-    HandlePointerDecoder<IDXGIAdapter*> ppAdapter;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Module);
-    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory_CreateSoftwareAdapter(call_info, object_id, return_value, Module, &ppAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice_GetAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HandlePointerDecoder<IDXGIAdapter*> pAdapter;
-    HRESULT return_value;
-
-    bytes_read += pAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice_GetAdapter(call_info, object_id, return_value, &pAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice_CreateSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_SURFACE_DESC> pDesc;
-    UINT NumSurfaces;
-    DXGI_USAGE Usage;
-    StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE> pSharedResource;
-    HandlePointerDecoder<IDXGISurface*> ppSurface;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumSurfaces);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Usage);
-    bytes_read += pSharedResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice_CreateSurface(call_info, object_id, return_value, &pDesc, NumSurfaces, Usage, &pSharedResource, &ppSurface);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice_QueryResourceResidency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HandlePointerDecoder<IUnknown*> ppResources;
-    PointerDecoder<DXGI_RESIDENCY> pResidencyStatus;
-    UINT NumResources;
-    HRESULT return_value;
-
-    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pResidencyStatus.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice_QueryResourceResidency(call_info, object_id, return_value, &ppResources, &pResidencyStatus, NumResources);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice_SetGPUThreadPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    INT Priority;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice_SetGPUThreadPriority(call_info, object_id, return_value, Priority);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice_GetGPUThreadPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<INT> pPriority;
-    HRESULT return_value;
-
-    bytes_read += pPriority.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice_GetGPUThreadPriority(call_info, object_id, return_value, &pPriority);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory1_EnumAdapters1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Adapter;
-    HandlePointerDecoder<IDXGIAdapter1*> ppAdapter;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
-    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory1_EnumAdapters1(call_info, object_id, return_value, Adapter, &ppAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory1_IsCurrent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory1_IsCurrent(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter1_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter1_GetDesc1(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice1_SetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT MaxLatency;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MaxLatency);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice1_SetMaximumFrameLatency(call_info, object_id, return_value, MaxLatency);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pMaxLatency;
-    HRESULT return_value;
-
-    bytes_read += pMaxLatency.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice1_GetMaximumFrameLatency(call_info, object_id, return_value, &pMaxLatency);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDisplayControl_IsStereoEnabled(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDisplayControl_SetStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL enabled;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &enabled);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDisplayControl_SetStereoEnabled(call_info, object_id, enabled);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC> pDesc;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_GetDesc(call_info, object_id, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_AcquireNextFrame(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT TimeoutInMilliseconds;
-    StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO> pFrameInfo;
-    HandlePointerDecoder<IDXGIResource*> ppDesktopResource;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &TimeoutInMilliseconds);
-    bytes_read += pFrameInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppDesktopResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_AcquireNextFrame(call_info, object_id, return_value, TimeoutInMilliseconds, &pFrameInfo, &ppDesktopResource);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameDirtyRects(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT DirtyRectsBufferSize;
-    StructPointerDecoder<Decoded_tagRECT> pDirtyRectsBuffer;
-    PointerDecoder<UINT> pDirtyRectsBufferSizeRequired;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DirtyRectsBufferSize);
-    bytes_read += pDirtyRectsBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pDirtyRectsBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_GetFrameDirtyRects(call_info, object_id, return_value, DirtyRectsBufferSize, &pDirtyRectsBuffer, &pDirtyRectsBufferSizeRequired);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameMoveRects(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT MoveRectsBufferSize;
-    StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT> pMoveRectBuffer;
-    PointerDecoder<UINT> pMoveRectsBufferSizeRequired;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MoveRectsBufferSize);
-    bytes_read += pMoveRectBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMoveRectsBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_GetFrameMoveRects(call_info, object_id, return_value, MoveRectsBufferSize, &pMoveRectBuffer, &pMoveRectsBufferSizeRequired);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFramePointerShape(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT PointerShapeBufferSize;
-    PointerDecoder<uint8_t> pPointerShapeBuffer;
-    PointerDecoder<UINT> pPointerShapeBufferSizeRequired;
-    StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO> pPointerShapeInfo;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &PointerShapeBufferSize);
-    bytes_read += pPointerShapeBuffer.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPointerShapeBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPointerShapeInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_GetFramePointerShape(call_info, object_id, return_value, PointerShapeBufferSize, &pPointerShapeBuffer, &pPointerShapeBufferSizeRequired, &pPointerShapeInfo);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_MapDesktopSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MAPPED_RECT> pLockedRect;
-    HRESULT return_value;
-
-    bytes_read += pLockedRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_MapDesktopSurface(call_info, object_id, return_value, &pLockedRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_UnMapDesktopSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_UnMapDesktopSurface(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutputDuplication_ReleaseFrame(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutputDuplication_ReleaseFrame(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppParentResource;
-    PointerDecoder<UINT> pSubresourceIndex;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppParentResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSubresourceIndex.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISurface2_GetResource(call_info, object_id, return_value, riid, &ppParentResource, &pSubresourceIndex);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource1_CreateSubresourceSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT index;
-    HandlePointerDecoder<IDXGISurface2*> ppSurface;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &index);
-    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource1_CreateSubresourceSurface(call_info, object_id, return_value, index, &ppSurface);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
-    DWORD dwAccess;
-    WStringDecoder lpName;
-    PointerDecoder<uint64_t, void*> pHandle;
-    HRESULT return_value;
-
-    bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwAccess);
-    bytes_read += lpName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIResource1_CreateSharedHandle(call_info, object_id, return_value, &pAttributes, dwAccess, &lpName, &pHandle);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice2_OfferResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumResources;
-    HandlePointerDecoder<IDXGIResource*> ppResources;
-    DXGI_OFFER_RESOURCE_PRIORITY Priority;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
-    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice2_OfferResources(call_info, object_id, return_value, NumResources, &ppResources, Priority);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice2_ReclaimResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumResources;
-    HandlePointerDecoder<IDXGIResource*> ppResources;
-    PointerDecoder<BOOL> pDiscarded;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
-    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pDiscarded.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice2_ReclaimResources(call_info, object_id, return_value, NumResources, &ppResources, &pDiscarded);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice2_EnqueueSetEvent(call_info, object_id, return_value, hEvent);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetDesc1(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetFullscreenDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetFullscreenDesc(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<uint64_t, void*> pHwnd;
-    HRESULT return_value;
-
-    bytes_read += pHwnd.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetHwnd(call_info, object_id, return_value, &pHwnd);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID refiid;
-    GUID value_refiid;
-    refiid.decoded_value = &value_refiid;
-    HandlePointerDecoder<void*> ppUnk;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &refiid);
-    bytes_read += ppUnk.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetCoreWindow(call_info, object_id, return_value, refiid, &ppUnk);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_Present1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT SyncInterval;
-    UINT PresentFlags;
-    StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS> pPresentParameters;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &PresentFlags);
-    bytes_read += pPresentParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_Present1(call_info, object_id, return_value, SyncInterval, PresentFlags, &pPresentParameters);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_IsTemporaryMonoSupported(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_IsTemporaryMonoSupported(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRestrictToOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HandlePointerDecoder<IDXGIOutput*> ppRestrictToOutput;
-    HRESULT return_value;
-
-    bytes_read += ppRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetRestrictToOutput(call_info, object_id, return_value, &ppRestrictToOutput);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_SetBackgroundColor(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_D3DCOLORVALUE> pColor;
-    HRESULT return_value;
-
-    bytes_read += pColor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_SetBackgroundColor(call_info, object_id, return_value, &pColor);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetBackgroundColor(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_D3DCOLORVALUE> pColor;
-    HRESULT return_value;
-
-    bytes_read += pColor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetBackgroundColor(call_info, object_id, return_value, &pColor);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_SetRotation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_MODE_ROTATION Rotation;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Rotation);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_SetRotation(call_info, object_id, return_value, Rotation);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRotation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<DXGI_MODE_ROTATION> pRotation;
-    HRESULT return_value;
-
-    bytes_read += pRotation.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain1_GetRotation(call_info, object_id, return_value, &pRotation);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_IsWindowedStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_IsWindowedStereoEnabled(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    uint64_t hWnd;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pFullscreenDesc;
-    format::HandleId pRestrictToOutput;
-    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hWnd);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pFullscreenDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForHwnd(call_info, object_id, return_value, pDevice, hWnd, &pDesc, &pFullscreenDesc, pRestrictToOutput, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    format::HandleId pWindow;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    format::HandleId pRestrictToOutput;
-    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pWindow);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForCoreWindow(call_info, object_id, return_value, pDevice, pWindow, &pDesc, pRestrictToOutput, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hResource;
-    StructPointerDecoder<Decoded_LUID> pLuid;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hResource);
-    bytes_read += pLuid.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_GetSharedResourceAdapterLuid(call_info, object_id, return_value, hResource, &pLuid);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t WindowHandle;
-    UINT wMsg;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_RegisterStereoStatusWindow(call_info, object_id, return_value, WindowHandle, wMsg, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_RegisterStereoStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterStereoStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DWORD dwCookie;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_UnregisterStereoStatus(call_info, object_id, dwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t WindowHandle;
-    UINT wMsg;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_RegisterOcclusionStatusWindow(call_info, object_id, return_value, WindowHandle, wMsg, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_RegisterOcclusionStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterOcclusionStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DWORD dwCookie;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_UnregisterOcclusionStatus(call_info, object_id, dwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    format::HandleId pRestrictToOutput;
-    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForComposition(call_info, object_id, return_value, pDevice, &pDesc, pRestrictToOutput, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter2_GetDesc2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter2_GetDesc2(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplayModeList1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_FORMAT EnumFormat;
-    UINT Flags;
-    PointerDecoder<UINT> pNumModes;
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pDesc;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += pNumModes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput1_GetDisplayModeList1(call_info, object_id, return_value, EnumFormat, Flags, &pNumModes, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pModeToMatch;
-    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pClosestMatch;
-    format::HandleId pConcernedDevice;
-    HRESULT return_value;
-
-    bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput1_FindClosestMatchingMode1(call_info, object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDestination;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput1_GetDisplaySurfaceData1(call_info, object_id, return_value, pDestination);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ppOutputDuplication.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput1_DuplicateOutput(call_info, object_id, return_value, pDevice, &ppOutputDuplication);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice3_Trim(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice3_Trim(call_info, object_id);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_SetSourceSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Width;
-    UINT Height;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_SetSourceSize(call_info, object_id, return_value, Width, Height);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_GetSourceSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pWidth;
-    PointerDecoder<UINT> pHeight;
-    HRESULT return_value;
-
-    bytes_read += pWidth.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHeight.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_GetSourceSize(call_info, object_id, return_value, &pWidth, &pHeight);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT MaxLatency;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MaxLatency);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_SetMaximumFrameLatency(call_info, object_id, return_value, MaxLatency);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pMaxLatency;
-    HRESULT return_value;
-
-    bytes_read += pMaxLatency.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_GetMaximumFrameLatency(call_info, object_id, return_value, &pMaxLatency);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMatrixTransform(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F> pMatrix;
-    HRESULT return_value;
-
-    bytes_read += pMatrix.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_SetMatrixTransform(call_info, object_id, return_value, &pMatrix);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMatrixTransform(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F> pMatrix;
-    HRESULT return_value;
-
-    bytes_read += pMatrix.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain2_GetMatrixTransform(call_info, object_id, return_value, &pMatrix);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput2_SupportsOverlays(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    BOOL return_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput2_SupportsOverlays(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory3_GetCreationFlags(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory3_GetCreationFlags(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_PresentBuffer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT BufferToPresent;
-    UINT SyncInterval;
-    UINT Flags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferToPresent);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_PresentBuffer(call_info, object_id, return_value, BufferToPresent, SyncInterval, Flags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetSourceRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_tagRECT> pRect;
-    HRESULT return_value;
-
-    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_SetSourceRect(call_info, object_id, return_value, &pRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetTargetRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_tagRECT> pRect;
-    HRESULT return_value;
-
-    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_SetTargetRect(call_info, object_id, return_value, &pRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetDestSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Width;
-    UINT Height;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_SetDestSize(call_info, object_id, return_value, Width, Height);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetSourceRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_tagRECT> pRect;
-    HRESULT return_value;
-
-    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_GetSourceRect(call_info, object_id, return_value, &pRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetTargetRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_tagRECT> pRect;
-    HRESULT return_value;
-
-    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_GetTargetRect(call_info, object_id, return_value, &pRect);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetDestSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pWidth;
-    PointerDecoder<UINT> pHeight;
-    HRESULT return_value;
-
-    bytes_read += pWidth.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHeight.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_GetDestSize(call_info, object_id, return_value, &pWidth, &pHeight);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetColorSpace(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_SetColorSpace(call_info, object_id, return_value, ColorSpace);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetColorSpace(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDecodeSwapChain_GetColorSpace(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    uint64_t hSurface;
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    format::HandleId pRestrictToOutput;
-    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(call_info, object_id, return_value, pDevice, hSurface, &pDesc, pRestrictToOutput, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    uint64_t hSurface;
-    StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC> pDesc;
-    format::HandleId pYuvDecodeBuffers;
-    format::HandleId pRestrictToOutput;
-    HandlePointerDecoder<IDXGIDecodeSwapChain*> ppSwapChain;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pYuvDecodeBuffers);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
-    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(call_info, object_id, return_value, pDevice, hSurface, &pDesc, pYuvDecodeBuffers, pRestrictToOutput, &ppSwapChain);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA> pStats;
-    HRESULT return_value;
-
-    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(call_info, object_id, return_value, &pStats);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChainMedia_SetPresentDuration(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Duration;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Duration);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChainMedia_SetPresentDuration(call_info, object_id, return_value, Duration);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT DesiredPresentDuration;
-    PointerDecoder<UINT> pClosestSmallerPresentDuration;
-    PointerDecoder<UINT> pClosestLargerPresentDuration;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DesiredPresentDuration);
-    bytes_read += pClosestSmallerPresentDuration.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pClosestLargerPresentDuration.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChainMedia_CheckPresentDurationSupport(call_info, object_id, return_value, DesiredPresentDuration, &pClosestSmallerPresentDuration, &pClosestLargerPresentDuration);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_FORMAT EnumFormat;
-    format::HandleId pConcernedDevice;
-    PointerDecoder<UINT> pFlags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
-    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput3_CheckOverlaySupport(call_info, object_id, return_value, EnumFormat, pConcernedDevice, &pFlags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain3_GetCurrentBackBufferIndex(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain3_CheckColorSpaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_COLOR_SPACE_TYPE ColorSpace;
-    PointerDecoder<UINT> pColorSpaceSupport;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
-    bytes_read += pColorSpaceSupport.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain3_CheckColorSpaceSupport(call_info, object_id, return_value, ColorSpace, &pColorSpaceSupport);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain3_SetColorSpace1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_COLOR_SPACE_TYPE ColorSpace;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain3_SetColorSpace1(call_info, object_id, return_value, ColorSpace);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain3_ResizeBuffers1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT BufferCount;
-    UINT Width;
-    UINT Height;
-    DXGI_FORMAT Format;
-    UINT SwapChainFlags;
-    PointerDecoder<UINT> pCreationNodeMask;
-    HandlePointerDecoder<IUnknown*> ppPresentQueue;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferCount);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SwapChainFlags);
-    bytes_read += pCreationNodeMask.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppPresentQueue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain3_ResizeBuffers1(call_info, object_id, return_value, BufferCount, Width, Height, Format, SwapChainFlags, &pCreationNodeMask, &ppPresentQueue);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_FORMAT Format;
-    DXGI_COLOR_SPACE_TYPE ColorSpace;
-    format::HandleId pConcernedDevice;
-    PointerDecoder<UINT> pFlags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
-    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(call_info, object_id, return_value, Format, ColorSpace, pConcernedDevice, &pFlags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_LUID AdapterLuid;
-    LUID value_AdapterLuid;
-    AdapterLuid.decoded_value = &value_AdapterLuid;
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppvAdapter;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AdapterLuid);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory4_EnumAdapterByLuid(call_info, object_id, return_value, AdapterLuid, riid, &ppvAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppvAdapter;
-    HRESULT return_value;
-
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory4_EnumWarpAdapter(call_info, object_id, return_value, riid, &ppvAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DWORD dwCookie;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(call_info, object_id, dwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_QueryVideoMemoryInfo(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NodeIndex;
-    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup;
-    StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO> pVideoMemoryInfo;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MemorySegmentGroup);
-    bytes_read += pVideoMemoryInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_QueryVideoMemoryInfo(call_info, object_id, return_value, NodeIndex, MemorySegmentGroup, &pVideoMemoryInfo);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_SetVideoMemoryReservation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NodeIndex;
-    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup;
-    UINT64 Reservation;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MemorySegmentGroup);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Reservation);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_SetVideoMemoryReservation(call_info, object_id, return_value, NodeIndex, MemorySegmentGroup, Reservation);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DWORD dwCookie;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(call_info, object_id, dwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId pDevice;
-    UINT Flags;
-    UINT SupportedFormatsCount;
-    PointerDecoder<DXGI_FORMAT> pSupportedFormats;
-    HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SupportedFormatsCount);
-    bytes_read += pSupportedFormats.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppOutputDuplication.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput5_DuplicateOutput1(call_info, object_id, return_value, pDevice, Flags, SupportedFormatsCount, &pSupportedFormats, &ppOutputDuplication);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_HDR_METADATA_TYPE Type;
-    UINT Size;
-    PointerDecoder<uint8_t> pMetaData;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Size);
-    bytes_read += pMetaData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGISwapChain4_SetHDRMetaData(call_info, object_id, return_value, Type, Size, &pMetaData);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice4_OfferResources1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumResources;
-    HandlePointerDecoder<IDXGIResource*> ppResources;
-    DXGI_OFFER_RESOURCE_PRIORITY Priority;
-    UINT Flags;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
-    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice4_OfferResources1(call_info, object_id, return_value, NumResources, &ppResources, Priority, Flags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT NumResources;
-    HandlePointerDecoder<IDXGIResource*> ppResources;
-    PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS> pResults;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
-    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pResults.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIDevice4_ReclaimResources1(call_info, object_id, return_value, NumResources, &ppResources, &pResults);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIAdapter4_GetDesc3(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1> pDesc;
-    HRESULT return_value;
-
-    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput6_GetDesc1(call_info, object_id, return_value, &pDesc);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    PointerDecoder<UINT> pFlags;
-    HRESULT return_value;
-
-    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIOutput6_CheckHardwareCompositionSupport(call_info, object_id, return_value, &pFlags);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT Adapter;
-    DXGI_GPU_PREFERENCE GpuPreference;
-    Decoded_GUID riid;
-    GUID value_riid;
-    riid.decoded_value = &value_riid;
-    HandlePointerDecoder<void*> ppvAdapter;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &GpuPreference);
-    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
-    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory6_EnumAdapterByGpuPreference(call_info, object_id, return_value, Adapter, GpuPreference, riid, &ppvAdapter);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    uint64_t hEvent;
-    PointerDecoder<DWORD> pdwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
-    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory7_RegisterAdaptersChangedEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DWORD dwCookie;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(call_info, object_id, return_value, dwCookie);
     }
 
     return bytes_read;
@@ -8184,6 +5398,280 @@ size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_SetPipelineStackSize(form
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties1_GetProgramIdentifier(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    WStringDecoder pProgramName;
+    Decoded_D3D12_PROGRAM_IDENTIFIER return_value;
+    D3D12_PROGRAM_IDENTIFIER value_returned;
+    return_value.decoded_value = &value_returned;
+
+    bytes_read += pProgramName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectProperties1_GetProgramIdentifier(call_info, object_id, return_value, &pProgramName);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNumWorkGraphs(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetProgramName(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    WStringDecoder return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += return_value.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetProgramName(call_info, object_id, &return_value, WorkGraphIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetWorkGraphIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    WStringDecoder pProgramName;
+    UINT return_value;
+
+    bytes_read += pProgramName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetWorkGraphIndex(call_info, object_id, return_value, &pProgramName);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNumNodes(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNumNodes(call_info, object_id, return_value, WorkGraphIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNodeID(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT NodeIndex;
+    Decoded_D3D12_NODE_ID return_value;
+    D3D12_NODE_ID value_returned;
+    return_value.decoded_value = &value_returned;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNodeID(call_info, object_id, return_value, WorkGraphIndex, NodeIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNodeIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    Decoded_D3D12_NODE_ID NodeID;
+    D3D12_NODE_ID value_NodeID;
+    NodeID.decoded_value = &value_NodeID;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeID);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNodeIndex(call_info, object_id, return_value, WorkGraphIndex, NodeID);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT NodeIndex;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(call_info, object_id, return_value, WorkGraphIndex, NodeIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNumEntrypoints(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetNumEntrypoints(call_info, object_id, return_value, WorkGraphIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetEntrypointID(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT EntrypointIndex;
+    Decoded_D3D12_NODE_ID return_value;
+    D3D12_NODE_ID value_returned;
+    return_value.decoded_value = &value_returned;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EntrypointIndex);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetEntrypointID(call_info, object_id, return_value, WorkGraphIndex, EntrypointIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetEntrypointIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    Decoded_D3D12_NODE_ID NodeID;
+    D3D12_NODE_ID value_NodeID;
+    NodeID.decoded_value = &value_NodeID;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeID);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetEntrypointIndex(call_info, object_id, return_value, WorkGraphIndex, NodeID);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT EntrypointIndex;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EntrypointIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(call_info, object_id, return_value, WorkGraphIndex, EntrypointIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    StructPointerDecoder<Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS> pWorkGraphMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += pWorkGraphMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(call_info, object_id, WorkGraphIndex, &pWorkGraphMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT WorkGraphIndex;
+    UINT EntrypointIndex;
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WorkGraphIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EntrypointIndex);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(call_info, object_id, return_value, WorkGraphIndex, EntrypointIndex);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9362,6 +6850,62 @@ size_t Dx12Decoder::Decode_ID3D12Device12_GetResourceAllocationInfo3(format::Han
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12Device13_OpenExistingHeapFromAddress1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t pAddress;
+    SIZE_T size;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvHeap;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAddress);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &size);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device13_OpenExistingHeapFromAddress1(call_info, object_id, return_value, pAddress, size, riid, &ppvHeap);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT nodeMask;
+    PointerDecoder<uint8_t> pLibraryBlob;
+    SIZE_T blobLengthInBytes;
+    WStringDecoder subobjectName;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvRootSignature;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
+    bytes_read += pLibraryBlob.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &blobLengthInBytes);
+    bytes_read += subobjectName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(call_info, object_id, return_value, nodeMask, &pLibraryBlob, blobLengthInBytes, &subobjectName, riid, &ppvRootSignature);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12VirtualizationGuestDevice_ShareWithHost(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9431,6 +6975,74 @@ size_t Dx12Decoder::Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::Hand
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Tools_ShaderInstrumentationEnabled(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Tools1_ReserveGPUVARangesAtCreate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE> pRanges;
+    UINT uiNumRanges;
+    HRESULT return_value;
+
+    bytes_read += pRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &uiNumRanges);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Tools1_ReserveGPUVARangesAtCreate(call_info, object_id, return_value, &pRanges, uiNumRanges);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Tools1_ClearReservedGPUVARangesList(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Tools1_ClearReservedGPUVARangesList(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12PageableTools_GetAllocation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE> pAllocation;
+    HRESULT return_value;
+
+    bytes_read += pAllocation.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12PageableTools_GetAllocation(call_info, object_id, return_value, &pAllocation);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12DeviceTools_SetNextAllocationAddress(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nextAllocationVirtualAddress);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceTools_SetNextAllocationAddress(call_info, object_id, nextAllocationVirtualAddress);
     }
 
     return bytes_read;
@@ -9724,6 +7336,34 @@ size_t Dx12Decoder::Decode_ID3D12DeviceConfiguration_CreateVersionedRootSignatur
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pLibraryBlob;
+    SIZE_T Size;
+    WStringDecoder RootSignatureSubobjectName;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvDeserializer;
+    HRESULT return_value;
+
+    bytes_read += pLibraryBlob.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Size);
+    bytes_read += RootSignatureSubobjectName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(call_info, object_id, return_value, &pLibraryBlob, Size, &RootSignatureSubobjectName, riid, &ppvDeserializer);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9850,6 +7490,38 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutVa
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList10_SetProgram(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC> pDesc;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GraphicsCommandList10_SetProgram(call_info, object_id, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList10_DispatchGraph(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC> pDesc;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GraphicsCommandList10_DispatchGraph(call_info, object_id, &pDesc);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12DSRDeviceFactory_CreateDSRDevice(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9871,6 +7543,122 @@ size_t Dx12Decoder::Decode_ID3D12DSRDeviceFactory_CreateDSRDevice(format::Handle
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12DSRDeviceFactory_CreateDSRDevice(call_info, object_id, return_value, pD3D12Device, NodeMask, riid, &ppvDSRDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    PointerDecoder<int> pData;
+    UINT DataSize;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pData.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DataSize);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(call_info, object_id, return_value, pResource, &pData, DataSize);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GetGBVSubresourceState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    UINT Subresource;
+    PointerDecoder<int> pData;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Subresource);
+    bytes_read += pData.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GetGBVSubresourceState(call_info, object_id, return_value, pResource, Subresource, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GetGBVResourceUniformState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    PointerDecoder<int> pData;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pData.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GetGBVResourceUniformState(call_info, object_id, return_value, pResource, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GetGBVResourceInfo(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pResource;
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pResourceDesc;
+    PointerDecoder<UINT32> pResourceHash;
+    PointerDecoder<UINT32> pSubresourceStatesByteOffset;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += pResourceDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pResourceHash.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSubresourceStatesByteOffset.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GetGBVResourceInfo(call_info, object_id, return_value, pResource, &pResourceDesc, &pResourceHash, &pSubresourceStatesByteOffset);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GBVReserved0(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GBVReserved0(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12GBVDiagnostics_GBVReserved1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12GBVDiagnostics_GBVReserved1(call_info, object_id);
     }
 
     return bytes_read;
@@ -11277,6 +9065,2910 @@ size_t Dx12Decoder::Decode_ID3D12InfoQueue1_UnregisterMessageCallback(format::Ha
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12InfoQueue1_UnregisterMessageCallback(call_info, object_id, return_value, CallbackCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID Name;
+    GUID value_Name;
+    Name.decoded_value = &value_Name;
+    UINT DataSize;
+    PointerDecoder<uint8_t> pData;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DataSize);
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIObject_SetPrivateData(call_info, object_id, return_value, Name, DataSize, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID Name;
+    GUID value_Name;
+    Name.decoded_value = &value_Name;
+    format::HandleId pUnknown;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pUnknown);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIObject_SetPrivateDataInterface(call_info, object_id, return_value, Name, pUnknown);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIObject_GetPrivateData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID Name;
+    GUID value_Name;
+    Name.decoded_value = &value_Name;
+    PointerDecoder<UINT> pDataSize;
+    PointerDecoder<uint8_t> pData;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
+    bytes_read += pDataSize.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIObject_GetPrivateData(call_info, object_id, return_value, Name, &pDataSize, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppParent;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppParent.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIObject_GetParent(call_info, object_id, return_value, riid, &ppParent);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppDevice;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDeviceSubObject_GetDevice(call_info, object_id, return_value, riid, &ppDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint64_t, void*> pSharedHandle;
+    HRESULT return_value;
+
+    bytes_read += pSharedHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource_GetSharedHandle(call_info, object_id, return_value, &pSharedHandle);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource_GetUsage(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<DXGI_USAGE> pUsage;
+    HRESULT return_value;
+
+    bytes_read += pUsage.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource_GetUsage(call_info, object_id, return_value, &pUsage);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource_SetEvictionPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT EvictionPriority;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EvictionPriority);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource_SetEvictionPriority(call_info, object_id, return_value, EvictionPriority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource_GetEvictionPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pEvictionPriority;
+    HRESULT return_value;
+
+    bytes_read += pEvictionPriority.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource_GetEvictionPriority(call_info, object_id, return_value, &pEvictionPriority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIKeyedMutex_AcquireSync(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT64 Key;
+    DWORD dwMilliseconds;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Key);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwMilliseconds);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIKeyedMutex_AcquireSync(call_info, object_id, return_value, Key, dwMilliseconds);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIKeyedMutex_ReleaseSync(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT64 Key;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Key);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIKeyedMutex_ReleaseSync(call_info, object_id, return_value, Key);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_SURFACE_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface_GetDesc(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface_Map(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MAPPED_RECT> pLockedRect;
+    UINT MapFlags;
+    HRESULT return_value;
+
+    bytes_read += pLockedRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MapFlags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface_Map(call_info, object_id, return_value, &pLockedRect, MapFlags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface_Unmap(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface_Unmap(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL Discard;
+    PointerDecoder<uint64_t, void*> phdc;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Discard);
+    bytes_read += phdc.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface1_GetDC(call_info, object_id, return_value, Discard, &phdc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface1_ReleaseDC(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_tagRECT> pDirtyRect;
+    HRESULT return_value;
+
+    bytes_read += pDirtyRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface1_ReleaseDC(call_info, object_id, return_value, &pDirtyRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter_EnumOutputs(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Output;
+    HandlePointerDecoder<IDXGIOutput*> ppOutput;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Output);
+    bytes_read += ppOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter_EnumOutputs(call_info, object_id, return_value, Output, &ppOutput);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter_GetDesc(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID InterfaceName;
+    GUID value_InterfaceName;
+    InterfaceName.decoded_value = &value_InterfaceName;
+    StructPointerDecoder<Decoded_LARGE_INTEGER> pUMDVersion;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InterfaceName);
+    bytes_read += pUMDVersion.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter_CheckInterfaceSupport(call_info, object_id, return_value, InterfaceName, &pUMDVersion);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetDesc(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplayModeList(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_FORMAT EnumFormat;
+    UINT Flags;
+    PointerDecoder<UINT> pNumModes;
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += pNumModes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetDisplayModeList(call_info, object_id, return_value, EnumFormat, Flags, &pNumModes, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pModeToMatch;
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pClosestMatch;
+    format::HandleId pConcernedDevice;
+    HRESULT return_value;
+
+    bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_FindClosestMatchingMode(call_info, object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_WaitForVBlank(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_WaitForVBlank(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    BOOL Exclusive;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Exclusive);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_TakeOwnership(call_info, object_id, return_value, pDevice, Exclusive);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_ReleaseOwnership(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_ReleaseOwnership(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControlCapabilities(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES> pGammaCaps;
+    HRESULT return_value;
+
+    bytes_read += pGammaCaps.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetGammaControlCapabilities(call_info, object_id, return_value, &pGammaCaps);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_SetGammaControl(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL> pArray;
+    HRESULT return_value;
+
+    bytes_read += pArray.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_SetGammaControl(call_info, object_id, return_value, &pArray);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControl(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL> pArray;
+    HRESULT return_value;
+
+    bytes_read += pArray.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetGammaControl(call_info, object_id, return_value, &pArray);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pScanoutSurface;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pScanoutSurface);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_SetDisplaySurface(call_info, object_id, return_value, pScanoutSurface);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDestination;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetDisplaySurfaceData(call_info, object_id, return_value, pDestination);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput_GetFrameStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS> pStats;
+    HRESULT return_value;
+
+    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput_GetFrameStatistics(call_info, object_id, return_value, &pStats);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_Present(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT SyncInterval;
+    UINT Flags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_Present(call_info, object_id, return_value, SyncInterval, Flags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Buffer;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppSurface;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Buffer);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetBuffer(call_info, object_id, return_value, Buffer, riid, &ppSurface);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL Fullscreen;
+    format::HandleId pTarget;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Fullscreen);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTarget);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_SetFullscreenState(call_info, object_id, return_value, Fullscreen, pTarget);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetFullscreenState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<BOOL> pFullscreen;
+    HandlePointerDecoder<IDXGIOutput*> ppTarget;
+    HRESULT return_value;
+
+    bytes_read += pFullscreen.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppTarget.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetFullscreenState(call_info, object_id, return_value, &pFullscreen, &ppTarget);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetDesc(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeBuffers(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT BufferCount;
+    UINT Width;
+    UINT Height;
+    DXGI_FORMAT NewFormat;
+    UINT SwapChainFlags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferCount);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NewFormat);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SwapChainFlags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_ResizeBuffers(call_info, object_id, return_value, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeTarget(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC> pNewTargetParameters;
+    HRESULT return_value;
+
+    bytes_read += pNewTargetParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_ResizeTarget(call_info, object_id, return_value, &pNewTargetParameters);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetContainingOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HandlePointerDecoder<IDXGIOutput*> ppOutput;
+    HRESULT return_value;
+
+    bytes_read += ppOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetContainingOutput(call_info, object_id, return_value, &ppOutput);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetFrameStatistics(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS> pStats;
+    HRESULT return_value;
+
+    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetFrameStatistics(call_info, object_id, return_value, &pStats);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetLastPresentCount(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pLastPresentCount;
+    HRESULT return_value;
+
+    bytes_read += pLastPresentCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain_GetLastPresentCount(call_info, object_id, return_value, &pLastPresentCount);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory_EnumAdapters(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Adapter;
+    HandlePointerDecoder<IDXGIAdapter*> ppAdapter;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
+    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory_EnumAdapters(call_info, object_id, return_value, Adapter, &ppAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t WindowHandle;
+    UINT Flags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory_MakeWindowAssociation(call_info, object_id, return_value, WindowHandle, Flags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint64_t, void*> pWindowHandle;
+    HRESULT return_value;
+
+    bytes_read += pWindowHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory_GetWindowAssociation(call_info, object_id, return_value, &pWindowHandle);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC> pDesc;
+    HandlePointerDecoder<IDXGISwapChain*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory_CreateSwapChain(call_info, object_id, return_value, pDevice, &pDesc, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t Module;
+    HandlePointerDecoder<IDXGIAdapter*> ppAdapter;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Module);
+    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory_CreateSoftwareAdapter(call_info, object_id, return_value, Module, &ppAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice_GetAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HandlePointerDecoder<IDXGIAdapter*> pAdapter;
+    HRESULT return_value;
+
+    bytes_read += pAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice_GetAdapter(call_info, object_id, return_value, &pAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice_CreateSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_SURFACE_DESC> pDesc;
+    UINT NumSurfaces;
+    DXGI_USAGE Usage;
+    StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE> pSharedResource;
+    HandlePointerDecoder<IDXGISurface*> ppSurface;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumSurfaces);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Usage);
+    bytes_read += pSharedResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice_CreateSurface(call_info, object_id, return_value, &pDesc, NumSurfaces, Usage, &pSharedResource, &ppSurface);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice_QueryResourceResidency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HandlePointerDecoder<IUnknown*> ppResources;
+    PointerDecoder<DXGI_RESIDENCY> pResidencyStatus;
+    UINT NumResources;
+    HRESULT return_value;
+
+    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pResidencyStatus.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice_QueryResourceResidency(call_info, object_id, return_value, &ppResources, &pResidencyStatus, NumResources);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice_SetGPUThreadPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    INT Priority;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice_SetGPUThreadPriority(call_info, object_id, return_value, Priority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice_GetGPUThreadPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<INT> pPriority;
+    HRESULT return_value;
+
+    bytes_read += pPriority.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice_GetGPUThreadPriority(call_info, object_id, return_value, &pPriority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory1_EnumAdapters1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Adapter;
+    HandlePointerDecoder<IDXGIAdapter1*> ppAdapter;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
+    bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory1_EnumAdapters1(call_info, object_id, return_value, Adapter, &ppAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory1_IsCurrent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory1_IsCurrent(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter1_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter1_GetDesc1(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice1_SetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT MaxLatency;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MaxLatency);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice1_SetMaximumFrameLatency(call_info, object_id, return_value, MaxLatency);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pMaxLatency;
+    HRESULT return_value;
+
+    bytes_read += pMaxLatency.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice1_GetMaximumFrameLatency(call_info, object_id, return_value, &pMaxLatency);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDisplayControl_IsStereoEnabled(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDisplayControl_SetStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL enabled;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &enabled);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDisplayControl_SetStereoEnabled(call_info, object_id, enabled);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC> pDesc;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_GetDesc(call_info, object_id, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_AcquireNextFrame(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT TimeoutInMilliseconds;
+    StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO> pFrameInfo;
+    HandlePointerDecoder<IDXGIResource*> ppDesktopResource;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &TimeoutInMilliseconds);
+    bytes_read += pFrameInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppDesktopResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_AcquireNextFrame(call_info, object_id, return_value, TimeoutInMilliseconds, &pFrameInfo, &ppDesktopResource);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameDirtyRects(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT DirtyRectsBufferSize;
+    StructPointerDecoder<Decoded_tagRECT> pDirtyRectsBuffer;
+    PointerDecoder<UINT> pDirtyRectsBufferSizeRequired;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DirtyRectsBufferSize);
+    bytes_read += pDirtyRectsBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDirtyRectsBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_GetFrameDirtyRects(call_info, object_id, return_value, DirtyRectsBufferSize, &pDirtyRectsBuffer, &pDirtyRectsBufferSizeRequired);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameMoveRects(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT MoveRectsBufferSize;
+    StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT> pMoveRectBuffer;
+    PointerDecoder<UINT> pMoveRectsBufferSizeRequired;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MoveRectsBufferSize);
+    bytes_read += pMoveRectBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMoveRectsBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_GetFrameMoveRects(call_info, object_id, return_value, MoveRectsBufferSize, &pMoveRectBuffer, &pMoveRectsBufferSizeRequired);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFramePointerShape(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT PointerShapeBufferSize;
+    PointerDecoder<uint8_t> pPointerShapeBuffer;
+    PointerDecoder<UINT> pPointerShapeBufferSizeRequired;
+    StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO> pPointerShapeInfo;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &PointerShapeBufferSize);
+    bytes_read += pPointerShapeBuffer.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPointerShapeBufferSizeRequired.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPointerShapeInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_GetFramePointerShape(call_info, object_id, return_value, PointerShapeBufferSize, &pPointerShapeBuffer, &pPointerShapeBufferSizeRequired, &pPointerShapeInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_MapDesktopSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MAPPED_RECT> pLockedRect;
+    HRESULT return_value;
+
+    bytes_read += pLockedRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_MapDesktopSurface(call_info, object_id, return_value, &pLockedRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_UnMapDesktopSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_UnMapDesktopSurface(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_ReleaseFrame(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutputDuplication_ReleaseFrame(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppParentResource;
+    PointerDecoder<UINT> pSubresourceIndex;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppParentResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSubresourceIndex.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISurface2_GetResource(call_info, object_id, return_value, riid, &ppParentResource, &pSubresourceIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource1_CreateSubresourceSurface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT index;
+    HandlePointerDecoder<IDXGISurface2*> ppSurface;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &index);
+    bytes_read += ppSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource1_CreateSubresourceSurface(call_info, object_id, return_value, index, &ppSurface);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
+    DWORD dwAccess;
+    WStringDecoder lpName;
+    PointerDecoder<uint64_t, void*> pHandle;
+    HRESULT return_value;
+
+    bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwAccess);
+    bytes_read += lpName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIResource1_CreateSharedHandle(call_info, object_id, return_value, &pAttributes, dwAccess, &lpName, &pHandle);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice2_OfferResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NumResources;
+    HandlePointerDecoder<IDXGIResource*> ppResources;
+    DXGI_OFFER_RESOURCE_PRIORITY Priority;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
+    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice2_OfferResources(call_info, object_id, return_value, NumResources, &ppResources, Priority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice2_ReclaimResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NumResources;
+    HandlePointerDecoder<IDXGIResource*> ppResources;
+    PointerDecoder<BOOL> pDiscarded;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
+    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDiscarded.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice2_ReclaimResources(call_info, object_id, return_value, NumResources, &ppResources, &pDiscarded);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice2_EnqueueSetEvent(call_info, object_id, return_value, hEvent);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetDesc1(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetFullscreenDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetFullscreenDesc(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint64_t, void*> pHwnd;
+    HRESULT return_value;
+
+    bytes_read += pHwnd.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetHwnd(call_info, object_id, return_value, &pHwnd);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID refiid;
+    GUID value_refiid;
+    refiid.decoded_value = &value_refiid;
+    HandlePointerDecoder<void*> ppUnk;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &refiid);
+    bytes_read += ppUnk.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetCoreWindow(call_info, object_id, return_value, refiid, &ppUnk);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_Present1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT SyncInterval;
+    UINT PresentFlags;
+    StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS> pPresentParameters;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &PresentFlags);
+    bytes_read += pPresentParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_Present1(call_info, object_id, return_value, SyncInterval, PresentFlags, &pPresentParameters);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_IsTemporaryMonoSupported(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_IsTemporaryMonoSupported(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRestrictToOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HandlePointerDecoder<IDXGIOutput*> ppRestrictToOutput;
+    HRESULT return_value;
+
+    bytes_read += ppRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetRestrictToOutput(call_info, object_id, return_value, &ppRestrictToOutput);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_SetBackgroundColor(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3DCOLORVALUE> pColor;
+    HRESULT return_value;
+
+    bytes_read += pColor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_SetBackgroundColor(call_info, object_id, return_value, &pColor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetBackgroundColor(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3DCOLORVALUE> pColor;
+    HRESULT return_value;
+
+    bytes_read += pColor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetBackgroundColor(call_info, object_id, return_value, &pColor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_SetRotation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_MODE_ROTATION Rotation;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Rotation);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_SetRotation(call_info, object_id, return_value, Rotation);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRotation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<DXGI_MODE_ROTATION> pRotation;
+    HRESULT return_value;
+
+    bytes_read += pRotation.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain1_GetRotation(call_info, object_id, return_value, &pRotation);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_IsWindowedStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_IsWindowedStereoEnabled(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    uint64_t hWnd;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pFullscreenDesc;
+    format::HandleId pRestrictToOutput;
+    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hWnd);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFullscreenDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_CreateSwapChainForHwnd(call_info, object_id, return_value, pDevice, hWnd, &pDesc, &pFullscreenDesc, pRestrictToOutput, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    format::HandleId pWindow;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
+    format::HandleId pRestrictToOutput;
+    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pWindow);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_CreateSwapChainForCoreWindow(call_info, object_id, return_value, pDevice, pWindow, &pDesc, pRestrictToOutput, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hResource;
+    StructPointerDecoder<Decoded_LUID> pLuid;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hResource);
+    bytes_read += pLuid.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_GetSharedResourceAdapterLuid(call_info, object_id, return_value, hResource, &pLuid);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t WindowHandle;
+    UINT wMsg;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_RegisterStereoStatusWindow(call_info, object_id, return_value, WindowHandle, wMsg, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_RegisterStereoStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterStereoStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD dwCookie;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_UnregisterStereoStatus(call_info, object_id, dwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t WindowHandle;
+    UINT wMsg;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_RegisterOcclusionStatusWindow(call_info, object_id, return_value, WindowHandle, wMsg, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_RegisterOcclusionStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterOcclusionStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD dwCookie;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_UnregisterOcclusionStatus(call_info, object_id, dwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
+    format::HandleId pRestrictToOutput;
+    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory2_CreateSwapChainForComposition(call_info, object_id, return_value, pDevice, &pDesc, pRestrictToOutput, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter2_GetDesc2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter2_GetDesc2(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplayModeList1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_FORMAT EnumFormat;
+    UINT Flags;
+    PointerDecoder<UINT> pNumModes;
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pDesc;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += pNumModes.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput1_GetDisplayModeList1(call_info, object_id, return_value, EnumFormat, Flags, &pNumModes, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pModeToMatch;
+    StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pClosestMatch;
+    format::HandleId pConcernedDevice;
+    HRESULT return_value;
+
+    bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput1_FindClosestMatchingMode1(call_info, object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDestination;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput1_GetDisplaySurfaceData1(call_info, object_id, return_value, pDestination);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ppOutputDuplication.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput1_DuplicateOutput(call_info, object_id, return_value, pDevice, &ppOutputDuplication);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice3_Trim(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice3_Trim(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetSourceSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Width;
+    UINT Height;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_SetSourceSize(call_info, object_id, return_value, Width, Height);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetSourceSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pWidth;
+    PointerDecoder<UINT> pHeight;
+    HRESULT return_value;
+
+    bytes_read += pWidth.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHeight.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_GetSourceSize(call_info, object_id, return_value, &pWidth, &pHeight);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT MaxLatency;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MaxLatency);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_SetMaximumFrameLatency(call_info, object_id, return_value, MaxLatency);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pMaxLatency;
+    HRESULT return_value;
+
+    bytes_read += pMaxLatency.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_GetMaximumFrameLatency(call_info, object_id, return_value, &pMaxLatency);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMatrixTransform(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F> pMatrix;
+    HRESULT return_value;
+
+    bytes_read += pMatrix.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_SetMatrixTransform(call_info, object_id, return_value, &pMatrix);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMatrixTransform(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F> pMatrix;
+    HRESULT return_value;
+
+    bytes_read += pMatrix.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain2_GetMatrixTransform(call_info, object_id, return_value, &pMatrix);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput2_SupportsOverlays(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL return_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput2_SupportsOverlays(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory3_GetCreationFlags(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory3_GetCreationFlags(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_PresentBuffer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT BufferToPresent;
+    UINT SyncInterval;
+    UINT Flags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferToPresent);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SyncInterval);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_PresentBuffer(call_info, object_id, return_value, BufferToPresent, SyncInterval, Flags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetSourceRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_tagRECT> pRect;
+    HRESULT return_value;
+
+    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_SetSourceRect(call_info, object_id, return_value, &pRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetTargetRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_tagRECT> pRect;
+    HRESULT return_value;
+
+    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_SetTargetRect(call_info, object_id, return_value, &pRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetDestSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Width;
+    UINT Height;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_SetDestSize(call_info, object_id, return_value, Width, Height);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetSourceRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_tagRECT> pRect;
+    HRESULT return_value;
+
+    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_GetSourceRect(call_info, object_id, return_value, &pRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetTargetRect(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_tagRECT> pRect;
+    HRESULT return_value;
+
+    bytes_read += pRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_GetTargetRect(call_info, object_id, return_value, &pRect);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetDestSize(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pWidth;
+    PointerDecoder<UINT> pHeight;
+    HRESULT return_value;
+
+    bytes_read += pWidth.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHeight.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_GetDestSize(call_info, object_id, return_value, &pWidth, &pHeight);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetColorSpace(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_SetColorSpace(call_info, object_id, return_value, ColorSpace);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetColorSpace(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDecodeSwapChain_GetColorSpace(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    uint64_t hSurface;
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
+    format::HandleId pRestrictToOutput;
+    HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(call_info, object_id, return_value, pDevice, hSurface, &pDesc, pRestrictToOutput, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    uint64_t hSurface;
+    StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC> pDesc;
+    format::HandleId pYuvDecodeBuffers;
+    format::HandleId pRestrictToOutput;
+    HandlePointerDecoder<IDXGIDecodeSwapChain*> ppSwapChain;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pYuvDecodeBuffers);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
+    bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(call_info, object_id, return_value, pDevice, hSurface, &pDesc, pYuvDecodeBuffers, pRestrictToOutput, &ppSwapChain);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA> pStats;
+    HRESULT return_value;
+
+    bytes_read += pStats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(call_info, object_id, return_value, &pStats);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_SetPresentDuration(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Duration;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Duration);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChainMedia_SetPresentDuration(call_info, object_id, return_value, Duration);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT DesiredPresentDuration;
+    PointerDecoder<UINT> pClosestSmallerPresentDuration;
+    PointerDecoder<UINT> pClosestLargerPresentDuration;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DesiredPresentDuration);
+    bytes_read += pClosestSmallerPresentDuration.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pClosestLargerPresentDuration.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChainMedia_CheckPresentDurationSupport(call_info, object_id, return_value, DesiredPresentDuration, &pClosestSmallerPresentDuration, &pClosestLargerPresentDuration);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_FORMAT EnumFormat;
+    format::HandleId pConcernedDevice;
+    PointerDecoder<UINT> pFlags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
+    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput3_CheckOverlaySupport(call_info, object_id, return_value, EnumFormat, pConcernedDevice, &pFlags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain3_GetCurrentBackBufferIndex(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain3_CheckColorSpaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_COLOR_SPACE_TYPE ColorSpace;
+    PointerDecoder<UINT> pColorSpaceSupport;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
+    bytes_read += pColorSpaceSupport.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain3_CheckColorSpaceSupport(call_info, object_id, return_value, ColorSpace, &pColorSpaceSupport);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain3_SetColorSpace1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_COLOR_SPACE_TYPE ColorSpace;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain3_SetColorSpace1(call_info, object_id, return_value, ColorSpace);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain3_ResizeBuffers1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT BufferCount;
+    UINT Width;
+    UINT Height;
+    DXGI_FORMAT Format;
+    UINT SwapChainFlags;
+    PointerDecoder<UINT> pCreationNodeMask;
+    HandlePointerDecoder<IUnknown*> ppPresentQueue;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferCount);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Width);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Height);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SwapChainFlags);
+    bytes_read += pCreationNodeMask.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppPresentQueue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain3_ResizeBuffers1(call_info, object_id, return_value, BufferCount, Width, Height, Format, SwapChainFlags, &pCreationNodeMask, &ppPresentQueue);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_FORMAT Format;
+    DXGI_COLOR_SPACE_TYPE ColorSpace;
+    format::HandleId pConcernedDevice;
+    PointerDecoder<UINT> pFlags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
+    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(call_info, object_id, return_value, Format, ColorSpace, pConcernedDevice, &pFlags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_LUID AdapterLuid;
+    LUID value_AdapterLuid;
+    AdapterLuid.decoded_value = &value_AdapterLuid;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvAdapter;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AdapterLuid);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory4_EnumAdapterByLuid(call_info, object_id, return_value, AdapterLuid, riid, &ppvAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvAdapter;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory4_EnumWarpAdapter(call_info, object_id, return_value, riid, &ppvAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD dwCookie;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(call_info, object_id, dwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_QueryVideoMemoryInfo(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NodeIndex;
+    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup;
+    StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO> pVideoMemoryInfo;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MemorySegmentGroup);
+    bytes_read += pVideoMemoryInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_QueryVideoMemoryInfo(call_info, object_id, return_value, NodeIndex, MemorySegmentGroup, &pVideoMemoryInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_SetVideoMemoryReservation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NodeIndex;
+    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup;
+    UINT64 Reservation;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeIndex);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MemorySegmentGroup);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Reservation);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_SetVideoMemoryReservation(call_info, object_id, return_value, NodeIndex, MemorySegmentGroup, Reservation);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD dwCookie;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(call_info, object_id, dwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pDevice;
+    UINT Flags;
+    UINT SupportedFormatsCount;
+    PointerDecoder<DXGI_FORMAT> pSupportedFormats;
+    HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SupportedFormatsCount);
+    bytes_read += pSupportedFormats.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppOutputDuplication.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput5_DuplicateOutput1(call_info, object_id, return_value, pDevice, Flags, SupportedFormatsCount, &pSupportedFormats, &ppOutputDuplication);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DXGI_HDR_METADATA_TYPE Type;
+    UINT Size;
+    PointerDecoder<uint8_t> pMetaData;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Size);
+    bytes_read += pMetaData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGISwapChain4_SetHDRMetaData(call_info, object_id, return_value, Type, Size, &pMetaData);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice4_OfferResources1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NumResources;
+    HandlePointerDecoder<IDXGIResource*> ppResources;
+    DXGI_OFFER_RESOURCE_PRIORITY Priority;
+    UINT Flags;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
+    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice4_OfferResources1(call_info, object_id, return_value, NumResources, &ppResources, Priority, Flags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT NumResources;
+    HandlePointerDecoder<IDXGIResource*> ppResources;
+    PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS> pResults;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResources);
+    bytes_read += ppResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pResults.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIDevice4_ReclaimResources1(call_info, object_id, return_value, NumResources, &ppResources, &pResults);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIAdapter4_GetDesc3(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput6_GetDesc1(call_info, object_id, return_value, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<UINT> pFlags;
+    HRESULT return_value;
+
+    bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIOutput6_CheckHardwareCompositionSupport(call_info, object_id, return_value, &pFlags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT Adapter;
+    DXGI_GPU_PREFERENCE GpuPreference;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvAdapter;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &GpuPreference);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory6_EnumAdapterByGpuPreference(call_info, object_id, return_value, Adapter, GpuPreference, riid, &ppvAdapter);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t hEvent;
+    PointerDecoder<DWORD> pdwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory7_RegisterAdaptersChangedEvent(call_info, object_id, return_value, hEvent, &pdwCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD dwCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwCookie);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(call_info, object_id, return_value, dwCookie);
     }
 
     return bytes_read;

@@ -32,6 +32,10 @@
 #include "encode/iunknown_wrapper.h"
 #include "util/defines.h"
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -39,11 +43,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -56,1141 +56,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-HRESULT WINAPI CreateDXGIFactory(
-    REFIID riid,
-    void** ppFactory);
-
-HRESULT WINAPI CreateDXGIFactory1(
-    REFIID riid,
-    void** ppFactory);
-
-class IDXGIObject_Wrapper : public IUnknown_Wrapper
-{
-  public:
-    IDXGIObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIObject_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE SetPrivateData(
-        REFGUID Name,
-        UINT DataSize,
-        const void* pData);
-
-    virtual HRESULT STDMETHODCALLTYPE SetPrivateDataInterface(
-        REFGUID Name,
-        const IUnknown* pUnknown);
-
-    virtual HRESULT STDMETHODCALLTYPE GetPrivateData(
-        REFGUID Name,
-        UINT* pDataSize,
-        void* pData);
-
-    virtual HRESULT STDMETHODCALLTYPE GetParent(
-        REFIID riid,
-        void** ppParent);
-
-};
-
-class IDXGIDeviceSubObject_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIDeviceSubObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDeviceSubObject_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDevice(
-        REFIID riid,
-        void** ppDevice);
-
-};
-
-class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
-{
-  public:
-    IDXGIResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource_Wrapper*>(u); });
-
-    ~IDXGIResource_Wrapper();
-
-    static IDXGIResource_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIResourceInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIResourceInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE GetSharedHandle(
-        HANDLE* pSharedHandle);
-
-    virtual HRESULT STDMETHODCALLTYPE GetUsage(
-        DXGI_USAGE* pUsage);
-
-    virtual HRESULT STDMETHODCALLTYPE SetEvictionPriority(
-        UINT EvictionPriority);
-
-    virtual HRESULT STDMETHODCALLTYPE GetEvictionPriority(
-        UINT* pEvictionPriority);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIResource_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIResourceInfo> info_;
-};
-
-class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
-{
-  public:
-    IDXGIKeyedMutex_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(u); });
-
-    ~IDXGIKeyedMutex_Wrapper();
-
-    static IDXGIKeyedMutex_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIKeyedMutexInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIKeyedMutexInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE AcquireSync(
-        UINT64 Key,
-        DWORD dwMilliseconds);
-
-    virtual HRESULT STDMETHODCALLTYPE ReleaseSync(
-        UINT64 Key);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIKeyedMutex_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIKeyedMutexInfo> info_;
-};
-
-class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
-{
-  public:
-    IDXGISurface_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface_Wrapper*>(u); });
-
-    ~IDXGISurface_Wrapper();
-
-    static IDXGISurface_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGISurfaceInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGISurfaceInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc(
-        DXGI_SURFACE_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE Map(
-        DXGI_MAPPED_RECT* pLockedRect,
-        UINT MapFlags);
-
-    virtual HRESULT STDMETHODCALLTYPE Unmap();
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGISurface_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGISurfaceInfo> info_;
-};
-
-class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
-{
-  public:
-    IDXGISurface1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDC(
-        BOOL Discard,
-        HDC* phdc);
-
-    virtual HRESULT STDMETHODCALLTYPE ReleaseDC(
-        RECT* pDirtyRect);
-
-};
-
-class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIAdapter_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter_Wrapper*>(u); });
-
-    ~IDXGIAdapter_Wrapper();
-
-    static IDXGIAdapter_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIAdapterInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIAdapterInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE EnumOutputs(
-        UINT Output,
-        IDXGIOutput** ppOutput);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc(
-        DXGI_ADAPTER_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE CheckInterfaceSupport(
-        REFGUID InterfaceName,
-        LARGE_INTEGER* pUMDVersion);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIAdapter_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIAdapterInfo> info_;
-};
-
-class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIOutput_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput_Wrapper*>(u); });
-
-    ~IDXGIOutput_Wrapper();
-
-    static IDXGIOutput_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIOutputInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIOutputInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc(
-        DXGI_OUTPUT_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDisplayModeList(
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        UINT* pNumModes,
-        DXGI_MODE_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE FindClosestMatchingMode(
-        const DXGI_MODE_DESC* pModeToMatch,
-        DXGI_MODE_DESC* pClosestMatch,
-        IUnknown* pConcernedDevice);
-
-    virtual HRESULT STDMETHODCALLTYPE WaitForVBlank();
-
-    virtual HRESULT STDMETHODCALLTYPE TakeOwnership(
-        IUnknown* pDevice,
-        BOOL Exclusive);
-
-    virtual void STDMETHODCALLTYPE ReleaseOwnership();
-
-    virtual HRESULT STDMETHODCALLTYPE GetGammaControlCapabilities(
-        DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps);
-
-    virtual HRESULT STDMETHODCALLTYPE SetGammaControl(
-        const DXGI_GAMMA_CONTROL* pArray);
-
-    virtual HRESULT STDMETHODCALLTYPE GetGammaControl(
-        DXGI_GAMMA_CONTROL* pArray);
-
-    virtual HRESULT STDMETHODCALLTYPE SetDisplaySurface(
-        IDXGISurface* pScanoutSurface);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDisplaySurfaceData(
-        IDXGISurface* pDestination);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFrameStatistics(
-        DXGI_FRAME_STATISTICS* pStats);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIOutput_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIOutputInfo> info_;
-};
-
-class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
-{
-  public:
-    IDXGISwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain_Wrapper*>(u); });
-
-    ~IDXGISwapChain_Wrapper();
-
-    static IDXGISwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGISwapChainInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGISwapChainInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE Present(
-        UINT SyncInterval,
-        UINT Flags);
-
-    virtual HRESULT STDMETHODCALLTYPE GetBuffer(
-        UINT Buffer,
-        REFIID riid,
-        void** ppSurface);
-
-    virtual HRESULT STDMETHODCALLTYPE SetFullscreenState(
-        BOOL Fullscreen,
-        IDXGIOutput* pTarget);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFullscreenState(
-        BOOL* pFullscreen,
-        IDXGIOutput** ppTarget);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc(
-        DXGI_SWAP_CHAIN_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE ResizeBuffers(
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT NewFormat,
-        UINT SwapChainFlags);
-
-    virtual HRESULT STDMETHODCALLTYPE ResizeTarget(
-        const DXGI_MODE_DESC* pNewTargetParameters);
-
-    virtual HRESULT STDMETHODCALLTYPE GetContainingOutput(
-        IDXGIOutput** ppOutput);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFrameStatistics(
-        DXGI_FRAME_STATISTICS* pStats);
-
-    virtual HRESULT STDMETHODCALLTYPE GetLastPresentCount(
-        UINT* pLastPresentCount);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGISwapChain_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGISwapChainInfo> info_;
-};
-
-class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory_Wrapper*>(u); });
-
-    ~IDXGIFactory_Wrapper();
-
-    static IDXGIFactory_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIFactoryInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIFactoryInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE EnumAdapters(
-        UINT Adapter,
-        IDXGIAdapter** ppAdapter);
-
-    virtual HRESULT STDMETHODCALLTYPE MakeWindowAssociation(
-        HWND WindowHandle,
-        UINT Flags);
-
-    virtual HRESULT STDMETHODCALLTYPE GetWindowAssociation(
-        HWND* pWindowHandle);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSwapChain(
-        IUnknown* pDevice,
-        DXGI_SWAP_CHAIN_DESC* pDesc,
-        IDXGISwapChain** ppSwapChain);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSoftwareAdapter(
-        HMODULE Module,
-        IDXGIAdapter** ppAdapter);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIFactory_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIFactoryInfo> info_;
-};
-
-class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice_Wrapper*>(u); });
-
-    ~IDXGIDevice_Wrapper();
-
-    static IDXGIDevice_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIDeviceInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIDeviceInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE GetAdapter(
-        IDXGIAdapter** pAdapter);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSurface(
-        const DXGI_SURFACE_DESC* pDesc,
-        UINT NumSurfaces,
-        DXGI_USAGE Usage,
-        const DXGI_SHARED_RESOURCE* pSharedResource,
-        IDXGISurface** ppSurface);
-
-    virtual HRESULT STDMETHODCALLTYPE QueryResourceResidency(
-        IUnknown* const* ppResources,
-        DXGI_RESIDENCY* pResidencyStatus,
-        UINT NumResources);
-
-    virtual HRESULT STDMETHODCALLTYPE SetGPUThreadPriority(
-        INT Priority);
-
-    virtual HRESULT STDMETHODCALLTYPE GetGPUThreadPriority(
-        INT* pPriority);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIDevice_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIDeviceInfo> info_;
-};
-
-class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
-{
-  public:
-    IDXGIFactory1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE EnumAdapters1(
-        UINT Adapter,
-        IDXGIAdapter1** ppAdapter);
-
-    virtual BOOL STDMETHODCALLTYPE IsCurrent();
-
-};
-
-class IDXGIAdapter1_Wrapper : public IDXGIAdapter_Wrapper
-{
-  public:
-    IDXGIAdapter1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
-        DXGI_ADAPTER_DESC1* pDesc);
-
-};
-
-class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
-{
-  public:
-    IDXGIDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE SetMaximumFrameLatency(
-        UINT MaxLatency);
-
-    virtual HRESULT STDMETHODCALLTYPE GetMaximumFrameLatency(
-        UINT* pMaxLatency);
-
-};
-
-
-/*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
-{
-  public:
-    IDXGIDisplayControl_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDisplayControl_Wrapper*>(u); });
-
-    ~IDXGIDisplayControl_Wrapper();
-
-    static IDXGIDisplayControl_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIDisplayControlInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIDisplayControlInfo> GetObjectInfo() { return info_; }
-
-    virtual BOOL STDMETHODCALLTYPE IsStereoEnabled();
-
-    virtual void STDMETHODCALLTYPE SetStereoEnabled(
-        BOOL enabled);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIDisplayControl_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIDisplayControlInfo> info_;
-};
-
-class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
-{
-  public:
-    IDXGIOutputDuplication_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(u); });
-
-    ~IDXGIOutputDuplication_Wrapper();
-
-    static IDXGIOutputDuplication_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIOutputDuplicationInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIOutputDuplicationInfo> GetObjectInfo() { return info_; }
-
-    virtual void STDMETHODCALLTYPE GetDesc(
-        DXGI_OUTDUPL_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE AcquireNextFrame(
-        UINT TimeoutInMilliseconds,
-        DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
-        IDXGIResource** ppDesktopResource);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFrameDirtyRects(
-        UINT DirtyRectsBufferSize,
-        RECT* pDirtyRectsBuffer,
-        UINT* pDirtyRectsBufferSizeRequired);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFrameMoveRects(
-        UINT MoveRectsBufferSize,
-        DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
-        UINT* pMoveRectsBufferSizeRequired);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFramePointerShape(
-        UINT PointerShapeBufferSize,
-        void* pPointerShapeBuffer,
-        UINT* pPointerShapeBufferSizeRequired,
-        DXGI_OUTDUPL_POINTER_SHAPE_INFO* pPointerShapeInfo);
-
-    virtual HRESULT STDMETHODCALLTYPE MapDesktopSurface(
-        DXGI_MAPPED_RECT* pLockedRect);
-
-    virtual HRESULT STDMETHODCALLTYPE UnMapDesktopSurface();
-
-    virtual HRESULT STDMETHODCALLTYPE ReleaseFrame();
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIOutputDuplication_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIOutputDuplicationInfo> info_;
-};
-
-class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
-{
-  public:
-    IDXGISurface2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface2_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetResource(
-        REFIID riid,
-        void** ppParentResource,
-        UINT* pSubresourceIndex);
-
-};
-
-class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
-{
-  public:
-    IDXGIResource1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSubresourceSurface(
-        UINT index,
-        IDXGISurface2** ppSurface);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSharedHandle(
-        const SECURITY_ATTRIBUTES* pAttributes,
-        DWORD dwAccess,
-        LPCWSTR lpName,
-        HANDLE* pHandle);
-
-};
-
-class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
-{
-  public:
-    IDXGIDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice2_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE OfferResources(
-        UINT NumResources,
-        IDXGIResource* const* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority);
-
-    virtual HRESULT STDMETHODCALLTYPE ReclaimResources(
-        UINT NumResources,
-        IDXGIResource* const* ppResources,
-        BOOL* pDiscarded);
-
-    virtual HRESULT STDMETHODCALLTYPE EnqueueSetEvent(
-        HANDLE hEvent);
-
-};
-
-class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
-{
-  public:
-    IDXGISwapChain1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
-        DXGI_SWAP_CHAIN_DESC1* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE GetFullscreenDesc(
-        DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE GetHwnd(
-        HWND* pHwnd);
-
-    virtual HRESULT STDMETHODCALLTYPE GetCoreWindow(
-        REFIID refiid,
-        void** ppUnk);
-
-    virtual HRESULT STDMETHODCALLTYPE Present1(
-        UINT SyncInterval,
-        UINT PresentFlags,
-        const DXGI_PRESENT_PARAMETERS* pPresentParameters);
-
-    virtual BOOL STDMETHODCALLTYPE IsTemporaryMonoSupported();
-
-    virtual HRESULT STDMETHODCALLTYPE GetRestrictToOutput(
-        IDXGIOutput** ppRestrictToOutput);
-
-    virtual HRESULT STDMETHODCALLTYPE SetBackgroundColor(
-        const DXGI_RGBA* pColor);
-
-    virtual HRESULT STDMETHODCALLTYPE GetBackgroundColor(
-        DXGI_RGBA* pColor);
-
-    virtual HRESULT STDMETHODCALLTYPE SetRotation(
-        DXGI_MODE_ROTATION Rotation);
-
-    virtual HRESULT STDMETHODCALLTYPE GetRotation(
-        DXGI_MODE_ROTATION* pRotation);
-
-};
-
-class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
-{
-  public:
-    IDXGIFactory2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory2_Wrapper*>(u); });
-
-    virtual BOOL STDMETHODCALLTYPE IsWindowedStereoEnabled();
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForHwnd(
-        IUnknown* pDevice,
-        HWND hWnd,
-        const DXGI_SWAP_CHAIN_DESC1* pDesc,
-        const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
-        IDXGIOutput* pRestrictToOutput,
-        IDXGISwapChain1** ppSwapChain);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCoreWindow(
-        IUnknown* pDevice,
-        IUnknown* pWindow,
-        const DXGI_SWAP_CHAIN_DESC1* pDesc,
-        IDXGIOutput* pRestrictToOutput,
-        IDXGISwapChain1** ppSwapChain);
-
-    virtual HRESULT STDMETHODCALLTYPE GetSharedResourceAdapterLuid(
-        HANDLE hResource,
-        LUID* pLuid);
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterStereoStatusWindow(
-        HWND WindowHandle,
-        UINT wMsg,
-        DWORD* pdwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterStereoStatusEvent(
-        HANDLE hEvent,
-        DWORD* pdwCookie);
-
-    virtual void STDMETHODCALLTYPE UnregisterStereoStatus(
-        DWORD dwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterOcclusionStatusWindow(
-        HWND WindowHandle,
-        UINT wMsg,
-        DWORD* pdwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterOcclusionStatusEvent(
-        HANDLE hEvent,
-        DWORD* pdwCookie);
-
-    virtual void STDMETHODCALLTYPE UnregisterOcclusionStatus(
-        DWORD dwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForComposition(
-        IUnknown* pDevice,
-        const DXGI_SWAP_CHAIN_DESC1* pDesc,
-        IDXGIOutput* pRestrictToOutput,
-        IDXGISwapChain1** ppSwapChain);
-
-};
-
-class IDXGIAdapter2_Wrapper : public IDXGIAdapter1_Wrapper
-{
-  public:
-    IDXGIAdapter2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter2_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc2(
-        DXGI_ADAPTER_DESC2* pDesc);
-
-};
-
-class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
-{
-  public:
-    IDXGIOutput1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput1_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDisplayModeList1(
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        UINT* pNumModes,
-        DXGI_MODE_DESC1* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE FindClosestMatchingMode1(
-        const DXGI_MODE_DESC1* pModeToMatch,
-        DXGI_MODE_DESC1* pClosestMatch,
-        IUnknown* pConcernedDevice);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDisplaySurfaceData1(
-        IDXGIResource* pDestination);
-
-    virtual HRESULT STDMETHODCALLTYPE DuplicateOutput(
-        IUnknown* pDevice,
-        IDXGIOutputDuplication** ppOutputDuplication);
-
-};
-
-
-/*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-HRESULT WINAPI CreateDXGIFactory2(
-    UINT Flags,
-    REFIID riid,
-    void** ppFactory);
-
-HRESULT WINAPI DXGIGetDebugInterface1(
-    UINT Flags,
-    REFIID riid,
-    void** pDebug);
-
-class IDXGIDevice3_Wrapper : public IDXGIDevice2_Wrapper
-{
-  public:
-    IDXGIDevice3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice3_Wrapper*>(u); });
-
-    virtual void STDMETHODCALLTYPE Trim();
-
-};
-
-class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
-{
-  public:
-    IDXGISwapChain2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain2_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE SetSourceSize(
-        UINT Width,
-        UINT Height);
-
-    virtual HRESULT STDMETHODCALLTYPE GetSourceSize(
-        UINT* pWidth,
-        UINT* pHeight);
-
-    virtual HRESULT STDMETHODCALLTYPE SetMaximumFrameLatency(
-        UINT MaxLatency);
-
-    virtual HRESULT STDMETHODCALLTYPE GetMaximumFrameLatency(
-        UINT* pMaxLatency);
-
-    virtual HANDLE STDMETHODCALLTYPE GetFrameLatencyWaitableObject();
-
-    virtual HRESULT STDMETHODCALLTYPE SetMatrixTransform(
-        const DXGI_MATRIX_3X2_F* pMatrix);
-
-    virtual HRESULT STDMETHODCALLTYPE GetMatrixTransform(
-        DXGI_MATRIX_3X2_F* pMatrix);
-
-};
-
-class IDXGIOutput2_Wrapper : public IDXGIOutput1_Wrapper
-{
-  public:
-    IDXGIOutput2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput2_Wrapper*>(u); });
-
-    virtual BOOL STDMETHODCALLTYPE SupportsOverlays();
-
-};
-
-class IDXGIFactory3_Wrapper : public IDXGIFactory2_Wrapper
-{
-  public:
-    IDXGIFactory3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory3_Wrapper*>(u); });
-
-    virtual UINT STDMETHODCALLTYPE GetCreationFlags();
-
-};
-
-class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
-{
-  public:
-    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(u); });
-
-    ~IDXGIDecodeSwapChain_Wrapper();
-
-    static IDXGIDecodeSwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIDecodeSwapChainInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIDecodeSwapChainInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE PresentBuffer(
-        UINT BufferToPresent,
-        UINT SyncInterval,
-        UINT Flags);
-
-    virtual HRESULT STDMETHODCALLTYPE SetSourceRect(
-        const RECT* pRect);
-
-    virtual HRESULT STDMETHODCALLTYPE SetTargetRect(
-        const RECT* pRect);
-
-    virtual HRESULT STDMETHODCALLTYPE SetDestSize(
-        UINT Width,
-        UINT Height);
-
-    virtual HRESULT STDMETHODCALLTYPE GetSourceRect(
-        RECT* pRect);
-
-    virtual HRESULT STDMETHODCALLTYPE GetTargetRect(
-        RECT* pRect);
-
-    virtual HRESULT STDMETHODCALLTYPE GetDestSize(
-        UINT* pWidth,
-        UINT* pHeight);
-
-    virtual HRESULT STDMETHODCALLTYPE SetColorSpace(
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace);
-
-    virtual DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE GetColorSpace();
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIDecodeSwapChain_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIDecodeSwapChainInfo> info_;
-};
-
-class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
-{
-  public:
-    IDXGIFactoryMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(u); });
-
-    ~IDXGIFactoryMedia_Wrapper();
-
-    static IDXGIFactoryMedia_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGIFactoryMediaInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGIFactoryMediaInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCompositionSurfaceHandle(
-        IUnknown* pDevice,
-        HANDLE hSurface,
-        const DXGI_SWAP_CHAIN_DESC1* pDesc,
-        IDXGIOutput* pRestrictToOutput,
-        IDXGISwapChain1** ppSwapChain);
-
-    virtual HRESULT STDMETHODCALLTYPE CreateDecodeSwapChainForCompositionSurfaceHandle(
-        IUnknown* pDevice,
-        HANDLE hSurface,
-        DXGI_DECODE_SWAP_CHAIN_DESC* pDesc,
-        IDXGIResource* pYuvDecodeBuffers,
-        IDXGIOutput* pRestrictToOutput,
-        IDXGIDecodeSwapChain** ppSwapChain);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGIFactoryMedia_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGIFactoryMediaInfo> info_;
-};
-
-class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
-{
-  public:
-    IDXGISwapChainMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(u); });
-
-    ~IDXGISwapChainMedia_Wrapper();
-
-    static IDXGISwapChainMedia_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const IDXGISwapChainMediaInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<IDXGISwapChainMediaInfo> GetObjectInfo() { return info_; }
-
-    virtual HRESULT STDMETHODCALLTYPE GetFrameStatisticsMedia(
-        DXGI_FRAME_STATISTICS_MEDIA* pStats);
-
-    virtual HRESULT STDMETHODCALLTYPE SetPresentDuration(
-        UINT Duration);
-
-    virtual HRESULT STDMETHODCALLTYPE CheckPresentDurationSupport(
-        UINT DesiredPresentDuration,
-        UINT* pClosestSmallerPresentDuration,
-        UINT* pClosestLargerPresentDuration);
-
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, IDXGISwapChainMedia_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<IDXGISwapChainMediaInfo> info_;
-};
-
-class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
-{
-  public:
-    IDXGIOutput3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput3_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE CheckOverlaySupport(
-        DXGI_FORMAT EnumFormat,
-        IUnknown* pConcernedDevice,
-        UINT* pFlags);
-
-};
-
-
-/*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
-{
-  public:
-    IDXGISwapChain3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain3_Wrapper*>(u); });
-
-    virtual UINT STDMETHODCALLTYPE GetCurrentBackBufferIndex();
-
-    virtual HRESULT STDMETHODCALLTYPE CheckColorSpaceSupport(
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        UINT* pColorSpaceSupport);
-
-    virtual HRESULT STDMETHODCALLTYPE SetColorSpace1(
-        DXGI_COLOR_SPACE_TYPE ColorSpace);
-
-    virtual HRESULT STDMETHODCALLTYPE ResizeBuffers1(
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT Format,
-        UINT SwapChainFlags,
-        const UINT* pCreationNodeMask,
-        IUnknown* const* ppPresentQueue);
-
-};
-
-class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
-{
-  public:
-    IDXGIOutput4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput4_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE CheckOverlayColorSpaceSupport(
-        DXGI_FORMAT Format,
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        IUnknown* pConcernedDevice,
-        UINT* pFlags);
-
-};
-
-class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
-{
-  public:
-    IDXGIFactory4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory4_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE EnumAdapterByLuid(
-        LUID AdapterLuid,
-        REFIID riid,
-        void** ppvAdapter);
-
-    virtual HRESULT STDMETHODCALLTYPE EnumWarpAdapter(
-        REFIID riid,
-        void** ppvAdapter);
-
-};
-
-class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
-{
-  public:
-    IDXGIAdapter3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter3_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterHardwareContentProtectionTeardownStatusEvent(
-        HANDLE hEvent,
-        DWORD* pdwCookie);
-
-    virtual void STDMETHODCALLTYPE UnregisterHardwareContentProtectionTeardownStatus(
-        DWORD dwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE QueryVideoMemoryInfo(
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo);
-
-    virtual HRESULT STDMETHODCALLTYPE SetVideoMemoryReservation(
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        UINT64 Reservation);
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterVideoMemoryBudgetChangeNotificationEvent(
-        HANDLE hEvent,
-        DWORD* pdwCookie);
-
-    virtual void STDMETHODCALLTYPE UnregisterVideoMemoryBudgetChangeNotification(
-        DWORD dwCookie);
-
-};
-
-
-/*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
-{
-  public:
-    IDXGIOutput5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput5_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE DuplicateOutput1(
-        IUnknown* pDevice,
-        UINT Flags,
-        UINT SupportedFormatsCount,
-        const DXGI_FORMAT* pSupportedFormats,
-        IDXGIOutputDuplication** ppOutputDuplication);
-
-};
-
-class IDXGISwapChain4_Wrapper : public IDXGISwapChain3_Wrapper
-{
-  public:
-    IDXGISwapChain4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain4_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE SetHDRMetaData(
-        DXGI_HDR_METADATA_TYPE Type,
-        UINT Size,
-        void* pMetaData);
-
-};
-
-class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
-{
-  public:
-    IDXGIDevice4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice4_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE OfferResources1(
-        UINT NumResources,
-        IDXGIResource* const* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority,
-        UINT Flags);
-
-    virtual HRESULT STDMETHODCALLTYPE ReclaimResources1(
-        UINT NumResources,
-        IDXGIResource* const* ppResources,
-        DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
-
-};
-
-class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
-{
-  public:
-    IDXGIFactory5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory5_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE CheckFeatureSupport(
-        DXGI_FEATURE Feature,
-        void* pFeatureSupportData,
-        UINT FeatureSupportDataSize);
-
-};
-
-
-/*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-HRESULT WINAPI DXGIDeclareAdapterRemovalSupport();
-
-class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
-{
-  public:
-    IDXGIAdapter4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter4_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc3(
-        DXGI_ADAPTER_DESC3* pDesc);
-
-};
-
-class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
-{
-  public:
-    IDXGIOutput6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput6_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
-        DXGI_OUTPUT_DESC1* pDesc);
-
-    virtual HRESULT STDMETHODCALLTYPE CheckHardwareCompositionSupport(
-        UINT* pFlags);
-
-};
-
-class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
-{
-  public:
-    IDXGIFactory6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory6_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE EnumAdapterByGpuPreference(
-        UINT Adapter,
-        DXGI_GPU_PREFERENCE GpuPreference,
-        REFIID riid,
-        void** ppvAdapter);
-
-};
-
-class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
-{
-  public:
-    IDXGIFactory7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory7_Wrapper*>(u); });
-
-    virtual HRESULT STDMETHODCALLTYPE RegisterAdaptersChangedEvent(
-        HANDLE hEvent,
-        DWORD* pdwCookie);
-
-    virtual HRESULT STDMETHODCALLTYPE UnregisterAdaptersChangedEvent(
-        DWORD dwCookie);
-
-};
-
-
-/*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-
-/*
 ** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-
-/*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1220,6 +86,13 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
 HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
     LPCVOID pSrcData,
     SIZE_T SrcDataSizeInBytes,
+    REFIID pRootSignatureDeserializerInterface,
+    void** ppRootSignatureDeserializer);
+
+HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+    LPCVOID pSrcData,
+    SIZE_T SrcDataSizeInBytes,
+    LPCWSTR RootSignatureSubobjectName,
     REFIID pRootSignatureDeserializerInterface,
     void** ppRootSignatureDeserializer);
 
@@ -2580,6 +1453,84 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     std::shared_ptr<ID3D12StateObjectPropertiesInfo> info_;
 };
 
+class ID3D12StateObjectProperties1_Wrapper : public ID3D12StateObjectProperties_Wrapper
+{
+  public:
+    ID3D12StateObjectProperties1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectProperties1_Wrapper*>(u); });
+
+    virtual D3D12_PROGRAM_IDENTIFIER STDMETHODCALLTYPE GetProgramIdentifier(
+        LPCWSTR pProgramName);
+
+};
+
+class ID3D12WorkGraphProperties_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12WorkGraphProperties_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12WorkGraphProperties_Wrapper*>(u); });
+
+    ~ID3D12WorkGraphProperties_Wrapper();
+
+    static ID3D12WorkGraphProperties_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12WorkGraphPropertiesInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12WorkGraphPropertiesInfo> GetObjectInfo() { return info_; }
+
+    virtual UINT STDMETHODCALLTYPE GetNumWorkGraphs();
+
+    virtual LPCWSTR STDMETHODCALLTYPE GetProgramName(
+        UINT WorkGraphIndex);
+
+    virtual UINT STDMETHODCALLTYPE GetWorkGraphIndex(
+        LPCWSTR pProgramName);
+
+    virtual UINT STDMETHODCALLTYPE GetNumNodes(
+        UINT WorkGraphIndex);
+
+    virtual D3D12_NODE_ID STDMETHODCALLTYPE GetNodeID(
+        UINT WorkGraphIndex,
+        UINT NodeIndex);
+
+    virtual UINT STDMETHODCALLTYPE GetNodeIndex(
+        UINT WorkGraphIndex,
+        D3D12_NODE_ID NodeID);
+
+    virtual UINT STDMETHODCALLTYPE GetNodeLocalRootArgumentsTableIndex(
+        UINT WorkGraphIndex,
+        UINT NodeIndex);
+
+    virtual UINT STDMETHODCALLTYPE GetNumEntrypoints(
+        UINT WorkGraphIndex);
+
+    virtual D3D12_NODE_ID STDMETHODCALLTYPE GetEntrypointID(
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex);
+
+    virtual UINT STDMETHODCALLTYPE GetEntrypointIndex(
+        UINT WorkGraphIndex,
+        D3D12_NODE_ID NodeID);
+
+    virtual UINT STDMETHODCALLTYPE GetEntrypointRecordSizeInBytes(
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex);
+
+    virtual void STDMETHODCALLTYPE GetWorkGraphMemoryRequirements(
+        UINT WorkGraphIndex,
+        D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* pWorkGraphMemoryRequirements);
+
+    virtual UINT STDMETHODCALLTYPE GetEntrypointRecordAlignmentInBytes(
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12WorkGraphProperties_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12WorkGraphPropertiesInfo> info_;
+};
+
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
 {
   public:
@@ -3056,6 +2007,34 @@ class ID3D12Device12_Wrapper : public ID3D12Device11_Wrapper
 
 };
 
+class ID3D12Device13_Wrapper : public ID3D12Device12_Wrapper
+{
+  public:
+    ID3D12Device13_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device13_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE OpenExistingHeapFromAddress1(
+        const void* pAddress,
+        SIZE_T size,
+        REFIID riid,
+        void** ppvHeap);
+
+};
+
+class ID3D12Device14_Wrapper : public ID3D12Device13_Wrapper
+{
+  public:
+    ID3D12Device14_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device14_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateRootSignatureFromSubobjectInLibrary(
+        UINT nodeMask,
+        const void* pLibraryBlob,
+        SIZE_T blobLengthInBytes,
+        LPCWSTR subobjectName,
+        REFIID riid,
+        void** ppvRootSignature);
+
+};
+
 class ID3D12VirtualizationGuestDevice_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3112,6 +2091,69 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12ToolsInfo> info_;
+};
+
+class ID3D12Tools1_Wrapper : public ID3D12Tools_Wrapper
+{
+  public:
+    ID3D12Tools1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE ReserveGPUVARangesAtCreate(
+        D3D12_GPU_VIRTUAL_ADDRESS_RANGE* pRanges,
+        UINT uiNumRanges);
+
+    virtual void STDMETHODCALLTYPE ClearReservedGPUVARangesList();
+
+};
+
+class ID3D12PageableTools_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12PageableTools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PageableTools_Wrapper*>(u); });
+
+    ~ID3D12PageableTools_Wrapper();
+
+    static ID3D12PageableTools_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12PageableToolsInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12PageableToolsInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetAllocation(
+        D3D12_GPU_VIRTUAL_ADDRESS_RANGE* pAllocation);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12PageableTools_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12PageableToolsInfo> info_;
+};
+
+class ID3D12DeviceTools_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DeviceTools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceTools_Wrapper*>(u); });
+
+    ~ID3D12DeviceTools_Wrapper();
+
+    static ID3D12DeviceTools_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12DeviceToolsInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12DeviceToolsInfo> GetObjectInfo() { return info_; }
+
+    virtual void STDMETHODCALLTYPE SetNextAllocationAddress(
+        D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DeviceTools_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12DeviceToolsInfo> info_;
 };
 
 class ID3D12SDKConfiguration_Wrapper : public IUnknown_Wrapper
@@ -3242,6 +2284,20 @@ class ID3D12DeviceConfiguration_Wrapper : public IUnknown_Wrapper
     std::shared_ptr<ID3D12DeviceConfigurationInfo> info_;
 };
 
+class ID3D12DeviceConfiguration1_Wrapper : public ID3D12DeviceConfiguration_Wrapper
+{
+  public:
+    ID3D12DeviceConfiguration1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceConfiguration1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        const void* pLibraryBlob,
+        SIZE_T Size,
+        LPCWSTR RootSignatureSubobjectName,
+        REFIID riid,
+        void** ppvDeserializer);
+
+};
+
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
 {
   public:
@@ -3305,6 +2361,19 @@ class ID3D12GraphicsCommandList9_Wrapper : public ID3D12GraphicsCommandList8_Wra
 
 };
 
+class ID3D12GraphicsCommandList10_Wrapper : public ID3D12GraphicsCommandList9_Wrapper
+{
+  public:
+    ID3D12GraphicsCommandList10_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList10_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE SetProgram(
+        const D3D12_SET_PROGRAM_DESC* pDesc);
+
+    virtual void STDMETHODCALLTYPE DispatchGraph(
+        const D3D12_DISPATCH_GRAPH_DESC* pDesc);
+
+};
+
 class ID3D12DSRDeviceFactory_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3331,6 +2400,52 @@ class ID3D12DSRDeviceFactory_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12DSRDeviceFactoryInfo> info_;
+};
+
+class ID3D12GBVDiagnostics_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12GBVDiagnostics_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GBVDiagnostics_Wrapper*>(u); });
+
+    ~ID3D12GBVDiagnostics_Wrapper();
+
+    static ID3D12GBVDiagnostics_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12GBVDiagnosticsInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12GBVDiagnosticsInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetGBVEntireSubresourceStatesData(
+        ID3D12Resource* pResource,
+        int* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGBVSubresourceState(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        int* pData);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGBVResourceUniformState(
+        ID3D12Resource* pResource,
+        int* pData);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGBVResourceInfo(
+        ID3D12Resource* pResource,
+        D3D12_RESOURCE_DESC* pResourceDesc,
+        UINT32* pResourceHash,
+        UINT32* pSubresourceStatesByteOffset);
+
+    virtual void STDMETHODCALLTYPE GBVReserved0();
+
+    virtual void STDMETHODCALLTYPE GBVReserved1();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12GBVDiagnostics_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12GBVDiagnosticsInfo> info_;
 };
 
 
@@ -3952,6 +3067,1140 @@ class ID3D12InfoQueue1_Wrapper : public ID3D12InfoQueue_Wrapper
         DWORD CallbackCookie);
 
 };
+
+
+/*
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+HRESULT WINAPI CreateDXGIFactory(
+    REFIID riid,
+    void** ppFactory);
+
+HRESULT WINAPI CreateDXGIFactory1(
+    REFIID riid,
+    void** ppFactory);
+
+class IDXGIObject_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    IDXGIObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIObject_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetPrivateData(
+        REFGUID Name,
+        UINT DataSize,
+        const void* pData);
+
+    virtual HRESULT STDMETHODCALLTYPE SetPrivateDataInterface(
+        REFGUID Name,
+        const IUnknown* pUnknown);
+
+    virtual HRESULT STDMETHODCALLTYPE GetPrivateData(
+        REFGUID Name,
+        UINT* pDataSize,
+        void* pData);
+
+    virtual HRESULT STDMETHODCALLTYPE GetParent(
+        REFIID riid,
+        void** ppParent);
+
+};
+
+class IDXGIDeviceSubObject_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIDeviceSubObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDeviceSubObject_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDevice(
+        REFIID riid,
+        void** ppDevice);
+
+};
+
+class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
+{
+  public:
+    IDXGIResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource_Wrapper*>(u); });
+
+    ~IDXGIResource_Wrapper();
+
+    static IDXGIResource_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIResourceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIResourceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetSharedHandle(
+        HANDLE* pSharedHandle);
+
+    virtual HRESULT STDMETHODCALLTYPE GetUsage(
+        DXGI_USAGE* pUsage);
+
+    virtual HRESULT STDMETHODCALLTYPE SetEvictionPriority(
+        UINT EvictionPriority);
+
+    virtual HRESULT STDMETHODCALLTYPE GetEvictionPriority(
+        UINT* pEvictionPriority);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIResource_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIResourceInfo> info_;
+};
+
+class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
+{
+  public:
+    IDXGIKeyedMutex_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(u); });
+
+    ~IDXGIKeyedMutex_Wrapper();
+
+    static IDXGIKeyedMutex_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIKeyedMutexInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIKeyedMutexInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE AcquireSync(
+        UINT64 Key,
+        DWORD dwMilliseconds);
+
+    virtual HRESULT STDMETHODCALLTYPE ReleaseSync(
+        UINT64 Key);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIKeyedMutex_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIKeyedMutexInfo> info_;
+};
+
+class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
+{
+  public:
+    IDXGISurface_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface_Wrapper*>(u); });
+
+    ~IDXGISurface_Wrapper();
+
+    static IDXGISurface_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGISurfaceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGISurfaceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc(
+        DXGI_SURFACE_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE Map(
+        DXGI_MAPPED_RECT* pLockedRect,
+        UINT MapFlags);
+
+    virtual HRESULT STDMETHODCALLTYPE Unmap();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGISurface_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGISurfaceInfo> info_;
+};
+
+class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
+{
+  public:
+    IDXGISurface1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDC(
+        BOOL Discard,
+        HDC* phdc);
+
+    virtual HRESULT STDMETHODCALLTYPE ReleaseDC(
+        RECT* pDirtyRect);
+
+};
+
+class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIAdapter_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter_Wrapper*>(u); });
+
+    ~IDXGIAdapter_Wrapper();
+
+    static IDXGIAdapter_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIAdapterInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIAdapterInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE EnumOutputs(
+        UINT Output,
+        IDXGIOutput** ppOutput);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc(
+        DXGI_ADAPTER_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE CheckInterfaceSupport(
+        REFGUID InterfaceName,
+        LARGE_INTEGER* pUMDVersion);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIAdapter_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIAdapterInfo> info_;
+};
+
+class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIOutput_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput_Wrapper*>(u); });
+
+    ~IDXGIOutput_Wrapper();
+
+    static IDXGIOutput_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIOutputInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIOutputInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc(
+        DXGI_OUTPUT_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDisplayModeList(
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        UINT* pNumModes,
+        DXGI_MODE_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE FindClosestMatchingMode(
+        const DXGI_MODE_DESC* pModeToMatch,
+        DXGI_MODE_DESC* pClosestMatch,
+        IUnknown* pConcernedDevice);
+
+    virtual HRESULT STDMETHODCALLTYPE WaitForVBlank();
+
+    virtual HRESULT STDMETHODCALLTYPE TakeOwnership(
+        IUnknown* pDevice,
+        BOOL Exclusive);
+
+    virtual void STDMETHODCALLTYPE ReleaseOwnership();
+
+    virtual HRESULT STDMETHODCALLTYPE GetGammaControlCapabilities(
+        DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps);
+
+    virtual HRESULT STDMETHODCALLTYPE SetGammaControl(
+        const DXGI_GAMMA_CONTROL* pArray);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGammaControl(
+        DXGI_GAMMA_CONTROL* pArray);
+
+    virtual HRESULT STDMETHODCALLTYPE SetDisplaySurface(
+        IDXGISurface* pScanoutSurface);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDisplaySurfaceData(
+        IDXGISurface* pDestination);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFrameStatistics(
+        DXGI_FRAME_STATISTICS* pStats);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIOutput_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIOutputInfo> info_;
+};
+
+class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
+{
+  public:
+    IDXGISwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain_Wrapper*>(u); });
+
+    ~IDXGISwapChain_Wrapper();
+
+    static IDXGISwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGISwapChainInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGISwapChainInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE Present(
+        UINT SyncInterval,
+        UINT Flags);
+
+    virtual HRESULT STDMETHODCALLTYPE GetBuffer(
+        UINT Buffer,
+        REFIID riid,
+        void** ppSurface);
+
+    virtual HRESULT STDMETHODCALLTYPE SetFullscreenState(
+        BOOL Fullscreen,
+        IDXGIOutput* pTarget);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFullscreenState(
+        BOOL* pFullscreen,
+        IDXGIOutput** ppTarget);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc(
+        DXGI_SWAP_CHAIN_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE ResizeBuffers(
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT NewFormat,
+        UINT SwapChainFlags);
+
+    virtual HRESULT STDMETHODCALLTYPE ResizeTarget(
+        const DXGI_MODE_DESC* pNewTargetParameters);
+
+    virtual HRESULT STDMETHODCALLTYPE GetContainingOutput(
+        IDXGIOutput** ppOutput);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFrameStatistics(
+        DXGI_FRAME_STATISTICS* pStats);
+
+    virtual HRESULT STDMETHODCALLTYPE GetLastPresentCount(
+        UINT* pLastPresentCount);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGISwapChain_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGISwapChainInfo> info_;
+};
+
+class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory_Wrapper*>(u); });
+
+    ~IDXGIFactory_Wrapper();
+
+    static IDXGIFactory_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIFactoryInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIFactoryInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE EnumAdapters(
+        UINT Adapter,
+        IDXGIAdapter** ppAdapter);
+
+    virtual HRESULT STDMETHODCALLTYPE MakeWindowAssociation(
+        HWND WindowHandle,
+        UINT Flags);
+
+    virtual HRESULT STDMETHODCALLTYPE GetWindowAssociation(
+        HWND* pWindowHandle);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSwapChain(
+        IUnknown* pDevice,
+        DXGI_SWAP_CHAIN_DESC* pDesc,
+        IDXGISwapChain** ppSwapChain);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSoftwareAdapter(
+        HMODULE Module,
+        IDXGIAdapter** ppAdapter);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIFactory_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIFactoryInfo> info_;
+};
+
+class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice_Wrapper*>(u); });
+
+    ~IDXGIDevice_Wrapper();
+
+    static IDXGIDevice_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIDeviceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIDeviceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetAdapter(
+        IDXGIAdapter** pAdapter);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSurface(
+        const DXGI_SURFACE_DESC* pDesc,
+        UINT NumSurfaces,
+        DXGI_USAGE Usage,
+        const DXGI_SHARED_RESOURCE* pSharedResource,
+        IDXGISurface** ppSurface);
+
+    virtual HRESULT STDMETHODCALLTYPE QueryResourceResidency(
+        IUnknown* const* ppResources,
+        DXGI_RESIDENCY* pResidencyStatus,
+        UINT NumResources);
+
+    virtual HRESULT STDMETHODCALLTYPE SetGPUThreadPriority(
+        INT Priority);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGPUThreadPriority(
+        INT* pPriority);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIDevice_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIDeviceInfo> info_;
+};
+
+class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
+{
+  public:
+    IDXGIFactory1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE EnumAdapters1(
+        UINT Adapter,
+        IDXGIAdapter1** ppAdapter);
+
+    virtual BOOL STDMETHODCALLTYPE IsCurrent();
+
+};
+
+class IDXGIAdapter1_Wrapper : public IDXGIAdapter_Wrapper
+{
+  public:
+    IDXGIAdapter1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
+        DXGI_ADAPTER_DESC1* pDesc);
+
+};
+
+class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
+{
+  public:
+    IDXGIDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetMaximumFrameLatency(
+        UINT MaxLatency);
+
+    virtual HRESULT STDMETHODCALLTYPE GetMaximumFrameLatency(
+        UINT* pMaxLatency);
+
+};
+
+
+/*
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    IDXGIDisplayControl_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDisplayControl_Wrapper*>(u); });
+
+    ~IDXGIDisplayControl_Wrapper();
+
+    static IDXGIDisplayControl_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIDisplayControlInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIDisplayControlInfo> GetObjectInfo() { return info_; }
+
+    virtual BOOL STDMETHODCALLTYPE IsStereoEnabled();
+
+    virtual void STDMETHODCALLTYPE SetStereoEnabled(
+        BOOL enabled);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIDisplayControl_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIDisplayControlInfo> info_;
+};
+
+class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
+{
+  public:
+    IDXGIOutputDuplication_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(u); });
+
+    ~IDXGIOutputDuplication_Wrapper();
+
+    static IDXGIOutputDuplication_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIOutputDuplicationInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIOutputDuplicationInfo> GetObjectInfo() { return info_; }
+
+    virtual void STDMETHODCALLTYPE GetDesc(
+        DXGI_OUTDUPL_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE AcquireNextFrame(
+        UINT TimeoutInMilliseconds,
+        DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
+        IDXGIResource** ppDesktopResource);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFrameDirtyRects(
+        UINT DirtyRectsBufferSize,
+        RECT* pDirtyRectsBuffer,
+        UINT* pDirtyRectsBufferSizeRequired);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFrameMoveRects(
+        UINT MoveRectsBufferSize,
+        DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
+        UINT* pMoveRectsBufferSizeRequired);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFramePointerShape(
+        UINT PointerShapeBufferSize,
+        void* pPointerShapeBuffer,
+        UINT* pPointerShapeBufferSizeRequired,
+        DXGI_OUTDUPL_POINTER_SHAPE_INFO* pPointerShapeInfo);
+
+    virtual HRESULT STDMETHODCALLTYPE MapDesktopSurface(
+        DXGI_MAPPED_RECT* pLockedRect);
+
+    virtual HRESULT STDMETHODCALLTYPE UnMapDesktopSurface();
+
+    virtual HRESULT STDMETHODCALLTYPE ReleaseFrame();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIOutputDuplication_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIOutputDuplicationInfo> info_;
+};
+
+class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
+{
+  public:
+    IDXGISurface2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetResource(
+        REFIID riid,
+        void** ppParentResource,
+        UINT* pSubresourceIndex);
+
+};
+
+class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
+{
+  public:
+    IDXGIResource1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSubresourceSurface(
+        UINT index,
+        IDXGISurface2** ppSurface);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSharedHandle(
+        const SECURITY_ATTRIBUTES* pAttributes,
+        DWORD dwAccess,
+        LPCWSTR lpName,
+        HANDLE* pHandle);
+
+};
+
+class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
+{
+  public:
+    IDXGIDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE OfferResources(
+        UINT NumResources,
+        IDXGIResource* const* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority);
+
+    virtual HRESULT STDMETHODCALLTYPE ReclaimResources(
+        UINT NumResources,
+        IDXGIResource* const* ppResources,
+        BOOL* pDiscarded);
+
+    virtual HRESULT STDMETHODCALLTYPE EnqueueSetEvent(
+        HANDLE hEvent);
+
+};
+
+class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
+{
+  public:
+    IDXGISwapChain1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
+        DXGI_SWAP_CHAIN_DESC1* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE GetFullscreenDesc(
+        DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE GetHwnd(
+        HWND* pHwnd);
+
+    virtual HRESULT STDMETHODCALLTYPE GetCoreWindow(
+        REFIID refiid,
+        void** ppUnk);
+
+    virtual HRESULT STDMETHODCALLTYPE Present1(
+        UINT SyncInterval,
+        UINT PresentFlags,
+        const DXGI_PRESENT_PARAMETERS* pPresentParameters);
+
+    virtual BOOL STDMETHODCALLTYPE IsTemporaryMonoSupported();
+
+    virtual HRESULT STDMETHODCALLTYPE GetRestrictToOutput(
+        IDXGIOutput** ppRestrictToOutput);
+
+    virtual HRESULT STDMETHODCALLTYPE SetBackgroundColor(
+        const DXGI_RGBA* pColor);
+
+    virtual HRESULT STDMETHODCALLTYPE GetBackgroundColor(
+        DXGI_RGBA* pColor);
+
+    virtual HRESULT STDMETHODCALLTYPE SetRotation(
+        DXGI_MODE_ROTATION Rotation);
+
+    virtual HRESULT STDMETHODCALLTYPE GetRotation(
+        DXGI_MODE_ROTATION* pRotation);
+
+};
+
+class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
+{
+  public:
+    IDXGIFactory2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory2_Wrapper*>(u); });
+
+    virtual BOOL STDMETHODCALLTYPE IsWindowedStereoEnabled();
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForHwnd(
+        IUnknown* pDevice,
+        HWND hWnd,
+        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+        const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+        IDXGIOutput* pRestrictToOutput,
+        IDXGISwapChain1** ppSwapChain);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCoreWindow(
+        IUnknown* pDevice,
+        IUnknown* pWindow,
+        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+        IDXGIOutput* pRestrictToOutput,
+        IDXGISwapChain1** ppSwapChain);
+
+    virtual HRESULT STDMETHODCALLTYPE GetSharedResourceAdapterLuid(
+        HANDLE hResource,
+        LUID* pLuid);
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterStereoStatusWindow(
+        HWND WindowHandle,
+        UINT wMsg,
+        DWORD* pdwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterStereoStatusEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual void STDMETHODCALLTYPE UnregisterStereoStatus(
+        DWORD dwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterOcclusionStatusWindow(
+        HWND WindowHandle,
+        UINT wMsg,
+        DWORD* pdwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterOcclusionStatusEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual void STDMETHODCALLTYPE UnregisterOcclusionStatus(
+        DWORD dwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForComposition(
+        IUnknown* pDevice,
+        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+        IDXGIOutput* pRestrictToOutput,
+        IDXGISwapChain1** ppSwapChain);
+
+};
+
+class IDXGIAdapter2_Wrapper : public IDXGIAdapter1_Wrapper
+{
+  public:
+    IDXGIAdapter2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc2(
+        DXGI_ADAPTER_DESC2* pDesc);
+
+};
+
+class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
+{
+  public:
+    IDXGIOutput1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDisplayModeList1(
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        UINT* pNumModes,
+        DXGI_MODE_DESC1* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE FindClosestMatchingMode1(
+        const DXGI_MODE_DESC1* pModeToMatch,
+        DXGI_MODE_DESC1* pClosestMatch,
+        IUnknown* pConcernedDevice);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDisplaySurfaceData1(
+        IDXGIResource* pDestination);
+
+    virtual HRESULT STDMETHODCALLTYPE DuplicateOutput(
+        IUnknown* pDevice,
+        IDXGIOutputDuplication** ppOutputDuplication);
+
+};
+
+
+/*
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+HRESULT WINAPI CreateDXGIFactory2(
+    UINT Flags,
+    REFIID riid,
+    void** ppFactory);
+
+HRESULT WINAPI DXGIGetDebugInterface1(
+    UINT Flags,
+    REFIID riid,
+    void** pDebug);
+
+class IDXGIDevice3_Wrapper : public IDXGIDevice2_Wrapper
+{
+  public:
+    IDXGIDevice3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice3_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE Trim();
+
+};
+
+class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
+{
+  public:
+    IDXGISwapChain2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetSourceSize(
+        UINT Width,
+        UINT Height);
+
+    virtual HRESULT STDMETHODCALLTYPE GetSourceSize(
+        UINT* pWidth,
+        UINT* pHeight);
+
+    virtual HRESULT STDMETHODCALLTYPE SetMaximumFrameLatency(
+        UINT MaxLatency);
+
+    virtual HRESULT STDMETHODCALLTYPE GetMaximumFrameLatency(
+        UINT* pMaxLatency);
+
+    virtual HANDLE STDMETHODCALLTYPE GetFrameLatencyWaitableObject();
+
+    virtual HRESULT STDMETHODCALLTYPE SetMatrixTransform(
+        const DXGI_MATRIX_3X2_F* pMatrix);
+
+    virtual HRESULT STDMETHODCALLTYPE GetMatrixTransform(
+        DXGI_MATRIX_3X2_F* pMatrix);
+
+};
+
+class IDXGIOutput2_Wrapper : public IDXGIOutput1_Wrapper
+{
+  public:
+    IDXGIOutput2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput2_Wrapper*>(u); });
+
+    virtual BOOL STDMETHODCALLTYPE SupportsOverlays();
+
+};
+
+class IDXGIFactory3_Wrapper : public IDXGIFactory2_Wrapper
+{
+  public:
+    IDXGIFactory3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory3_Wrapper*>(u); });
+
+    virtual UINT STDMETHODCALLTYPE GetCreationFlags();
+
+};
+
+class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(u); });
+
+    ~IDXGIDecodeSwapChain_Wrapper();
+
+    static IDXGIDecodeSwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIDecodeSwapChainInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIDecodeSwapChainInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE PresentBuffer(
+        UINT BufferToPresent,
+        UINT SyncInterval,
+        UINT Flags);
+
+    virtual HRESULT STDMETHODCALLTYPE SetSourceRect(
+        const RECT* pRect);
+
+    virtual HRESULT STDMETHODCALLTYPE SetTargetRect(
+        const RECT* pRect);
+
+    virtual HRESULT STDMETHODCALLTYPE SetDestSize(
+        UINT Width,
+        UINT Height);
+
+    virtual HRESULT STDMETHODCALLTYPE GetSourceRect(
+        RECT* pRect);
+
+    virtual HRESULT STDMETHODCALLTYPE GetTargetRect(
+        RECT* pRect);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDestSize(
+        UINT* pWidth,
+        UINT* pHeight);
+
+    virtual HRESULT STDMETHODCALLTYPE SetColorSpace(
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace);
+
+    virtual DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE GetColorSpace();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIDecodeSwapChain_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIDecodeSwapChainInfo> info_;
+};
+
+class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    IDXGIFactoryMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(u); });
+
+    ~IDXGIFactoryMedia_Wrapper();
+
+    static IDXGIFactoryMedia_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGIFactoryMediaInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGIFactoryMediaInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCompositionSurfaceHandle(
+        IUnknown* pDevice,
+        HANDLE hSurface,
+        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+        IDXGIOutput* pRestrictToOutput,
+        IDXGISwapChain1** ppSwapChain);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateDecodeSwapChainForCompositionSurfaceHandle(
+        IUnknown* pDevice,
+        HANDLE hSurface,
+        DXGI_DECODE_SWAP_CHAIN_DESC* pDesc,
+        IDXGIResource* pYuvDecodeBuffers,
+        IDXGIOutput* pRestrictToOutput,
+        IDXGIDecodeSwapChain** ppSwapChain);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGIFactoryMedia_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGIFactoryMediaInfo> info_;
+};
+
+class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    IDXGISwapChainMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(u); });
+
+    ~IDXGISwapChainMedia_Wrapper();
+
+    static IDXGISwapChainMedia_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const IDXGISwapChainMediaInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<IDXGISwapChainMediaInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetFrameStatisticsMedia(
+        DXGI_FRAME_STATISTICS_MEDIA* pStats);
+
+    virtual HRESULT STDMETHODCALLTYPE SetPresentDuration(
+        UINT Duration);
+
+    virtual HRESULT STDMETHODCALLTYPE CheckPresentDurationSupport(
+        UINT DesiredPresentDuration,
+        UINT* pClosestSmallerPresentDuration,
+        UINT* pClosestLargerPresentDuration);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, IDXGISwapChainMedia_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<IDXGISwapChainMediaInfo> info_;
+};
+
+class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
+{
+  public:
+    IDXGIOutput3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput3_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CheckOverlaySupport(
+        DXGI_FORMAT EnumFormat,
+        IUnknown* pConcernedDevice,
+        UINT* pFlags);
+
+};
+
+
+/*
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
+{
+  public:
+    IDXGISwapChain3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain3_Wrapper*>(u); });
+
+    virtual UINT STDMETHODCALLTYPE GetCurrentBackBufferIndex();
+
+    virtual HRESULT STDMETHODCALLTYPE CheckColorSpaceSupport(
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        UINT* pColorSpaceSupport);
+
+    virtual HRESULT STDMETHODCALLTYPE SetColorSpace1(
+        DXGI_COLOR_SPACE_TYPE ColorSpace);
+
+    virtual HRESULT STDMETHODCALLTYPE ResizeBuffers1(
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT Format,
+        UINT SwapChainFlags,
+        const UINT* pCreationNodeMask,
+        IUnknown* const* ppPresentQueue);
+
+};
+
+class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
+{
+  public:
+    IDXGIOutput4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CheckOverlayColorSpaceSupport(
+        DXGI_FORMAT Format,
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        IUnknown* pConcernedDevice,
+        UINT* pFlags);
+
+};
+
+class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
+{
+  public:
+    IDXGIFactory4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE EnumAdapterByLuid(
+        LUID AdapterLuid,
+        REFIID riid,
+        void** ppvAdapter);
+
+    virtual HRESULT STDMETHODCALLTYPE EnumWarpAdapter(
+        REFIID riid,
+        void** ppvAdapter);
+
+};
+
+class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
+{
+  public:
+    IDXGIAdapter3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter3_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterHardwareContentProtectionTeardownStatusEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual void STDMETHODCALLTYPE UnregisterHardwareContentProtectionTeardownStatus(
+        DWORD dwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE QueryVideoMemoryInfo(
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo);
+
+    virtual HRESULT STDMETHODCALLTYPE SetVideoMemoryReservation(
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        UINT64 Reservation);
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterVideoMemoryBudgetChangeNotificationEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual void STDMETHODCALLTYPE UnregisterVideoMemoryBudgetChangeNotification(
+        DWORD dwCookie);
+
+};
+
+
+/*
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
+{
+  public:
+    IDXGIOutput5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput5_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE DuplicateOutput1(
+        IUnknown* pDevice,
+        UINT Flags,
+        UINT SupportedFormatsCount,
+        const DXGI_FORMAT* pSupportedFormats,
+        IDXGIOutputDuplication** ppOutputDuplication);
+
+};
+
+class IDXGISwapChain4_Wrapper : public IDXGISwapChain3_Wrapper
+{
+  public:
+    IDXGISwapChain4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetHDRMetaData(
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        void* pMetaData);
+
+};
+
+class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
+{
+  public:
+    IDXGIDevice4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE OfferResources1(
+        UINT NumResources,
+        IDXGIResource* const* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority,
+        UINT Flags);
+
+    virtual HRESULT STDMETHODCALLTYPE ReclaimResources1(
+        UINT NumResources,
+        IDXGIResource* const* ppResources,
+        DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
+
+};
+
+class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
+{
+  public:
+    IDXGIFactory5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory5_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CheckFeatureSupport(
+        DXGI_FEATURE Feature,
+        void* pFeatureSupportData,
+        UINT FeatureSupportDataSize);
+
+};
+
+
+/*
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+HRESULT WINAPI DXGIDeclareAdapterRemovalSupport();
+
+class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
+{
+  public:
+    IDXGIAdapter4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc3(
+        DXGI_ADAPTER_DESC3* pDesc);
+
+};
+
+class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
+{
+  public:
+    IDXGIOutput6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput6_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetDesc1(
+        DXGI_OUTPUT_DESC1* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE CheckHardwareCompositionSupport(
+        UINT* pFlags);
+
+};
+
+class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
+{
+  public:
+    IDXGIFactory6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory6_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE EnumAdapterByGpuPreference(
+        UINT Adapter,
+        DXGI_GPU_PREFERENCE GpuPreference,
+        REFIID riid,
+        void** ppvAdapter);
+
+};
+
+class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
+{
+  public:
+    IDXGIFactory7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory7_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterAdaptersChangedEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE UnregisterAdaptersChangedEvent(
+        DWORD dwCookie);
+
+};
+
+
+/*
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+
+/*
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+**
+*/
 
 
 /*

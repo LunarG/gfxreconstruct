@@ -41,465 +41,6 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     std::wstring out = L"Unknown_ApiCallId";
     switch (call_id)
     {
-    case format::ApiCallId::ApiCall_CreateDXGIFactory:
-        out = L"CreateDXGIFactory";
-        break;
-    case format::ApiCallId::ApiCall_CreateDXGIFactory1:
-        out = L"CreateDXGIFactory1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData:
-        out = L"IDXGIObject_SetPrivateData";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface:
-        out = L"IDXGIObject_SetPrivateDataInterface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData:
-        out = L"IDXGIObject_GetPrivateData";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIObject_GetParent:
-        out = L"IDXGIObject_GetParent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice:
-        out = L"IDXGIDeviceSubObject_GetDevice";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
-        out = L"IDXGIResource_GetSharedHandle";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetUsage:
-        out = L"IDXGIResource_GetUsage";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority:
-        out = L"IDXGIResource_SetEvictionPriority";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority:
-        out = L"IDXGIResource_GetEvictionPriority";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync:
-        out = L"IDXGIKeyedMutex_AcquireSync";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync:
-        out = L"IDXGIKeyedMutex_ReleaseSync";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_GetDesc:
-        out = L"IDXGISurface_GetDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_Map:
-        out = L"IDXGISurface_Map";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface_Unmap:
-        out = L"IDXGISurface_Unmap";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
-        out = L"IDXGISurface1_GetDC";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC:
-        out = L"IDXGISurface1_ReleaseDC";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs:
-        out = L"IDXGIAdapter_EnumOutputs";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc:
-        out = L"IDXGIAdapter_GetDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport:
-        out = L"IDXGIAdapter_CheckInterfaceSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDesc:
-        out = L"IDXGIOutput_GetDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList:
-        out = L"IDXGIOutput_GetDisplayModeList";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode:
-        out = L"IDXGIOutput_FindClosestMatchingMode";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank:
-        out = L"IDXGIOutput_WaitForVBlank";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership:
-        out = L"IDXGIOutput_TakeOwnership";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership:
-        out = L"IDXGIOutput_ReleaseOwnership";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities:
-        out = L"IDXGIOutput_GetGammaControlCapabilities";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl:
-        out = L"IDXGIOutput_SetGammaControl";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl:
-        out = L"IDXGIOutput_GetGammaControl";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface:
-        out = L"IDXGIOutput_SetDisplaySurface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData:
-        out = L"IDXGIOutput_GetDisplaySurfaceData";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics:
-        out = L"IDXGIOutput_GetFrameStatistics";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_Present:
-        out = L"IDXGISwapChain_Present";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer:
-        out = L"IDXGISwapChain_GetBuffer";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState:
-        out = L"IDXGISwapChain_SetFullscreenState";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState:
-        out = L"IDXGISwapChain_GetFullscreenState";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc:
-        out = L"IDXGISwapChain_GetDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers:
-        out = L"IDXGISwapChain_ResizeBuffers";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget:
-        out = L"IDXGISwapChain_ResizeTarget";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput:
-        out = L"IDXGISwapChain_GetContainingOutput";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics:
-        out = L"IDXGISwapChain_GetFrameStatistics";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount:
-        out = L"IDXGISwapChain_GetLastPresentCount";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters:
-        out = L"IDXGIFactory_EnumAdapters";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
-        out = L"IDXGIFactory_MakeWindowAssociation";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
-        out = L"IDXGIFactory_GetWindowAssociation";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain:
-        out = L"IDXGIFactory_CreateSwapChain";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter:
-        out = L"IDXGIFactory_CreateSoftwareAdapter";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter:
-        out = L"IDXGIDevice_GetAdapter";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface:
-        out = L"IDXGIDevice_CreateSurface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency:
-        out = L"IDXGIDevice_QueryResourceResidency";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority:
-        out = L"IDXGIDevice_SetGPUThreadPriority";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority:
-        out = L"IDXGIDevice_GetGPUThreadPriority";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1:
-        out = L"IDXGIFactory1_EnumAdapters1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent:
-        out = L"IDXGIFactory1_IsCurrent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1:
-        out = L"IDXGIAdapter1_GetDesc1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency:
-        out = L"IDXGIDevice1_SetMaximumFrameLatency";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency:
-        out = L"IDXGIDevice1_GetMaximumFrameLatency";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled:
-        out = L"IDXGIDisplayControl_IsStereoEnabled";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled:
-        out = L"IDXGIDisplayControl_SetStereoEnabled";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc:
-        out = L"IDXGIOutputDuplication_GetDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame:
-        out = L"IDXGIOutputDuplication_AcquireNextFrame";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects:
-        out = L"IDXGIOutputDuplication_GetFrameDirtyRects";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects:
-        out = L"IDXGIOutputDuplication_GetFrameMoveRects";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape:
-        out = L"IDXGIOutputDuplication_GetFramePointerShape";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface:
-        out = L"IDXGIOutputDuplication_MapDesktopSurface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface:
-        out = L"IDXGIOutputDuplication_UnMapDesktopSurface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame:
-        out = L"IDXGIOutputDuplication_ReleaseFrame";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISurface2_GetResource:
-        out = L"IDXGISurface2_GetResource";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface:
-        out = L"IDXGIResource1_CreateSubresourceSurface";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
-        out = L"IDXGIResource1_CreateSharedHandle";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources:
-        out = L"IDXGIDevice2_OfferResources";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources:
-        out = L"IDXGIDevice2_ReclaimResources";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent:
-        out = L"IDXGIDevice2_EnqueueSetEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1:
-        out = L"IDXGISwapChain1_GetDesc1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc:
-        out = L"IDXGISwapChain1_GetFullscreenDesc";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
-        out = L"IDXGISwapChain1_GetHwnd";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow:
-        out = L"IDXGISwapChain1_GetCoreWindow";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_Present1:
-        out = L"IDXGISwapChain1_Present1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported:
-        out = L"IDXGISwapChain1_IsTemporaryMonoSupported";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput:
-        out = L"IDXGISwapChain1_GetRestrictToOutput";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor:
-        out = L"IDXGISwapChain1_SetBackgroundColor";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor:
-        out = L"IDXGISwapChain1_GetBackgroundColor";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation:
-        out = L"IDXGISwapChain1_SetRotation";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation:
-        out = L"IDXGISwapChain1_GetRotation";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled:
-        out = L"IDXGIFactory2_IsWindowedStereoEnabled";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd:
-        out = L"IDXGIFactory2_CreateSwapChainForHwnd";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow:
-        out = L"IDXGIFactory2_CreateSwapChainForCoreWindow";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid:
-        out = L"IDXGIFactory2_GetSharedResourceAdapterLuid";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow:
-        out = L"IDXGIFactory2_RegisterStereoStatusWindow";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
-        out = L"IDXGIFactory2_RegisterStereoStatusEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus:
-        out = L"IDXGIFactory2_UnregisterStereoStatus";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow:
-        out = L"IDXGIFactory2_RegisterOcclusionStatusWindow";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
-        out = L"IDXGIFactory2_RegisterOcclusionStatusEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus:
-        out = L"IDXGIFactory2_UnregisterOcclusionStatus";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition:
-        out = L"IDXGIFactory2_CreateSwapChainForComposition";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2:
-        out = L"IDXGIAdapter2_GetDesc2";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1:
-        out = L"IDXGIOutput1_GetDisplayModeList1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1:
-        out = L"IDXGIOutput1_FindClosestMatchingMode1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1:
-        out = L"IDXGIOutput1_GetDisplaySurfaceData1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput:
-        out = L"IDXGIOutput1_DuplicateOutput";
-        break;
-    case format::ApiCallId::ApiCall_CreateDXGIFactory2:
-        out = L"CreateDXGIFactory2";
-        break;
-    case format::ApiCallId::ApiCall_DXGIGetDebugInterface1:
-        out = L"DXGIGetDebugInterface1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice3_Trim:
-        out = L"IDXGIDevice3_Trim";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize:
-        out = L"IDXGISwapChain2_SetSourceSize";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize:
-        out = L"IDXGISwapChain2_GetSourceSize";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency:
-        out = L"IDXGISwapChain2_SetMaximumFrameLatency";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency:
-        out = L"IDXGISwapChain2_GetMaximumFrameLatency";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject:
-        out = L"IDXGISwapChain2_GetFrameLatencyWaitableObject";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform:
-        out = L"IDXGISwapChain2_SetMatrixTransform";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform:
-        out = L"IDXGISwapChain2_GetMatrixTransform";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays:
-        out = L"IDXGIOutput2_SupportsOverlays";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags:
-        out = L"IDXGIFactory3_GetCreationFlags";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer:
-        out = L"IDXGIDecodeSwapChain_PresentBuffer";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect:
-        out = L"IDXGIDecodeSwapChain_SetSourceRect";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect:
-        out = L"IDXGIDecodeSwapChain_SetTargetRect";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize:
-        out = L"IDXGIDecodeSwapChain_SetDestSize";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect:
-        out = L"IDXGIDecodeSwapChain_GetSourceRect";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect:
-        out = L"IDXGIDecodeSwapChain_GetTargetRect";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize:
-        out = L"IDXGIDecodeSwapChain_GetDestSize";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace:
-        out = L"IDXGIDecodeSwapChain_SetColorSpace";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace:
-        out = L"IDXGIDecodeSwapChain_GetColorSpace";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle:
-        out = L"IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle:
-        out = L"IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia:
-        out = L"IDXGISwapChainMedia_GetFrameStatisticsMedia";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration:
-        out = L"IDXGISwapChainMedia_SetPresentDuration";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport:
-        out = L"IDXGISwapChainMedia_CheckPresentDurationSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport:
-        out = L"IDXGIOutput3_CheckOverlaySupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex:
-        out = L"IDXGISwapChain3_GetCurrentBackBufferIndex";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport:
-        out = L"IDXGISwapChain3_CheckColorSpaceSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1:
-        out = L"IDXGISwapChain3_SetColorSpace1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1:
-        out = L"IDXGISwapChain3_ResizeBuffers1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport:
-        out = L"IDXGIOutput4_CheckOverlayColorSpaceSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid:
-        out = L"IDXGIFactory4_EnumAdapterByLuid";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter:
-        out = L"IDXGIFactory4_EnumWarpAdapter";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
-        out = L"IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus:
-        out = L"IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo:
-        out = L"IDXGIAdapter3_QueryVideoMemoryInfo";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation:
-        out = L"IDXGIAdapter3_SetVideoMemoryReservation";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
-        out = L"IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification:
-        out = L"IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1:
-        out = L"IDXGIOutput5_DuplicateOutput1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData:
-        out = L"IDXGISwapChain4_SetHDRMetaData";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1:
-        out = L"IDXGIDevice4_OfferResources1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
-        out = L"IDXGIDevice4_ReclaimResources1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
-        out = L"IDXGIFactory5_CheckFeatureSupport";
-        break;
-    case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
-        out = L"DXGIDeclareAdapterRemovalSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
-        out = L"IDXGIAdapter4_GetDesc3";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1:
-        out = L"IDXGIOutput6_GetDesc1";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport:
-        out = L"IDXGIOutput6_CheckHardwareCompositionSupport";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference:
-        out = L"IDXGIFactory6_EnumAdapterByGpuPreference";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
-        out = L"IDXGIFactory7_RegisterAdaptersChangedEvent";
-        break;
-    case format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent:
-        out = L"IDXGIFactory7_UnregisterAdaptersChangedEvent";
-        break;
     case format::ApiCallId::ApiCall_D3D12SerializeRootSignature:
         out = L"D3D12SerializeRootSignature";
         break;
@@ -511,6 +52,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer:
         out = L"D3D12CreateVersionedRootSignatureDeserializer";
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
+        out = L"D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary";
         break;
     case format::ApiCallId::ApiCall_D3D12CreateDevice:
         out = L"D3D12CreateDevice";
@@ -1016,6 +560,48 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12StateObjectProperties_SetPipelineStackSize:
         out = L"ID3D12StateObjectProperties_SetPipelineStackSize";
         break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties1_GetProgramIdentifier:
+        out = L"ID3D12StateObjectProperties1_GetProgramIdentifier";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumWorkGraphs:
+        out = L"ID3D12WorkGraphProperties_GetNumWorkGraphs";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetProgramName:
+        out = L"ID3D12WorkGraphProperties_GetProgramName";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetWorkGraphIndex:
+        out = L"ID3D12WorkGraphProperties_GetWorkGraphIndex";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumNodes:
+        out = L"ID3D12WorkGraphProperties_GetNumNodes";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeID:
+        out = L"ID3D12WorkGraphProperties_GetNodeID";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeIndex:
+        out = L"ID3D12WorkGraphProperties_GetNodeIndex";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex:
+        out = L"ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumEntrypoints:
+        out = L"ID3D12WorkGraphProperties_GetNumEntrypoints";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointID:
+        out = L"ID3D12WorkGraphProperties_GetEntrypointID";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointIndex:
+        out = L"ID3D12WorkGraphProperties_GetEntrypointIndex";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes:
+        out = L"ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements:
+        out = L"ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes:
+        out = L"ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device5_CreateLifetimeTracker:
         out = L"ID3D12Device5_CreateLifetimeTracker";
         break;
@@ -1178,6 +764,12 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3:
         out = L"ID3D12Device12_GetResourceAllocationInfo3";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device13_OpenExistingHeapFromAddress1:
+        out = L"ID3D12Device13_OpenExistingHeapFromAddress1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
+        out = L"ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary";
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         out = L"ID3D12VirtualizationGuestDevice_ShareWithHost";
         break;
@@ -1189,6 +781,18 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled:
         out = L"ID3D12Tools_ShaderInstrumentationEnabled";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Tools1_ReserveGPUVARangesAtCreate:
+        out = L"ID3D12Tools1_ReserveGPUVARangesAtCreate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Tools1_ClearReservedGPUVARangesList:
+        out = L"ID3D12Tools1_ClearReservedGPUVARangesList";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
+        out = L"ID3D12PageableTools_GetAllocation";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools_SetNextAllocationAddress:
+        out = L"ID3D12DeviceTools_SetNextAllocationAddress";
         break;
     case format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion:
         out = L"ID3D12SDKConfiguration_SetSDKVersion";
@@ -1232,6 +836,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer:
         out = L"ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer";
         break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
+        out = L"ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary";
+        break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         out = L"ID3D12GraphicsCommandList5_RSSetShadingRate";
         break;
@@ -1253,8 +860,32 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue:
         out = L"ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue";
         break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_SetProgram:
+        out = L"ID3D12GraphicsCommandList10_SetProgram";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_DispatchGraph:
+        out = L"ID3D12GraphicsCommandList10_DispatchGraph";
+        break;
     case format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice:
         out = L"ID3D12DSRDeviceFactory_CreateDSRDevice";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData:
+        out = L"ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVSubresourceState:
+        out = L"ID3D12GBVDiagnostics_GetGBVSubresourceState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVResourceUniformState:
+        out = L"ID3D12GBVDiagnostics_GetGBVResourceUniformState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GetGBVResourceInfo:
+        out = L"ID3D12GBVDiagnostics_GetGBVResourceInfo";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved0:
+        out = L"ID3D12GBVDiagnostics_GBVReserved0";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GBVDiagnostics_GBVReserved1:
+        out = L"ID3D12GBVDiagnostics_GBVReserved1";
         break;
     case format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer:
         out = L"ID3D10Blob_GetBufferPointer";
@@ -1489,6 +1120,465 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback:
         out = L"ID3D12InfoQueue1_UnregisterMessageCallback";
+        break;
+    case format::ApiCallId::ApiCall_CreateDXGIFactory:
+        out = L"CreateDXGIFactory";
+        break;
+    case format::ApiCallId::ApiCall_CreateDXGIFactory1:
+        out = L"CreateDXGIFactory1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData:
+        out = L"IDXGIObject_SetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface:
+        out = L"IDXGIObject_SetPrivateDataInterface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData:
+        out = L"IDXGIObject_GetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIObject_GetParent:
+        out = L"IDXGIObject_GetParent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice:
+        out = L"IDXGIDeviceSubObject_GetDevice";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
+        out = L"IDXGIResource_GetSharedHandle";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetUsage:
+        out = L"IDXGIResource_GetUsage";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority:
+        out = L"IDXGIResource_SetEvictionPriority";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority:
+        out = L"IDXGIResource_GetEvictionPriority";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync:
+        out = L"IDXGIKeyedMutex_AcquireSync";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync:
+        out = L"IDXGIKeyedMutex_ReleaseSync";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_GetDesc:
+        out = L"IDXGISurface_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_Map:
+        out = L"IDXGISurface_Map";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface_Unmap:
+        out = L"IDXGISurface_Unmap";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
+        out = L"IDXGISurface1_GetDC";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC:
+        out = L"IDXGISurface1_ReleaseDC";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs:
+        out = L"IDXGIAdapter_EnumOutputs";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc:
+        out = L"IDXGIAdapter_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport:
+        out = L"IDXGIAdapter_CheckInterfaceSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDesc:
+        out = L"IDXGIOutput_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList:
+        out = L"IDXGIOutput_GetDisplayModeList";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode:
+        out = L"IDXGIOutput_FindClosestMatchingMode";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank:
+        out = L"IDXGIOutput_WaitForVBlank";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership:
+        out = L"IDXGIOutput_TakeOwnership";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership:
+        out = L"IDXGIOutput_ReleaseOwnership";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities:
+        out = L"IDXGIOutput_GetGammaControlCapabilities";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl:
+        out = L"IDXGIOutput_SetGammaControl";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl:
+        out = L"IDXGIOutput_GetGammaControl";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface:
+        out = L"IDXGIOutput_SetDisplaySurface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData:
+        out = L"IDXGIOutput_GetDisplaySurfaceData";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics:
+        out = L"IDXGIOutput_GetFrameStatistics";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_Present:
+        out = L"IDXGISwapChain_Present";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer:
+        out = L"IDXGISwapChain_GetBuffer";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState:
+        out = L"IDXGISwapChain_SetFullscreenState";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState:
+        out = L"IDXGISwapChain_GetFullscreenState";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc:
+        out = L"IDXGISwapChain_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers:
+        out = L"IDXGISwapChain_ResizeBuffers";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget:
+        out = L"IDXGISwapChain_ResizeTarget";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput:
+        out = L"IDXGISwapChain_GetContainingOutput";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics:
+        out = L"IDXGISwapChain_GetFrameStatistics";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount:
+        out = L"IDXGISwapChain_GetLastPresentCount";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters:
+        out = L"IDXGIFactory_EnumAdapters";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
+        out = L"IDXGIFactory_MakeWindowAssociation";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
+        out = L"IDXGIFactory_GetWindowAssociation";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain:
+        out = L"IDXGIFactory_CreateSwapChain";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter:
+        out = L"IDXGIFactory_CreateSoftwareAdapter";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter:
+        out = L"IDXGIDevice_GetAdapter";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface:
+        out = L"IDXGIDevice_CreateSurface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency:
+        out = L"IDXGIDevice_QueryResourceResidency";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority:
+        out = L"IDXGIDevice_SetGPUThreadPriority";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority:
+        out = L"IDXGIDevice_GetGPUThreadPriority";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1:
+        out = L"IDXGIFactory1_EnumAdapters1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent:
+        out = L"IDXGIFactory1_IsCurrent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1:
+        out = L"IDXGIAdapter1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency:
+        out = L"IDXGIDevice1_SetMaximumFrameLatency";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency:
+        out = L"IDXGIDevice1_GetMaximumFrameLatency";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled:
+        out = L"IDXGIDisplayControl_IsStereoEnabled";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled:
+        out = L"IDXGIDisplayControl_SetStereoEnabled";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc:
+        out = L"IDXGIOutputDuplication_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame:
+        out = L"IDXGIOutputDuplication_AcquireNextFrame";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects:
+        out = L"IDXGIOutputDuplication_GetFrameDirtyRects";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects:
+        out = L"IDXGIOutputDuplication_GetFrameMoveRects";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape:
+        out = L"IDXGIOutputDuplication_GetFramePointerShape";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface:
+        out = L"IDXGIOutputDuplication_MapDesktopSurface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface:
+        out = L"IDXGIOutputDuplication_UnMapDesktopSurface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame:
+        out = L"IDXGIOutputDuplication_ReleaseFrame";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISurface2_GetResource:
+        out = L"IDXGISurface2_GetResource";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface:
+        out = L"IDXGIResource1_CreateSubresourceSurface";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
+        out = L"IDXGIResource1_CreateSharedHandle";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources:
+        out = L"IDXGIDevice2_OfferResources";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources:
+        out = L"IDXGIDevice2_ReclaimResources";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent:
+        out = L"IDXGIDevice2_EnqueueSetEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1:
+        out = L"IDXGISwapChain1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc:
+        out = L"IDXGISwapChain1_GetFullscreenDesc";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
+        out = L"IDXGISwapChain1_GetHwnd";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow:
+        out = L"IDXGISwapChain1_GetCoreWindow";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_Present1:
+        out = L"IDXGISwapChain1_Present1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported:
+        out = L"IDXGISwapChain1_IsTemporaryMonoSupported";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput:
+        out = L"IDXGISwapChain1_GetRestrictToOutput";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor:
+        out = L"IDXGISwapChain1_SetBackgroundColor";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor:
+        out = L"IDXGISwapChain1_GetBackgroundColor";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation:
+        out = L"IDXGISwapChain1_SetRotation";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation:
+        out = L"IDXGISwapChain1_GetRotation";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled:
+        out = L"IDXGIFactory2_IsWindowedStereoEnabled";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd:
+        out = L"IDXGIFactory2_CreateSwapChainForHwnd";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow:
+        out = L"IDXGIFactory2_CreateSwapChainForCoreWindow";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid:
+        out = L"IDXGIFactory2_GetSharedResourceAdapterLuid";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow:
+        out = L"IDXGIFactory2_RegisterStereoStatusWindow";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
+        out = L"IDXGIFactory2_RegisterStereoStatusEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus:
+        out = L"IDXGIFactory2_UnregisterStereoStatus";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow:
+        out = L"IDXGIFactory2_RegisterOcclusionStatusWindow";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
+        out = L"IDXGIFactory2_RegisterOcclusionStatusEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus:
+        out = L"IDXGIFactory2_UnregisterOcclusionStatus";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition:
+        out = L"IDXGIFactory2_CreateSwapChainForComposition";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2:
+        out = L"IDXGIAdapter2_GetDesc2";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1:
+        out = L"IDXGIOutput1_GetDisplayModeList1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1:
+        out = L"IDXGIOutput1_FindClosestMatchingMode1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1:
+        out = L"IDXGIOutput1_GetDisplaySurfaceData1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput:
+        out = L"IDXGIOutput1_DuplicateOutput";
+        break;
+    case format::ApiCallId::ApiCall_CreateDXGIFactory2:
+        out = L"CreateDXGIFactory2";
+        break;
+    case format::ApiCallId::ApiCall_DXGIGetDebugInterface1:
+        out = L"DXGIGetDebugInterface1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice3_Trim:
+        out = L"IDXGIDevice3_Trim";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize:
+        out = L"IDXGISwapChain2_SetSourceSize";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize:
+        out = L"IDXGISwapChain2_GetSourceSize";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency:
+        out = L"IDXGISwapChain2_SetMaximumFrameLatency";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency:
+        out = L"IDXGISwapChain2_GetMaximumFrameLatency";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject:
+        out = L"IDXGISwapChain2_GetFrameLatencyWaitableObject";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform:
+        out = L"IDXGISwapChain2_SetMatrixTransform";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform:
+        out = L"IDXGISwapChain2_GetMatrixTransform";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays:
+        out = L"IDXGIOutput2_SupportsOverlays";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags:
+        out = L"IDXGIFactory3_GetCreationFlags";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer:
+        out = L"IDXGIDecodeSwapChain_PresentBuffer";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect:
+        out = L"IDXGIDecodeSwapChain_SetSourceRect";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect:
+        out = L"IDXGIDecodeSwapChain_SetTargetRect";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize:
+        out = L"IDXGIDecodeSwapChain_SetDestSize";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect:
+        out = L"IDXGIDecodeSwapChain_GetSourceRect";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect:
+        out = L"IDXGIDecodeSwapChain_GetTargetRect";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize:
+        out = L"IDXGIDecodeSwapChain_GetDestSize";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace:
+        out = L"IDXGIDecodeSwapChain_SetColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace:
+        out = L"IDXGIDecodeSwapChain_GetColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle:
+        out = L"IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle:
+        out = L"IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia:
+        out = L"IDXGISwapChainMedia_GetFrameStatisticsMedia";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration:
+        out = L"IDXGISwapChainMedia_SetPresentDuration";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport:
+        out = L"IDXGISwapChainMedia_CheckPresentDurationSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport:
+        out = L"IDXGIOutput3_CheckOverlaySupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex:
+        out = L"IDXGISwapChain3_GetCurrentBackBufferIndex";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport:
+        out = L"IDXGISwapChain3_CheckColorSpaceSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1:
+        out = L"IDXGISwapChain3_SetColorSpace1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1:
+        out = L"IDXGISwapChain3_ResizeBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport:
+        out = L"IDXGIOutput4_CheckOverlayColorSpaceSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid:
+        out = L"IDXGIFactory4_EnumAdapterByLuid";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter:
+        out = L"IDXGIFactory4_EnumWarpAdapter";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
+        out = L"IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus:
+        out = L"IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo:
+        out = L"IDXGIAdapter3_QueryVideoMemoryInfo";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation:
+        out = L"IDXGIAdapter3_SetVideoMemoryReservation";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
+        out = L"IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification:
+        out = L"IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1:
+        out = L"IDXGIOutput5_DuplicateOutput1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData:
+        out = L"IDXGISwapChain4_SetHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1:
+        out = L"IDXGIDevice4_OfferResources1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
+        out = L"IDXGIDevice4_ReclaimResources1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
+        out = L"IDXGIFactory5_CheckFeatureSupport";
+        break;
+    case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
+        out = L"DXGIDeclareAdapterRemovalSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
+        out = L"IDXGIAdapter4_GetDesc3";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1:
+        out = L"IDXGIOutput6_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport:
+        out = L"IDXGIOutput6_CheckHardwareCompositionSupport";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference:
+        out = L"IDXGIFactory6_EnumAdapterByGpuPreference";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
+        out = L"IDXGIFactory7_RegisterAdaptersChangedEvent";
+        break;
+    case format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent:
+        out = L"IDXGIFactory7_UnregisterAdaptersChangedEvent";
         break;
     case format::ApiCallId::ApiCall_IUnknown_QueryInterface:
         out = L"IUnknown_QueryInterface";

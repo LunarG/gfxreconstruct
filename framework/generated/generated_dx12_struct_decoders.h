@@ -28,6 +28,10 @@
 #ifndef  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -35,11 +39,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -55,361 +55,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-struct Decoded_DXGI_FRAME_STATISTICS
-{
-    using struct_type = DXGI_FRAME_STATISTICS;
-
-    DXGI_FRAME_STATISTICS* decoded_value{ nullptr };
-
-    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
-    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
-};
-
-struct Decoded_DXGI_MAPPED_RECT
-{
-    using struct_type = DXGI_MAPPED_RECT;
-
-    DXGI_MAPPED_RECT* decoded_value{ nullptr };
-
-    PointerDecoder<BYTE> pBits;
-};
-
-struct Decoded_LUID
-{
-    using struct_type = LUID;
-
-    LUID* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_ADAPTER_DESC
-{
-    using struct_type = DXGI_ADAPTER_DESC;
-
-    DXGI_ADAPTER_DESC* decoded_value{ nullptr };
-
-    WStringDecoder Description;
-    Decoded_LUID* AdapterLuid{ nullptr };
-};
-
-struct Decoded_DXGI_OUTPUT_DESC
-{
-    using struct_type = DXGI_OUTPUT_DESC;
-
-    DXGI_OUTPUT_DESC* decoded_value{ nullptr };
-
-    WStringDecoder DeviceName;
-    Decoded_tagRECT* DesktopCoordinates{ nullptr };
-    uint64_t Monitor{ 0 };
-};
-
-struct Decoded_DXGI_SHARED_RESOURCE
-{
-    using struct_type = DXGI_SHARED_RESOURCE;
-
-    DXGI_SHARED_RESOURCE* decoded_value{ nullptr };
-
-    uint64_t Handle{ 0 };
-};
-
-struct Decoded_DXGI_SURFACE_DESC
-{
-    using struct_type = DXGI_SURFACE_DESC;
-
-    DXGI_SURFACE_DESC* decoded_value{ nullptr };
-
-    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
-};
-
-struct Decoded_DXGI_SWAP_CHAIN_DESC
-{
-    using struct_type = DXGI_SWAP_CHAIN_DESC;
-
-    DXGI_SWAP_CHAIN_DESC* decoded_value{ nullptr };
-
-    Decoded_DXGI_MODE_DESC* BufferDesc{ nullptr };
-    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
-    uint64_t OutputWindow{ 0 };
-};
-
-struct Decoded_DXGI_ADAPTER_DESC1
-{
-    using struct_type = DXGI_ADAPTER_DESC1;
-
-    DXGI_ADAPTER_DESC1* decoded_value{ nullptr };
-
-    WStringDecoder Description;
-    Decoded_LUID* AdapterLuid{ nullptr };
-};
-
-struct Decoded_DXGI_DISPLAY_COLOR_SPACE
-{
-    using struct_type = DXGI_DISPLAY_COLOR_SPACE;
-
-    DXGI_DISPLAY_COLOR_SPACE* decoded_value{ nullptr };
-
-    PointerDecoder<FLOAT> PrimaryCoordinates;
-    PointerDecoder<FLOAT> WhitePoints;
-};
-
-struct Decoded_DXGI_OUTDUPL_MOVE_RECT
-{
-    using struct_type = DXGI_OUTDUPL_MOVE_RECT;
-
-    DXGI_OUTDUPL_MOVE_RECT* decoded_value{ nullptr };
-
-    Decoded_tagPOINT* SourcePoint{ nullptr };
-    Decoded_tagRECT* DestinationRect{ nullptr };
-};
-
-struct Decoded_DXGI_OUTDUPL_DESC
-{
-    using struct_type = DXGI_OUTDUPL_DESC;
-
-    DXGI_OUTDUPL_DESC* decoded_value{ nullptr };
-
-    Decoded_DXGI_MODE_DESC* ModeDesc{ nullptr };
-};
-
-struct Decoded_DXGI_OUTDUPL_POINTER_POSITION
-{
-    using struct_type = DXGI_OUTDUPL_POINTER_POSITION;
-
-    DXGI_OUTDUPL_POINTER_POSITION* decoded_value{ nullptr };
-
-    Decoded_tagPOINT* Position{ nullptr };
-};
-
-struct Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO
-{
-    using struct_type = DXGI_OUTDUPL_POINTER_SHAPE_INFO;
-
-    DXGI_OUTDUPL_POINTER_SHAPE_INFO* decoded_value{ nullptr };
-
-    Decoded_tagPOINT* HotSpot{ nullptr };
-};
-
-struct Decoded_DXGI_OUTDUPL_FRAME_INFO
-{
-    using struct_type = DXGI_OUTDUPL_FRAME_INFO;
-
-    DXGI_OUTDUPL_FRAME_INFO* decoded_value{ nullptr };
-
-    Decoded_LARGE_INTEGER* LastPresentTime{ nullptr };
-    Decoded_LARGE_INTEGER* LastMouseUpdateTime{ nullptr };
-    Decoded_DXGI_OUTDUPL_POINTER_POSITION* PointerPosition{ nullptr };
-};
-
-struct Decoded_DXGI_MODE_DESC1
-{
-    using struct_type = DXGI_MODE_DESC1;
-
-    DXGI_MODE_DESC1* decoded_value{ nullptr };
-
-    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
-};
-
-struct Decoded_DXGI_SWAP_CHAIN_DESC1
-{
-    using struct_type = DXGI_SWAP_CHAIN_DESC1;
-
-    DXGI_SWAP_CHAIN_DESC1* decoded_value{ nullptr };
-
-    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
-};
-
-struct Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC
-{
-    using struct_type = DXGI_SWAP_CHAIN_FULLSCREEN_DESC;
-
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* decoded_value{ nullptr };
-
-    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
-};
-
-struct Decoded_DXGI_PRESENT_PARAMETERS
-{
-    using struct_type = DXGI_PRESENT_PARAMETERS;
-
-    DXGI_PRESENT_PARAMETERS* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_tagRECT>* pDirtyRects{ nullptr };
-    StructPointerDecoder<Decoded_tagRECT>* pScrollRect{ nullptr };
-    StructPointerDecoder<Decoded_tagPOINT>* pScrollOffset{ nullptr };
-};
-
-struct Decoded_DXGI_ADAPTER_DESC2
-{
-    using struct_type = DXGI_ADAPTER_DESC2;
-
-    DXGI_ADAPTER_DESC2* decoded_value{ nullptr };
-
-    WStringDecoder Description;
-    Decoded_LUID* AdapterLuid{ nullptr };
-};
-
-struct Decoded_DXGI_MATRIX_3X2_F
-{
-    using struct_type = DXGI_MATRIX_3X2_F;
-
-    DXGI_MATRIX_3X2_F* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_DECODE_SWAP_CHAIN_DESC
-{
-    using struct_type = DXGI_DECODE_SWAP_CHAIN_DESC;
-
-    DXGI_DECODE_SWAP_CHAIN_DESC* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_FRAME_STATISTICS_MEDIA
-{
-    using struct_type = DXGI_FRAME_STATISTICS_MEDIA;
-
-    DXGI_FRAME_STATISTICS_MEDIA* decoded_value{ nullptr };
-
-    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
-    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
-};
-
-struct Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO
-{
-    using struct_type = DXGI_QUERY_VIDEO_MEMORY_INFO;
-
-    DXGI_QUERY_VIDEO_MEMORY_INFO* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_HDR_METADATA_HDR10
-{
-    using struct_type = DXGI_HDR_METADATA_HDR10;
-
-    DXGI_HDR_METADATA_HDR10* decoded_value{ nullptr };
-
-    PointerDecoder<UINT16> RedPrimary;
-    PointerDecoder<UINT16> GreenPrimary;
-    PointerDecoder<UINT16> BluePrimary;
-    PointerDecoder<UINT16> WhitePoint;
-};
-
-struct Decoded_DXGI_HDR_METADATA_HDR10PLUS
-{
-    using struct_type = DXGI_HDR_METADATA_HDR10PLUS;
-
-    DXGI_HDR_METADATA_HDR10PLUS* decoded_value{ nullptr };
-
-    PointerDecoder<BYTE> Data;
-};
-
-struct Decoded_DXGI_ADAPTER_DESC3
-{
-    using struct_type = DXGI_ADAPTER_DESC3;
-
-    DXGI_ADAPTER_DESC3* decoded_value{ nullptr };
-
-    WStringDecoder Description;
-    Decoded_LUID* AdapterLuid{ nullptr };
-};
-
-struct Decoded_DXGI_OUTPUT_DESC1
-{
-    using struct_type = DXGI_OUTPUT_DESC1;
-
-    DXGI_OUTPUT_DESC1* decoded_value{ nullptr };
-
-    WStringDecoder DeviceName;
-    Decoded_tagRECT* DesktopCoordinates{ nullptr };
-    uint64_t Monitor{ 0 };
-    PointerDecoder<FLOAT> RedPrimary;
-    PointerDecoder<FLOAT> GreenPrimary;
-    PointerDecoder<FLOAT> BluePrimary;
-    PointerDecoder<FLOAT> WhitePoint;
-};
-
-struct Decoded_DXGI_RATIONAL
-{
-    using struct_type = DXGI_RATIONAL;
-
-    DXGI_RATIONAL* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_SAMPLE_DESC
-{
-    using struct_type = DXGI_SAMPLE_DESC;
-
-    DXGI_SAMPLE_DESC* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_RGB
-{
-    using struct_type = DXGI_RGB;
-
-    DXGI_RGB* decoded_value{ nullptr };
-};
-
-struct Decoded_D3DCOLORVALUE
-{
-    using struct_type = D3DCOLORVALUE;
-
-    D3DCOLORVALUE* decoded_value{ nullptr };
-};
-
-struct Decoded_DXGI_GAMMA_CONTROL
-{
-    using struct_type = DXGI_GAMMA_CONTROL;
-
-    DXGI_GAMMA_CONTROL* decoded_value{ nullptr };
-
-    Decoded_DXGI_RGB* Scale{ nullptr };
-    Decoded_DXGI_RGB* Offset{ nullptr };
-    StructPointerDecoder<Decoded_DXGI_RGB>* GammaCurve{ nullptr };
-};
-
-struct Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES
-{
-    using struct_type = DXGI_GAMMA_CONTROL_CAPABILITIES;
-
-    DXGI_GAMMA_CONTROL_CAPABILITIES* decoded_value{ nullptr };
-
-    PointerDecoder<float> ControlPointPositions;
-};
-
-struct Decoded_DXGI_MODE_DESC
-{
-    using struct_type = DXGI_MODE_DESC;
-
-    DXGI_MODE_DESC* decoded_value{ nullptr };
-
-    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
-};
-
-struct Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE
-{
-    using struct_type = DXGI_JPEG_DC_HUFFMAN_TABLE;
-
-    DXGI_JPEG_DC_HUFFMAN_TABLE* decoded_value{ nullptr };
-
-    PointerDecoder<BYTE> CodeCounts;
-    PointerDecoder<BYTE> CodeValues;
-};
-
-struct Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE
-{
-    using struct_type = DXGI_JPEG_AC_HUFFMAN_TABLE;
-
-    DXGI_JPEG_AC_HUFFMAN_TABLE* decoded_value{ nullptr };
-
-    PointerDecoder<BYTE> CodeCounts;
-    PointerDecoder<BYTE> CodeValues;
-};
-
-struct Decoded_DXGI_JPEG_QUANTIZATION_TABLE
-{
-    using struct_type = DXGI_JPEG_QUANTIZATION_TABLE;
-
-    DXGI_JPEG_QUANTIZATION_TABLE* decoded_value{ nullptr };
-
-    PointerDecoder<BYTE> Elements;
-};
 
 struct Decoded_D3D12_COMMAND_QUEUE_DESC
 {
@@ -448,6 +93,13 @@ struct Decoded_D3D12_BOX
     using struct_type = D3D12_BOX;
 
     D3D12_BOX* decoded_value{ nullptr };
+};
+
+struct Decoded_LUID
+{
+    using struct_type = LUID;
+
+    LUID* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_DEPTH_STENCILOP_DESC
@@ -868,6 +520,41 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19
     D3D12_FEATURE_DATA_D3D12_OPTIONS19* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS20;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS20* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS21;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS21* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_PREDICATION
+{
+    using struct_type = D3D12_FEATURE_DATA_PREDICATION;
+
+    D3D12_FEATURE_DATA_PREDICATION* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY
+{
+    using struct_type = D3D12_FEATURE_DATA_HARDWARE_COPY;
+
+    D3D12_FEATURE_DATA_HARDWARE_COPY* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED
+{
+    using struct_type = D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED;
+
+    D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO
 {
     using struct_type = D3D12_RESOURCE_ALLOCATION_INFO;
@@ -896,6 +583,15 @@ struct Decoded_D3D12_HEAP_DESC
     D3D12_HEAP_DESC* decoded_value{ nullptr };
 
     Decoded_D3D12_HEAP_PROPERTIES* Properties{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO
+{
+    using struct_type = D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO;
+
+    D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO* decoded_value{ nullptr };
+
+    Decoded_D3D12_HEAP_PROPERTIES* DestHeapProperties{ nullptr };
 };
 
 struct Decoded_D3D12_MIP_REGION
@@ -1549,6 +1245,31 @@ struct Decoded_D3D12_META_COMMAND_DESC
     WStringDecoder Name;
 };
 
+struct Decoded_D3D12_PROGRAM_IDENTIFIER
+{
+    using struct_type = D3D12_PROGRAM_IDENTIFIER;
+
+    D3D12_PROGRAM_IDENTIFIER* decoded_value{ nullptr };
+
+    PointerDecoder<UINT64> OpaqueData;
+};
+
+struct Decoded_D3D12_NODE_ID
+{
+    using struct_type = D3D12_NODE_ID;
+
+    D3D12_NODE_ID* decoded_value{ nullptr };
+
+    WStringDecoder Name;
+};
+
+struct Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS
+{
+    using struct_type = D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS;
+
+    D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_STATE_OBJECT_CONFIG
 {
     using struct_type = D3D12_STATE_OBJECT_CONFIG;
@@ -1579,6 +1300,34 @@ struct Decoded_D3D12_NODE_MASK
     using struct_type = D3D12_NODE_MASK;
 
     D3D12_NODE_MASK* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_SAMPLE_MASK
+{
+    using struct_type = D3D12_SAMPLE_MASK;
+
+    D3D12_SAMPLE_MASK* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_IB_STRIP_CUT_VALUE
+{
+    using struct_type = D3D12_IB_STRIP_CUT_VALUE;
+
+    D3D12_IB_STRIP_CUT_VALUE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_PRIMITIVE_TOPOLOGY_DESC
+{
+    using struct_type = D3D12_PRIMITIVE_TOPOLOGY_DESC;
+
+    D3D12_PRIMITIVE_TOPOLOGY_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_DEPTH_STENCIL_FORMAT
+{
+    using struct_type = D3D12_DEPTH_STENCIL_FORMAT;
+
+    D3D12_DEPTH_STENCIL_FORMAT* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_EXPORT_DESC
@@ -1652,6 +1401,110 @@ struct Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1
     using struct_type = D3D12_RAYTRACING_PIPELINE_CONFIG1;
 
     D3D12_RAYTRACING_PIPELINE_CONFIG1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_NODE_OUTPUT_OVERRIDES
+{
+    using struct_type = D3D12_NODE_OUTPUT_OVERRIDES;
+
+    D3D12_NODE_OUTPUT_OVERRIDES* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pNewName{ nullptr };
+    PointerDecoder<BOOL> pAllowSparseNodes;
+    PointerDecoder<UINT> pMaxRecords;
+    PointerDecoder<UINT> pMaxRecordsSharedWithOutputIndex;
+};
+
+struct Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES
+{
+    using struct_type = D3D12_BROADCASTING_LAUNCH_OVERRIDES;
+
+    D3D12_BROADCASTING_LAUNCH_OVERRIDES* decoded_value{ nullptr };
+
+    PointerDecoder<UINT> pLocalRootArgumentsTableIndex;
+    PointerDecoder<BOOL> pProgramEntry;
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pNewName{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pShareInputOf{ nullptr };
+    PointerDecoder<UINT> pDispatchGrid;
+    PointerDecoder<UINT> pMaxDispatchGrid;
+    StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>* pOutputOverrides{ nullptr };
+};
+
+struct Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES
+{
+    using struct_type = D3D12_COALESCING_LAUNCH_OVERRIDES;
+
+    D3D12_COALESCING_LAUNCH_OVERRIDES* decoded_value{ nullptr };
+
+    PointerDecoder<UINT> pLocalRootArgumentsTableIndex;
+    PointerDecoder<BOOL> pProgramEntry;
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pNewName{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pShareInputOf{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>* pOutputOverrides{ nullptr };
+};
+
+struct Decoded_D3D12_THREAD_LAUNCH_OVERRIDES
+{
+    using struct_type = D3D12_THREAD_LAUNCH_OVERRIDES;
+
+    D3D12_THREAD_LAUNCH_OVERRIDES* decoded_value{ nullptr };
+
+    PointerDecoder<UINT> pLocalRootArgumentsTableIndex;
+    PointerDecoder<BOOL> pProgramEntry;
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pNewName{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pShareInputOf{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>* pOutputOverrides{ nullptr };
+};
+
+struct Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES
+{
+    using struct_type = D3D12_COMMON_COMPUTE_NODE_OVERRIDES;
+
+    D3D12_COMMON_COMPUTE_NODE_OVERRIDES* decoded_value{ nullptr };
+
+    PointerDecoder<UINT> pLocalRootArgumentsTableIndex;
+    PointerDecoder<BOOL> pProgramEntry;
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pNewName{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pShareInputOf{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>* pOutputOverrides{ nullptr };
+};
+
+struct Decoded_D3D12_SHADER_NODE
+{
+    using struct_type = D3D12_SHADER_NODE;
+
+    D3D12_SHADER_NODE* decoded_value{ nullptr };
+
+    WStringDecoder Shader;
+};
+
+struct Decoded_D3D12_NODE
+{
+    using struct_type = D3D12_NODE;
+
+    D3D12_NODE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_WORK_GRAPH_DESC
+{
+    using struct_type = D3D12_WORK_GRAPH_DESC;
+
+    D3D12_WORK_GRAPH_DESC* decoded_value{ nullptr };
+
+    WStringDecoder ProgramName;
+    StructPointerDecoder<Decoded_D3D12_NODE_ID>* pEntrypoints{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE>* pExplicitlyDefinedNodes{ nullptr };
+};
+
+struct Decoded_D3D12_GENERIC_PROGRAM_DESC
+{
+    using struct_type = D3D12_GENERIC_PROGRAM_DESC;
+
+    D3D12_GENERIC_PROGRAM_DESC* decoded_value{ nullptr };
+
+    WStringDecoder ProgramName;
+    WStringArrayDecoder pExports;
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* ppSubobjects{ nullptr };
 };
 
 struct Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE
@@ -2044,6 +1897,85 @@ struct Decoded_D3D12_DISPATCH_RAYS_DESC
     Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* CallableShaderTable{ nullptr };
 };
 
+struct Decoded_D3D12_SET_WORK_GRAPH_DESC
+{
+    using struct_type = D3D12_SET_WORK_GRAPH_DESC;
+
+    D3D12_SET_WORK_GRAPH_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_PROGRAM_IDENTIFIER* ProgramIdentifier{ nullptr };
+    Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* BackingMemory{ nullptr };
+    Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* NodeLocalRootArgumentsTable{ nullptr };
+};
+
+struct Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC
+{
+    using struct_type = D3D12_SET_RAYTRACING_PIPELINE_DESC;
+
+    D3D12_SET_RAYTRACING_PIPELINE_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_PROGRAM_IDENTIFIER* ProgramIdentifier{ nullptr };
+};
+
+struct Decoded_D3D12_SET_GENERIC_PIPELINE_DESC
+{
+    using struct_type = D3D12_SET_GENERIC_PIPELINE_DESC;
+
+    D3D12_SET_GENERIC_PIPELINE_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_PROGRAM_IDENTIFIER* ProgramIdentifier{ nullptr };
+};
+
+struct Decoded_D3D12_SET_PROGRAM_DESC
+{
+    using struct_type = D3D12_SET_PROGRAM_DESC;
+
+    D3D12_SET_PROGRAM_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_NODE_CPU_INPUT
+{
+    using struct_type = D3D12_NODE_CPU_INPUT;
+
+    D3D12_NODE_CPU_INPUT* decoded_value{ nullptr };
+
+    uint64_t pRecords{ 0 };
+};
+
+struct Decoded_D3D12_NODE_GPU_INPUT
+{
+    using struct_type = D3D12_NODE_GPU_INPUT;
+
+    D3D12_NODE_GPU_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* Records{ nullptr };
+};
+
+struct Decoded_D3D12_MULTI_NODE_CPU_INPUT
+{
+    using struct_type = D3D12_MULTI_NODE_CPU_INPUT;
+
+    D3D12_MULTI_NODE_CPU_INPUT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_NODE_CPU_INPUT>* pNodeInputs{ nullptr };
+};
+
+struct Decoded_D3D12_MULTI_NODE_GPU_INPUT
+{
+    using struct_type = D3D12_MULTI_NODE_GPU_INPUT;
+
+    D3D12_MULTI_NODE_GPU_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* NodeInputs{ nullptr };
+};
+
+struct Decoded_D3D12_DISPATCH_GRAPH_DESC
+{
+    using struct_type = D3D12_DISPATCH_GRAPH_DESC;
+
+    D3D12_DISPATCH_GRAPH_DESC* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_SHADER_CACHE_SESSION_DESC
 {
     using struct_type = D3D12_SHADER_CACHE_SESSION_DESC;
@@ -2177,6 +2109,354 @@ struct Decoded_D3D12_INFO_QUEUE_FILTER
 
     Decoded_D3D12_INFO_QUEUE_FILTER_DESC* AllowList{ nullptr };
     Decoded_D3D12_INFO_QUEUE_FILTER_DESC* DenyList{ nullptr };
+};
+
+struct Decoded_DXGI_FRAME_STATISTICS
+{
+    using struct_type = DXGI_FRAME_STATISTICS;
+
+    DXGI_FRAME_STATISTICS* decoded_value{ nullptr };
+
+    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
+    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
+};
+
+struct Decoded_DXGI_MAPPED_RECT
+{
+    using struct_type = DXGI_MAPPED_RECT;
+
+    DXGI_MAPPED_RECT* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> pBits;
+};
+
+struct Decoded_DXGI_ADAPTER_DESC
+{
+    using struct_type = DXGI_ADAPTER_DESC;
+
+    DXGI_ADAPTER_DESC* decoded_value{ nullptr };
+
+    WStringDecoder Description;
+    Decoded_LUID* AdapterLuid{ nullptr };
+};
+
+struct Decoded_DXGI_OUTPUT_DESC
+{
+    using struct_type = DXGI_OUTPUT_DESC;
+
+    DXGI_OUTPUT_DESC* decoded_value{ nullptr };
+
+    WStringDecoder DeviceName;
+    Decoded_tagRECT* DesktopCoordinates{ nullptr };
+    uint64_t Monitor{ 0 };
+};
+
+struct Decoded_DXGI_SHARED_RESOURCE
+{
+    using struct_type = DXGI_SHARED_RESOURCE;
+
+    DXGI_SHARED_RESOURCE* decoded_value{ nullptr };
+
+    uint64_t Handle{ 0 };
+};
+
+struct Decoded_DXGI_SURFACE_DESC
+{
+    using struct_type = DXGI_SURFACE_DESC;
+
+    DXGI_SURFACE_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+};
+
+struct Decoded_DXGI_SWAP_CHAIN_DESC
+{
+    using struct_type = DXGI_SWAP_CHAIN_DESC;
+
+    DXGI_SWAP_CHAIN_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_MODE_DESC* BufferDesc{ nullptr };
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+    uint64_t OutputWindow{ 0 };
+};
+
+struct Decoded_DXGI_ADAPTER_DESC1
+{
+    using struct_type = DXGI_ADAPTER_DESC1;
+
+    DXGI_ADAPTER_DESC1* decoded_value{ nullptr };
+
+    WStringDecoder Description;
+    Decoded_LUID* AdapterLuid{ nullptr };
+};
+
+struct Decoded_DXGI_DISPLAY_COLOR_SPACE
+{
+    using struct_type = DXGI_DISPLAY_COLOR_SPACE;
+
+    DXGI_DISPLAY_COLOR_SPACE* decoded_value{ nullptr };
+
+    PointerDecoder<FLOAT> PrimaryCoordinates;
+    PointerDecoder<FLOAT> WhitePoints;
+};
+
+struct Decoded_DXGI_OUTDUPL_MOVE_RECT
+{
+    using struct_type = DXGI_OUTDUPL_MOVE_RECT;
+
+    DXGI_OUTDUPL_MOVE_RECT* decoded_value{ nullptr };
+
+    Decoded_tagPOINT* SourcePoint{ nullptr };
+    Decoded_tagRECT* DestinationRect{ nullptr };
+};
+
+struct Decoded_DXGI_OUTDUPL_DESC
+{
+    using struct_type = DXGI_OUTDUPL_DESC;
+
+    DXGI_OUTDUPL_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_MODE_DESC* ModeDesc{ nullptr };
+};
+
+struct Decoded_DXGI_OUTDUPL_POINTER_POSITION
+{
+    using struct_type = DXGI_OUTDUPL_POINTER_POSITION;
+
+    DXGI_OUTDUPL_POINTER_POSITION* decoded_value{ nullptr };
+
+    Decoded_tagPOINT* Position{ nullptr };
+};
+
+struct Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO
+{
+    using struct_type = DXGI_OUTDUPL_POINTER_SHAPE_INFO;
+
+    DXGI_OUTDUPL_POINTER_SHAPE_INFO* decoded_value{ nullptr };
+
+    Decoded_tagPOINT* HotSpot{ nullptr };
+};
+
+struct Decoded_DXGI_OUTDUPL_FRAME_INFO
+{
+    using struct_type = DXGI_OUTDUPL_FRAME_INFO;
+
+    DXGI_OUTDUPL_FRAME_INFO* decoded_value{ nullptr };
+
+    Decoded_LARGE_INTEGER* LastPresentTime{ nullptr };
+    Decoded_LARGE_INTEGER* LastMouseUpdateTime{ nullptr };
+    Decoded_DXGI_OUTDUPL_POINTER_POSITION* PointerPosition{ nullptr };
+};
+
+struct Decoded_DXGI_MODE_DESC1
+{
+    using struct_type = DXGI_MODE_DESC1;
+
+    DXGI_MODE_DESC1* decoded_value{ nullptr };
+
+    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
+};
+
+struct Decoded_DXGI_SWAP_CHAIN_DESC1
+{
+    using struct_type = DXGI_SWAP_CHAIN_DESC1;
+
+    DXGI_SWAP_CHAIN_DESC1* decoded_value{ nullptr };
+
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+};
+
+struct Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC
+{
+    using struct_type = DXGI_SWAP_CHAIN_FULLSCREEN_DESC;
+
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
+};
+
+struct Decoded_DXGI_PRESENT_PARAMETERS
+{
+    using struct_type = DXGI_PRESENT_PARAMETERS;
+
+    DXGI_PRESENT_PARAMETERS* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_tagRECT>* pDirtyRects{ nullptr };
+    StructPointerDecoder<Decoded_tagRECT>* pScrollRect{ nullptr };
+    StructPointerDecoder<Decoded_tagPOINT>* pScrollOffset{ nullptr };
+};
+
+struct Decoded_DXGI_ADAPTER_DESC2
+{
+    using struct_type = DXGI_ADAPTER_DESC2;
+
+    DXGI_ADAPTER_DESC2* decoded_value{ nullptr };
+
+    WStringDecoder Description;
+    Decoded_LUID* AdapterLuid{ nullptr };
+};
+
+struct Decoded_DXGI_MATRIX_3X2_F
+{
+    using struct_type = DXGI_MATRIX_3X2_F;
+
+    DXGI_MATRIX_3X2_F* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_DECODE_SWAP_CHAIN_DESC
+{
+    using struct_type = DXGI_DECODE_SWAP_CHAIN_DESC;
+
+    DXGI_DECODE_SWAP_CHAIN_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_FRAME_STATISTICS_MEDIA
+{
+    using struct_type = DXGI_FRAME_STATISTICS_MEDIA;
+
+    DXGI_FRAME_STATISTICS_MEDIA* decoded_value{ nullptr };
+
+    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
+    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
+};
+
+struct Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO
+{
+    using struct_type = DXGI_QUERY_VIDEO_MEMORY_INFO;
+
+    DXGI_QUERY_VIDEO_MEMORY_INFO* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_HDR_METADATA_HDR10
+{
+    using struct_type = DXGI_HDR_METADATA_HDR10;
+
+    DXGI_HDR_METADATA_HDR10* decoded_value{ nullptr };
+
+    PointerDecoder<UINT16> RedPrimary;
+    PointerDecoder<UINT16> GreenPrimary;
+    PointerDecoder<UINT16> BluePrimary;
+    PointerDecoder<UINT16> WhitePoint;
+};
+
+struct Decoded_DXGI_HDR_METADATA_HDR10PLUS
+{
+    using struct_type = DXGI_HDR_METADATA_HDR10PLUS;
+
+    DXGI_HDR_METADATA_HDR10PLUS* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> Data;
+};
+
+struct Decoded_DXGI_ADAPTER_DESC3
+{
+    using struct_type = DXGI_ADAPTER_DESC3;
+
+    DXGI_ADAPTER_DESC3* decoded_value{ nullptr };
+
+    WStringDecoder Description;
+    Decoded_LUID* AdapterLuid{ nullptr };
+};
+
+struct Decoded_DXGI_OUTPUT_DESC1
+{
+    using struct_type = DXGI_OUTPUT_DESC1;
+
+    DXGI_OUTPUT_DESC1* decoded_value{ nullptr };
+
+    WStringDecoder DeviceName;
+    Decoded_tagRECT* DesktopCoordinates{ nullptr };
+    uint64_t Monitor{ 0 };
+    PointerDecoder<FLOAT> RedPrimary;
+    PointerDecoder<FLOAT> GreenPrimary;
+    PointerDecoder<FLOAT> BluePrimary;
+    PointerDecoder<FLOAT> WhitePoint;
+};
+
+struct Decoded_DXGI_RATIONAL
+{
+    using struct_type = DXGI_RATIONAL;
+
+    DXGI_RATIONAL* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_SAMPLE_DESC
+{
+    using struct_type = DXGI_SAMPLE_DESC;
+
+    DXGI_SAMPLE_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_RGB
+{
+    using struct_type = DXGI_RGB;
+
+    DXGI_RGB* decoded_value{ nullptr };
+};
+
+struct Decoded_D3DCOLORVALUE
+{
+    using struct_type = D3DCOLORVALUE;
+
+    D3DCOLORVALUE* decoded_value{ nullptr };
+};
+
+struct Decoded_DXGI_GAMMA_CONTROL
+{
+    using struct_type = DXGI_GAMMA_CONTROL;
+
+    DXGI_GAMMA_CONTROL* decoded_value{ nullptr };
+
+    Decoded_DXGI_RGB* Scale{ nullptr };
+    Decoded_DXGI_RGB* Offset{ nullptr };
+    StructPointerDecoder<Decoded_DXGI_RGB>* GammaCurve{ nullptr };
+};
+
+struct Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES
+{
+    using struct_type = DXGI_GAMMA_CONTROL_CAPABILITIES;
+
+    DXGI_GAMMA_CONTROL_CAPABILITIES* decoded_value{ nullptr };
+
+    PointerDecoder<float> ControlPointPositions;
+};
+
+struct Decoded_DXGI_MODE_DESC
+{
+    using struct_type = DXGI_MODE_DESC;
+
+    DXGI_MODE_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_RATIONAL* RefreshRate{ nullptr };
+};
+
+struct Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE
+{
+    using struct_type = DXGI_JPEG_DC_HUFFMAN_TABLE;
+
+    DXGI_JPEG_DC_HUFFMAN_TABLE* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> CodeCounts;
+    PointerDecoder<BYTE> CodeValues;
+};
+
+struct Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE
+{
+    using struct_type = DXGI_JPEG_AC_HUFFMAN_TABLE;
+
+    DXGI_JPEG_AC_HUFFMAN_TABLE* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> CodeCounts;
+    PointerDecoder<BYTE> CodeValues;
+};
+
+struct Decoded_DXGI_JPEG_QUANTIZATION_TABLE
+{
+    using struct_type = DXGI_JPEG_QUANTIZATION_TABLE;
+
+    DXGI_JPEG_QUANTIZATION_TABLE* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> Elements;
 };
 
 struct Decoded_GUID

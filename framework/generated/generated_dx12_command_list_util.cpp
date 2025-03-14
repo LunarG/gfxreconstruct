@@ -664,6 +664,22 @@ void Track_ID3D12GraphicsCommandList7_Barrier(ID3D12CommandList_Wrapper* wrapper
 }
 
 
+void Track_ID3D12GraphicsCommandList10_SetProgram(ID3D12CommandList_Wrapper* wrapper, const D3D12_SET_PROGRAM_DESC * pDesc)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+}
+
+
+void Track_ID3D12GraphicsCommandList10_DispatchGraph(ID3D12CommandList_Wrapper* wrapper, const D3D12_DISPATCH_GRAPH_DESC * pDesc)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+}
+
+
 void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
 {
     GFXRECON_ASSERT(wrapper != nullptr);

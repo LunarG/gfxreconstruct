@@ -64,7 +64,7 @@ GENERATE_TARGETS = [
     'generated_dx12_call_id_to_string.h',
 ]
 
-DXGI_SOURCE_LIST = [
+WINDOWS_SDK_SOURCE_LIST = [
     'shared\\dxgi.h',
     'shared\\dxgi1_2.h',
     'shared\\dxgi1_3.h',
@@ -72,11 +72,11 @@ DXGI_SOURCE_LIST = [
     'shared\\dxgi1_5.h',
     'shared\\dxgi1_6.h',
     'shared\\dxgicommon.h',
-    'shared\\dxgiformat.h',
     'shared\\dxgitype.h',
 ]
 
-DX12_SOURCE_LIST = [
+AGILITY_SDK_SOURCE_LIST = [
+    'dxgiformat.h', # Use from AgilitySDK, instead of WindowsSDK.
     'd3d12.h',
     'd3dcommon.h',
     'd3d12sdklayers.h',
@@ -120,19 +120,23 @@ if __name__ == '__main__':
     from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
     header_dict = {}
-    for source in DXGI_SOURCE_LIST:
+    # Deal with DX12 first, and then DXGI. It will include <dxgiformat.h> before include dxgi headers.
+    # If include dxgi headers first, it will use WindowsSDK's dxgiformat.h, instead of AgilitySDK's.
+    # Because some dxgi headers could include dxgiformat.h that is from Windows SDK.
+    # After it includes Windows SDK's dxgiformat.h, it will skip AgilitySDK's.
+    for source in AGILITY_SDK_SOURCE_LIST:
+        source_file = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'AgilitySDK', 'include', source)
+
+        print('Parsing', source_file)
+        header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
+
+    for source in WINDOWS_SDK_SOURCE_LIST:
         source_file = os.path.join(
             WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
         )
         print('Parsing', source_file)
         header_dict[source[source.find('\\') + 1:]
                     ] = Dx12CppHeader(source_file)
-
-    for source in DX12_SOURCE_LIST:
-        source_file = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'AgilitySDK', 'inc', source)
-
-        print('Parsing', source_file)
-        header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
 
     for source in WINAPI_SOURCE_LIST:
         source_file = os.path.join(
