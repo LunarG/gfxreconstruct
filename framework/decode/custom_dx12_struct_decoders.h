@@ -298,6 +298,49 @@ struct Decoded_D3D12_SAMPLER_DESC2
     PointerDecoder<float> FloatBorderColor;
 };
 
+struct Decoded_D3D12_SHADER_NODE
+{
+    using struct_type = D3D12_SHADER_NODE;
+
+    D3D12_SHADER_NODE* decoded_value{ nullptr };
+    
+    WStringDecoder                                                     Shader;
+    StructPointerDecoder<Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES>* broadcasting_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES>*   coalescing_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_THREAD_LAUNCH_OVERRIDES>*       thread_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES>* common_compute_node_overrides{ nullptr };
+};
+
+struct Decoded_D3D12_NODE
+{
+    using struct_type = D3D12_NODE;
+
+    D3D12_NODE* decoded_value{ nullptr };
+
+    Decoded_D3D12_SHADER_NODE* shader{ nullptr };
+};
+
+struct Decoded_D3D12_SET_PROGRAM_DESC
+{
+    using struct_type = D3D12_SET_PROGRAM_DESC;
+
+    D3D12_SET_PROGRAM_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_SET_GENERIC_PIPELINE_DESC*    generic_pipeline{ nullptr };
+    Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC* raytracing_pipeline{ nullptr };
+    Decoded_D3D12_SET_WORK_GRAPH_DESC*          work_graph{ nullptr };
+};
+
+struct Decoded_D3D12_DISPATCH_GRAPH_DESC
+{
+    using struct_type = D3D12_DISPATCH_GRAPH_DESC;
+
+    D3D12_DISPATCH_GRAPH_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_NODE_CPU_INPUT*       node_cpu_input{ nullptr };
+    Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

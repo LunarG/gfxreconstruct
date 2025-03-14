@@ -65,6 +65,10 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
 void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI_FEATURE feature);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

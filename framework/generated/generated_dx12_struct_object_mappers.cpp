@@ -464,16 +464,6 @@ void MapStructObjects(Decoded_D3D12_MULTI_NODE_GPU_INPUT* wrapper, const Dx12Obj
     }
 }
 
-void MapStructObjects(Decoded_D3D12_DISPATCH_GRAPH_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
-{
-    if (wrapper != nullptr)
-    {
-        value-> = object_mapping::MapObject<<anon-union-21>>(wrapper->, object_info_table);
-
-        value-> = object_mapping::MapObject<<anon-union-21>>(wrapper->, object_info_table);
-    }
-}
-
 void MapStructObjects(Decoded_D3D12_TEXTURE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

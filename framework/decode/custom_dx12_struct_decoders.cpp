@@ -1207,5 +1207,138 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAM
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHADER_NODE* wrapper)
+{
+    size_t             bytes_read = 0;
+    WStringDecoder     Shader;
+    D3D12_SHADER_NODE* value = wrapper->decoded_value;
+
+    bytes_read += Shader.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->OverridesType));
+
+    switch (value->OverridesType)
+    {
+        case D3D12_NODE_OVERRIDES_TYPE_BROADCASTING_LAUNCH:
+            wrapper->broadcasting_launch_overrides =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES>>();
+            bytes_read +=
+                wrapper->broadcasting_launch_overrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pBroadcastingLaunchOverrides = wrapper->broadcasting_launch_overrides->GetPointer();
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COALESCING_LAUNCH:
+            wrapper->coalescing_launch_overrides =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES>>();
+            bytes_read +=
+                wrapper->coalescing_launch_overrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pCoalescingLaunchOverrides = wrapper->coalescing_launch_overrides->GetPointer();
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_THREAD_LAUNCH:
+            wrapper->thread_launch_overrides =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_THREAD_LAUNCH_OVERRIDES>>();
+            bytes_read += wrapper->thread_launch_overrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pThreadLaunchOverrides = wrapper->thread_launch_overrides->GetPointer();
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COMMON_COMPUTE:
+            wrapper->common_compute_node_overrides =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES>>();
+            bytes_read +=
+                wrapper->common_compute_node_overrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pCommonComputeNodeOverrides = wrapper->common_compute_node_overrides->GetPointer();
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NODE* wrapper)
+{
+    size_t      bytes_read = 0;
+    D3D12_NODE* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->NodeType));
+
+    switch (value->NodeType)
+    {
+        case D3D12_NODE_TYPE_SHADER:
+            wrapper->shader                = DecodeAllocator::Allocate<Decoded_D3D12_SHADER_NODE>();
+            wrapper->shader->decoded_value = &(value->Shader);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->shader);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SET_PROGRAM_DESC* wrapper)
+{
+    size_t                  bytes_read = 0;
+    D3D12_SET_PROGRAM_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+
+    switch (value->Type)
+    {
+        case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+            wrapper->generic_pipeline = DecodeAllocator::Allocate<Decoded_D3D12_SET_GENERIC_PIPELINE_DESC>();
+            wrapper->generic_pipeline->decoded_value = &(value->GenericPipeline);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->generic_pipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+            wrapper->raytracing_pipeline = DecodeAllocator::Allocate<Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC>();
+            wrapper->raytracing_pipeline->decoded_value = &(value->RaytracingPipeline);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->raytracing_pipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+            wrapper->work_graph                = DecodeAllocator::Allocate<Decoded_D3D12_SET_WORK_GRAPH_DESC>();
+            wrapper->work_graph->decoded_value = &(value->WorkGraph);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->work_graph);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DISPATCH_GRAPH_DESC* wrapper)
+{
+    size_t                     bytes_read = 0;
+    D3D12_DISPATCH_GRAPH_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Mode));
+
+    switch (value->Mode)
+    {
+        case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+            wrapper->node_cpu_input                = DecodeAllocator::Allocate<Decoded_D3D12_NODE_CPU_INPUT>();
+            wrapper->node_cpu_input->decoded_value = &(value->NodeCPUInput);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->node_cpu_input);
+            break;
+        case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+            bytes_read += ValueDecoder::DecodeUInt64Value(
+                (buffer + bytes_read), (buffer_size - bytes_read), &(value->NodeGPUInput));
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+            wrapper->multi_node_cpu_input = DecodeAllocator::Allocate<Decoded_D3D12_MULTI_NODE_CPU_INPUT>();
+            wrapper->multi_node_cpu_input->decoded_value = &(value->MultiNodeCPUInput);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->multi_node_cpu_input);
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+            bytes_read += ValueDecoder::DecodeUInt64Value(
+                (buffer + bytes_read), (buffer_size - bytes_read), &(value->MultiNodeGPUInput));
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

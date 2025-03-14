@@ -890,5 +890,86 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value)
     encoder->EncodeEnumValue(value.Flags);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value)
+{
+    encoder->EncodeWString(value.Shader);
+    encoder->EncodeUInt32Value(value.OverridesType);
+
+    switch (value.OverridesType)
+    {
+        case D3D12_NODE_OVERRIDES_TYPE_BROADCASTING_LAUNCH:
+            EncodeStructPtr(encoder, value.pBroadcastingLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COALESCING_LAUNCH:
+            EncodeStructPtr(encoder, value.pCoalescingLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_THREAD_LAUNCH:
+            EncodeStructPtr(encoder, value.pThreadLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COMMON_COMPUTE:
+            EncodeStructPtr(encoder, value.pCommonComputeNodeOverrides);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value)
+{
+    encoder->EncodeUInt32Value(value.NodeType);
+
+    switch (value.NodeType)
+    {
+        case D3D12_NODE_TYPE_SHADER:
+            EncodeStruct(encoder, value.Shader);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.Type);
+
+    switch (value.Type)
+    {
+        case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+            EncodeStruct(encoder, value.GenericPipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+            EncodeStruct(encoder, value.RaytracingPipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+            EncodeStruct(encoder, value.WorkGraph);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.Mode);
+
+    switch (value.Mode)
+    {
+        case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+            EncodeStruct(encoder, value.NodeCPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+            encoder->EncodeUInt64Value(value.NodeGPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+            EncodeStruct(encoder, value.MultiNodeCPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+            encoder->EncodeUInt64Value(value.MultiNodeGPUInput);
+            break;
+        default:
+            break;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

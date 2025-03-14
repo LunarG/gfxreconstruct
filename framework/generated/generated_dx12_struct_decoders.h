@@ -1469,22 +1469,6 @@ struct Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES
     StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>* pOutputOverrides{ nullptr };
 };
 
-struct Decoded_D3D12_SHADER_NODE
-{
-    using struct_type = D3D12_SHADER_NODE;
-
-    D3D12_SHADER_NODE* decoded_value{ nullptr };
-
-    WStringDecoder Shader;
-};
-
-struct Decoded_D3D12_NODE
-{
-    using struct_type = D3D12_NODE;
-
-    D3D12_NODE* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_WORK_GRAPH_DESC
 {
     using struct_type = D3D12_WORK_GRAPH_DESC;
@@ -1926,13 +1910,6 @@ struct Decoded_D3D12_SET_GENERIC_PIPELINE_DESC
     Decoded_D3D12_PROGRAM_IDENTIFIER* ProgramIdentifier{ nullptr };
 };
 
-struct Decoded_D3D12_SET_PROGRAM_DESC
-{
-    using struct_type = D3D12_SET_PROGRAM_DESC;
-
-    D3D12_SET_PROGRAM_DESC* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_NODE_CPU_INPUT
 {
     using struct_type = D3D12_NODE_CPU_INPUT;
@@ -1967,13 +1944,6 @@ struct Decoded_D3D12_MULTI_NODE_GPU_INPUT
     D3D12_MULTI_NODE_GPU_INPUT* decoded_value{ nullptr };
 
     Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* NodeInputs{ nullptr };
-};
-
-struct Decoded_D3D12_DISPATCH_GRAPH_DESC
-{
-    using struct_type = D3D12_DISPATCH_GRAPH_DESC;
-
-    D3D12_DISPATCH_GRAPH_DESC* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_SHADER_CACHE_SESSION_DESC

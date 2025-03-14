@@ -321,5 +321,54 @@ void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_SET_PROGRAM_DESC* wrapper,
+                      const Dx12ObjectInfoTable&      object_info_table,
+                      const graphics::Dx12GpuVaMap&   gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+                break;
+            case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+                break;
+            case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+                MapStructObjects(wrapper->work_graph, object_info_table, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_DISPATCH_GRAPH_DESC* wrapper,
+                      const Dx12ObjectInfoTable&         object_info_table,
+                      const graphics::Dx12GpuVaMap&      gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Mode)
+        {
+            case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+                break;
+            case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+                object_mapping::MapGpuVirtualAddress(value->NodeGPUInput, gpu_va_map);
+                break;
+            case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+                break;
+            case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+                object_mapping::MapGpuVirtualAddress(value->MultiNodeGPUInput, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

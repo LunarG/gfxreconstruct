@@ -1581,10 +1581,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_THREAD_LAUNCH_OVERRIDES
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMON_COMPUTE_NODE_OVERRIDES& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value);
@@ -1882,8 +1878,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_RAYTRACING_PIPELINE
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_GENERIC_PIPELINE_DESC& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_CPU_INPUT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_GPU_INPUT& value);
@@ -1891,8 +1885,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_GPU_INPUT& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MULTI_NODE_CPU_INPUT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MULTI_NODE_GPU_INPUT& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value);
 
 void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
     ID3D12GraphicsCommandList4_Wrapper* wrapper,

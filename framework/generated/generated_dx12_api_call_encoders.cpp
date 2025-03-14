@@ -4872,19 +4872,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMON_COMPUTE_NODE_OVE
     EncodeStructArray(encoder, value.pOutputOverrides, value.NumOutputOverrides);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value)
-{
-    encoder->EncodeWString(value.Shader);
-    encoder->EncodeEnumValue(value.OverridesType);
-    
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value)
-{
-    encoder->EncodeEnumValue(value.NodeType);
-    
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_DESC& value)
 {
     encoder->EncodeWString(value.ProgramName);
@@ -5860,12 +5847,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_GENERIC_PIPELINE_DE
     EncodeStruct(encoder, value.ProgramIdentifier);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_CPU_INPUT& value)
 {
     encoder->EncodeUInt32Value(value.EntrypointIndex);
@@ -5892,12 +5873,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_MULTI_NODE_GPU_INPUT& v
 {
     encoder->EncodeUInt32Value(value.NumNodeInputs);
     EncodeStruct(encoder, value.NodeInputs);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Mode);
-    
 }
 
 void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(

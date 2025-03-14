@@ -3127,7 +3127,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_NODE*
         const Decoded_D3D12_SHADER_NODE& meta_struct = *data;
         FieldToJson(jdata["Shader"], meta_struct.Shader, options);
         FieldToJson(jdata["OverridesType"], decoded_value.OverridesType, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_SHADER_NODE needs special handling.
+        switch(decoded_value.OverridesType)
+        {
+            case D3D12_NODE_OVERRIDES_TYPE_BROADCASTING_LAUNCH:
+            {
+                FieldToJson(jdata["pBroadcastingLaunchOverrides"], meta_struct.broadcasting_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_COALESCING_LAUNCH:
+            {
+                FieldToJson(jdata["pCoalescingLaunchOverrides"], meta_struct.coalescing_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_THREAD_LAUNCH:
+            {
+                FieldToJson(jdata["pThreadLaunchOverrides"], meta_struct.thread_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_COMMON_COMPUTE:
+            {
+                FieldToJson(jdata["pCommonComputeNodeOverrides"], meta_struct.common_compute_node_overrides, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_NODE_OVERRIDES_TYPE in D3D12_SHADER_NODE.", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3139,7 +3166,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE* data, 
         const D3D12_NODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_NODE& meta_struct = *data;
         FieldToJson(jdata["NodeType"], decoded_value.NodeType, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_NODE needs special handling.
+        switch(decoded_value.NodeType)
+        {
+            case D3D12_NODE_TYPE_SHADER:
+            {
+                FieldToJson(jdata["Shader"], meta_struct.shader, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_NODE_TYPE in D3D12_NODE.", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3991,7 +4030,29 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_PROGRAM_
         const D3D12_SET_PROGRAM_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SET_PROGRAM_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_SET_PROGRAM_DESC needs special handling.
+        switch(decoded_value.Type)
+        {
+            case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+            {
+                FieldToJson(jdata["GenericPipeline"], meta_struct.generic_pipeline, options);
+                break;
+            }
+            case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+            {
+                FieldToJson(jdata["RaytracingPipeline"], meta_struct.raytracing_pipeline, options);
+                break;
+            }
+            case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+            {
+                FieldToJson(jdata["WorkGraph"], meta_struct.work_graph, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_PROGRAM_TYPE in D3D12_SET_PROGRAM_DESC.", options);
+                break;
+            }
+        }
     }
 }
 
@@ -4055,7 +4116,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DISPATCH_GRA
         const D3D12_DISPATCH_GRAPH_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DISPATCH_GRAPH_DESC& meta_struct = *data;
         FieldToJson(jdata["Mode"], decoded_value.Mode, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_DISPATCH_GRAPH_DESC needs special handling.
+        switch(decoded_value.Mode)
+        {
+            case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+            {
+                FieldToJson(jdata["NodeCPUInput"], meta_struct.node_cpu_input, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+            {
+                FieldToJson(jdata["NodeGPUInput"], decoded_value.NodeGPUInput, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+            {
+                FieldToJson(jdata["MultiNodeCPUInput"], meta_struct.multi_node_cpu_input, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+            {
+                FieldToJson(jdata["MultiNodeGPUInput"], decoded_value.MultiNodeGPUInput, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DISPATCH_MODE in D3D12_DISPATCH_GRAPH_DESC.", options);
+                break;
+            }
+        }
     }
 }
 
