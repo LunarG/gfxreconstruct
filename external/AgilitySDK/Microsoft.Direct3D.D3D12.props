@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Microsoft_Direct3D_D3D12_D3D12SDKPath)' == ''">
+    <Microsoft_Direct3D_D3D12_D3D12SDKPath>.\D3D12\</Microsoft_Direct3D_D3D12_D3D12SDKPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Microsoft.Direct3D.D3D12.Rules.Project.xml"/>
+  </ItemGroup>
+</Project>

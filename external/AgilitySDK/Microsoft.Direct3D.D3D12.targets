@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup Condition="'$(Microsoft_Direct3D_D3D12_SkipIncludeDir)' != 'true'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;$(MSBuildThisFileDirectory)include\d3dx12;$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+
+  </ItemDefinitionGroup>
+  <PropertyGroup>
+    <DirectXPlatform Condition="'$(PlatformTarget)' == 'x64' OR ('$(PlatformTarget)' == 'AnyCPU' AND '$(Prefer32Bit)' != 'true')">x64</DirectXPlatform>
+    <DirectXPlatform Condition="'$(PlatformTarget)' == 'x86' OR ('$(PlatformTarget)' == 'AnyCPU' AND '$(Prefer32Bit)' == 'true')">win32</DirectXPlatform>
+    <DirectXPlatform Condition="'$(PlatformTarget)' == '' AND '$(Prefer32Bit)' != 'true'">x64</DirectXPlatform>
+    <DirectXPlatform Condition="'$(PlatformTarget)' == '' AND '$(Prefer32Bit)' == 'true'">win32</DirectXPlatform>
+    <DirectXPlatform Condition="'$(DirectXPlatform)' == ''">$(PlatformTarget)</DirectXPlatform>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)bin\$(DirectXPlatform)\D3D12Core.dll" Condition="'$(Microsoft_Direct3D_D3D12_SkipLibraryCopy)' != 'true'">
+      <Link>$(Microsoft_Direct3D_D3D12_D3D12SDKPath)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)bin\$(DirectXPlatform)\D3D12Core.pdb" Condition="'$(Microsoft_Direct3D_D3D12_SkipLibraryCopy)' != 'true'">
+      <Link>$(Microsoft_Direct3D_D3D12_D3D12SDKPath)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)bin\$(DirectXPlatform)\D3D12SDKLayers.dll" Condition="'$(Microsoft_Direct3D_D3D12_SkipDebugLayerCopy)' != 'true'">
+      <Link>$(Microsoft_Direct3D_D3D12_D3D12SDKPath)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)bin\$(DirectXPlatform)\D3D12SDKLayers.pdb" Condition="'$(Microsoft_Direct3D_D3D12_SkipDebugLayerCopy)' != 'true'">
+      <Link>$(Microsoft_Direct3D_D3D12_D3D12SDKPath)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
