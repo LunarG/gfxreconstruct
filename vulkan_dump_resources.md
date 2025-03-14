@@ -158,7 +158,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
     "BeginCommandBuffer": [ 754, 736 ],
     "Draw": [ [ 761 ], [ ] ],
     "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
-    "ExecuteCommands": [ [ ], [ 3949, 754 ]]
+    "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ]
     "QueueSubmit": [ 3952 ]
 }
 ```
