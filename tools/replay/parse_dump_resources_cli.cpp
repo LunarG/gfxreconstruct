@@ -199,7 +199,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
     if (ends_with(to_lower(vulkan_replay_options.dump_resources_block_indices), ".json"))
     {
         // dump-resource arg value is a json file. Read and parse the json file.
-        try
         {
             std::ifstream dr_json_file(vulkan_replay_options.dump_resources_block_indices, std::ifstream::binary);
             if (!dr_json_file.is_open())
@@ -287,12 +286,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.QueueSubmit_Indices.push_back(
                     static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]));
             }
-        }
-        catch (...)
-        {
-            parse_error_message =
-                "Error reading file " + vulkan_replay_options.dump_resources_block_indices + ". Bad json format?";
-            parse_error         = true;
         }
     }
     else
