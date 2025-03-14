@@ -227,11 +227,17 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
 
         switch (value->Type)
         {
+            case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+                break;
             case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
                 MapStructObjects(wrapper->global_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
                 MapStructObjects(wrapper->local_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
                 MapStructObjects(
@@ -243,6 +249,52 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
                                  subobject_stride,
                                  object_info_table,
                                  gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
                 break;

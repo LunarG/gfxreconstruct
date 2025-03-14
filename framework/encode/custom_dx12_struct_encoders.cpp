@@ -858,6 +858,57 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
             case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
                 EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RAYTRACING_PIPELINE_CONFIG1*>(value.pDesc));
                 break;
+            case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_WORK_GRAPH_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_STREAM_OUTPUT_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_BLEND_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                encoder->EncodeUInt32Ptr(reinterpret_cast<const uint32_t*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RASTERIZER_DESC2*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_INPUT_LAYOUT_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                encoder->EncodeEnumPtr(reinterpret_cast<const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                encoder->EncodeEnumPtr(reinterpret_cast<const D3D12_PRIMITIVE_TOPOLOGY_TYPE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RT_FORMAT_ARRAY*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                encoder->EncodeEnumPtr(reinterpret_cast<const DXGI_FORMAT*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                EncodeStructPtr(encoder, reinterpret_cast<const DXGI_SAMPLE_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+                encoder->EncodeFlagsPtr(reinterpret_cast<const D3D12_PIPELINE_STATE_FLAGS*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC1*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_VIEW_INSTANCING_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_GENERIC_PROGRAM_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC2*>(value.pDesc));
+                break;
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:

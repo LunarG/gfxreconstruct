@@ -1122,6 +1122,102 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
             bytes_read += wrapper->raytracing_pipeline_config1->Decode(buffer2, buffer_size2);
             value->pDesc = wrapper->raytracing_pipeline_config1->GetPointer();
             break;
+        case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+            wrapper->work_graph_desc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_WORK_GRAPH_DESC>>();
+            bytes_read += wrapper->work_graph_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->work_graph_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+            wrapper->stream_output_desc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STREAM_OUTPUT_DESC>>();
+            bytes_read += wrapper->stream_output_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->stream_output_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+            wrapper->blend_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_BLEND_DESC>>();
+            bytes_read += wrapper->blend_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->blend_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+            bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read),
+                                                          (buffer_size - bytes_read),
+                                                          reinterpret_cast<uint32_t*>(const_cast<void*>(value->pDesc)));
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+            wrapper->rasterizer_desc2 = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RASTERIZER_DESC2>>();
+            bytes_read += wrapper->rasterizer_desc2->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->rasterizer_desc2->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+            wrapper->depth_stencil_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC>>();
+            bytes_read += wrapper->depth_stencil_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->depth_stencil_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+            wrapper->input_layout_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_INPUT_LAYOUT_DESC>>();
+            bytes_read += wrapper->input_layout_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->input_layout_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+            // enum D3D12_INDEX_BUFFER_STRIP_CUT_VALUE
+            bytes_read += ValueDecoder::DecodeEnumValue(
+                (buffer + bytes_read),
+                (buffer_size - bytes_read),
+                reinterpret_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE*>(const_cast<void*>(value->pDesc)));
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+            // enum D3D12_PRIMITIVE_TOPOLOGY_TYPE
+            bytes_read += ValueDecoder::DecodeEnumValue(
+                (buffer + bytes_read),
+                (buffer_size - bytes_read),
+                reinterpret_cast<D3D12_PRIMITIVE_TOPOLOGY_TYPE*>(const_cast<void*>(value->pDesc)));
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+            wrapper->rt_format_array =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RT_FORMAT_ARRAY>>();
+            bytes_read += wrapper->rt_format_array->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->rt_format_array->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+            // enum DXGI_FORMAT
+            bytes_read +=
+                ValueDecoder::DecodeEnumValue((buffer + bytes_read),
+                                              (buffer_size - bytes_read),
+                                              reinterpret_cast<DXGI_FORMAT*>(const_cast<void*>(value->pDesc)));
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+            wrapper->dxgi_sample_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_DXGI_SAMPLE_DESC>>();
+            bytes_read += wrapper->dxgi_sample_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->dxgi_sample_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+            // enum D3D12_PIPELINE_STATE_FLAGS
+            bytes_read += ValueDecoder::DecodeFlagsValue(
+                (buffer + bytes_read),
+                (buffer_size - bytes_read),
+                reinterpret_cast<D3D12_PIPELINE_STATE_FLAGS*>(const_cast<void*>(value->pDesc)));
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+            wrapper->depth_stencil_desc1 = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC1>>();
+            bytes_read += wrapper->depth_stencil_desc1->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->depth_stencil_desc1->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+            wrapper->view_instancing_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_VIEW_INSTANCING_DESC>>();
+            bytes_read += wrapper->view_instancing_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->view_instancing_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+            wrapper->generic_program_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_GENERIC_PROGRAM_DESC>>();
+            bytes_read += wrapper->generic_program_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->generic_program_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+            wrapper->depth_stencil_desc2 = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC2>>();
+            bytes_read += wrapper->depth_stencil_desc2->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->depth_stencil_desc2->GetPointer();
+            break;
         case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
             break;
     }
