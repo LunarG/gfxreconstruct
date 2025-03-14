@@ -22,6 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
+#include "decode/vulkan_replay_options.h"
 #include "replay_settings.h"
 #include "util/json_util.h"
 #include "util/logging.h"
@@ -30,6 +32,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <set>
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -153,67 +156,6 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         }
     }
 
-    // The number of BeginCommandBuffer and QueueSubmit entries must be more than
-    // zero, and there must be the same number of them.
-    if ((vulkan_replay_options.BeginCommandBuffer_Indices.size() == 0 &&
-         vulkan_replay_options.QueueSubmit_Indices.size() == 0) ||
-        ((vulkan_replay_options.BeginCommandBuffer_Indices.size() ||
-          vulkan_replay_options.QueueSubmit_Indices.size()) &&
-         (vulkan_replay_options.BeginCommandBuffer_Indices.size() != vulkan_replay_options.QueueSubmit_Indices.size())))
-    {
-        GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-        GFXRECON_LOG_ERROR("Number of BeginCommandBuffer and QueueSubmit indices must be equal and greater than "
-                           "zero (%zu and %zu respectively)",
-                           vulkan_replay_options.BeginCommandBuffer_Indices.size(),
-                           vulkan_replay_options.QueueSubmit_Indices.size())
-        return true;
-    }
-
-    // Make sure each Draw has corresponding RenderPass
-    if (vulkan_replay_options.Draw_Indices.size() != vulkan_replay_options.RenderPass_Indices.size())
-    {
-        GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-        GFXRECON_LOG_ERROR("Draw indices must always be accompanied by RenderPass indices");
-        return true;
-    }
-    for (int i = 0; i < vulkan_replay_options.Draw_Indices.size(); i++)
-    {
-        if (!vulkan_replay_options.Draw_Indices[i].empty() && vulkan_replay_options.RenderPass_Indices[i].empty())
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("Each Draw item must have a corresponding RenderPass item");
-            return true;
-        }
-    }
-
-    // Each dump command must specify one and only one of draw, tracerays, or dispatch
-    size_t loopcount =
-        std::max(vulkan_replay_options.Draw_Indices.size(), vulkan_replay_options.Dispatch_Indices.size());
-    loopcount = std::max(loopcount, vulkan_replay_options.TraceRays_Indices.size());
-    for (int i = 0; i < loopcount; i++)
-    {
-        uint64_t count = 0;
-        if (vulkan_replay_options.Draw_Indices.size() >= i + 1 && vulkan_replay_options.Draw_Indices[i].size())
-        {
-            count++;
-        }
-        if (vulkan_replay_options.Dispatch_Indices.size() >= i + 1 && vulkan_replay_options.Dispatch_Indices[i].size())
-        {
-            count++;
-        }
-        if (vulkan_replay_options.TraceRays_Indices.size() >= i + 1 &&
-            vulkan_replay_options.TraceRays_Indices[i].size())
-        {
-            count++;
-        }
-        if (count != 1)
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_WRITE_CONSOLE("One and only one of Draw, Dispatch or TraceRays indices must be specified");
-            return true;
-        }
-    }
-
     return false;
 }
 
@@ -318,6 +260,24 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 {
                     vulkan_replay_options.Dispatch_Indices[idx0].push_back(
                         jargs[decode::DUMP_ARG_DISPATCH][idx0][idx1]);
+                }
+            }
+
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS].size(); ++idx0)
+            {
+                vulkan_replay_options.ExecuteCommands_Indices.push_back(decode::ExecuteCommands());
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0].size(); idx1++)
+                {
+                    if (!jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].empty())
+                    {
+                        const uint64_t execute_commands_index = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][0];
+                        for (int idx2 = 1; idx2 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].size(); idx2++)
+                        {
+                            const uint64_t secondardy_bcb = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][idx2];
+                            vulkan_replay_options.ExecuteCommands_Indices[idx0][execute_commands_index].push_back(
+                                secondardy_bcb);
+                        }
+                    }
                 }
             }
 

@@ -6,9 +6,10 @@
     1. [General](#general)
     2. [Block index and object ID](#block-index-and-object-id)
     3. [Rules for providing command indices](#rules-for-providing-command-indices)
-    4. [A simple example](#a-simple-example)
-    5. [Index vector dimensionality](#index-vector-dimensionality)
-    6. [A more complex example](#a-more-complex-example)
+    4. [Secondary command buffers](#secondary-command-buffers)
+    5. [Simple examples](#simple-examples)
+    6. [Index vector dimensionality](#index-vector-dimensionality)
+    7. [A more complex example](#a-more-complex-example)
 2. [Command line options and input](#command-line-options-and-input)
     1. [gfxrecon-replay command line params](#gfxrecon-replay-command-line-params)
 3. [Output](#output)
@@ -102,7 +103,11 @@ Render pass indices are required only for draw calls. All render pass indices wh
 3. **QueueSubmit**
 The index of the `vkQueueSubmit` (or `vkQueueSubmit2`) in which the command buffer that includes the desired commands are submitted needs to be provided.
 
-### A simple example
+4. **ExecuteCommands**
+Dumping resources from commands that are recorded in secondary command buffers require different handling. The secondary's `BeginCommandBuffer` index must be
+specified like with the primary command buffers. The index of the `vkCmdExecuteCommands` from which the specific commands is desired to be dump needs to be specified in the `ExecuteCommands` json array along with `BeginCommandBuffer` of the secondary that is desired to be dumped.
+
+### Simple examples
 
 Assuming the following imaginary excerpt from a capture file that contains the following commands:
 
@@ -132,6 +137,29 @@ It is possible to dump the depth and color attachments of all `vkCmdDraw` comman
     "Draw": [ [ 307, 308, 309, 310, 311, 312 ] ],
     "RenderPass": [ [ [ 302, 313 ] ] ],
     "QueueSubmit": [ 315 ]
+}
+```
+
+An example involving secondary command buffers
+
+{"index":754,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":230 ... }}},
+{"index":761,"function":{"name":"vkCmdDrawIndexed","args":{"commandBuffer":230, ...}}}
+
+{"index":736,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":226, ...}}},
+{"index":3948,"function":{"name":"vkCmdBeginRenderPass","args":{"commandBuffer":226, ...}}},
+{"index":3949,"function":{"name":"vkCmdExecuteCommands","args":{"commandBuffer":226,"commandBufferCount":357,"pCommandBuffers":[227,230,232,233,...]}}}
+{"index":3950,"function":{"name":"vkCmdEndRenderPass","args":{"commandBuffer":226}}}
+{"index":3952,"function":{"name":"vkQueueSubmit","args":{"queue":6,"submitCount":1,"pSubmits":[{"commandBufferCount":1,"pCommandBuffers":[226]}...]...}}}
+
+In order to dump the draw call from the secondary command buffer `230` the following json input file should be provided:
+
+```
+{
+    "BeginCommandBuffer": [ 754, 736 ],
+    "Draw": [ [ 761 ], [ ] ],
+    "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
+    "ExecuteCommands": [ [ ], [ 3949, 754 ]]
+    "QueueSubmit": [ 3952 ]
 }
 ```
 

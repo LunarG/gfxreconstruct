@@ -56,7 +56,8 @@ class VulkanReplayDumpResourcesBase
     VkResult CloneCommandBuffer(uint64_t                             bcb_index,
                                 VulkanCommandBufferInfo*             original_command_buffer_info,
                                 const graphics::VulkanDeviceTable*   device_table,
-                                const graphics::VulkanInstanceTable* inst_table);
+                                const graphics::VulkanInstanceTable* inst_table,
+                                const VkCommandBufferBeginInfo*      begin_info);
 
     void OverrideCmdDraw(const ApiCallInfo& call_info,
                          PFN_vkCmdDraw      func,
@@ -291,6 +292,12 @@ class VulkanReplayDumpResourcesBase
 
     void
     OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
+
+    void OverrideCmdExecuteCommands(const ApiCallInfo&       call_info,
+                                    PFN_vkCmdExecuteCommands func,
+                                    VkCommandBuffer          commandBuffer,
+                                    uint32_t                 commandBufferCount,
+                                    const VkCommandBuffer*   pCommandBuffers);
 
     VkResult QueueSubmit(const std::vector<VkSubmitInfo>&   modified_submit_infos,
                          const graphics::VulkanDeviceTable& device_table,
