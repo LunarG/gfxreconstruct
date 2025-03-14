@@ -215,13 +215,12 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializerFr
     {
         ppRootSignatureDeserializer->AllocateOutputData(1);
     }
-    auto out_p_ppRootSignatureDeserializer    = ppRootSignatureDeserializer->GetPointer();
-    auto out_op_ppRootSignatureDeserializer   = ppRootSignatureDeserializer->GetOutputPointer();
-    auto replay_result = D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(pSrcData->GetPointer(),
-                                                                                             SrcDataSizeInBytes,
-                                                                                             RootSignatureSubobjectName->GetPointer(),
-                                                                                             *pRootSignatureDeserializerInterface.decoded_value,
-                                                                                             out_op_ppRootSignatureDeserializer);
+    auto replay_result = OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(return_value,
+                                                                                                     pSrcData,
+                                                                                                     SrcDataSizeInBytes,
+                                                                                                     RootSignatureSubobjectName,
+                                                                                                     pRootSignatureDeserializerInterface,
+                                                                                                     ppRootSignatureDeserializer);
     CheckReplayResult("D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary", return_value, replay_result);
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary>::Dispatch(
         this,
@@ -233,7 +232,6 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializerFr
         RootSignatureSubobjectName,
         pRootSignatureDeserializerInterface,
         ppRootSignatureDeserializer);
-    PostProcessExternalObject(replay_result, out_op_ppRootSignatureDeserializer, out_p_ppRootSignatureDeserializer, format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary, "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
 }
 
 void Dx12ReplayConsumer::Process_D3D12CreateDevice(
@@ -10588,18 +10586,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList10_SetProgram(
             replay_object,
             pDesc);
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        reinterpret_cast<ID3D12GraphicsCommandList10*>(replay_object->object)->SetProgram(pDesc->GetPointer());
-        if(options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList10_SetProgram);
-            for (auto& command_set : dump_command_sets)
-            {
-                graphics::dx12::ID3D12GraphicsCommandList10ComPtr command_list0;
-                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list0));
-                command_list0->SetProgram(pDesc->GetPointer());
-            }
-        }
+        OverrideSetProgram(replay_object,
+                           pDesc);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_SetProgram>::Dispatch(
             this,
             call_info,
@@ -10626,18 +10614,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList10_DispatchGraph(
             replay_object,
             pDesc);
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        reinterpret_cast<ID3D12GraphicsCommandList10*>(replay_object->object)->DispatchGraph(pDesc->GetPointer());
-        if(options_.enable_dump_resources)
-        {
-            GFXRECON_ASSERT(dump_resources_);
-            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList10_DispatchGraph);
-            for (auto& command_set : dump_command_sets)
-            {
-                graphics::dx12::ID3D12GraphicsCommandList10ComPtr command_list0;
-                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list0));
-                command_list0->DispatchGraph(pDesc->GetPointer());
-            }
-        }
+        OverrideDispatchGraph(replay_object,
+                              pDesc);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList10_DispatchGraph>::Dispatch(
             this,
             call_info,

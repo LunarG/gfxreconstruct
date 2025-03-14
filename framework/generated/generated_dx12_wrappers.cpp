@@ -514,7 +514,7 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibra
             pRootSignatureDeserializerInterface,
             ppRootSignatureDeserializer);
 
-        result = manager->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        result = D3D12CaptureManager::Get()->OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
             pSrcData,
             SrcDataSizeInBytes,
             RootSignatureSubobjectName,
@@ -18980,23 +18980,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList10_Wrapper::SetProgram(
             this,
             pDesc);
 
-        GetWrappedObjectAs<ID3D12GraphicsCommandList10>()->SetProgram(
+        D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList10_SetProgram(
+            this,
             pDesc);
-
-        if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
-        {
-            manager->DecrementCallScope();
-            auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList10_SetProgram);
-            for(auto& command_set : trim_draw_calls_command_sets)
-            {
-                auto* base_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
-                auto* wrapper = static_cast<ID3D12GraphicsCommandList10_Wrapper*>(base_wrapper);
-                GFXRECON_ASSERT(wrapper != nullptr);
-                wrapper->SetProgram(
-                    pDesc);
-            }
-            manager->IncrementCallScope();
-        }
 
         Encode_ID3D12GraphicsCommandList10_SetProgram(
             this,
@@ -19041,23 +19027,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList10_Wrapper::DispatchGraph(
             this,
             pDesc);
 
-        GetWrappedObjectAs<ID3D12GraphicsCommandList10>()->DispatchGraph(
+        D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList10_DispatchGraph(
+            this,
             pDesc);
-
-        if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
-        {
-            manager->DecrementCallScope();
-            auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList10_DispatchGraph);
-            for(auto& command_set : trim_draw_calls_command_sets)
-            {
-                auto* base_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
-                auto* wrapper = static_cast<ID3D12GraphicsCommandList10_Wrapper*>(base_wrapper);
-                GFXRECON_ASSERT(wrapper != nullptr);
-                wrapper->DispatchGraph(
-                    pDesc);
-            }
-            manager->IncrementCallScope();
-        }
 
         Encode_ID3D12GraphicsCommandList10_DispatchGraph(
             this,

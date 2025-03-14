@@ -4545,6 +4545,31 @@ void Dx12ReplayConsumerBase::OverrideExecuteBundle(DxObjectInfo* replay_object_i
     }
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+    HRESULT                          return_value,
+    PointerDecoder<uint8_t>*         pSrcData,
+    SIZE_T                           SrcDataSizeInBytes,
+    WStringDecoder*                  RootSignatureSubobjectName,
+    Decoded_GUID                     pRootSignatureDeserializerInterface,
+    PointerDecoder<uint64_t, void*>* ppRootSignatureDeserializer)
+{
+    GFXRECON_LOG_FATAL(
+        "Calling unsupported function D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
+    return E_NOTIMPL;
+}
+
+void Dx12ReplayConsumerBase::OverrideSetProgram(DxObjectInfo* replay_object_info,
+                                                StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC>* pDesc)
+{
+    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
+}
+
+void Dx12ReplayConsumerBase::OverrideDispatchGraph(DxObjectInfo* replay_object_info,
+                                                   StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc)
+{
+    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
+}
+
 std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id)
 {
     std::wstring object_creator = util::GetDx12CallIdString(call_id);

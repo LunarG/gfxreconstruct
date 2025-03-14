@@ -2900,6 +2900,30 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList4_BeginRenderPass(
     }
 }
 
+HRESULT D3D12CaptureManager::OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+    LPCVOID pSrcData,
+    SIZE_T  SrcDataSizeInBytes,
+    LPCWSTR RootSignatureSubobjectName,
+    REFIID  pRootSignatureDeserializerInterface,
+    void**  ppRootSignatureDeserializer)
+{
+    GFXRECON_LOG_FATAL(
+        "Calling unsupported function D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
+    return E_NOTIMPL;
+}
+
+void D3D12CaptureManager::OverrideID3D12GraphicsCommandList10_SetProgram(ID3D12GraphicsCommandList10_Wrapper* wrapper,
+                                                                         const D3D12_SET_PROGRAM_DESC*        pDesc)
+{
+    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
+}
+
+void D3D12CaptureManager::OverrideID3D12GraphicsCommandList10_DispatchGraph(
+    ID3D12GraphicsCommandList10_Wrapper* wrapper, const D3D12_DISPATCH_GRAPH_DESC* pDesc)
+{
+    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device5_CreateStateObject(ID3D12Device5_Wrapper*         device5_wrapper,
                                                                       HRESULT                        result,
                                                                       const D3D12_STATE_OBJECT_DESC* desc,

@@ -69,6 +69,9 @@ static void LoadD3D12CaptureProcs(HMODULE system_dll, encode::D3D12DispatchTable
                 GetProcAddress(system_dll, "D3D12SerializeVersionedRootSignature"));
         dispatch_table->D3D12GetInterface =
             reinterpret_cast<PFN_D3D12_GET_INTERFACE>(GetProcAddress(system_dll, "D3D12GetInterface"));
+        dispatch_table->D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary =
+            reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER_FROM_SUBOBJECT_IN_LIBRARY>(
+                GetProcAddress(system_dll, "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary"));
         dispatch_table->D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
             GetProcAddress(system_dll, "D3D12EnableExperimentalFeatures"));
     }
@@ -194,6 +197,26 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12GetInterface(REFCLSID rclsid, REFIID riid,
     if (gfxrecon::Initialize())
     {
         return GetDispatchTable().D3D12GetInterface(rclsid, riid, ppvDebug);
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI
+gfxrecon_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(LPCVOID pSrcData,
+                                                                             SIZE_T  SrcDataSizeInBytes,
+                                                                             LPCWSTR RootSignatureSubobjectName,
+                                                                             REFIID  pRootSignatureDeserializerInterface,
+                                                                             void**  ppRootSignatureDeserializer)
+{
+    if (gfxrecon::Initialize())
+    {
+        return GetDispatchTable().D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+            pSrcData,
+            SrcDataSizeInBytes,
+            RootSignatureSubobjectName,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
     }
 
     return E_FAIL;
