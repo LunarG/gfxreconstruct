@@ -93,7 +93,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 array_length[2:], array_length.replace(' ', ''), prefix=prefix
             )
         else:
-            array_length = prefix + array_length
+            # array_length could be an integer. Integer shoudn't add prefix.
+            if isinstance(array_length, str) and not array_length.isdigit():
+                array_length = prefix + array_length
         return array_length
 
     def get_encode_struct(self, value, is_generating_struct, is_result):

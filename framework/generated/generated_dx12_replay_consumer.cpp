@@ -10713,7 +10713,7 @@ void Dx12ReplayConsumer::Process_ID3D12GBVDiagnostics_GetGBVEntireSubresourceSta
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         if(!pData->IsNull())
         {
-            pData->AllocateOutputData(DataSize /sizeof int);
+            pData->AllocateOutputData(DataSize /sizeof(int));
         }
         auto replay_result = reinterpret_cast<ID3D12GBVDiagnostics*>(replay_object->object)->GetGBVEntireSubresourceStatesData(in_pResource,
                                                                                                                                pData->GetOutputPointer(),
@@ -12926,19 +12926,14 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
             CallbackFilterFlags,
             pContext,
             pCallbackCookie);
-        if(!pContext->IsNull())
-        {
-            pContext->AllocateOutputData(1);
-        }
-        auto out_p_pContext    = pContext->GetPointer();
-        auto out_op_pContext   = pContext->GetOutputPointer();
+        auto in_pContext = PreProcessExternalObject(pContext, format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback, "ID3D12InfoQueue1_RegisterMessageCallback");
         if(!pCallbackCookie->IsNull())
         {
             pCallbackCookie->AllocateOutputData(1);
         }
         auto replay_result = reinterpret_cast<ID3D12InfoQueue1*>(replay_object->object)->RegisterMessageCallback(reinterpret_cast<D3D12MessageFunc>(CallbackFunc),
                                                                                                                  CallbackFilterFlags,
-                                                                                                                 out_op_pContext,
+                                                                                                                 in_pContext,
                                                                                                                  pCallbackCookie->GetOutputPointer());
         CheckReplayResult("ID3D12InfoQueue1_RegisterMessageCallback", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback>::Dispatch(
@@ -12951,7 +12946,6 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
             CallbackFilterFlags,
             pContext,
             pCallbackCookie);
-        PostProcessExternalObject(replay_result, out_op_pContext, out_p_pContext, format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback, "ID3D12InfoQueue1_RegisterMessageCallback");
     }
 }
 
@@ -14932,7 +14926,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
             pDirtyRectsBufferSizeRequired);
         if(!pDirtyRectsBuffer->IsNull())
         {
-            pDirtyRectsBuffer->AllocateOutputData(DirtyRectsBufferSize/sizeof tagRECT);
+            pDirtyRectsBuffer->AllocateOutputData(DirtyRectsBufferSize/sizeof(tagRECT));
         }
         if(!pDirtyRectsBufferSizeRequired->IsNull())
         {
@@ -14974,7 +14968,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
             pMoveRectsBufferSizeRequired);
         if(!pMoveRectBuffer->IsNull())
         {
-            pMoveRectBuffer->AllocateOutputData(MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT);
+            pMoveRectBuffer->AllocateOutputData(MoveRectsBufferSize/sizeof(DXGI_OUTDUPL_MOVE_RECT));
         }
         if(!pMoveRectsBufferSizeRequired->IsNull())
         {

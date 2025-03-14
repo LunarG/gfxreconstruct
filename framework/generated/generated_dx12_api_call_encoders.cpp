@@ -4836,8 +4836,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BROADCASTING_LAUNCH_OVE
     encoder->EncodeInt32Ptr(value.pProgramEntry);
     EncodeStructPtr(encoder, value.pNewName);
     EncodeStructPtr(encoder, value.pShareInputOf);
-    encoder->EncodeUInt32Array(value.pDispatchGrid, value.3);
-    encoder->EncodeUInt32Array(value.pMaxDispatchGrid, value.3);
+    encoder->EncodeUInt32Array(value.pDispatchGrid, 3);
+    encoder->EncodeUInt32Array(value.pMaxDispatchGrid, 3);
     encoder->EncodeUInt32Value(value.NumOutputOverrides);
     EncodeStructArray(encoder, value.pOutputOverrides, value.NumOutputOverrides);
 }
@@ -7047,7 +7047,7 @@ void Encode_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pResource);
-        encoder->EncodeInt32Array(pData, DataSize /sizeof int, omit_output_data);
+        encoder->EncodeInt32Array(pData, DataSize /sizeof(int), omit_output_data);
         encoder->EncodeUInt32Value(DataSize);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -9829,7 +9829,7 @@ void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(DirtyRectsBufferSize);
-        EncodeStructArray(encoder, pDirtyRectsBuffer, DirtyRectsBufferSize/sizeof tagRECT, omit_output_data);
+        EncodeStructArray(encoder, pDirtyRectsBuffer, DirtyRectsBufferSize/sizeof(tagRECT), omit_output_data);
         encoder->EncodeUInt32Ptr(pDirtyRectsBufferSizeRequired, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -9852,7 +9852,7 @@ void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(MoveRectsBufferSize);
-        EncodeStructArray(encoder, pMoveRectBuffer, MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT, omit_output_data);
+        EncodeStructArray(encoder, pMoveRectBuffer, MoveRectsBufferSize/sizeof(DXGI_OUTDUPL_MOVE_RECT), omit_output_data);
         encoder->EncodeUInt32Ptr(pMoveRectsBufferSizeRequired, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
