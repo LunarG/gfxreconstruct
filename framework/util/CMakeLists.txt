@@ -219,8 +219,8 @@ if (${RUN_TESTS})
     target_link_libraries(gfxrecon_util_test
                         PRIVATE
                             gfxrecon_util
-                            $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
-                            $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
+                            $<$<BOOL:${D3D12_SUPPORT}>:d3d12>
+                            $<$<BOOL:${D3D12_SUPPORT}>:dxgi>)
     if (MSVC)
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
