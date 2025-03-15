@@ -760,6 +760,25 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS19:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS19*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_OPTIONS20:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS20*>(feature_data));
+            break;
+        case D3D12_FEATURE_PREDICATION:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_PREDICATION*>(feature_data));
+            break;
+        case D3D12_FEATURE_PLACED_RESOURCE_SUPPORT_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO*>(feature_data));
+            break;
+        case D3D12_FEATURE_HARDWARE_COPY:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_HARDWARE_COPY*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS21:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_data));
+            break;
+        case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(feature_data));
+            break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
                                  "unrecognized D3D12_FEATURE type %d",
