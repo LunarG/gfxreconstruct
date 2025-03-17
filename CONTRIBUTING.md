@@ -215,7 +215,7 @@ style defined by the
 
 C++ Code formatting is managed with a custom ClangFormat configuration file.
 This is the `.clang-format` file found at the base of the repo tree.
-It is intended for use with **ClangFormat version 14.0.1** (see
+It is intended for use with **ClangFormat version 14** (see
 [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
 for instructions on installing this version for your particular platform)
 
