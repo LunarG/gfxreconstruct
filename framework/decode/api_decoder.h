@@ -214,6 +214,8 @@ class ApiDecoder
 
     virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
                                                                                 size_t         buffer_size){};
+
+    virtual void DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

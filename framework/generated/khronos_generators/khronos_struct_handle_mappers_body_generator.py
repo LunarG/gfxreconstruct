@@ -44,10 +44,14 @@ class KhronosStructHandleMappersBodyGenerator():
 
     def write_struct_handle_wrapper_content(self):
         for struct in self.get_all_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+            if struct in self.STRUCT_MAPPERS_BLACKLIST:
+                continue
+
+            child_has_handles = self.child_struct_has_handles(struct)
+            if ( child_has_handles or
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
+            ):
                 handle_members = list()
                 generic_handle_members = dict()
 
@@ -61,7 +65,7 @@ class KhronosStructHandleMappersBodyGenerator():
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
                 # and does not need a temporary variable referencing the struct value.
                 needs_value_ptr = False
-                if generic_handle_members:
+                if generic_handle_members or child_has_handles:
                     needs_value_ptr = True
                 else:
                     for member in handle_members:
@@ -89,7 +93,7 @@ class KhronosStructHandleMappersBodyGenerator():
                     )
 
                     # Add handling for parent/child structs since this actually might be one of the children.
-                    if struct in self.children_structs.keys():
+                    if child_has_handles:
                         type_var = self.get_struct_type_var_name()
                         body += '\n'
                         body += f'        switch (value->{type_var})\n'
@@ -99,7 +103,7 @@ class KhronosStructHandleMappersBodyGenerator():
                         body += '                break;\n'
 
                         for child in self.children_structs[struct]:
-                            if child not in self.struct_type_names:
+                            if child not in self.structs_with_handles:
                                 continue
                             switch_type = self.struct_type_names[child]
 

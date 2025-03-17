@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -30,9 +30,15 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_layer_func_table.h"
+#endif
 #include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr_loader_negotiation.h"
+#endif
 
 #include <array>
 #include <cstring>
@@ -56,14 +62,14 @@ const VkLayerProperties kLayerProps = {
         GFXRECON_PROJECT_VERSION_DESIGNATION
 };
 
-struct LayerExtensionProps
+struct VulkanLayerExtensionProps
 {
     VkExtensionProperties    props;
     std::vector<std::string> instance_funcs;
     std::vector<std::string> device_funcs;
 };
 
-const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
+const std::vector<struct VulkanLayerExtensionProps> kVulkanDeviceExtensionProps = {
     { VkExtensionProperties{ "VK_EXT_tooling_info", 1 }, { "vkGetPhysicalDeviceToolPropertiesEXT" }, {} },
     { VkExtensionProperties{ VK_EXT_DEBUG_MARKER_EXTENSION_NAME, VK_EXT_DEBUG_MARKER_SPEC_VERSION },
       {},
@@ -78,19 +84,19 @@ const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
 
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
-const char* const kUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
-                                                     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-                                                     VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
-                                                     VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
-                                                     VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
-                                                     VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-                                                     VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-                                                     VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
-                                                     VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
-                                                     VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
-                                                     VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
-                                                     VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
-                                                     VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME };
+const char* const kVulkanUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
+                                                           VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+                                                           VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
+                                                           VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
+                                                           VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
+                                                           VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+                                                           VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+                                                           VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
+                                                           VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
+                                                           VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
+                                                           VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
+                                                           VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
+                                                           VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME };
 
 static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
                              const char* const                   screenedExtensions[],
@@ -292,7 +298,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // Check for implementation in the layer itself
     if (!has_implementation)
     {
-        for (const auto& ext_props : kDeviceExtensionProps)
+        for (const auto& ext_props : kVulkanDeviceExtensionProps)
         {
             if (std::find(ext_props.instance_funcs.begin(), ext_props.instance_funcs.end(), pName) !=
                 ext_props.instance_funcs.end())
@@ -347,7 +353,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         // Check for implementation in the layer itself
         if (!has_implementation)
         {
-            for (const auto& ext_props : kDeviceExtensionProps)
+            for (const auto& ext_props : kVulkanDeviceExtensionProps)
             {
                 if (std::find(ext_props.device_funcs.begin(), ext_props.device_funcs.end(), pName) !=
                     ext_props.device_funcs.end())
@@ -404,7 +410,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         if (pPropertyCount != nullptr)
         {
-            uint32_t extension_count = static_cast<uint32_t>(kDeviceExtensionProps.size());
+            uint32_t extension_count = static_cast<uint32_t>(kVulkanDeviceExtensionProps.size());
 
             if (pProperties == nullptr)
             {
@@ -424,7 +430,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
                 for (uint32_t i = 0; i < extension_count; ++i)
                 {
-                    pProperties[i] = kDeviceExtensionProps[i].props;
+                    pProperties[i] = kVulkanDeviceExtensionProps[i].props;
                 }
             }
         }
@@ -454,13 +460,13 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         }
 
         RemoveExtensions(device_extension_properties,
-                         kUnsupportedDeviceExtensions,
-                         std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
+                         kVulkanUnsupportedDeviceExtensions,
+                         std::end(kVulkanUnsupportedDeviceExtensions) - std::begin(kVulkanUnsupportedDeviceExtensions));
 
         // Append the extensions we provide in the list to the caller if they aren't already provided downstream.
         if (pLayerName == nullptr)
         {
-            for (auto& provided_prop : kDeviceExtensionProps)
+            for (auto& provided_prop : kVulkanDeviceExtensionProps)
             {
                 bool append_provided_prop =
                     std::find_if(device_extension_properties.begin(),
@@ -557,6 +563,162 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
 
 GFXRECON_END_NAMESPACE(vulkan_entry)
 
+#ifdef ENABLE_OPENXR_SUPPORT
+GFXRECON_BEGIN_NAMESPACE(openxr_entry)
+
+const XrApiLayerProperties kLayerProps = {
+    XR_TYPE_API_LAYER_PROPERTIES,
+    nullptr,
+    GFXRECON_PROJECT_OPENXR_LAYER_NAME,
+    XR_CURRENT_API_VERSION,
+    VK_MAKE_VERSION(GFXRECON_PROJECT_VERSION_MAJOR, GFXRECON_PROJECT_VERSION_MINOR, GFXRECON_PROJECT_VERSION_PATCH),
+    GFXRECON_PROJECT_DESCRIPTION
+    " Version " GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
+        GFXRECON_PROJECT_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_PATCH)
+        GFXRECON_PROJECT_VERSION_DESIGNATION
+};
+
+struct OpenXrInstanceInfo
+{
+    void*                     loader_instance;
+    PFN_xrGetInstanceProcAddr next_gipa;
+    std::vector<std::string>  enabled_extensions;
+};
+static std::unordered_map<XrInstance, OpenXrInstanceInfo> xr_instance_infos;
+
+XRAPI_ATTR XrResult XRAPI_CALL dispatch_CreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                               const XrApiLayerCreateInfo* apiLayerInfo,
+                                                               XrInstance*                 instance)
+{
+    if (info == nullptr || apiLayerInfo == nullptr || apiLayerInfo->nextInfo == nullptr || instance == nullptr)
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    XrApiLayerNextInfo* next_info = apiLayerInfo->nextInfo;
+    if (strcmp(next_info->layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_NAME_INVALID;
+    }
+    XrApiLayerCreateInfo next_layer_create_info;
+    assert(apiLayerInfo->structSize == sizeof(XrApiLayerCreateInfo));
+    memcpy(&next_layer_create_info, apiLayerInfo, sizeof(XrApiLayerCreateInfo));
+    next_layer_create_info.nextInfo = next_info->next;
+    XrResult result                 = next_info->nextCreateApiLayerInstance(info, &next_layer_create_info, instance);
+    if (result == XR_SUCCESS)
+    {
+        OpenXrInstanceInfo cur_instance_info;
+        cur_instance_info.loader_instance = apiLayerInfo->loaderInstance;
+        cur_instance_info.next_gipa       = next_info->nextGetInstanceProcAddr;
+        for (uint32_t iii = 0; iii < info->enabledExtensionCount; ++iii)
+        {
+            cur_instance_info.enabled_extensions.push_back(info->enabledExtensionNames[iii]);
+        }
+        xr_instance_infos[*instance] = std::move(cur_instance_info);
+    }
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,
+                                                                    uint32_t               propertyCapacityInput,
+                                                                    uint32_t*              propertyCountOutput,
+                                                                    XrExtensionProperties* properties)
+{
+    if (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    *propertyCountOutput = 0;
+    return XR_SUCCESS;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
+                                                           uint32_t*             propertyCountOutput,
+                                                           XrApiLayerProperties* properties)
+{
+    XrResult result = XR_ERROR_FUNCTION_UNSUPPORTED;
+
+    if (properties == nullptr)
+    {
+        if (propertyCountOutput != nullptr)
+        {
+            *propertyCountOutput = 1;
+        }
+    }
+    else
+    {
+        if (propertyCapacityInput >= 1)
+        {
+            util::platform::MemoryCopy(properties, sizeof(*properties), &kLayerProps, sizeof(kLayerProps));
+            *propertyCountOutput = 1;
+        }
+    }
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+{
+    XrResult result = XR_ERROR_FUNCTION_UNSUPPORTED;
+
+    // These first functions are valid whether or not the instance is
+    if (!strcmp(name, "xrGetInstanceProcAddr"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(GetInstanceProcAddr);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrInitializeLoaderKHR"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(encode::xrInitializeLoaderKHR);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrEnumerateInstanceExtensionProperties"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(EnumerateInstanceExtensionProperties);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrEnumerateApiLayerProperties"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(EnumerateApiLayerProperties);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrCreateApiLayerInstance"))
+    {
+        *function = reinterpret_cast<PFN_vkVoidFunction>(encode::xrCreateApiLayerInstance);
+        result    = XR_SUCCESS;
+    }
+    else
+    {
+        // Everything past this point requires an instance, so if it's not valid by now,
+        // return an error
+        *function = nullptr;
+        result    = XR_ERROR_HANDLE_INVALID;
+
+        if (instance != XR_NULL_HANDLE)
+        {
+            auto table = encode::openxr_wrappers::GetInstanceTable(instance);
+            // table will be null for invalid or null handles
+            if (table != nullptr)
+            {
+                result = table->GetInstanceProcAddr(instance, name, function);
+                // Only capture functions that are supported in the implementation, otherwise just pass on the
+                // information
+                if ((result == XR_SUCCESS) && (function != nullptr))
+                {
+                    const auto entry = openxr_func_table.find(name);
+                    if (entry != openxr_func_table.cend())
+                    {
+                        *function = entry->second;
+                        result    = XR_SUCCESS;
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+GFXRECON_END_NAMESPACE(openxr_entry)
+#endif // ENABLE_OPENXR_SUPPORT
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
@@ -629,4 +791,63 @@ extern "C"
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::vulkan_entry::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
+
+#ifdef ENABLE_OPENXR_SUPPORT
+    XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo* loaderInfo,
+                                                                      const char*                  layerName,
+                                                                      XrNegotiateApiLayerRequest*  apiLayerRequest)
+    {
+        // Wrong layer name or something wrong with incoming structs
+        if (layerName == nullptr || (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) != 0) ||
+            loaderInfo == nullptr || apiLayerRequest == nullptr ||
+            loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
+            apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST)
+        {
+            GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: Failed checking incoming structs");
+            return XR_ERROR_VALIDATION_FAILURE;
+        }
+
+        const uint32_t layer_cur_interface_version = 1;
+        const uint8_t  loader_min_major_version    = XR_VERSION_MAJOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_min_minor_version    = XR_VERSION_MINOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_max_major_version    = XR_VERSION_MAJOR(loaderInfo->maxApiVersion);
+        const uint8_t  loader_max_minor_version    = XR_VERSION_MINOR(loaderInfo->maxApiVersion);
+        const uint8_t  layer_cur_major_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+        const uint8_t  layer_cur_minor_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+
+        // Layer can't accept interface (we only support interface version 1 right now) or API version
+        if ((layer_cur_interface_version < loaderInfo->minInterfaceVersion ||
+             layer_cur_interface_version > loaderInfo->maxInterfaceVersion) ||
+            (layer_cur_major_version < loader_min_major_version ||
+             layer_cur_major_version > loader_max_major_version) ||
+            (layer_cur_minor_version < loader_min_minor_version || layer_cur_major_version > loader_max_minor_version))
+        {
+            GFXRECON_LOG_ERROR(
+                "xrNegotiateLoaderApiLayerInterface: Failed negotiating version (loader [%u.%u -> %u.%u], layer %u.%u)",
+                loader_min_major_version,
+                loader_min_minor_version,
+                loader_max_major_version,
+                loader_max_minor_version,
+                layer_cur_major_version,
+                layer_cur_minor_version);
+            return XR_ERROR_API_VERSION_UNSUPPORTED;
+        }
+
+        apiLayerRequest->layerInterfaceVersion  = layer_cur_interface_version;
+        apiLayerRequest->layerApiVersion        = XR_CURRENT_API_VERSION;
+        apiLayerRequest->getInstanceProcAddr    = gfxrecon::openxr_entry::GetInstanceProcAddr;
+        apiLayerRequest->createApiLayerInstance = gfxrecon::encode::xrCreateApiLayerInstance;
+        return XR_SUCCESS;
+    }
+#else
+
+    // This is a stub to satisfy Windows exports (in the .def file) when ENABLE_OPENXR_SUPPORT is false
+    VKAPI_ATTR uint32_t VKAPI_CALL xrNegotiateLoaderApiLayerInterface(const void* loaderInfo,
+                                                                      const char* layerName,
+                                                                      void*       apiLayerRequest)
+    {
+        return -1; // XR_ERROR_VALIDATION_FAILURE
+    }
+
+#endif
 } // extern "C"
