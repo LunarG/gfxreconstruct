@@ -41,7 +41,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format-14
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
@@ -49,7 +49,7 @@ jobs:
       run: |
         if [ "${{ matrix.config.type }}" == "release" ]
         then
-          clang-format --version # A check for version 9 should be added.
+          clang-format-14 --version
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
           python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
@@ -211,7 +211,7 @@ jobs:
       run: |
         WORKING_PATH="$(pwd)/${{matrix.config.build_dir}}/darwin/universal/output/test"
         cd $WORKING_PATH
-        curl https://sdk.lunarg.com/sdk/download/1.4.304.0/mac/vulkansdk-macos-1.4.304.0.zip -o ./vulkan-sdk.zip 
+        curl https://sdk.lunarg.com/sdk/download/1.4.304.0/mac/vulkansdk-macos-1.4.304.0.zip -o ./vulkan-sdk.zip
         unzip ./vulkan-sdk.zip -d ./vulkan-sdk
         sudo ./vulkan-sdk/InstallVulkan.app/Contents/MacOS/InstallVulkan --root $(pwd)/VulkanSDK/1.3.304.0 --accept-licenses --default-answer --confirm-command install
         sudo dscl . -create /Users/test
@@ -220,7 +220,7 @@ jobs:
         sudo dscl . -create /Users/test RealName "Test"
         sudo dscl . -create /Users/test UniqueID "1001"
         sudo dscl . -create /Users/test PrimaryGroupID 80
-        sudo dscl . -create /Users/test NFSHomeDirectory /Users/test 
+        sudo dscl . -create /Users/test NFSHomeDirectory /Users/test
         sudo mkdir -p /Users/test
         sudo chown -R test:staff /Users/test
         sudo chmod -R g+w .

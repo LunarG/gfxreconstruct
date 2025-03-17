@@ -215,7 +215,7 @@ style defined by the
 
 C++ Code formatting is managed with a custom ClangFormat configuration file.
 This is the `.clang-format` file found at the base of the repo tree.
-It is intended for use with **ClangFormat version 9.0.1** (see
+It is intended for use with **ClangFormat version 14** (see
 [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
 for instructions on installing this version for your particular platform)
 
@@ -233,7 +233,7 @@ $ git add -u .
 
 # Run clang-format on the files in the staging area
 # any changes will appear in the unstaged portion of git
-$ git clang-format
+$ git clang-format-14
 
 # Check for changes applied by clang-format, and if so:
 $ git add -u .
@@ -299,7 +299,7 @@ Here's an example of a good commit message:
 
 ```
 Fix `OverrideAllocateMemory` for trimmed traces
-    
+
 When capturing a replay of a capture and `vkAllocateMemory` is called
 with `VkMemoryOpaqueCaptureAddressAllocateInfo` already in the `pNext`
 chain, the precedent behavior was to "add" another
@@ -374,7 +374,7 @@ Python 3 code generator to regenerate some Vulkan component sources.
 To regenerate generated source for Vulkan, `cd` to `framework/generated` and run:
 
 ```bash
-python3 generate_vulkan.py 
+python3 generate_vulkan.py
 ```
 
 If you are attempting to update support for the DirectX headers or your
@@ -385,7 +385,7 @@ component sources.
 To regenerate generated source for DirectX 12, `cd` to `framework/generated` and run:
 
 ```bash
-python3 generate_dx12.py 
+python3 generate_dx12.py
 ```
 
 **NOTE** The minimum supported Python version is 3.10.
@@ -477,22 +477,19 @@ on various platforms.
 
 ### Ubuntu
 
-For Ubuntu 20, `clang-format-9` is the default provided by the package manager.
-
-For earlier versions of Ubuntu, the required version of `clang-format` can be
-obtained through the [LLVM toolchain repository](https://apt.llvm.org) by
-following the instructions described here:
-
-On any version of Ubuntu, continue with:
+Currently supported versions of Ubuntu provide clang-format-14 in the package manager.
 
 ```bash
 sudo apt update
-sudo apt-get install clang-format-9 clang-tidy-9
+sudo apt-get install clang-format-14 clang-tidy-14
 ```
+
+For earlier versions of Ubuntu, the required version of `clang-format` can be
+obtained through the [LLVM toolchain repository](https://apt.llvm.org).
 
 Configure `clang-format` and `clang-tidy` so that the new version is used by default:
 
 ```bash
-sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-9 900
-sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 900
+sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 900
+sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-14 900
 ```
