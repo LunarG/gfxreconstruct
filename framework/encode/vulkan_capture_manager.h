@@ -1300,6 +1300,14 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
+#ifdef ENABLE_OPENXR_SUPPORT
+    void PreProcess_vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
+    void PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
+    void PreProcess_vkGetFenceStatus(VkDevice device, VkFence fence);
+    void PreProcess_vkWaitForFences(
+        VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
+#endif
+
     void PostProcess_vkSetPrivateData(VkResult          result,
                                       VkDevice          device,
                                       VkObjectType      objectType,
@@ -1585,6 +1593,23 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  VkDevice                            device,
                                                  const VkDebugUtilsObjectTagInfoEXT* pTagInfo);
 
+#if ENABLE_OPENXR_SUPPORT
+    void PostProcess_vkCreateFence(VkResult                     result,
+                                   VkDevice                     device,
+                                   const VkFenceCreateInfo*     pCreateInfo,
+                                   const VkAllocationCallbacks* pAllocator,
+                                   VkFence*                     pFence);
+    void PostProcess_vkImportFenceWin32HandleKHR(VkResult                               result,
+                                                 VkDevice                               device,
+                                                 const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+    void
+    PostProcess_vkImportFenceFdKHR(VkResult result, VkDevice device, const VkImportFenceFdInfoKHR* pImportFenceFdInfo);
+
+    void AddValidFence(VkFence fence);
+    void RemoveValidFence(VkFence fence);
+    bool IsValidFence(VkFence fence);
+#endif
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -1674,6 +1699,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+#if ENABLE_OPENXR_SUPPORT
+    std::set<VkFence> valid_fences_;
+#endif
 };
 
 GFXRECON_END_NAMESPACE(encode)

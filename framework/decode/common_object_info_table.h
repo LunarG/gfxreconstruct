@@ -24,6 +24,10 @@
 #ifndef GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
 #define GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
 
+#if ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_object_info_table.h"
+#endif
+
 #include "decode/vulkan_object_info_table.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -34,7 +38,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // available objects.   For example, OpenXR objects will be in a shared
 // table with Vulkan objects.
 
+#if ENABLE_OPENXR_SUPPORT
+class CommonObjectInfoTable : public VulkanObjectInfoTable, public OpenXrObjectInfoTable
+#else
 class CommonObjectInfoTable : public VulkanObjectInfoTable
+#endif
 {
   public:
     static CommonObjectInfoTable* GetSingleton();

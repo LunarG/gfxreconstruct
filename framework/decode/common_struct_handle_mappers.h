@@ -36,6 +36,18 @@ void MapStructArrayHandles(T* structs, size_t len, const CommonObjectInfoTable& 
 }
 
 template <typename T>
+void MapStructPtrArrayHandles(T* structs, size_t len, const CommonObjectInfoTable& object_info_table)
+{
+    if (structs != nullptr)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            MapStructHandles(structs[i], object_info_table);
+        }
+    }
+}
+
+template <typename T>
 void AddStructArrayHandles(format::HandleId               parent_id,
                            const T*                       id_wrappers,
                            size_t                         id_len,

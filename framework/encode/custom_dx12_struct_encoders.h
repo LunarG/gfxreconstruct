@@ -26,8 +26,10 @@
 #include "encode/parameter_encoder.h"
 #include "util/defines.h"
 
+#ifdef WIN32
 #include <d3d12.h>
 #include <dxgi1_5.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)

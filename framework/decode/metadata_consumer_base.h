@@ -128,6 +128,8 @@ class MetadataConsumerBase
         format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
     {}
 
+    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+
   protected:
     uint64_t block_index_ = 0;
 };

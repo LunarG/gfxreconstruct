@@ -25,12 +25,6 @@
 #define GFXRECON_DECODE_API_DETECTION_H
 
 #include "util/defines.h"
-#include "decode/file_processor.h"
-#include "decode/vulkan_detection_consumer.h"
-#include "generated/generated_vulkan_decoder.h"
-#if defined(D3D12_SUPPORT)
-#include "decode/dx12_detection_consumer.h"
-#endif
 
 #include <string>
 
@@ -40,6 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 bool DetectAPIs(const std::string& input_filename,
                 bool&              dx12_detected,
                 bool&              vulkan_detected,
+                bool&              openxr_detected,
                 bool               no_block_limit = false);
 
 GFXRECON_END_NAMESPACE(decode)

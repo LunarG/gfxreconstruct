@@ -37,6 +37,8 @@ template <typename T>
 class HandlePointerDecoder
 {
   public:
+    using HandleType = T;
+
     HandlePointerDecoder() : handle_data_(nullptr), handle_data_len_(0), capacity_(0), is_memory_external_(false) {}
 
     ~HandlePointerDecoder() {}

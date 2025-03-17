@@ -31,6 +31,10 @@
 #include "util/file_path.h"
 #include "util/platform.h"
 
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_json_consumer.h"
+#endif
+
 #include "generated/generated_vulkan_json_consumer.h"
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
@@ -39,12 +43,20 @@
 #endif
 
 using gfxrecon::util::JsonFormat;
+
+#ifdef ENABLE_OPENXR_SUPPORT
+using OpenXrJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
+    gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::OpenXrExportJsonConsumer>>;
+#endif
+
 using VulkanJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
     gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>>;
+
 #if defined(D3D12_SUPPORT)
 using Dx12JsonConsumer =
     gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
 #endif
+
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
 const char kArguments[] = "--output,--format,--log-level,--frame-range";
@@ -236,7 +248,8 @@ int main(int argc, const char** argv)
 #ifndef D3D12_SUPPORT
     bool detected_d3d12  = false;
     bool detected_vulkan = false;
-    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+    bool detected_openxr = false;
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
 
     if (!detected_vulkan && !is_asset_file)
     {
@@ -294,12 +307,20 @@ int main(int argc, const char** argv)
         else
         {
             gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
-            VulkanJsonConsumer                     json_consumer;
-            gfxrecon::util::JsonOptions            json_options;
-            gfxrecon::decode::VulkanDecoder        decoder;
-            decoder.AddConsumer(&json_consumer);
-            file_processor.AddDecoder(&decoder);
 
+            VulkanJsonConsumer              vulkan_json_consumer;
+            gfxrecon::decode::VulkanDecoder vulkan_decoder;
+            vulkan_decoder.AddConsumer(&vulkan_json_consumer);
+            file_processor.AddDecoder(&vulkan_decoder);
+
+#ifdef ENABLE_OPENXR_SUPPORT
+            OpenXrJsonConsumer              openxr_json_consumer;
+            gfxrecon::decode::OpenXrDecoder openxr_decoder;
+            openxr_decoder.AddConsumer(&openxr_json_consumer);
+            file_processor.AddDecoder(&openxr_decoder);
+#endif
+
+            gfxrecon::util::JsonOptions json_options;
             json_options.root_dir      = output_dir;
             json_options.data_sub_dir  = filename_stem;
             json_options.format        = output_format;
@@ -313,7 +334,15 @@ int main(int argc, const char** argv)
             const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
-            json_consumer.Initialize(&json_writer, vulkan_version);
+            vulkan_json_consumer.Initialize(&json_writer, vulkan_version);
+
+#ifdef ENABLE_OPENXR_SUPPORT
+            const std::string openxr_version{ std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+                                              std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
+                                              std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION)) };
+            openxr_json_consumer.Initialize(&json_writer, openxr_version);
+#endif
+
             json_writer.StartStream(&out_stream);
 
             if (frame_range_option)
@@ -406,8 +435,14 @@ int main(int argc, const char** argv)
                     }
                 }
             }
-            json_consumer.Destroy();
 
+            vulkan_json_consumer.Destroy();
+
+#ifdef ENABLE_OPENXR_SUPPORT
+            openxr_json_consumer.Destroy();
+#endif
+
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
 #ifdef D3D12_SUPPORT
             dx12_json_consumer.Destroy();
 #endif

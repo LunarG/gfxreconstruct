@@ -37,6 +37,7 @@ class KhronosStructHandleWrappersBodyGenerator():
 
     def generate_parent_child_handling(self, api_data, type):
         body = ''
+        has_case = False
         if type in self.children_structs:
             type_var_name = api_data.struct_type_variable
             body += '        switch (value->{})\n'.format(type_var_name)
@@ -46,9 +47,11 @@ class KhronosStructHandleWrappersBodyGenerator():
             body += '                break;\n'
 
             # Loop over each possible child
+            has_case = False
             for child in self.children_structs[type]:
                 if child not in self.structs_with_handles:
                     continue
+                has_case = True
                 switch_type = self.struct_type_names[child]
 
                 body += f'            case {switch_type}:\n'
@@ -59,7 +62,8 @@ class KhronosStructHandleWrappersBodyGenerator():
                 body += '                return;\n'
             body += '        }\n'
             body += '\n'
-        return body
+
+        return body if has_case else ''
 
     def write_struct_handle_wrapper_content(self):
         api_data = self.get_api_data()
@@ -73,8 +77,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         for struct in self.get_all_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles) or
-                (struct in self.GENERIC_HANDLE_STRUCTS) or
-                (struct in self.structs_with_handle_ptrs)
+                self.child_struct_has_handles(struct) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
