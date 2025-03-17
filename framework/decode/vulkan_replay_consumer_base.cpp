@@ -9942,19 +9942,20 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
         const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
         for (uint32_t s = 0; s < descriptor_write_count; ++s)
         {
-            VulkanDescriptorSetInfo* desc_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(writes_meta[s].dstSet);
+            VulkanDescriptorSetInfo* dst_desc_set_info =
+                GetObjectInfoTable().GetVkDescriptorSetInfo(writes_meta[s].dstSet);
+            assert(dst_desc_set_info != nullptr);
 
-            assert(desc_set_info != nullptr);
-
-            for (uint32_t b = 0; b < in_pDescriptorWrites[s].descriptorCount; ++b)
+            for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
             {
                 const VkWriteDescriptorSet* write = writes_meta[s].decoded_value;
                 assert(write != nullptr);
 
                 const uint32_t binding = write->dstBinding;
+                const uint32_t arr_idx = write->dstArrayElement + i;
 
-                assert(desc_set_info->descriptors.find(binding) != desc_set_info->descriptors.end());
-                assert(desc_set_info->descriptors[binding].desc_type == write->descriptorType);
+                assert(dst_desc_set_info->descriptors.find(binding) != dst_desc_set_info->descriptors.end());
+                assert(dst_desc_set_info->descriptors[binding].desc_type == write->descriptorType);
 
                 switch (write->descriptorType)
                 {
@@ -9963,15 +9964,12 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     {
-                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
-                        {
-                            const uint32_t arr_idx = write->dstArrayElement + i;
-                            desc_set_info->descriptors[binding].image_info[arr_idx].image_layout =
-                                in_pDescriptorWrites[s].pImageInfo[b].imageLayout;
-                            desc_set_info->descriptors[binding].image_info[arr_idx].image_view_info =
-                                object_info_table_->GetVkImageViewInfo(
-                                    writes_meta[s].pImageInfo->GetMetaStructPointer()[b].imageView);
-                        }
+                        dst_desc_set_info->descriptors[binding].image_info[arr_idx].image_layout =
+                            in_pDescriptorWrites[s].pImageInfo[i].imageLayout;
+
+                        dst_desc_set_info->descriptors[binding].image_info[arr_idx].image_view_info =
+                            object_info_table_->GetVkImageViewInfo(
+                                writes_meta[s].pImageInfo->GetMetaStructPointer()[i].imageView);
                     }
                     break;
 
@@ -9980,30 +9978,23 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     {
-                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
-                        {
-                            const uint32_t arr_idx = write->dstArrayElement + i;
-                            desc_set_info->descriptors[binding].buffer_info[arr_idx].buffer_info =
-                                object_info_table_->GetVkBufferInfo(
-                                    writes_meta[s].pBufferInfo->GetMetaStructPointer()[b].buffer);
-                            desc_set_info->descriptors[binding].buffer_info[arr_idx].offset =
-                                in_pDescriptorWrites[s].pBufferInfo[b].offset;
-                            desc_set_info->descriptors[binding].buffer_info[arr_idx].range =
-                                in_pDescriptorWrites[s].pBufferInfo[b].range;
-                        }
+                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].buffer_info =
+                            object_info_table_->GetVkBufferInfo(
+                                writes_meta[s].pBufferInfo->GetMetaStructPointer()[i].buffer);
+
+                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].offset =
+                            in_pDescriptorWrites[s].pBufferInfo[i].offset;
+
+                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].range =
+                            in_pDescriptorWrites[s].pBufferInfo[i].range;
                     }
                     break;
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                     {
-                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
-                        {
-                            const uint32_t arr_idx = write->dstArrayElement + i;
-                            desc_set_info->descriptors[binding].texel_buffer_view_info[arr_idx] =
-                                object_info_table_->GetVkBufferViewInfo(
-                                    writes_meta[s].pTexelBufferView.GetPointer()[b]);
-                        }
+                        dst_desc_set_info->descriptors[binding].texel_buffer_view_info[arr_idx] =
+                            object_info_table_->GetVkBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[i]);
                     }
                     break;
 
@@ -10019,10 +10010,10 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
 
                                 const uint32_t offset = write->dstArrayElement;
                                 const uint32_t size   = write->descriptorCount;
-                                assert(desc_set_info->descriptors[binding].inline_uniform_block.size() >=
+                                assert(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
                                        offset + size);
                                 util::platform::MemoryCopy(
-                                    desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
+                                    dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
                                     size,
                                     inline_uni_block_write->pData,
                                     size);
