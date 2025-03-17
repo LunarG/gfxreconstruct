@@ -49,7 +49,7 @@ jobs:
       run: |
         if [ "${{ matrix.config.type }}" == "release" ]
         then
-          clang-format-14 --version # A check for version 9 should be added.
+          clang-format-14 --version
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
           python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
