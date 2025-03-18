@@ -29,6 +29,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cstdint>
 #include <unordered_map>
 #include <vector>
 
@@ -59,21 +60,21 @@ class VulkanResourceInitializer
                               uint32_t            region_count,
                               const VkBufferCopy* regions);
 
-    VkResult InitializeImage(VkDeviceSize             data_size,
-                             const uint8_t*           data,
-                             uint32_t                 queue_family_index,
-                             VkImage                  image,
-                             VkImageType              type,
-                             VkFormat                 format,
-                             const VkExtent3D&        extent,
-                             VkImageAspectFlagBits    aspect,
-                             VkSampleCountFlagBits    sample_count,
-                             VkImageUsageFlags        usage,
-                             VkImageLayout            initial_layout,
-                             VkImageLayout            final_layout,
-                             uint32_t                 layer_count,
-                             uint32_t                 level_count,
-                             const VkBufferImageCopy* level_copies);
+    VkResult InitializeImage(VkDeviceSize          data_size,
+                             const uint8_t*        data,
+                             uint32_t              queue_family_index,
+                             VkImage               image,
+                             VkImageType           type,
+                             VkFormat              format,
+                             const VkExtent3D&     extent,
+                             VkImageAspectFlagBits aspect,
+                             VkSampleCountFlagBits sample_count,
+                             VkImageUsageFlags     usage,
+                             VkImageLayout         initial_layout,
+                             VkImageLayout         final_layout,
+                             uint32_t              layer_count,
+                             uint32_t              level_count,
+                             VkBufferImageCopy*    level_copies);
 
     VkResult TransitionImage(uint32_t              queue_family_index,
                              VkImage               image,
@@ -86,6 +87,8 @@ class VulkanResourceInitializer
 
   private:
     VkResult GetCommandExecObjects(uint32_t queue_family_index, VkQueue* queue, VkCommandBuffer* command_buffer);
+
+    VkResult FlushCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer);
 
     VkResult GetDrawDescriptorObjects(VkSampler* sampler, VkDescriptorSetLayout* set_layout, VkDescriptorSet* set);
 
@@ -135,6 +138,8 @@ class VulkanResourceInitializer
                                              VulkanResourceAllocator::MemoryData*   staging_memory_data,
                                              VulkanResourceAllocator::ResourceData* staging_buffer_data);
 
+    VkResult LoadToStagingBuffer(VkDeviceSize size, const uint8_t* data, uint32_t queue_family_index);
+
     void ReleaseStagingBuffer(VkDeviceMemory                        memory,
                               VkBuffer                              buffer,
                               VulkanResourceAllocator::MemoryData   staging_memory_data,
@@ -160,7 +165,8 @@ class VulkanResourceInitializer
                                VkImageLayout            final_layout,
                                uint32_t                 layer_count,
                                uint32_t                 level_count,
-                               const VkBufferImageCopy* level_copies);
+                               const VkBufferImageCopy* level_copies,
+                               bool                     begin_command_buffer = false);
 
     VkResult PixelShaderImageCopy(uint32_t                 queue_family_index,
                                   VkBuffer                 source,
@@ -194,6 +200,8 @@ class VulkanResourceInitializer
     VulkanResourceAllocator::MemoryData   staging_memory_data_;
     VkBuffer                              staging_buffer_;
     VulkanResourceAllocator::ResourceData staging_buffer_data_;
+    size_t                                staging_buffer_offset_;
+    uint8_t*                              staging_buffer_mapped_ptr_;
     VkSampler                             draw_sampler_;
     VkDescriptorPool                      draw_pool_;
     VkDescriptorSetLayout                 draw_set_layout_;

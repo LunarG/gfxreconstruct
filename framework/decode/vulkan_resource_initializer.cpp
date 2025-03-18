@@ -25,14 +25,19 @@
 
 #include "decode/copy_shaders.h"
 #include "decode/decoder_util.h"
+#include "util/logging.h"
 #include "util/platform.h"
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <limits>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+static constexpr size_t STAGING_BUFFER_SIZE_MIN_SIZE = 10 * 1024 * 1024;
 
 VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                                                      VkDeviceSize                            max_copy_size,
@@ -42,9 +47,10 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      const encode::VulkanDeviceTable*        device_table) :
     device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
-    draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
-    draw_set_(VK_NULL_HANDLE), max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write),
-    resource_allocator_(resource_allocator), device_table_(device_table), device_info_(device_info)
+    staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), draw_sampler_(VK_NULL_HANDLE),
+    draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE),
+    have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
+    device_table_(device_table), device_info_(device_info)
 {
     assert((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
            (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
@@ -58,6 +64,9 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
 
     util::platform::MemoryCopy(&memory_properties_.memoryTypes, type_size, &memory_properties.memoryTypes, type_size);
     util::platform::MemoryCopy(&memory_properties_.memoryHeaps, heap_size, &memory_properties.memoryHeaps, heap_size);
+
+    max_copy_size_ = std::max(max_copy_size, STAGING_BUFFER_SIZE_MIN_SIZE);
+    GFXRECON_WRITE_CONSOLE("max_copy_size_: %zu", max_copy_size_);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
@@ -70,6 +79,11 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
     if (staging_buffer_ != VK_NULL_HANDLE)
     {
         resource_allocator_->DestroyBufferDirect(staging_buffer_, nullptr, staging_buffer_data_);
+    }
+
+    if (staging_buffer_mapped_ptr_ != nullptr)
+    {
+        resource_allocator_->UnmapMemory(staging_memory_, staging_memory_data_);
     }
 
     if (staging_memory_ != VK_NULL_HANDLE)
@@ -93,6 +107,8 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
     }
 }
 
+static bool g_load_data_print_time = false;
+
 VkResult VulkanResourceInitializer::LoadData(VkDeviceSize                          size,
                                              const uint8_t*                        data,
                                              VulkanResourceAllocator::ResourceData allocator_data)
@@ -100,12 +116,55 @@ VkResult VulkanResourceInitializer::LoadData(VkDeviceSize                       
     void*    mapped_memory = nullptr;
     VkResult result        = resource_allocator_->MapResourceMemoryDirect(size, 0, &mapped_memory, allocator_data);
 
+    // const auto started = std::chrono::high_resolution_clock::now();
+
     if (result == VK_SUCCESS)
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
         size_t copy_size = static_cast<size_t>(size);
         util::platform::MemoryCopy(mapped_memory, copy_size, data, copy_size);
         resource_allocator_->UnmapResourceMemoryDirect(allocator_data);
+    }
+
+    // const auto     done = std::chrono::high_resolution_clock::now();
+    // const uint32_t time = std::chrono::duration_cast<std::chrono::microseconds>(done - started).count();
+
+    // if (g_load_data_print_time)
+    //     GFXRECON_WRITE_CONSOLE("%s(% " PRIu64 ") %u μs", __func__, size, time)
+
+    return result;
+}
+
+VkResult
+VulkanResourceInitializer::LoadToStagingBuffer(VkDeviceSize size, const uint8_t* data, uint32_t queue_family_index)
+{
+    GFXRECON_ASSERT(staging_buffer_ != VK_NULL_HANDLE);
+
+    VkResult result = VK_SUCCESS;
+
+    if (staging_buffer_offset_ + size > max_copy_size_)
+    {
+        VkQueue         queue          = VK_NULL_HANDLE;
+        VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+        result                 = GetCommandExecObjects(queue_family_index, &queue, &command_buffer);
+        result                 = FlushCommandBuffer(queue, command_buffer);
+        staging_buffer_offset_ = 0;
+    }
+
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    result = resource_allocator_->MapResourceMemoryDirect(std::max(size, max_copy_size_),
+                                                          VkMemoryMapFlags(0),
+                                                          reinterpret_cast<void**>(&staging_buffer_mapped_ptr_),
+                                                          staging_buffer_data_);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    if (result == VK_SUCCESS)
+    {
+        util::platform::MemoryCopy(staging_buffer_mapped_ptr_ + staging_buffer_offset_, size, data, size);
+        staging_buffer_offset_ += util::platform::AlignValue<1024>(size);
+        resource_allocator_->UnmapResourceMemoryDirect(staging_memory_data_);
     }
 
     return result;
@@ -121,6 +180,8 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
 {
     // TODO: handle usage cases without TRANSFER_DST.
     GFXRECON_UNREFERENCED_PARAMETER(usage);
+
+    const auto started = std::chrono::high_resolution_clock::now();
 
     VkQueue                               queue               = VK_NULL_HANDLE;
     VkCommandBuffer                       command_buffer      = VK_NULL_HANDLE;
@@ -143,41 +204,57 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
             if (result == VK_SUCCESS)
             {
                 device_table_->CmdCopyBuffer(command_buffer, staging_buffer, buffer, region_count, regions);
-                device_table_->EndCommandBuffer(command_buffer);
-
-                result = ExecuteCommandBuffer(queue, command_buffer);
+                FlushCommandBuffer(queue, command_buffer);
             }
 
             ReleaseStagingBuffer(staging_memory, staging_buffer, staging_memory_data, staging_buffer_data);
         }
     }
 
+    const auto     done = std::chrono::high_resolution_clock::now();
+    const uint32_t time = std::chrono::duration_cast<std::chrono::microseconds>(done - started).count();
+    GFXRECON_WRITE_CONSOLE("%s() %u μs", __func__, time)
+
     return result;
 }
 
-VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             data_size,
-                                                    const uint8_t*           data,
-                                                    uint32_t                 queue_family_index,
-                                                    VkImage                  image,
-                                                    VkImageType              type,
-                                                    VkFormat                 format,
-                                                    const VkExtent3D&        extent,
-                                                    VkImageAspectFlagBits    aspect,
-                                                    VkSampleCountFlagBits    sample_count,
-                                                    VkImageUsageFlags        usage,
-                                                    VkImageLayout            initial_layout,
-                                                    VkImageLayout            final_layout,
-                                                    uint32_t                 layer_count,
-                                                    uint32_t                 level_count,
-                                                    const VkBufferImageCopy* level_copies)
+VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize          data_size,
+                                                    const uint8_t*        data,
+                                                    uint32_t              queue_family_index,
+                                                    VkImage               image,
+                                                    VkImageType           type,
+                                                    VkFormat              format,
+                                                    const VkExtent3D&     extent,
+                                                    VkImageAspectFlagBits aspect,
+                                                    VkSampleCountFlagBits sample_count,
+                                                    VkImageUsageFlags     usage,
+                                                    VkImageLayout         initial_layout,
+                                                    VkImageLayout         final_layout,
+                                                    uint32_t              layer_count,
+                                                    uint32_t              level_count,
+                                                    VkBufferImageCopy*    level_copies)
 {
     VkDeviceMemory                        staging_memory      = VK_NULL_HANDLE;
     VkBuffer                              staging_buffer      = VK_NULL_HANDLE;
     VulkanResourceAllocator::MemoryData   staging_memory_data = 0;
     VulkanResourceAllocator::ResourceData staging_buffer_data = 0;
 
-    VkResult result = AcquireInitializedStagingBuffer(
-        data_size, data, &staging_memory, &staging_buffer, &staging_memory_data, &staging_buffer_data);
+    // VkResult result = AcquireInitializedStagingBuffer(
+    //     data_size, data, &staging_memory, &staging_buffer, &staging_memory_data, &staging_buffer_data);
+
+    const auto started = std::chrono::high_resolution_clock::now();
+
+    g_load_data_print_time = true;
+
+    VkResult result = AcquireStagingBuffer(
+        &staging_memory, &staging_buffer, max_copy_size_, &staging_memory_data, &staging_buffer_data);
+
+    if (result == VK_SUCCESS)
+    {
+        result = LoadToStagingBuffer(data_size, data, queue_family_index);
+    }
+
+    g_load_data_print_time = true;
 
     if (result == VK_SUCCESS)
     {
@@ -198,6 +275,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) &&
                 (type == VK_IMAGE_TYPE_2D))
             {
+                GFXRECON_ASSERT(0);
                 result = PixelShaderImageCopy(queue_family_index,
                                               staging_buffer,
                                               image,
@@ -214,6 +292,17 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             }
             else
             {
+                // Staging buffer offset has been advanced by LoadToStagingBuffer(). Adjust to find where this image is
+                // located in the staging buffer
+                GFXRECON_ASSERT(staging_buffer_offset_ >= data_size);
+                const size_t staging_buffer_offset = staging_buffer_offset_ - util::platform::AlignValue<1024>(data_size);
+
+                // Patch level copies with staging buffer offset
+                for (uint32_t i = 0; i < level_count; ++i)
+                {
+                    level_copies[i].bufferOffset += staging_buffer_offset;
+                }
+
                 result = BufferToImageCopy(queue_family_index,
                                            staging_buffer,
                                            image,
@@ -223,12 +312,18 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                                            final_layout,
                                            layer_count,
                                            level_count,
-                                           level_copies);
+                                           level_copies,
+                                           !staging_buffer_offset);
             }
         }
 
         ReleaseStagingBuffer(staging_memory, staging_buffer, staging_memory_data, staging_buffer_data);
     }
+
+    // const auto     done = std::chrono::high_resolution_clock::now();
+    // const uint32_t time = std::chrono::duration_cast<std::chrono::microseconds>(done - started).count();
+
+    // GFXRECON_WRITE_CONSOLE("%s() %u μs", __func__, time)
 
     return result;
 }
@@ -282,9 +377,7 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
                                               1,
                                               &memory_barrier);
 
-            device_table_->EndCommandBuffer(command_buffer);
-
-            result = ExecuteCommandBuffer(queue, command_buffer);
+            FlushCommandBuffer(queue, command_buffer);
         }
     }
 
@@ -297,16 +390,21 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t         queue
 {
     assert((queue != nullptr) && (command_buffer != nullptr));
 
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+
     VkResult result = VK_SUCCESS;
     auto     iter   = command_exec_objects_.find(queue_family_index);
 
     if (iter != command_exec_objects_.end())
     {
+        GFXRECON_WRITE_CONSOLE("Reusing cmd buf")
         (*queue)          = iter->second.queue;
         (*command_buffer) = iter->second.command_buffer;
     }
     else
     {
+        GFXRECON_WRITE_CONSOLE("Allocating cmd buf")
+
         VkCommandPool command_pool = VK_NULL_HANDLE;
 
         VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -925,6 +1023,8 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory*        
     assert((memory != nullptr) && (buffer != nullptr) && (size > 0) && (allocator_memory_data != nullptr) &&
            (allocator_buffer_data != nullptr));
 
+    GFXRECON_ASSERT(size <= max_copy_size_);
+
     VkResult result = VK_SUCCESS;
 
     // Create the reusable staging_buffer_ object, with size equal to max_copy_size_, on first acquire, if the requested
@@ -1021,13 +1121,16 @@ VulkanResourceInitializer::AcquireInitializedStagingBuffer(VkDeviceSize         
                                                            VulkanResourceAllocator::ResourceData* staging_buffer_data)
 {
     VkResult result =
-        AcquireStagingBuffer(staging_memory, staging_buffer, data_size, staging_memory_data, staging_buffer_data);
+        AcquireStagingBuffer(staging_memory, staging_buffer, max_copy_size_, staging_memory_data, staging_buffer_data);
 
     if (result == VK_SUCCESS)
     {
         assert((staging_memory != nullptr) && (staging_memory_data != nullptr));
 
-        result = LoadData(data_size, data, *staging_buffer_data);
+        if (result == VK_SUCCESS)
+        {
+            result = LoadData(data_size, data, *staging_buffer_data);
+        }
     }
 
     return result;
@@ -1169,19 +1272,23 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
                                                       VkImageLayout            final_layout,
                                                       uint32_t                 layer_count,
                                                       uint32_t                 level_count,
-                                                      const VkBufferImageCopy* level_copies)
+                                                      const VkBufferImageCopy* level_copies,
+                                                      bool                     begin_command_buffer)
 {
     VkQueue         queue          = VK_NULL_HANDLE;
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
 
     VkResult result = GetCommandExecObjects(queue_family_index, &queue, &command_buffer);
 
+    if (result == VK_SUCCESS && begin_command_buffer)
+    {
+        result = BeginCommandBuffer(command_buffer);
+    }
+
     if (result == VK_SUCCESS)
     {
         VkImageLayout      old_layout        = initial_layout;
         VkImageAspectFlags transition_aspect = GetImageTransitionAspect(format, aspect, &old_layout);
-
-        result = BeginCommandBuffer(command_buffer);
 
         if (result == VK_SUCCESS)
         {
@@ -1234,10 +1341,6 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
                                                   1,
                                                   &memory_barrier);
             }
-
-            device_table_->EndCommandBuffer(command_buffer);
-
-            result = ExecuteCommandBuffer(queue, command_buffer);
         }
     }
 
@@ -1437,6 +1540,16 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
             DestroyDrawObjects(render_pass, pipeline_layout, pipeline);
         }
     }
+
+    return result;
+}
+
+VkResult VulkanResourceInitializer::FlushCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer)
+{
+    GFXRECON_ASSERT(device_ != nullptr);
+
+    device_table_->EndCommandBuffer(command_buffer);
+    VkResult result = ExecuteCommandBuffer(queue, command_buffer);
 
     return result;
 }

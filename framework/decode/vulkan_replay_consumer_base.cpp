@@ -9923,6 +9923,8 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
 {
     GFXRECON_ASSERT(device_info != nullptr);
 
+    const auto started = std::chrono::high_resolution_clock::now();
+
     VkWriteDescriptorSet* in_pDescriptorWrites = p_descriptor_writes->GetPointer();
     VkCopyDescriptorSet*  in_pDescriptorCopies = p_pescriptor_copies->GetPointer();
 
@@ -10030,6 +10032,10 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
             }
         }
     }
+
+    const auto     done = std::chrono::high_resolution_clock::now();
+    const uint32_t time = std::chrono::duration_cast<std::chrono::microseconds>(done - started).count();
+    GFXRECON_WRITE_CONSOLE("%s() %u μs", __func__, time)
 }
 
 [[nodiscard]] std::vector<std::unique_ptr<char[]>> VulkanReplayConsumerBase::ReplaceShaders(

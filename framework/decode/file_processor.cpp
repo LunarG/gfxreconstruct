@@ -34,6 +34,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <chrono>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -1625,6 +1626,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             assert(header.data_size == std::accumulate(level_sizes.begin(), level_sizes.end(), 0ull));
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
 
+            size_t size__, compressed_size__;
+
+            const auto started = std::chrono::high_resolution_clock::now();
             if (format::IsBlockCompressed(block_header.type))
             {
                 size_t uncompressed_size = 0;
@@ -1634,11 +1638,21 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
                 success = ReadCompressedParameterBuffer(
                     compressed_size, static_cast<size_t>(header.data_size), &uncompressed_size);
+                size__            = uncompressed_size;
+                compressed_size__ = compressed_size;
             }
             else
             {
-                success = ReadParameterBuffer(static_cast<size_t>(header.data_size));
+                size__            = header.data_size;
+                compressed_size__ = header.data_size;
+                success           = ReadParameterBuffer(static_cast<size_t>(header.data_size));
             }
+
+            const auto     done = std::chrono::high_resolution_clock::now();
+            const uint32_t time = std::chrono::duration_cast<std::chrono::microseconds>(done - started).count();
+
+            GFXRECON_WRITE_CONSOLE(
+                "Reading image payload %zu bytes (compressed: %zu) %u μs", size__, compressed_size__, time)
         }
 
         if (success)
