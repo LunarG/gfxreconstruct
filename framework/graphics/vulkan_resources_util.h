@@ -31,6 +31,7 @@
 #include "vulkan/vulkan_core.h"
 
 #include <vector>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -50,23 +51,9 @@ class VulkanResourcesUtil
                         VkPhysicalDevice                        physical_device,
                         const encode::VulkanDeviceTable&        device_table,
                         const encode::VulkanInstanceTable&      instance_table,
-                        const VkPhysicalDeviceMemoryProperties& memory_properties) :
-        device_(device),
-        device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
-        memory_properties_(memory_properties), queue_family_index_(UINT32_MAX), command_pool_(VK_NULL_HANDLE),
-        command_buffer_(VK_NULL_HANDLE)
-    {
-        assert(device != VK_NULL_HANDLE);
-        assert(memory_properties.memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
-        assert(memory_properties.memoryTypeCount <= VK_MAX_MEMORY_TYPES);
-    }
+                        const VkPhysicalDeviceMemoryProperties& memory_properties);
 
-    ~VulkanResourcesUtil()
-    {
-        DestroyStagingBuffer();
-        DestroyCommandBuffer();
-        DestroyCommandPool();
-    }
+    ~VulkanResourcesUtil();
 
     // This function creates a staging buffer that will be used by the ReadFromImageResourceStaging() and
     // ReadFromBufferResource() functions. It is not necessary to do so but can be useful when dumping multiple
@@ -95,6 +82,32 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_sizes    = nullptr,
                                           bool                   all_layers_per_level = false);
 
+    struct ImageResource
+    {
+        format::HandleId                 handle_id            = format::kNullHandleId;
+        VkImage                          image                = VK_NULL_HANDLE;
+        VkFormat                         format               = VK_FORMAT_UNDEFINED;
+        VkImageType                      type                 = VK_IMAGE_TYPE_2D;
+        VkExtent3D                       extent               = {};
+        uint32_t                         mip_levels           = 0;
+        uint32_t                         array_layers         = 0;
+        VkImageTiling                    tiling               = VK_IMAGE_TILING_MAX_ENUM;
+        VkSampleCountFlags               samples              = 0;
+        VkImageLayout                    layout               = VK_IMAGE_LAYOUT_UNDEFINED;
+        uint32_t                         queue_family_index   = 0;
+        bool                             external_format      = false;
+        VkDeviceSize                     size                 = 0;
+        VkDeviceSize                     resource_size        = 0;
+        const std::vector<VkDeviceSize>* level_sizes          = nullptr;
+        VkImageAspectFlagBits            aspect               = VK_IMAGE_ASPECT_NONE;
+        bool                             all_layers_per_level = false;
+        float                            scale                = 1.0f;
+        VkFormat                         dst_format           = VK_FORMAT_UNDEFINED;
+    };
+    using ReadImageResourcesCallbackFn = std::function<void(const ImageResource& img_resource, const void* data)>;
+    void ReadImageResources(const std::vector<ImageResource>&   image_resources,
+                            const ReadImageResourcesCallbackFn& call_back);
+
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when accessing the image content directly is not possible
     // and a staging buffer is required.
@@ -121,36 +134,6 @@ class VulkanResourcesUtil
                                           float                  scale                = 1.0f,
                                           VkFormat               dst_format           = VK_FORMAT_UNDEFINED);
 
-    // Use this function to dump an image sub resources into data vector.
-    // This function is intented to be used when the image content can be accessed directly and expects to received a
-    // pointer to the mapped memory.
-    // subresource_offsets and subresource_sizes will be populated in the same manner as
-    // with GetImageResourceSizesLinear()
-    void ReadFromImageResourceLinear(VkImage                image,
-                                     VkFormat               format,
-                                     VkImageType            type,
-                                     const VkExtent3D&      extent,
-                                     uint32_t               mip_levels,
-                                     uint32_t               array_layers,
-                                     VkImageAspectFlagBits  aspect,
-                                     const void*            mapped_image_ptr,
-                                     std::vector<uint8_t>&  data,
-                                     std::vector<uint64_t>& subresource_offsets,
-                                     std::vector<uint64_t>& subresource_sizes);
-
-    VkResult WriteToImageResourceStaging(VkImage                      image,
-                                         VkFormat                     format,
-                                         VkImageType                  type,
-                                         const VkExtent3D&            extent,
-                                         uint32_t                     mip_levels,
-                                         uint32_t                     array_layers,
-                                         VkImageAspectFlagBits        aspect,
-                                         VkImageLayout                layout,
-                                         uint32_t                     queue_family_index,
-                                         const void*                  data,
-                                         const std::vector<uint64_t>& subresource_offsets,
-                                         const std::vector<uint64_t>& subresource_sizes);
-
     // Use this function to dump the content of a buffer resource into the data vector.
     VkResult ReadFromBufferResource(
         VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
@@ -168,19 +151,11 @@ class VulkanResourcesUtil
                             float             scale) const;
 
   private:
-    VkResult CreateCommandPool(uint32_t queue_family_index);
+    VkCommandBuffer CreateCommandBuffer(uint32_t queue_family_index);
 
-    void DestroyCommandPool();
+    void ResetCommandBuffer(VkCommandBuffer command_buffer);
 
-    VkResult CreateCommandBuffer(uint32_t queue_family_index);
-
-    void ResetCommandBuffer();
-
-    VkResult BeginCommandBuffer();
-
-    VkResult EndCommandBuffer();
-
-    void DestroyCommandBuffer();
+    VkResult BeginCommandBuffer(VkCommandBuffer command_buffer);
 
     VkResult MapStagingBuffer();
 
@@ -190,20 +165,24 @@ class VulkanResourcesUtil
 
     void DestroyStagingBuffer();
 
-    void TransitionImageToTransferOptimal(VkImage            image,
+    void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
+                                          VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
                                           VkImageAspectFlags aspect,
                                           uint32_t           queue_family_index);
 
-    void TransitionImageFromTransferOptimal(VkImage            image,
+    void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
+                                            VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
                                             VkImageAspectFlags aspect,
                                             uint32_t           queue_family_index);
 
-    void CopyImageBuffer(VkImage                      image,
+    void CopyImageBuffer(VkCommandBuffer              command_buffer,
+                         VkImage                      image,
                          VkBuffer                     buffer,
+                         uint32_t                     buffer_offset,
                          const VkExtent3D&            extent,
                          uint32_t                     mip_levels,
                          uint32_t                     array_layers,
@@ -212,9 +191,24 @@ class VulkanResourcesUtil
                          bool                         all_layers_per_level,
                          CopyBufferImageDirection     copy_direction);
 
-    void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size, uint64_t offset);
+    void CopyBuffer(VkCommandBuffer command_buffer,
+                    VkBuffer        source_buffer,
+                    VkBuffer        destination_buffer,
+                    uint64_t        size,
+                    uint64_t        offset);
 
-    VkResult ResolveImage(VkImage           image,
+    VkResult ResolveImage(VkCommandBuffer   command_buffer,
+                          VkImage           image,
+                          VkFormat          format,
+                          VkImageType       type,
+                          const VkExtent3D& extent,
+                          uint32_t          array_layers,
+                          VkImageLayout     current_layout,
+                          VkImage*          resolve_image,
+                          VkDeviceMemory*   resolve_memory);
+
+    VkResult ResolveImage(VkCommandBuffer   command_buffer,
+                          VkImage           image,
                           VkFormat          format,
                           VkImageType       type,
                           const VkExtent3D& extent,
@@ -227,11 +221,12 @@ class VulkanResourcesUtil
 
     VkQueue GetQueue(uint32_t queue_family_index, uint32_t queue_index);
 
-    VkResult SubmitCommandBuffer(VkQueue queue);
+    VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue);
 
-    void InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size);
+    //    void InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size);
 
-    VkResult BlitImage(VkImage               image,
+    VkResult BlitImage(VkCommandBuffer       command_buffer,
+                       VkImage               image,
                        VkFormat              format,
                        VkFormat              dst_format,
                        VkImageType           type,
@@ -262,10 +257,18 @@ class VulkanResourcesUtil
     VkPhysicalDevice                        physical_device_;
     const encode::VulkanInstanceTable&      instance_table_;
     const VkPhysicalDeviceMemoryProperties& memory_properties_;
-    uint32_t                                queue_family_index_;
-    VkCommandPool                           command_pool_;
-    VkCommandBuffer                         command_buffer_;
-    StagingBufferContext                    staging_buffer_;
+
+    struct command_assets_t
+    {
+        VkCommandPool   command_pool   = VK_NULL_HANDLE;
+        VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    };
+
+    // map queue-family index -> command-pool/buffer
+    std::unordered_map<uint32_t, command_assets_t> command_asset_map_;
+    StagingBufferContext                           staging_buffer_;
+
+    PFN_vkSetDebugUtilsObjectNameEXT set_debug_utils_object_name_fn_ = nullptr;
 };
 
 void GetFormatAspects(VkFormat                            format,

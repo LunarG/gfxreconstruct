@@ -2258,22 +2258,64 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
 }
 
 void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                           const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                                           const std::vector<ImageSnapshotInfo>& image_snapshot_infos,
                                            graphics::VulkanResourcesUtil&        resource_util)
 {
+    using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     assert(device_wrapper != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
-    for (const auto& snapshot_entry : image_snapshot_info)
+    std::vector<ImageResource> image_resources;
+    image_resources.reserve(image_snapshot_infos.size());
+
+    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
+        GFXRECON_LOG_INFO("image: %d x %d (%d kB)", img.extent.width, img.extent.height, img.resource_size >> 10);
+
+        command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
+                                          device_wrapper->handle_id,
+                                          img.handle_id,
+                                          img.aspect,
+                                          img.layout,
+                                          img.mip_levels,
+                                          *img.level_sizes,
+                                          img.resource_size,
+                                          data);
+        ++blocks_written_;
+    };
+
+    for (const auto& snapshot_entry : image_snapshot_infos)
     {
         const vulkan_wrappers::ImageWrapper*        image_wrapper  = snapshot_entry.image_wrapper;
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
         const uint8_t*                              bytes          = nullptr;
         std::vector<uint8_t>                        data;
 
-        assert((image_wrapper != nullptr) && ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
-                                              (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
+        GFXRECON_ASSERT((image_wrapper != nullptr) &&
+                        ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
+                         (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
+
+        GFXRECON_ASSERT(snapshot_entry.resource_size > 0);
+
+        ImageResource image_resource        = {};
+        image_resource.handle_id            = image_wrapper->handle_id;
+        image_resource.image                = image_wrapper->handle;
+        image_resource.format               = image_wrapper->format;
+        image_resource.type                 = image_wrapper->image_type;
+        image_resource.extent               = image_wrapper->extent;
+        image_resource.mip_levels           = image_wrapper->mip_levels;
+        image_resource.array_layers         = image_wrapper->array_layers;
+        image_resource.tiling               = image_wrapper->tiling;
+        image_resource.samples              = image_wrapper->samples;
+        image_resource.layout               = image_wrapper->current_layout;
+        image_resource.queue_family_index   = image_wrapper->queue_family_index;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.size                 = image_wrapper->size;
+        image_resource.resource_size        = snapshot_entry.resource_size;
+        image_resource.level_sizes          = &snapshot_entry.level_sizes;
+        image_resource.aspect               = snapshot_entry.aspect;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.all_layers_per_level = true;
 
         if (image_wrapper->external_memory_android)
         {
@@ -2283,33 +2325,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 
         if (snapshot_entry.need_staging_copy)
         {
-            std::vector<uint64_t> subresource_offsets;
-            std::vector<uint64_t> subresource_sizes;
-            bool                  scaling_supported;
-
-            VkResult result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
-                                                                         image_wrapper->format,
-                                                                         image_wrapper->image_type,
-                                                                         image_wrapper->extent,
-                                                                         image_wrapper->mip_levels,
-                                                                         image_wrapper->array_layers,
-                                                                         image_wrapper->tiling,
-                                                                         image_wrapper->samples,
-                                                                         image_wrapper->current_layout,
-                                                                         image_wrapper->queue_family_index,
-                                                                         image_wrapper->external_format,
-                                                                         image_wrapper->size,
-                                                                         snapshot_entry.aspect,
-                                                                         data,
-                                                                         subresource_offsets,
-                                                                         subresource_sizes,
-                                                                         scaling_supported,
-                                                                         true);
-
-            if (result == VK_SUCCESS)
-            {
-                bytes = data.data();
-            }
+            image_resources.emplace_back(image_resource);
         }
         else if (!image_wrapper->is_swapchain_image)
         {
@@ -2343,28 +2359,18 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                 InvalidateMappedMemoryRange(
                     device_wrapper, memory_wrapper->handle, image_wrapper->bind_offset, snapshot_entry.resource_size);
             }
-        }
 
-        if (!image_wrapper->is_swapchain_image)
-        {
-            command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
-                                              device_wrapper->handle_id,
-                                              image_wrapper->handle_id,
-                                              snapshot_entry.aspect,
-                                              image_wrapper->current_layout,
-                                              image_wrapper->mip_levels,
-                                              snapshot_entry.level_sizes,
-                                              snapshot_entry.resource_size,
-                                              bytes);
+            write_init_image_cmd(image_resource, bytes);
 
             if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
             {
                 device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
             }
-
-            ++blocks_written_;
         }
     }
+
+    // batch process image-downloads requiring staging
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd);
 }
 
 void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
