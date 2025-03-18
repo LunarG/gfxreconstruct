@@ -181,52 +181,45 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
 
     if (result == VK_SUCCESS)
     {
-        result = LoadData(data_size, data, staging_buffer_data);
+        bool use_transfer = ((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) == VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                            (sample_count == VK_SAMPLE_COUNT_1_BIT);
+        bool use_color_write = ((usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) == VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
+                               (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
+        bool use_depth_write =
+            ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+            (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
+        bool use_stencil_write =
+            ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+            (aspect == VK_IMAGE_ASPECT_STENCIL_BIT) && have_shader_stencil_write_;
 
-        if (result == VK_SUCCESS)
+        if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) && (type == VK_IMAGE_TYPE_2D))
         {
-            bool use_transfer = ((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) == VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
-                                (sample_count == VK_SAMPLE_COUNT_1_BIT);
-            bool use_color_write =
-                ((usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) == VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
-                (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
-            bool use_depth_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
-                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
-                                   (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
-            bool use_stencil_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
-                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
-                                     (aspect == VK_IMAGE_ASPECT_STENCIL_BIT) && have_shader_stencil_write_;
-
-            if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) &&
-                (type == VK_IMAGE_TYPE_2D))
-            {
-                result = PixelShaderImageCopy(queue_family_index,
-                                              staging_buffer,
-                                              image,
-                                              type,
-                                              format,
-                                              extent,
-                                              aspect,
-                                              sample_count,
-                                              initial_layout,
-                                              final_layout,
-                                              layer_count,
-                                              level_count,
-                                              level_copies);
-            }
-            else
-            {
-                result = BufferToImageCopy(queue_family_index,
-                                           staging_buffer,
-                                           image,
-                                           format,
-                                           aspect,
-                                           initial_layout,
-                                           final_layout,
-                                           layer_count,
-                                           level_count,
-                                           level_copies);
-            }
+            result = PixelShaderImageCopy(queue_family_index,
+                                          staging_buffer,
+                                          image,
+                                          type,
+                                          format,
+                                          extent,
+                                          aspect,
+                                          sample_count,
+                                          initial_layout,
+                                          final_layout,
+                                          layer_count,
+                                          level_count,
+                                          level_copies);
+        }
+        else
+        {
+            result = BufferToImageCopy(queue_family_index,
+                                       staging_buffer,
+                                       image,
+                                       format,
+                                       aspect,
+                                       initial_layout,
+                                       final_layout,
+                                       layer_count,
+                                       level_count,
+                                       level_copies);
         }
 
         ReleaseStagingBuffer(staging_memory, staging_buffer, staging_memory_data, staging_buffer_data);
