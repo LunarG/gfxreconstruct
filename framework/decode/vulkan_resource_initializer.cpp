@@ -181,8 +181,6 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
 
     if (result == VK_SUCCESS)
     {
-        result = LoadData(data_size, data, staging_buffer_data);
-
         if (result == VK_SUCCESS)
         {
             bool use_transfer = ((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) == VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
