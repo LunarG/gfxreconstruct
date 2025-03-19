@@ -85,7 +85,7 @@ class VulkanResourceInitializer
                              uint32_t              level_count);
 
   private:
-    VkResult GetCommandExecObjects(uint32_t queue_family_index, VkQueue* queue, VkCommandBuffer* command_buffer);
+    VkResult GetCommandExecObjects(uint32_t queue_family_index, VkCommandBuffer* command_buffer);
 
     VkResult GetDrawDescriptorObjects(VkSampler* sampler, VkDescriptorSetLayout* set_layout, VkDescriptorSet* set);
 
@@ -122,27 +122,13 @@ class VulkanResourceInitializer
 
     void DestroyFramebufferResources(VkImageView view, VkFramebuffer framebuffer);
 
-    VkResult AcquireStagingBuffer(VkDeviceMemory*                        memory,
-                                  VkBuffer*                              buffer,
-                                  VkDeviceSize                           size,
-                                  VulkanResourceAllocator::MemoryData*   allocator_memory_data,
-                                  VulkanResourceAllocator::ResourceData* allocator_buffer_data);
+    VkResult AcquireStagingBuffer(VkDeviceSize size);
 
-    VkResult AcquireInitializedStagingBuffer(VkDeviceSize                           data_size,
-                                             const uint8_t*                         data,
-                                             VkDeviceMemory*                        staging_memory,
-                                             VkBuffer*                              staging_buffer,
-                                             VulkanResourceAllocator::MemoryData*   staging_memory_data,
-                                             VulkanResourceAllocator::ResourceData* staging_buffer_data);
-
-    void ReleaseStagingBuffer(VkDeviceMemory                        memory,
-                              VkBuffer                              buffer,
-                              VulkanResourceAllocator::MemoryData   staging_memory_data,
-                              VulkanResourceAllocator::ResourceData staging_buffer_data);
+    void ReleaseStagingBuffer();
 
     void UpdateDrawDescriptorSet(VkDescriptorSet set, VkImageView view, VkSampler sampler);
 
-    VkResult BeginCommandBuffer(VkCommandBuffer command_buffer);
+    VkResult BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p = nullptr);
 
     VkResult ExecuteCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer);
 
@@ -176,12 +162,19 @@ class VulkanResourceInitializer
                                   uint32_t                 level_count,
                                   const VkBufferImageCopy* level_copies);
 
+    VkResult FlushCommandBuffer(uint32_t queue_family_index);
+
+    void FlushStagingBuffer();
+
+    VkResult FlushRemainingResourcesInit();
+
   private:
     struct CommandExecObjects
     {
         VkQueue         queue;
         VkCommandPool   command_pool;
         VkCommandBuffer command_buffer;
+        bool            recording;
     };
 
     // Map queue family index to command pool, command buffer, and queue objects for command processing.
@@ -194,6 +187,8 @@ class VulkanResourceInitializer
     VulkanResourceAllocator::MemoryData   staging_memory_data_;
     VkBuffer                              staging_buffer_;
     VulkanResourceAllocator::ResourceData staging_buffer_data_;
+    size_t                                staging_buffer_offset_;
+    uint8_t*                              staging_buffer_mapped_ptr_;
     VkSampler                             draw_sampler_;
     VkDescriptorPool                      draw_pool_;
     VkDescriptorSetLayout                 draw_set_layout_;
@@ -204,6 +199,11 @@ class VulkanResourceInitializer
     VulkanResourceAllocator*              resource_allocator_;
     const encode::VulkanDeviceTable*      device_table_;
     const VulkanDeviceInfo*               device_info_;
+
+    // Copies of the copy information passed into the InitializeBuffer and InitializeImage respectively.
+    // Vectors are kept and only grow in size in order to save the cost of reallocating them each time.
+    std::vector<VkBufferCopy>      offsetted_regions_copy_;
+    std::vector<VkBufferImageCopy> offsetted_level_copies_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
