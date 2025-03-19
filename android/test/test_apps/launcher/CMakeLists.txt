@@ -57,7 +57,8 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-triangle
     gfxrecon-testapp-external-memory-fd-export
     gfxrecon-testapp-external-memory-fd-import
-    gfxrecon-testapp-wait-for-present)
+    gfxrecon-testapp-wait-for-present
+    gfxrecon-testapp-ahb)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})

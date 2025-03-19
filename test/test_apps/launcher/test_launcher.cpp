@@ -42,6 +42,8 @@
 #include <util/argument_parser.h>
 
 #if defined(__ANDROID__)
+#include <ahb_app.h>
+
 #include <util/android/activity.h>
 #include <util/android/intent.h>
 #endif
@@ -53,18 +55,20 @@ const char kHelpLongOption[]  = "--help";
 
 const char kOptions[] = "-h|--help";
 
-static const char* kAppNames[] = {
-    "acquired-image",
-    "host-image-copy",
-    "multisample-depth",
-    "pipeline-binaries",
-    "shader-objects",
-    "sparse-resources",
-    "triangle",
+static const char* kAppNames[] = { "acquired-image",
+                                   "host-image-copy",
+                                   "multisample-depth",
+                                   "pipeline-binaries",
+                                   "shader-objects",
+                                   "sparse-resources",
+                                   "triangle",
 #ifdef __linux__
-    "external-memory-fd-export",
-    "external-memory-fd-import",
-    "wait-for-present",
+                                   "external-memory-fd-export",
+                                   "external-memory-fd-import",
+                                   "wait-for-present",
+#endif
+#ifdef __ANDROID__
+                                   "ahb"
 #endif
 };
 
@@ -165,10 +169,14 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
         app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
     }
 #endif // __linux__
-
 #if defined(__ANDROID__)
+    else if (app_name == "ahb")
+    {
+        app = std::make_unique<gfxrecon::test_app::ahb::App>();
+    }
+
     app->set_android_app(android_app);
-#endif
+#endif // __ANDROID__
 
     return app;
 }
