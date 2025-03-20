@@ -175,12 +175,6 @@ class DrawCallsDumpingContext
                                                         uint32_t                max_draw_count,
                                                         uint32_t                stride);
 
-    void CopyVertexInputStateInfo(uint64_t dc_index);
-
-    VkResult CopyDrawIndirectParameters(uint64_t index);
-
-    void SnapshotBoundDescriptors(uint64_t index);
-
     void Release();
 
   private:
@@ -640,6 +634,12 @@ class DrawCallsDumpingContext
   private:
     // One entry for each draw call
     std::unordered_map<uint64_t, DrawCallParameters> draw_call_params;
+
+    void SnapshotState(DrawCallParameters& dc_params);
+
+    void CopyVertexInputStateInfo(DrawCallParameters& dc_params);
+
+    VkResult CopyDrawIndirectParameters(DrawCallParameters& dc_params);
 
     struct
     {

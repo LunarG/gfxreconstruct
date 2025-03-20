@@ -61,6 +61,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 // Types provided by this file are defined by format/platform_types.h when VK_USE_PLATFORM_ANDROID_KHR is not set.
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -251,9 +252,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // Store for the "modified for replay" instance create info, and all referenced memory
     struct CreateInstanceInfoState
     {
-        std::vector<const char*> modified_layers;
-        std::vector<const char*> modified_extensions;
-        VkInstanceCreateInfo     modified_create_info;
+        std::vector<const char*>           modified_layers;
+        std::vector<const char*>           modified_extensions;
+        VkInstanceCreateInfo               modified_create_info;
         VkDebugUtilsMessengerCreateInfoEXT messenger_create_info;
     };
     // create_state passed in by reference to conserve pointers to member variable
@@ -737,6 +738,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const VulkanDeviceInfo*                                          device_info,
                                    const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                    HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets);
+
+    VkResult OverrideCreatePipelineLayout(PFN_vkCreatePipelineLayout                                func,
+                                          VkResult                                                  original_result,
+                                          const VulkanDeviceInfo*                                   device_info,
+                                          StructPointerDecoder<Decoded_VkPipelineLayoutCreateInfo>* pCreateInfo,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                          HandlePointerDecoder<VkPipelineLayout>*                   pPipelineLayout);
 
     void OverrideCmdBindDescriptorSets(PFN_vkCmdBindDescriptorSets            func,
                                        VulkanCommandBufferInfo*               in_commandBuffer,

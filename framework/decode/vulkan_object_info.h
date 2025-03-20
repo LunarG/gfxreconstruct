@@ -219,7 +219,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 
 typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
-typedef VulkanObjectInfo<VkPipelineLayout>                     VulkanPipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
 typedef VulkanPoolInfo<VkCommandPool>                          VulkanCommandPoolInfo;
@@ -439,6 +438,27 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
     std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 };
 
+struct DescriptorBindingLayout
+{
+    uint32_t           count;
+    VkDescriptorType   type;
+    VkShaderStageFlags stage_flags;
+};
+
+using DescriptorBindingLayoutMap = std::unordered_map<uint32_t, DescriptorBindingLayout>;
+
+struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
+{
+    // One per descriptor binding
+    DescriptorBindingLayoutMap bindings_layout;
+};
+
+struct VulkanPipelineLayoutInfo : public VulkanObjectInfo<VkPipelineLayout>
+{
+    // One per descriptor set
+    std::vector<DescriptorBindingLayoutMap> desc_set_layouts;
+};
+
 struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
@@ -480,6 +500,9 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 
     // Grahpics pipeline library info
     VkGraphicsPipelineLibraryFlagsEXT gpl_flags{ 0 };
+
+    // Pipeline layout info
+    std::vector<DescriptorBindingLayoutMap> desc_set_layouts;
 };
 
 struct VulkanDescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
@@ -644,21 +667,6 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
         std::vector<int32_t>  view_offsets;
         std::vector<uint32_t> correlation_masks;
     } multiview;
-};
-
-struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
-{
-    struct DescriptorBindingLayout
-    {
-        uint32_t           binding;
-        VkDescriptorType   type;
-        VkShaderStageFlags stage_flags;
-
-        // used primarily to keep track of inline-uniform-block sizes.
-        uint32_t count;
-    };
-
-    std::vector<DescriptorBindingLayout> bindings_layout;
 };
 
 struct VulkanDescriptorTypeImageInfo
