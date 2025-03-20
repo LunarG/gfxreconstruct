@@ -291,10 +291,10 @@ VkExtent2D Win32Window::GetSize() const
     return { width_, height_ };
 }
 
-VkResult Win32Window::CreateSurface(const encode::VulkanInstanceTable* table,
-                                    VkInstance                         instance,
-                                    VkFlags                            flags,
-                                    VkSurfaceKHR*                      pSurface)
+VkResult Win32Window::CreateSurface(const graphics::VulkanInstanceTable* table,
+                                    VkInstance                           instance,
+                                    VkFlags                              flags,
+                                    VkSurfaceKHR*                        pSurface)
 {
     if (table != nullptr)
     {
@@ -308,7 +308,7 @@ VkResult Win32Window::CreateSurface(const encode::VulkanInstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void Win32Window::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void Win32Window::DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -341,9 +341,9 @@ void Win32WindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                                  VkPhysicalDevice                   physical_device,
-                                                                  uint32_t                           queue_family_index)
+VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                                  VkPhysicalDevice                     physical_device,
+                                                                  uint32_t queue_family_index)
 {
     return table->GetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
 }

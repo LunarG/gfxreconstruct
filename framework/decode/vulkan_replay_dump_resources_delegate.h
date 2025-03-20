@@ -34,11 +34,11 @@ struct VulkanDumpDrawCallInfo
 {
     DumpResourceType type{ DumpResourceType::kUnknown };
 
-    const encode::VulkanInstanceTable* instance_table;
-    const encode::VulkanDeviceTable*   device_table;
-    CommonObjectInfoTable*             object_info_table;
-    const VulkanDeviceInfo*            device_info;
-    const VulkanCommandBufferInfo*     original_command_buffer_info;
+    const graphics::VulkanInstanceTable* instance_table;
+    const graphics::VulkanDeviceTable*   device_table;
+    CommonObjectInfoTable*               object_info_table;
+    const VulkanDeviceInfo*              device_info;
+    const VulkanCommandBufferInfo*       original_command_buffer_info;
 
     uint64_t cmd_index; // dc_index, disp_index, tr_index
     uint64_t qs_index;  // queue submit
@@ -58,11 +58,11 @@ struct VulkanDumpResourceInfo
 {
     DumpResourceType type{ DumpResourceType::kUnknown };
 
-    const encode::VulkanInstanceTable* instance_table;
-    const encode::VulkanDeviceTable*   device_table;
-    CommonObjectInfoTable*             object_info_table;
-    const VulkanDeviceInfo*            device_info;
-    const VulkanCommandBufferInfo*     original_command_buffer_info;
+    const graphics::VulkanInstanceTable* instance_table;
+    const graphics::VulkanDeviceTable*   device_table;
+    CommonObjectInfoTable*               object_info_table;
+    const VulkanDeviceInfo*              device_info;
+    const VulkanCommandBufferInfo*       original_command_buffer_info;
 
     uint64_t cmd_index; // dc_index, disp_index, tr_index
     uint64_t qs_index;  // queue submit
@@ -107,13 +107,13 @@ class VulkanDumpResourcesDelegate
     VulkanDumpResourcesDelegate(const VulkanReplayOptions& options, const std::string capture_filename) {}
     virtual ~VulkanDumpResourcesDelegate() {}
 
-    virtual bool     Open()                                                              = 0;
-    virtual void     DumpDrawCallInfo(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                      const encode::VulkanInstanceTable* instance_table) = 0;
-    virtual void     DumpStart()                                                         = 0;
-    virtual VkResult DumpResource(const VulkanDumpResourceInfo& resource_info)           = 0;
-    virtual void     DumpEnd()                                                           = 0;
-    virtual void     Close()                                                             = 0;
+    virtual bool     Open()                                                                = 0;
+    virtual void     DumpDrawCallInfo(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                      const graphics::VulkanInstanceTable* instance_table) = 0;
+    virtual void     DumpStart()                                                           = 0;
+    virtual VkResult DumpResource(const VulkanDumpResourceInfo& resource_info)             = 0;
+    virtual void     DumpEnd()                                                             = 0;
+    virtual void     Close()                                                               = 0;
 };
 
 class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
@@ -133,8 +133,8 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
         return dump_json_.Open(options_.capture_filename, options_.dump_resources_output_dir);
     }
 
-    virtual void DumpDrawCallInfo(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                  const encode::VulkanInstanceTable* instance_table) override;
+    virtual void DumpDrawCallInfo(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                  const graphics::VulkanInstanceTable* instance_table) override;
 
     virtual void DumpStart() override { dump_json_.BlockStart(); }
 
@@ -176,8 +176,8 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     std::string GenerateIndexBufferFilename(const VulkanDumpResourceInfo& resource_info) const;
 
-    void GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                        const encode::VulkanInstanceTable* instance_table);
+    void GenerateOutputJsonDrawCallInfo(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                        const graphics::VulkanInstanceTable* instance_table);
 
     // DispatchTraceRaysDumpingContext
     VkResult DumpeDispatchTraceRaysImage(const VulkanDumpResourceInfo& resource_info);
@@ -207,13 +207,13 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     std::string
     GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename(const VulkanDumpResourceInfo& resource_info) const;
 
-    void GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                        const encode::VulkanInstanceTable* instance_table);
+    void GenerateOutputJsonDispatchInfo(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                        const graphics::VulkanInstanceTable* instance_table);
 
-    void GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                          const encode::VulkanInstanceTable* instance_table);
+    void GenerateOutputJsonTraceRaysIndex(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                          const graphics::VulkanInstanceTable* instance_table);
 
-    bool IsImageDumpable(const encode::VulkanInstanceTable* instance_table, const VulkanImageInfo* image_info);
+    bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table, const VulkanImageInfo* image_info);
 
     // Keep track of images for which scalling failed so we can
     // note them in the output json

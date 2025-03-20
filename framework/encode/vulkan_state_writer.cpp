@@ -2023,7 +2023,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
 {
     assert(device_wrapper != nullptr);
 
-    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : buffer_snapshot_info)
     {
@@ -2132,7 +2132,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
     assert(device_wrapper != nullptr);
     assert(asset_file_stream_ != nullptr);
 
-    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : buffer_snapshot_info)
     {
@@ -2263,7 +2263,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 {
     assert(device_wrapper != nullptr);
 
-    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : image_snapshot_info)
     {
@@ -2374,7 +2374,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
     assert(device_wrapper != nullptr);
     assert(asset_file_stream_ != nullptr);
 
-    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : image_snapshot_info)
     {
@@ -2577,7 +2577,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             {
                 // Write memory requirements query before bind command.
                 VkMemoryRequirements     memory_requirements;
-                const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+                const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
                 assert(device_table != nullptr);
 
                 device_table->GetBufferMemoryRequirements(
@@ -2670,7 +2670,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             if (write_memory_state)
             {
                 VkMemoryRequirements     memory_requirements;
-                const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+                const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
                 assert(device_table != nullptr);
 
                 device_table->GetImageMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
@@ -2825,7 +2825,7 @@ void VulkanStateWriter::WriteImageSubresourceLayouts(const vulkan_wrappers::Imag
     assert((image_wrapper != nullptr) && (aspect_flags != 0));
 
     const vulkan_wrappers::DeviceWrapper* device_wrapper = image_wrapper->bind_device;
-    const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
 
     assert((device_wrapper != nullptr) && (device_table != nullptr));
 
@@ -3064,7 +3064,7 @@ void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(
     const vulkan_wrappers::PhysicalDeviceWrapper* physical_device_wrapper)
 {
     // Write the meta-data commands to set physical device properties.
-    const VulkanInstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+    const graphics::VulkanInstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
     assert(instance_table != nullptr);
 
     format::HandleId           physical_device_id     = physical_device_wrapper->handle_id;

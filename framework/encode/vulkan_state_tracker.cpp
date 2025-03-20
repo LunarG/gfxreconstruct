@@ -611,7 +611,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     // AHB image memory requirements can only be queried after the memory is bound
     if (wrapper->external_format || wrapper->external_memory_android)
     {
-        const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+        const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
         VkMemoryRequirements     image_mem_reqs;
         device_table->GetImageMemoryRequirements(device, image, &image_mem_reqs);
         wrapper->size = image_mem_reqs.size;
@@ -2456,7 +2456,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 // If PageGuardManager is not used or if it couldn't find the memory id it means that
                 // we need to map the memory.
                 VkDevice                 device        = dev_mem_wrapper->parent_device->handle;
-                const VulkanDeviceTable* device_table  = vulkan_wrappers::GetDeviceTable(device);
+                const graphics::VulkanDeviceTable* device_table  = vulkan_wrappers::GetDeviceTable(device);
                 const VkDeviceSize       map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
                 void*                    mapped_memory = nullptr;
                 const VkResult           result =
@@ -2492,7 +2492,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 if (needs_unmapping)
                 {
                     VkDevice                 device       = dev_mem_wrapper->parent_device->handle;
-                    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+                    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
                     device_table->UnmapMemory(device, dev_mem_wrapper->handle);
                 }
             }

@@ -62,12 +62,12 @@ struct VulkanSwapchainInfo
 struct VulkanGraphicsBinding : public XrGraphicsBindingVulkanKHR
 {
     VulkanGraphicsBinding(VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr);
-    VulkanReplayConsumerBase*          vulkan_consumer = nullptr;
-    const encode::VulkanInstanceTable* instance_table{ nullptr };
-    const encode::VulkanDeviceTable*   device_table{ nullptr };
-    format::HandleId                   instance_id{ format::kNullHandleId };
-    format::HandleId                   device_id{ format::kNullHandleId };
-    VkQueue                            queue = VK_NULL_HANDLE;
+    VulkanReplayConsumerBase*            vulkan_consumer = nullptr;
+    const graphics::VulkanInstanceTable* instance_table{ nullptr };
+    const graphics::VulkanDeviceTable*   device_table{ nullptr };
+    format::HandleId                     instance_id{ format::kNullHandleId };
+    format::HandleId                     device_id{ format::kNullHandleId };
+    VkQueue                              queue = VK_NULL_HANDLE;
 
     XrResult ResetCommandBuffer(VulkanSwapchainInfo::ProxyImage& proxy) const;
 };

@@ -49,10 +49,10 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
     return consumers.empty();
 }
 
-static VkQueue GetDeviceQueue(const encode::VulkanDeviceTable* device_table,
-                              const VulkanDeviceInfo*          device_info,
-                              uint32_t                         queue_family_index,
-                              uint32_t                         queue_index)
+static VkQueue GetDeviceQueue(const graphics::VulkanDeviceTable* device_table,
+                              const VulkanDeviceInfo*            device_info,
+                              uint32_t                           queue_family_index,
+                              uint32_t                           queue_index)
 {
     VkQueue queue = VK_NULL_HANDLE;
 

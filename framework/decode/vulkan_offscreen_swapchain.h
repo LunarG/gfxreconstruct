@@ -35,18 +35,18 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
   public:
     virtual ~VulkanOffscreenSwapchain() override {}
 
-    virtual VkResult CreateSurface(VkResult                            original_result,
-                                   VulkanInstanceInfo*                 instance_info,
-                                   const std::string&                  wsi_extension,
-                                   VkFlags                             flags,
-                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::VulkanInstanceTable*  instance_table,
-                                   application::Application*           application,
-                                   const int32_t                       xpos,
-                                   const int32_t                       ypos,
-                                   const uint32_t                      width,
-                                   const uint32_t                      height,
-                                   bool                                force_windowed = false) override;
+    virtual VkResult CreateSurface(VkResult                             original_result,
+                                   VulkanInstanceInfo*                  instance_info,
+                                   const std::string&                   wsi_extension,
+                                   VkFlags                              flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   application::Application*            application,
+                                   const int32_t                        xpos,
+                                   const int32_t                        ypos,
+                                   const uint32_t                       width,
+                                   const uint32_t                       height,
+                                   bool                                 force_windowed = false) override;
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const VulkanInstanceInfo*    instance_info,
@@ -59,7 +59,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::VulkanDeviceTable*      device_table) override;
+                                        const graphics::VulkanDeviceTable*    device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,

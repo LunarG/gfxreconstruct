@@ -239,9 +239,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         return MapHandle<VulkanDeviceInfo>(capture_id, &CommonObjectInfoTable::GetVkDeviceInfo);
     }
 
-    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
+    const graphics::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
-    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+    const graphics::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
     void AddImageHandle(format::HandleId parent_id, format::HandleId id, VkImage handle, VulkanImageInfo&& initial_info)
     {
         AddHandle<VulkanImageInfo>(
@@ -1692,10 +1692,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     util::platform::LibraryHandle                                              loader_handle_;
     PFN_vkGetInstanceProcAddr                                                  get_instance_proc_addr_;
     PFN_vkCreateInstance                                                       create_instance_proc_;
-    std::unordered_map<encode::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>     get_device_proc_addrs_;
-    std::unordered_map<encode::VulkanDispatchKey, PFN_vkCreateDevice>          create_device_procs_;
-    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanInstanceTable> instance_tables_;
-    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanDeviceTable>   device_tables_;
+    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>       get_device_proc_addrs_;
+    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>            create_device_procs_;
+    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>   device_tables_;
     std::function<void(const char*)>                                           fatal_error_handler_;
     std::shared_ptr<application::Application>                                  application_;
     CommonObjectInfoTable*                                                     object_info_table_;

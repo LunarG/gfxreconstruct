@@ -46,18 +46,18 @@ void VulkanSwapchain::Clean()
     }
 }
 
-VkResult VulkanSwapchain::CreateSurface(VkResult                            original_result,
-                                        VulkanInstanceInfo*                 instance_info,
-                                        const std::string&                  wsi_extension,
-                                        VkFlags                             flags,
-                                        HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                        const encode::VulkanInstanceTable*  instance_table,
-                                        application::Application*           application,
-                                        const int32_t                       xpos,
-                                        const int32_t                       ypos,
-                                        const uint32_t                      width,
-                                        const uint32_t                      height,
-                                        bool                                force_windowed)
+VkResult VulkanSwapchain::CreateSurface(VkResult                             original_result,
+                                        VulkanInstanceInfo*                  instance_info,
+                                        const std::string&                   wsi_extension,
+                                        VkFlags                              flags,
+                                        HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                        const graphics::VulkanInstanceTable* instance_table,
+                                        application::Application*            application,
+                                        const int32_t                        xpos,
+                                        const int32_t                        ypos,
+                                        const uint32_t                       width,
+                                        const uint32_t                       height,
+                                        bool                                 force_windowed)
 {
     assert(instance_info != nullptr);
 

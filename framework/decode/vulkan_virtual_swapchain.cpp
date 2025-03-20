@@ -49,7 +49,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     const VkSwapchainCreateInfoKHR*       create_info,
                                                     const VkAllocationCallbacks*          allocator,
                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                    const encode::VulkanDeviceTable*      device_table)
+                                                    const graphics::VulkanDeviceTable*    device_table)
 {
     VkDevice                 device = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
