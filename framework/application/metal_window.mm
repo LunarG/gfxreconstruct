@@ -268,10 +268,10 @@ VkExtent2D MetalWindow::GetSize() const
     return { width_, height_ };
 }
 
-VkResult MetalWindow::CreateSurface(const encode::VulkanInstanceTable* table,
-                                    VkInstance                         instance,
-                                    VkFlags                            flags,
-                                    VkSurfaceKHR*                      pSurface)
+VkResult MetalWindow::CreateSurface(const graphics::VulkanInstanceTable* table,
+                                    VkInstance                           instance,
+                                    VkFlags                              flags,
+                                    VkSurfaceKHR*                        pSurface)
 {
     if (table)
     {
@@ -284,7 +284,7 @@ VkResult MetalWindow::CreateSurface(const encode::VulkanInstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void MetalWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void MetalWindow::DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table)
         table->DestroySurfaceKHR(instance, surface, nullptr);
@@ -314,9 +314,9 @@ void MetalWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 MetalWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                                  VkPhysicalDevice                   physical_device,
-                                                                  uint32_t                           queue_family_index)
+VkBool32 MetalWindowFactory::GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                                  VkPhysicalDevice                     physical_device,
+                                                                  uint32_t queue_family_index)
 {
     return true;
 }

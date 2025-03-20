@@ -1876,9 +1876,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
-                                                     const encode::VulkanDeviceTable*   dev_table,
-                                                     const encode::VulkanInstanceTable* inst_table)
+VkResult DrawCallsDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                                     const graphics::VulkanDeviceTable*   dev_table,
+                                                     const graphics::VulkanInstanceTable* inst_table)
 {
     assert(orig_cmd_buf_info);
     assert(dev_table);

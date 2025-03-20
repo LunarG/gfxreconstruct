@@ -68,12 +68,12 @@ class MetalWindow : public decode::Window
 
     VkExtent2D GetSize() const override;
 
-    VkResult CreateSurface(const encode::VulkanInstanceTable* table,
-                           VkInstance                         instance,
-                           VkFlags                            flags,
-                           VkSurfaceKHR*                      pSurface) override;
+    VkResult CreateSurface(const graphics::VulkanInstanceTable* table,
+                           VkInstance                           instance,
+                           VkFlags                              flags,
+                           VkSurfaceKHR*                        pSurface) override;
 
-    void DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    void DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
     GFXReconWindowDelegate* window_delegate_;
@@ -99,9 +99,9 @@ class MetalWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                  VkPhysicalDevice                   physical_device,
-                                                  uint32_t                           queue_family_index) override;
+    VkBool32 GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                  VkPhysicalDevice                     physical_device,
+                                                  uint32_t                             queue_family_index) override;
 
   private:
     MetalContext* metal_context_;

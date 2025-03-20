@@ -148,13 +148,13 @@ static void AddInstanceHandle(VkInstance instance)
 {
     // Store the instance for use with vkCreateDevice.
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    vulkan_instance_handles[encode::GetVulkanDispatchKey(instance)] = instance;
+    vulkan_instance_handles[graphics::GetVulkanDispatchKey(instance)] = instance;
 }
 
 static VkInstance GetInstanceHandle(const void* handle)
 {
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    auto                        entry = vulkan_instance_handles.find(encode::GetVulkanDispatchKey(handle));
+    auto                        entry = vulkan_instance_handles.find(graphics::GetVulkanDispatchKey(handle));
     return (entry != vulkan_instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 

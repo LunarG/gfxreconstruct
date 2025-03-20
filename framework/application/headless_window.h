@@ -67,13 +67,13 @@ class HeadlessWindow : public decode::Window
 
     virtual VkExtent2D GetSize() const override;
 
-    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
-                                   VkInstance                         instance,
-                                   VkFlags                            flags,
-                                   VkSurfaceKHR*                      pSurface) override;
+    virtual VkResult CreateSurface(const graphics::VulkanInstanceTable* table,
+                                   VkInstance                           instance,
+                                   VkFlags                              flags,
+                                   VkSurfaceKHR*                        pSurface) override;
 
     virtual void
-    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
     HeadlessContext* headless_context_;
@@ -97,8 +97,8 @@ class HeadlessWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                          VkPhysicalDevice                   physical_device,
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                     physical_device,
                                                           uint32_t queue_family_index) override;
 
   private:

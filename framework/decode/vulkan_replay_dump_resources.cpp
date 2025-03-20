@@ -260,8 +260,8 @@ VulkanReplayDumpResourcesBase::FindDispatchRaysCommandBufferContext(VkCommandBuf
 
 VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t                 bcb_index,
                                                            VulkanCommandBufferInfo* original_command_buffer_info,
-                                                           const encode::VulkanDeviceTable*   device_table,
-                                                           const encode::VulkanInstanceTable* inst_table)
+                                                           const graphics::VulkanDeviceTable*   device_table,
+                                                           const graphics::VulkanInstanceTable* inst_table)
 
 {
     assert(device_table);
@@ -1767,11 +1767,11 @@ bool VulkanReplayDumpResourcesBase::MustDumpTraceRays(VkCommandBuffer original_c
     }
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitInfo>& submit_infos,
-                                                    const encode::VulkanDeviceTable& device_table,
-                                                    VkQueue                          queue,
-                                                    VkFence                          fence,
-                                                    uint64_t                         index)
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitInfo>&   submit_infos,
+                                                    const graphics::VulkanDeviceTable& device_table,
+                                                    VkQueue                            queue,
+                                                    VkFence                            fence,
+                                                    uint64_t                           index)
 {
     bool     pre_submit = false;
     bool     submitted  = false;

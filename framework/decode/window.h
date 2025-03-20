@@ -85,13 +85,13 @@ class Window
 
     virtual VkExtent2D GetSize() const = 0;
 
-    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
-                                   VkInstance                         instance,
-                                   VkFlags                            flags,
-                                   VkSurfaceKHR*                      pSurface) = 0;
+    virtual VkResult CreateSurface(const graphics::VulkanInstanceTable* table,
+                                   VkInstance                           instance,
+                                   VkFlags                              flags,
+                                   VkSurfaceKHR*                        pSurface) = 0;
 
     virtual void
-    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) = 0;
+    DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) = 0;
 };
 
 class WindowFactory
@@ -108,9 +108,9 @@ class WindowFactory
 
     virtual void Destroy(Window* window) = 0;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                          VkPhysicalDevice                   physical_device,
-                                                          uint32_t                           queue_family_index) = 0;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                     physical_device,
+                                                          uint32_t                             queue_family_index) = 0;
 
     std::unordered_map<Window*, int32_t> created_window_;
 };

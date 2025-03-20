@@ -54,9 +54,9 @@ class DispatchTraceRaysDumpingContext
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
-                                const encode::VulkanDeviceTable*   dev_table,
-                                const encode::VulkanInstanceTable* inst_table);
+    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                const graphics::VulkanDeviceTable*   dev_table,
+                                const graphics::VulkanInstanceTable* inst_table);
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer; }
 
@@ -442,9 +442,9 @@ class DispatchTraceRaysDumpingContext
     // One entry for each trace rays command
     std::unordered_map<uint64_t, TraceRaysParameters> trace_rays_params;
 
-    const encode::VulkanDeviceTable*        device_table;
+    const graphics::VulkanDeviceTable*      device_table;
     VkDevice                                parent_device;
-    const encode::VulkanInstanceTable*      instance_table;
+    const graphics::VulkanInstanceTable*    instance_table;
     CommonObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     size_t                                  current_dispatch_index;

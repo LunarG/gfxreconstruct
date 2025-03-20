@@ -105,9 +105,9 @@ void DispatchTraceRaysDumpingContext::Release()
     trace_rays_params.clear();
 }
 
-VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
-                                                             const encode::VulkanDeviceTable*   dev_table,
-                                                             const encode::VulkanInstanceTable* inst_table)
+VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                                             const graphics::VulkanDeviceTable*   dev_table,
+                                                             const graphics::VulkanInstanceTable* inst_table)
 {
     assert(orig_cmd_buf_info);
     assert(dev_table);

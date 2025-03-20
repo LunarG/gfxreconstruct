@@ -81,7 +81,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     // the appropriate resource cleanup.
     static void CheckVkCreateInstanceStatus(VkResult result);
 
-    static const VulkanLayerTable* GetLayerTable() { return &vulkan_layer_table_; }
+    static const graphics::VulkanLayerTable* GetLayerTable() { return &vulkan_layer_table_; }
 
     void InitVkInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
@@ -1653,7 +1653,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     void QueueSubmitWriteFillMemoryCmd();
 
     static VulkanCaptureManager*                    singleton_;
-    static VulkanLayerTable                         vulkan_layer_table_;
+    static graphics::VulkanLayerTable               vulkan_layer_table_;
     std::set<vulkan_wrappers::DeviceMemoryWrapper*> mapped_memory_; // Track mapped memory for unassisted tracking mode.
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;

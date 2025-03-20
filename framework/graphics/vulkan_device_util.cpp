@@ -52,10 +52,10 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // feature_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                      const encode::VulkanInstanceTable* instance_table,
-                                      const VkPhysicalDevice             physical_device,
-                                      T&                                 feature_struct)
+static void GetPhysicalDeviceFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                      const VulkanInstanceTable*    instance_table,
+                                      const VkPhysicalDevice        physical_device,
+                                      T&                            feature_struct)
 {
     assert((feature_struct.sType != 0) && (feature_struct.pNext == nullptr));
     feature_struct.pNext = nullptr;
@@ -75,10 +75,10 @@ static void GetPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instanc
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // properties_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
-                                        const encode::VulkanInstanceTable* instance_table,
-                                        const VkPhysicalDevice             physical_device,
-                                        T&                                 properties_struct)
+static void GetPhysicalDeviceProperties(const VulkanInstanceUtilInfo& instance_info,
+                                        const VulkanInstanceTable*    instance_table,
+                                        const VkPhysicalDevice        physical_device,
+                                        T&                            properties_struct)
 {
     assert((properties_struct.sType != 0) && (properties_struct.pNext == nullptr));
     properties_struct.pNext = nullptr;
@@ -95,10 +95,10 @@ static void GetPhysicalDeviceProperties(const VulkanInstanceUtilInfo&      insta
 }
 
 template <typename T>
-VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                                                     const encode::VulkanInstanceTable* instance_table,
-                                                                     const VkPhysicalDevice             physical_device,
-                                                                     T*                                 feature_struct)
+VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                                     const VulkanInstanceTable*    instance_table,
+                                                                     const VkPhysicalDevice        physical_device,
+                                                                     T*                            feature_struct)
 {
     // Type must be feature struct type that contains bufferDeviceAddress and bufferDeviceAddressCaptureReplay
     static_assert(std::is_same<T, VkPhysicalDeviceVulkan12Features>::value ||
@@ -136,10 +136,10 @@ VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const Vulka
 }
 
 template <typename T>
-VkBool32 VulkanDeviceUtil::EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                                                const encode::VulkanInstanceTable* instance_table,
-                                                                const VkPhysicalDevice             physical_device,
-                                                                T*                                 feature_struct)
+VkBool32 VulkanDeviceUtil::EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                                const VulkanInstanceTable*    instance_table,
+                                                                const VkPhysicalDevice        physical_device,
+                                                                T*                            feature_struct)
 {
     // Type must be feature struct type that contains samplerYcbcrConversion
     static_assert(std::is_same<T, VkPhysicalDeviceVulkan11Features>::value ||
@@ -166,10 +166,10 @@ VkBool32 VulkanDeviceUtil::EnableSamplerYcbcrConversionFeatures(const VulkanInst
 }
 
 VulkanDevicePropertyFeatureInfo
-VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                                       const encode::VulkanInstanceTable* instance_table,
-                                                       const VkPhysicalDevice             physical_device,
-                                                       const VkDeviceCreateInfo*          create_info)
+VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                       const VulkanInstanceTable*    instance_table,
+                                                       const VkPhysicalDevice        physical_device,
+                                                       const VkDeviceCreateInfo*     create_info)
 {
     VulkanDevicePropertyFeatureInfo result;
     GFXRECON_ASSERT(create_info != nullptr);
@@ -331,10 +331,10 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
     }
 }
 
-void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
-                                                 const encode::VulkanInstanceTable* instance_table,
-                                                 VkPhysicalDevice                   physical_device,
-                                                 decode::VulkanReplayDeviceInfo*    replay_device_info)
+void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&   instance_info,
+                                                 const VulkanInstanceTable*      instance_table,
+                                                 VkPhysicalDevice                physical_device,
+                                                 decode::VulkanReplayDeviceInfo* replay_device_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(replay_device_info != nullptr);

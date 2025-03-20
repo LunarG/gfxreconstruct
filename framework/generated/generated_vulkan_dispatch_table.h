@@ -55,7 +55,7 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 
 typedef const void* VulkanDispatchKey;
 
@@ -2138,7 +2138,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectCountEXT", &table->CmdDrawMeshTasksIndirectCountEXT);
 }
 
-GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H
