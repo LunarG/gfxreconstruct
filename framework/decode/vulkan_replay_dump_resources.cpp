@@ -48,8 +48,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
                                                              CommonObjectInfoTable*     object_info_table) :
-    QueueSubmit_indices_(options.QueueSubmit_Indices), recording_(false),
-    dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
+    QueueSubmit_indices_(options.QueueSubmit_Indices),
+    recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), user_delegate_(nullptr),
     active_delegate_(nullptr), default_delegate_(nullptr)
 {
@@ -324,11 +324,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
 
     if (must_dump)
     {
-        assert(dc_context != nullptr);
-
         dc_context->InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -382,8 +378,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     {
         dc_context->InsertNewDrawIndexedParameters(
             dc_index, index_count, instance_count, first_index, vertexOffset, first_instance);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -434,9 +428,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     if (dc_context != nullptr && must_dump)
     {
         dc_context->InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -486,9 +477,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
     if (dc_context != nullptr && must_dump)
     {
         dc_context->InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -541,9 +529,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallIn
     {
         dc_context->InsertNewIndirectCountParameters(
             dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -602,9 +587,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCount(const Ap
     {
         dc_context->InsertNewDrawIndexedIndirectCountParameters(
             dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -663,9 +645,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCountKHR(const ApiCal
     {
         dc_context->InsertNewDrawIndirectCountKHRParameters(
             dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -724,9 +703,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCountKHR(const
     {
         dc_context->InsertNewDrawIndexedIndirectCountKHRParameters(
             dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-        dc_context->CopyVertexInputStateInfo(dc_index);
-        dc_context->SnapshotBoundDescriptors(dc_index);
-        dc_context->CopyDrawIndirectParameters(dc_index);
     }
 
     CommandBufferIterator first, last;
@@ -1009,6 +985,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&  
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer, pipelineBindPoint, pipeline->handle);
+
+        DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(original_command_buffer);
+        GFXRECON_ASSERT(context != nullptr);
+        context->BindPipeline(pipelineBindPoint, pipeline);
     }
 }
 
@@ -1026,7 +1006,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     assert(IsRecording(original_command_buffer));
     assert(descriptor_sets_ids);
 
-    std::vector<VkDescriptorSet> desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
+    std::vector<VkDescriptorSet>                desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
     std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(descriptor_sets_count, nullptr);
 
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
@@ -1346,7 +1326,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
         assert(dr_context != nullptr);
 
         dr_context->CloneDispatchMutableResources(disp_index, false);
-        dr_context->SnapshotBoundDescriptorsDispatch(disp_index);
+        dr_context->SnapshotDispatchState(disp_index);
         dr_context->FinalizeCommandBuffer(true);
         UpdateRecordingStatus(original_command_buffer);
     }
@@ -1397,8 +1377,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInf
         assert(dr_context != nullptr);
 
         dr_context->CloneDispatchMutableResources(disp_index, false);
-        dr_context->CopyDispatchIndirectParameters(disp_index);
-        dr_context->SnapshotBoundDescriptorsDispatch(disp_index);
+        dr_context->SnapshotDispatchState(disp_index);
         dr_context->FinalizeCommandBuffer(true);
         UpdateRecordingStatus(original_command_buffer);
     }
@@ -1483,7 +1462,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
         assert(dr_context != nullptr);
 
         dr_context->CloneTraceRaysMutableResources(tr_index, false);
-        dr_context->SnapshotBoundDescriptorsTraceRays(tr_index);
+        dr_context->SnapshotTraceRaysState(tr_index);
         dr_context->FinalizeCommandBuffer(false);
         UpdateRecordingStatus(original_command_buffer);
     }
@@ -1560,8 +1539,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
         assert(dr_context != nullptr);
 
         dr_context->CloneTraceRaysMutableResources(tr_index, false);
-        dr_context->CopyTraceRaysIndirectParameters(tr_index);
-        dr_context->SnapshotBoundDescriptorsTraceRays(tr_index);
+        dr_context->SnapshotTraceRaysState(tr_index);
         dr_context->FinalizeCommandBuffer(false);
         UpdateRecordingStatus(original_command_buffer);
     }
@@ -1613,8 +1591,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCa
         assert(dr_context != nullptr);
 
         dr_context->CloneTraceRaysMutableResources(tr_index, false);
-        dr_context->CopyTraceRaysIndirectParameters(tr_index);
-        dr_context->SnapshotBoundDescriptorsTraceRays(tr_index);
+        dr_context->SnapshotTraceRaysState(tr_index);
         dr_context->FinalizeCommandBuffer(false);
         UpdateRecordingStatus(original_command_buffer);
     }
@@ -2155,6 +2132,16 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                     pipeline_info->vertex_input_attribute_map = gpl_ppl->vertex_input_attribute_map;
                     pipeline_info->vertex_input_binding_map   = gpl_ppl->vertex_input_binding_map;
                 }
+            }
+        }
+
+        // Copy pipeline layout information
+        if (create_info_meta != nullptr)
+        {
+            const auto ppl_layout_info = object_info_table_->GetVkPipelineLayoutInfo(create_info_meta[i].layout);
+            if (ppl_layout_info != nullptr)
+            {
+                pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
             }
         }
     }

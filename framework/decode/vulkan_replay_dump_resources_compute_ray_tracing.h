@@ -30,6 +30,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 #include "vulkan/vulkan_core.h"
 
 #include <cstdint>
@@ -104,13 +105,11 @@ class DispatchTraceRaysDumpingContext
 
     VkResult CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd);
 
-    void SnapshotBoundDescriptorsDispatch(uint64_t index);
+    void SnapshotDispatchState(uint64_t index);
 
-    void SnapshotBoundDescriptorsTraceRays(uint64_t index);
+    void SnapshotTraceRaysState(uint64_t index);
 
-    VkResult CopyDispatchIndirectParameters(uint64_t index);
-
-    VkResult CopyTraceRaysIndirectParameters(uint64_t index);
+    void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
     void EndCommandBuffer();
 
@@ -143,6 +142,9 @@ class DispatchTraceRaysDumpingContext
     // One entry per descriptor set for each compute and ray tracing binding points
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_compute;
     std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_ray_tracing;
+
+    const VulkanPipelineInfo* bound_pipeline_compute;
+    const VulkanPipelineInfo* bound_pipeline_trace_rays;
 
   public:
     // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
@@ -186,6 +188,24 @@ class DispatchTraceRaysDumpingContext
         kDispatchIndirect,
         kDispatchBase
     };
+
+    static bool IsDispatchIndirect(DispatchTypes type)
+    {
+        switch (type)
+        {
+            case kDispatch:
+            case kDispatchBase:
+                return false;
+
+            case kDispatchIndirect:
+                return true;
+
+            default:
+                GFXRECON_LOG_ERROR("%s() Unrecognized dispatch call type (%u)", __func__, static_cast<uint32_t>(type))
+                GFXRECON_ASSERT(0);
+                return false;
+        }
+    }
 
     static const char* DispatchTypeToStr(DispatchTypes type)
     {
@@ -389,9 +409,13 @@ class DispatchTraceRaysDumpingContext
   private:
     VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
 
-    void SnapshotBoundDescriptors(DispatchParameters& disp_params);
+    void SnapshotDispatchState(DispatchParameters& disp_params);
 
-    void SnapshotBoundDescriptors(TraceRaysParameters& tr_params);
+    void SnapshotTraceRaysState(TraceRaysParameters& tr_params);
+
+    VkResult CopyDispatchIndirectParameters(DispatchParameters& disp_params);
+
+    VkResult CopyTraceRaysIndirectParameters(TraceRaysParameters& tr_params);
 
     // Gather here all descriptors referenced by commands that have already been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,

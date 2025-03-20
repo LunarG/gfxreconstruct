@@ -146,6 +146,7 @@
     "vkCmdBindDescriptorSets2" : "OverrideCmdBindDescriptorSets2",
     "vkCmdExecuteCommands" : "OverrideCmdExecuteCommands",
     "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
-    "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR"
+    "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR",
+    "vkCreatePipelineLayout" : "OverrideCreatePipelineLayout"
   }
 }

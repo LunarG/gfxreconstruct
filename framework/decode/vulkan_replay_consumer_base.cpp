@@ -4266,13 +4266,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
         const VkDescriptorSetLayoutBinding* p_bindings    = create_info_meta->decoded_value->pBindings;
         if (binding_count && p_bindings != nullptr)
         {
-            layout_info->bindings_layout.resize(binding_count);
             for (uint32_t i = 0; i < binding_count; ++i)
             {
-                layout_info->bindings_layout[i].type        = p_bindings[i].descriptorType;
-                layout_info->bindings_layout[i].count       = p_bindings[i].descriptorCount;
-                layout_info->bindings_layout[i].binding     = p_bindings[i].binding;
-                layout_info->bindings_layout[i].stage_flags = p_bindings[i].stageFlags;
+                layout_info->bindings_layout.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(p_bindings[i].binding),
+                    std::forward_as_tuple(DescriptorBindingLayout{
+                        p_bindings[i].descriptorCount, p_bindings[i].descriptorType, p_bindings[i].stageFlags }));
             }
         }
     }
@@ -4453,22 +4453,21 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                     object_info_table_->GetVkDescriptorSetLayoutInfo(set_layout_ids[i]);
                 assert(set_layout_info != nullptr);
 
-                for (const auto& layout_binding : set_layout_info->bindings_layout)
+                for (const auto& [binding_idx, binding_info] : set_layout_info->bindings_layout)
                 {
-                    assert(desc_info->descriptors.find(layout_binding.binding) == desc_info->descriptors.end());
-                    auto new_entry = desc_info->descriptors.emplace(std::piecewise_construct,
-                                                                    std::forward_as_tuple(layout_binding.binding),
-                                                                    std::forward_as_tuple());
-                    assert(new_entry.second);
+                    GFXRECON_ASSERT(desc_info->descriptors.find(binding_idx) == desc_info->descriptors.end());
+                    auto new_entry = desc_info->descriptors.emplace(
+                        std::piecewise_construct, std::forward_as_tuple(binding_idx), std::forward_as_tuple());
+                    GFXRECON_ASSERT(new_entry.second);
 
-                    new_entry.first->second.desc_type   = layout_binding.type;
-                    new_entry.first->second.stage_flags = layout_binding.stage_flags;
+                    new_entry.first->second.desc_type   = binding_info.type;
+                    new_entry.first->second.stage_flags = binding_info.stage_flags;
 
                     // NOTE: unlike other descriptor-arrays, inline-uniform-block arrays are never sparse.
                     // we need to set their size appropriately.
-                    if (layout_binding.type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+                    if (binding_info.type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
                     {
-                        new_entry.first->second.inline_uniform_block.resize(layout_binding.count);
+                        new_entry.first->second.inline_uniform_block.resize(binding_info.count);
                     }
                 }
             }
@@ -11251,6 +11250,48 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
     {
         pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineLayout(
+    PFN_vkCreatePipelineLayout                                func,
+    VkResult                                                  original_result,
+    const VulkanDeviceInfo*                                   device_info,
+    StructPointerDecoder<Decoded_VkPipelineLayoutCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+    HandlePointerDecoder<VkPipelineLayout>*                   pPipelineLayout)
+{
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfo != nullptr) && (pPipelineLayout != nullptr));
+
+    VkResult result = func(device_info->handle,
+                           pCreateInfo->GetPointer(),
+                           GetAllocationCallbacks(pAllocator),
+                           pPipelineLayout->GetHandlePointer());
+
+    if (result == VK_SUCCESS && UseExtraDescriptorInfo(device_info))
+    {
+        auto meta_info = pCreateInfo->GetMetaStructPointer();
+        GFXRECON_ASSERT(meta_info->decoded_value != nullptr);
+
+        const uint32_t          set_layout_count = meta_info->decoded_value->setLayoutCount;
+        const format::HandleId* set_layout_ids   = meta_info->pSetLayouts.GetPointer();
+
+        auto* ppl_layout_info = reinterpret_cast<VulkanPipelineLayoutInfo*>(pPipelineLayout->GetConsumerData(0));
+        GFXRECON_ASSERT(ppl_layout_info != nullptr);
+
+        ppl_layout_info->desc_set_layouts.resize(set_layout_count);
+        for (uint32_t i = 0; i < set_layout_count; ++i)
+        {
+            const auto set_layout_info = object_info_table_->GetVkDescriptorSetLayoutInfo(set_layout_ids[i]);
+
+            // Spec allows VK_NULL_HANDLE layouts
+            if (set_layout_info != nullptr)
+            {
+                ppl_layout_info->desc_set_layouts[i] = set_layout_info->bindings_layout;
+            }
+        }
+    }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(decode)
