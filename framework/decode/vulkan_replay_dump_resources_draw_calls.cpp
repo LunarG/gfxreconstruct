@@ -1582,6 +1582,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     {
         uint32_t vertex_count   = 0;
         uint32_t instance_count = 0;
+        uint32_t first_vertex   = 0;
 
         if (IsDrawCallIndexed(dc_params.type))
         {
@@ -1637,6 +1638,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         {
             if (IsDrawCallIndirect(dc_params.type))
             {
+                first_vertex = std::numeric_limits<uint32_t>::max();
+
                 if (IsDrawCallIndirectCount(dc_params.type))
                 {
                     const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
@@ -1656,6 +1659,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                             if (instance_count < ic_params.draw_params[d].instanceCount)
                             {
                                 instance_count = ic_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_vertex > ic_params.draw_params[d].firstVertex)
+                            {
+                                first_vertex = ic_params.draw_params[d].firstVertex;
                             }
                         }
                     }
@@ -1680,14 +1688,25 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                             {
                                 instance_count = i_params.draw_params[d].instanceCount;
                             }
+
+                            if (first_vertex > i_params.draw_params[d].firstVertex)
+                            {
+                                first_vertex = i_params.draw_params[d].firstVertex;
+                            }
                         }
                     }
+                }
+
+                if (first_vertex == std::numeric_limits<uint32_t>::max())
+                {
+                    first_vertex = 0;
                 }
             }
             else
             {
                 vertex_count   = dc_params.dc_params_union.draw.vertexCount;
                 instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_vertex   = dc_params.dc_params_union.draw.firstVertex;
             }
         }
 
@@ -1762,7 +1781,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
 
                 // Calculate offset including vertexOffset
-                const uint32_t offset = vb_entry->second.offset + (min_max_vertex_indices.min * binding_stride);
+                const uint32_t offset =
+                    vb_entry->second.offset + ((min_max_vertex_indices.min + first_vertex) * binding_stride);
 
                 assert(total_size <= vb_entry->second.buffer_info->size - offset);
                 // There is something wrong with the calculations if this is true
