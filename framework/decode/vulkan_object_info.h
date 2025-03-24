@@ -653,6 +653,9 @@ struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLa
         uint32_t           binding;
         VkDescriptorType   type;
         VkShaderStageFlags stage_flags;
+
+        // used primarily to keep track of inline-uniform-block sizes.
+        uint32_t count;
     };
 
     std::vector<DescriptorBindingLayout> bindings_layout;

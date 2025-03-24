@@ -4270,6 +4270,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
             for (uint32_t i = 0; i < binding_count; ++i)
             {
                 layout_info->bindings_layout[i].type        = p_bindings[i].descriptorType;
+                layout_info->bindings_layout[i].count       = p_bindings[i].descriptorCount;
                 layout_info->bindings_layout[i].binding     = p_bindings[i].binding;
                 layout_info->bindings_layout[i].stage_flags = p_bindings[i].stageFlags;
             }
@@ -4462,6 +4463,13 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
                     new_entry.first->second.desc_type   = layout_binding.type;
                     new_entry.first->second.stage_flags = layout_binding.stage_flags;
+
+                    // NOTE: unlike other descriptor-arrays, inline-uniform-block arrays are never sparse.
+                    // we need to set their size appropriately.
+                    if (layout_binding.type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+                    {
+                        new_entry.first->second.inline_uniform_block.resize(layout_binding.count);
+                    }
                 }
             }
         }
