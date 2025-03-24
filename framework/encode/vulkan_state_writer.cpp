@@ -2270,7 +2270,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
     image_resources.reserve(image_snapshot_infos.size());
 
     auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
-        GFXRECON_LOG_INFO("image: %d x %d (%d kB)", img.extent.width, img.extent.height, img.resource_size >> 10);
+//        GFXRECON_LOG_INFO("image: %d x %d (%d kB)", img.extent.width, img.extent.height, img.resource_size >> 10);
 
         command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
                                           device_wrapper->handle_id,

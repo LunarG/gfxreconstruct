@@ -82,6 +82,7 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_sizes    = nullptr,
                                           bool                   all_layers_per_level = false);
 
+    //! aggregate type to group information about an image-resource
     struct ImageResource
     {
         format::HandleId                 handle_id            = format::kNullHandleId;
@@ -104,9 +105,22 @@ class VulkanResourcesUtil
         float                            scale                = 1.0f;
         VkFormat                         dst_format           = VK_FORMAT_UNDEFINED;
     };
+
+    //! signature for a callback-function, providing an image-resource and a corresponding data-pointer
     using ReadImageResourcesCallbackFn = std::function<void(const ImageResource& img_resource, const void* data)>;
+
+    /**
+     * @brief   ReadImageResources processes an array of ImageResources in batches
+     *          and will download data from GPU-memory using a staging-buffer.
+     *
+     * @param   image_resources     an array of ImageResource-structs
+     * @param   call_back           a callback-function, consuming data from staging-buffer
+     * @param   staging_buffer_size target size for the staging-buffer (default is 128MB).
+     *                              we might allocate a larger buffer, depending on largest resource-size
+     */
     void ReadImageResources(const std::vector<ImageResource>&   image_resources,
-                            const ReadImageResourcesCallbackFn& call_back);
+                            const ReadImageResourcesCallbackFn& call_back,
+                            size_t                              staging_buffer_size = 128U << 20U);
 
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when accessing the image content directly is not possible
