@@ -1634,20 +1634,19 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
     // aggregate to store temporary data during batch-processing
     struct image_resource_tmp_data_t
     {
-        VkDeviceSize       staging_offset      = 0;
-        VkImage            resolve_image       = VK_NULL_HANDLE;
-        VkDeviceMemory     resolve_memory      = VK_NULL_HANDLE;
-        VkImage            scaled_image        = VK_NULL_HANDLE;
-        VkDeviceMemory     scaled_image_memory = VK_NULL_HANDLE;
-        bool               use_blit            = false;
-        bool               scaling_supported   = false;
-        VkExtent3D         scaled_extent       = {};
-        VkImageAspectFlags transition_aspect   = VK_IMAGE_ASPECT_NONE;
+        VkDeviceSize              staging_offset      = 0;
+        VkImage                   resolve_image       = VK_NULL_HANDLE;
+        VkDeviceMemory            resolve_memory      = VK_NULL_HANDLE;
+        VkImage                   scaled_image        = VK_NULL_HANDLE;
+        VkDeviceMemory            scaled_image_memory = VK_NULL_HANDLE;
+        bool                      use_blit            = false;
+        bool                      scaling_supported   = false;
+        VkExtent3D                scaled_extent       = {};
+        VkImageAspectFlags        transition_aspect   = VK_IMAGE_ASPECT_NONE;
+        std::vector<VkDeviceSize> level_sizes;
     };
     std::vector<image_resource_tmp_data_t> tmp_data(image_resources.size());
-    std::vector<VkDeviceSize>              subresource_offsets, subresource_sizes;
-
-    uint32_t current_batch_size = 0;
+    uint32_t                               current_batch_size = 0;
 
     // start with entire range
     std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(image_resources.size()) } };
@@ -1684,17 +1683,14 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
             static_cast<uint32_t>(std::max(static_cast<float>(img.extent.depth) * img.scale, 1.0f))
         };
 
-        subresource_offsets.clear();
-        subresource_sizes.clear();
-
         uint64_t resource_size = img.resource_size;
 
         if (img.external_format)
         {
             resource_size = img.size;
-            subresource_sizes.push_back(resource_size);
+            tmp_data[i].level_sizes.push_back(resource_size);
         }
-        else if (resource_size == 0)
+        else if (resource_size == 0 || img.level_sizes == nullptr)
         {
             resource_size = GetImageResourceSizesOptimal(img.image,
                                                          tmp_data[i].use_blit ? dst_format : img.format,
@@ -1704,12 +1700,9 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
                                                          img.array_layers,
                                                          img.tiling,
                                                          img.aspect,
-                                                         &subresource_offsets,
-                                                         &subresource_sizes,
+                                                         nullptr,
+                                                         &tmp_data[i].level_sizes,
                                                          img.all_layers_per_level);
-
-            //            GFXRECON_ASSERT(img.resource_size == resource_size);
-            //            GFXRECON_ASSERT(!img.level_sizes || *img.level_sizes == subresource_sizes);
         }
 
         if (resource_size > staging_buffer_size)
@@ -1840,7 +1833,7 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
                                 img.mip_levels,
                                 img.array_layers,
                                 img.aspect,
-                                *img.level_sizes,
+                                img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
                                 img.all_layers_per_level,
                                 kImageToBuffer);
             }

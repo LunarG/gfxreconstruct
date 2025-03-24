@@ -85,25 +85,30 @@ class VulkanResourcesUtil
     //! aggregate type to group information about an image-resource
     struct ImageResource
     {
-        format::HandleId                 handle_id            = format::kNullHandleId;
-        VkImage                          image                = VK_NULL_HANDLE;
-        VkFormat                         format               = VK_FORMAT_UNDEFINED;
-        VkImageType                      type                 = VK_IMAGE_TYPE_2D;
-        VkExtent3D                       extent               = {};
-        uint32_t                         mip_levels           = 0;
-        uint32_t                         array_layers         = 0;
-        VkImageTiling                    tiling               = VK_IMAGE_TILING_MAX_ENUM;
-        VkSampleCountFlags               samples              = 0;
-        VkImageLayout                    layout               = VK_IMAGE_LAYOUT_UNDEFINED;
-        uint32_t                         queue_family_index   = 0;
-        bool                             external_format      = false;
-        VkDeviceSize                     size                 = 0;
-        VkDeviceSize                     resource_size        = 0;
-        const std::vector<VkDeviceSize>* level_sizes          = nullptr;
-        VkImageAspectFlagBits            aspect               = VK_IMAGE_ASPECT_NONE;
-        bool                             all_layers_per_level = false;
-        float                            scale                = 1.0f;
-        VkFormat                         dst_format           = VK_FORMAT_UNDEFINED;
+        format::HandleId   handle_id          = format::kNullHandleId;
+        VkImage            image              = VK_NULL_HANDLE;
+        VkFormat           format             = VK_FORMAT_UNDEFINED;
+        VkImageType        type               = VK_IMAGE_TYPE_2D;
+        VkExtent3D         extent             = {};
+        uint32_t           mip_levels         = 0;
+        uint32_t           array_layers       = 0;
+        VkImageTiling      tiling             = VK_IMAGE_TILING_MAX_ENUM;
+        VkSampleCountFlags samples            = 0;
+        VkImageLayout      layout             = VK_IMAGE_LAYOUT_UNDEFINED;
+        uint32_t           queue_family_index = 0;
+        bool               external_format    = false;
+        VkDeviceSize       size               = 0;
+
+        //! optionally provide resource_size
+        VkDeviceSize resource_size = 0;
+
+        //! optionally provide sizes of sub-resources (mipmap-levels)
+        const std::vector<VkDeviceSize>* level_sizes = nullptr;
+
+        VkImageAspectFlagBits aspect               = VK_IMAGE_ASPECT_NONE;
+        bool                  all_layers_per_level = false;
+        float                 scale                = 1.0f;
+        VkFormat              dst_format           = VK_FORMAT_UNDEFINED;
     };
 
     //! signature for a callback-function, providing an image-resource and a corresponding data-pointer
@@ -115,7 +120,7 @@ class VulkanResourcesUtil
      *
      * @param   image_resources     an array of ImageResource-structs
      * @param   call_back           a callback-function, consuming data from staging-buffer
-     * @param   staging_buffer_size target size for the staging-buffer (default is 128MB).
+     * @param   staging_buffer_size target size for the staging-buffer in bytes (default is 128MB).
      *                              we might allocate a larger buffer, depending on largest resource-size
      */
     void ReadImageResources(const std::vector<ImageResource>&   image_resources,

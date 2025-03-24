@@ -2270,8 +2270,6 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
     image_resources.reserve(image_snapshot_infos.size());
 
     auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
-//        GFXRECON_LOG_INFO("image: %d x %d (%d kB)", img.extent.width, img.extent.height, img.resource_size >> 10);
-
         command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
                                           device_wrapper->handle_id,
                                           img.handle_id,
@@ -2377,19 +2375,91 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                                                         const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                                                         graphics::VulkanResourcesUtil&        resource_util)
 {
-    assert(device_wrapper != nullptr);
-    assert(asset_file_stream_ != nullptr);
-
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+    GFXRECON_ASSERT(asset_file_stream_ != nullptr);
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+
+    using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
+    std::vector<ImageResource> image_resources;
+
+    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
+        format::InitImageCommandHeader upload_cmd;
+
+        // Packet size without the resource data.
+        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
+        upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+        upload_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kInitImageCommand);
+        upload_cmd.thread_id = thread_data_->thread_id_;
+        upload_cmd.device_id = device_wrapper->handle_id;
+        upload_cmd.image_id  = img.handle_id;
+        upload_cmd.aspect    = img.aspect;
+        upload_cmd.layout    = img.layout;
+
+        if (data != nullptr)
+        {
+            auto* bytes = reinterpret_cast<const uint8_t*>(data);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, img.resource_size);
+
+            auto data_size = static_cast<size_t>(img.resource_size);
+
+            // Store uncompressed data size in packet.
+            upload_cmd.data_size   = data_size;
+            upload_cmd.level_count = img.mip_levels;
+
+            if (compressor_ != nullptr)
+            {
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
+
+                if ((compressed_size > 0) && (compressed_size < data_size))
+                {
+                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                    bytes     = compressed_parameter_buffer_.data();
+                    data_size = compressed_size;
+                }
+            }
+
+            // Calculate size of packet with compressed or uncompressed data size.
+            GFXRECON_ASSERT(img.level_sizes != nullptr && !img.level_sizes->empty() &&
+                            (img.level_sizes->size() == upload_cmd.level_count));
+            size_t levels_size = img.level_sizes->size() * sizeof(img.level_sizes->front());
+
+            upload_cmd.meta_header.block_header.size += levels_size + data_size;
+
+            const int64_t offset                  = asset_file_stream_->GetOffset();
+            (*asset_file_offsets_)[img.handle_id] = offset;
+            asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+            asset_file_stream_->Write(img.level_sizes->data(), levels_size);
+            asset_file_stream_->Write(bytes, data_size);
+
+            if (output_stream_ != nullptr)
+            {
+                WriteExecuteFromFile(asset_file_name_, 1, offset);
+            }
+        }
+        else
+        {
+            if (output_stream_ != nullptr)
+            {
+                // Write a packet without resource data; replay must still perform a layout transition at image
+                // initialization.
+                upload_cmd.data_size   = 0;
+                upload_cmd.level_count = 0;
+
+                output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                ++blocks_written_;
+            }
+        }
+    };
 
     for (const auto& snapshot_entry : image_snapshot_info)
     {
         vulkan_wrappers::ImageWrapper*              image_wrapper  = snapshot_entry.image_wrapper;
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
         const uint8_t*                              bytes          = nullptr;
-        std::vector<uint8_t>                        data;
 
-        assert(image_wrapper != nullptr);
+        GFXRECON_ASSERT(image_wrapper != nullptr);
 
         if (image_wrapper->external_memory_android)
         {
@@ -2399,45 +2469,39 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
         if (image_wrapper->dirty)
         {
-            assert((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
-                   (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr));
+            GFXRECON_ASSERT((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
+                            (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr));
 
             image_wrapper->dirty = false;
 
+            graphics::VulkanResourcesUtil::ImageResource image_resource = {};
+            image_resource.handle_id                                    = image_wrapper->handle_id;
+            image_resource.image                                        = image_wrapper->handle;
+            image_resource.format                                       = image_wrapper->format;
+            image_resource.type                                         = image_wrapper->image_type;
+            image_resource.extent                                       = image_wrapper->extent;
+            image_resource.mip_levels                                   = image_wrapper->mip_levels;
+            image_resource.array_layers                                 = image_wrapper->array_layers;
+            image_resource.tiling                                       = image_wrapper->tiling;
+            image_resource.samples                                      = image_wrapper->samples;
+            image_resource.layout                                       = image_wrapper->current_layout;
+            image_resource.queue_family_index                           = image_wrapper->queue_family_index;
+            image_resource.external_format                              = image_wrapper->external_format;
+            image_resource.size                                         = image_wrapper->size;
+            image_resource.resource_size                                = snapshot_entry.resource_size;
+            image_resource.level_sizes                                  = &snapshot_entry.level_sizes;
+            image_resource.aspect                                       = snapshot_entry.aspect;
+            image_resource.external_format                              = image_wrapper->external_format;
+            image_resource.all_layers_per_level                         = true;
+
             if (snapshot_entry.need_staging_copy)
             {
-                std::vector<uint64_t> subresource_offsets;
-                std::vector<uint64_t> subresource_sizes;
-                bool                  scaling_supported;
-
-                VkResult result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
-                                                                             image_wrapper->format,
-                                                                             image_wrapper->image_type,
-                                                                             image_wrapper->extent,
-                                                                             image_wrapper->mip_levels,
-                                                                             image_wrapper->array_layers,
-                                                                             image_wrapper->tiling,
-                                                                             image_wrapper->samples,
-                                                                             image_wrapper->current_layout,
-                                                                             image_wrapper->queue_family_index,
-                                                                             image_wrapper->external_format,
-                                                                             image_wrapper->size,
-                                                                             snapshot_entry.aspect,
-                                                                             data,
-                                                                             subresource_offsets,
-                                                                             subresource_sizes,
-                                                                             scaling_supported,
-                                                                             true);
-
-                if (result == VK_SUCCESS)
-                {
-                    bytes = data.data();
-                }
+                image_resources.push_back(image_resource);
             }
             else if (!image_wrapper->is_swapchain_image)
             {
-                assert((memory_wrapper != nullptr) &&
-                       ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
+                GFXRECON_ASSERT((memory_wrapper != nullptr) &&
+                                ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
 
                 VkResult result = VK_SUCCESS;
 
@@ -2468,82 +2532,12 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                                                 image_wrapper->bind_offset,
                                                 snapshot_entry.resource_size);
                 }
-            }
 
-            if (!image_wrapper->is_swapchain_image)
-            {
-                format::InitImageCommandHeader upload_cmd;
+                write_init_image_cmd(image_resource, bytes);
 
-                // Packet size without the resource data.
-                upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
-                upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-                upload_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan,
-                                                                             format::MetaDataType::kInitImageCommand);
-                upload_cmd.thread_id                     = thread_data_->thread_id_;
-                upload_cmd.device_id                     = device_wrapper->handle_id;
-                upload_cmd.image_id                      = image_wrapper->handle_id;
-                upload_cmd.aspect                        = snapshot_entry.aspect;
-                upload_cmd.layout                        = image_wrapper->current_layout;
-
-                if (bytes != nullptr)
+                if (memory_wrapper->mapped_data != nullptr)
                 {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, snapshot_entry.resource_size);
-
-                    size_t data_size = static_cast<size_t>(snapshot_entry.resource_size);
-
-                    // Store uncompressed data size in packet.
-                    upload_cmd.data_size   = data_size;
-                    upload_cmd.level_count = image_wrapper->mip_levels;
-
-                    if (compressor_ != nullptr)
-                    {
-                        size_t compressed_size =
-                            compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
-
-                        if ((compressed_size > 0) && (compressed_size < data_size))
-                        {
-                            upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                            bytes     = compressed_parameter_buffer_.data();
-                            data_size = compressed_size;
-                        }
-                    }
-
-                    // Calculate size of packet with compressed or uncompressed data size.
-                    assert(!snapshot_entry.level_sizes.empty() &&
-                           (snapshot_entry.level_sizes.size() == upload_cmd.level_count));
-                    size_t levels_size = snapshot_entry.level_sizes.size() * sizeof(snapshot_entry.level_sizes[0]);
-
-                    upload_cmd.meta_header.block_header.size += levels_size + data_size;
-
-                    const int64_t offset                             = asset_file_stream_->GetOffset();
-                    (*asset_file_offsets_)[image_wrapper->handle_id] = offset;
-                    asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                    asset_file_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
-                    asset_file_stream_->Write(bytes, data_size);
-
-                    if (output_stream_ != nullptr)
-                    {
-                        WriteExecuteFromFile(asset_file_name_, 1, offset);
-                    }
-
-                    if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
-                    {
-                        device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
-                    }
-                }
-                else
-                {
-                    if (output_stream_ != nullptr)
-                    {
-                        // Write a packet without resource data; replay must still perform a layout transition at image
-                        // initialization.
-                        upload_cmd.data_size   = 0;
-                        upload_cmd.level_count = 0;
-
-                        output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                        ++blocks_written_;
-                    }
+                    device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
                 }
             }
         }
@@ -2557,6 +2551,9 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             }
         }
     }
+
+    // batch process image-downloads requiring staging
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd);
 }
 
 void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_table,
