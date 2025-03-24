@@ -2018,37 +2018,84 @@ bool VulkanStateWriter::OutputStreamWrite(const void* data, size_t len)
 }
 
 void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
-                                            const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
+                                            const std::vector<BufferSnapshotInfo>& buffer_snapshot_infos,
                                             graphics::VulkanResourcesUtil&         resource_util)
 {
-    assert(device_wrapper != nullptr);
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+    using BufferResource = graphics::VulkanResourcesUtil::BufferResource;
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
-    for (const auto& snapshot_entry : buffer_snapshot_info)
-    {
-        const vulkan_wrappers::BufferWrapper*       buffer_wrapper = snapshot_entry.buffer_wrapper;
-        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
-        const uint8_t*                              bytes          = nullptr;
-        std::vector<uint8_t>                        data;
+    std::vector<BufferResource> buffer_resources;
+    buffer_resources.reserve(buffer_snapshot_infos.size());
 
-        assert((buffer_wrapper != nullptr) && (memory_wrapper != nullptr));
-
-        if (snapshot_entry.need_staging_copy)
+    auto write_init_buffer_cmd = [this, device_wrapper](const BufferResource& buf, const void* data) {
+        if (data != nullptr)
         {
-            VkResult result = resource_util.ReadFromBufferResource(
-                buffer_wrapper->handle, buffer_wrapper->size, 0, buffer_wrapper->queue_family_index, data);
 
-            if (result == VK_SUCCESS)
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, buf.size);
+            auto*                           bytes     = reinterpret_cast<const uint8_t*>(data);
+            auto                            data_size = static_cast<size_t>(buf.size);
+            format::InitBufferCommandHeader upload_cmd{};
+
+            upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+            upload_cmd.meta_header.meta_data_id =
+                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kInitBufferCommand);
+            upload_cmd.thread_id = thread_data_->thread_id_;
+            upload_cmd.device_id = device_wrapper->handle_id;
+            upload_cmd.buffer_id = buf.handle_id;
+            upload_cmd.data_size = data_size;
+
+            if (compressor_ != nullptr)
             {
-                bytes = data.data();
+
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
+
+                if ((compressed_size > 0) && (compressed_size < data_size))
+                {
+                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                    bytes     = compressed_parameter_buffer_.data();
+                    data_size = compressed_size;
+                }
             }
+
+            // Calculate size of packet with compressed or uncompressed data size.
+            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + data_size;
+
+            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+            output_stream_->Write(bytes, data_size);
+            ++blocks_written_;
         }
         else
         {
-            assert((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
+            GFXRECON_LOG_ERROR("Trimming state snapshot failed to retrieve memory content for buffer %" PRIu64,
+                               buf.handle_id);
+        }
+    };
 
-            VkResult result = VK_SUCCESS;
+    for (const auto& snapshot_entry : buffer_snapshot_infos)
+    {
+        const vulkan_wrappers::BufferWrapper*       buffer_wrapper = snapshot_entry.buffer_wrapper;
+        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
+        GFXRECON_ASSERT((buffer_wrapper != nullptr) && (memory_wrapper != nullptr));
+
+        BufferResource buffer_resource;
+        buffer_resource.handle_id          = buffer_wrapper->handle_id;
+        buffer_resource.buffer             = buffer_wrapper->handle;
+        buffer_resource.size               = buffer_wrapper->size;
+        buffer_resource.offset             = 0;
+        buffer_resource.queue_family_index = buffer_wrapper->queue_family_index;
+
+        if (snapshot_entry.need_staging_copy)
+        {
+            buffer_resources.push_back(buffer_resource);
+        }
+        else
+        {
+            GFXRECON_ASSERT((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
+            const uint8_t* bytes  = nullptr;
+            VkResult       result = VK_SUCCESS;
 
             if (memory_wrapper->mapped_data == nullptr)
             {
@@ -2075,54 +2122,19 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                 InvalidateMappedMemoryRange(
                     device_wrapper, memory_wrapper->handle, buffer_wrapper->bind_offset, buffer_wrapper->size);
             }
-        }
 
-        if (bytes != nullptr)
-        {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, buffer_wrapper->size);
+            write_init_buffer_cmd(buffer_resource, bytes);
 
-            size_t                          data_size = static_cast<size_t>(buffer_wrapper->size);
-            format::InitBufferCommandHeader upload_cmd;
-
-            upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            upload_cmd.meta_header.meta_data_id =
-                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kInitBufferCommand);
-            upload_cmd.thread_id = thread_data_->thread_id_;
-            upload_cmd.device_id = device_wrapper->handle_id;
-            upload_cmd.buffer_id = buffer_wrapper->handle_id;
-            upload_cmd.data_size = data_size;
-
-            if (compressor_ != nullptr)
-            {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
-
-                if ((compressed_size > 0) && (compressed_size < data_size))
-                {
-                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                    bytes     = compressed_parameter_buffer_.data();
-                    data_size = compressed_size;
-                }
-            }
-
-            // Calculate size of packet with compressed or uncompressed data size.
-            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + data_size;
-
-            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-            output_stream_->Write(bytes, data_size);
-            ++blocks_written_;
-
-            if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
+            if (memory_wrapper->mapped_data == nullptr)
             {
                 device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
             }
         }
-        else
-        {
-            GFXRECON_LOG_ERROR("Trimming state snapshot failed to retrieve memory content for buffer %" PRIu64,
-                               buffer_wrapper->handle_id);
-        }
     }
+
+    // batch process buffer-downloads requiring staging, use 128MB staging-mem
+    constexpr uint32_t staging_buffer_size = 128U << 20U;
+    resource_util.ReadBufferResources(buffer_resources, write_init_buffer_cmd, staging_buffer_size);
 }
 
 void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
@@ -2262,14 +2274,14 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                            graphics::VulkanResourcesUtil&        resource_util)
 {
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
-    assert(device_wrapper != nullptr);
+    GFXRECON_ASSERT(device_wrapper != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     std::vector<ImageResource> image_resources;
     image_resources.reserve(image_snapshot_infos.size());
 
-    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
+    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, uint32_t num_bytes) {
         command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
                                           device_wrapper->handle_id,
                                           img.handle_id,
@@ -2277,7 +2289,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                           img.layout,
                                           img.mip_levels,
                                           *img.level_sizes,
-                                          img.resource_size,
+                                          num_bytes,
                                           data);
         ++blocks_written_;
     };
@@ -2312,7 +2324,6 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         image_resource.resource_size        = snapshot_entry.resource_size;
         image_resource.level_sizes          = &snapshot_entry.level_sizes;
         image_resource.aspect               = snapshot_entry.aspect;
-        image_resource.external_format      = image_wrapper->external_format;
         image_resource.all_layers_per_level = true;
 
         if (image_wrapper->external_memory_android)
@@ -2358,17 +2369,18 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                     device_wrapper, memory_wrapper->handle, image_wrapper->bind_offset, snapshot_entry.resource_size);
             }
 
-            write_init_image_cmd(image_resource, bytes);
+            write_init_image_cmd(image_resource, bytes, snapshot_entry.resource_size);
 
-            if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
+            if (memory_wrapper->mapped_data == nullptr)
             {
                 device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
             }
         }
     }
 
-    // batch process image-downloads requiring staging
-    resource_util.ReadImageResources(image_resources, write_init_image_cmd);
+    // batch process image-downloads requiring staging, use 128MB staging-mem
+    constexpr uint32_t staging_buffer_size = 128U << 20U;
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
 void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
@@ -2382,7 +2394,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     std::vector<ImageResource> image_resources;
 
-    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data) {
+    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
         format::InitImageCommandHeader upload_cmd;
 
         // Packet size without the resource data.
@@ -2401,7 +2413,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             auto* bytes = reinterpret_cast<const uint8_t*>(data);
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, img.resource_size);
 
-            auto data_size = static_cast<size_t>(img.resource_size);
+            auto data_size = static_cast<size_t>(num_bytes);
 
             // Store uncompressed data size in packet.
             upload_cmd.data_size   = data_size;
@@ -2533,9 +2545,9 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                                                 snapshot_entry.resource_size);
                 }
 
-                write_init_image_cmd(image_resource, bytes);
+                write_init_image_cmd(image_resource, bytes, snapshot_entry.resource_size);
 
-                if (memory_wrapper->mapped_data != nullptr)
+                if (memory_wrapper->mapped_data == nullptr)
                 {
                     device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
                 }
@@ -2552,8 +2564,9 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         }
     }
 
-    // batch process image-downloads requiring staging
-    resource_util.ReadImageResources(image_resources, write_init_image_cmd);
+    // batch process image-downloads requiring staging, use 128MB staging-mem
+    constexpr uint32_t staging_buffer_size = 128U << 20U;
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
 void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_table,

@@ -1927,34 +1927,36 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     std::vector<ImageResource> image_resources;
 
-    auto write_init_image_cmd = [this, &resource_util, device_wrapper](const ImageResource& img, const void* data) {
-        // Combined size of all layers in a mip level.
-        std::vector<uint64_t> level_sizes;
+    auto write_init_image_cmd =
+        [this, &resource_util, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
+            // Combined size of all layers in a mip level.
+            std::vector<uint64_t> level_sizes;
 
-        uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
-                                                                            img.format,
-                                                                            img.type,
-                                                                            img.extent,
-                                                                            img.mip_levels,
-                                                                            img.array_layers,
-                                                                            img.tiling,
-                                                                            img.aspect,
-                                                                            nullptr,
-                                                                            &level_sizes,
-                                                                            true);
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
+                                                                                img.format,
+                                                                                img.type,
+                                                                                img.extent,
+                                                                                img.mip_levels,
+                                                                                img.array_layers,
+                                                                                img.tiling,
+                                                                                img.aspect,
+                                                                                nullptr,
+                                                                                &level_sizes,
+                                                                                true);
+            GFXRECON_ASSERT(resource_size == num_bytes);
 
-        WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
-        GetCommandWriter()->WriteInitImageCmd(api_family_,
-                                              device_wrapper->handle_id,
-                                              img.handle_id,
-                                              img.aspect,
-                                              img.layout,
-                                              img.mip_levels,
-                                              level_sizes,
-                                              resource_size,
-                                              data);
-        WriteEndResourceInitCmd(device_wrapper->handle_id);
-    };
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
+            GetCommandWriter()->WriteInitImageCmd(api_family_,
+                                                  device_wrapper->handle_id,
+                                                  img.handle_id,
+                                                  img.aspect,
+                                                  img.layout,
+                                                  img.mip_levels,
+                                                  level_sizes,
+                                                  resource_size,
+                                                  data);
+            WriteEndResourceInitCmd(device_wrapper->handle_id);
+        };
 
     for (auto aspect : aspects)
     {
@@ -1977,8 +1979,9 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.all_layers_per_level = true;
     }
 
-    // batch process image-downloads requiring staging
-    resource_util.ReadImageResources(image_resources, write_init_image_cmd);
+    // batch process image-downloads requiring staging, use 32MB staging-mem
+    constexpr uint32_t staging_buffer_size = 16U << 20U;
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
 void VulkanCaptureManager::PostProcess_vkBindBufferMemory(

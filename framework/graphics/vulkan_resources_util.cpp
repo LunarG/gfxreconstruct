@@ -29,6 +29,7 @@
 
 #include <cstdint>
 #include <cmath>
+#include <chrono>
 
 #include "vulkan_resources_util.h"
 
@@ -779,7 +780,8 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const encode::VulkanDeviceTable&        device_table,
                                          const encode::VulkanInstanceTable&      instance_table,
                                          const VkPhysicalDeviceMemoryProperties& memory_properties) :
-    device_(device), device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
+    device_(device),
+    device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties)
 {
     assert(device != VK_NULL_HANDLE);
@@ -1319,14 +1321,15 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
                                      VkBuffer        source_buffer,
                                      VkBuffer        destination_buffer,
                                      uint64_t        size,
-                                     uint64_t        src_offset)
+                                     uint64_t        src_offset,
+                                     uint64_t        dst_offset)
 {
     GFXRECON_ASSERT(source_buffer != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
     VkBufferCopy copy_region;
     copy_region.srcOffset = src_offset;
-    copy_region.dstOffset = 0;
+    copy_region.dstOffset = dst_offset;
     copy_region.size      = size;
 
     device_table_.CmdCopyBuffer(command_buffer, source_buffer, destination_buffer, 1, &copy_region);
@@ -1627,13 +1630,14 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
     return result;
 }
 
-void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&   image_resources,
-                                             const ReadImageResourcesCallbackFn& call_back,
-                                             size_t                              staging_buffer_size)
+VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&   image_resources,
+                                                 const ReadImageResourcesCallbackFn& call_back,
+                                                 size_t                              staging_buffer_size)
 {
     // aggregate to store temporary data during batch-processing
     struct image_resource_tmp_data_t
     {
+        uint64_t                  resource_size       = 0;
         VkDeviceSize              staging_offset      = 0;
         VkImage                   resolve_image       = VK_NULL_HANDLE;
         VkDeviceMemory            resolve_memory      = VK_NULL_HANDLE;
@@ -1664,15 +1668,8 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
                         (img.aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
 
         bool blit_supported = IsBlitSupported(img.format, img.tiling, dst_format);
-        if (img.scale > 1.0f)
-        {
-            tmp_data[i].scaling_supported =
-                IsScalingSupported(img.format, img.tiling, dst_format, img.type, img.extent, img.scale);
-        }
-        else
-        {
-            tmp_data[i].scaling_supported = (img.scale == 1.0f ? true : blit_supported);
-        }
+        tmp_data[i].scaling_supported =
+            IsScalingSupported(img.format, img.tiling, dst_format, img.type, img.extent, img.scale);
 
         tmp_data[i].use_blit =
             (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
@@ -1721,12 +1718,18 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
             current_batch_size = 0;
         }
 
+        tmp_data[i].resource_size  = resource_size;
         tmp_data[i].staging_offset = current_batch_size;
         current_batch_size += resource_size;
     } // image_resources, 1st batch-splitting pass
 
-    // resize staging-buffer
-    CreateStagingBuffer(staging_buffer_size);
+    VkResult result = CreateStagingBuffer(staging_buffer_size);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR(
+            "%s: could not create a staging-buffer of size: %d kB", __func__, staging_buffer_size >> 10U);
+        return result;
+    }
 
     // accumulate timing data
     uint32_t gpu_micros = 0, cpu_micros = 0;
@@ -1757,19 +1760,19 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
 
             if (img.samples != VK_SAMPLE_COUNT_1_BIT)
             {
-                VkResult result = ResolveImage(command_buffer,
-                                               img.image,
-                                               img.format,
-                                               img.type,
-                                               img.extent,
-                                               img.array_layers,
-                                               img.layout,
-                                               &tmp_data[i].resolve_image,
-                                               &tmp_data[i].resolve_memory);
+                result = ResolveImage(command_buffer,
+                                      img.image,
+                                      img.format,
+                                      img.type,
+                                      img.extent,
+                                      img.array_layers,
+                                      img.layout,
+                                      &tmp_data[i].resolve_image,
+                                      &tmp_data[i].resolve_memory);
                 if (result != VK_SUCCESS)
                 {
                     GFXRECON_ASSERT(false);
-                    return;
+                    return result;
                 }
             }
 
@@ -1796,29 +1799,28 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
             // Blit image to change dimensions or convert format
             if (tmp_data[i].use_blit)
             {
-                VkImage  blit_src = tmp_data[i].resolve_image ? tmp_data[i].resolve_image : img.image;
-                VkResult result   = BlitImage(command_buffer,
-                                            blit_src,
-                                            img.format,
-                                            dst_format,
-                                            img.type,
-                                            img.tiling,
-                                            img.extent,
-                                            tmp_data[i].scaled_extent,
-                                            img.mip_levels,
-                                            img.array_layers,
-                                            img.aspect,
-                                            img.queue_family_index,
-                                            img.scale,
-                                            tmp_data[i].scaled_image,
-                                            tmp_data[i].scaled_image_memory);
+                VkImage blit_src = tmp_data[i].resolve_image ? tmp_data[i].resolve_image : img.image;
+                result           = BlitImage(command_buffer,
+                                   blit_src,
+                                   img.format,
+                                   dst_format,
+                                   img.type,
+                                   img.tiling,
+                                   img.extent,
+                                   tmp_data[i].scaled_extent,
+                                   img.mip_levels,
+                                   img.array_layers,
+                                   img.aspect,
+                                   img.queue_family_index,
+                                   img.scale,
+                                   tmp_data[i].scaled_image,
+                                   tmp_data[i].scaled_image_memory);
 
                 copy_image = tmp_data[i].scaled_image != VK_NULL_HANDLE ? tmp_data[i].scaled_image : copy_image;
 
                 if (result != VK_SUCCESS)
                 {
-                    GFXRECON_ASSERT(false);
-                    return;
+                    return result;
                 }
             }
 
@@ -1879,17 +1881,15 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
             VkQueue queue = GetQueue(queue_family_index, 0);
             if (queue == VK_NULL_HANDLE)
             {
-                GFXRECON_ASSERT(false);
-                return;
+                return VK_ERROR_INITIALIZATION_FAILED;
             }
             SubmitCommandBuffer(command_buffer, queue);
         }
 
-        VkResult result = MapStagingBuffer();
+        result = MapStagingBuffer();
         if (result != VK_SUCCESS)
         {
-            GFXRECON_ASSERT(false);
-            return;
+            return result;
         }
 
         // guarantees that all device writes are now visible to host
@@ -1906,7 +1906,7 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
             auto* out_ptr   = reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + tmp_data[i].staging_offset;
             if (call_back)
             {
-                call_back(img, out_ptr);
+                call_back(img, out_ptr, tmp_data[i].resource_size);
             }
 
             if (tmp_data[i].resolve_image != VK_NULL_HANDLE)
@@ -1928,261 +1928,22 @@ void VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&  
                                 std::chrono::high_resolution_clock::now() - start_time)
                                 .count();
         cpu_micros += batch_micros - gpu_micros;
-    }
-    GFXRECON_LOG_INFO("gpu_millis: %d", gpu_micros / 1000);
-    GFXRECON_LOG_INFO("cpu_millis: %d", cpu_micros / 1000);
+    } // batch_ranges
+    GFXRECON_LOG_DEBUG("gpu: %d ms - cpu: %d ms", gpu_micros / 1000, cpu_micros / 1000);
+    return VK_SUCCESS;
 }
 
-VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage                image,
-                                                           VkFormat               format,
-                                                           VkImageType            type,
-                                                           const VkExtent3D&      extent,
-                                                           uint32_t               mip_levels,
-                                                           uint32_t               array_layers,
-                                                           VkImageTiling          tiling,
-                                                           VkSampleCountFlags     samples,
-                                                           VkImageLayout          layout,
-                                                           uint32_t               queue_family_index,
-                                                           bool                   external_format,
-                                                           VkDeviceSize           size,
-                                                           VkImageAspectFlagBits  aspect,
-                                                           std::vector<uint8_t>&  data,
-                                                           std::vector<uint64_t>& subresource_offsets,
-                                                           std::vector<uint64_t>& subresource_sizes,
-                                                           bool&                  scaling_supported,
-                                                           bool                   all_layers_per_level,
-                                                           float                  scale,
-                                                           VkFormat               dst_format)
+VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::ImageResource& image_resource,
+                                                std::vector<uint8_t>&                     out_data)
 {
-    VkResult           result           = VK_SUCCESS;
-    VkImage            resolve_image    = VK_NULL_HANDLE;
-    VkDeviceMemory     resolve_memory   = VK_NULL_HANDLE;
-    VkImage            scaled_image     = VK_NULL_HANDLE;
-    VkDeviceMemory     scaled_image_mem = VK_NULL_HANDLE;
-    VkQueue            queue;
-    uint64_t           resource_size;
-    VkImageAspectFlags transition_aspect;
-    VkImage            copy_image;
-
-    // No format conversion
-    if (dst_format == VK_FORMAT_UNDEFINED)
-    {
-        dst_format = format;
-    }
-
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-    assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
-           (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
-
-    const bool is_blit_supported = IsBlitSupported(format, tiling, dst_format);
-    if (scale > 1.0f)
-    {
-        scaling_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
-    }
-    else
-    {
-        scaling_supported = (scale == 1.0f ? true : is_blit_supported);
-    }
-
-    const bool use_blit = (format != dst_format && is_blit_supported) || (scale != 1.0f && scaling_supported);
-
-    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(static_cast<float>(extent.width) * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max(static_cast<float>(extent.height) * scale, 1.0f)),
-                                       static_cast<uint32_t>(
-                                           std::max(static_cast<float>(extent.depth) * scale, 1.0f)) };
-
-    subresource_offsets.clear();
-    subresource_sizes.clear();
-
-    if (external_format)
-    {
-        resource_size = size;
-        subresource_sizes.push_back(resource_size);
-    }
-    else
-    {
-        resource_size = GetImageResourceSizesOptimal(image,
-                                                     use_blit ? dst_format : format,
-                                                     type,
-                                                     use_blit ? scaled_extent : extent,
-                                                     mip_levels,
-                                                     array_layers,
-                                                     tiling,
-                                                     aspect,
-                                                     &subresource_offsets,
-                                                     &subresource_sizes,
-                                                     all_layers_per_level);
-    }
-
-    queue = GetQueue(queue_family_index, 0);
-    if (queue == VK_NULL_HANDLE)
-    {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    VkCommandBuffer command_buffer = CreateCommandBuffer(queue_family_index);
-    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
-    if (command_buffer == VK_NULL_HANDLE)
-    {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        result = ResolveImage(command_buffer,
-                              image,
-                              format,
-                              type,
-                              extent,
-                              array_layers,
-                              layout,
-                              queue,
-                              queue_family_index,
-                              &resolve_image,
-                              &resolve_memory);
-        if (result != VK_SUCCESS)
-        {
-            return result;
-        }
-    }
-
-    result = CreateStagingBuffer(resource_size);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    transition_aspect = aspect;
-    if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
-    {
-        // Depth and stencil aspects need to be transitioned together, so get full aspect
-        // mask for image.
-        transition_aspect = GetFormatAspectMask(format);
-    }
-
-    copy_image = image;
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        copy_image = resolve_image;
-    }
-    else if (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-    {
-        TransitionImageToTransferOptimal(
-            command_buffer, image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect, queue_family_index);
-    }
-
-    // Blit image to change dimensions or convert format
-    if (use_blit)
-    {
-        result = BlitImage(command_buffer,
-                           copy_image,
-                           format,
-                           dst_format,
-                           type,
-                           tiling,
-                           extent,
-                           scaled_extent,
-                           mip_levels,
-                           array_layers,
-                           aspect,
-                           queue_family_index,
-                           scale,
-                           scaled_image,
-                           scaled_image_mem);
-
-        if (result != VK_SUCCESS)
-        {
-            return result;
-        }
-    }
-    else
-    {
-        scaled_image = copy_image;
-    }
-
-    assert(scaled_image != VK_NULL_HANDLE);
-
-    if (external_format)
-    {
-        // Todo
-    }
-    else
-    {
-        // Copy image to staging buffer
-        CopyImageBuffer(command_buffer,
-                        scaled_image,
-                        staging_buffer_.buffer,
-                        0,
-                        use_blit ? scaled_extent : extent,
-                        mip_levels,
-                        array_layers,
-                        aspect,
-                        subresource_sizes,
-                        all_layers_per_level,
-                        kImageToBuffer);
-    }
-
-    // Cache flushing barrier. Make results visible to host
-    VkBufferMemoryBarrier buffer_barrier;
-    buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    buffer_barrier.pNext               = nullptr;
-    buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-    buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
-    buffer_barrier.srcQueueFamilyIndex = queue_family_index;
-    buffer_barrier.dstQueueFamilyIndex = queue_family_index;
-    buffer_barrier.buffer              = staging_buffer_.buffer;
-    buffer_barrier.offset              = 0;
-    buffer_barrier.size                = VK_WHOLE_SIZE;
-
-    device_table_.CmdPipelineBarrier(command_buffer,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_HOST_BIT,
-                                     0,
-                                     0,
-                                     nullptr,
-                                     1,
-                                     &buffer_barrier,
-                                     0,
-                                     nullptr);
-
-    if ((samples == VK_SAMPLE_COUNT_1_BIT) && (layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
-        (layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
-    {
-        TransitionImageFromTransferOptimal(
-            command_buffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout, transition_aspect, queue_family_index);
-    }
-
-    result = SubmitCommandBuffer(command_buffer, queue);
-
-    result = MapStagingBuffer();
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    data.resize(static_cast<size_t>(resource_size));
-
-    InvalidateStagingBuffer();
-
-    // Copy staging buffer to host memory
-    util::platform::MemoryCopy(data.data(), resource_size, staging_buffer_.mapped_ptr, resource_size);
-
-    UnmapStagingBuffer();
-
-    // Release temporary resources
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        device_table_.DestroyImage(device_, resolve_image, nullptr);
-        device_table_.FreeMemory(device_, resolve_memory, nullptr);
-    }
-
-    if (use_blit)
-    {
-        device_table_.DestroyImage(device_, scaled_image, nullptr);
-        device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
-    }
-
-    return result;
+    return ReadImageResources(
+        { image_resource },
+        [&out_data](const ImageResource& img, const void* data, uint32_t num_bytes) {
+            const auto* ptr = reinterpret_cast<const uint8_t*>(data);
+            out_data.clear();
+            out_data.insert(out_data.end(), ptr, ptr + num_bytes);
+        },
+        0);
 }
 
 VkResult VulkanResourcesUtil::ReadFromBufferResource(
@@ -2191,7 +1952,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     assert(buffer != VK_NULL_HANDLE);
     assert(size);
 
-    const VkQueue queue = GetQueue(queue_family_index, 0);
+    VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -2210,7 +1971,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
         return VK_ERROR_UNKNOWN;
     }
 
-    CopyBuffer(command_buffer, buffer, staging_buffer_.buffer, size, offset);
+    CopyBuffer(command_buffer, buffer, staging_buffer_.buffer, size, offset, 0);
 
     result = SubmitCommandBuffer(command_buffer, queue);
     if (result != VK_SUCCESS)
@@ -2230,6 +1991,134 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     util::platform::MemoryCopy(data.data(), size, staging_buffer_.mapped_ptr, size);
 
     return result;
+}
+
+void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>& buffer_resources,
+                                              const VulkanResourcesUtil::ReadBufferResourcesCallbackFn& callback,
+                                              size_t staging_buffer_size)
+{
+    std::vector<VkDeviceSize> staging_offsets(buffer_resources.size());
+
+    uint32_t current_batch_size = 0;
+
+    // start with entire range
+    std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(buffer_resources.size()) } };
+
+    for (uint32_t i = 0; i < buffer_resources.size(); ++i)
+    {
+        const auto& buffer_resource = buffer_resources[i];
+
+        if (buffer_resource.size > staging_buffer_size)
+        {
+            // we need a bigger boat
+            staging_buffer_size = buffer_resource.size;
+        }
+
+        if (current_batch_size + buffer_resource.size > staging_buffer_size)
+        {
+            // end current batch, start next
+            auto& current_batch  = batch_ranges.back();
+            current_batch.second = i;
+
+            batch_ranges.emplace_back(i, static_cast<uint32_t>(buffer_resources.size()));
+            current_batch_size = 0;
+        }
+
+        staging_offsets[i] = current_batch_size;
+        current_batch_size += buffer_resource.size;
+    } // buffer_resources, split into batches
+
+    VkResult result = CreateStagingBuffer(staging_buffer_size);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR(
+            "%s: could not create a staging-buffer of size: %d kB", __func__, staging_buffer_size >> 10U);
+        return;
+    }
+
+    for (const auto& [start_idx, end_idx] : batch_ranges)
+    {
+        auto                                          start_time = std::chrono::high_resolution_clock::now();
+        std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
+
+        // iterate over current batch
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& buf = buffer_resources[i];
+
+            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+            auto            cmd_buf_it     = command_buffer_map.find(buf.queue_family_index);
+            if (cmd_buf_it == command_buffer_map.end())
+            {
+                command_buffer                             = CreateCommandBuffer(buf.queue_family_index);
+                command_buffer_map[buf.queue_family_index] = command_buffer;
+            }
+            else
+            {
+                command_buffer = cmd_buf_it->second;
+            }
+
+            CopyBuffer(command_buffer, buf.buffer, staging_buffer_.buffer, buf.size, buf.offset, staging_offsets[i]);
+        }
+
+        // submit recorded command-buffer(s)
+        for (const auto& [queue_family_index, command_buffer] : command_buffer_map)
+        {
+            // Cache flushing barrier. Make results visible to host
+            VkBufferMemoryBarrier buffer_barrier;
+            buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            buffer_barrier.pNext               = nullptr;
+            buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+            buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
+            buffer_barrier.srcQueueFamilyIndex = queue_family_index;
+            buffer_barrier.dstQueueFamilyIndex = queue_family_index;
+            buffer_barrier.buffer              = staging_buffer_.buffer;
+            buffer_barrier.offset              = 0;
+            buffer_barrier.size                = VK_WHOLE_SIZE;
+
+            device_table_.CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_HOST_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &buffer_barrier,
+                                             0,
+                                             nullptr);
+
+            VkQueue queue = GetQueue(queue_family_index, 0);
+            if (queue == VK_NULL_HANDLE)
+            {
+                GFXRECON_ASSERT(false);
+                return;
+            }
+            SubmitCommandBuffer(command_buffer, queue);
+        }
+
+        result = MapStagingBuffer();
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("%s: could not map staging-buffer", __func__);
+            return;
+        }
+
+        // guarantees that all device writes are now visible to host
+        InvalidateStagingBuffer();
+
+        // consume staging-buffer
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& buf     = buffer_resources[i];
+            auto*       out_ptr = reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + staging_offsets[i];
+            if (callback)
+            {
+                callback(buf, out_ptr);
+            }
+        } // current batch, consume staging-buffer
+
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+    }
 }
 
 bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
@@ -2315,7 +2204,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
         }
     }
 
-    return is_blit_supported;
+    return scale == 1.0f || is_blit_supported;
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,

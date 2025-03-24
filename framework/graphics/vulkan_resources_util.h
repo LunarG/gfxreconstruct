@@ -111,51 +111,59 @@ class VulkanResourcesUtil
         VkFormat              dst_format           = VK_FORMAT_UNDEFINED;
     };
 
-    //! signature for a callback-function, providing an image-resource and a corresponding data-pointer
-    using ReadImageResourcesCallbackFn = std::function<void(const ImageResource& img_resource, const void* data)>;
+    //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
+    using ReadImageResourcesCallbackFn =
+        std::function<void(const ImageResource& img_resource, const void* data, size_t num_bytes)>;
 
     /**
-     * @brief   ReadImageResources processes an array of ImageResources in batches
-     *          and will download data from GPU-memory using a staging-buffer.
+     * @brief   ReadImageResources processes an array of ImageResources in batches,
+     *          downloads data from GPU-memory using a staging-buffer and provides that data via callback-function.
      *
      * @param   image_resources     an array of ImageResource-structs
      * @param   call_back           a callback-function, consuming data from staging-buffer
-     * @param   staging_buffer_size target size for the staging-buffer in bytes (default is 128MB).
-     *                              we might allocate a larger buffer, depending on largest resource-size
+     * @param   staging_buffer_size target size for the staging-buffer in bytes. we might allocate a larger buffer,
+     *                              depending on largest resource-size
      */
-    void ReadImageResources(const std::vector<ImageResource>&   image_resources,
-                            const ReadImageResourcesCallbackFn& call_back,
-                            size_t                              staging_buffer_size = 128U << 20U);
+    VkResult ReadImageResources(const std::vector<ImageResource>&   image_resources,
+                                const ReadImageResourcesCallbackFn& call_back,
+                                size_t                              staging_buffer_size);
 
-    // Use this function to dump an image sub resources into data vector.
-    // This function is intented to be used when accessing the image content directly is not possible
-    // and a staging buffer is required.
-    // subresource_offsets and subresource_sizes will be populated in the same manner as with
-    // GetImageResourceSizesOptimal()
-    VkResult ReadFromImageResourceStaging(VkImage                image,
-                                          VkFormat               format,
-                                          VkImageType            type,
-                                          const VkExtent3D&      extent,
-                                          uint32_t               mip_levels,
-                                          uint32_t               array_layers,
-                                          VkImageTiling          tiling,
-                                          VkSampleCountFlags     samples,
-                                          VkImageLayout          layout,
-                                          uint32_t               queue_family_index,
-                                          bool                   external_format,
-                                          VkDeviceSize           size,
-                                          VkImageAspectFlagBits  aspect,
-                                          std::vector<uint8_t>&  data,
-                                          std::vector<uint64_t>& subresource_offsets,
-                                          std::vector<uint64_t>& subresource_sizes,
-                                          bool&                  scaling_supported,
-                                          bool                   all_layers_per_level = false,
-                                          float                  scale                = 1.0f,
-                                          VkFormat               dst_format           = VK_FORMAT_UNDEFINED);
+    /**
+     * @brief   ReadImageResource downloads image-data from GPU-memory using a staging-buffer
+     *
+     * @param   image_resource  an ImageResource struct
+     * @param   out_data        an output array
+     */
+    VkResult ReadImageResource(const ImageResource& image_resource, std::vector<uint8_t>& out_data);
 
     // Use this function to dump the content of a buffer resource into the data vector.
     VkResult ReadFromBufferResource(
         VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
+
+    struct BufferResource
+    {
+        format::HandleId handle_id          = format::kNullHandleId;
+        VkBuffer         buffer             = VK_NULL_HANDLE;
+        uint64_t         size               = 0;
+        uint64_t         offset             = 0;
+        uint32_t         queue_family_index = 0;
+    };
+
+    //! signature for a callback-function, providing a BufferResource and a corresponding data-pointer
+    using ReadBufferResourcesCallbackFn = std::function<void(const BufferResource& buffer_resource, const void* data)>;
+
+    /**
+     * @brief   ReadBufferResources processes an array of BufferResources in batches,
+     *          downloads data from GPU-memory using a staging-buffer and provides that data via callback-function.
+     *
+     * @param   buffer_resources    an array of BufferResource-structs
+     * @param   callback            a callback-function, consuming data from staging-buffer
+     * @param   staging_buffer_size target size for the staging-buffer in bytes. we might allocate a larger buffer,
+     *                                   depending on largest resource-size
+     */
+    void ReadBufferResources(const std::vector<BufferResource>&   buffer_resources,
+                             const ReadBufferResourcesCallbackFn& callback,
+                             size_t                               staging_buffer_size);
 
     bool IsBlitSupported(VkFormat       src_format,
                          VkImageTiling  src_image_tiling,
@@ -214,7 +222,8 @@ class VulkanResourcesUtil
                     VkBuffer        source_buffer,
                     VkBuffer        destination_buffer,
                     uint64_t        size,
-                    uint64_t        offset);
+                    uint64_t        src_offset,
+                    uint64_t        dst_offset);
 
     VkResult ResolveImage(VkCommandBuffer   command_buffer,
                           VkImage           image,
