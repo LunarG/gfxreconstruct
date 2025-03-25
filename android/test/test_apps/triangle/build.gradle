@@ -46,6 +46,11 @@ android {
             path "CMakeLists.txt"
         }
     }
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../../../test/test_apps/triangle/']
+        }
+    }
 }
 
 dependencies {
