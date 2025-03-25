@@ -1515,7 +1515,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             const uint32_t    index_size = VkIndexTypeToBytes(index_type);
             const uint32_t    offset     = dc_params.referenced_index_buffer.offset;
 
-            dc_params.index_buffer_dumped_at_offset = offset;
+            dc_params.json_output_info.index_buffer_info.dumped = true;
+            dc_params.json_output_info.index_buffer_info.offset = offset;
 
             // Check if the exact size has been provided by vkCmdBindIndexBuffer2
             uint32_t total_size = (dc_params.referenced_index_buffer.size != 0)
@@ -1757,7 +1758,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry->second.buffer_info->size - offset;
                 }
 
-                dc_params.vertex_buffer_dumped_at_offset[binding] = offset;
+                dc_params.json_output_info.vertex_bindings_info[binding] = { offset };
 
                 vb_entry->second.actual_size    = total_size;
                 VulkanDumpResourceInfo res_info = res_info_base;
