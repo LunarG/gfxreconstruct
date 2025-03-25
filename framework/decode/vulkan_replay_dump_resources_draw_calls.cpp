@@ -279,6 +279,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
         // Not sure from spec if maxDrawCount can be zero. Assume it can
         if (!max_draw_count)
         {
+            ic_params.actual_draw_count = 0;
             return VK_SUCCESS;
         }
 
