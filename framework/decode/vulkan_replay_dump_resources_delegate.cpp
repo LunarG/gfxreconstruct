@@ -822,7 +822,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         // Emmit bound index buffer info
         if (DrawCallsDumpingContext::IsDrawCallIndexed(draw_call_info.dc_param->type))
         {
-            if (draw_call_info.dc_param->referenced_index_buffer.buffer_info != nullptr)
+            if (draw_call_info.dc_param->json_output_info.index_buffer_info.dumped &&
+                draw_call_info.dc_param->referenced_index_buffer.buffer_info != nullptr)
             {
                 VulkanDumpResourceInfo res_info         = res_info_base;
                 res_info.type                           = DumpResourceType::kIndex;
@@ -834,7 +835,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
                 json_entry["bufferId"] = draw_call_info.dc_param->referenced_index_buffer.buffer_info->capture_id;
                 json_entry["file"]     = index_buffer_filename;
-                json_entry["offset"]   = draw_call_info.dc_param->index_buffer_dumped_at_offset;
+                json_entry["offset"]   = draw_call_info.dc_param->json_output_info.index_buffer_info.offset;
                 json_entry["indexType"] =
                     util::ToString<VkIndexType>(draw_call_info.dc_param->referenced_index_buffer.index_type);
             }
@@ -844,20 +845,25 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         if (!draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty() &&
             !draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map.empty())
         {
-            auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
-            auto& json_entry                    = vertex_input_state_json_entry["vertexBuffers"];
-
             uint32_t i = 0;
             for (const auto& vb_binding : draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map)
             {
-                const auto& vb_binding_buffer =
-                    draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(
-                        vb_binding.first);
-                assert(vb_binding_buffer !=
-                       draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
-
-                if (vb_binding_buffer->second.buffer_info != nullptr)
+                const auto json_info_entry =
+                    draw_call_info.dc_param->json_output_info.vertex_bindings_info.find(vb_binding.first);
+                const bool buffer_dumped =
+                    json_info_entry != draw_call_info.dc_param->json_output_info.vertex_bindings_info.end();
+                if (buffer_dumped)
                 {
+                    auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
+                    auto& json_entry                    = vertex_input_state_json_entry["vertexBuffers"];
+
+                    const auto& vb_binding_buffer =
+                        draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(
+                            vb_binding.first);
+                    assert(vb_binding_buffer !=
+                           draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
+                    GFXRECON_ASSERT(vb_binding_buffer->second.buffer_info != nullptr)
+
                     VulkanDumpResourceInfo res_info = res_info_base;
                     res_info.type                   = DumpResourceType::kVertex;
                     res_info.binding                = vb_binding.first;
@@ -866,12 +872,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                     json_entry[i]["bufferId"]            = vb_binding_buffer->second.buffer_info->capture_id;
                     json_entry[i]["vertexBufferBinding"] = vb_binding.first;
                     json_entry[i]["file"]                = vb_filename;
-
-                    auto offset_entry = draw_call_info.dc_param->vertex_buffer_dumped_at_offset.find(vb_binding.first);
-                    if (offset_entry != draw_call_info.dc_param->vertex_buffer_dumped_at_offset.end())
-                    {
-                        json_entry[i]["offset"] = offset_entry->second;
-                    }
+                    json_entry[i]["offset"]              = json_info_entry->second.offset;
                     ++i;
                 }
             }
