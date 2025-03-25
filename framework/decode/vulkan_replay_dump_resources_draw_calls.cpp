@@ -1394,8 +1394,9 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
             util::platform::MemoryCopy(
                 i_params.draw_indexed_params, i_params.new_params_buffer_size, params_data.data(), params_data.size());
         }
-        else if (dc_params.type == DrawCallTypes::kDrawIndexedIndirect)
+        else
         {
+            GFXRECON_ASSERT(dc_params.type == DrawCallTypes::kDrawIndirect);
             util::platform::MemoryCopy(
                 i_params.draw_params, i_params.new_params_buffer_size, params_data.data(), params_data.size());
         }
