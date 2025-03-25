@@ -63,7 +63,16 @@ class KhronosApiCallEncodersGenerator():
     ):
         body = '\n'
         body += indent + self.make_begin_api_call(name, values)
-        body += indent + 'if (encoder)\n'
+        body += indent + 'if (encoder'
+
+        if self.CHECK_WRITE:
+            if name in self.CHECK_WRITE: 
+                body += ' && manager->CheckWrite' + name[2:] + '(result'
+                for value in values:
+                    body += ', ' + value.name
+                body += ')'            
+
+        body += ')\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
 
