@@ -36,6 +36,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../../../test/test_apps/triangle']
+        }
+    }
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"

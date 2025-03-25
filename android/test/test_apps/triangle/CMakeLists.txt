@@ -24,9 +24,6 @@ add_library(gfxrecon-testapp-triangle
             SHARED
                 ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle/app.cpp)
 
-add_custom_target(gfxrecon-testapp-triangle-assets ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle/shaders ${CMAKE_SOURCE_DIR}/src/main/assets/shaders)
-add_dependencies(gfxrecon-testapp-triangle gfxrecon-testapp-triangle-assets)
-
 target_include_directories(gfxrecon-testapp-triangle
                            PUBLIC
                                ${ANDROID_NDK}/sources/android/native_app_glue
