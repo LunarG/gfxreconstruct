@@ -2091,7 +2091,7 @@ void VulkanCaptureManager::PostProcess_vkBindImageMemory2(VkResult              
             {
                 auto* memory_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
-                if (memory_wrapper->imported_fd >= 0)
+                if (memory_wrapper != nullptr && memory_wrapper->imported_fd >= 0)
                 {
                     ProcessImportFdForImage(device, pBindInfos[i].image, pBindInfos[i].memoryOffset);
                 }
