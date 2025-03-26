@@ -137,6 +137,26 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
                                                             Decoded_VkIndirectCommandsLayoutTokenEXT* metaInfo,
                                                             VulkanCppConsumerBase&                    consumer);
 
+std::string GenerateStruct_VkCopyMemoryToImageInfo(std::ostream&                    out,
+                                                   const VkCopyMemoryToImageInfo*   structInfo,
+                                                   Decoded_VkCopyMemoryToImageInfo* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer);
+
+std::string GenerateStruct_VkMemoryToImageCopy(std::ostream&                out,
+                                               const VkMemoryToImageCopy*   structInfo,
+                                               Decoded_VkMemoryToImageCopy* metaInfo,
+                                               VulkanCppConsumerBase&       consumer);
+
+std::string GenerateStruct_VkCopyImageToMemoryInfo(std::ostream&                    out,
+                                                   const VkCopyImageToMemoryInfo*   structInfo,
+                                                   Decoded_VkCopyImageToMemoryInfo* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer);
+
+std::string GenerateStruct_VkImageToMemoryCopy(std::ostream&                out,
+                                               const VkImageToMemoryCopy*   structInfo,
+                                               Decoded_VkImageToMemoryCopy* metaInfo,
+                                               VulkanCppConsumerBase&       consumer);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

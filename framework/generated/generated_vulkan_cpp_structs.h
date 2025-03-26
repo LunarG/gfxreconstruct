@@ -766,10 +766,6 @@ std::string GenerateStruct_VkBufferUsageFlags2CreateInfo(std::ostream &out, cons
 
 std::string GenerateStruct_VkCopyImageToImageInfo(std::ostream &out, const VkCopyImageToImageInfo* structInfo, Decoded_VkCopyImageToImageInfo* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkCopyImageToMemoryInfo(std::ostream &out, const VkCopyImageToMemoryInfo* structInfo, Decoded_VkCopyImageToMemoryInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkCopyMemoryToImageInfo(std::ostream &out, const VkCopyMemoryToImageInfo* structInfo, Decoded_VkCopyMemoryToImageInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkDeviceImageSubresourceInfo(std::ostream &out, const VkDeviceImageSubresourceInfo* structInfo, Decoded_VkDeviceImageSubresourceInfo* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDeviceQueueGlobalPriorityCreateInfo(std::ostream &out, const VkDeviceQueueGlobalPriorityCreateInfo* structInfo, Decoded_VkDeviceQueueGlobalPriorityCreateInfo* metaInfo, VulkanCppConsumerBase &consumer);
@@ -780,11 +776,7 @@ std::string GenerateStruct_VkHostImageLayoutTransitionInfo(std::ostream &out, co
 
 std::string GenerateStruct_VkImageSubresource2(std::ostream &out, const VkImageSubresource2* structInfo, Decoded_VkImageSubresource2* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkImageToMemoryCopy(std::ostream &out, const VkImageToMemoryCopy* structInfo, Decoded_VkImageToMemoryCopy* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkMemoryMapInfo(std::ostream &out, const VkMemoryMapInfo* structInfo, Decoded_VkMemoryMapInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkMemoryToImageCopy(std::ostream &out, const VkMemoryToImageCopy* structInfo, Decoded_VkMemoryToImageCopy* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkMemoryUnmapInfo(std::ostream &out, const VkMemoryUnmapInfo* structInfo, Decoded_VkMemoryUnmapInfo* metaInfo, VulkanCppConsumerBase &consumer);
 

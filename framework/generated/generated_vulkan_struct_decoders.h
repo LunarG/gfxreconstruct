@@ -3980,54 +3980,6 @@ struct Decoded_VkPhysicalDeviceHostImageCopyProperties
     PointerDecoder<uint8_t> optimalTilingLayoutUUID;
 };
 
-struct Decoded_VkMemoryToImageCopy
-{
-    using struct_type = VkMemoryToImageCopy;
-
-    VkMemoryToImageCopy* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    uint64_t pHostPointer{ 0 };
-    Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
-    Decoded_VkOffset3D* imageOffset{ nullptr };
-    Decoded_VkExtent3D* imageExtent{ nullptr };
-};
-
-struct Decoded_VkImageToMemoryCopy
-{
-    using struct_type = VkImageToMemoryCopy;
-
-    VkImageToMemoryCopy* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    uint64_t pHostPointer{ 0 };
-    Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
-    Decoded_VkOffset3D* imageOffset{ nullptr };
-    Decoded_VkExtent3D* imageExtent{ nullptr };
-};
-
-struct Decoded_VkCopyMemoryToImageInfo
-{
-    using struct_type = VkCopyMemoryToImageInfo;
-
-    VkCopyMemoryToImageInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId dstImage{ format::kNullHandleId };
-    StructPointerDecoder<Decoded_VkMemoryToImageCopy>* pRegions{ nullptr };
-};
-
-struct Decoded_VkCopyImageToMemoryInfo
-{
-    using struct_type = VkCopyImageToMemoryInfo;
-
-    VkCopyImageToMemoryInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId srcImage{ format::kNullHandleId };
-    StructPointerDecoder<Decoded_VkImageToMemoryCopy>* pRegions{ nullptr };
-};
-
 struct Decoded_VkCopyImageToImageInfo
 {
     using struct_type = VkCopyImageToImageInfo;

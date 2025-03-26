@@ -1310,5 +1310,187 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     return variable_name;
 }
 
+std::string GenerateStruct_VkCopyMemoryToImageInfo(std::ostream&                    out,
+                                                   const VkCopyMemoryToImageInfo*   structInfo,
+                                                   Decoded_VkCopyMemoryToImageInfo* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name     = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string       pregions_array = "NULL";
+    if (structInfo->pRegions != NULL)
+    {
+        pregions_array = "pRegions_" + std::to_string(consumer.GetNextId());
+        std::string pregions_names;
+        for (uint32_t idx = 0; idx < structInfo->regionCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pRegions + idx != NULL)
+            {
+                variable_name = GenerateStruct_VkMemoryToImageCopy(
+                    out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
+            }
+            pregions_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkMemoryToImageCopy " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
+    }
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkHostImageCopyFlags(" << structInfo->flags << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->dstImage) << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkImageLayout(" << structInfo->dstImageLayout << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->regionCount << "," << std::endl;
+    struct_body << "\t\t\t" << pregions_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyMemoryToImageInfo");
+    out << "\t\t"
+        << "VkCopyMemoryToImageInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkMemoryToImageCopy(std::ostream&                out,
+                                               const VkMemoryToImageCopy*   structInfo,
+                                               Decoded_VkMemoryToImageCopy* metaInfo,
+                                               VulkanCppConsumerBase&       consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+
+    std::string phost_pointer_array = "NULL";
+    if (structInfo->pHostPointer != NULL)
+    {
+        phost_pointer_array = "pHostPointer_" + std::to_string(consumer.GetNextId());
+        out << "\t\t"
+            << "const uint8_t " << phost_pointer_array << "[] = "
+            << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(structInfo->pHostPointer),
+                                                 metaInfo->pHostPointer.GetLength())
+            << ";" << std::endl;
+    }
+
+    std::string image_subresource_info_var = GenerateStruct_VkImageSubresourceLayers(
+        out, &structInfo->imageSubresource, metaInfo->imageSubresource, consumer);
+    std::string image_offset_info_var =
+        GenerateStruct_VkOffset3D(out, &structInfo->imageOffset, metaInfo->imageOffset, consumer);
+    std::string image_extent_info_var =
+        GenerateStruct_VkExtent3D(out, &structInfo->imageExtent, metaInfo->imageExtent, consumer);
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << phost_pointer_array << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->memoryRowLength << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->memoryImageHeight << "," << std::endl;
+    struct_body << "\t\t\t" << image_subresource_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_offset_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_extent_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "memoryToImageCopy");
+    out << "\t\t"
+        << "VkMemoryToImageCopy " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkCopyImageToMemoryInfo(std::ostream&                    out,
+                                                   const VkCopyImageToMemoryInfo*   structInfo,
+                                                   Decoded_VkCopyImageToMemoryInfo* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name     = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string       pregions_array = "NULL";
+    if (structInfo->pRegions != NULL)
+    {
+        pregions_array = "pRegions_" + std::to_string(consumer.GetNextId());
+        std::string pregions_names;
+        for (uint32_t idx = 0; idx < structInfo->regionCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pRegions + idx != NULL)
+            {
+                variable_name = GenerateStruct_VkImageToMemoryCopy(
+                    out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
+            }
+            pregions_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkImageToMemoryCopy " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
+    }
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkHostImageCopyFlags(" << structInfo->flags << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->srcImage) << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkImageLayout(" << structInfo->srcImageLayout << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->regionCount << "," << std::endl;
+    struct_body << "\t\t\t" << pregions_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyImageToMemoryInfo");
+    out << "\t\t"
+        << "VkCopyImageToMemoryInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkImageToMemoryCopy(std::ostream&                out,
+                                               const VkImageToMemoryCopy*   structInfo,
+                                               Decoded_VkImageToMemoryCopy* metaInfo,
+                                               VulkanCppConsumerBase&       consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+
+    std::string phost_pointer_array = "NULL";
+    if (structInfo->pHostPointer != NULL)
+    {
+        phost_pointer_array = "pHostPointer_" + std::to_string(consumer.GetNextId());
+        out << "\t\t"
+            << "uint8_t " << phost_pointer_array << "[] = "
+            << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(structInfo->pHostPointer),
+                                                 metaInfo->pHostPointer.GetLength())
+            << ";" << std::endl;
+    }
+
+    std::string image_subresource_info_var = GenerateStruct_VkImageSubresourceLayers(
+        out, &structInfo->imageSubresource, metaInfo->imageSubresource, consumer);
+    std::string image_offset_info_var =
+        GenerateStruct_VkOffset3D(out, &structInfo->imageOffset, metaInfo->imageOffset, consumer);
+    std::string image_extent_info_var =
+        GenerateStruct_VkExtent3D(out, &structInfo->imageExtent, metaInfo->imageExtent, consumer);
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << phost_pointer_array << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->memoryRowLength << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->memoryImageHeight << "," << std::endl;
+    struct_body << "\t\t\t" << image_subresource_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_offset_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_extent_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "imageToMemoryCopy");
+    out << "\t\t"
+        << "VkImageToMemoryCopy " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

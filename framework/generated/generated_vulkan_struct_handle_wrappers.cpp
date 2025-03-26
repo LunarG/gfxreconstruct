@@ -481,14 +481,6 @@ void UnwrapStructHandles(VkPushDescriptorSetInfo* value, HandleUnwrapMemory* unw
     }
 }
 
-void UnwrapStructHandles(VkCopyMemoryToImageInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-}
-
-void UnwrapStructHandles(VkCopyImageToMemoryInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-}
-
 void UnwrapStructHandles(VkCopyImageToImageInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
 }

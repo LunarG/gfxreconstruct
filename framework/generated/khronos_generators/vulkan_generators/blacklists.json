@@ -38,6 +38,10 @@
     "VkIndirectExecutionSetInfoEXT",
     "VkIndirectExecutionSetCreateInfoEXT",
     "VkIndirectCommandsTokenDataEXT",
-    "VkIndirectCommandsLayoutTokenEXT"
+    "VkIndirectCommandsLayoutTokenEXT",
+    "VkCopyMemoryToImageInfo",
+    "VkMemoryToImageCopy",
+    "VkCopyImageToMemoryInfo",
+    "VkImageToMemoryCopy"
   ]
 }

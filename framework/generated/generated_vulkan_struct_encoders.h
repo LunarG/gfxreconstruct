@@ -454,10 +454,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineRobus
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRobustnessCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkHostImageLayoutTransitionInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceHostMemcpySize& value);

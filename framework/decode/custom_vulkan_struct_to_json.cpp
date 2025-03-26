@@ -475,5 +475,93 @@ void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryHeap& 
     FieldToJson(decode::VkMemoryHeapFlags_t(), jdata["flags"], data.flags, options);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkCopyMemoryToImageInfo&         decoded_value = *data->decoded_value;
+        const Decoded_VkCopyMemoryToImageInfo& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkHostImageCopyFlags_t(), jdata["flags"], decoded_value.flags, options);
+        HandleToJson(jdata["dstImage"], meta_struct.dstImage, options);
+        FieldToJson(jdata["dstImageLayout"], decoded_value.dstImageLayout, options);
+        FieldToJson(jdata["regionCount"], decoded_value.regionCount, options);
+        FieldToJson(jdata["pRegions"], meta_struct.pRegions, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryToImageCopy* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkMemoryToImageCopy&         decoded_value = *data->decoded_value;
+        const Decoded_VkMemoryToImageCopy& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+
+        static thread_local uint64_t VkMemoryToImageCopy_pHostPointer_counter = 0;
+        const bool                   written                                  = RepresentBinaryFile(options,
+                                                 jdata["pHostPointer"],
+                                                 "memorytoimagecopy",
+                                                 VkMemoryToImageCopy_pHostPointer_counter,
+                                                 meta_struct.pHostPointer.GetLength(),
+                                                 meta_struct.pHostPointer.GetPointer());
+        VkMemoryToImageCopy_pHostPointer_counter += written;
+
+        FieldToJson(jdata["memoryRowLength"], decoded_value.memoryRowLength, options);
+        FieldToJson(jdata["memoryImageHeight"], decoded_value.memoryImageHeight, options);
+        FieldToJson(jdata["imageSubresource"], meta_struct.imageSubresource, options);
+        FieldToJson(jdata["imageOffset"], meta_struct.imageOffset, options);
+        FieldToJson(jdata["imageExtent"], meta_struct.imageExtent, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToMemoryInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkCopyImageToMemoryInfo&         decoded_value = *data->decoded_value;
+        const Decoded_VkCopyImageToMemoryInfo& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkHostImageCopyFlags_t(), jdata["flags"], decoded_value.flags, options);
+        HandleToJson(jdata["srcImage"], meta_struct.srcImage, options);
+        FieldToJson(jdata["srcImageLayout"], decoded_value.srcImageLayout, options);
+        FieldToJson(jdata["regionCount"], decoded_value.regionCount, options);
+        FieldToJson(jdata["pRegions"], meta_struct.pRegions, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCopy* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkImageToMemoryCopy&         decoded_value = *data->decoded_value;
+        const Decoded_VkImageToMemoryCopy& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+
+        static thread_local uint64_t VkImageToMemoryCopy_pHostPointer_counter = 0;
+        const bool                   written                                  = RepresentBinaryFile(options,
+                                                 jdata["pHostPointer"],
+                                                 "imagetomemorycopy",
+                                                 VkImageToMemoryCopy_pHostPointer_counter,
+                                                 meta_struct.pHostPointer.GetLength(),
+                                                 meta_struct.pHostPointer.GetPointer());
+        VkImageToMemoryCopy_pHostPointer_counter += written;
+
+        FieldToJson(jdata["memoryRowLength"], decoded_value.memoryRowLength, options);
+        FieldToJson(jdata["memoryImageHeight"], decoded_value.memoryImageHeight, options);
+        FieldToJson(jdata["imageSubresource"], meta_struct.imageSubresource, options);
+        FieldToJson(jdata["imageOffset"], meta_struct.imageOffset, options);
+        FieldToJson(jdata["imageExtent"], meta_struct.imageExtent, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
