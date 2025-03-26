@@ -2281,7 +2281,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
     std::vector<ImageResource> image_resources;
     image_resources.reserve(image_snapshot_infos.size());
 
-    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, uint32_t num_bytes) {
+    auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
         command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
                                           device_wrapper->handle_id,
                                           img.handle_id,

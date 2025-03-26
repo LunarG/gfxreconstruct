@@ -1938,7 +1938,7 @@ VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::Image
 {
     return ReadImageResources(
         { image_resource },
-        [&out_data](const ImageResource& img, const void* data, uint32_t num_bytes) {
+        [&out_data](const ImageResource& img, const void* data, size_t num_bytes) {
             const auto* ptr = reinterpret_cast<const uint8_t*>(data);
             out_data.clear();
             out_data.insert(out_data.end(), ptr, ptr + num_bytes);
