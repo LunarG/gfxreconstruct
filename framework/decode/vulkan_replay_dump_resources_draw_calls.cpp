@@ -300,17 +300,9 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParameters&
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
-        //
-        // #VUID-vkCmdDrawIndexedIndirectCount-maxDrawCount-03143:
-        // ---------------------------------------------------
-        // If maxDrawCount is greater than or equal to 1,
-        // (stride × (maxDrawCount - 1) + offset + sizeof(VkDrawIndexedIndirectCommand))
-        //  must be less than or equal to the size of buffer
-        // ---------------------------------------------------
         const uint32_t     param_buffer_stride = max_draw_count > 1 ? ic_params.stride : draw_call_params_size;
         const VkDeviceSize param_buffer_offset = ic_params.params_buffer_offset;
-        const VkDeviceSize copy_buffer_size    = param_buffer_stride * (max_draw_count - 1) + draw_call_params_size;
-        assert(copy_buffer_size <= ic_params.params_buffer_info->size + param_buffer_offset);
+        const VkDeviceSize copy_buffer_size    = draw_call_params_size * max_draw_count;
 
         ic_params.new_params_buffer_size = copy_buffer_size;
 
@@ -448,15 +440,9 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParameters&
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
-        //
-        // VUID-vkCmdDrawIndexedIndirect-drawCount-00540
-        // If drawCount is greater than 1, (stride × (drawCount - 1) + offset + sizeof(VkDrawIndexedIndirectCommand))
-        // must be less than or equal to the size of buffer
         const uint32_t     param_buffer_stride = draw_count > 1 ? i_params.stride : draw_call_params_size;
         const uint32_t     param_buffer_offset = i_params.params_buffer_offset;
-        const VkDeviceSize copy_buffer_size =
-            (draw_count > 1) ? (param_buffer_stride * (draw_count - 1) + draw_call_params_size) : draw_call_params_size;
-        assert(copy_buffer_size <= i_params.params_buffer_info->size + param_buffer_offset);
+        const VkDeviceSize copy_buffer_size    = draw_call_params_size * draw_count;
 
         i_params.new_params_buffer_size = copy_buffer_size;
 
