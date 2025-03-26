@@ -4539,52 +4539,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopy
     encoder->EncodeUInt32Value(value.identicalMemoryTypeRequirements);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVoidPtr(value.pHostPointer);
-    encoder->EncodeUInt32Value(value.memoryRowLength);
-    encoder->EncodeUInt32Value(value.memoryImageHeight);
-    EncodeStruct(encoder, value.imageSubresource);
-    EncodeStruct(encoder, value.imageOffset);
-    EncodeStruct(encoder, value.imageExtent);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVoidPtr(value.pHostPointer);
-    encoder->EncodeUInt32Value(value.memoryRowLength);
-    encoder->EncodeUInt32Value(value.memoryImageHeight);
-    EncodeStruct(encoder, value.imageSubresource);
-    EncodeStruct(encoder, value.imageOffset);
-    EncodeStruct(encoder, value.imageExtent);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.dstImage);
-    encoder->EncodeEnumValue(value.dstImageLayout);
-    encoder->EncodeUInt32Value(value.regionCount);
-    EncodeStructArray(encoder, value.pRegions, value.regionCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.srcImage);
-    encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeUInt32Value(value.regionCount);
-    EncodeStructArray(encoder, value.pRegions, value.regionCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);

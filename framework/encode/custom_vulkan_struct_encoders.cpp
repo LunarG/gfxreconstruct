@@ -23,6 +23,7 @@
 
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/struct_pointer_encoder.h"
+#include "graphics/vulkan_resources_util.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -330,6 +331,86 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutToken
             break;
     }
     encoder->EncodeUInt32Value(value.offset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.dstImage);
+    encoder->EncodeEnumValue(value.dstImageLayout);
+    encoder->EncodeUInt32Value(value.regionCount);
+
+    // Manually encode the VkMemoryToImageCopy array as it requires extra info about the destination image format to
+    // properly encode the host pointer
+    encoder->EncodeStructArrayPreamble(value.pRegions, value.regionCount);
+    if ((value.pRegions != nullptr) && (value.regionCount > 0))
+    {
+        const auto* image_info = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(value.dstImage);
+        for (size_t i = 0; i < value.regionCount; ++i)
+        {
+            const auto& region = value.pRegions[i];
+
+            // Calculate how many bytes we need to capture from pHostPointer
+            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
+            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
+            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
+                                   ((region.imageExtent.depth - 1) * image_height);
+            VkDeviceSize texel_size;
+            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
+            size_t host_size = texel_count * texel_size;
+
+            encoder->EncodeEnumValue(region.sType);
+            EncodePNextStruct(encoder, region.pNext);
+            encoder->EncodeVoidArray(region.pHostPointer, host_size);
+            encoder->EncodeUInt32Value(region.memoryRowLength);
+            encoder->EncodeUInt32Value(region.memoryImageHeight);
+            EncodeStruct(encoder, region.imageSubresource);
+            EncodeStruct(encoder, region.imageOffset);
+            EncodeStruct(encoder, region.imageExtent);
+        }
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.srcImage);
+    encoder->EncodeEnumValue(value.srcImageLayout);
+    encoder->EncodeUInt32Value(value.regionCount);
+
+    // Manually encode the VkImageToMemoryCopy array as it requires extra info about the source image format to
+    // properly encode the host pointer
+    encoder->EncodeStructArrayPreamble(value.pRegions, value.regionCount);
+    if ((value.pRegions != nullptr) && (value.regionCount > 0))
+    {
+        const auto* image_info = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(value.srcImage);
+        for (size_t i = 0; i < value.regionCount; ++i)
+        {
+            const auto& region = value.pRegions[i];
+
+            // Calculate how many bytes we need to capture from pHostPointer
+            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
+            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
+            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
+                                   ((region.imageExtent.depth - 1) * image_height);
+            VkDeviceSize texel_size;
+            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
+            size_t host_size = texel_count * texel_size;
+
+            encoder->EncodeEnumValue(region.sType);
+            EncodePNextStruct(encoder, region.pNext);
+            encoder->EncodeVoidArray(region.pHostPointer, host_size);
+            encoder->EncodeUInt32Value(region.memoryRowLength);
+            encoder->EncodeUInt32Value(region.memoryImageHeight);
+            EncodeStruct(encoder, region.imageSubresource);
+            EncodeStruct(encoder, region.imageOffset);
+            EncodeStruct(encoder, region.imageExtent);
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
