@@ -96,14 +96,14 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
     {
         const auto decoded_value = data.GetPointer();
         const auto length        = data.GetLength();
-        if (length > 1)
+        if (data.IsArray())
         {
             for (size_t i = 0; i < length; ++i)
             {
                 jdata[i] = decoded_value[i];
             }
         }
-        else
+        else if (length == 1)
         {
             jdata = *decoded_value;
         }
@@ -119,14 +119,14 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     {
         const auto decoded_value = data.GetPointer();
         const auto length        = data.GetLength();
-        if (length > 1)
+        if (data.IsArray())
         {
             for (size_t i = 0; i < length; ++i)
             {
                 jdata[i] = decoded_value[i];
             }
         }
-        else
+        else if (length == 1)
         {
             jdata = *decoded_value;
         }
@@ -142,14 +142,14 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
     {
         const auto decoded_value = data.GetPointer();
         const auto length        = data.GetLength();
-        if (length > 1)
+        if (data.IsArray())
         {
             for (size_t i = 0; i < length; ++i)
             {
                 jdata[i] = decoded_value[i];
             }
         }
-        else
+        else if (length == 1)
         {
             jdata = *decoded_value;
         }
@@ -165,14 +165,14 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     {
         const auto decoded_value = data.GetPointer();
         const auto length        = data.GetLength();
-        if (length > 1)
+        if (data.IsArray())
         {
             for (size_t i = 0; i < length; ++i)
             {
                 jdata[i] = decoded_value[i];
             }
         }
-        else
+        else if (length == 1)
         {
             jdata = *decoded_value;
         }
