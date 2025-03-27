@@ -1591,49 +1591,14 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
     return result;
 }
 
-VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
-                                           VkImage           image,
-                                           VkFormat          format,
-                                           VkImageType       type,
-                                           const VkExtent3D& extent,
-                                           uint32_t          array_layers,
-                                           VkImageLayout     current_layout,
-                                           VkQueue           queue,
-                                           uint32_t          queue_family_index,
-                                           VkImage*          resolved_image,
-                                           VkDeviceMemory*   resolved_image_memory)
-{
-    VkResult result = ResolveImage(command_buffer,
-                                   image,
-                                   format,
-                                   type,
-                                   extent,
-                                   array_layers,
-                                   current_layout,
-                                   resolved_image,
-                                   resolved_image_memory);
-
-    if (result == VK_SUCCESS)
-    {
-        result = SubmitCommandBuffer(command_buffer, queue);
-    }
-
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("Failed to resolve multisample image");
-        device_table_.DestroyImage(device_, *resolved_image, nullptr);
-        device_table_.FreeMemory(device_, *resolved_image_memory, nullptr);
-
-        *resolved_image        = VK_NULL_HANDLE;
-        *resolved_image_memory = VK_NULL_HANDLE;
-    }
-    return result;
-}
-
 VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&   image_resources,
                                                  const ReadImageResourcesCallbackFn& call_back,
                                                  size_t                              staging_buffer_size)
 {
+    if (image_resources.empty())
+    {
+        return VK_SUCCESS;
+    }
     // aggregate to store temporary data during batch-processing
     struct image_resource_tmp_data_t
     {
@@ -1997,6 +1962,10 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
                                               const VulkanResourcesUtil::ReadBufferResourcesCallbackFn& callback,
                                               size_t staging_buffer_size)
 {
+    if (buffer_resources.empty())
+    {
+        return;
+    }
     std::vector<VkDeviceSize> staging_offsets(buffer_resources.size());
 
     uint32_t current_batch_size = 0;

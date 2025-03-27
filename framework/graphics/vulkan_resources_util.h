@@ -235,23 +235,9 @@ class VulkanResourcesUtil
                           VkImage*          resolve_image,
                           VkDeviceMemory*   resolve_memory);
 
-    VkResult ResolveImage(VkCommandBuffer   command_buffer,
-                          VkImage           image,
-                          VkFormat          format,
-                          VkImageType       type,
-                          const VkExtent3D& extent,
-                          uint32_t          array_layers,
-                          VkImageLayout     current_layout,
-                          VkQueue           queue,
-                          uint32_t          queue_family_index,
-                          VkImage*          resolve_image,
-                          VkDeviceMemory*   resolve_memory);
-
     VkQueue GetQueue(uint32_t queue_family_index, uint32_t queue_index);
 
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue);
-
-    //    void InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size);
 
     VkResult BlitImage(VkCommandBuffer       command_buffer,
                        VkImage               image,
