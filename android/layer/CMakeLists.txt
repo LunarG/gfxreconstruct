@@ -5,10 +5,10 @@ project(VkLayer_gfxreconstruct)
 get_filename_component(GFXRECON_SOURCE_DIR ../.. ABSOLUTE)
 
 include(../framework/cmake-config/PlatformConfig.cmake)
-add_subdirectory(../framework/util ${CMAKE_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/graphics ${CMAKE_SOURCE_DIR}/../framework/graphics/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/format ${CMAKE_SOURCE_DIR}/../framework/format/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/encode ${CMAKE_SOURCE_DIR}/../framework/encode/build/layer/${ANDROID_ABI})
+add_subdirectory(../framework/util ${CMAKE_SOURCE_DIR}/../framework/util/build/layer/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+add_subdirectory(../framework/graphics ${CMAKE_SOURCE_DIR}/../framework/graphics/build/layer/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+add_subdirectory(../framework/format ${CMAKE_SOURCE_DIR}/../framework/format/build/layer/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+add_subdirectory(../framework/encode ${CMAKE_SOURCE_DIR}/../framework/encode/build/layer/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
 
 add_library(VkLayer_gfxreconstruct SHARED "")
 
