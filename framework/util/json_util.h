@@ -93,6 +93,7 @@ struct JsonOptions
     bool        dump_binaries = false;
     bool        expand_flags  = false;
     bool        hex_handles   = false;
+    bool        no_index      = false;
 };
 
 void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options = JsonOptions());

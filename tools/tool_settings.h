@@ -130,6 +130,7 @@ const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range
 const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
+const char kNoIndexOption[]                       = "--no-index";
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
