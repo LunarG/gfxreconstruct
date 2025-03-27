@@ -399,7 +399,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParameters&
 
             VkCommandBuffer cmd_buf = command_buffers[current_cb_index];
             device_table->CmdCopyBuffer(
-                cmd_buf, ic_params.params_buffer_info->handle, ic_params.new_params_buffer, 1, &region);
+                cmd_buf, ic_params.params_buffer_info->handle, ic_params.new_count_buffer, 1, &region);
 
             VkBufferMemoryBarrier buf_barrier;
             buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
