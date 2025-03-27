@@ -2287,7 +2287,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                           img.handle_id,
                                           img.aspect,
                                           img.layout,
-                                          img.mip_levels,
+                                          img.level_count,
                                           *img.level_sizes,
                                           num_bytes,
                                           data);
@@ -2313,10 +2313,10 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         image_resource.format               = image_wrapper->format;
         image_resource.type                 = image_wrapper->image_type;
         image_resource.extent               = image_wrapper->extent;
-        image_resource.mip_levels           = image_wrapper->mip_levels;
-        image_resource.array_layers         = image_wrapper->array_layers;
+        image_resource.level_count          = image_wrapper->mip_levels;
+        image_resource.layer_count          = image_wrapper->array_layers;
         image_resource.tiling               = image_wrapper->tiling;
-        image_resource.samples              = image_wrapper->samples;
+        image_resource.sample_count         = image_wrapper->samples;
         image_resource.layout               = image_wrapper->current_layout;
         image_resource.queue_family_index   = image_wrapper->queue_family_index;
         image_resource.external_format      = image_wrapper->external_format;
@@ -2417,7 +2417,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
             // Store uncompressed data size in packet.
             upload_cmd.data_size   = data_size;
-            upload_cmd.level_count = img.mip_levels;
+            upload_cmd.level_count = img.level_count;
 
             if (compressor_ != nullptr)
             {
@@ -2492,10 +2492,10 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             image_resource.format                                       = image_wrapper->format;
             image_resource.type                                         = image_wrapper->image_type;
             image_resource.extent                                       = image_wrapper->extent;
-            image_resource.mip_levels                                   = image_wrapper->mip_levels;
-            image_resource.array_layers                                 = image_wrapper->array_layers;
+            image_resource.level_count                                  = image_wrapper->mip_levels;
+            image_resource.layer_count                                  = image_wrapper->array_layers;
             image_resource.tiling                                       = image_wrapper->tiling;
-            image_resource.samples                                      = image_wrapper->samples;
+            image_resource.sample_count                                 = image_wrapper->samples;
             image_resource.layout                                       = image_wrapper->current_layout;
             image_resource.queue_family_index                           = image_wrapper->queue_family_index;
             image_resource.external_format                              = image_wrapper->external_format;

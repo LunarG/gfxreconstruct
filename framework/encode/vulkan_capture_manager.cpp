@@ -1936,8 +1936,8 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                                                 img.format,
                                                                                 img.type,
                                                                                 img.extent,
-                                                                                img.mip_levels,
-                                                                                img.array_layers,
+                                                                                img.level_count,
+                                                                                img.layer_count,
                                                                                 img.tiling,
                                                                                 img.aspect,
                                                                                 nullptr,
@@ -1951,7 +1951,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                   img.handle_id,
                                                   img.aspect,
                                                   img.layout,
-                                                  img.mip_levels,
+                                                  img.level_count,
                                                   level_sizes,
                                                   resource_size,
                                                   data);
@@ -1966,10 +1966,10 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.format               = image_wrapper->format;
         image_resource.type                 = image_wrapper->image_type;
         image_resource.extent               = image_wrapper->extent;
-        image_resource.mip_levels           = image_wrapper->mip_levels;
-        image_resource.array_layers         = image_wrapper->array_layers;
+        image_resource.level_count          = image_wrapper->mip_levels;
+        image_resource.layer_count          = image_wrapper->array_layers;
         image_resource.tiling               = image_wrapper->tiling;
-        image_resource.samples              = image_wrapper->samples;
+        image_resource.sample_count         = image_wrapper->samples;
         image_resource.layout               = image_wrapper->current_layout;
         image_resource.queue_family_index   = image_wrapper->queue_family_index;
         image_resource.external_format      = image_wrapper->external_format;

@@ -1662,7 +1662,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
         VkFormat dst_format = img.dst_format == VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
 
-        GFXRECON_ASSERT(img.mip_levels <=
+        GFXRECON_ASSERT(img.level_count <=
                         1 + floor(log2(std::max(std::max(img.extent.width, img.extent.height), img.extent.depth))));
         GFXRECON_ASSERT((img.aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (img.aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
                         (img.aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
@@ -1693,8 +1693,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                          tmp_data[i].use_blit ? dst_format : img.format,
                                                          img.type,
                                                          tmp_data[i].use_blit ? tmp_data[i].scaled_extent : img.extent,
-                                                         img.mip_levels,
-                                                         img.array_layers,
+                                                         img.level_count,
+                                                         img.layer_count,
                                                          img.tiling,
                                                          img.aspect,
                                                          nullptr,
@@ -1758,14 +1758,14 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             VkImage copy_image = tmp_data[i].resolve_image != VK_NULL_HANDLE ? tmp_data[i].resolve_image : img.image;
 
-            if (img.samples != VK_SAMPLE_COUNT_1_BIT)
+            if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
                 result = ResolveImage(command_buffer,
                                       img.image,
                                       img.format,
                                       img.type,
                                       img.extent,
-                                      img.array_layers,
+                                      img.layer_count,
                                       img.layout,
                                       &tmp_data[i].resolve_image,
                                       &tmp_data[i].resolve_memory);
@@ -1784,7 +1784,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                 tmp_data[i].transition_aspect = GetFormatAspectMask(img.format);
             }
 
-            if (img.samples == VK_SAMPLE_COUNT_1_BIT && img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+            if (img.sample_count == VK_SAMPLE_COUNT_1_BIT && img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
             {
                 TransitionImageToTransferOptimal(command_buffer,
                                                  img.image,
@@ -1808,8 +1808,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.tiling,
                                    img.extent,
                                    tmp_data[i].scaled_extent,
-                                   img.mip_levels,
-                                   img.array_layers,
+                                   img.level_count,
+                                   img.layer_count,
                                    img.aspect,
                                    img.queue_family_index,
                                    img.scale,
@@ -1832,8 +1832,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                 staging_buffer_.buffer,
                                 tmp_data[i].staging_offset,
                                 tmp_data[i].scaled_extent,
-                                img.mip_levels,
-                                img.array_layers,
+                                img.level_count,
+                                img.layer_count,
                                 img.aspect,
                                 img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
                                 img.all_layers_per_level,
@@ -1863,7 +1863,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                              0,
                                              nullptr);
 
-            if ((img.samples == VK_SAMPLE_COUNT_1_BIT) && (img.layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+            if ((img.sample_count == VK_SAMPLE_COUNT_1_BIT) && (img.layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
                 (img.layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
             {
                 TransitionImageFromTransferOptimal(command_buffer,

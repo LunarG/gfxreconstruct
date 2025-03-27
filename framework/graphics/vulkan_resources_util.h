@@ -90,10 +90,10 @@ class VulkanResourcesUtil
         VkFormat           format             = VK_FORMAT_UNDEFINED;
         VkImageType        type               = VK_IMAGE_TYPE_2D;
         VkExtent3D         extent             = {};
-        uint32_t           mip_levels         = 0;
-        uint32_t           array_layers       = 0;
+        uint32_t           level_count        = 0;
+        uint32_t           layer_count        = 0;
         VkImageTiling      tiling             = VK_IMAGE_TILING_MAX_ENUM;
-        VkSampleCountFlags samples            = 0;
+        VkSampleCountFlags sample_count       = 0;
         VkImageLayout      layout             = VK_IMAGE_LAYOUT_UNDEFINED;
         uint32_t           queue_family_index = 0;
         bool               external_format    = false;

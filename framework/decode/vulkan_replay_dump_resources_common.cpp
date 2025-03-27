@@ -483,24 +483,26 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
         image_resource.format                                       = image_info->format;
         image_resource.type                                         = image_info->type;
         image_resource.extent                                       = image_info->extent;
-        image_resource.mip_levels                                   = image_info->level_count;
-        image_resource.array_layers                                 = image_info->layer_count;
+        image_resource.level_count                                  = image_info->level_count;
+        image_resource.layer_count                                  = image_info->layer_count;
         image_resource.tiling                                       = image_info->tiling;
-        image_resource.samples                                      = image_info->sample_count;
-        image_resource.layout                                       = image_info->current_layout;
-        image_resource.queue_family_index                           = image_info->queue_family_index;
-        image_resource.external_format                              = image_info->external_format;
-        image_resource.size                                         = image_info->size;
-        image_resource.level_sizes                                  = &subresource_sizes;
-        image_resource.aspect                                       = aspect;
-        image_resource.all_layers_per_level                         = false;
+        image_resource.sample_count                                 = image_info->sample_count;
+        image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
+        image_resource.queue_family_index   = image_info->queue_family_index;
+        image_resource.external_format      = image_info->external_format;
+        image_resource.size                 = image_info->size;
+        image_resource.level_sizes          = &subresource_sizes;
+        image_resource.aspect               = aspect;
+        image_resource.scale                = scale;
+        image_resource.dst_format           = dst_format;
+        image_resource.all_layers_per_level = false;
 
         image_resource.resource_size = resource_util.GetImageResourceSizesOptimal(image_resource.image,
                                                                                   image_resource.format,
                                                                                   image_resource.type,
                                                                                   image_resource.extent,
-                                                                                  image_resource.mip_levels,
-                                                                                  image_resource.array_layers,
+                                                                                  image_resource.level_count,
+                                                                                  image_resource.layer_count,
                                                                                   image_resource.tiling,
                                                                                   aspect,
                                                                                   &subresource_offsets,
@@ -508,8 +510,8 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                                                                                   image_resource.all_layers_per_level);
         VkResult result              = resource_util.ReadImageResource(image_resource, data);
 
-        assert(!subresource_offsets.empty());
-        assert(!subresource_sizes.empty());
+        GFXRECON_ASSERT(!subresource_offsets.empty());
+        GFXRECON_ASSERT(!subresource_sizes.empty());
 
         scaling_supported[i] = resource_util.IsScalingSupported(image_resource.format,
                                                                 image_resource.tiling,
