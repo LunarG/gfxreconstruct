@@ -1980,7 +1980,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     }
 
     // batch process image-downloads requiring staging, use 32MB staging-mem
-    constexpr uint32_t staging_buffer_size = 16U << 20U;
+    constexpr uint32_t staging_buffer_size = 32U << 20U;
     resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
