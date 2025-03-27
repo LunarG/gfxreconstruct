@@ -34,7 +34,7 @@ target_sources(gfxrecon-compress
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
+                   $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
 )
 
 if (MSVC)

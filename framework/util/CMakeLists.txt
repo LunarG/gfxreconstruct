@@ -105,9 +105,9 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -116,13 +116,13 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
-                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
 
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               ${CMAKE_SOURCE_DIR}/framework
+                               ${PROJECT_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
@@ -193,7 +193,7 @@ if (TARGET ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util
                                SYSTEM PUBLIC
-                                   ${CMAKE_SOURCE_DIR}/external/stb)
+                                   ${PROJECT_SOURCE_DIR}/external/stb)
 endif()
 
 if (TARGET ZSTD::ZSTD)

@@ -110,31 +110,31 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_track_struct.h
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_add_entries.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_encoder.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_add_entries.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_encoder.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
 
 )
 
@@ -146,7 +146,7 @@ endif()
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_SOURCE_DIR}/framework
+                               ${PROJECT_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
