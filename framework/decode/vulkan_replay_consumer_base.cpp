@@ -2492,8 +2492,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                     auto image_info      = object_info_table_->GetVkImageInfo(image_view_info->image_id);
 
                     // Only screenshot images that are color attachments.
-                    if ((image_info->usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) !=
-                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                    if (!graphics::ImageHasUsage(image_info->usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT))
                     {
                         continue;
                     }

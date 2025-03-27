@@ -40,5 +40,9 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle)
     }
 }
 
+bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit) {
+    return (usage_flags & bit) == bit;
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

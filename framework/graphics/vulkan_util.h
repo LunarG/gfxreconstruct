@@ -54,6 +54,8 @@ util::platform::LibraryHandle InitializeLoader();
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 
+bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit);
+
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
 GFXRECON_END_NAMESPACE(graphics)
