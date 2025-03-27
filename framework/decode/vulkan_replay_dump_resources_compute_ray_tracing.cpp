@@ -852,7 +852,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         GFXRECON_ASSERT(dispatch_param_entry != dispatch_params.end());
         draw_call_info.disp_param = &dispatch_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
     }
 
     for (size_t i = 0; i < trace_rays_indices.size(); ++i)
@@ -894,7 +894,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         GFXRECON_ASSERT(trace_rays_param_entry != trace_rays_params.end());
         draw_call_info.tr_param = &trace_rays_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
