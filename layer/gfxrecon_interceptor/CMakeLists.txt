@@ -29,8 +29,8 @@
 add_library(gfxrecon_interceptor SHARED "")
 target_sources(gfxrecon_interceptor PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>)
-target_include_directories(gfxrecon_interceptor PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+                $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>)
+target_include_directories(gfxrecon_interceptor PUBLIC ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 target_link_libraries(gfxrecon_interceptor gfxrecon_util)
 
 

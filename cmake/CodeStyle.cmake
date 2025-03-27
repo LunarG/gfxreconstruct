@@ -68,7 +68,7 @@ function(target_code_style_build_directives TARGET)
         if(${CHECK_CPP_CODE_STYLE})
             # Call the script to check formatting
             add_custom_target("${TARGET}CodeStyleCheck"
-                    COMMAND "${PYTHON}" ${CMAKE_SOURCE_DIR}/scripts/check_code_style.py
+                    COMMAND "${PYTHON}" ${PROJECT_SOURCE_DIR}/scripts/check_code_style.py
                     --sourcefile ${TARGET_SRC_FILES} --base ${CHECK_CPP_CODE_STYLE_BASE}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     COMMENT "Check code style for ${TARGET}")

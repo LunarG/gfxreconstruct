@@ -32,7 +32,7 @@ target_sources(gfxrecon-extract
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                    $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
+                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
               )
 
 if (MSVC)

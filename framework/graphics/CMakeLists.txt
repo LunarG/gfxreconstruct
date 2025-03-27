@@ -70,9 +70,9 @@ endif()
 
 target_include_directories(gfxrecon_graphics
                            PUBLIC
-                               ${CMAKE_SOURCE_DIR}/build
-                               ${CMAKE_SOURCE_DIR}/framework
-                               ${CMAKE_SOURCE_DIR}/external
+                               ${PROJECT_SOURCE_DIR}/build
+                               ${PROJECT_SOURCE_DIR}/framework
+                               ${PROJECT_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)

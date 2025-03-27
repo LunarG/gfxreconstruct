@@ -20,11 +20,11 @@ add_library(native_app_glue STATIC
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
-add_subdirectory(../../framework/util ${CMAKE_SOURCE_DIR}/../../framework/util/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/graphics ${CMAKE_SOURCE_DIR}/../../framework/graphics/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/format/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/decode ${CMAKE_SOURCE_DIR}/../../framework/decode/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/application-multi-win ${CMAKE_SOURCE_DIR}/../../framework/application/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(../../framework/decode ${PROJECT_SOURCE_DIR}/../../framework/decode/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(../../framework/application-multi-win ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/replay/${ANDROID_ABI})
 
 add_library(gfxrecon-replay
             SHARED

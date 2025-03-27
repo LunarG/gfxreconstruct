@@ -35,10 +35,10 @@ target_sources(d3d12 PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
 
-target_include_directories(d3d12 
-                           PUBLIC 
-                                ${CMAKE_BINARY_DIR} 
-                                ${CMAKE_SOURCE_DIR}                                
+target_include_directories(d3d12
+                           PUBLIC
+                                ${CMAKE_BINARY_DIR}
+                                ${PROJECT_SOURCE_DIR}
                                 $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})

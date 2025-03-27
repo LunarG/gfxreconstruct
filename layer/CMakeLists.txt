@@ -50,16 +50,16 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
+                   ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
+                   ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
-                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
+                   $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
               )
 
 target_include_directories(VkLayer_gfxreconstruct
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_SOURCE_DIR})
+                               ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
