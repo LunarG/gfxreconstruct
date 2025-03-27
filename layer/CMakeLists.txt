@@ -25,6 +25,8 @@
 # Author: AMD Developer Tools Team
 # Description: CMake script for layer target
 ###############################################################################
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
 if (D3D12_SUPPORT)
     set (LINK_ARCH "x64")
@@ -45,15 +47,6 @@ endif()
 
 add_library(VkLayer_gfxreconstruct SHARED "")
 
-if (WIN32)
-    # TODO: it's possible that given the !OPEN_XR stub this isn't needed
-    if(OPENXR_SUPPORT_ENABLED)
-        set(VK_LAYER_DEF_FILE "trace_layer_with_xr.def")
-    else()
-        set(VK_LAYER_DEF_FILE "trace_layer.def")
-    endif()
-endif()
-
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
@@ -61,8 +54,6 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
                    ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
-                   $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/${VK_LAYER_DEF_FILE}>
-                   $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
               )
 
 target_include_directories(VkLayer_gfxreconstruct
@@ -78,6 +69,30 @@ target_link_libraries(VkLayer_gfxreconstruct
                         vulkan_registry
                         $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
                         platform_specific)
+
+# Limit what symbols are exported
+if(MSVC)
+    target_sources(VkLayer_gfxreconstruct
+                    PRIVATE
+                        ${PROJECT_SOURCE_DIR}/version.rc
+                  )
+
+    target_link_options(VkLayer_gfxreconstruct
+                        PRIVATE
+                            /DEF:${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.def
+                       )
+elseif(APPLE)
+    # Both Apple and IOS
+    target_link_options(VkLayer_gfxreconstruct
+                        PRIVATE
+                            -exported_symbols_list ${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.exp
+                       )
+else()
+    target_link_options(VkLayer_gfxreconstruct
+                        PRIVATE
+                            LINKER:--version-script=${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.map
+                       )
+endif()
 
 common_build_directives(VkLayer_gfxreconstruct)
 
