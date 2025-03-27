@@ -7,6 +7,9 @@ find_package(nlohmann_json REQUIRED)
 
 project(VkLayer_gfxreconstruct)
 
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
+
 include(../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../framework/util ${PROJECT_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
 add_subdirectory(../framework/graphics ${PROJECT_SOURCE_DIR}/../framework/graphics/build/layer/${ANDROID_ABI})
@@ -38,3 +41,7 @@ target_link_libraries(VkLayer_gfxreconstruct
                       platform_specific
                       android
                       log)
+
+target_link_options(VkLayer_gfxreconstruct
+                    PRIVATE
+                        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/layer/VkLayer_gfxreconstruct-android.map)
