@@ -643,7 +643,7 @@ inline std::string GetCpuAffinity()
     return affinity;
 }
 
-static bool SetCpuAffinity(const std::string& affinity)
+inline bool SetCpuAffinity(const std::string& affinity)
 {
 #ifdef __linux__
     cpu_set_t mask;
